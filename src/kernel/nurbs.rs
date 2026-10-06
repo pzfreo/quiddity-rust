@@ -3,7 +3,7 @@
 //! Every surface the analytic set does not cover (B-splines, extrusions, revolutions) reaches the
 //! recognisers in this form, via `step-io`'s exact NURBS conversion.
 
-use crate::geom::{self, V3};
+use super::geom::{self, V3};
 
 fn find_span(knots: &[f64], degree: usize, n: usize, t: f64) -> usize {
     // n = number of control points; valid spans are degree..n-1.
@@ -39,16 +39,79 @@ fn basis(knots: &[f64], degree: usize, span: usize, t: f64) -> Vec<f64> {
     n
 }
 
+/// The basis functions and their first derivatives at *t* in *span*.
+fn basis_and_derivative(knots: &[f64], degree: usize, span: usize, t: f64) -> (Vec<f64>, Vec<f64>) {
+    let n = basis(knots, degree, span, t);
+    if degree == 0 {
+        return (n, vec![0.0]);
+    }
+    // dN(i,p) = p (N(i,p-1) / (k[i+p]-k[i]) - N(i+1,p-1) / (k[i+p+1]-k[i+1])).
+    let lower = basis(knots, degree - 1, span, t);
+    let p = degree as f64;
+    let ratio = |num: f64, den: f64| if den.abs() < 1e-300 { 0.0 } else { num / den };
+    let d = (0..=degree)
+        .map(|j| {
+            let i = span - degree + j;
+            let left = if j >= 1 { lower[j - 1] } else { 0.0 };
+            let right = if j < degree { lower[j] } else { 0.0 };
+            p * (ratio(left, knots[i + degree] - knots[i])
+                - ratio(right, knots[i + degree + 1] - knots[i + 1]))
+        })
+        .collect();
+    (n, d)
+}
+
 /// A rational B-spline curve in world coordinates.
 #[derive(Clone, Debug, PartialEq)]
 pub struct NurbsCurve {
-    pub degree: usize,
-    pub control_points: Vec<V3>,
-    pub weights: Vec<f64>,
-    pub knots: Vec<f64>,
+    degree: usize,
+    control_points: Vec<V3>,
+    weights: Vec<f64>,
+    knots: Vec<f64>,
+    closed: bool,
+}
+
+/// Whether the arrays describe a well-formed B-spline: `knots = n + degree + 1`, positive
+/// weights, non-decreasing knots and a non-empty domain.
+fn well_formed(degree: usize, n: usize, weights: usize, knots: &[f64]) -> bool {
+    n > degree
+        && weights == n
+        && knots.len() == n + degree + 1
+        && knots.windows(2).all(|w| w[0] <= w[1])
+        && knots[degree] < knots[knots.len() - degree - 1]
 }
 
 impl NurbsCurve {
+    /// `None` for malformed arrays, so a bad file degrades to an unresolved curve rather than
+    /// panicking in evaluation.
+    pub fn new(
+        degree: usize,
+        control_points: Vec<V3>,
+        weights: Vec<f64>,
+        knots: Vec<f64>,
+    ) -> Option<Self> {
+        if !well_formed(degree, control_points.len(), weights.len(), &knots)
+            || weights.iter().any(|w| *w <= 0.0)
+        {
+            return None;
+        }
+        let mut curve = NurbsCurve {
+            degree,
+            control_points,
+            weights,
+            knots,
+            closed: false,
+        };
+        let (lo, hi) = curve.domain();
+        let size = curve
+            .control_points
+            .iter()
+            .flatten()
+            .fold(1.0f64, |m, c| m.max(c.abs()));
+        curve.closed = geom::dist(curve.value(lo), curve.value(hi)) <= 1e-9 * size;
+        Some(curve)
+    }
+
     pub fn domain(&self) -> (f64, f64) {
         (
             self.knots[self.degree],
@@ -97,8 +160,10 @@ impl NurbsCurve {
         let n = 512;
         let mut t = (0..=n)
             .map(|i| lo + (hi - lo) * i as f64 / n as f64)
-            .min_by(|a, b| geom::dist(self.value(*a), p).total_cmp(&geom::dist(self.value(*b), p)))
-            .expect("samples");
+            .map(|t| (geom::dist(self.value(t), p), t))
+            .min_by(|a, b| a.0.total_cmp(&b.0))
+            .expect("samples")
+            .1;
         let h = (hi - lo) * 1e-7;
         for _ in 0..30 {
             let (ta, tb) = ((t - h).max(lo), (t + h).min(hi));
@@ -140,6 +205,9 @@ struct Grid {
     points: Vec<Vec<V3>>,
 }
 
+/// How far (mm) a hinted inversion may land from its point before a global search is tried.
+const HINT_RETRY_DISTANCE: f64 = 0.05;
+
 /// Grid subdivisions per knot span in each direction.
 const GRID_PER_SPAN: usize = 6;
 
@@ -166,6 +234,7 @@ fn grid_params(knots: &[f64], degree: usize) -> Vec<f64> {
 }
 
 impl NurbsSurface {
+    /// `None` for malformed arrays (see [`NurbsCurve::new`]).
     pub fn new(
         degree_u: usize,
         degree_v: usize,
@@ -173,8 +242,21 @@ impl NurbsSurface {
         weights: Vec<Vec<f64>>,
         knots_u: Vec<f64>,
         knots_v: Vec<f64>,
-    ) -> Self {
-        NurbsSurface {
+    ) -> Option<Self> {
+        let nv = control_points.first().map_or(0, Vec::len);
+        let rows_ok = control_points.len() == weights.len()
+            && control_points
+                .iter()
+                .zip(&weights)
+                .all(|(c, w)| c.len() == nv && w.len() == nv)
+            && weights.iter().flatten().all(|w| *w > 0.0);
+        if !rows_ok
+            || !well_formed(degree_u, control_points.len(), weights.len(), &knots_u)
+            || !well_formed(degree_v, nv, nv, &knots_v)
+        {
+            return None;
+        }
+        Some(NurbsSurface {
             degree_u,
             degree_v,
             control_points,
@@ -182,7 +264,20 @@ impl NurbsSurface {
             knots_u,
             knots_v,
             grid: std::sync::OnceLock::new(),
+        })
+    }
+
+    /// A box that certainly contains the surface: its control points' (the convex-hull property).
+    pub fn control_bounds(&self) -> (V3, V3) {
+        let mut lo = [f64::INFINITY; 3];
+        let mut hi = [f64::NEG_INFINITY; 3];
+        for p in self.control_points.iter().flatten() {
+            for k in 0..3 {
+                lo[k] = lo[k].min(p[k]);
+                hi[k] = hi[k].max(p[k]);
+            }
         }
+        (lo, hi)
     }
 
     fn grid(&self) -> &Grid {
@@ -234,33 +329,45 @@ impl NurbsSurface {
         [acc[0] / acc[3], acc[1] / acc[3], acc[2] / acc[3]]
     }
 
-    /// Central-difference partial derivatives, one-sided at the domain edges.
-    fn partials(&self, u: f64, v: f64) -> (V3, V3) {
+    /// The point and its exact first partial derivatives (quotient rule on the homogeneous form).
+    fn value_and_partials(&self, u: f64, v: f64) -> (V3, V3, V3) {
         let (u0, u1, v0, v1) = self.domain();
-        let hu = (u1 - u0) * 1e-6;
-        let hv = (v1 - v0) * 1e-6;
-        let (ua, ub) = ((u - hu).max(u0), (u + hu).min(u1));
-        let (va, vb) = ((v - hv).max(v0), (v + hv).min(v1));
-        let su = geom::scale(
-            geom::sub(self.value(ub, v), self.value(ua, v)),
-            1.0 / (ub - ua),
-        );
-        let sv = geom::scale(
-            geom::sub(self.value(u, vb), self.value(u, va)),
-            1.0 / (vb - va),
-        );
-        (su, sv)
+        let (u, v) = (u.clamp(u0, u1), v.clamp(v0, v1));
+        let nu = self.control_points.len();
+        let nv = self.control_points[0].len();
+        let su = find_span(&self.knots_u, self.degree_u, nu, u);
+        let sv = find_span(&self.knots_v, self.degree_v, nv, v);
+        let (bu, du) = basis_and_derivative(&self.knots_u, self.degree_u, su, u);
+        let (bv, dv) = basis_and_derivative(&self.knots_v, self.degree_v, sv, v);
+        let (mut a, mut a_u, mut a_v) = ([0.0; 4], [0.0; 4], [0.0; 4]);
+        for i in 0..bu.len() {
+            let ci = su - self.degree_u + i;
+            for j in 0..bv.len() {
+                let cj = sv - self.degree_v + j;
+                let w = self.weights[ci][cj];
+                let c = self.control_points[ci][cj];
+                let h = [c[0] * w, c[1] * w, c[2] * w, w];
+                for k in 0..4 {
+                    a[k] += bu[i] * bv[j] * h[k];
+                    a_u[k] += du[i] * bv[j] * h[k];
+                    a_v[k] += bu[i] * dv[j] * h[k];
+                }
+            }
+        }
+        let point = [a[0] / a[3], a[1] / a[3], a[2] / a[3]];
+        let derive = |d: [f64; 4]| [0, 1, 2].map(|k| (d[k] - d[3] * point[k]) / a[3]);
+        (point, derive(a_u), derive(a_v))
     }
 
-    /// The parameters of the surface point closest to *p*, starting from *hint* when given.
     pub fn invert(&self, p: V3, hint: Option<(f64, f64)>) -> (f64, f64) {
-        let start = hint.unwrap_or_else(|| self.nearest_grid(p));
-        let (mut u, mut v) = start;
+        let (mut u, mut v) = hint.unwrap_or_else(|| self.nearest_grid(p));
         let (u0, u1, v0, v1) = self.domain();
+        let settle = 1e-12 * (u1 - u0).abs().max((v1 - v0).abs()).max(1e-300);
+        let mut residual = f64::INFINITY;
         for _ in 0..50 {
-            let s = self.value(u, v);
+            let (s, su, sv) = self.value_and_partials(u, v);
             let r = geom::sub(p, s);
-            let (su, sv) = self.partials(u, v);
+            residual = geom::norm(r);
             let (a, b, c) = (geom::dot(su, su), geom::dot(su, sv), geom::dot(sv, sv));
             let (g0, g1) = (geom::dot(su, r), geom::dot(sv, r));
             let det = a * c - b * b;
@@ -273,14 +380,15 @@ impl NurbsSurface {
             let moved = (nu - u).abs() + (nv - v).abs();
             u = nu;
             v = nv;
-            if moved < 1e-14 * (1.0 + u.abs() + v.abs()) {
+            if moved < settle {
                 break;
             }
         }
-        // A hinted start can converge to a far local minimum; fall back to the global seed.
-        if hint.is_some() && geom::dist(self.value(u, v), p) > 1e-6 {
+        // Boundary samples sit off their surface by up to the edge tolerance; only a hinted
+        // start that lands clearly further away has found a wrong local minimum.
+        if hint.is_some() && residual > HINT_RETRY_DISTANCE {
             let fresh = self.invert(p, None);
-            if geom::dist(self.value(fresh.0, fresh.1), p) < geom::dist(self.value(u, v), p) {
+            if geom::dist(self.value(fresh.0, fresh.1), p) < residual {
                 return fresh;
             }
         }
@@ -352,7 +460,7 @@ impl NurbsSurface {
                     converged = true;
                     break;
                 }
-                let (su, sv) = self.partials(u, v);
+                let (_, su, sv) = self.value_and_partials(u, v);
                 // Solve [su sv -dir] (du dv dt) = -f by Cramer's rule.
                 let m = [su, sv, geom::scale(dir, -1.0)];
                 let det = geom::dot(m[0], geom::cross(m[1], m[2]));
@@ -377,7 +485,7 @@ impl NurbsSurface {
             {
                 continue;
             }
-            let (su, sv) = self.partials(u, v);
+            let (_, su, sv) = self.value_and_partials(u, v);
             let normal = geom::cross(su, sv);
             let cos = geom::dot(normal, dir).abs() / (geom::norm(normal).max(1e-300));
             if cos < 1e-6 || det_last.abs() < 1e-14 {

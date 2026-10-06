@@ -1,0 +1,243 @@
+//! The boundary-representation model the recognisers read: faces, edges and solids, in the
+//! traversal order OpenCascade gives a STEP import, so face indices mean the same thing on both
+//! sides of the port.
+
+use std::sync::OnceLock;
+
+use super::geom::{Bounds, Curve, Surface, V3};
+use super::sampling::arc_extremes;
+use super::uv::{FaceDomain, UvLoop, touches_singular_point};
+
+#[derive(Clone, Debug)]
+pub struct Edge {
+    pub curve: Curve,
+    pub start: V3,
+    pub end: V3,
+    /// Vertex identities (indices into the part's vertices): an edge is closed when its two
+    /// ends are the same vertex, not merely coincident points.
+    pub vertices: (usize, usize),
+    /// Whether start → end follows the curve's parameter direction (`EDGE_CURVE.same_sense`).
+    pub same_sense: bool,
+    /// Points along the edge, start → end, dense enough to stand in for the exact curve.
+    pub samples: Vec<V3>,
+}
+
+#[derive(Clone, Debug)]
+pub struct Loop {
+    /// Edge indices with their use direction in this loop (`true` = start → end).
+    pub edges: Vec<(usize, bool)>,
+    /// A loop made of a single vertex (`VERTEX_LOOP`): the apex of a cone, the pole of a sphere.
+    pub vertex: Option<V3>,
+}
+
+#[derive(Clone, Debug)]
+pub struct Face {
+    pub surface: Surface,
+    /// `TopAbs_REVERSED`: the face's material side is against the surface normal.
+    pub reversed: bool,
+    pub loops: Vec<Loop>,
+    pub solid: Option<usize>,
+    /// Control polygons of the file's B-spline parameter-space curves (pcurves) on this face.
+    /// OpenCascade sizes a face's parameter range from these polygons rather than from the
+    /// curves, so they are what [`Part::uv_bounds`] needs to agree with it.
+    pub pcurve_poles: Vec<Vec<(f64, f64)>>,
+}
+
+#[derive(Clone, Debug)]
+pub struct Solid {
+    pub faces: Vec<usize>,
+}
+
+/// Per-face values derived from the geometry, computed on first use.
+#[derive(Debug, Default)]
+pub(super) struct FaceCache {
+    pub(super) uv_loops: OnceLock<Option<Vec<UvLoop>>>,
+    pub(super) domain: OnceLock<Option<FaceDomain>>,
+    pub(super) bounds: OnceLock<Bounds>,
+}
+
+impl Edge {
+    /// Whether the edge starts and ends at the same vertex (a full circle, a closed spline).
+    pub fn is_closed(&self) -> bool {
+        self.vertices.0 == self.vertices.1
+    }
+}
+
+#[derive(Debug)]
+pub struct Part {
+    pub faces: Vec<Face>,
+    pub edges: Vec<Edge>,
+    pub solids: Vec<Solid>,
+    pub(super) cache: Vec<FaceCache>,
+    edge_faces: OnceLock<Vec<Vec<usize>>>,
+    valid_solids: OnceLock<Vec<bool>>,
+}
+
+impl Part {
+    pub fn new(faces: Vec<Face>, edges: Vec<Edge>, solids: Vec<Solid>) -> Self {
+        let cache = faces.iter().map(|_| FaceCache::default()).collect();
+        Part {
+            faces,
+            edges,
+            solids,
+            cache,
+            edge_faces: OnceLock::new(),
+            valid_solids: OnceLock::new(),
+        }
+    }
+
+    /// The face's axis-aligned box: its boundary plus any interior axis extremes.
+    pub fn face_bounds(&self, face: usize) -> Bounds {
+        *self.cache[face]
+            .bounds
+            .get_or_init(|| self.compute_face_bounds(face))
+    }
+
+    fn compute_face_bounds(&self, face: usize) -> Bounds {
+        let f = &self.faces[face];
+        let mut b = Bounds::empty();
+        for lp in &f.loops {
+            if let Some(p) = lp.vertex {
+                b.add(p);
+            }
+            for &(e, _) in &lp.edges {
+                let edge = &self.edges[e];
+                for p in &edge.samples {
+                    b.add(*p);
+                }
+                for p in arc_extremes(
+                    &edge.curve,
+                    edge.start,
+                    edge.end,
+                    edge.same_sense,
+                    edge.is_closed(),
+                ) {
+                    b.add(p);
+                }
+            }
+        }
+        // Doubly-curved faces can bulge past their boundary: add their interior axis extremes
+        // (exact for spheres and tori, sampled for freeform surfaces) that lie on the face.
+        let candidates: Vec<(f64, f64)> = match &f.surface {
+            Surface::Sphere { .. } | Surface::Torus { .. } => f.surface.axis_extreme_parameters(),
+            // A cone face can run to its apex without a vertex there to bound it.
+            Surface::Cone {
+                radius, semi_angle, ..
+            } => {
+                let apex = -radius / semi_angle.sin();
+                let nudge = 1e-9 * (1.0 + apex.abs());
+                [apex - nudge, apex + nudge].map(|v| (0.0, v)).to_vec()
+            }
+            Surface::Freeform { surface, .. } => {
+                let (u0, u1, v0, v1) = surface.domain();
+                let n = 12;
+                (0..=n)
+                    .flat_map(|i| (0..=n).map(move |j| (i, j)))
+                    .map(|(i, j)| {
+                        (
+                            u0 + (u1 - u0) * i as f64 / n as f64,
+                            v0 + (v1 - v0) * j as f64 / n as f64,
+                        )
+                    })
+                    .collect()
+            }
+            _ => Vec::new(),
+        };
+        if !candidates.is_empty() {
+            if let Some(domain) = self.domain(face) {
+                for (u, v) in candidates {
+                    if domain.contains(u, v) || touches_singular_point(&f.surface, domain, v) {
+                        b.add(f.surface.value(u, v));
+                    }
+                }
+            }
+        }
+        b
+    }
+
+    pub fn bounds(&self) -> Bounds {
+        let mut b = Bounds::empty();
+        for i in 0..self.faces.len() {
+            b.merge(&self.face_bounds(i));
+        }
+        b
+    }
+
+    /// Faces of each edge, in face order (`edge_face_map`). A seam edge lists its face twice.
+    pub fn edge_faces(&self) -> &[Vec<usize>] {
+        self.edge_faces.get_or_init(|| {
+            let mut out = vec![Vec::new(); self.edges.len()];
+            for (i, f) in self.faces.iter().enumerate() {
+                for lp in &f.loops {
+                    for &(e, _) in &lp.edges {
+                        out[e].push(i);
+                    }
+                }
+            }
+            out
+        })
+    }
+
+    /// The distinct faces sharing an edge with *face*, in the face's own edge order
+    /// (`_adjacency.neighbours`).
+    pub fn neighbours(&self, face: usize) -> Vec<usize> {
+        let edge_faces = self.edge_faces();
+        let mut out = Vec::new();
+        for lp in &self.faces[face].loops {
+            for &(e, _) in &lp.edges {
+                for &other in &edge_faces[e] {
+                    if other != face && !out.contains(&other) {
+                        out.push(other);
+                    }
+                }
+            }
+        }
+        out
+    }
+
+    /// Does this face's surface frame already point out of the solid? `None` for surfaces with
+    /// no single frame direction to read (`_adjacency.frame_points_outward`).
+    pub fn frame_points_outward(&self, face: usize) -> Option<bool> {
+        let f = &self.faces[face];
+        let frame = match &f.surface {
+            Surface::Plane { frame }
+            | Surface::Cylinder { frame, .. }
+            | Surface::Sphere { frame, .. } => frame,
+            _ => return None,
+        };
+        Some(!f.reversed == frame.direct())
+    }
+
+    /// The topological half of `BRepCheck` validity that the evidence path depends on: every
+    /// edge of the solid is used by exactly two faces (or twice by one, as a seam), and two
+    /// different faces sharing an open edge run it in opposite directions, so the shell is closed
+    /// and orientable.
+    ///
+    /// A closed edge (a full circle) is exempt from the direction test: it joins itself
+    /// whichever way it is run, so its recorded direction is not evidence. OpenCascade writes
+    /// some toroidal faces' circles the wrong way round and re-derives the direction from the
+    /// parameter-space curves on reading.
+    pub fn solid_is_valid(&self, solid: usize) -> bool {
+        self.valid_solids.get_or_init(|| {
+            (0..self.solids.len())
+                .map(|s| self.check_solid(s))
+                .collect()
+        })[solid]
+    }
+
+    fn check_solid(&self, solid: usize) -> bool {
+        let mut uses: std::collections::BTreeMap<usize, Vec<(usize, bool)>> = Default::default();
+        for &f in &self.solids[solid].faces {
+            for lp in &self.faces[f].loops {
+                for &(e, forward) in &lp.edges {
+                    uses.entry(e).or_default().push((f, forward));
+                }
+            }
+        }
+        !uses.is_empty()
+            && uses.iter().all(|(&e, u)| match u.as_slice() {
+                [(fa, da), (fb, db)] => fa == fb || da != db || self.edges[e].is_closed(),
+                _ => false,
+            })
+    }
+}

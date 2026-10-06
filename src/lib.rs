@@ -1,15 +1,11 @@
 //! Quiddity: deterministic, geometry-only feature recognition for STEP B-Rep — Rust port.
+//!
+//! Two layers: [`kernel`] is the geometry engine (STEP import, B-rep, exact geometry,
+//! parameter-space trimming, point classification) and [`features`] holds the recognisers.
 
-pub mod adjacency;
-pub mod brep;
-pub mod classify;
-pub mod cylinders;
-pub mod fillets;
-pub mod geom;
-pub mod nurbs;
-pub mod step;
-pub mod trim;
+pub mod features;
+pub mod kernel;
 
-pub use brep::Part;
-pub use fillets::{Fillet, FilletOptions, recognise_fillets};
-pub use step::{read_step, read_step_file};
+pub use features::fillets::{Fillet, FilletOptions, recognise_fillets};
+pub use kernel::brep::Part;
+pub use kernel::step::{read_step, read_step_file};

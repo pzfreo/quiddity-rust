@@ -8,9 +8,10 @@ use std::collections::HashMap;
 use step_io::generated::model as m;
 use step_io::scene::geometry::{Edge as StepEdge, Face as StepFace, SurfaceKind};
 
-use crate::brep::{Edge, Face, Loop, Part, Solid, sample_edge};
-use crate::geom::{self, Curve, Frame, Surface, V3};
-use crate::nurbs::{NurbsCurve, NurbsSurface};
+use super::brep::{Edge, Face, Loop, Part, Solid};
+use super::geom::{self, Curve, Frame, Surface, V3};
+use super::nurbs::{NurbsCurve, NurbsSurface};
+use super::sampling::sample_edge;
 
 #[derive(Debug)]
 pub enum StepError {
@@ -88,27 +89,32 @@ impl Reader<'_> {
         geom::unit(self.place_direction([get(0), get(1), get(2)]))
     }
 
+    /// A file direction before the instance placement is applied.
+    fn raw_direction(&self, r: &m::DirectionRef) -> Option<V3> {
+        let m::DirectionRef::Direction(i) = r else {
+            return None;
+        };
+        let c = &self.model.direction_arena.get(i.0).direction_ratios;
+        let get = |k: usize| c.get(k).copied().unwrap_or(0.0);
+        geom::unit([get(0), get(1), get(2)])
+    }
+
+    /// `AXIS2_PLACEMENT_3D` as OpenCascade builds it: a missing or degenerate reference
+    /// direction falls back to `gp_Ax2`'s own choice of x axis for the given z.
     fn frame3(&self, id: m::Axis2Placement3dId) -> Option<Frame> {
         let a = self.model.axis2_placement3d_arena.get(id.0);
         let origin = self.point(&a.location)?;
         let z = match &a.axis {
-            Some(d) => self.direction(d)?,
+            Some(d) => self.raw_direction(d)?,
             None => [0.0, 0.0, 1.0],
         };
-        let reference = match &a.ref_direction {
-            Some(d) => self.direction(d)?,
-            None => {
-                if z[0].abs() < 0.9 {
-                    [1.0, 0.0, 0.0]
-                } else {
-                    [0.0, 0.0, 1.0]
-                }
-            }
-        };
-        let x = geom::unit(geom::sub(
-            reference,
-            geom::scale(z, geom::dot(reference, z)),
-        ))?;
+        let x = a
+            .ref_direction
+            .as_ref()
+            .and_then(|d| self.raw_direction(d))
+            .and_then(|r| geom::unit(geom::sub(r, geom::scale(z, geom::dot(r, z)))))
+            .unwrap_or_else(|| geom::default_x_axis(z));
+        let (x, z) = (self.place_direction(x), self.place_direction(z));
         Some(Frame {
             origin,
             x,
@@ -189,8 +195,8 @@ impl Reader<'_> {
         };
         let (su, sv) = match surface {
             Surface::Plane { .. } => (self.to_mm, self.to_mm),
-            Surface::Cylinder { .. } | Surface::Cone { .. } => (1.0, self.to_mm),
-            Surface::Sphere { .. } | Surface::Torus { .. } => (1.0, 1.0),
+            Surface::Cylinder { .. } | Surface::Cone { .. } => (self.to_rad, self.to_mm),
+            Surface::Sphere { .. } | Surface::Torus { .. } => (self.to_rad, self.to_rad),
             Surface::Freeform { .. } | Surface::Other { .. } => return Vec::new(),
         };
         let mut out = Vec::new();
@@ -271,16 +277,17 @@ impl Reader<'_> {
                 .map(|p| self.place_point(geom::scale(*p, self.to_mm)))
                 .collect()
         };
+        let surface = NurbsSurface::new(
+            n.degree_u,
+            n.degree_v,
+            n.control_points.iter().map(place).collect(),
+            n.weights,
+            n.knots_u,
+            n.knots_v,
+        )?;
         Some(Surface::Freeform {
             kind,
-            surface: Box::new(NurbsSurface::new(
-                n.degree_u,
-                n.degree_v,
-                n.control_points.iter().map(place).collect(),
-                n.weights,
-                n.knots_u,
-                n.knots_v,
-            )),
+            surface: Box::new(surface),
         })
     }
 
@@ -327,7 +334,12 @@ impl Reader<'_> {
         }
     }
 
-    fn edge(&self, edge: &StepEdge<'_>) -> Result<Edge, StepError> {
+    /// *vertex_id* numbers the vertices of the instance being read.
+    fn edge(
+        &self,
+        edge: &StepEdge<'_>,
+        vertex_id: &mut impl FnMut(m::EntityKey) -> usize,
+    ) -> Result<Edge, StepError> {
         let vertex = |v: Option<step_io::scene::geometry::Vertex<'_>>| -> Option<V3> {
             let p = v?.point()?.xyz();
             Some(self.place_point(geom::scale(p, self.to_mm)))
@@ -337,38 +349,44 @@ impl Reader<'_> {
                 "edge without cartesian vertices".into(),
             ));
         };
+        let (Some(v0), Some(v1)) = (edge.start(), edge.end()) else {
+            unreachable!("both vertices resolved above")
+        };
+        let vertices = (vertex_id(v0.key()), vertex_id(v1.key()));
         // Exact analytic curves first; otherwise the whole curve in NURBS form, which the edge
         // is cut from by inverting its vertices (wrapping round a closed curve if it must). The
         // edge-bounded NURBS step-io offers is the last resort: it cuts the short span out of a
         // nearly closed curve even when the edge runs the long way round.
         let to_curve = |n: step_io::scene::NurbsCurve| {
-            Curve::Nurbs(NurbsCurve {
-                degree: n.degree,
-                control_points: n
-                    .control_points
-                    .iter()
-                    .map(|p| self.place_point(geom::scale(*p, self.to_mm)))
-                    .collect(),
-                weights: n.weights,
-                knots: n.knots,
-            })
+            let points = n
+                .control_points
+                .iter()
+                .map(|p| self.place_point(geom::scale(*p, self.to_mm)))
+                .collect();
+            NurbsCurve::new(n.degree, points, n.weights, n.knots).map(Curve::Nurbs)
         };
         let curve = self
             .curve(&raw_edge_curve(self.model, edge))
-            .or_else(|| edge.curve().to_nurbs().map(to_curve))
-            .or_else(|| edge.to_nurbs().map(to_curve));
-        // A curve neither form resolves (step-io cannot cut some tiny spans out of a closed
-        // rational seam) is replaced by its chord: such edges are slivers, and a chord keeps the
-        // loop closed where dropping the edge would open it.
+            .or_else(|| edge.curve().to_nurbs().and_then(to_curve))
+            .or_else(|| edge.to_nurbs().and_then(to_curve));
+        // A curve no form resolves is replaced by its chord, which keeps the loop closed where
+        // dropping the edge would open it.
         let curve = curve.unwrap_or(Curve::Line {
             origin: start,
             dir: geom::sub(end, start),
         });
-        let samples = sample_edge(&curve, start, end, edge.same_sense());
+        let samples = sample_edge(
+            &curve,
+            start,
+            end,
+            edge.same_sense(),
+            vertices.0 == vertices.1,
+        );
         Ok(Edge {
             curve,
             start,
             end,
+            vertices,
             same_sense: edge.same_sense(),
             samples,
         })
@@ -540,10 +558,16 @@ pub fn read_step(bytes: &[u8]) -> Result<Part, StepError> {
     }
 
     let (mut out_faces, mut edges_out, mut solids) = (Vec::new(), Vec::new(), Vec::new());
+    let mut vertex_count = 0;
     for (is_solid, placement, faces) in shells {
         reader.placement = placement;
         // Edges are shared within one placed shell only; another instance gets its own copies.
         let mut edge_index: HashMap<m::EntityKey, usize> = HashMap::new();
+        let mut vertex_index: HashMap<m::EntityKey, usize> = HashMap::new();
+        let mut vertex_id = |key: m::EntityKey| {
+            let next = vertex_count + vertex_index.len();
+            *vertex_index.entry(key).or_insert(next)
+        };
         let mut members = Vec::new();
         for (face, flipped) in faces {
             let mut loops = Vec::new();
@@ -553,7 +577,7 @@ pub fn read_step(bytes: &[u8]) -> Result<Part, StepError> {
                     let index = match edge_index.get(&edge.key()) {
                         Some(&i) => i,
                         None => {
-                            edges_out.push(reader.edge(&edge)?);
+                            edges_out.push(reader.edge(&edge, &mut vertex_id)?);
                             edge_index.insert(edge.key(), edges_out.len() - 1);
                             edges_out.len() - 1
                         }
@@ -584,6 +608,8 @@ pub fn read_step(bytes: &[u8]) -> Result<Part, StepError> {
                 pcurve_poles,
             });
         }
+        drop(vertex_id);
+        vertex_count += vertex_index.len();
         if is_solid {
             solids.push(Solid { faces: members });
         }

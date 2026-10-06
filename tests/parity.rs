@@ -3,8 +3,9 @@
 
 use std::path::{Path, PathBuf};
 
-use quiddity::fillets::{FilletOptions, discover_fillets, recognise_fillets};
-use quiddity::geom::SurfaceType;
+use quiddity::features::Context;
+use quiddity::features::fillets::{FilletOptions, discover_verified, recognise_fillets};
+use quiddity::kernel::geom::SurfaceType;
 use quiddity::{Part, read_step_file};
 use serde_json::Value;
 
@@ -129,10 +130,13 @@ fn check_runs(name: &str, part: &Part, runs: &[Value], problems: &mut Vec<String
             ));
             continue;
         }
-        match (discover_fillets(part, &opts), run.get("evidence_error")) {
+        match (
+            discover_verified(&Context::new(part), &opts),
+            run.get("evidence_error"),
+        ) {
             (Err(_), Some(_)) => {}
             (Ok(found), None) => {
-                let faces: Vec<u64> = found.iter().map(|o| o.face as u64).collect();
+                let faces: Vec<u64> = found.iter().map(|o| o.defining[0] as u64).collect();
                 let want: Vec<u64> = run["defining"]
                     .as_array()
                     .unwrap()

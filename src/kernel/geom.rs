@@ -6,7 +6,7 @@
 
 use std::f64::consts::{PI, TAU};
 
-use crate::nurbs::{NurbsCurve, NurbsSurface};
+use super::nurbs::{NurbsCurve, NurbsSurface};
 
 pub type V3 = [f64; 3];
 
@@ -40,7 +40,91 @@ pub fn dist(a: V3, b: V3) -> f64 {
     norm(sub(a, b))
 }
 
-/// A right-handed (or, after a mirror, left-handed) placement: origin plus three unit axes.
+/// An axis-aligned box.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Bounds {
+    pub min: V3,
+    pub max: V3,
+}
+
+impl Bounds {
+    pub fn empty() -> Self {
+        Bounds {
+            min: [f64::INFINITY; 3],
+            max: [f64::NEG_INFINITY; 3],
+        }
+    }
+    pub fn add(&mut self, p: V3) {
+        for i in 0..3 {
+            self.min[i] = self.min[i].min(p[i]);
+            self.max[i] = self.max[i].max(p[i]);
+        }
+    }
+    pub fn merge(&mut self, other: &Bounds) {
+        self.add(other.min);
+        self.add(other.max);
+    }
+    pub fn centre(&self) -> V3 {
+        [
+            0.5 * (self.min[0] + self.max[0]),
+            0.5 * (self.min[1] + self.max[1]),
+            0.5 * (self.min[2] + self.max[2]),
+        ]
+    }
+    pub fn max_extent(&self) -> f64 {
+        (0..3)
+            .map(|i| self.max[i] - self.min[i])
+            .fold(f64::NEG_INFINITY, f64::max)
+    }
+    /// Whether *p* lies within the box grown by *pad*.
+    pub fn contains(&self, p: V3, pad: f64) -> bool {
+        (0..3).all(|i| p[i] >= self.min[i] - pad && p[i] <= self.max[i] + pad)
+    }
+    pub fn diagonal(&self) -> f64 {
+        dist(self.min, self.max)
+    }
+}
+
+/// The index of the largest component, the first on a tie (Python's
+/// `max(range(3), key=...)`).
+pub fn dominant_axis(v: V3) -> usize {
+    let mut best = 0;
+    for i in 1..3 {
+        if v[i] > v[best] {
+            best = i;
+        }
+    }
+    best
+}
+
+/// The dominant axis of a direction, preferring z then y on numerical ties
+/// (`_geometry._axis_letter_of`): a discrete routing choice must not flip on a last-bit tie.
+pub fn dominant_axis_preferring_z(v: V3) -> usize {
+    let c = v.map(f64::abs);
+    let peak = c[0].max(c[1]).max(c[2]);
+    (0..3)
+        .rev()
+        .find(|&i| peak - c[i] <= 1e-12)
+        .expect("one component is the peak")
+}
+
+/// The x axis `gp_Ax2(P, V)` chooses for a z axis given without a reference direction.
+pub fn default_x_axis(z: V3) -> V3 {
+    let [a, b, c] = z;
+    let (aa, ba, ca) = (a.abs(), b.abs(), c.abs());
+    let d = if ba <= aa && ba <= ca {
+        if aa > ca { [-c, 0.0, a] } else { [c, 0.0, -a] }
+    } else if aa <= ba && aa <= ca {
+        if ba > ca { [0.0, -c, b] } else { [0.0, c, -b] }
+    } else if aa > ba {
+        [-b, a, 0.0]
+    } else {
+        [b, -a, 0.0]
+    };
+    unit(d).expect("a unit z gives a non-zero x")
+}
+
+/// A right-handed placement: origin plus three unit axes.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Frame {
     pub origin: V3,
@@ -129,17 +213,6 @@ impl Surface {
             Surface::Torus { .. } => SurfaceType::Torus,
             Surface::Freeform { .. } => SurfaceType::Freeform,
             Surface::Other { .. } => SurfaceType::Other,
-        }
-    }
-
-    pub fn frame(&self) -> Option<&Frame> {
-        match self {
-            Surface::Plane { frame }
-            | Surface::Cylinder { frame, .. }
-            | Surface::Cone { frame, .. }
-            | Surface::Sphere { frame, .. }
-            | Surface::Torus { frame, .. } => Some(frame),
-            Surface::Freeform { .. } | Surface::Other { .. } => None,
         }
     }
 
@@ -434,11 +507,9 @@ pub enum Curve {
         major: f64,
         minor: f64,
     },
-    /// Any other curve, already bounded to the edge and running start → end.
+    /// Any other curve, as its whole curve in NURBS form; an edge on it is cut out by
+    /// inverting its vertices.
     Nurbs(NurbsCurve),
-    Other {
-        kind: &'static str,
-    },
 }
 
 impl Curve {
@@ -463,7 +534,6 @@ impl Curve {
                 };
                 n.value(t)
             }
-            Curve::Other { .. } => [f64::NAN; 3],
         }
     }
 
@@ -484,7 +554,6 @@ impl Curve {
                 (l[1] / minor).atan2(l[0] / major).rem_euclid(TAU)
             }
             Curve::Nurbs(n) => n.invert(p),
-            Curve::Other { .. } => f64::NAN,
         }
     }
 

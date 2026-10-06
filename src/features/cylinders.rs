@@ -1,9 +1,8 @@
 //! The cylindrical-face inventory (`quiddity._cylinder_substrate.analyse_cylinders`), native
 //! analytic cylinders only.
 
-use crate::adjacency::frame_points_outward;
-use crate::brep::Part;
-use crate::geom::{self, COORD_FLOOR, Surface, V3};
+use crate::kernel::brep::Part;
+use crate::kernel::geom::{self, COORD_FLOOR, Surface, V3, dominant_axis_preferring_z};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct CylinderEvidence {
@@ -20,16 +19,6 @@ pub struct CylinderEvidence {
     pub s_lo: f64,
     pub s_hi: f64,
     pub external: bool,
-}
-
-/// Dominant axis preferring Z then Y on numerical ties (`_axis_letter_of`).
-pub fn axis_letter_of(v: V3) -> usize {
-    let c = v.map(f64::abs);
-    let peak = c[0].max(c[1]).max(c[2]);
-    (0..3)
-        .rev()
-        .find(|&i| peak - c[i] <= 1e-12)
-        .expect("one component is the peak")
 }
 
 fn canonical(value: f64, floor: f64) -> f64 {
@@ -59,7 +48,7 @@ pub fn analyse_cylinders(part: &Part) -> Vec<CylinderEvidence> {
         let Some((u0, u1, v0, v1)) = part.uv_bounds(face) else {
             continue;
         };
-        let axis = axis_letter_of(frame.z);
+        let axis = dominant_axis_preferring_z(frame.z);
         let sign = if frame.z[axis] > 0.0 { 1.0 } else { -1.0 };
         let direction = geom::scale(frame.z, sign);
         let s_ap: f64 = (0..3).map(|i| frame.origin[i] * direction[i]).sum();
@@ -78,7 +67,7 @@ pub fn analyse_cylinders(part: &Part) -> Vec<CylinderEvidence> {
             direction: direction.map(|c| canonical(c, 1e-12)),
             s_lo: axial.0.min(axial.1),
             s_hi: axial.0.max(axial.1),
-            external: frame_points_outward(part, face).unwrap_or(false),
+            external: part.frame_points_outward(face).unwrap_or(false),
         });
     }
     out

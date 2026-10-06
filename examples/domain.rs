@@ -14,8 +14,7 @@ fn main() {
         let pts = &lp.points;
         let step = (pts.len() / 12).max(1);
         println!(
-            "loop degenerate={} n={}: {:?}",
-            lp.degenerate,
+            "loop n={}: {:?}",
             pts.len(),
             pts.iter()
                 .step_by(step)

@@ -1,300 +1,147 @@
-//! The boundary-representation model the recognisers read: faces, edges and solids, in the
-//! traversal order OpenCascade gives a STEP import, so face indices mean the same thing on both
-//! sides of the port.
+//! A face in its surface's parameter space: boundary loops unwrapped across periodic
+//! parameters (with singular points routed along their parameter line), OpenCascade-compatible
+//! parameter ranges, and point containment.
 
 use std::f64::consts::TAU;
-use std::sync::OnceLock;
 
-use crate::geom::{self, Curve, Surface, V3};
-use crate::trim::FaceDomain;
+use super::brep::Part;
+use super::geom::{self, Surface, V3};
 
-#[derive(Clone, Debug)]
-pub struct Edge {
-    pub curve: Curve,
-    pub start: V3,
-    pub end: V3,
-    /// Whether start → end follows the curve's parameter direction (`EDGE_CURVE.same_sense`).
-    pub same_sense: bool,
-    /// Points along the edge, start → end, dense enough to stand in for the exact curve.
-    pub samples: Vec<V3>,
+/// The face's boundary as (u, v) polylines.
+///
+/// Containment is decided by crossing parity, which needs no loop orientation. That matters:
+/// OpenCascade re-derives wire orientation from geometry when it reads a file, and the files it
+/// writes carry `FACE_BOUND` flags its own reader then corrects, so the flags are not evidence.
+/// Parity does need every loop closed in parameter space; [`crate::brep::Part::uv_loops`]
+/// closes a loop that runs round a sphere through its pole.
+#[derive(Debug)]
+pub struct FaceDomain {
+    loops: Vec<Vec<(f64, f64)>>,
+    periodic: (bool, bool),
+    u_range: (f64, f64),
+    v_range: (f64, f64),
 }
 
-#[derive(Clone, Debug)]
-pub struct Loop {
-    /// Edge indices with their use direction in this loop (`true` = start → end).
-    pub edges: Vec<(usize, bool)>,
-    /// A loop made of a single vertex (`VERTEX_LOOP`): the apex of a cone, the pole of a sphere.
-    pub vertex: Option<V3>,
+fn range<'a>(
+    points: impl Iterator<Item = &'a (f64, f64)>,
+    pick: impl Fn(&(f64, f64)) -> f64,
+) -> (f64, f64) {
+    points
+        .map(pick)
+        .fold((f64::INFINITY, f64::NEG_INFINITY), |(lo, hi), x| {
+            (lo.min(x), hi.max(x))
+        })
 }
 
-#[derive(Clone, Debug)]
-pub struct Face {
-    pub surface: Surface,
-    /// `TopAbs_REVERSED`: the face's material side is against the surface normal.
-    pub reversed: bool,
-    pub loops: Vec<Loop>,
-    pub solid: Option<usize>,
-    /// Control polygons of the file's B-spline parameter-space curves (pcurves) on this face.
-    /// OpenCascade sizes a face's parameter range from these polygons rather than from the
-    /// curves, so they are what [`Part::uv_bounds`] needs to agree with it.
-    pub pcurve_poles: Vec<Vec<(f64, f64)>>,
+impl FaceDomain {
+    pub fn new(loops: &[UvLoop], periodic: (bool, bool)) -> Self {
+        let all = || loops.iter().flat_map(|l| l.points.iter());
+        FaceDomain {
+            u_range: range(all(), |p| p.0),
+            v_range: range(all(), |p| p.1),
+            loops: loops.iter().map(|l| l.points.clone()).collect(),
+            periodic,
+        }
+    }
+
+    pub fn u_range(&self) -> (f64, f64) {
+        self.u_range
+    }
+
+    pub fn v_range(&self) -> (f64, f64) {
+        self.v_range
+    }
+
+    /// Whether (u, v) lies on the face, by the parity of a parameter-space ray.
+    ///
+    /// The ray runs in +v. A periodic v needs a finite end outside the face's v range; a
+    /// periodic u wraps every segment next to the point. A face closed in v but open in u
+    /// casts in +u instead, and a face closed in both is the whole surface.
+    pub fn contains(&self, u: f64, v: f64) -> bool {
+        let (pu, pv) = self.periodic;
+        let (vmin, vmax) = self.v_range;
+        let (umin, umax) = self.u_range;
+        if pv && vmax - vmin >= TAU - 1e-9 {
+            if !pu || umax - umin >= TAU - 1e-9 {
+                return true;
+            }
+            let u = umin + (u - umin).rem_euclid(TAU);
+            if u > umax {
+                return false;
+            }
+            return crossing_parity(
+                &self.loops,
+                v,
+                u,
+                true,
+                true,
+                umax + 0.5 * (TAU - (umax - umin)),
+            );
+        }
+        let mut v = v;
+        let mut v_end = f64::INFINITY;
+        if pv {
+            v = vmin + (v - vmin).rem_euclid(TAU);
+            if v > vmax {
+                return false;
+            }
+            v_end = vmax + 0.5 * (TAU - (vmax - vmin));
+        }
+        let u = if pu { u.rem_euclid(TAU) } else { u };
+        crossing_parity(&self.loops, u, v, pu, false, v_end)
+    }
 }
 
-#[derive(Clone, Debug)]
-pub struct Solid {
-    pub faces: Vec<usize>,
+/// Parity of the crossings of the parameter-space ray `(a, b) → (a, b_end)` with the loops,
+/// where `a` is each loop point's first coordinate (its second when `swap`). `periodic_a` wraps
+/// each segment next to `a`.
+fn crossing_parity(
+    loops: &[Vec<(f64, f64)>],
+    a: f64,
+    b: f64,
+    periodic_a: bool,
+    swap: bool,
+    b_end: f64,
+) -> bool {
+    let pick = |p: &(f64, f64)| if swap { (p.1, p.0) } else { (p.0, p.1) };
+    let mut count = 0usize;
+    for lp in loops {
+        for w in lp.windows(2) {
+            let (mut a0, b0) = pick(&w[0]);
+            let (mut a1, b1) = pick(&w[1]);
+            if periodic_a {
+                let shift = geom::nearest_turn(a0, a) - a0;
+                a0 += shift;
+                a1 += shift;
+            }
+            if (a0 > a) == (a1 > a) {
+                continue;
+            }
+            let bc = b0 + (a - a0) / (a1 - a0) * (b1 - b0);
+            if bc > b && bc < b_end {
+                count += 1;
+            }
+        }
+    }
+    count % 2 == 1
 }
 
 /// One loop of a face in its surface's (u, v) space, unwrapped across periodic parameters.
 #[derive(Clone, Debug)]
 pub struct UvLoop {
     pub points: Vec<(f64, f64)>,
-    /// A vertex loop's stand-in: the whole periodic line through a cone's apex.
-    pub degenerate: bool,
-}
-
-/// Per-face values derived from the geometry, computed on first use.
-#[derive(Debug, Default)]
-struct FaceCache {
-    uv_loops: OnceLock<Option<Vec<UvLoop>>>,
-    domain: OnceLock<Option<FaceDomain>>,
-    bounds: OnceLock<Bounds>,
-}
-
-#[derive(Debug)]
-pub struct Part {
-    pub faces: Vec<Face>,
-    pub edges: Vec<Edge>,
-    pub solids: Vec<Solid>,
-    cache: Vec<FaceCache>,
-}
-
-/// An axis-aligned box.
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Bounds {
-    pub min: V3,
-    pub max: V3,
-}
-
-impl Bounds {
-    pub fn empty() -> Self {
-        Bounds {
-            min: [f64::INFINITY; 3],
-            max: [f64::NEG_INFINITY; 3],
-        }
-    }
-    pub fn add(&mut self, p: V3) {
-        for i in 0..3 {
-            self.min[i] = self.min[i].min(p[i]);
-            self.max[i] = self.max[i].max(p[i]);
-        }
-    }
-    pub fn merge(&mut self, other: &Bounds) {
-        self.add(other.min);
-        self.add(other.max);
-    }
-    pub fn centre(&self) -> V3 {
-        [
-            0.5 * (self.min[0] + self.max[0]),
-            0.5 * (self.min[1] + self.max[1]),
-            0.5 * (self.min[2] + self.max[2]),
-        ]
-    }
-    pub fn max_extent(&self) -> f64 {
-        (0..3)
-            .map(|i| self.max[i] - self.min[i])
-            .fold(f64::NEG_INFINITY, f64::max)
-    }
-    pub fn diagonal(&self) -> f64 {
-        geom::dist(self.min, self.max)
-    }
-}
-
-/// Samples per full turn of a circle; arcs get a proportional share (at least four).
-/// Edge samples stand in for the exact curve wherever a polyline is needed (parameter-space
-/// loops, boundary distances); the chord may stray from the curve by at most this much (mm).
-const CHORD_TOLERANCE: f64 = 2e-4;
-/// Initial uniform segments per edge (per quarter turn for conics) before adaptive refinement.
-const INITIAL_SEGMENTS: usize = 16;
-const MAX_REFINE_DEPTH: usize = 14;
-
-/// The curve parameter interval an edge covers, in its own start → end direction.
-fn edge_interval(curve: &Curve, start: V3, end: V3, same_sense: bool) -> (f64, f64) {
-    let (a, b) = (curve.parameter(start), curve.parameter(end));
-    let Some(period) = curve.period() else {
-        return (a, b);
-    };
-    // On a closed curve the edge runs from start to end in its sense, wrapping if it must; an
-    // edge whose ends coincide is the whole curve.
-    let closed = geom::dist(start, end) < 1e-9;
-    let mut b = b;
-    if same_sense {
-        while b <= a + if closed { period * 1e-12 } else { 0.0 } {
-            b += period;
-        }
-    } else {
-        while b >= a - if closed { period * 1e-12 } else { 0.0 } {
-            b -= period;
-        }
-    }
-    (a, b)
-}
-
-pub fn sample_edge(curve: &Curve, start: V3, end: V3, same_sense: bool) -> Vec<V3> {
-    let (a, b) = edge_interval(curve, start, end, same_sense);
-    let n = match curve {
-        Curve::Line { .. } | Curve::Other { .. } => return vec![start, end],
-        Curve::Nurbs(_) => INITIAL_SEGMENTS,
-        _ => ((b - a).abs() / (TAU / 4.0) * INITIAL_SEGMENTS as f64)
-            .ceil()
-            .max(4.0) as usize,
-    };
-    let params: Vec<f64> = (0..=n).map(|i| a + (b - a) * i as f64 / n as f64).collect();
-    let mut out = vec![curve.value(a)];
-    for w in params.windows(2) {
-        refine(
-            curve,
-            (w[0], out[out.len() - 1]),
-            (w[1], curve.value(w[1])),
-            0,
-            &mut out,
-        );
-    }
-    // Pin the ends to the vertices so loops close exactly.
-    out[0] = start;
-    *out.last_mut().expect("at least two samples") = end;
-    out
-}
-
-/// Append the samples after *lo* up to and including *hi*, splitting while the chord's midpoint
-/// strays from the curve by more than the tolerance.
-fn refine(curve: &Curve, lo: (f64, V3), hi: (f64, V3), depth: usize, out: &mut Vec<V3>) {
-    let tm = 0.5 * (lo.0 + hi.0);
-    let pm = curve.value(tm);
-    let chord_mid = geom::scale(geom::add(lo.1, hi.1), 0.5);
-    if depth < MAX_REFINE_DEPTH && geom::dist(pm, chord_mid) > CHORD_TOLERANCE {
-        refine(curve, lo, (tm, pm), depth + 1, out);
-        refine(curve, (tm, pm), hi, depth + 1, out);
-    } else {
-        out.push(hi.1);
-    }
-}
-
-/// Exact extremes of a circle arc per world axis — the samples alone would undercut a bulge.
-fn arc_extremes(curve: &Curve, start: V3, end: V3, same_sense: bool) -> Vec<V3> {
-    let Curve::Circle { frame, .. } = curve else {
-        return vec![];
-    };
-    let (a, b) = edge_interval(curve, start, end, same_sense);
-    let (lo, hi) = if a <= b { (a, b) } else { (b, a) };
-    let mut out = Vec::new();
-    for i in 0..3 {
-        let base = frame.y[i].atan2(frame.x[i]);
-        for k in -2..=3 {
-            for t in [
-                base + k as f64 * TAU,
-                base + std::f64::consts::PI + k as f64 * TAU,
-            ] {
-                if t > lo && t < hi {
-                    out.push(curve.value(t));
-                }
-            }
-        }
-    }
-    out
 }
 
 impl Part {
-    pub fn new(faces: Vec<Face>, edges: Vec<Edge>, solids: Vec<Solid>) -> Self {
-        let cache = faces.iter().map(|_| FaceCache::default()).collect();
-        Part {
-            faces,
-            edges,
-            solids,
-            cache,
-        }
-    }
-
-    /// The face's axis-aligned box: its boundary plus any interior axis extremes.
-    pub fn face_bounds(&self, face: usize) -> Bounds {
-        *self.cache[face]
-            .bounds
-            .get_or_init(|| self.compute_face_bounds(face))
-    }
-
     /// The face's trimmed region in parameter space.
     pub fn domain(&self, face: usize) -> Option<&FaceDomain> {
         self.cache[face]
             .domain
             .get_or_init(|| {
                 let f = &self.faces[face];
-                FaceDomain::new(self.uv_loops(face)?, f.surface.periodic())
+                Some(FaceDomain::new(self.uv_loops(face)?, f.surface.periodic()))
             })
             .as_ref()
-    }
-
-    fn compute_face_bounds(&self, face: usize) -> Bounds {
-        let f = &self.faces[face];
-        let mut b = Bounds::empty();
-        for lp in &f.loops {
-            if let Some(p) = lp.vertex {
-                b.add(p);
-            }
-            for &(e, _) in &lp.edges {
-                let edge = &self.edges[e];
-                for p in &edge.samples {
-                    b.add(*p);
-                }
-                for p in arc_extremes(&edge.curve, edge.start, edge.end, edge.same_sense) {
-                    b.add(p);
-                }
-            }
-        }
-        // Doubly-curved faces can bulge past their boundary: add their interior axis extremes
-        // (exact for spheres and tori, sampled for freeform surfaces) that lie on the face.
-        let candidates: Vec<(f64, f64)> = match &f.surface {
-            Surface::Sphere { .. } | Surface::Torus { .. } => f.surface.axis_extreme_parameters(),
-            // A cone face can run to its apex without a vertex there to bound it.
-            Surface::Cone {
-                radius, semi_angle, ..
-            } => {
-                let apex = -radius / semi_angle.sin();
-                let nudge = 1e-9 * (1.0 + apex.abs());
-                [apex - nudge, apex + nudge].map(|v| (0.0, v)).to_vec()
-            }
-            Surface::Freeform { surface, .. } => {
-                let (u0, u1, v0, v1) = surface.domain();
-                let n = 12;
-                (0..=n)
-                    .flat_map(|i| (0..=n).map(move |j| (i, j)))
-                    .map(|(i, j)| {
-                        (
-                            u0 + (u1 - u0) * i as f64 / n as f64,
-                            v0 + (v1 - v0) * j as f64 / n as f64,
-                        )
-                    })
-                    .collect()
-            }
-            _ => Vec::new(),
-        };
-        if !candidates.is_empty() {
-            if let Some(domain) = self.domain(face) {
-                for (u, v) in candidates {
-                    if domain.contains(u, v) || touches_singular_point(&f.surface, domain, v) {
-                        b.add(f.surface.value(u, v));
-                    }
-                }
-            }
-        }
-        b
-    }
-
-    pub fn bounds(&self) -> Bounds {
-        let mut b = Bounds::empty();
-        for i in 0..self.faces.len() {
-            b.merge(&self.face_bounds(i));
-        }
-        b
     }
 
     /// Each loop as a closed polyline in (u, v), with periodic parameters unwrapped so each
@@ -319,7 +166,6 @@ impl Part {
                 if pu {
                     loops.push(UvLoop {
                         points: periodic_line(0.0, TAU, v),
-                        degenerate: true,
                     });
                 }
                 continue;
@@ -350,10 +196,7 @@ impl Part {
                 pts.push((u, v));
             }
             close_through_pole(&f.surface, &mut pts, f.reversed);
-            loops.push(UvLoop {
-                points: pts,
-                degenerate: false,
-            });
+            loops.push(UvLoop { points: pts });
         }
         Some(loops)
     }
@@ -448,7 +291,7 @@ impl Part {
     /// any, normalised to `[0, 2π)` — the side OpenCascade starts its parameter range from.
     fn seam_parameters(&self, face: usize) -> (Option<f64>, Option<f64>) {
         let f = &self.faces[face];
-        let mut seen = std::collections::HashMap::new();
+        let mut seen = std::collections::BTreeMap::new();
         for lp in &f.loops {
             for &(e, _) in &lp.edges {
                 *seen.entry(e).or_insert(0) += 1;
@@ -474,48 +317,6 @@ impl Part {
             }
         }
         out
-    }
-
-    /// Faces of each edge, in face order (`edge_face_map`). A seam edge lists its face once.
-    pub fn edge_faces(&self) -> Vec<Vec<usize>> {
-        let mut out = vec![Vec::new(); self.edges.len()];
-        for (i, f) in self.faces.iter().enumerate() {
-            for lp in &f.loops {
-                for &(e, _) in &lp.edges {
-                    out[e].push(i);
-                }
-            }
-        }
-        out
-    }
-
-    /// The topological half of `BRepCheck` validity that the evidence path depends on: every
-    /// edge of the solid is used by exactly two faces (or twice by one, as a seam), and two
-    /// different faces sharing an open edge run it in opposite directions, so the shell is closed
-    /// and orientable.
-    ///
-    /// A closed edge (a full circle) is exempt from the direction test: it joins itself
-    /// whichever way it is run, so its recorded direction is not evidence. OpenCascade writes
-    /// some toroidal faces' circles the wrong way round and re-derives the direction from the
-    /// parameter-space curves on reading.
-    pub fn solid_is_valid(&self, solid: usize) -> bool {
-        let mut uses: std::collections::HashMap<usize, Vec<(usize, bool)>> = Default::default();
-        for &f in &self.solids[solid].faces {
-            for lp in &self.faces[f].loops {
-                for &(e, forward) in &lp.edges {
-                    uses.entry(e).or_default().push((f, forward));
-                }
-            }
-        }
-        !uses.is_empty()
-            && uses.iter().all(|(&e, u)| match u.as_slice() {
-                [(fa, da), (fb, db)] => {
-                    fa == fb
-                        || da != db
-                        || geom::dist(self.edges[e].start, self.edges[e].end) < 1e-9
-                }
-                _ => false,
-            })
     }
 }
 
@@ -595,7 +396,7 @@ fn route_singular_points(
 /// Whether the face reaches the singular point (pole or apex) at *v*: the point is a whole
 /// parameter line, which lies on the face's boundary rather than strictly inside it, so look
 /// just off the line instead.
-fn touches_singular_point(surface: &Surface, domain: &FaceDomain, v: f64) -> bool {
+pub(super) fn touches_singular_point(surface: &Surface, domain: &FaceDomain, v: f64) -> bool {
     let Some(line) = surface.singular_v(v) else {
         return false;
     };

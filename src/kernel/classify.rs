@@ -6,8 +6,9 @@
 //! close to an edge or grazes a surface is discarded and another direction tried, so the answer
 //! never rests on a knife-edge hit.
 
-use crate::brep::{Bounds, Part};
-use crate::geom::{self, V3};
+use super::brep::Part;
+use super::geom::{self, Bounds, Surface, V3};
+use super::sampling::CHORD_TOLERANCE;
 
 /// Fixed, deliberately irrational-looking directions: none is parallel to a principal axis or a
 /// principal diagonal, which is where modelled geometry concentrates.
@@ -21,12 +22,17 @@ const DIRECTIONS: [V3; 7] = [
     [-0.1111, -0.9333, 0.3412],
 ];
 
-/// Precomputed per-face trimming data for repeated queries against one part.
+/// Precomputed culling boxes for repeated queries against one part.
 pub struct Classifier<'a> {
     part: &'a Part,
-    bounds: Vec<Bounds>,
+    /// Per face, a box that certainly contains it (freeform faces use their control points).
+    face_boxes: Vec<Bounds>,
+    /// Per edge, the box of its samples.
+    edge_boxes: Vec<Bounds>,
     reach: f64,
     /// The distance from a hit to a face boundary below which the ray is treated as ambiguous.
+    /// It must exceed the edges' polyline error, or a hit near a shared edge could be counted by
+    /// both faces or by neither.
     edge_tol: f64,
 }
 
@@ -40,17 +46,34 @@ pub enum State {
 
 impl<'a> Classifier<'a> {
     pub fn new(part: &'a Part) -> Self {
-        let bounds: Vec<Bounds> = (0..part.faces.len()).map(|i| part.face_bounds(i)).collect();
+        let face_boxes: Vec<Bounds> = (0..part.faces.len())
+            .map(|i| match &part.faces[i].surface {
+                Surface::Freeform { surface, .. } => {
+                    let (min, max) = surface.control_bounds();
+                    Bounds { min, max }
+                }
+                _ => part.face_bounds(i),
+            })
+            .collect();
+        let edge_boxes = part
+            .edges
+            .iter()
+            .map(|e| {
+                let mut b = Bounds::empty();
+                e.samples.iter().for_each(|p| b.add(*p));
+                b
+            })
+            .collect();
         let mut all = Bounds::empty();
-        for b in &bounds {
+        for b in &face_boxes {
             all.merge(b);
         }
-        let reach = all.diagonal() * 2.0 + 1.0;
         Classifier {
             part,
-            bounds,
-            reach,
-            edge_tol: (all.diagonal() * 1e-9).max(1e-7),
+            face_boxes,
+            edge_boxes,
+            reach: all.diagonal() * 2.0 + 1.0,
+            edge_tol: (4.0 * CHORD_TOLERANCE).max(all.diagonal() * 1e-9),
         }
     }
 
@@ -82,10 +105,13 @@ impl<'a> Classifier<'a> {
     fn crossings(&self, p: V3, dir: V3) -> Option<usize> {
         let mut count = 0;
         for (i, face) in self.part.faces.iter().enumerate() {
-            if !ray_meets_box(p, dir, &self.bounds[i], self.edge_tol * 10.0) {
+            if !ray_meets_box(p, dir, &self.face_boxes[i], self.edge_tol) {
                 continue;
             }
             let (hits, grazing) = face.surface.ray_hits(p, dir, self.reach)?;
+            if grazing && hits.is_empty() {
+                return None; // the ray lies in a plane's surface
+            }
             for t in hits {
                 let q = geom::add(p, geom::scale(dir, t));
                 match self.inside_face(i, q) {
@@ -109,6 +135,9 @@ impl<'a> Classifier<'a> {
         let part = self.part;
         for lp in &part.faces[i].loops {
             for &(e, _) in &lp.edges {
+                if !self.edge_boxes[e].contains(q, self.edge_tol) {
+                    continue;
+                }
                 let s = &part.edges[e].samples;
                 for w in s.windows(2) {
                     if point_segment_distance(q, w[0], w[1]) <= self.edge_tol {

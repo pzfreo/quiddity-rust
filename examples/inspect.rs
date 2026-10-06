@@ -28,11 +28,10 @@ fn main() {
                 for &(e, fwd) in &lp.edges {
                     let edge = &part.edges[e];
                     let kind = match &edge.curve {
-                        quiddity::geom::Curve::Line { .. } => "line",
-                        quiddity::geom::Curve::Circle { .. } => "circle",
-                        quiddity::geom::Curve::Ellipse { .. } => "ellipse",
-                        quiddity::geom::Curve::Nurbs(_) => "nurbs",
-                        quiddity::geom::Curve::Other { kind } => kind,
+                        quiddity::kernel::geom::Curve::Line { .. } => "line",
+                        quiddity::kernel::geom::Curve::Circle { .. } => "circle",
+                        quiddity::kernel::geom::Curve::Ellipse { .. } => "ellipse",
+                        quiddity::kernel::geom::Curve::Nurbs(_) => "nurbs",
                     };
                     println!(
                         "   edge {e} {kind} fwd={fwd} same_sense={} {:?} -> {:?} ({} samples)",
