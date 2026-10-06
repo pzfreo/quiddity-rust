@@ -18,5 +18,10 @@
     "file": "inventory_refusal/13975.step.gz",
     "problem": "other",
     "reason": "A deliberately malformed corpus part (its shell is not orientable). OpenCascade's import healing rebuilds and reorders its faces, so face indices no longer line up with the file's shell order the port reads; it has no fillets either way."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "problem": "bounds",
+    "reason": "Face 1870's B-spline boundary edge lies up to 0.012 mm off its torus (within the edge's tolerance); OpenCascade's face box follows the surface, the port's follows the edge."
   }
 ]

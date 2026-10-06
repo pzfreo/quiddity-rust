@@ -111,8 +111,12 @@ impl Bounds {
 }
 
 /// Samples per full turn of a circle; arcs get a proportional share (at least four).
-const SAMPLES_PER_TURN: f64 = 512.0;
-const NURBS_SAMPLES: usize = 256;
+/// Edge samples stand in for the exact curve wherever a polyline is needed (parameter-space
+/// loops, boundary distances); the chord may stray from the curve by at most this much (mm).
+const CHORD_TOLERANCE: f64 = 2e-4;
+/// Initial uniform segments per edge (per quarter turn for conics) before adaptive refinement.
+const INITIAL_SEGMENTS: usize = 16;
+const MAX_REFINE_DEPTH: usize = 14;
 
 /// The curve parameter interval an edge covers, in its own start → end direction.
 fn edge_interval(curve: &Curve, start: V3, end: V3, same_sense: bool) -> (f64, f64) {
@@ -139,18 +143,41 @@ fn edge_interval(curve: &Curve, start: V3, end: V3, same_sense: bool) -> (f64, f
 pub fn sample_edge(curve: &Curve, start: V3, end: V3, same_sense: bool) -> Vec<V3> {
     let (a, b) = edge_interval(curve, start, end, same_sense);
     let n = match curve {
-        Curve::Line { .. } => 1,
-        Curve::Nurbs(_) => NURBS_SAMPLES,
-        Curve::Other { .. } => return vec![start, end],
-        _ => ((b - a).abs() / TAU * SAMPLES_PER_TURN).ceil().max(4.0) as usize,
+        Curve::Line { .. } | Curve::Other { .. } => return vec![start, end],
+        Curve::Nurbs(_) => INITIAL_SEGMENTS,
+        _ => ((b - a).abs() / (TAU / 4.0) * INITIAL_SEGMENTS as f64)
+            .ceil()
+            .max(4.0) as usize,
     };
-    let mut out: Vec<V3> = (0..=n)
-        .map(|i| curve.value(a + (b - a) * i as f64 / n as f64))
-        .collect();
+    let params: Vec<f64> = (0..=n).map(|i| a + (b - a) * i as f64 / n as f64).collect();
+    let mut out = vec![curve.value(a)];
+    for w in params.windows(2) {
+        refine(
+            curve,
+            (w[0], out[out.len() - 1]),
+            (w[1], curve.value(w[1])),
+            0,
+            &mut out,
+        );
+    }
     // Pin the ends to the vertices so loops close exactly.
     out[0] = start;
     *out.last_mut().expect("at least two samples") = end;
     out
+}
+
+/// Append the samples after *lo* up to and including *hi*, splitting while the chord's midpoint
+/// strays from the curve by more than the tolerance.
+fn refine(curve: &Curve, lo: (f64, V3), hi: (f64, V3), depth: usize, out: &mut Vec<V3>) {
+    let tm = 0.5 * (lo.0 + hi.0);
+    let pm = curve.value(tm);
+    let chord_mid = geom::scale(geom::add(lo.1, hi.1), 0.5);
+    if depth < MAX_REFINE_DEPTH && geom::dist(pm, chord_mid) > CHORD_TOLERANCE {
+        refine(curve, lo, (tm, pm), depth + 1, out);
+        refine(curve, (tm, pm), hi, depth + 1, out);
+    } else {
+        out.push(hi.1);
+    }
 }
 
 /// Exact extremes of a circle arc per world axis — the samples alone would undercut a bulge.
