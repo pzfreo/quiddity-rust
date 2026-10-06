@@ -181,6 +181,89 @@ impl Reader<'_> {
         self.point(&m::CartesianPointRef::CartesianPoint(*c))
     }
 
+    /// The control polygons of the B-spline pcurves the file gives for this face's edges, in
+    /// the surface's parameter units (lengths scaled to millimetres, angles as they are).
+    fn pcurve_poles(&self, face: &StepFace<'_>, surface: &Surface) -> Vec<Vec<(f64, f64)>> {
+        let Ok(basis) = m::SurfaceRef::from_any(face.surface().key()) else {
+            return Vec::new();
+        };
+        let (su, sv) = match surface {
+            Surface::Plane { .. } => (self.to_mm, self.to_mm),
+            Surface::Cylinder { .. } | Surface::Cone { .. } => (1.0, self.to_mm),
+            Surface::Sphere { .. } | Surface::Torus { .. } => (1.0, 1.0),
+            Surface::Freeform { .. } | Surface::Other { .. } => return Vec::new(),
+        };
+        let mut out = Vec::new();
+        for bound in face.bounds() {
+            for edge in bound.edges() {
+                let associated = match &raw_edge_curve(self.model, &edge) {
+                    m::CurveRef::SurfaceCurve(i) => {
+                        &self.model.surface_curve_arena.get(i.0).associated_geometry
+                    }
+                    m::CurveRef::SeamCurve(i) => {
+                        &self.model.seam_curve_arena.get(i.0).associated_geometry
+                    }
+                    _ => continue,
+                };
+                for g in associated {
+                    let m::PcurveOrSurfaceRef::Pcurve(p) = g else {
+                        continue;
+                    };
+                    let pcurve = self.model.pcurve_arena.get(p.0);
+                    if pcurve.basis_surface != basis {
+                        continue;
+                    }
+                    let m::DefinitionalRepresentationRef::DefinitionalRepresentation(d) =
+                        &pcurve.reference_to_curve
+                    else {
+                        continue;
+                    };
+                    for item in &self.model.definitional_representation_arena.get(d.0).items {
+                        if let Some(points) = self.bspline_poles_2d(item) {
+                            out.push(points.into_iter().map(|(u, v)| (u * su, v * sv)).collect());
+                        }
+                    }
+                }
+            }
+        }
+        out
+    }
+
+    fn bspline_poles_2d(&self, item: &m::RepresentationItemRef) -> Option<Vec<(f64, f64)>> {
+        let refs = match item {
+            m::RepresentationItemRef::BSplineCurveWithKnots(i) => {
+                &self
+                    .model
+                    .b_spline_curve_with_knots_arena
+                    .get(i.0)
+                    .control_points_list
+            }
+            m::RepresentationItemRef::Complex(c) => self
+                .model
+                .complex_unit_arena
+                .get(c.0)
+                .parts
+                .iter()
+                .find_map(|part| match part {
+                    m::UnitPart::BSplineCurve {
+                        control_points_list,
+                        ..
+                    } => Some(control_points_list),
+                    _ => None,
+                })?,
+            _ => return None,
+        };
+        refs.iter()
+            .map(|r| {
+                let m::CartesianPointRef::CartesianPoint(i) = r else {
+                    return None;
+                };
+                let c = &self.model.cartesian_point_arena.get(i.0).coordinates;
+                Some((*c.first()?, *c.get(1)?))
+            })
+            .collect()
+    }
+
     fn freeform(&self, face: &StepFace<'_>, kind: &'static str) -> Option<Surface> {
         let n = face.to_nurbs()?;
         let place = |row: &Vec<[f64; 3]>| -> Vec<V3> {
@@ -254,21 +337,33 @@ impl Reader<'_> {
                 "edge without cartesian vertices".into(),
             ));
         };
-        let curve = self.curve(&raw_edge_curve(self.model, edge)).or_else(|| {
-            edge.to_nurbs().map(|n| {
-                Curve::Nurbs(NurbsCurve {
-                    degree: n.degree,
-                    control_points: n
-                        .control_points
-                        .iter()
-                        .map(|p| self.place_point(geom::scale(*p, self.to_mm)))
-                        .collect(),
-                    weights: n.weights,
-                    knots: n.knots,
-                })
+        // Exact analytic curves first; otherwise the whole curve in NURBS form, which the edge
+        // is cut from by inverting its vertices (wrapping round a closed curve if it must). The
+        // edge-bounded NURBS step-io offers is the last resort: it cuts the short span out of a
+        // nearly closed curve even when the edge runs the long way round.
+        let to_curve = |n: step_io::scene::NurbsCurve| {
+            Curve::Nurbs(NurbsCurve {
+                degree: n.degree,
+                control_points: n
+                    .control_points
+                    .iter()
+                    .map(|p| self.place_point(geom::scale(*p, self.to_mm)))
+                    .collect(),
+                weights: n.weights,
+                knots: n.knots,
             })
+        };
+        let curve = self
+            .curve(&raw_edge_curve(self.model, edge))
+            .or_else(|| edge.curve().to_nurbs().map(to_curve))
+            .or_else(|| edge.to_nurbs().map(to_curve));
+        // A curve neither form resolves (step-io cannot cut some tiny spans out of a closed
+        // rational seam) is replaced by its chord: such edges are slivers, and a chord keeps the
+        // loop closed where dropping the edge would open it.
+        let curve = curve.unwrap_or(Curve::Line {
+            origin: start,
+            dir: geom::sub(end, start),
         });
-        let curve = curve.unwrap_or(Curve::Other { kind: "UNRESOLVED" });
         let samples = sample_edge(&curve, start, end, edge.same_sense());
         Ok(Edge {
             curve,
@@ -278,6 +373,72 @@ impl Reader<'_> {
             samples,
         })
     }
+}
+
+/// Whether each void shell of a solid is used reversed (`ORIENTED_CLOSED_SHELL` `.F.`).
+fn void_orientations(
+    model: &m::StepModel,
+    solid: &step_io::scene::geometry::Solid<'_>,
+) -> Vec<bool> {
+    let m::EntityKey::BrepWithVoids(id) = solid.key() else {
+        return Vec::new();
+    };
+    model
+        .brep_with_voids_arena
+        .get(id.0)
+        .voids
+        .iter()
+        .map(|v| match v {
+            m::OrientedClosedShellRef::OrientedClosedShell(o) => {
+                !model.oriented_closed_shell_arena.get(o.0).orientation
+            }
+            m::OrientedClosedShellRef::Complex(_) => false,
+        })
+        .collect()
+}
+
+/// The key of a representation named on one side of a `SHAPE_REPRESENTATION_RELATIONSHIP`,
+/// for the shape-carrying kinds.
+fn rep_key(r: &m::RepresentationOrRepresentationReferenceRef) -> Option<m::EntityKey> {
+    use m::RepresentationOrRepresentationReferenceRef as R;
+    Some(match r {
+        R::ShapeRepresentation(i) => m::EntityKey::ShapeRepresentation(*i),
+        R::AdvancedBrepShapeRepresentation(i) => m::EntityKey::AdvancedBrepShapeRepresentation(*i),
+        R::ManifoldSurfaceShapeRepresentation(i) => {
+            m::EntityKey::ManifoldSurfaceShapeRepresentation(*i)
+        }
+        _ => return None,
+    })
+}
+
+/// Surface models OpenCascade transfers: those listed by a representation that a product shape
+/// uses, directly or through a plain `SHAPE_REPRESENTATION_RELATIONSHIP`. An unreferenced model
+/// is construction geometry the importer never reaches.
+fn reachable_surface_models(model: &m::StepModel, rg: &step_io::RefGraph) -> Vec<usize> {
+    let used_directly = |rep: m::EntityKey| {
+        rg.referrers(rep)
+            .iter()
+            .any(|r| matches!(r, m::EntityKey::ShapeDefinitionRepresentation(_)))
+    };
+    let used = |rep: m::EntityKey| {
+        used_directly(rep)
+            || rg.referrers(rep).iter().any(|r| {
+                let m::EntityKey::ShapeRepresentationRelationship(i) = r else {
+                    return false;
+                };
+                let srr = model.shape_representation_relationship_arena.get(i.0);
+                [&srr.rep_1, &srr.rep_2]
+                    .into_iter()
+                    .filter_map(rep_key)
+                    .any(|k| k != rep && used_directly(k))
+            })
+    };
+    (0..model.shell_based_surface_model_arena.items.len())
+        .filter(|&i| {
+            let key = m::EntityKey::ShellBasedSurfaceModel(m::ShellBasedSurfaceModelId(i));
+            rg.referrers(key).iter().any(|&rep| used(rep))
+        })
+        .collect()
 }
 
 /// Every solid reachable from an assembly definition, with its accumulated placement.
@@ -340,7 +501,7 @@ pub fn read_step(bytes: &[u8]) -> Result<Part, StepError> {
 
     // Shells in the order OpenCascade's explorer meets them: placed solid instances, then open
     // shells.
-    let mut shells: Vec<(bool, Placement, Vec<StepFace<'_>>)> = Vec::new();
+    let mut shells: Vec<(bool, Placement, Vec<(StepFace<'_>, bool)>)> = Vec::new();
     let mut instances = Vec::new();
     for root in scene.root_definitions() {
         collect_instances(root, IDENTITY, reader.to_mm, &mut instances, 0);
@@ -349,16 +510,32 @@ pub fn read_step(bytes: &[u8]) -> Result<Part, StepError> {
         instances = scene.all_solids().map(|s| (s, IDENTITY)).collect();
     }
     for (solid, placement) in instances {
-        shells.push((true, placement, solid.faces().collect()));
+        // The outer shell, then each void shell (whose faces face inward, hence the flip).
+        let mut faces: Vec<(StepFace<'_>, bool)> = solid.faces().map(|f| (f, false)).collect();
+        let flips = void_orientations(&model, &solid);
+        for (void, flip) in solid.voids().into_iter().zip(flips) {
+            faces.extend(void.into_iter().map(|f| (f, flip)));
+        }
+        shells.push((true, placement, faces));
     }
-    for sbsm in &model.shell_based_surface_model_arena.items {
+    let rg = model.ref_graph();
+    for index in reachable_surface_models(&model, &rg) {
+        let sbsm = model.shell_based_surface_model_arena.get(index);
         for shell in &sbsm.sbsm_boundary {
             let faces = match shell {
                 m::ShellRef::OpenShell(i) => &model.open_shell_arena.get(i.0).cfs_faces,
                 m::ShellRef::ClosedShell(i) => &model.closed_shell_arena.get(i.0).cfs_faces,
                 _ => continue,
             };
-            shells.push((false, IDENTITY, faces.iter().filter_map(&face_of).collect()));
+            shells.push((
+                false,
+                IDENTITY,
+                faces
+                    .iter()
+                    .filter_map(&face_of)
+                    .map(|f| (f, false))
+                    .collect(),
+            ));
         }
     }
 
@@ -368,7 +545,7 @@ pub fn read_step(bytes: &[u8]) -> Result<Part, StepError> {
         // Edges are shared within one placed shell only; another instance gets its own copies.
         let mut edge_index: HashMap<m::EntityKey, usize> = HashMap::new();
         let mut members = Vec::new();
-        for face in faces {
+        for (face, flipped) in faces {
             let mut loops = Vec::new();
             for bound in face.bounds() {
                 let mut edges = Vec::new();
@@ -397,11 +574,14 @@ pub fn read_step(bytes: &[u8]) -> Result<Part, StepError> {
                 loops.push(Loop { edges, vertex });
             }
             members.push(out_faces.len());
+            let surface = reader.surface(&face);
+            let pcurve_poles = reader.pcurve_poles(&face, &surface);
             out_faces.push(Face {
-                surface: reader.surface(&face),
-                reversed: !face.same_sense(),
+                surface,
+                reversed: face.same_sense() == flipped,
                 loops,
                 solid: is_solid.then_some(solids.len()),
+                pcurve_poles,
             });
         }
         if is_solid {

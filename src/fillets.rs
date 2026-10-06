@@ -80,7 +80,7 @@ pub fn discover_fillets(
     let found = discover(part, opts);
     for o in &found {
         let owner = part.faces[o.face].solid;
-        let valid = owner.is_some_and(|s| part.solid_is_closed(s))
+        let valid = owner.is_some_and(|s| part.solid_is_valid(s))
             && o.context.iter().all(|&c| part.faces[c].solid == owner);
         if !valid {
             return Err(EvidenceError::NoValidSolid);

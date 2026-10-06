@@ -34,6 +34,10 @@ pub struct Face {
     pub reversed: bool,
     pub loops: Vec<Loop>,
     pub solid: Option<usize>,
+    /// Control polygons of the file's B-spline parameter-space curves (pcurves) on this face.
+    /// OpenCascade sizes a face's parameter range from these polygons rather than from the
+    /// curves, so they are what [`Part::uv_bounds`] needs to agree with it.
+    pub pcurve_poles: Vec<Vec<(f64, f64)>>,
 }
 
 #[derive(Clone, Debug)]
@@ -112,27 +116,24 @@ const NURBS_SAMPLES: usize = 256;
 
 /// The curve parameter interval an edge covers, in its own start → end direction.
 fn edge_interval(curve: &Curve, start: V3, end: V3, same_sense: bool) -> (f64, f64) {
-    match curve {
-        Curve::Nurbs(n) => n.domain(),
-        Curve::Line { .. } => (curve.parameter(start), curve.parameter(end)),
-        _ => {
-            let (a, b) = (curve.parameter(start), curve.parameter(end));
-            let closed = geom::dist(start, end) < 1e-9;
-            if same_sense {
-                let mut b = b;
-                while b <= a + if closed { 1e-12 } else { 0.0 } {
-                    b += TAU;
-                }
-                (a, b)
-            } else {
-                let mut b = b;
-                while b >= a - if closed { 1e-12 } else { 0.0 } {
-                    b -= TAU;
-                }
-                (a, b)
-            }
+    let (a, b) = (curve.parameter(start), curve.parameter(end));
+    let Some(period) = curve.period() else {
+        return (a, b);
+    };
+    // On a closed curve the edge runs from start to end in its sense, wrapping if it must; an
+    // edge whose ends coincide is the whole curve.
+    let closed = geom::dist(start, end) < 1e-9;
+    let mut b = b;
+    if same_sense {
+        while b <= a + if closed { period * 1e-12 } else { 0.0 } {
+            b += period;
+        }
+    } else {
+        while b >= a - if closed { period * 1e-12 } else { 0.0 } {
+            b -= period;
         }
     }
+    (a, b)
 }
 
 pub fn sample_edge(curve: &Curve, start: V3, end: V3, same_sense: bool) -> Vec<V3> {
@@ -252,7 +253,7 @@ impl Part {
         if !candidates.is_empty() {
             if let Some(domain) = self.domain(face) {
                 for (u, v) in candidates {
-                    if domain.contains(u, v) {
+                    if domain.contains(u, v) || touches_singular_point(&f.surface, domain, v) {
                         b.add(f.surface.value(u, v));
                     }
                 }
@@ -309,7 +310,7 @@ impl Part {
                     raw.push(f.surface.parameters(*p, hint)?);
                 }
             }
-            let raw = route_singular_points(&f.surface, raw);
+            let raw = route_singular_points(&f.surface, raw, f.reversed);
             for (mut u, mut v) in raw {
                 if let Some(&(lu, lv)) = pts.last() {
                     if pu {
@@ -321,7 +322,7 @@ impl Part {
                 }
                 pts.push((u, v));
             }
-            close_through_pole(&f.surface, &mut pts);
+            close_through_pole(&f.surface, &mut pts, f.reversed);
             loops.push(UvLoop {
                 points: pts,
                 degenerate: false,
@@ -370,6 +371,35 @@ impl Part {
                 range[2] = range[2].min(v + shift_v);
                 range[3] = range[3].max(v + shift_v);
             }
+        }
+        // OpenCascade's range covers each B-spline pcurve's control polygon, which can overshoot
+        // the curve itself. Align each polygon to the loops' period before taking it in.
+        let centre = (0.5 * (range[0] + range[1]), 0.5 * (range[2] + range[3]));
+        for poles in &f.pcurve_poles {
+            let (mut lo_u, mut hi_u, mut lo_v, mut hi_v) = (
+                f64::INFINITY,
+                f64::NEG_INFINITY,
+                f64::INFINITY,
+                f64::NEG_INFINITY,
+            );
+            for &(u, v) in poles {
+                (lo_u, hi_u, lo_v, hi_v) = (lo_u.min(u), hi_u.max(u), lo_v.min(v), hi_v.max(v));
+            }
+            let mid = (0.5 * (lo_u + hi_u), 0.5 * (lo_v + hi_v));
+            let su = if pu {
+                geom::nearest_turn(mid.0, centre.0) - mid.0
+            } else {
+                0.0
+            };
+            let sv = if pv {
+                geom::nearest_turn(mid.1, centre.1) - mid.1
+            } else {
+                0.0
+            };
+            range[0] = range[0].min(lo_u + su);
+            range[1] = range[1].max(hi_u + su);
+            range[2] = range[2].min(lo_v + sv);
+            range[3] = range[3].max(hi_v + sv);
         }
         let seam = self.seam_parameters(face);
         for (periodic, wound, lo, hi, seam_value) in
@@ -432,32 +462,68 @@ impl Part {
         out
     }
 
-    /// Whether every edge of the solid is shared by exactly two face uses — the closed-shell
-    /// part of `BRepCheck` validity that the evidence path depends on.
-    pub fn solid_is_closed(&self, solid: usize) -> bool {
-        let mut uses = std::collections::HashMap::new();
+    /// The topological half of `BRepCheck` validity that the evidence path depends on: every
+    /// edge of the solid is used by exactly two faces (or twice by one, as a seam), and two
+    /// different faces sharing an open edge run it in opposite directions, so the shell is closed
+    /// and orientable.
+    ///
+    /// A closed edge (a full circle) is exempt from the direction test: it joins itself
+    /// whichever way it is run, so its recorded direction is not evidence. OpenCascade writes
+    /// some toroidal faces' circles the wrong way round and re-derives the direction from the
+    /// parameter-space curves on reading.
+    pub fn solid_is_valid(&self, solid: usize) -> bool {
+        let mut uses: std::collections::HashMap<usize, Vec<(usize, bool)>> = Default::default();
         for &f in &self.solids[solid].faces {
             for lp in &self.faces[f].loops {
-                for &(e, _) in &lp.edges {
-                    *uses.entry(e).or_insert(0usize) += 1;
+                for &(e, forward) in &lp.edges {
+                    uses.entry(e).or_default().push((f, forward));
                 }
             }
         }
-        !uses.is_empty() && uses.values().all(|&n| n == 2)
+        !uses.is_empty()
+            && uses.iter().all(|(&e, u)| match u.as_slice() {
+                [(fa, da), (fb, db)] => {
+                    fa == fb
+                        || da != db
+                        || geom::dist(self.edges[e].start, self.edges[e].end) < 1e-9
+                }
+                _ => false,
+            })
     }
 }
 
 /// Replace each run of singular samples (where u is undefined) by the singular v line from the
-/// u the boundary arrives at to the u it leaves at, the short way round.
-fn route_singular_points(surface: &Surface, raw: Vec<(f64, f64)>) -> Vec<(f64, f64)> {
+/// u the boundary arrives at to the u it leaves at.
+///
+/// Which way round is a question only orientation answers — a hemisphere bounded by one
+/// meridian circle arrives and leaves half a turn apart — so the face's side decides it: STEP
+/// keeps the face on a loop's left, which in parameter space is the -u side of a boundary
+/// rising to the top line (+u for a reversed face), mirrored at the bottom.
+fn route_singular_points(
+    surface: &Surface,
+    raw: Vec<(f64, f64)>,
+    reversed: bool,
+) -> Vec<(f64, f64)> {
     let n = raw.len();
     let singular: Vec<bool> = raw
         .iter()
-        .map(|&(u, v)| surface.is_singular(u, v))
+        .map(|&(_, v)| surface.singular_v(v).is_some())
         .collect();
     if !singular.iter().any(|s| *s) || singular.iter().all(|s| *s) {
         return raw;
     }
+    // Start on a regular sample so that no singular run straddles the loop's ends.
+    let first_regular = singular.iter().position(|s| !s).expect("a regular sample");
+    let raw: Vec<(f64, f64)> = raw[first_regular..]
+        .iter()
+        .chain(&raw[..first_regular])
+        .copied()
+        .collect();
+    let singular: Vec<bool> = singular[first_regular..]
+        .iter()
+        .chain(&singular[..first_regular])
+        .copied()
+        .collect();
     let mut out = Vec::with_capacity(n + 64);
     let mut i = 0;
     while i < n {
@@ -479,17 +545,42 @@ fn route_singular_points(surface: &Surface, raw: Vec<(f64, f64)>) -> Vec<(f64, f
             .map(|k| (i + k) % n)
             .find(|&k| !singular[k])
             .expect("a regular sample");
-        let v = raw[start].1;
+        let v = surface.singular_v(raw[start].1).expect("a singular sample");
         let (ua, ub) = (raw[before].0, raw[after].0);
-        let ub = geom::nearest_turn(ub, ua);
+        let mut ub = geom::nearest_turn(ub, ua);
+        if (ub - ua).abs() > 1e-6 {
+            // Rising to the top line (v above the boundary's) runs -u for a forward face.
+            let rising = v > raw[before].1;
+            let toward = if rising != reversed { -1.0 } else { 1.0 };
+            if (ub - ua) * toward < 0.0 {
+                ub += toward * TAU;
+            }
+        }
         out.extend(periodic_line(ua, ub, v));
+    }
+    // Close explicitly: the loop's first sample is regular, so it is where the walk returns.
+    if out.last() != out.first() {
+        out.push(out[0]);
     }
     out
 }
 
-/// A loop round a sphere that reaches a pole along its seam ends one turn from where it began;
-/// close it along the pole's parameter line so that it bounds a region.
-fn close_through_pole(surface: &Surface, pts: &mut Vec<(f64, f64)>) {
+/// Whether the face reaches the singular point (pole or apex) at *v*: the point is a whole
+/// parameter line, which lies on the face's boundary rather than strictly inside it, so look
+/// just off the line instead.
+fn touches_singular_point(surface: &Surface, domain: &FaceDomain, v: f64) -> bool {
+    let Some(line) = surface.singular_v(v) else {
+        return false;
+    };
+    let off = line - line.signum() * 1e-4;
+    (0..64).any(|k| domain.contains(TAU * k as f64 / 64.0, off))
+}
+
+/// A loop that runs once round a sphere ends one turn from where it began; close it along a
+/// pole's parameter line so that it bounds a region. The pole is the one it reaches along a
+/// seam if any; otherwise the one on the face's side of it (the left of a loop running +u on a
+/// forward face is +v, the north pole).
+fn close_through_pole(surface: &Surface, pts: &mut Vec<(f64, f64)>, reversed: bool) {
     if !matches!(surface, Surface::Sphere { .. }) || pts.len() < 2 {
         return;
     }
@@ -498,14 +589,15 @@ fn close_through_pole(surface: &Surface, pts: &mut Vec<(f64, f64)>) {
         return;
     }
     let half = std::f64::consts::FRAC_PI_2;
-    let Some(pole) = pts
+    let touched = pts
         .iter()
         .map(|p| p.1)
-        .find(|v| (v.abs() - half).abs() < 1e-6)
-    else {
-        return;
+        .find(|v| (v.abs() - half).abs() < 1e-6);
+    let pole = match touched {
+        Some(v) => v.signum() * half,
+        None if (last.0 > first.0) != reversed => half,
+        None => -half,
     };
-    let pole = pole.signum() * half;
     pts.extend(periodic_line(last.0, first.0, pole));
     pts.push(first);
 }

@@ -229,15 +229,21 @@ impl Surface {
         }
     }
 
-    /// Whether (u, v) is a singular point of the parametrisation — a sphere's pole or a cone's
-    /// apex — where u is undefined and a boundary through it runs along the whole v line.
-    pub fn is_singular(&self, _u: f64, v: f64) -> bool {
+    /// The v of the singular line near (·, v) — a sphere's pole or a cone's apex, where u is
+    /// undefined and a boundary through the point runs along the whole u line — if any.
+    pub fn singular_v(&self, v: f64) -> Option<f64> {
         match *self {
-            Surface::Sphere { .. } => (v.abs() - PI / 2.0).abs() < 1e-7,
+            // Within a degree of the pole the angle swings too fast for boundary samples to
+            // follow; route anything that close along the pole line.
+            Surface::Sphere { .. } if (v.abs() - PI / 2.0).abs() < 0.02 => {
+                Some(v.signum() * PI / 2.0)
+            }
             Surface::Cone {
                 radius, semi_angle, ..
-            } => (radius + v * semi_angle.sin()).abs() < 1e-7 * (1.0 + radius),
-            _ => false,
+            } if (radius + v * semi_angle.sin()).abs() < 1e-7 * (1.0 + radius) => {
+                Some(-radius / semi_angle.sin())
+            }
+            _ => None,
         }
     }
 
@@ -447,7 +453,16 @@ impl Curve {
                 major,
                 minor,
             } => frame.to_world([major * t.cos(), minor * t.sin(), 0.0]),
-            Curve::Nurbs(n) => n.value(t),
+            Curve::Nurbs(n) => {
+                // A closed curve is run round periodically, so an edge may wrap past its end.
+                let (lo, hi) = n.domain();
+                let t = if n.is_closed() && (t < lo || t > hi) {
+                    lo + (t - lo).rem_euclid(hi - lo)
+                } else {
+                    t
+                };
+                n.value(t)
+            }
             Curve::Other { .. } => [f64::NAN; 3],
         }
     }
@@ -468,12 +483,21 @@ impl Curve {
                 let l = frame.to_local(p);
                 (l[1] / minor).atan2(l[0] / major).rem_euclid(TAU)
             }
-            Curve::Nurbs(_) | Curve::Other { .. } => f64::NAN,
+            Curve::Nurbs(n) => n.invert(p),
+            Curve::Other { .. } => f64::NAN,
         }
     }
 
-    pub fn is_periodic(&self) -> bool {
-        matches!(self, Curve::Circle { .. } | Curve::Ellipse { .. })
+    /// The period of a closed curve, which an edge on it may run across.
+    pub fn period(&self) -> Option<f64> {
+        match self {
+            Curve::Circle { .. } | Curve::Ellipse { .. } => Some(TAU),
+            Curve::Nurbs(n) if n.is_closed() => {
+                let (lo, hi) = n.domain();
+                Some(hi - lo)
+            }
+            _ => None,
+        }
     }
 }
 

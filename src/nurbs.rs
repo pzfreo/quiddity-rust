@@ -78,6 +78,47 @@ impl NurbsCurve {
     }
 }
 
+impl NurbsCurve {
+    /// Whether the curve ends where it starts, so that it can be run round as a periodic curve.
+    pub fn is_closed(&self) -> bool {
+        let (lo, hi) = self.domain();
+        let size = self
+            .control_points
+            .iter()
+            .flatten()
+            .fold(1.0f64, |m, c| m.max(c.abs()));
+        geom::dist(self.value(lo), self.value(hi)) <= 1e-9 * size
+    }
+
+    /// The parameter of the curve point nearest *p*: the closest of a dense sampling, refined
+    /// by Newton steps on the squared distance.
+    pub fn invert(&self, p: V3) -> f64 {
+        let (lo, hi) = self.domain();
+        let n = 512;
+        let mut t = (0..=n)
+            .map(|i| lo + (hi - lo) * i as f64 / n as f64)
+            .min_by(|a, b| geom::dist(self.value(*a), p).total_cmp(&geom::dist(self.value(*b), p)))
+            .expect("samples");
+        let h = (hi - lo) * 1e-7;
+        for _ in 0..30 {
+            let (ta, tb) = ((t - h).max(lo), (t + h).min(hi));
+            let d = geom::scale(geom::sub(self.value(tb), self.value(ta)), 1.0 / (tb - ta));
+            let dd = geom::dot(d, d);
+            if dd < 1e-300 {
+                break;
+            }
+            let step = geom::dot(geom::sub(p, self.value(t)), d) / dd;
+            let next = (t + step).clamp(lo, hi);
+            if (next - t).abs() < 1e-15 * (1.0 + t.abs()) {
+                t = next;
+                break;
+            }
+            t = next;
+        }
+        t
+    }
+}
+
 /// A rational B-spline surface, control points indexed `[u][v]`.
 #[derive(Clone, Debug)]
 pub struct NurbsSurface {

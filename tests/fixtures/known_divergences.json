@@ -1,0 +1,22 @@
+[
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "problem": "evidence",
+    "reason": "OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid and Python refuses evidence for it."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "problem": "evidence",
+    "reason": "As cgb202: BRepCheck_UnorientableShape after OpenCascade's import healing; the file's topology is closed and consistently oriented."
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "problem": "records",
+    "reason": "Four r25 fillet anchors differ by 0.001 in z: OpenCascade sizes the face's v range from the pcurve it builds on import for a B-spline edge this file gives no usable B-spline pcurve for, and the true mid-point sits on a rounding boundary."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "problem": "other",
+    "reason": "A deliberately malformed corpus part (its shell is not orientable). OpenCascade's import healing rebuilds and reorders its faces, so face indices no longer line up with the file's shell order the port reads; it has no fillets either way."
+  }
+]
