@@ -258,5 +258,10 @@
     "file": "ttt_inputs/sm-hanger.step",
     "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually.",
     "contains": "solid masses differ by up to 1e-8"
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "reason": "Same pattern (7 copies, same axis and pitch). fit_error is sampling noise here: the copies are B-spline faces parameterised differently, so Python measures OpenCascade's mesh points (0.884) and the port its own mesh-density samples of the exact surfaces (0.326). Neither is a property of the geometry.",
+    "contains": "recognise_circular_face_patterns {}: records differ: 1 vs 1 records, fields {\"fit_error\"}"
   }
 ]
