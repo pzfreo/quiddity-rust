@@ -28,14 +28,6 @@
     "contains": "bounds"
   },
   {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "contains": [
-      "recognise_holes",
-      "fields {\"depth\", \"location\"}"
-    ],
-    "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge. Here the 0.019 mm overshoot also moves one blind hole's depth across a 0.01 rounding step (24.52 vs 24.5)."
-  },
-  {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
     "contains": [
       "recognise_holes",
@@ -91,10 +83,7 @@
   },
   {
     "file": "inventory_refusal/14052.step.gz",
-    "contains": [
-      "recognise_holes",
-      "evidence"
-    ],
-    "reason": "A deliberately malformed corpus part: OpenCascade's BRepCheck finds geometric faults the port's topological validity check (closed, orientable) does not look for, so Python refuses hole evidence and the port publishes it."
+    "contains": ": evidence",
+    "reason": "A deliberately malformed corpus part: OpenCascade's BRepCheck finds geometric faults the port's topological validity check (closed, orientable) does not look for, so Python refuses hole and boss evidence and the port publishes it."
   }
 ]

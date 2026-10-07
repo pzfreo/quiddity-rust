@@ -150108,9 +150108,2633 @@
    "rich_arguments": [],
    "in_memory": [],
    "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_records_are_frozen_and_json_serializable",
+   "function": "recognise_flats",
+   "file": "ce23f14a646a04a3.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 15.0,
+     "at": [
+      5.0,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -15.0,
+      15.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 15.0,
+     "at": [
+      5.0,
+      -0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -15.0,
+      15.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_every_record_type_is_actually_exercised",
+   "function": "recognise_flats",
+   "file": "ce23f14a646a04a3.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 15.0,
+     "at": [
+      5.0,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -15.0,
+      15.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 15.0,
+     "at": [
+      5.0,
+      -0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -15.0,
+      15.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "6b0ce256f4c70482.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "ce30ea612029f8ba.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "63eb54cc99e74641.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "860dce2a651ab4e7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 26.0,
+     "at": [
+      70.0,
+      11.0,
+      -0.0
+     ],
+     "axis_line": [
+      70.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 26.0,
+     "at": [
+      70.0,
+      11.0,
+      -0.0
+     ],
+     "axis_line": [
+      70.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "3aa3fee8a5ce2624.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "c7ee6c53ea0011e7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "236ea4cc9bd6bfe4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "04aec2096ae6ebfa.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "c31caa7ecbb2d309.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "108759c5561ee63f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "9683f6213a4aa5bd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "aa80434054958f86.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "7802ff06fec22161.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "ecafad7c9184d591.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "dab41ec2d752f628.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "4a7f6a6171b284a7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "7edb959cec898e4b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "1e4303b9497adbaf.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "c7a10a9aba34edb1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "786005dcbc3b0bea.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "ba02182884c56d73.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "644f8fd20345b417.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "016c60d49a52fa18.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "4ee8cff9e649797a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "6da54be7d9818148.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "8adc57b328863b43.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "a6e940ff37afef35.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "2a3cdf2b10d85c62.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_flats",
+   "file": "0a3141da4c6d054d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_cylinder_substrate_is_injectable",
+   "function": "recognise_flats",
+   "file": "ce23f14a646a04a3.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 15.0,
+     "at": [
+      5.0,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -15.0,
+      15.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 15.0,
+     "at": [
+      5.0,
+      -0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -15.0,
+      15.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_cylinder_substrate_is_injectable",
+   "function": "recognise_flats",
+   "file": "ce23f14a646a04a3.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 15.0,
+     "at": [
+      5.0,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -15.0,
+      15.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 15.0,
+     "at": [
+      5.0,
+      -0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -15.0,
+      15.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_every_recogniser_taking_face_edges_actually_consults_it",
+   "function": "recognise_flats",
+   "file": "ce23f14a646a04a3.step.gz",
+   "options": {},
+   "hints": [
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 15.0,
+     "at": [
+      5.0,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -15.0,
+      15.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 15.0,
+     "at": [
+      5.0,
+      -0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -15.0,
+      15.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_flat_attribution.py::test_flat_writer_preserves_records_and_binds_only_each_owner_face[part0]",
+   "function": "recognise_flats",
+   "file": "c6e0fbdace965a14.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 30.0,
+     "at": [
+      10.0,
+      -0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 30.0,
+     "at": [
+      10.0,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_flat_attribution.py::test_flat_writer_preserves_records_and_binds_only_each_owner_face[part1]",
+   "function": "recognise_flats",
+   "file": "4e533cf4c18d138e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 25.0,
+     "at": [
+      -12.5,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 25.0,
+     "at": [
+      12.5,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 25.0,
+     "at": [
+      -12.5,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 25.0,
+     "at": [
+      12.5,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_flat_attribution.py::test_flat_writer_preserves_records_and_binds_only_each_owner_face[part2]",
+   "function": "recognise_flats",
+   "file": "709f5264f1de3a1e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 30.0,
+     "at": [
+      -15.0,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 30.0,
+     "at": [
+      -0.0,
+      -15.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 30.0,
+     "at": [
+      0.0,
+      15.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 30.0,
+     "at": [
+      15.0,
+      -0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 30.0,
+     "at": [
+      -15.0,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 30.0,
+     "at": [
+      0.0,
+      -15.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 30.0,
+     "at": [
+      0.0,
+      15.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 30.0,
+     "at": [
+      15.0,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_flat_attribution.py::test_flat_writer_preserves_records_and_binds_only_each_owner_face[part3]",
+   "function": "recognise_flats",
+   "file": "9fb1eec0ece20dbf.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      -16.5,
+      -9.526,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      -16.5,
+      9.526,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      -0.0,
+      -19.053,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      0.0,
+      19.053,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      16.5,
+      -9.526,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      16.5,
+      9.526,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      -16.5,
+      -9.526,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      -16.5,
+      9.526,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      -0.0,
+      -19.053,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      0.0,
+      19.053,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      16.5,
+      -9.526,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      16.5,
+      9.526,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_flat_attribution.py::test_flat_writer_preserves_records_and_binds_only_each_owner_face[part4]",
+   "function": "recognise_flats",
+   "file": "0649cdf3afbb9d1a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "across": 30.0,
+     "at": [
+      0.0,
+      -0.0,
+      -10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "across": 30.0,
+     "at": [
+      0.0,
+      0.0,
+      -10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_flat_attribution.py::test_flat_writer_preserves_records_and_binds_only_each_owner_face[part5]",
+   "function": "recognise_flats",
+   "file": "c672168d746ef9d5.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "across": 30.0,
+     "at": [
+      10.0,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "across": 30.0,
+     "at": [
+      10.0,
+      0.0,
+      0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_flat_attribution.py::test_flat_writer_preserves_records_and_binds_only_each_owner_face[part6]",
+   "function": "recognise_flats",
+   "file": "6c6f9170fc5bfcbc.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 30.0,
+     "at": [
+      9.063,
+      -0.0,
+      -4.226
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.422618,
+      0.0,
+      0.906308
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 30.0,
+     "at": [
+      9.063,
+      0.0,
+      -4.226
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.422618,
+      0.0,
+      0.906308
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_flat_attribution.py::test_flat_writer_preserves_records_and_binds_only_each_owner_face[part7]",
+   "function": "recognise_flats",
+   "file": "ac3f22d143fcbdc8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 30.0,
+     "at": [
+      -10.0,
+      -0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 30.0,
+     "at": [
+      -10.0,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_flat_attribution.py::test_flat_writer_preserves_records_and_binds_only_each_owner_face[part8]",
+   "function": "recognise_flats",
+   "file": "11a2190649f64e87.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 300.0,
+     "at": [
+      100.0,
+      -0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -200.0,
+      200.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 300.0,
+     "at": [
+      100.0,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -200.0,
+      200.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_flat_attribution.py::test_flat_writer_preserves_records_and_binds_only_each_owner_face[part9]",
+   "function": "recognise_flats",
+   "file": "9316d71b68085ec7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 39.49,
+     "at": [
+      19.49,
+      -0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 39.49,
+     "at": [
+      19.49,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_flat_attribution.py::test_reversed_face_traversal_preserves_flat_roles",
+   "function": "recognise_flats",
+   "file": "9fb1eec0ece20dbf.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      -16.5,
+      -9.526,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      -16.5,
+      9.526,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      -0.0,
+      -19.053,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      0.0,
+      19.053,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      16.5,
+      -9.526,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      16.5,
+      9.526,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      -16.5,
+      -9.526,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      -16.5,
+      9.526,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      -0.0,
+      -19.053,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      0.0,
+      19.053,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      16.5,
+      -9.526,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 38.105,
+     "at": [
+      16.5,
+      9.526,
+      10.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      0.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_large_part_small_features.py::test_a_shallow_flat_on_large_stock_is_still_a_flat",
+   "function": "recognise_flats",
+   "file": "270ff4f71ffbe8ae.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 47.0,
+     "at": [
+      22.0,
+      -0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -40.0,
+      40.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 47.0,
+     "at": [
+      22.0,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -40.0,
+      40.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recognition_edge_cases.py::test_lone_flats_on_separate_coaxial_stock_are_not_opposed",
+   "function": "recognise_flats",
+   "file": "6c4684f843156bd7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 20.0,
+     "at": [
+      -8.0,
+      -0.0,
+      60.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      40.0,
+      80.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 30.0,
+     "at": [
+      10.0,
+      -0.0,
+      -30.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -50.0,
+      -10.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 20.0,
+     "at": [
+      -8.0,
+      -0.0,
+      60.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      40.0,
+      80.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 30.0,
+     "at": [
+      10.0,
+      0.0,
+      -30.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -50.0,
+      -10.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recognition_edge_cases.py::test_genuine_double_d_faces_remain_opposed",
+   "function": "recognise_flats",
+   "file": "4e533cf4c18d138e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 25.0,
+     "at": [
+      -12.5,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 25.0,
+     "at": [
+      12.5,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 25.0,
+     "at": [
+      -12.5,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "axis": "z",
+     "across": 25.0,
+     "at": [
+      12.5,
+      0.0,
+      -0.0
+     ],
+     "axis_line": [
+      0.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[angled_blind_step]",
+   "function": "recognise_flats",
+   "file": "6b0ce256f4c70482.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[blind_pockets_and_pocket_patterns]",
+   "function": "recognise_flats",
+   "file": "ce30ea612029f8ba.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[bolt_circle_and_rectangular_grid]",
+   "function": "recognise_flats",
+   "file": "63eb54cc99e74641.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[chamfers_fillets_and_flats]",
+   "function": "recognise_flats",
+   "file": "f74912a5ff127d3f.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "across": 26.0,
+     "at": [
+      70.0,
+      11.0,
+      -0.0
+     ],
+     "axis_line": [
+      70.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "across": 26.0,
+     "at": [
+      70.0,
+      11.0,
+      -0.0
+     ],
+     "axis_line": [
+      70.0,
+      0.0
+     ],
+     "stock_span": [
+      -20.0,
+      20.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[circular_blind_step]",
+   "function": "recognise_flats",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[counterbored_and_countersunk_holes]",
+   "function": "recognise_flats",
+   "file": "3aa3fee8a5ce2624.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[double_d_bore]",
+   "function": "recognise_flats",
+   "file": "c7ee6c53ea0011e7.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[gusset_rib_patterns]",
+   "function": "recognise_flats",
+   "file": "36181d1f9f68bd14.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[gusset_ribs]",
+   "function": "recognise_flats",
+   "file": "04aec2096ae6ebfa.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[hexagonal_passage]",
+   "function": "recognise_flats",
+   "file": "c31caa7ecbb2d309.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[interrupted_and_cross_bores]",
+   "function": "recognise_flats",
+   "file": "108759c5561ee63f.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[oblique_through_step]",
+   "function": "recognise_flats",
+   "file": "9683f6213a4aa5bd.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[open_channels]",
+   "function": "recognise_flats",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[oriented_chamfer]",
+   "function": "recognise_flats",
+   "file": "aa80434054958f86.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[paired_ramp_step]",
+   "function": "recognise_flats",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[plates_pads_levels_and_slanted_steps]",
+   "function": "recognise_flats",
+   "file": "ecafad7c9184d591.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[polygonal_boss]",
+   "function": "recognise_flats",
+   "file": "dab41ec2d752f628.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[polygonal_stock]",
+   "function": "recognise_flats",
+   "file": "11feaafe5f7e8a66.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[rectangular_blind_slot]",
+   "function": "recognise_flats",
+   "file": "7edb959cec898e4b.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[rectangular_through_step]",
+   "function": "recognise_flats",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[repeating_radial_profile]",
+   "function": "recognise_flats",
+   "file": "1e4303b9497adbaf.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[round_bottom_blind_slot]",
+   "function": "recognise_flats",
+   "file": "c7a10a9aba34edb1.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[simple_through_hole]",
+   "function": "recognise_flats",
+   "file": "786005dcbc3b0bea.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[slanted_counterbore]",
+   "function": "recognise_flats",
+   "file": "ba02182884c56d73.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[slanted_steps]",
+   "function": "recognise_flats",
+   "file": "644f8fd20345b417.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[small_convex_blends]",
+   "function": "recognise_flats",
+   "file": "016c60d49a52fa18.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[straight_and_obround_slots]",
+   "function": "recognise_flats",
+   "file": "4ee8cff9e649797a.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[toroidal_blend_compound]",
+   "function": "recognise_flats",
+   "file": "05261e4c12e423b8.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[toroidal_blend_internal]",
+   "function": "recognise_flats",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[toroidal_blends_turned]",
+   "function": "recognise_flats",
+   "file": "63c86de4afa32ec2.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[traversal_order]",
+   "function": "recognise_flats",
+   "file": "53e51e394b5df094.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[triangular_and_hex_pockets]",
+   "function": "recognise_flats",
+   "file": "a9c4851eeab83e94.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[turned_steps_and_grooves]",
+   "function": "recognise_flats",
+   "file": "0a3141da4c6d054d.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_equivalent_topology_traversals_produce_the_same_snapshot[traversal_order]",
+   "function": "recognise_flats",
+   "file": "dcf4e2f2d9b7f1a9.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_equivalent_topology_traversals_produce_the_same_snapshot[traversal_order]",
+   "function": "recognise_flats",
+   "file": "69063752b6a6d8d5.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
   }
  ],
  "skipped": {
-  "recognise_angled_steps: capture failed: RuntimeError": 44
+  "recognise_flats: capture failed: RuntimeError": 1
  }
 }

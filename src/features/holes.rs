@@ -13,6 +13,7 @@ use super::Context;
 use super::countersinks::{self, CounterSink, HoleMouth, countersink_matches_hole};
 use super::cylinders::{
     STACK_GAP_FRAC, Segment, axis_point_at, full_cylinders, line_key, merge_runs, segments,
+    z_then_cross,
 };
 use super::evidence::{self, EvidenceError, Occurrence};
 use super::stacks::{End, classify_end, end_partners};
@@ -370,7 +371,7 @@ pub fn discover(
 ) -> Vec<Occurrence<HoleRecord>> {
     let part = ctx.part;
     let cyls = ctx.cylinders();
-    let (z, cross): (Vec<_>, Vec<_>) = cyls.iter().cloned().partition(|c| c.axis == 2);
+    let (z, cross) = z_then_cross(cyls);
     let internal: Vec<_> = full_cylinders(&z)
         .into_iter()
         .chain(full_cylinders(&cross))

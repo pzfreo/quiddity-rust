@@ -16,6 +16,7 @@ pub mod countersinks;
 pub mod cylinders;
 pub mod evidence;
 pub mod fillets;
+pub mod flats;
 pub mod hole_patterns;
 pub mod holes;
 pub mod planes;
@@ -38,6 +39,7 @@ pub struct Features {
     pub chamfers: Vec<chamfers::Chamfer>,
     pub bosses: Vec<bosses::BossRecord>,
     pub angled_steps: Vec<angled_steps::AngledStep>,
+    pub flats: Vec<flats::Flat>,
     pub holes: Vec<holes::HoleRecord>,
     pub countersinks: Vec<countersinks::CounterSink>,
     pub hole_patterns: Vec<hole_patterns::HolePattern>,
@@ -55,6 +57,7 @@ pub fn recognise(part: &Part) -> Features {
         chamfers: records(chamfers::discover(&ctx, &Default::default())),
         bosses: records(bosses::discover(&ctx)),
         angled_steps: records(angled_steps::discover(&ctx)),
+        flats: records(flats::discover(&ctx)),
         hole_patterns: hole_patterns::recognise_hole_patterns(&holes),
         holes,
         countersinks,

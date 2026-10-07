@@ -37,10 +37,19 @@ pub struct Face {
     pub reversed: bool,
     pub loops: Vec<Loop>,
     pub solid: Option<usize>,
-    /// Control polygons of the file's B-spline parameter-space curves (pcurves) on this face.
-    /// OpenCascade sizes a face's parameter range from these polygons rather than from the
-    /// curves, so they are what [`Part::uv_bounds`] needs to agree with it.
-    pub pcurve_poles: Vec<Vec<(f64, f64)>>,
+    /// The file's parameter-space curves (pcurves) for this face's edges, by edge. OpenCascade
+    /// sizes a face's parameter range from its pcurves, not from the 3D edges (which may sit
+    /// off the surface within tolerance), so [`Part::uv_bounds`] uses them where given.
+    pub pcurves: Vec<(usize, Pcurve)>,
+}
+
+/// A pcurve, reduced to what sizing a parameter range needs.
+#[derive(Clone, Debug)]
+pub enum Pcurve {
+    /// A B-spline spanning exactly its edge: its control polygon (OpenCascade boxes poles).
+    Poles(Vec<(f64, f64)>),
+    /// A straight line in parameter space: a point on it and its direction.
+    Line { point: (f64, f64), dir: (f64, f64) },
 }
 
 #[derive(Clone, Debug)]

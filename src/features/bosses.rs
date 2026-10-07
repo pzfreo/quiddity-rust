@@ -4,7 +4,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::Context;
-use super::cylinders::{axis_point_at, full_cylinders, segments};
+use super::cylinders::{axis_point_at, full_cylinders, segments, z_then_cross};
 use super::evidence::{self, EvidenceError, Occurrence};
 use super::stacks::{End, classify_end};
 use crate::kernel::brep::Part;
@@ -33,7 +33,7 @@ pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<BossRecord>
 
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<BossRecord>> {
     let part = ctx.part;
-    let (z, cross): (Vec<_>, Vec<_>) = ctx.cylinders().iter().cloned().partition(|c| c.axis == 2);
+    let (z, cross) = z_then_cross(ctx.cylinders());
     let external: Vec<_> = full_cylinders(&z)
         .into_iter()
         .chain(full_cylinders(&cross))

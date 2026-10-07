@@ -114,3 +114,8 @@ fn bosses_match_python() {
 fn angled_steps_match_python() {
     replay("recognise_angled_steps");
 }
+
+#[test]
+fn flats_match_python() {
+    replay("recognise_flats");
+}

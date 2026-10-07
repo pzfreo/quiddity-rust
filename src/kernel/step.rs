@@ -8,7 +8,7 @@ use std::collections::HashMap;
 use step_io::generated::model as m;
 use step_io::scene::geometry::{Edge as StepEdge, Face as StepFace, SurfaceKind};
 
-use super::brep::{Edge, Face, Loop, Part, Solid};
+use super::brep::{Edge, Face, Loop, Part, Pcurve, Solid};
 use super::geom::{self, Curve, Frame, Surface, V3};
 use super::nurbs::{NurbsCurve, NurbsSurface};
 use super::sampling::sample_edge;
@@ -187,9 +187,15 @@ impl Reader<'_> {
         self.point(&m::CartesianPointRef::CartesianPoint(*c))
     }
 
-    /// The control polygons of the B-spline pcurves the file gives for this face's edges, in
-    /// the surface's parameter units (lengths scaled to millimetres, angles as they are).
-    fn pcurve_poles(&self, face: &StepFace<'_>, surface: &Surface) -> Vec<Vec<(f64, f64)>> {
+    /// The pcurves the file gives for this face's edges, by edge index, in the surface's
+    /// parameter units (lengths scaled to millimetres, angles to radians).
+    fn pcurves(
+        &self,
+        face: &StepFace<'_>,
+        surface: &Surface,
+        edge_index: &HashMap<m::EntityKey, usize>,
+        edges: &[Edge],
+    ) -> Vec<(usize, Pcurve)> {
         let Ok(basis) = m::SurfaceRef::from_any(face.surface().key()) else {
             return Vec::new();
         };
@@ -201,9 +207,13 @@ impl Reader<'_> {
             Surface::Sphere { .. } | Surface::Torus { .. } => (self.to_rad, self.to_rad),
             Surface::Freeform { .. } | Surface::Other { .. } => return Vec::new(),
         };
+        let scale = |(u, v): (f64, f64)| (u * su, v * sv);
         let mut out = Vec::new();
         for bound in face.bounds() {
             for edge in bound.edges() {
+                let Some(&index) = edge_index.get(&edge.key()) else {
+                    continue;
+                };
                 let vertex = |v: Option<step_io::scene::geometry::Vertex<'_>>| {
                     v.and_then(|v| v.point())
                         .map(|p| self.place_point(geom::scale(p.xyz(), self.to_mm)))
@@ -211,7 +221,6 @@ impl Reader<'_> {
                 let (Some(a), Some(b)) = (vertex(edge.start()), vertex(edge.end())) else {
                     continue;
                 };
-                let ends = (a, b);
                 let associated = match &raw_edge_curve(self.model, &edge) {
                     m::CurveRef::SurfaceCurve(i) => {
                         &self.model.surface_curve_arena.get(i.0).associated_geometry
@@ -235,23 +244,89 @@ impl Reader<'_> {
                         continue;
                     };
                     for item in &self.model.definitional_representation_arena.get(d.0).items {
-                        let Some(points) = self.bspline_poles_2d(item) else {
-                            continue;
-                        };
-                        let points: Vec<(f64, f64)> =
-                            points.into_iter().map(|(u, v)| (u * su, v * sv)).collect();
-                        // OpenCascade boxes the pcurve trimmed to the edge. A clamped curve's
-                        // end poles are its end points, so the polygon stands for the edge only
-                        // when they land on the edge's vertices; a longer curve (a line's pcurve
-                        // running past the edge) is left to the sampled loops.
-                        if spans_edge(surface, &points, ends) {
-                            out.push(points);
+                        if let Some((point, dir)) = self.line_2d(item) {
+                            let dir = (dir.0 * su, dir.1 * sv);
+                            out.push((
+                                index,
+                                Pcurve::Line {
+                                    point: scale(point),
+                                    dir,
+                                },
+                            ));
+                        } else if let Some(points) = self.bspline_poles_2d(item) {
+                            let points: Vec<(f64, f64)> = points.into_iter().map(scale).collect();
+                            // OpenCascade boxes the pcurve trimmed to the edge. A clamped curve's
+                            // end poles are its end points, so the polygon stands for the edge
+                            // only when they land on the edge's vertices.
+                            let length: f64 = edges[index]
+                                .samples
+                                .windows(2)
+                                .map(|w| geom::dist(w[0], w[1]))
+                                .sum();
+                            if spans_edge(surface, &points, (a, b), length) {
+                                out.push((index, Pcurve::Poles(points)));
+                            }
                         }
                     }
                 }
             }
         }
         out
+    }
+
+    /// A (rational) B-spline curve written as a STEP complex entity — `B_SPLINE_CURVE` +
+    /// `B_SPLINE_CURVE_WITH_KNOTS` (+ `RATIONAL_B_SPLINE_CURVE`) — in NURBS form.
+    fn complex_bspline(&self, parts: &[m::UnitPart]) -> Option<Curve> {
+        let (degree, refs) = parts.iter().find_map(|p| match p {
+            m::UnitPart::BSplineCurve {
+                degree,
+                control_points_list,
+                ..
+            } => Some((*degree, control_points_list)),
+            _ => None,
+        })?;
+        let (mults, values) = parts.iter().find_map(|p| match p {
+            m::UnitPart::BSplineCurveWithKnots {
+                knot_multiplicities,
+                knots,
+                ..
+            } => Some((knot_multiplicities, knots)),
+            _ => None,
+        })?;
+        let points: Vec<V3> = refs.iter().map(|r| self.point(r)).collect::<Option<_>>()?;
+        let weights = parts
+            .iter()
+            .find_map(|p| match p {
+                m::UnitPart::RationalBSplineCurve { weights_data } => Some(weights_data.clone()),
+                _ => None,
+            })
+            .unwrap_or_else(|| vec![1.0; points.len()]);
+        let knots: Vec<f64> = values
+            .iter()
+            .zip(mults)
+            .flat_map(|(k, &m)| std::iter::repeat_n(*k, usize::try_from(m).unwrap_or(0)))
+            .collect();
+        NurbsCurve::new(usize::try_from(degree).ok()?, points, weights, knots).map(Curve::Nurbs)
+    }
+
+    /// A 2D `LINE`'s point and direction, unscaled.
+    fn line_2d(&self, item: &m::RepresentationItemRef) -> Option<((f64, f64), (f64, f64))> {
+        let m::RepresentationItemRef::Line(i) = item else {
+            return None;
+        };
+        let line = self.model.line_arena.get(i.0);
+        let m::CartesianPointRef::CartesianPoint(p) = &line.pnt else {
+            return None;
+        };
+        let c = &self.model.cartesian_point_arena.get(p.0).coordinates;
+        let m::VectorRef::Vector(v) = &line.dir else {
+            return None;
+        };
+        let m::DirectionRef::Direction(d) = &self.model.vector_arena.get(v.0).orientation else {
+            return None;
+        };
+        let r = &self.model.direction_arena.get(d.0).direction_ratios;
+        Some(((*c.first()?, *c.get(1)?), (*r.first()?, *r.get(1)?)))
     }
 
     fn bspline_poles_2d(&self, item: &m::RepresentationItemRef) -> Option<Vec<(f64, f64)>> {
@@ -345,6 +420,9 @@ impl Reader<'_> {
                     minor: e.semi_axis_2 * mm,
                 })
             }
+            m::CurveRef::Complex(c) => {
+                self.complex_bspline(&self.model.complex_unit_arena.get(c.0).parts)
+            }
             m::CurveRef::SurfaceCurve(i) => {
                 self.curve(&self.model.surface_curve_arena.get(i.0).curve_3d)
             }
@@ -413,7 +491,7 @@ impl Reader<'_> {
 }
 
 /// Whether a pcurve's end poles map onto the edge's two vertices (in either order).
-fn spans_edge(surface: &Surface, poles: &[(f64, f64)], (a, b): (V3, V3)) -> bool {
+fn spans_edge(surface: &Surface, poles: &[(f64, f64)], (a, b): (V3, V3), length: f64) -> bool {
     let (Some(&first), Some(&last)) = (poles.first(), poles.last()) else {
         return false;
     };
@@ -422,8 +500,8 @@ fn spans_edge(surface: &Surface, poles: &[(f64, f64)], (a, b): (V3, V3)) -> bool
         surface.value(last.0, last.1),
     );
     // Files approximate their pcurves; a curve longer than its edge misses a vertex by a large
-    // fraction of the edge, an approximation by far less.
-    let tol = (0.01 * geom::dist(a, b)).max(1e-4);
+    // fraction of the edge's length, an approximation by far less.
+    let tol = (0.01 * length).max(1e-4);
     let near = |x: V3, y: V3| geom::dist(x, y) <= tol;
     (near(p, a) && near(q, b)) || (near(p, b) && near(q, a))
 }
@@ -634,13 +712,13 @@ pub fn read_step(bytes: &[u8]) -> Result<Part, StepError> {
             }
             members.push(out_faces.len());
             let surface = reader.surface(&face);
-            let pcurve_poles = reader.pcurve_poles(&face, &surface);
+            let pcurves = reader.pcurves(&face, &surface, &edge_index, &edges_out);
             out_faces.push(Face {
                 surface,
                 reversed: face.same_sense() == flipped,
                 loops,
                 solid: is_solid.then_some(solids.len()),
-                pcurve_poles,
+                pcurves,
             });
         }
         drop(vertex_id);

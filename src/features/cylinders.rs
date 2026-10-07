@@ -249,3 +249,43 @@ pub fn axis_point_at(c: &impl Coaxial, s: f64) -> V3 {
     let (p, d) = (c.axis_point(), c.direction());
     geom::add(p, geom::scale(d, s - geom::dot(p, d)))
 }
+
+/// The inventory as Python's `(z_cyls, cross_cyls)` pair concatenated: z-axis cylinders first,
+/// each group in solid and face order — the order families that scan it rely on.
+pub fn z_then_cross(cyls: &[CylinderEvidence]) -> (Vec<CylinderEvidence>, Vec<CylinderEvidence>) {
+    cyls.iter().cloned().partition(|c| c.axis == 2)
+}
+
+/// `_canonical_axis_direction`: dominant component positive, components rounded to 6 decimals
+/// with sub-half-micro values zeroed.
+pub fn canonical_axis_direction(axis: usize, d: V3) -> V3 {
+    let norm = py::hypot(&d);
+    let sign = if d[axis] < 0.0 { -1.0 } else { 1.0 };
+    let unit = if (norm - 1.0).abs() <= 2e-6 {
+        d.map(|c| sign * c)
+    } else {
+        d.map(|c| sign * c / norm)
+    };
+    unit.map(|c| {
+        if c.abs() < 0.5e-6 {
+            0.0
+        } else {
+            py::round_to(c, 6)
+        }
+    })
+}
+
+/// `_axis_line_coordinates`: where the axis line crosses the plane through the origin, as the
+/// two coordinates other than the axis's own, rounded to 3 decimals.
+pub fn axis_line_coordinates(axis: usize, point: V3, d: V3) -> (f64, f64) {
+    let norm = py::hypot(&d);
+    let sign = if d[axis] < 0.0 { -1.0 } else { 1.0 };
+    let v = d.map(|c| sign * c / norm);
+    let along = point[0] * v[0] + point[1] * v[1] + point[2] * v[2];
+    let foot = [0, 1, 2].map(|i| point[i] - along * v[i]);
+    let keep: Vec<usize> = (0..3).filter(|&i| i != axis).collect();
+    (
+        py::without_negative_zero(py::round_to(foot[keep[0]], 3)),
+        py::without_negative_zero(py::round_to(foot[keep[1]], 3)),
+    )
+}

@@ -4,7 +4,7 @@
 
 use std::f64::consts::TAU;
 
-use super::brep::Part;
+use super::brep::{Part, Pcurve};
 use super::geom::{self, Surface, V3};
 use super::py;
 
@@ -264,61 +264,111 @@ impl Part {
             f64::INFINITY,
             f64::NEG_INFINITY,
         ];
-        // Unwrap every loop next to the first so separate loops share one period.
+        let mut add = |(u, v): (f64, f64)| {
+            range = [
+                range[0].min(u),
+                range[1].max(u),
+                range[2].min(v),
+                range[3].max(v),
+            ];
+        };
+        // Every loop is unwrapped next to the first one's start so separate loops share one
+        // period; whether a loop winds round a periodic direction is read from its ends.
         let reference = loops.first().and_then(|l| l.points.first()).copied()?;
+        let near = |(u, v): (f64, f64), (ru, rv): (f64, f64)| {
+            (
+                if pu { geom::nearest_turn(u, ru) } else { u },
+                if pv { geom::nearest_turn(v, rv) } else { v },
+            )
+        };
         let mut winds = (false, false);
         for lp in loops {
-            let lp = &lp.points;
-            let (Some(first), Some(last)) = (lp.first(), lp.last()) else {
+            let (Some(&first), Some(&last)) = (lp.points.first(), lp.points.last()) else {
                 continue;
-            };
-            let shift_u = if pu {
-                geom::nearest_turn(first.0, reference.0) - first.0
-            } else {
-                0.0
-            };
-            let shift_v = if pv {
-                geom::nearest_turn(first.1, reference.1) - first.1
-            } else {
-                0.0
             };
             winds.0 |= pu && (last.0 - first.0).abs() > 1.0;
             winds.1 |= pv && (last.1 - first.1).abs() > 1.0;
-            for &(u, v) in lp {
-                range[0] = range[0].min(u + shift_u);
-                range[1] = range[1].max(u + shift_u);
-                range[2] = range[2].min(v + shift_v);
-                range[3] = range[3].max(v + shift_v);
-            }
         }
-        // OpenCascade's range covers each B-spline pcurve's control polygon, which can overshoot
-        // the curve itself. Align each polygon to the loops' period before taking it in.
-        let centre = (0.5 * (range[0] + range[1]), 0.5 * (range[2] + range[3]));
-        for poles in &f.pcurve_poles {
-            let (mut lo_u, mut hi_u, mut lo_v, mut hi_v) = (
-                f64::INFINITY,
-                f64::NEG_INFINITY,
-                f64::INFINITY,
-                f64::NEG_INFINITY,
-            );
-            for &(u, v) in poles {
-                (lo_u, hi_u, lo_v, hi_v) = (lo_u.min(u), hi_u.max(u), lo_v.min(v), hi_v.max(v));
+        if matches!(f.surface, Surface::Sphere { .. }) || f.pcurves.is_empty() {
+            for lp in loops {
+                let Some(&first) = lp.points.first() else {
+                    continue;
+                };
+                let shifted = near(first, reference);
+                let shift = (shifted.0 - first.0, shifted.1 - first.1);
+                lp.points
+                    .iter()
+                    .for_each(|&(u, v)| add((u + shift.0, v + shift.1)));
             }
-            let mid = (0.5 * (lo_u + hi_u), 0.5 * (lo_v + hi_v));
-            let su = if pu {
-                geom::nearest_turn(mid.0, centre.0) - mid.0
-            } else {
-                0.0
-            };
-            let sv = if pv {
-                geom::nearest_turn(mid.1, centre.1) - mid.1
-            } else {
-                0.0
-            };
-            range[0] = range[0].min(lo_u + su);
-            range[1] = range[1].max(hi_u + su);
-            range[2] = range[2].min(lo_v + sv);
-            range[3] = range[3].max(hi_v + sv);
+        } else {
+            // Edge by edge: where the file gives an edge's pcurve, it sizes the range in place of
+            // the 3D edge (aligned to the edge's own samples to pick the period).
+            for lp in &f.loops {
+                if let Some(apex) = lp.vertex {
+                    if let Some(p) = f.surface.parameters(apex, None) {
+                        add((near(p, reference).0, p.1));
+                    }
+                    continue;
+                }
+                let mut last = reference;
+                for &(e, forward) in &lp.edges {
+                    let samples = &self.edges[e].samples;
+                    let ordered: Box<dyn Iterator<Item = &V3>> = if forward {
+                        Box::new(samples.iter())
+                    } else {
+                        Box::new(samples.iter().rev())
+                    };
+                    let mut pts = Vec::with_capacity(samples.len());
+                    for p in ordered {
+                        let q = near(f.surface.parameters(*p, None)?, last);
+                        pts.push(q);
+                        last = q;
+                    }
+                    let own: Vec<&Pcurve> = f
+                        .pcurves
+                        .iter()
+                        .filter(|(pe, _)| *pe == e)
+                        .map(|(_, c)| c)
+                        .collect();
+                    if own.is_empty() {
+                        pts.iter().for_each(|&p| add(p));
+                        continue;
+                    }
+                    let n = pts.len() as f64;
+                    let centre = (
+                        pts.iter().map(|p| p.0).sum::<f64>() / n,
+                        pts.iter().map(|p| p.1).sum::<f64>() / n,
+                    );
+                    for curve in own {
+                        match curve {
+                            Pcurve::Poles(poles) => {
+                                let m = poles.len() as f64;
+                                let mid = (
+                                    poles.iter().map(|p| p.0).sum::<f64>() / m,
+                                    poles.iter().map(|p| p.1).sum::<f64>() / m,
+                                );
+                                let aligned = near(mid, centre);
+                                poles.iter().for_each(|&(u, v)| {
+                                    add((u + aligned.0 - mid.0, v + aligned.1 - mid.1))
+                                });
+                            }
+                            Pcurve::Line { point, dir } => {
+                                // A line constant in one parameter fixes that parameter exactly;
+                                // the other comes from the edge's samples.
+                                let along_v = dir.0.abs() <= 1e-12 * dir.1.abs();
+                                let along_u = dir.1.abs() <= 1e-12 * dir.0.abs();
+                                let fixed = near(*point, centre);
+                                for &(u, v) in &pts {
+                                    add((
+                                        if along_v { fixed.0 } else { u },
+                                        if along_u { fixed.1 } else { v },
+                                    ));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         let seam = self.seam_parameters(face);
         for (periodic, wound, lo, hi, seam_value) in

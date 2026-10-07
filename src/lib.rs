@@ -11,6 +11,7 @@ pub use features::bosses::{BossRecord, recognise_bosses};
 pub use features::chamfers::{Chamfer, ChamferOptions, recognise_chamfers};
 pub use features::countersinks::{CounterSink, recognise_countersinks};
 pub use features::fillets::{Fillet, FilletOptions, recognise_fillets};
+pub use features::flats::{Flat, recognise_flats};
 pub use features::hole_patterns::{HolePattern, recognise_hole_patterns};
 pub use features::holes::{HoleOptions, HoleRecord, recognise_holes};
 pub use kernel::brep::Part;
