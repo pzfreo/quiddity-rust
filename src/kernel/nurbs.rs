@@ -452,7 +452,6 @@ impl NurbsSurface {
         for (t, u, v) in seeds {
             let (mut t, mut u, mut v) = (t, u, v);
             let mut converged = false;
-            let mut det_last = 0.0;
             for _ in 0..40 {
                 let s = self.value(u, v);
                 let f = geom::sub(s, geom::add(origin, geom::scale(dir, t)));
@@ -464,7 +463,6 @@ impl NurbsSurface {
                 // Solve [su sv -dir] (du dv dt) = -f by Cramer's rule.
                 let m = [su, sv, geom::scale(dir, -1.0)];
                 let det = geom::dot(m[0], geom::cross(m[1], m[2]));
-                det_last = det;
                 if det.abs() < 1e-300 {
                     break;
                 }
@@ -488,7 +486,7 @@ impl NurbsSurface {
             let (_, su, sv) = self.value_and_partials(u, v);
             let normal = geom::cross(su, sv);
             let cos = geom::dot(normal, dir).abs() / (geom::norm(normal).max(1e-300));
-            if cos < 1e-6 || det_last.abs() < 1e-14 {
+            if cos < 1e-6 {
                 grazing = true;
             }
             hits.push((t, u, v));
@@ -517,4 +515,111 @@ fn ray_triangle(o: V3, d: V3, p0: V3, p1: V3, p2: V3, pad: f64) -> Option<(f64, 
         return None;
     }
     Some((t, a.clamp(0.0, 1.0), b.clamp(0.0, 1.0 - a.clamp(0.0, 1.0))))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// A rational biquadratic quarter-cylinder patch: exact circle in u, line in v.
+    fn quarter_cylinder() -> NurbsSurface {
+        let w = std::f64::consts::FRAC_1_SQRT_2;
+        let rows = [[1.0, 0.0], [1.0, 1.0], [0.0, 1.0]];
+        let control_points = rows
+            .iter()
+            .map(|&[x, y]| vec![[x, y, 0.0], [x, y, 2.0]])
+            .collect();
+        let weights = vec![vec![1.0, 1.0], vec![w, w], vec![1.0, 1.0]];
+        NurbsSurface::new(
+            2,
+            1,
+            control_points,
+            weights,
+            vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
+            vec![0.0, 0.0, 1.0, 1.0],
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn analytic_partials_match_finite_differences() {
+        let s = quarter_cylinder();
+        for (u, v) in [(0.2, 0.3), (0.5, 0.5), (0.9, 0.1)] {
+            let (p, su, sv) = s.value_and_partials(u, v);
+            assert!(
+                (p[0].hypot(p[1]) - 1.0).abs() < 1e-12,
+                "on the unit cylinder"
+            );
+            let h = 1e-6;
+            let fu = geom::scale(geom::sub(s.value(u + h, v), s.value(u - h, v)), 0.5 / h);
+            let fv = geom::scale(geom::sub(s.value(u, v + h), s.value(u, v - h)), 0.5 / h);
+            assert!(geom::dist(su, fu) < 1e-6 && geom::dist(sv, fv) < 1e-6);
+        }
+    }
+
+    #[test]
+    fn inversion_recovers_parameters() {
+        let s = quarter_cylinder();
+        for (u, v) in [(0.1, 0.9), (0.6, 0.4)] {
+            let (iu, iv) = s.invert(s.value(u, v), None);
+            assert!((iu - u).abs() < 1e-9 && (iv - v).abs() < 1e-9);
+        }
+    }
+
+    #[test]
+    fn ray_hits_find_the_patch() {
+        let s = quarter_cylinder();
+        let (hits, grazing) =
+            s.ray_hits([0.0, 0.0, 1.0], geom::unit([1.0, 1.0, 0.0]).unwrap(), 10.0);
+        assert_eq!(hits.len(), 1);
+        assert!(!grazing);
+        assert!((hits[0].0 - 1.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn malformed_arrays_are_refused() {
+        assert!(NurbsCurve::new(2, vec![[0.0; 3]; 3], vec![1.0; 3], vec![0.0, 1.0]).is_none());
+        assert!(
+            NurbsCurve::new(
+                1,
+                vec![[0.0; 3], [1.0; 3]],
+                vec![1.0, -1.0],
+                vec![0.0, 0.0, 1.0, 1.0]
+            )
+            .is_none()
+        );
+        assert!(
+            NurbsSurface::new(
+                1,
+                1,
+                vec![vec![[0.0; 3]; 2]; 2],
+                vec![vec![1.0; 2]; 1],
+                vec![0.0, 0.0, 1.0, 1.0],
+                vec![0.0, 0.0, 1.0, 1.0]
+            )
+            .is_none()
+        );
+    }
+
+    #[test]
+    fn closed_curves_are_detected() {
+        let square = vec![
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [1.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0],
+        ];
+        let closed =
+            NurbsCurve::new(1, square, vec![1.0; 4], vec![0.0, 0.0, 1.0, 2.0, 3.0, 3.0]).unwrap();
+        assert!(closed.is_closed());
+        let open = NurbsCurve::new(
+            1,
+            vec![[0.0; 3], [1.0, 0.0, 0.0]],
+            vec![1.0; 2],
+            vec![0.0, 0.0, 1.0, 1.0],
+        )
+        .unwrap();
+        assert!(!open.is_closed());
+        assert!((open.invert([0.25, 0.1, 0.0]) - 0.25).abs() < 1e-12);
+    }
 }

@@ -447,3 +447,66 @@ fn round_seam(value: f64) -> f64 {
         value
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn domain(loops: Vec<Vec<(f64, f64)>>, periodic: (bool, bool)) -> FaceDomain {
+        let loops: Vec<UvLoop> = loops.into_iter().map(|points| UvLoop { points }).collect();
+        FaceDomain::new(&loops, periodic)
+    }
+
+    fn square(lo: f64, hi: f64) -> Vec<(f64, f64)> {
+        vec![(lo, lo), (hi, lo), (hi, hi), (lo, hi), (lo, lo)]
+    }
+
+    #[test]
+    fn annulus_excludes_its_hole() {
+        let d = domain(vec![square(0.0, 10.0), square(4.0, 6.0)], (false, false));
+        assert!(d.contains(2.0, 2.0));
+        assert!(!d.contains(5.0, 5.0));
+        assert!(!d.contains(11.0, 5.0));
+    }
+
+    #[test]
+    fn cylinder_band_between_two_circles() {
+        // Two separate loops round a periodic u, as files without seam edges give them.
+        let ring = |v: f64| periodic_line(0.0, TAU, v);
+        let d = domain(vec![ring(0.0), ring(5.0)], (true, false));
+        assert!(d.contains(1.0, 2.0) && d.contains(6.0, 2.0) && d.contains(-1.0, 2.0));
+        assert!(!d.contains(1.0, -1.0) && !d.contains(1.0, 6.0));
+    }
+
+    #[test]
+    fn torus_band_partial_in_v() {
+        // A seam rectangle [0, 2π] × [0, π/2], as OpenCascade writes a turned fillet.
+        let h = std::f64::consts::FRAC_PI_2;
+        let mut lp = periodic_line(0.0, TAU, 0.0);
+        lp.extend([(TAU, h)]);
+        lp.extend(periodic_line(TAU, 0.0, h));
+        lp.push((0.0, 0.0));
+        let d = domain(vec![lp], (true, true));
+        assert!(d.contains(3.0, 0.7));
+        assert!(!d.contains(3.0, 2.0) && !d.contains(3.0, -0.5));
+    }
+
+    #[test]
+    fn hemisphere_closed_through_its_pole() {
+        let frame = crate::kernel::geom::Frame {
+            origin: [0.0; 3],
+            x: [1.0, 0.0, 0.0],
+            y: [0.0, 1.0, 0.0],
+            z: [0.0, 0.0, 1.0],
+        };
+        let sphere = Surface::Sphere { frame, radius: 1.0 };
+        let h = std::f64::consts::FRAC_PI_2;
+        // Seam up to the pole and back, then the equator once round.
+        let mut pts = vec![(0.0, 0.0), (0.0, h), (0.0, 0.0)];
+        pts.extend(periodic_line(0.0, TAU, 0.0));
+        close_through_pole(&sphere, &mut pts, false);
+        let d = domain(vec![pts], (true, false));
+        assert!(d.contains(2.0, 0.5));
+        assert!(!d.contains(2.0, -0.5));
+    }
+}

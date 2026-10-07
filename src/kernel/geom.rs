@@ -597,3 +597,118 @@ pub fn length_tol(nominal: f64, rel: f64) -> f64 {
 pub const COORD_FLOOR: f64 = 1e-6;
 pub const AXIS_ALIGNED_COS: f64 = 0.99;
 pub const INTERIOR_PROBE_FRAC: f64 = 0.05;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn rounding_matches_python() {
+        // Values from CPython's round(x, 3) and float(f"{x:.6g}").
+        assert_eq!(round3(2.0005), 2.001);
+        assert_eq!(round3(0.0625), 0.062);
+        assert_eq!(round3(1.2345), 1.234);
+        assert_eq!(round3(19.4145), 19.415);
+        assert!(round3(-0.0004) == 0.0 && round3(-0.0004).is_sign_negative());
+        assert_eq!(quantise(1234567.0), 1234570.0);
+        assert_eq!(quantise(0.000123456789), 0.000123457);
+        assert_eq!(quantise(2.5e-7), 2.5e-7);
+    }
+
+    #[test]
+    fn default_x_axis_follows_gp_ax2() {
+        assert_eq!(default_x_axis([0.0, 0.0, 1.0]), [1.0, 0.0, 0.0]);
+        assert_eq!(default_x_axis([0.0, 1.0, 0.0]), [0.0, 0.0, 1.0]);
+        assert_eq!(default_x_axis([1.0, 0.0, 0.0]), [0.0, 0.0, 1.0]);
+        let z = unit([0.3, -0.5, 0.8]).unwrap();
+        assert!(dot(default_x_axis(z), z).abs() < 1e-15);
+    }
+
+    #[test]
+    fn nearest_turn_wraps_into_half_open_window() {
+        assert!((nearest_turn(7.0, 0.5) - (7.0 - TAU)).abs() < 1e-15);
+        assert!((nearest_turn(-3.0, 3.0) - (-3.0 + TAU)).abs() < 1e-15);
+        assert_eq!(nearest_turn(1.0, 1.0), 1.0);
+    }
+
+    fn tilted_frame() -> Frame {
+        let z = unit([0.2, 0.3, 0.9]).unwrap();
+        let x = default_x_axis(z);
+        Frame {
+            origin: [1.0, -2.0, 3.0],
+            x,
+            y: cross(z, x),
+            z,
+        }
+    }
+
+    #[test]
+    fn analytic_parameters_invert_value() {
+        let frame = tilted_frame();
+        let surfaces = [
+            Surface::Plane { frame },
+            Surface::Cylinder { frame, radius: 2.5 },
+            Surface::Cone {
+                frame,
+                radius: 2.0,
+                semi_angle: 0.4,
+            },
+            Surface::Sphere { frame, radius: 3.0 },
+            Surface::Torus {
+                frame,
+                major: 5.0,
+                minor: 1.5,
+            },
+        ];
+        for s in &surfaces {
+            for (u, v) in [(0.3, 0.2), (2.0, -0.7), (5.5, 1.1)] {
+                let p = s.value(u, v);
+                let (pu, pv) = s.parameters(p, None).unwrap();
+                let back = s.value(pu, pv);
+                assert!(dist(back, p) < 1e-9, "{s:?} at ({u}, {v})");
+            }
+        }
+    }
+
+    #[test]
+    fn ray_hits_count_crossings() {
+        let frame = Frame {
+            origin: [0.0; 3],
+            x: [1.0, 0.0, 0.0],
+            y: [0.0, 1.0, 0.0],
+            z: [0.0, 0.0, 1.0],
+        };
+        let cyl = Surface::Cylinder { frame, radius: 1.0 };
+        let (hits, grazing) = cyl
+            .ray_hits([-5.0, 0.0, 0.0], [1.0, 0.0, 0.0], 100.0)
+            .unwrap();
+        assert_eq!(hits.len(), 2);
+        assert!(!grazing);
+        // A ray lying in a plane reports no hit but flags itself as grazing.
+        let plane = Surface::Plane { frame };
+        let (hits, grazing) = plane
+            .ray_hits([0.0, 0.0, 0.0], [1.0, 0.0, 0.0], 100.0)
+            .unwrap();
+        assert!(hits.is_empty() && grazing);
+        // A line through a torus's centre in its mid-plane crosses the tube four times.
+        let torus = Surface::Torus {
+            frame,
+            major: 5.0,
+            minor: 1.0,
+        };
+        let (hits, _) = torus
+            .ray_hits([-10.0, 0.0, 0.0], [1.0, 0.0, 0.0], 100.0)
+            .unwrap();
+        assert_eq!(hits.len(), 4);
+        // A cone's other nappe is not part of the surface.
+        let cone = Surface::Cone {
+            frame,
+            radius: 1.0,
+            semi_angle: 0.5,
+        };
+        let (hits, _) = cone
+            .ray_hits([0.0, 0.0, 10.0], [0.0, 0.0, -1.0], 100.0)
+            .unwrap();
+        assert_eq!(hits.len(), 1, "only the apex of the covered nappe");
+    }
+}

@@ -96,3 +96,47 @@ pub fn arc_extremes(curve: &Curve, start: V3, end: V3, same_sense: bool, closed:
     }
     out
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::kernel::geom::Frame;
+
+    fn unit_circle() -> Curve {
+        Curve::Circle {
+            frame: Frame {
+                origin: [0.0; 3],
+                x: [1.0, 0.0, 0.0],
+                y: [0.0, 1.0, 0.0],
+                z: [0.0, 0.0, 1.0],
+            },
+            radius: 1.0,
+        }
+    }
+
+    #[test]
+    fn closed_edges_cover_the_whole_curve_in_their_sense() {
+        let p = [1.0, 0.0, 0.0];
+        let (a, b) = edge_interval(&unit_circle(), p, p, true, true);
+        assert!((b - a - TAU).abs() < 1e-12);
+        let (a, b) = edge_interval(&unit_circle(), p, p, false, true);
+        assert!((a - b - TAU).abs() < 1e-12);
+    }
+
+    #[test]
+    fn open_arcs_wrap_across_the_parameter_origin() {
+        let (start, end) = ([0.0, -1.0, 0.0], [0.0, 1.0, 0.0]);
+        let (a, b) = edge_interval(&unit_circle(), start, end, true, false);
+        assert!(
+            (b - a - std::f64::consts::PI).abs() < 1e-12,
+            "through +x, not the long way"
+        );
+        let samples = sample_edge(&unit_circle(), start, end, true, false);
+        assert!(samples.iter().any(|p| p[0] > 0.999));
+        // Every chord stays within tolerance of the circle.
+        for w in samples.windows(2) {
+            let mid = geom::scale(geom::add(w[0], w[1]), 0.5);
+            assert!(1.0 - geom::norm(mid) <= CHORD_TOLERANCE * 1.0001);
+        }
+    }
+}
