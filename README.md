@@ -14,6 +14,8 @@ OpenCascade is reimplemented in `src/kernel`.
 | Chamfers | `recognise_chamfers` | 107/107 | see below |
 | Countersinks | `recognise_countersinks` | 77/77 | see below |
 | Angled steps | `recognise_angled_steps` | 105/105 | see below |
+| Flats | `recognise_flats` | 88/88 | see below |
+| Paired ramp steps | `recognise_paired_ramp_steps` | 109/109 | see below |
 | Bosses | `recognise_bosses` | 131/133 (2 known divergences) | see below |
 | Hole patterns | `recognise_hole_patterns` | 470/470 | see below |
 
@@ -49,7 +51,8 @@ src/
     bevel.rs         the single-face bevel read and the convex-corner probe
     turned.rs        what turned-stock treatments share: coaxial external cylinders, cone rims
     stacks.rs        coaxial segments read at their ends (open / flat / drill point)
-    fillets.rs  chamfers.rs  holes.rs  countersinks.rs  hole_patterns.rs  bosses.rs  angled_steps.rs
+    fillets.rs  chamfers.rs  holes.rs  countersinks.rs  hole_patterns.rs  bosses.rs  angled_steps.rs  flats.rs
+    paired_ramp_steps.rs
   bin/quiddity.rs    `quiddity part.step` → JSON
 tests/
   captured.rs        replays every recogniser call the Python test suite makes

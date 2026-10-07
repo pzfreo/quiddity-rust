@@ -57,6 +57,7 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
         "recognise_chamfers" => json(recognise_chamfers(part, &options(kwargs))),
         "recognise_countersinks" => json(recognise_countersinks(part)),
         "recognise_bosses" => json(quiddity::recognise_bosses(part)),
+        "recognise_paired_ramp_steps" => json(quiddity::recognise_paired_ramp_steps(part)),
         "recognise_flats" => json(quiddity::recognise_flats(part)),
         "recognise_angled_steps" => json(quiddity::recognise_angled_steps(part)),
         "recognise_holes" => json(recognise_holes(part, &options(kwargs))),
@@ -89,6 +90,9 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
         "recognise_chamfers" => chamfers::discover_verified(&ctx, &options(kwargs)).map(faces),
         "recognise_countersinks" => countersinks::discover_verified(&ctx).map(faces),
         "recognise_bosses" => quiddity::features::bosses::discover_verified(&ctx).map(faces),
+        "recognise_paired_ramp_steps" => {
+            quiddity::features::paired_ramp_steps::discover_verified(&ctx).map(faces)
+        }
         "recognise_flats" => quiddity::features::flats::discover_verified(&ctx).map(faces),
         "recognise_angled_steps" => {
             quiddity::features::angled_steps::discover_verified(&ctx).map(faces)

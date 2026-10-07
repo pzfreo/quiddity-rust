@@ -152732,9 +152732,2339 @@
    "rich_arguments": [],
    "in_memory": [],
    "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_records_are_frozen_and_json_serializable",
+   "function": "recognise_paired_ramp_steps",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_every_record_type_is_actually_exercised",
+   "function": "recognise_paired_ramp_steps",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "6b0ce256f4c70482.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "ce30ea612029f8ba.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "63eb54cc99e74641.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "860dce2a651ab4e7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "3aa3fee8a5ce2624.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "c7ee6c53ea0011e7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "236ea4cc9bd6bfe4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "04aec2096ae6ebfa.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "c31caa7ecbb2d309.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "108759c5561ee63f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "9683f6213a4aa5bd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "aa80434054958f86.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "7802ff06fec22161.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "ecafad7c9184d591.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "dab41ec2d752f628.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "4a7f6a6171b284a7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "7edb959cec898e4b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "1e4303b9497adbaf.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "c7a10a9aba34edb1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "786005dcbc3b0bea.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "ba02182884c56d73.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "644f8fd20345b417.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "016c60d49a52fa18.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "4ee8cff9e649797a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "6da54be7d9818148.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "8adc57b328863b43.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "a6e940ff37afef35.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "2a3cdf2b10d85c62.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_paired_ramp_steps",
+   "file": "0a3141da4c6d054d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_a_mirror_ramp_pair_open_to_the_stock_side_is_one_physical_cut",
+   "function": "recognise_paired_ramp_steps",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_a_shallow_mirror_pair_is_a_step_even_when_neither_face_is_a_chamfer",
+   "function": "recognise_paired_ramp_steps",
+   "file": "49cf70a5801c7381.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 87.14,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 0.5,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 87.14,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 0.5,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_principal_planes_do_not_become_zero_angle_ramps",
+   "function": "recognise_paired_ramp_steps",
+   "file": "52d93bc4b13fd1b8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_aggregate_candidate_result_and_census_are_one_accepted_occurrence",
+   "function": "recognise_paired_ramp_steps",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_a_blind_v_recess_is_not_a_through_side_step",
+   "function": "recognise_paired_ramp_steps",
+   "file": "39c60a5adbd03f6f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_a_top_opening_triangular_pocket_is_not_a_side_step",
+   "function": "recognise_paired_ramp_steps",
+   "file": "a9c4851eeab83e94.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_an_asymmetric_v_is_outside_the_first_supported_domain",
+   "function": "recognise_paired_ramp_steps",
+   "file": "11f069cf9391b840.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_equal_angle_pair_with_unequal_observed_ramp_widths",
+   "function": "recognise_paired_ramp_steps",
+   "file": "68a8cfe43b0a9971.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 7.0,
+     "half_widths": [
+      8.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 7.0,
+     "half_widths": [
+      8.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_equal_angle_pair_with_unequal_observed_ramp_widths",
+   "function": "recognise_paired_ramp_steps",
+   "file": "8d24d66498e4fd26.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 7.0,
+     "half_widths": [
+      6.0,
+      8.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 7.0,
+     "half_widths": [
+      6.0,
+      8.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_equal_angle_pair_with_unequal_observed_ramp_widths",
+   "function": "recognise_paired_ramp_steps",
+   "file": "f49740e90eb8af79.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      -7.5,
+      10.0,
+      0.0
+     ],
+     "opening_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "half_width": 7.0,
+     "half_widths": [
+      8.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      -7.5,
+      10.0,
+      0.0
+     ],
+     "opening_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "half_width": 7.0,
+     "half_widths": [
+      8.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_one_or_two_unrelated_chamfers_do_not_form_a_paired_cut",
+   "function": "recognise_paired_ramp_steps",
+   "file": "e909724a64065006.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_one_or_two_unrelated_chamfers_do_not_form_a_paired_cut",
+   "function": "recognise_paired_ramp_steps",
+   "file": "ee661c28cf6eb54a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_every_principal_run_axis_is_the_same_geometry_under_permutation",
+   "function": "recognise_paired_ramp_steps",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_every_principal_run_axis_is_the_same_geometry_under_permutation",
+   "function": "recognise_paired_ramp_steps",
+   "file": "ea65a7061c1e4421.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      -7.5,
+      10.0,
+      0.0
+     ],
+     "opening_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      -7.5,
+      10.0,
+      0.0
+     ],
+     "opening_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_every_principal_run_axis_is_the_same_geometry_under_permutation",
+   "function": "recognise_paired_ramp_steps",
+   "file": "8adab10c7a5b7382.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      0.0,
+      7.5
+     ],
+     "opening_direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      0.0,
+      7.5
+     ],
+     "opening_direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_translation_moves_only_the_stable_shared_ridge_anchor",
+   "function": "recognise_paired_ramp_steps",
+   "file": "9a02d15fa30890e3.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      13.0,
+      11.5,
+      5.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      13.0,
+      11.5,
+      5.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_profile_traversal_start_does_not_change_the_record",
+   "function": "recognise_paired_ramp_steps",
+   "file": "5e3304a19ab3a49c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_profile_traversal_start_does_not_change_the_record",
+   "function": "recognise_paired_ramp_steps",
+   "file": "7509c77c63e9badb.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_nonprincipal_run_is_outside_the_supported_domain",
+   "function": "recognise_paired_ramp_steps",
+   "file": "78446bb446367571.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_an_added_material_rib_is_not_a_removed_ramp_pair",
+   "function": "recognise_paired_ramp_steps",
+   "file": "fbe75d390643a389.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_an_open_shell_cannot_supply_same_valid_solid_authority",
+   "function": "recognise_paired_ramp_steps",
+   "file": "2ee55980ec1f5295.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_two_solids_are_scoped_independently_without_cross_body_pairing",
+   "function": "recognise_paired_ramp_steps",
+   "file": "a392e49fdc2014b8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    },
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      110.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    },
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      110.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_a_terminal_interrupted_by_a_drilled_hole_retains_the_proved_pair",
+   "function": "recognise_paired_ramp_steps",
+   "file": "6fed14b2d8f307f5.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_a_straight_terminal_boundary_subdivision_retains_the_proved_pair",
+   "function": "recognise_paired_ramp_steps",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_a_straight_ramp_boundary_subdivision_retains_the_original_face_pair",
+   "function": "recognise_paired_ramp_steps",
+   "file": "68f6672d14e737bc.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_a_straight_ramp_boundary_subdivision_retains_the_original_face_pair",
+   "function": "recognise_paired_ramp_steps",
+   "file": "3e85f23ff38f5757.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_an_independent_circular_ramp_inner_wire_retains_the_original_face_pair",
+   "function": "recognise_paired_ramp_steps",
+   "file": "d4c63d2148af0afe.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_subdivided_ramps_remain_covariant_and_profile_order_independent",
+   "function": "recognise_paired_ramp_steps",
+   "file": "f7435504929b7697.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      -7.5,
+      10.0,
+      0.0
+     ],
+     "opening_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      -7.5,
+      10.0,
+      0.0
+     ],
+     "opening_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_subdivided_ramps_remain_covariant_and_profile_order_independent",
+   "function": "recognise_paired_ramp_steps",
+   "file": "ecfc9e264924355b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      0.0,
+      7.5
+     ],
+     "opening_direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      0.0,
+      7.5
+     ],
+     "opening_direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_subdivided_ramps_remain_covariant_and_profile_order_independent",
+   "function": "recognise_paired_ramp_steps",
+   "file": "81ff4aeef69dbf70.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      13.0,
+      11.5,
+      5.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      13.0,
+      11.5,
+      5.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_subdivided_ramps_remain_covariant_and_profile_order_independent",
+   "function": "recognise_paired_ramp_steps",
+   "file": "66420e716aab6932.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_subdivided_ramps_remain_covariant_and_profile_order_independent",
+   "function": "recognise_paired_ramp_steps",
+   "file": "5e71bdc96724dcd6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_interrupted_ramp_recognition_is_scale_independent",
+   "function": "recognise_paired_ramp_steps",
+   "file": "feed795c2e7cc319.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 0.25,
+     "at": [
+      0.1,
+      0.075,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 0.08,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 0.25,
+     "at": [
+      0.1,
+      0.075,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 0.08,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_interrupted_ramp_recognition_is_scale_independent",
+   "function": "recognise_paired_ramp_steps",
+   "file": "0201daaa5acf6382.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 2500.0,
+     "at": [
+      1000.0,
+      750.0,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 800.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 2500.0,
+     "at": [
+      1000.0,
+      750.0,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 800.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_subdivided_ramp_survives_step_round_trip",
+   "function": "recognise_paired_ramp_steps",
+   "file": "68f6672d14e737bc.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_recognition_is_scale_independent_and_dimensions_scale",
+   "function": "recognise_paired_ramp_steps",
+   "file": "2ccf9730728a0f77.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 0.25,
+     "at": [
+      0.1,
+      0.075,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 0.08,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 0.25,
+     "at": [
+      0.1,
+      0.075,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 0.08,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_recognition_is_scale_independent_and_dimensions_scale",
+   "function": "recognise_paired_ramp_steps",
+   "file": "63dd55fe7ff214f4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 2500.0,
+     "at": [
+      1000.0,
+      750.0,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 800.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 2500.0,
+     "at": [
+      1000.0,
+      750.0,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 800.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_paired_ramp_steps.py::test_record_supports_a_concrete_paired_angle_and_run_dimension_projection",
+   "function": "recognise_paired_ramp_steps",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[angled_blind_step]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "6b0ce256f4c70482.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[blind_pockets_and_pocket_patterns]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "ce30ea612029f8ba.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[bolt_circle_and_rectangular_grid]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "63eb54cc99e74641.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[chamfers_fillets_and_flats]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "c94ee9af24e16bb1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[circular_blind_step]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[counterbored_and_countersunk_holes]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "3aa3fee8a5ce2624.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[double_d_bore]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "c7ee6c53ea0011e7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[gusset_rib_patterns]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "36181d1f9f68bd14.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[gusset_ribs]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "04aec2096ae6ebfa.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[hexagonal_passage]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "c31caa7ecbb2d309.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[interrupted_and_cross_bores]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "108759c5561ee63f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[oblique_through_step]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "9683f6213a4aa5bd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[open_channels]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[oriented_chamfer]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "aa80434054958f86.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[paired_ramp_step]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "angle": 51.34,
+     "length": 25.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ],
+     "opening_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "half_width": 8.0,
+     "half_widths": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[plates_pads_levels_and_slanted_steps]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "ecafad7c9184d591.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[polygonal_boss]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "dab41ec2d752f628.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[polygonal_stock]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "b43aca95225d6755.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[rectangular_blind_slot]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "7edb959cec898e4b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[rectangular_through_step]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[repeating_radial_profile]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "1e4303b9497adbaf.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[round_bottom_blind_slot]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "c7a10a9aba34edb1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[simple_through_hole]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "786005dcbc3b0bea.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[slanted_counterbore]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "ba02182884c56d73.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[slanted_steps]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "644f8fd20345b417.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[small_convex_blends]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "016c60d49a52fa18.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[straight_and_obround_slots]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "4ee8cff9e649797a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[toroidal_blend_compound]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "ec6a4f849ca053ee.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[toroidal_blend_internal]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[toroidal_blends_turned]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "8ef258defb12d32b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[traversal_order]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "7f3629b1ab01e8a3.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[triangular_and_hex_pockets]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "a9c4851eeab83e94.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[turned_steps_and_grooves]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "0a3141da4c6d054d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_equivalent_topology_traversals_produce_the_same_snapshot[traversal_order]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "64d2110ec45a5084.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_equivalent_topology_traversals_produce_the_same_snapshot[traversal_order]",
+   "function": "recognise_paired_ramp_steps",
+   "file": "8de6687d1b147e2e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
   }
  ],
  "skipped": {
-  "recognise_flats: capture failed: RuntimeError": 1
+  "recognise_paired_ramp_steps: capture failed: RuntimeError": 1
  }
 }

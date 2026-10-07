@@ -19,6 +19,7 @@ pub mod fillets;
 pub mod flats;
 pub mod hole_patterns;
 pub mod holes;
+pub mod paired_ramp_steps;
 pub mod planes;
 pub mod stacks;
 pub mod turned;
@@ -40,6 +41,7 @@ pub struct Features {
     pub bosses: Vec<bosses::BossRecord>,
     pub angled_steps: Vec<angled_steps::AngledStep>,
     pub flats: Vec<flats::Flat>,
+    pub paired_ramp_steps: Vec<paired_ramp_steps::PairedRampStep>,
     pub holes: Vec<holes::HoleRecord>,
     pub countersinks: Vec<countersinks::CounterSink>,
     pub hole_patterns: Vec<hole_patterns::HolePattern>,
@@ -58,6 +60,7 @@ pub fn recognise(part: &Part) -> Features {
         bosses: records(bosses::discover(&ctx)),
         angled_steps: records(angled_steps::discover(&ctx)),
         flats: records(flats::discover(&ctx)),
+        paired_ramp_steps: records(paired_ramp_steps::discover(&ctx)),
         hole_patterns: hole_patterns::recognise_hole_patterns(&holes),
         holes,
         countersinks,

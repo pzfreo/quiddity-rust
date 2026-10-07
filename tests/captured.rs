@@ -119,3 +119,8 @@ fn angled_steps_match_python() {
 fn flats_match_python() {
     replay("recognise_flats");
 }
+
+#[test]
+fn paired_ramp_steps_match_python() {
+    replay("recognise_paired_ramp_steps");
+}

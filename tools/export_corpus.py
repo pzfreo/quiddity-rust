@@ -32,9 +32,11 @@ from quiddity.bosses import _discover_bosses  # noqa: E402
 from quiddity.chamfers import _discover_chamfers  # noqa: E402
 from quiddity.countersinks import _discover_countersinks  # noqa: E402
 from quiddity.fillets import _discover_fillets  # noqa: E402
+from quiddity.flats import _discover_flats  # noqa: E402
 from quiddity.holes import _discover_holes  # noqa: E402
 
 from quiddity import (  # noqa: E402
+    recognise_flats,
     recognise_angled_steps,
     recognise_bosses,
     recognise_fillets,
@@ -124,6 +126,8 @@ def main() -> None:
         angled = (FamilyId.ANGLED_STEPS, lambda p, o: recognise_angled_steps(p),
                   lambda p, ledger, o: _discover_angled_steps(p, face_edges=None, graph=ledger.graph,
                                                               sink=ledger.writer.sink))
+        flat = (FamilyId.FLATS, lambda p, o: recognise_flats(p),
+                lambda p, ledger, o: _discover_flats(p, cyls=None, face_edges=None, writer=ledger.writer))
         hole = (FamilyId.HOLES, lambda p, o: recognise_holes(p, **hole_kwargs(o)),
                 lambda p, ledger, o: _discover_holes(p, writer=ledger.writer, **hole_kwargs(o)))
         entries.append(
@@ -141,6 +145,7 @@ def main() -> None:
                     "recognise_countersinks": [_run(part, "recognise_countersinks", *countersink, {})],
                     "recognise_bosses": [_run(part, "recognise_bosses", *boss, {})],
                     "recognise_angled_steps": [_run(part, "recognise_angled_steps", *angled, {})],
+                    "recognise_flats": [_run(part, "recognise_flats", *flat, {})],
                     "recognise_holes": [
                         _run(part, "recognise_holes", *hole, o) for o in ({}, {"csinks": "auto"})
                     ],

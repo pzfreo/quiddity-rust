@@ -45,3 +45,29 @@ fn reading_is_deterministic_and_topology_is_closed() {
         assert_eq!(a.neighbours(f), b.neighbours(f));
     }
 }
+
+#[test]
+fn arcs_read_convex_box_edges_and_concave_bore_rims() {
+    use quiddity::kernel::brep::Arc;
+    use quiddity::kernel::geom::Surface;
+    // Box(30, 30, 20) - Cylinder(5, 20): plane-plane box edges are convex; the bore wall meets
+    // the top and bottom faces in concave rims.
+    let part = fixture("rejected_bored_box.step");
+    let planes: Vec<usize> = (0..part.faces.len())
+        .filter(|&f| matches!(part.faces[f].surface, Surface::Plane { .. }))
+        .collect();
+    let bore = (0..part.faces.len())
+        .find(|&f| matches!(part.faces[f].surface, Surface::Cylinder { .. }))
+        .unwrap();
+    for &a in &planes {
+        for &b in &planes {
+            if let Some(arc) = part.arc(a, b) {
+                assert_eq!(arc, Arc::Convex, "box faces {a} and {b}");
+            }
+        }
+        if let Some(arc) = part.arc(a, bore) {
+            assert_eq!(arc, Arc::Concave);
+            assert_eq!(part.arc(bore, a), Some(Arc::Concave), "symmetric");
+        }
+    }
+}

@@ -43,6 +43,18 @@ pub struct Face {
     pub pcurves: Vec<(usize, Pcurve)>,
 }
 
+/// How a solid turns where two faces meet.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Arc {
+    /// The material forms a wedge at the edge.
+    Convex,
+    /// The material wraps round the edge.
+    Concave,
+    /// The outward normals agree there (a split face, or a tangent blend).
+    Smooth,
+    Unknown,
+}
+
 /// A pcurve, reduced to what sizing a parameter range needs.
 #[derive(Clone, Debug)]
 pub enum Pcurve {
@@ -240,6 +252,79 @@ impl Part {
             }
         }
         out
+    }
+
+    /// The edges two faces share, in *a*'s edge order.
+    pub fn shared_edges(&self, a: usize, b: usize) -> Vec<usize> {
+        let theirs = self.face_edges(b);
+        self.face_edges(a)
+            .into_iter()
+            .filter(|e| theirs.contains(e))
+            .collect()
+    }
+
+    /// The box of every face of a solid.
+    pub fn solid_bounds(&self, solid: usize) -> Bounds {
+        let mut b = Bounds::empty();
+        for &f in &self.solids[solid].faces {
+            b.merge(&self.face_bounds(f));
+        }
+        b
+    }
+
+    /// How the solid turns where two faces meet (`FaceGraph.arc`): `None` when they share no
+    /// edge, `Unknown` when their shared edges disagree or a normal cannot be read.
+    pub fn arc(&self, a: usize, b: usize) -> Option<Arc> {
+        let shared = self.shared_edges(a, b);
+        let first = self.arc_at(a, b, *shared.first()?);
+        Some(if shared.iter().all(|&e| self.arc_at(a, b, e) == first) {
+            first
+        } else {
+            Arc::Unknown
+        })
+    }
+
+    /// The turn at one shared edge: walking the edge in *a*'s boundary direction, left (in *a*'s
+    /// surface) points into *a*; which side of *b* that is decides convex or concave.
+    fn arc_at(&self, a: usize, b: usize, edge: usize) -> Arc {
+        let Some(forward) = self.faces[a]
+            .loops
+            .iter()
+            .flat_map(|l| &l.edges)
+            .find(|e| e.0 == edge)
+            .map(|e| e.1)
+        else {
+            return Arc::Unknown;
+        };
+        let ed = &self.edges[edge];
+        let (t0, t1) = edge_interval(&ed.curve, ed.start, ed.end, ed.same_sense, ed.is_closed());
+        let middle = 0.5 * (t0 + t1);
+        let h = 1e-6 * (t1 - t0).abs().max(1e-12);
+        let tangent = geom::sub(ed.curve.value(middle + h), ed.curve.value(middle - h));
+        // The interval already runs start → end; the loop may use the edge the other way.
+        let walk = if (t1 >= t0) == forward {
+            tangent
+        } else {
+            geom::scale(tangent, -1.0)
+        };
+        let (Some(direction), point) = (geom::unit(walk), ed.curve.value(middle)) else {
+            return Arc::Unknown;
+        };
+        let normal = |face: usize| {
+            let (u, v) = self.faces[face].surface.parameters(point, None)?;
+            self.face_normal(face, u, v)
+        };
+        let (Some(na), Some(nb)) = (normal(a), normal(b)) else {
+            return Arc::Unknown;
+        };
+        if 1.0 - geom::dot(na, nb) <= 1e-9 {
+            return Arc::Smooth;
+        }
+        if geom::dot(geom::cross(na, direction), nb) < 0.0 {
+            Arc::Convex
+        } else {
+            Arc::Concave
+        }
     }
 
     /// The face's outward normal at (u, v): the surface normal, flipped for a reversed face.
