@@ -36,7 +36,8 @@ use crate::kernel::brep::Part;
 
 /// Every ported family's records for one part, computed in one run that shares its analysis.
 /// Families are independent here: the Python aggregate's cross-family reconciliation
-/// (`build_recognition_result`) is not ported.
+/// (`build_recognition_result`) is not ported. Face levels and risers are measurements with no
+/// evidence path yet, so they are called on their own.
 #[derive(Clone, Debug, Serialize)]
 pub struct Features {
     pub fillets: Vec<fillets::Fillet>,

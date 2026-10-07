@@ -99,8 +99,10 @@ cargo test --release           # corpus test needs ../quiddity/tests/corpus or Q
    opts)` returning records that serialise to the same JSON as the Python dataclass, and a
    `discover(ctx, …) -> Vec<Occurrence<Record>>` that takes the shared `Context`. Reuse
    `Context` for anything a second family will also need (put it there rather than recomputing).
-3. **Wire it into the tests**: one match arm in `tests/common/mod.rs::recognise`, one `#[test]`
-   in `tests/captured.rs`.
+3. **Wire it in**: the module in `src/features/mod.rs` (and, for a family with occurrences,
+   a `Features` field filled in `recognise`), the entry point re-exported from `src/lib.rs`,
+   match arms in `tests/common/mod.rs` (`recognise`, and `defining` for an evidence path), a
+   `#[test]` in `tests/captured.rs`, and a row in the table above.
 4. **Explain every difference** that remains in the relevant `known_divergences.json`; the
    tests fail on any unexplained difference and on any listed one that has disappeared.
 
