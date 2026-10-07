@@ -28,6 +28,7 @@ OpenCascade is reimplemented in `src/kernel`.
 | Oblique through steps | `recognise_oblique_through_steps` | 10/10 | see below |
 | Circular blind steps | `recognise_circular_blind_steps` | 36/36 | see below |
 | Turned steps | `recognise_turned_steps` | 286/287 (1 known divergence) | see below |
+| Round-bottom blind slots | `recognise_round_bottom_blind_slots` | 25/27 (2 known divergences) | see below |
 
 Known divergences are listed, with reasons, in `tests/fixtures/captured/known_divergences.json`
 (captured calls) and `tests/fixtures/known_divergences.json` (corpus).
@@ -73,10 +74,11 @@ crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code
     poly.rs          real polynomial roots by isolation (exact ray-torus hits)
     recover.rs       planes, cylinders, cones and spheres stored as B-splines, fitted and
                      certified by their largest deviation (ShapeAnalysis_CanonicalRecognition)
-    volume.rs        the volume a probe shares with a solid, without a boolean: exact ray
-                     lengths integrated between the corners of the solid ∩ probe arrangement
     sweep.rs         a planar face swept into a prism solid, the probe shape the recognisers
                      build with Solid.extrude (BRepPrimAPI_MakePrism)
+    volume.rs        the volume a probe (box, solid, or a planar region swept along an axis)
+                     shares with a solid, without a boolean: exact ray lengths integrated
+                     between the corners of the solid ∩ probe arrangement
     mass.rs          exact solid volume and area: Green's theorem along the exact edges,
                      Gauss-Legendre quadrature (BRepGProp)
     hlr.rs           hidden-line projection and section views (HLRBRep, draftwright's
@@ -99,11 +101,13 @@ src/
     turned.rs        what turned-stock treatments share: coaxial external cylinders, cone rims,
                      the turned-profile key steps and grooves publish
     stacks.rs        coaxial segments read at their ends (open / flat / drill point)
+    regions.rs       logical plane/cylinder face regions, their boundary wire and its runs,
+                     the stock face a recess opens through, and the empty-sweep probe
     fillets.rs  chamfers.rs  holes.rs  countersinks.rs  hole_patterns.rs  bosses.rs  angled_steps.rs  flats.rs
     paired_ramp_steps.rs  oriented_chamfers.rs  levels.rs  circular_face_patterns.rs
     thin_walls.rs  interior_voids.rs  through_steps.rs
     oblique_through_steps.rs  circular_blind_steps.rs
-    turned_steps.rs
+    turned_steps.rs  round_bottom_slots.rs
     volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over kernel/volume.rs
   bin/quiddity.rs    `quiddity part.step` → JSON
 tests/

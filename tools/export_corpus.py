@@ -45,6 +45,10 @@ from quiddity.interior_voids import _claim_records as _claim_voids  # noqa: E402
 from quiddity.interior_voids import _discover_interior_voids  # noqa: E402
 from quiddity.oriented_chamfers import _discover_oriented_chamfers  # noqa: E402
 from quiddity.paired_ramp_steps import _discover_paired_ramp_steps  # noqa: E402
+from quiddity.round_bottom_slots import (  # noqa: E402
+    _discover_round_bottom_blind_slots,
+    recognise_round_bottom_blind_slots,
+)
 from quiddity.thin_walls import _claim_records as _claim_walls  # noqa: E402
 from quiddity.thin_walls import _discover_thin_wall_bodies  # noqa: E402
 from quiddity.through_steps import _discover_through_steps  # noqa: E402
@@ -185,6 +189,9 @@ def main() -> None:
 
         circular_blind = (FamilyId.CIRCULAR_BLIND_STEPS, lambda p, o: recognise_circular_blind_steps(p),
                           _circular_blind)
+        round_bottom = (FamilyId.ROUND_BOTTOM_BLIND_SLOTS, lambda p, o: recognise_round_bottom_blind_slots(p),
+                        lambda p, ledger, o: _discover_round_bottom_blind_slots(p, graph=ledger.graph,
+                                                                                sink=ledger.writer.sink))
         hole = (FamilyId.HOLES, lambda p, o: recognise_holes(p, **hole_kwargs(o)),
                 lambda p, ledger, o: _discover_holes(p, writer=ledger.writer, **hole_kwargs(o)))
         walls = (FamilyId.THIN_WALL_BODIES, lambda p, o: recognise_thin_wall_bodies(p),
@@ -232,6 +239,9 @@ def main() -> None:
                     "recognise_interior_voids": [_run(part, "recognise_interior_voids", *voids, {})],
                     "recognise_through_steps": [_run(part, "recognise_through_steps", *through, {})],
                     "recognise_turned_steps": [_run(part, "recognise_turned_steps", *turned_steps, {})],
+                    "recognise_round_bottom_blind_slots": [
+                        _run(part, "recognise_round_bottom_blind_slots", *round_bottom, {})
+                    ],
                     "recognise_hole_patterns": [
                         {"options": {"csinks": "auto"}, "result": _plain(recognise_hole_patterns(holes))}
                     ],

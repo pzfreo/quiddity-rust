@@ -175,3 +175,8 @@ fn circular_blind_steps_match_python() {
 fn turned_steps_match_python() {
     replay("recognise_turned_steps");
 }
+
+#[test]
+fn round_bottom_blind_slots_match_python() {
+    replay("recognise_round_bottom_blind_slots");
+}

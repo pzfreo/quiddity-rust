@@ -52,5 +52,11 @@
     "function": "recognise_turned_steps",
     "verdict": "not-applicable",
     "reason": "Python is handed a precomputed face_surfaces query (a rich argument), so the capture records no answer on the re-read STEP to compare with. The port's answer equals the captured in-memory answer: two steps, 0-40 at 30 and 40-70 at 16, their shoulder found on the certified B-spline plane."
+  },
+  {
+    "test": "tests/test_round_bottom_slots.py::test_helper_refusal_boundaries_are_total_and_fail_closed",
+    "function": "recognise_round_bottom_blind_slots",
+    "verdict": "not-applicable",
+    "reason": "Both calls run with _same_span or _region_face monkeypatched to refuse, so Python's empty answer reflects the patch; the part is the plain slot the other tests on the same file (4e090fe361c883ac) find, and the port finds it."
   }
 ]

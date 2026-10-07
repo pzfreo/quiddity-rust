@@ -234,3 +234,81 @@ fn swept_faces_are_closed_prisms_of_the_face() {
         assert!(swept > 0, "{name}: no face swept");
     }
 }
+
+#[test]
+fn prism_probes_measure_swept_regions() {
+    use haecceity::geom::Bounds;
+    use haecceity::volume::{Prism, PrismEdge, Probe, common_volume, probe_volume};
+    // Box(30, 10, 40) at y = -5 less a U-section slot (10 wide, radius 3, flat 4) cut 20 deep
+    // from z = 20 down to the cap at z = 0: open at y = 0.
+    let part = fixture("captured/4e090fe361c883ac.step.gz");
+    let solid = Classifier::new(&part);
+    let straight = |pts: &[[f64; 2]]| PrismEdge {
+        points: pts.iter().map(|p| [p[0], p[1], 0.0]).collect(),
+        straight: true,
+    };
+    let rectangle = |x0: f64, x1: f64, y0: f64, y1: f64| {
+        vec![
+            straight(&[[x0, y0], [x1, y0]]),
+            straight(&[[x1, y0], [x1, y1]]),
+            straight(&[[x1, y1], [x0, y1]]),
+            straight(&[[x0, y1], [x0, y0]]),
+        ]
+    };
+    // A rectangle swept along z is the box with the same corners, wherever it lies.
+    for (x0, x1, y0, y1, z0, z1) in [
+        (-10.0, -6.0, -8.0, -2.0, -5.0, 5.0),
+        (-8.0, 8.0, -6.0, 2.0, 5.0, 15.0),
+        (-3.0, 3.0, -2.0, 1.0, -4.0, 12.0),
+    ] {
+        let prism = Probe::Prism(Prism {
+            axis: 2,
+            lo: z0,
+            hi: z1,
+            loops: vec![rectangle(x0, x1, y0, y1)],
+        });
+        let cube = Probe::Box(Bounds {
+            min: [x0, y0, z0],
+            max: [x1, y1, z1],
+        });
+        let (a, b) = (common_volume(&solid, &prism), common_volume(&solid, &cube));
+        assert!((a - b).abs() <= 1e-9 * b.max(1.0), "{a} vs {b}");
+        assert!((probe_volume(&prism) - probe_volume(&cube)).abs() <= 1e-9);
+    }
+    // The slot's own section swept along the slot is empty; swept on beyond the cap it is full.
+    let arc = |cx: f64, from: f64, to: f64| PrismEdge {
+        points: (0..=64)
+            .map(|i| {
+                let t = from + (to - from) * i as f64 / 64.0;
+                [cx + 3.0 * t.cos(), 3.0 * t.sin(), 0.0]
+            })
+            .collect(),
+        straight: false,
+    };
+    let half_pi = std::f64::consts::FRAC_PI_2;
+    let section = || {
+        vec![
+            straight(&[[-5.0, 0.0], [5.0, 0.0]]),
+            arc(2.0, 0.0, -half_pi),
+            straight(&[[2.0, -3.0], [-2.0, -3.0]]),
+            arc(-2.0, -half_pi, -2.0 * half_pi),
+        ]
+    };
+    let swept = |lo: f64, hi: f64| {
+        Probe::Prism(Prism {
+            axis: 2,
+            lo,
+            hi,
+            loops: vec![section()],
+        })
+    };
+    assert_eq!(common_volume(&solid, &swept(0.0, 20.0)), 0.0);
+    let beyond = swept(-10.0, 0.0);
+    let full = probe_volume(&beyond);
+    // Chords inside the arcs: 64 per quarter lose about 0.02 mm³ over the 10 mm.
+    assert!(
+        (full - 10.0 * (4.0 * 3.0 + 9.0 * half_pi)).abs() < 0.05,
+        "{full}"
+    );
+    assert!((common_volume(&solid, &beyond) - full).abs() <= 1e-9 * full);
+}
