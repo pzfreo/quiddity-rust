@@ -10,25 +10,29 @@ OpenCascade is reimplemented in `src/kernel`.
 | Family | Python entry point | Captured test calls | Corpus |
 |---|---|---|---|
 | Fillets | `recognise_fillets` | 108/109 match (1 known divergence) | see below |
-| Holes | `recognise_holes` | 205/214 match (9 known divergences) | see below |
+| Holes | `recognise_holes` | 211/214 match (3 known divergences) | see below |
 | Chamfers | `recognise_chamfers` | 107/107 | see below |
 | Countersinks | `recognise_countersinks` | 77/77 | see below |
 | Angled steps | `recognise_angled_steps` | 105/105 | see below |
 | Flats | `recognise_flats` | 88/88 | see below |
 | Paired ramp steps | `recognise_paired_ramp_steps` | 109/109 | see below |
-| Bosses | `recognise_bosses` | 131/133 (2 known divergences) | see below |
+| Bosses | `recognise_bosses` | 133/133 | see below |
 | Hole patterns | `recognise_hole_patterns` | 470/470 | see below |
 | Oriented chamfers | `recognise_oriented_chamfers` | 15/15 | see below |
 | Face levels | `recognise_face_levels` | 36/36 | — |
 | Risers | `recognise_risers` | 66/66 | — |
 | Circular face patterns | `recognise_circular_face_patterns` | 5/5 | see below |
 | Thin-wall bodies | `recognise_thin_wall_bodies` | 10/14 (4 known divergences) | see below |
-| Interior voids | `recognise_interior_voids` | 5/6 (1 known divergence) | see below |
+| Interior voids | `recognise_interior_voids` | 6/6 | see below |
 
 Known divergences are listed, with reasons, in `tests/fixtures/captured/known_divergences.json`
-(captured calls) and `tests/fixtures/known_divergences.json` (corpus). The main gap is
-**B-spline cylinder recovery**: Python recognises holes on cylinders stored as B-spline
-surfaces through `_effective_surfaces.py`, which is not ported.
+(captured calls) and `tests/fixtures/known_divergences.json` (corpus).
+
+The kernel also answers the questions the unported families ask of OpenCascade's booleans,
+checked against every one Python asks over the corpus: the volume a probe shares with a solid
+(`kernel/volume.rs`, `tests/probes.rs`) and whether faces cover a face (`kernel/cover.rs`,
+`tests/patches.rs`). Faces stored as B-splines that are exactly planes, cylinders, cones or
+spheres are recovered as such (`kernel/recover.rs`), as Python's `_effective_surfaces` does.
 
 ## Layout
 
@@ -53,6 +57,8 @@ src/
     rays.rs          every hit of a ray on a solid's trimmed faces, through a box hierarchy
                      (IntCurvesFace_ShapeIntersector); cracks the file leaves between faces
     poly.rs          real polynomial roots by isolation (exact ray-torus hits)
+    recover.rs       planes, cylinders, cones and spheres stored as B-splines, fitted and
+                     certified by their largest deviation (ShapeAnalysis_CanonicalRecognition)
     volume.rs        the volume a probe shares with a solid, without a boolean: exact ray
                      lengths integrated between the corners of the solid ∩ probe arrangement
     mass.rs          exact solid volume and area: Green's theorem along the exact edges,

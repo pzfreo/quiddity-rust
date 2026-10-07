@@ -3,6 +3,7 @@
 //! holes (internal segments) and bosses (external ones).
 
 use super::cylinders::{STACK_GAP_FRAC, Segment};
+use super::probes::probe_samples;
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, Surface, V3};
 use crate::kernel::py;
@@ -121,8 +122,25 @@ pub fn classify_end(part: &Part, seg: &Segment, s_end: f64, hi_end: bool) -> (En
             Surface::Cylinder { .. } => {
                 weak = Some((if seg.external { End::Flat } else { End::Open }, vec![]));
             }
-            // A freeform face may be an exact plane in spline form; Python certifies that
-            // through its effective-surface recovery, which this port does not yet have.
+            // A freeform face that is an exact plane in spline form decides as a plane.
+            Surface::Freeform { .. } => {
+                let Some(Surface::Plane { .. }) = part.recovered(partner) else {
+                    continue;
+                };
+                let Some(at) = probe_samples(part, partner).first().map(|s| s.point) else {
+                    continue;
+                };
+                let Some(normal) = part.outward_at(partner, at) else {
+                    continue;
+                };
+                let alignment = py::dot(&normal, &d) * e_sign;
+                if alignment < -0.5 {
+                    return (End::Flat, vec![partner]);
+                }
+                if alignment > 0.5 {
+                    return (End::Open, vec![partner]);
+                }
+            }
             _ => {}
         }
     }

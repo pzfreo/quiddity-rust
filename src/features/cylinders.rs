@@ -1,9 +1,13 @@
-//! The cylindrical-face inventory (`quiddity._cylinder_substrate.analyse_cylinders`), native
-//! analytic cylinders only.
+//! The cylindrical-face inventory (`quiddity._cylinder_substrate.analyse_cylinders`): native
+//! analytic cylinders, and freeform faces recovered as cylinders whose material side is proved.
 
+use std::f64::consts::TAU;
+
+use super::probes::probe_samples;
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{self, COORD_FLOOR, Surface, V3, dominant_axis_preferring_z};
+use crate::kernel::geom::{self, COORD_FLOOR, Frame, Surface, V3, dominant_axis_preferring_z};
 use crate::kernel::py;
+use crate::kernel::recover;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct CylinderEvidence {
@@ -31,6 +35,67 @@ fn canonical(value: f64, floor: f64) -> f64 {
 }
 
 /// Every native cylinder face, grouped by owning solid (or all faces when there are none).
+/// A recovered cylinder's extent along *direction* (`_recovered_axis_bounds`): its boundary's,
+/// where a cylinder face's extremes along its axis lie.
+fn recovered_extent(part: &Part, face: usize, direction: V3) -> (f64, f64) {
+    part.face_edges(face)
+        .into_iter()
+        .flat_map(|e| part.edges[e].samples.iter())
+        .map(|p| geom::dot(*p, direction))
+        .fold((f64::INFINITY, f64::NEG_INFINITY), |(lo, hi), s| {
+            (lo.min(s), hi.max(s))
+        })
+}
+
+/// A recovered cylinder's angular span (`_recovered_angular_lower_bound`): a whole turn across a
+/// seam, otherwise the smallest arc holding its boundary. `None` when the boundary strays off
+/// the radius.
+fn recovered_span(part: &Part, face: usize, frame: &Frame, radius: f64) -> Option<f64> {
+    let mut seen = std::collections::BTreeMap::<usize, usize>::new();
+    for lp in &part.faces[face].loops {
+        for &(e, _) in &lp.edges {
+            *seen.entry(e).or_default() += 1;
+        }
+    }
+    if seen.values().any(|&n| n > 1) {
+        return Some(TAU);
+    }
+    let tolerance = recover::tolerance(part, face)?;
+    let mut angles: Vec<f64> = Vec::new();
+    for e in seen.keys() {
+        for p in &part.edges[*e].samples {
+            let l = frame.to_local(*p);
+            if (l[0].hypot(l[1]) - radius).abs() > tolerance {
+                return None;
+            }
+            angles.push(l[1].atan2(l[0]).rem_euclid(TAU));
+        }
+    }
+    angles.sort_by(f64::total_cmp);
+    angles.dedup();
+    if angles.len() < 2 {
+        return None;
+    }
+    let mut gaps: Vec<f64> = angles.windows(2).map(|w| w[1] - w[0]).collect();
+    gaps.push(angles[0] + TAU - angles[angles.len() - 1]);
+    Some(TAU - gaps.iter().copied().fold(0.0, f64::max))
+}
+
+/// Whether a recovered cylinder is external (its material inside it): the face's own outward
+/// normal points away from the axis, at every probe and agreeing.
+fn recovered_external(part: &Part, face: usize, frame: &Frame) -> Option<bool> {
+    let sides: Vec<bool> = probe_samples(part, face)
+        .iter()
+        .filter_map(|s| {
+            let l = frame.to_local(s.point);
+            let away = frame.dir_to_world([l[0], l[1], 0.0]);
+            let n = part.face_normal(face, s.uv.0, s.uv.1)?;
+            Some(geom::dot(n, away) > 0.0)
+        })
+        .collect();
+    (sides.len() >= 2 && sides.iter().all(|&x| x == sides[0])).then(|| sides[0])
+}
+
 pub fn analyse_cylinders(part: &Part) -> Vec<CylinderEvidence> {
     let faces: Vec<(usize, usize)> = if part.solids.is_empty() {
         (0..part.faces.len()).map(|f| (0, f)).collect()
@@ -43,17 +108,38 @@ pub fn analyse_cylinders(part: &Part) -> Vec<CylinderEvidence> {
     };
     let mut out = Vec::new();
     for (solid, face) in faces {
-        let Surface::Cylinder { frame, radius } = part.faces[face].surface else {
-            continue;
-        };
-        let Some((u0, u1, v0, v1)) = part.uv_bounds(face) else {
-            continue;
+        let (frame, radius, u_extent, axial_v, external) = match part.faces[face].surface {
+            Surface::Cylinder { frame, radius } => {
+                let Some((u0, u1, v0, v1)) = part.uv_bounds(face) else {
+                    continue;
+                };
+                let external = part.frame_points_outward(face).unwrap_or(false);
+                (frame, radius, u1 - u0, Some((v0, v1)), external)
+            }
+            Surface::Freeform { .. } => {
+                let Some(&Surface::Cylinder { frame, radius }) = part.recovered(face) else {
+                    continue;
+                };
+                let Some(u_extent) = recovered_span(part, face, &frame, radius) else {
+                    continue;
+                };
+                let Some(external) = recovered_external(part, face, &frame) else {
+                    continue;
+                };
+                (frame, radius, u_extent, None, external)
+            }
+            _ => continue,
         };
         let axis = dominant_axis_preferring_z(frame.z);
         let sign = if frame.z[axis] > 0.0 { 1.0 } else { -1.0 };
         let direction = geom::scale(frame.z, sign);
-        let s_ap = py::fsum((0..3).map(|i| frame.origin[i] * direction[i]));
-        let axial = (s_ap + sign * v0, s_ap + sign * v1);
+        let axial = match axial_v {
+            Some((v0, v1)) => {
+                let s_ap = py::fsum((0..3).map(|i| frame.origin[i] * direction[i]));
+                (s_ap + sign * v0, s_ap + sign * v1)
+            }
+            None => recovered_extent(part, face, direction),
+        };
         let axial = (
             canonical(axial.0, COORD_FLOOR),
             canonical(axial.1, COORD_FLOOR),
@@ -63,12 +149,12 @@ pub fn analyse_cylinders(part: &Part) -> Vec<CylinderEvidence> {
             solid,
             diameter: py::quantise6(radius * 2.0),
             axis,
-            u_extent: u1 - u0,
+            u_extent,
             axis_point: frame.origin.map(|c| canonical(c, COORD_FLOOR)),
             direction: direction.map(|c| canonical(c, 1e-12)),
             s_lo: axial.0.min(axial.1),
             s_hi: axial.0.max(axial.1),
-            external: part.frame_points_outward(face).unwrap_or(false),
+            external,
         });
     }
     out

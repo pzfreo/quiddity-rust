@@ -7,42 +7,6 @@
   },
   {
     "function": "recognise_holes",
-    "test": "tests/test_recognition.py::test_transformed_exact_converted_hole_has_exact_record_parity[rotation0]",
-    "reason": "Python recovers a hole from cylinders stored as B-spline surfaces through its effective-surface recovery (_effective_surfaces.py); the port reads native analytic cylinders only and finds no hole.",
-    "verdict": "rust-wrong"
-  },
-  {
-    "function": "recognise_holes",
-    "test": "tests/test_recognition.py::test_transformed_exact_converted_hole_has_exact_record_parity[rotation1]",
-    "reason": "Python recovers a hole from cylinders stored as B-spline surfaces through its effective-surface recovery (_effective_surfaces.py); the port reads native analytic cylinders only and finds no hole.",
-    "verdict": "rust-wrong"
-  },
-  {
-    "function": "recognise_holes",
-    "test": "tests/test_hole_attribution.py::test_recovered_hole_candidate_retains_original_cylinder_dependency",
-    "reason": "Python recovers a hole from cylinders stored as B-spline surfaces through its effective-surface recovery (_effective_surfaces.py); the port reads native analytic cylinders only and finds no hole.",
-    "verdict": "rust-wrong"
-  },
-  {
-    "function": "recognise_holes",
-    "test": "tests/test_hole_attribution.py::test_nonprincipal_converted_hole_keeps_standalone_and_aggregate_parity",
-    "reason": "Python recovers a hole from cylinders stored as B-spline surfaces through its effective-surface recovery (_effective_surfaces.py); the port reads native analytic cylinders only and finds no hole.",
-    "verdict": "rust-wrong"
-  },
-  {
-    "function": "recognise_holes",
-    "test": "tests/test_hole_attribution.py::test_recovered_hole_end_plane_refusal_cannot_claim_through",
-    "reason": "Python recovers a hole from cylinders stored as B-spline surfaces through its effective-surface recovery (_effective_surfaces.py); the port reads native analytic cylinders only and finds no hole.",
-    "verdict": "rust-wrong"
-  },
-  {
-    "function": "recognise_holes",
-    "test": "tests/test_separated_coaxial_bores.py::test_crossing_cylinder_split_into_patches_preserves_the_interruption[True]",
-    "reason": "Python recovers a hole from cylinders stored as B-spline surfaces through its effective-surface recovery (_effective_surfaces.py); the port reads native analytic cylinders only and finds no hole.",
-    "verdict": "rust-wrong"
-  },
-  {
-    "function": "recognise_holes",
     "test": "tests/test_separated_coaxial_bores.py::test_oblique_cross_drilling_preserves_the_complete_bore[1-False-45-0]",
     "reason": "A 45-degree Ø8 bore through a cube corner: its exit edges lie exactly at the end-partner margin (min(0.45·length, d/2) = 4.000 mm). Python's arithmetic lands a few ulps outside and finds no partner ('unknown'); the port's lands inside and reads the exit planes ('through').",
     "verdict": "rust-correct"
@@ -52,18 +16,6 @@
     "test": "tests/test_separated_coaxial_bores.py::test_oblique_cross_drilling_preserves_the_complete_bore[1-False-45-2]",
     "reason": "A 45-degree Ø8 bore through a cube corner: its exit edges lie exactly at the end-partner margin (min(0.45·length, d/2) = 4.000 mm). Python's arithmetic lands a few ulps outside and finds no partner ('unknown'); the port's lands inside and reads the exit planes ('through').",
     "verdict": "rust-correct"
-  },
-  {
-    "function": "recognise_bosses",
-    "test": "tests/test_boss_attribution.py::test_recovered_boss_candidate_retains_original_cylinder_dependency",
-    "reason": "Python recovers a boss from cylinders stored as B-spline surfaces through its effective-surface recovery (_effective_surfaces.py); the port reads native analytic cylinders only and finds no boss.",
-    "verdict": "rust-wrong"
-  },
-  {
-    "function": "recognise_bosses",
-    "test": "tests/test_recognition.py::test_exact_converted_external_cylinder_reaches_the_existing_boss_consumer",
-    "reason": "Python recovers a boss from cylinders stored as B-spline surfaces through its effective-surface recovery (_effective_surfaces.py); the port reads native analytic cylinders only and finds no boss.",
-    "verdict": "rust-wrong"
   },
   {
     "test": "tests/test_thin_walls.py::test_degenerate_wall_ray_normal_discards_only_unproved_evidence",
@@ -88,5 +40,11 @@
     "function": "recognise_thin_wall_bodies",
     "verdict": "rust-correct",
     "reason": "As the corpus entry for cgb241: same pairs and thicknesses; the body key and paired area fraction follow OpenCascade's planar face area, 1% off its own B-spline edges (traced)."
+  },
+  {
+    "test": "tests/test_hole_attribution.py::test_recovered_hole_end_plane_refusal_cannot_claim_through",
+    "function": "recognise_holes",
+    "verdict": "not-applicable",
+    "reason": "The test monkeypatches Python's material-side certification of recovered planes to refuse, so its answer ('unknown' bottom) reflects the patch; the part is a plain through hole, which the port reads from the recovered end planes' own orientation."
   }
 ]
