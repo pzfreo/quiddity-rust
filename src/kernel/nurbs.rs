@@ -139,6 +139,26 @@ impl NurbsCurve {
         }
         [acc[0] / acc[3], acc[1] / acc[3], acc[2] / acc[3]]
     }
+
+    /// The exact first derivative (quotient rule on the homogeneous form).
+    pub fn derivative(&self, t: f64) -> V3 {
+        let (lo, hi) = self.domain();
+        let t = t.clamp(lo, hi);
+        let span = find_span(&self.knots, self.degree, self.control_points.len(), t);
+        let (b, db) = basis_and_derivative(&self.knots, self.degree, span, t);
+        let (mut a, mut a_t) = ([0.0; 4], [0.0; 4]);
+        for j in 0..b.len() {
+            let i = span - self.degree + j;
+            let w = self.weights[i];
+            let c = self.control_points[i];
+            let h = [c[0] * w, c[1] * w, c[2] * w, w];
+            for k in 0..4 {
+                a[k] += b[j] * h[k];
+                a_t[k] += db[j] * h[k];
+            }
+        }
+        [0, 1, 2].map(|k| (a_t[k] - a_t[3] * a[k] / a[3]) / a[3])
+    }
 }
 
 /// The distinct knots across a B-spline's domain, where its polynomial pieces meet.
@@ -631,5 +651,27 @@ mod tests {
         .unwrap();
         assert!(!open.is_closed());
         assert!((open.invert([0.25, 0.1, 0.0]) - 0.25).abs() < 1e-12);
+    }
+
+    #[test]
+    fn curve_derivative_matches_finite_differences() {
+        let h = std::f64::consts::FRAC_1_SQRT_2;
+        let arc = NurbsCurve::new(
+            2,
+            vec![[1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [0.0, 1.0, 0.0]],
+            vec![1.0, h, 1.0],
+            vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
+        )
+        .unwrap();
+        for t in [0.1, 0.5, 0.9] {
+            let d = arc.derivative(t);
+            let e = 1e-6;
+            let (p, q) = (arc.value(t + e), arc.value(t - e));
+            for k in 0..3 {
+                assert!((d[k] - (p[k] - q[k]) / (2.0 * e)).abs() < 1e-7);
+            }
+            // Tangent to the unit circle.
+            assert!(crate::kernel::geom::dot(d, arc.value(t)).abs() < 1e-12);
+        }
     }
 }

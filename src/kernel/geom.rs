@@ -597,6 +597,22 @@ pub enum Curve {
 }
 
 impl Curve {
+    /// The curve's derivative at t.
+    pub fn derivative(&self, t: f64) -> V3 {
+        match self {
+            Curve::Line { dir, .. } => *dir,
+            Curve::Circle { frame, radius } => {
+                frame.dir_to_world([-radius * t.sin(), radius * t.cos(), 0.0])
+            }
+            Curve::Ellipse {
+                frame,
+                major,
+                minor,
+            } => frame.dir_to_world([-major * t.sin(), minor * t.cos(), 0.0]),
+            Curve::Nurbs(c) => c.derivative(t),
+        }
+    }
+
     pub fn value(&self, t: f64) -> V3 {
         match self {
             Curve::Line { origin, dir } => add(*origin, scale(*dir, t)),

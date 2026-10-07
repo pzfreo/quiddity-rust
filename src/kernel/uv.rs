@@ -137,6 +137,8 @@ pub struct UvLoop {
     pub anchors: Vec<Vec<(f64, f64)>>,
     /// Whether the boundary itself runs round u (before any closing along a pole).
     pub winds_u: bool,
+    /// Whether it runs round v (a torus elbow with no seam edge).
+    pub winds_v: bool,
 }
 
 impl Part {
@@ -209,14 +211,38 @@ impl Part {
                 outer = i;
             }
         }
-        let anchor = centre(&placed(outer));
+        let mut anchor = centre(&placed(outer));
+        // Loops running round v (a seamless torus elbow) bound a band whose side neither box
+        // decides: the face lies left of its loops (right on a reversed face), so each other
+        // such loop is placed within a turn of the outer one on that side.
+        let band: Vec<Option<f64>> = (0..loops.len())
+            .map(|i| {
+                if i == outer || !(pu && loops[outer].winds_v && loops[i].winds_v) {
+                    return None;
+                }
+                let lp = &loops[outer].points;
+                let rising = lp.last()?.1 > lp.first()?.1;
+                let side = if rising != self.faces[face].reversed {
+                    -1.0
+                } else {
+                    1.0
+                };
+                let (from, u) = (anchor.0, centre(&boxes[i]).0);
+                Some(from + side * ((u - from) * side).rem_euclid(TAU) - u)
+            })
+            .collect();
+        if let Some(i) = band.iter().position(Option::is_some) {
+            anchor.0 = 0.5 * (anchor.0 + centre(&boxes[i]).0 + band[i].unwrap_or(0.0));
+        }
         let shifts = (0..loops.len())
             .map(|i| {
                 if i == outer {
                     return first[i];
                 }
                 let c = centre(&boxes[i]);
-                let su = if pu {
+                let su = if let Some(su) = band[i] {
+                    su
+                } else if pu {
                     geom::nearest_turn(c.0, anchor.0) - c.0
                 } else {
                     0.0
@@ -363,6 +389,7 @@ impl Part {
                     points,
                     anchors: Vec::new(),
                     winds_u: false,
+                    winds_v: false,
                 });
                 continue;
             }
@@ -410,9 +437,11 @@ impl Part {
                 }
                 pts.push((u, v));
             }
-            let winds_u = match (pts.first(), pts.last()) {
-                (Some(a), Some(b)) => pu && (b.0 - a.0).abs() > 1.0,
-                _ => false,
+            let (winds_u, winds_v) = match (pts.first(), pts.last()) {
+                (Some(a), Some(b)) => {
+                    (pu && (b.0 - a.0).abs() > 1.0, pv && (b.1 - a.1).abs() > 1.0)
+                }
+                _ => (false, false),
             };
             close_through_pole(&f.surface, &mut pts, f.reversed);
             let ends: Vec<usize> = firsts
@@ -435,6 +464,7 @@ impl Part {
                 points: pts,
                 anchors,
                 winds_u,
+                winds_v,
             });
         }
         Some(loops)
@@ -819,6 +849,7 @@ mod tests {
                 points,
                 anchors: Vec::new(),
                 winds_u: false,
+                winds_v: false,
             })
             .collect();
         FaceDomain::new(&loops, periodic)

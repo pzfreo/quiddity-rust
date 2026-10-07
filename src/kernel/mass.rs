@@ -123,27 +123,6 @@ fn curve_cuts(curve: &Curve, t0: f64, t1: f64) -> Vec<f64> {
     }
 }
 
-impl Curve {
-    /// The curve's derivative at t.
-    pub fn derivative(&self, t: f64) -> V3 {
-        match self {
-            Curve::Line { dir, .. } => *dir,
-            Curve::Circle { frame, radius } => {
-                frame.dir_to_world([-radius * t.sin(), radius * t.cos(), 0.0])
-            }
-            Curve::Ellipse {
-                frame,
-                major,
-                minor,
-            } => frame.dir_to_world([-major * t.sin(), minor * t.cos(), 0.0]),
-            Curve::Nurbs(_) => {
-                let h = 1e-6;
-                geom::scale(geom::sub(self.value(t + h), self.value(t - h)), 0.5 / h)
-            }
-        }
-    }
-}
-
 /// A quadrature node on a face's boundary: its parameters and weighted parameter displacement.
 struct Node {
     u: f64,
@@ -253,7 +232,8 @@ impl Part {
                 };
                 sum = [sum[0] + weight * a, sum[1] + weight * b];
             }
-            let direction = self.loop_direction(face, i, along_v)?;
+            // A loop that winds round either parameter has no signed area to read.
+            let direction = self.loop_direction(face, i, along_v || uv[i].winds_v)?;
             total = [total[0] + direction * sum[0], total[1] + direction * sum[1]];
         }
         Some(total)

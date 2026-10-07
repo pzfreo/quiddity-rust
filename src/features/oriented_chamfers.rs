@@ -11,6 +11,7 @@ use crate::kernel::brep::{Arc, Part};
 use crate::kernel::classify::{Classifier, State};
 use crate::kernel::geom::{
     AXIS_ALIGNED_COS, Bounds, COORD_FLOOR, Curve, INTERIOR_PROBE_FRAC, SMOOTH_ARC_GAP, Surface, V3,
+    add, dot, norm, scale, sub,
 };
 use crate::kernel::py;
 
@@ -77,24 +78,11 @@ pub fn discover_verified(
     evidence::verified(ctx.part, discover(ctx, opts))
 }
 
-// build123d's `Vector` arithmetic: plain sums and `sqrt` (no compensated norms).
-fn add(a: V3, b: V3) -> V3 {
-    [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
-}
-fn sub(a: V3, b: V3) -> V3 {
-    [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
-}
-fn scale(a: V3, k: f64) -> V3 {
-    [a[0] * k, a[1] * k, a[2] * k]
-}
-fn dot(a: V3, b: V3) -> f64 {
-    a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
-}
-fn length(a: V3) -> f64 {
-    dot(a, a).sqrt()
-}
+/// `gp_Vec::Normalized` divides each component (multiplying by the reciprocal can differ in
+/// the last bit).
 fn normalized(a: V3) -> V3 {
-    scale(a, 1.0 / length(a))
+    let l = norm(a);
+    a.map(|c| c / l)
 }
 
 /// `_coordinates`: each component rounded, without a negative zero.
@@ -176,7 +164,7 @@ fn pair(
         return None;
     }
     let (span1, span2) = (sub(ends1[1], ends1[0]), sub(ends2[1], ends2[0]));
-    if length(span1).min(length(span2)) <= COORD_FLOOR {
+    if norm(span1).min(norm(span2)) <= COORD_FLOOR {
         return None;
     }
     let run = normalized(span1);
@@ -192,13 +180,13 @@ fn pair(
     // The two support edges must be opposite, not two sides of one triangular end.
     let closest = ends1
         .iter()
-        .flat_map(|a| ends2.iter().map(move |b| length(sub(*a, *b))))
+        .flat_map(|a| ends2.iter().map(move |b| norm(sub(*a, *b))))
         .fold(f64::INFINITY, f64::min);
     if closest <= COORD_FLOOR {
         return None;
     }
     let origin = ends1[0];
-    let first_span = [0.0, length(span1)];
+    let first_span = [0.0, norm(span1)];
     let mut second_span = [
         dot(sub(ends2[0], origin), run),
         dot(sub(ends2[1], origin), run),
@@ -235,7 +223,7 @@ fn pair(
         scale(normal2, (offset2 - d * offset1) / denominator),
     );
     let (leg_vec1, leg_vec2) = (sub(mid1, corner), sub(mid2, corner));
-    let (leg1, leg2) = (length(leg_vec1), length(leg_vec2));
+    let (leg1, leg2) = (norm(leg_vec1), norm(leg_vec2));
     if leg1.min(leg2) <= COORD_FLOOR || leg1.max(leg2) > body.max_leg_frac * body.stock_size {
         return None;
     }
@@ -289,10 +277,15 @@ fn pair(
     })
 }
 
+/// Panics unless `0 < max_leg_frac < 1`, where Python raises `ValueError`.
 pub fn discover(
     ctx: &Context<'_>,
     opts: &OrientedChamferOptions,
 ) -> Vec<Occurrence<OrientedChamfer>> {
+    assert!(
+        0.0 < opts.max_leg_frac && opts.max_leg_frac < 1.0,
+        "max_leg_frac must be between zero and one"
+    );
     let part = ctx.part;
     let keys = ctx.body_keys(true);
     let mut out = Vec::new();

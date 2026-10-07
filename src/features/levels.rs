@@ -169,7 +169,7 @@ fn level_proposals(
     let mut out = Vec::new();
     for cluster in cluster_coordinates(&zs, tol) {
         if min_area_frac > 0.0
-            && !clears_threshold(cluster.iter().map(|&i| area(faces[i])).sum(), threshold)
+            && !clears_threshold(py::sum(cluster.iter().map(|&i| area(faces[i]))), threshold)
         {
             continue;
         }
@@ -177,21 +177,18 @@ fn level_proposals(
             .iter()
             .map(|&i| part.face_bounds(faces[i]))
             .collect();
+        // Python's `min`/`max`: the first of equals wins, which decides a zero's sign.
         let fold = |pick: fn(&Bounds) -> f64, max: bool| {
-            spans.iter().map(pick).fold(
-                if max {
-                    f64::NEG_INFINITY
-                } else {
-                    f64::INFINITY
-                },
-                |a, x| {
-                    if max { a.max(x) } else { a.min(x) }
-                },
-            )
+            let mut it = spans.iter().map(pick);
+            let first = it.next().unwrap();
+            it.fold(first, |a, x| {
+                let better = if max { x > a } else { x < a };
+                if better { x } else { a }
+            })
         };
         out.push((
             FaceLevel {
-                z: cluster.iter().map(|&i| zs[i]).fold(f64::INFINITY, f64::min),
+                z: zs[cluster[py::first_min(&cluster, |&i| zs[i])]],
                 x_span: Some((fold(|b| b.min[0], false), fold(|b| b.max[0], true))),
                 y_span: Some((fold(|b| b.min[1], false), fold(|b| b.max[1], true))),
                 body_key: scope.key.clone(),

@@ -162,4 +162,24 @@ fn areas_and_volumes_are_exact() {
         4.0 * PI * PI * 10.0 * 2.0,
         "torus area",
     );
+    // Torus elbows with no seam edge, so the face is a band between two loops running round
+    // v: Torus(20, 1) swept 200° (more than half a turn, so the nearer turn is the wrong side),
+    // and Torus(7, 3) whose loops describe the 240° band rather than its 120° complement.
+    for (name, big, small, sweep) in [
+        ("torus_elbow_seamless.step", 20.0, 1.0, 200.0),
+        ("torus_elbow_seamless_reversed_bound.step", 7.0, 3.0, 240.0),
+    ] {
+        let part = fixture(name);
+        let turn = sweep / 360.0;
+        close(
+            part.solid_mass(0).map(|m| m.0),
+            2.0 * PI * PI * big * small * small * turn,
+            name,
+        );
+        close(
+            part.solid_mass(0).map(|m| m.1),
+            4.0 * PI * PI * big * small * turn + 2.0 * PI * small * small,
+            name,
+        );
+    }
 }
