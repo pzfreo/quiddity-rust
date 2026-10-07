@@ -4235,6 +4235,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -20678,6 +20685,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -116821,6 +116835,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -125243,6 +125264,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -138263,6 +138291,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -154434,6 +154469,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -157881,6 +157923,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -199337,6 +199386,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -226436,6 +226492,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -249699,6 +249762,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -251172,6 +251242,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -251693,6 +251770,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -252814,6 +252898,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -253726,6 +253817,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -254939,6 +255037,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -257585,6 +257690,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -258919,6 +259031,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -260721,6 +260840,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -263498,6 +263624,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -264826,6 +264959,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -267512,6 +267652,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -268866,6 +269013,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -270690,6 +270844,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -272314,6 +272475,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -274054,6 +274222,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -275698,6 +275873,13 @@
         23
        ]
       ]
+     }
+    ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -277704,6 +277886,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -279098,6 +279287,69 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "run": [
+         0.0,
+         0.963429,
+         0.267965
+        ],
+        "length": 1.315,
+        "at": [
+         6.876,
+         11.184,
+         16.322
+        ],
+        "corner": [
+         6.926,
+         11.197,
+         16.274
+        ],
+        "leg1": 0.1,
+        "leg2": 0.1,
+        "leg1_direction": [
+         -1.0,
+         0.0,
+         0.0
+        ],
+        "leg2_direction": [
+         0.0,
+         -0.267965,
+         0.963429
+        ],
+        "support_spans": [
+         [
+          -0.715,
+          0.715
+         ],
+         [
+          -0.658,
+          0.658
+         ]
+        ],
+        "angle": 45.0,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         11.999845,
+         37.829959,
+         20.147884,
+         5672.85285361,
+         2527.96466244
+        ]
+       }
+      ],
+      "defining": [
+       [
+        2
+       ]
+      ]
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -280466,6 +280718,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -281401,6 +281660,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -283270,6 +283536,13 @@
         23
        ]
       ]
+     }
+    ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -285176,6 +285449,13 @@
       ]
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -287024,6 +287304,13 @@
       ]
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -288670,6 +288957,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -291004,6 +291298,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -292704,6 +293005,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -294229,6 +294537,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -296338,6 +296653,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -297360,6 +297682,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -298964,6 +299293,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -300616,6 +300952,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -302488,6 +302831,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -304168,6 +304518,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -306132,6 +306489,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -308370,6 +308734,13 @@
       ]
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -309580,6 +309951,13 @@
         18
        ]
       ]
+     }
+    ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -310835,6 +311213,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -312726,6 +313111,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -314259,6 +314651,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -315760,6 +316159,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -317417,6 +317823,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -319131,6 +319544,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -320284,6 +320704,69 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "run": [
+         0.988735,
+         0.149678,
+         0.0
+        ],
+        "length": 18.694,
+        "at": [
+         30.876,
+         11.879,
+         0.274
+        ],
+        "corner": [
+         31.254,
+         12.205,
+         0.0
+        ],
+        "leg1": 0.54,
+        "leg2": 0.54,
+        "leg1_direction": [
+         0.0,
+         0.0,
+         1.0
+        ],
+        "leg2_direction": [
+         0.149678,
+         -0.988735,
+         0.0
+        ],
+        "support_spans": [
+         [
+          -11.091,
+          9.429
+         ],
+         [
+          -9.347,
+          9.347
+         ]
+        ],
+        "angle": 45.0,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         40.576289,
+         17.844972,
+         13.59351,
+         7453.68620207,
+         3395.44771494
+        ]
+       }
+      ],
+      "defining": [
+       [
+        2
+       ]
+      ]
      }
     ],
     "recognise_holes": [
@@ -322431,6 +322914,13 @@
       ]
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -323678,6 +324168,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -326044,6 +326541,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -327345,6 +327849,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -329383,6 +329894,13 @@
       ]
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -331153,6 +331671,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -332113,6 +332638,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -333539,6 +334071,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -334493,6 +335032,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -336053,6 +336599,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -338182,6 +338735,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -339314,6 +339874,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -340850,6 +341417,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -342126,6 +342700,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -342978,6 +343559,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -344293,6 +344881,13 @@
       ]
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -345419,6 +346014,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -346529,6 +347131,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -348075,6 +348684,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -349947,6 +350563,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -351401,6 +352024,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -353433,6 +354063,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -355058,6 +355695,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -356269,6 +356913,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -357820,6 +358471,13 @@
         7
        ]
       ]
+     }
+    ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -359753,6 +360411,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -361335,6 +362000,69 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "run": [
+         0.141188,
+         0.989983,
+         0.0
+        ],
+        "length": 0.885,
+        "at": [
+         9.873,
+         19.297,
+         0.051
+        ],
+        "corner": [
+         9.922,
+         19.29,
+         0.0
+        ],
+        "leg1": 0.1,
+        "leg2": 0.1,
+        "leg1_direction": [
+         -0.989983,
+         0.141188,
+         0.0
+        ],
+        "leg2_direction": [
+         0.0,
+         0.0,
+         1.0
+        ],
+        "support_spans": [
+         [
+          -0.442,
+          0.442
+         ],
+         [
+          -0.5,
+          0.5
+         ]
+        ],
+        "angle": 45.0,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         20.220395,
+         42.133882,
+         10.456231,
+         6555.73026065,
+         3132.57613597
+        ]
+       }
+      ],
+      "defining": [
+       [
+        2
+       ]
+      ]
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -362897,6 +363625,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -365091,6 +365826,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -367773,6 +368515,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -369174,6 +369923,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -370930,6 +371686,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -372438,6 +373201,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -374394,6 +375164,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -376720,6 +377497,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -378528,6 +379312,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -385334,6 +386125,231 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "run": [
+         0.866025,
+         -0.5,
+         0.0
+        ],
+        "length": 51.962,
+        "at": [
+         -23.772,
+         -41.174,
+         47.456
+        ],
+        "corner": [
+         -25.0,
+         -43.301,
+         50.0
+        ],
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "leg1_direction": [
+         0.0,
+         0.0,
+         -1.0
+        ],
+        "leg2_direction": [
+         0.5,
+         0.866025,
+         0.0
+        ],
+        "support_spans": [
+         [
+          -28.868,
+          28.868
+         ],
+         [
+          -25.981,
+          25.981
+         ]
+        ],
+        "angle": 45.0,
+        "body_key": [
+         -400.0,
+         -225.0,
+         -100.0,
+         400.0,
+         225.0,
+         50.0,
+         14642823.5574,
+         807968.557755
+        ]
+       },
+       {
+        "run": [
+         0.866025,
+         -0.5,
+         0.0
+        ],
+        "length": 51.962,
+        "at": [
+         23.772,
+         41.174,
+         47.456
+        ],
+        "corner": [
+         25.0,
+         43.301,
+         50.0
+        ],
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "leg1_direction": [
+         -0.5,
+         -0.866025,
+         0.0
+        ],
+        "leg2_direction": [
+         0.0,
+         0.0,
+         -1.0
+        ],
+        "support_spans": [
+         [
+          -25.981,
+          25.981
+         ],
+         [
+          -28.868,
+          28.868
+         ]
+        ],
+        "angle": 45.0,
+        "body_key": [
+         -400.0,
+         -225.0,
+         -100.0,
+         400.0,
+         225.0,
+         50.0,
+         14642823.5574,
+         807968.557755
+        ]
+       },
+       {
+        "run": [
+         0.866025,
+         0.5,
+         0.0
+        ],
+        "length": 51.962,
+        "at": [
+         -23.772,
+         41.174,
+         47.456
+        ],
+        "corner": [
+         -25.0,
+         43.301,
+         50.0
+        ],
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "leg1_direction": [
+         0.0,
+         0.0,
+         -1.0
+        ],
+        "leg2_direction": [
+         0.5,
+         -0.866025,
+         0.0
+        ],
+        "support_spans": [
+         [
+          -28.868,
+          28.868
+         ],
+         [
+          -25.981,
+          25.981
+         ]
+        ],
+        "angle": 45.0,
+        "body_key": [
+         -400.0,
+         -225.0,
+         -100.0,
+         400.0,
+         225.0,
+         50.0,
+         14642823.5574,
+         807968.557755
+        ]
+       },
+       {
+        "run": [
+         0.866025,
+         0.5,
+         0.0
+        ],
+        "length": 51.962,
+        "at": [
+         23.772,
+         -41.174,
+         47.456
+        ],
+        "corner": [
+         25.0,
+         -43.301,
+         50.0
+        ],
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "leg1_direction": [
+         -0.5,
+         0.866025,
+         0.0
+        ],
+        "leg2_direction": [
+         0.0,
+         0.0,
+         -1.0
+        ],
+        "support_spans": [
+         [
+          -25.981,
+          25.981
+         ],
+         [
+          -28.868,
+          28.868
+         ]
+        ],
+        "angle": 45.0,
+        "body_key": [
+         -400.0,
+         -225.0,
+         -100.0,
+         400.0,
+         225.0,
+         50.0,
+         14642823.5574,
+         807968.557755
+        ]
+       }
+      ],
+      "defining": [
+       [
+        99
+       ],
+       [
+        104
+       ],
+       [
+        103
+       ],
+       [
+        100
+       ]
+      ]
      }
     ],
     "recognise_holes": [
@@ -412625,6 +413641,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -424616,6 +425639,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -448291,6 +449321,231 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "run": [
+         0.320596,
+         -0.947216,
+         0.0
+        ],
+        "length": 64.213,
+        "at": [
+         -87.189,
+         369.993,
+         -37.5
+        ],
+        "corner": [
+         -89.557,
+         369.191,
+         -40.0
+        ],
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "leg1_direction": [
+         0.0,
+         0.0,
+         1.0
+        ],
+        "leg2_direction": [
+         0.947216,
+         0.320596,
+         0.0
+        ],
+        "support_spans": [
+         [
+          -32.106,
+          32.106
+         ],
+         [
+          -32.106,
+          32.106
+         ]
+        ],
+        "angle": 45.0,
+        "body_key": [
+         -250.0,
+         0.0,
+         -100.603933,
+         250.0,
+         780.0,
+         30.0,
+         17519087.7038,
+         1023049.72366
+        ]
+       },
+       {
+        "run": [
+         0.320596,
+         -0.947216,
+         0.0
+        ],
+        "length": 64.213,
+        "at": [
+         145.811,
+         369.993,
+         -37.5
+        ],
+        "corner": [
+         143.443,
+         369.191,
+         -40.0
+        ],
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "leg1_direction": [
+         0.0,
+         0.0,
+         1.0
+        ],
+        "leg2_direction": [
+         0.947216,
+         0.320596,
+         0.0
+        ],
+        "support_spans": [
+         [
+          -32.106,
+          32.106
+         ],
+         [
+          -32.106,
+          32.106
+         ]
+        ],
+        "angle": 45.0,
+        "body_key": [
+         -250.0,
+         0.0,
+         -100.603933,
+         250.0,
+         780.0,
+         30.0,
+         17519087.7038,
+         1023049.72366
+        ]
+       },
+       {
+        "run": [
+         0.320596,
+         0.947216,
+         0.0
+        ],
+        "length": 64.213,
+        "at": [
+         -145.811,
+         369.993,
+         -37.5
+        ],
+        "corner": [
+         -143.443,
+         369.191,
+         -40.0
+        ],
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "leg1_direction": [
+         -0.947216,
+         0.320596,
+         0.0
+        ],
+        "leg2_direction": [
+         0.0,
+         0.0,
+         1.0
+        ],
+        "support_spans": [
+         [
+          -32.106,
+          32.106
+         ],
+         [
+          -32.106,
+          32.106
+         ]
+        ],
+        "angle": 45.0,
+        "body_key": [
+         -250.0,
+         0.0,
+         -100.603933,
+         250.0,
+         780.0,
+         30.0,
+         17519087.7038,
+         1023049.72366
+        ]
+       },
+       {
+        "run": [
+         0.320596,
+         0.947216,
+         0.0
+        ],
+        "length": 64.213,
+        "at": [
+         87.189,
+         369.993,
+         -37.5
+        ],
+        "corner": [
+         89.557,
+         369.191,
+         -40.0
+        ],
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "leg1_direction": [
+         -0.947216,
+         0.320596,
+         0.0
+        ],
+        "leg2_direction": [
+         0.0,
+         0.0,
+         1.0
+        ],
+        "support_spans": [
+         [
+          -32.106,
+          32.106
+         ],
+         [
+          -32.106,
+          32.106
+         ]
+        ],
+        "angle": 45.0,
+        "body_key": [
+         -250.0,
+         0.0,
+         -100.603933,
+         250.0,
+         780.0,
+         30.0,
+         17519087.7038,
+         1023049.72366
+        ]
+       }
+      ],
+      "defining": [
+       [
+        453
+       ],
+       [
+        474
+       ],
+       [
+        449
+       ],
+       [
+        478
+       ]
+      ]
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -461142,6 +462397,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -468893,6 +470155,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -481208,6 +482477,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -495389,6 +496665,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -504174,6 +505457,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
@@ -515393,6 +516683,13 @@
       "defining": []
      }
     ],
+    "recognise_oriented_chamfers": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -522426,6 +523723,13 @@
      }
     ],
     "recognise_paired_ramp_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_chamfers": [
      {
       "options": {},
       "result": [],
