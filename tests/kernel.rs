@@ -74,3 +74,30 @@ fn arcs_read_convex_rims_and_concave_pocket_corners() {
         "the pocket floor and its four walls, both ways round"
     );
 }
+
+#[test]
+fn arcs_at_closed_edges_ignore_their_recorded_direction() {
+    use quiddity::kernel::brep::Arc;
+    // The bore rims are full circles; flip every face's use of them and the read must not change.
+    let mut part = fixture("rejected_bored_box.step");
+    let closed: Vec<bool> = part.edges.iter().map(|e| e.is_closed()).collect();
+    for face in &mut part.faces {
+        for lp in &mut face.loops {
+            for (e, forward) in &mut lp.edges {
+                if closed[*e] {
+                    *forward = !*forward;
+                }
+            }
+        }
+    }
+    let mut rims = 0;
+    for a in 0..part.faces.len() {
+        for b in (0..part.faces.len()).filter(|&b| b != a) {
+            if let Some(arc) = part.arc(a, b) {
+                assert_eq!(arc, Arc::Convex, "faces {a} and {b}");
+                rims += usize::from(part.shared_edges(a, b).iter().any(|&e| closed[e]));
+            }
+        }
+    }
+    assert!(rims >= 4, "both rims, both ways round");
+}

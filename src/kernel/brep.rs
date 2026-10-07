@@ -320,6 +320,23 @@ impl Part {
         if 1.0 - geom::dot(na, nb) <= 1e-9 {
             return Arc::Smooth;
         }
+        // A closed edge's recorded direction is not evidence (see `solid_is_valid`): step to
+        // its left in *a* and walk the other way if that leaves the face.
+        let mut direction = direction;
+        if ed.is_closed() {
+            let step = 1e-4 * self.face_bounds(a).diagonal().max(1e-9);
+            let probe = geom::add(point, geom::scale(geom::cross(na, direction), step));
+            let inside = self.faces[a]
+                .surface
+                .parameters(probe, None)
+                .zip(self.domain(a))
+                .map(|((u, v), d)| d.contains(u, v));
+            match inside {
+                Some(true) => {}
+                Some(false) => direction = geom::scale(direction, -1.0),
+                None => return Arc::Unknown,
+            }
+        }
         if geom::dot(geom::cross(na, direction), nb) < 0.0 {
             Arc::Convex
         } else {

@@ -150,13 +150,20 @@ impl Part {
         let boxes: Vec<[f64; 4]> = loops
             .iter()
             .map(|lp| {
-                lp.points.iter().fold([f64::INFINITY, f64::NEG_INFINITY, f64::INFINITY, f64::NEG_INFINITY], |b, &(u, v)| {
-                    [b[0].min(u), b[1].max(u), b[2].min(v), b[3].max(v)]
-                })
+                lp.points.iter().fold(
+                    [
+                        f64::INFINITY,
+                        f64::NEG_INFINITY,
+                        f64::INFINITY,
+                        f64::NEG_INFINITY,
+                    ],
+                    |b, &(u, v)| [b[0].min(u), b[1].max(u), b[2].min(v), b[3].max(v)],
+                )
             })
             .collect();
         let centre = |b: &[f64; 4]| (0.5 * (b[0] + b[1]), 0.5 * (b[2] + b[3]));
-        let into_period = |c: f64, periodic: bool| if periodic { c.rem_euclid(TAU) - c } else { 0.0 };
+        let into_period =
+            |c: f64, periodic: bool| if periodic { c.rem_euclid(TAU) - c } else { 0.0 };
         let first: Vec<(f64, f64)> = boxes
             .iter()
             .map(|b| {
@@ -166,7 +173,12 @@ impl Part {
             .collect();
         let placed = |i: usize| {
             let b = boxes[i];
-            [b[0] + first[i].0, b[1] + first[i].0, b[2] + first[i].1, b[3] + first[i].1]
+            [
+                b[0] + first[i].0,
+                b[1] + first[i].0,
+                b[2] + first[i].1,
+                b[3] + first[i].1,
+            ]
         };
         let mut outer = 0;
         for i in 1..loops.len() {
@@ -182,8 +194,16 @@ impl Part {
                     return first[i];
                 }
                 let c = centre(&boxes[i]);
-                let su = if pu { geom::nearest_turn(c.0, anchor.0) - c.0 } else { 0.0 };
-                let sv = if pv { geom::nearest_turn(c.1, anchor.1) - c.1 } else { 0.0 };
+                let su = if pu {
+                    geom::nearest_turn(c.0, anchor.0) - c.0
+                } else {
+                    0.0
+                };
+                let sv = if pv {
+                    geom::nearest_turn(c.1, anchor.1) - c.1
+                } else {
+                    0.0
+                };
                 (su, sv)
             })
             .collect();
@@ -312,7 +332,11 @@ impl Part {
                 // A degenerate loop: the whole periodic u line at the apex's v (one entry per
                 // face loop either way, so loop indices agree with the face's).
                 let (u, v) = f.surface.parameters(apex, None)?;
-                let points = if pu { periodic_line(0.0, TAU, v) } else { vec![(u, v)] };
+                let points = if pu {
+                    periodic_line(0.0, TAU, v)
+                } else {
+                    vec![(u, v)]
+                };
                 loops.push(UvLoop { points });
                 continue;
             }
@@ -388,7 +412,9 @@ impl Part {
         let (_, shifts) = self.loop_placement(face)?;
         if matches!(f.surface, Surface::Sphere { .. }) || f.pcurves.is_empty() {
             for (lp, shift) in loops.iter().zip(&shifts) {
-                lp.points.iter().for_each(|&(u, v)| add((u + shift.0, v + shift.1)));
+                lp.points
+                    .iter()
+                    .for_each(|&(u, v)| add((u + shift.0, v + shift.1)));
             }
         } else {
             // Edge by edge: where the file gives an edge's pcurve, it sizes the range in place of
@@ -398,7 +424,9 @@ impl Part {
                     continue; // an apex bounds v through its edges; its u is meaningless
                 }
                 // Start this loop where its own unwrapped samples sit, in its placed period.
-                let Some(&start) = uv.points.first() else { continue };
+                let Some(&start) = uv.points.first() else {
+                    continue;
+                };
                 let mut last = (start.0 + shift.0, start.1 + shift.1);
                 for &(e, forward) in &lp.edges {
                     let samples = &self.edges[e].samples;
