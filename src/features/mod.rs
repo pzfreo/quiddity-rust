@@ -26,6 +26,7 @@ pub mod levels;
 pub mod oriented_chamfers;
 pub mod paired_ramp_steps;
 pub mod planes;
+pub mod probes;
 pub mod stacks;
 pub mod thin_walls;
 pub mod turned;

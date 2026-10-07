@@ -19,7 +19,6 @@ pub struct Context<'a> {
     bounds: OnceLock<Bounds>,
     classifier: OnceLock<Classifier<'a>>,
     solid_classifiers: Vec<OnceLock<Classifier<'a>>>,
-    solid_rays: Vec<OnceLock<RayCaster<'a>>>,
     cylinders: OnceLock<Vec<CylinderEvidence>>,
     signatures: OnceLock<Vec<Option<BodyKey>>>,
 }
@@ -31,7 +30,6 @@ impl<'a> Context<'a> {
             bounds: OnceLock::new(),
             classifier: OnceLock::new(),
             solid_classifiers: part.solids.iter().map(|_| OnceLock::new()).collect(),
-            solid_rays: part.solids.iter().map(|_| OnceLock::new()).collect(),
             cylinders: OnceLock::new(),
             signatures: OnceLock::new(),
         }
@@ -54,7 +52,7 @@ impl<'a> Context<'a> {
 
     /// Rays against one solid's faces (`IntCurvesFace_ShapeIntersector` loaded with the solid).
     pub fn solid_rays(&self, solid: usize) -> &RayCaster<'a> {
-        self.solid_rays[solid].get_or_init(|| RayCaster::for_solid(self.part, solid))
+        self.solid_classifier(solid).rays()
     }
 
     /// Each solid's body key (`unambiguous_body_keys`).

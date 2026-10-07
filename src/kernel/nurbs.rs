@@ -491,6 +491,7 @@ impl NurbsSurface {
                             t,
                             pu.clamp(g.us[i], g.us[i + 1]),
                             pv.clamp(g.vs[j], g.vs[j + 1]),
+                            (g.us[i + 1] - g.us[i], g.vs[j + 1] - g.vs[j], pad),
                         ));
                     }
                 }
@@ -499,17 +500,24 @@ impl NurbsSurface {
         let (u0, u1, v0, v1) = self.domain();
         let mut hits: Vec<(f64, f64, f64)> = Vec::new();
         let mut grazing = false;
-        for (t, u, v) in seeds {
+        // Nearest first, so a seed in the cell of a hit already found (one more triangle the
+        // ray passes near) need not be refined again.
+        seeds.sort_by(|a, b| a.0.total_cmp(&b.0));
+        for (t, u, v, (cell_u, cell_v, pad)) in seeds {
+            if hits.iter().any(|h| {
+                (h.0 - t).abs() <= pad && (h.1 - u).abs() <= cell_u && (h.2 - v).abs() <= cell_v
+            }) {
+                continue;
+            }
             let (mut t, mut u, mut v) = (t, u, v);
             let mut converged = false;
             for _ in 0..40 {
-                let s = self.value(u, v);
+                let (s, su, sv) = self.value_and_partials(u, v);
                 let f = geom::sub(s, geom::add(origin, geom::scale(dir, t)));
                 if geom::norm(f) < 1e-10 {
                     converged = true;
                     break;
                 }
-                let (_, su, sv) = self.value_and_partials(u, v);
                 // Solve [su sv -dir] (du dv dt) = -f by Cramer's rule.
                 let m = [su, sv, geom::scale(dir, -1.0)];
                 let det = geom::dot(m[0], geom::cross(m[1], m[2]));

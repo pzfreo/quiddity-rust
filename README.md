@@ -47,8 +47,8 @@ src/
                      compatible UV ranges (BRepTools::UVBounds), point containment
     cloud.rs         faces as point clouds (mesh-like density on the exact geometry), k-d tree
                      nearest neighbours, exact point-to-face distance
-    classify.rs      point-in-solid (whole part or one solid) by ray parity, with
-                     on-boundary detection (BRepClass3d)
+    classify.rs      point-in-solid (whole part or one solid) by the parity of rays.rs
+                     crossings, with on-boundary detection (BRepClass3d)
     rays.rs          every hit of a ray on a solid's trimmed faces, through a box hierarchy
                      (IntCurvesFace_ShapeIntersector); cracks the file leaves between faces
     poly.rs          real polynomial roots by isolation (exact ray-torus hits)
@@ -64,6 +64,7 @@ src/
     cylinders.rs     the cylinder inventory, runs, segments, coaxial keys
     planes.rs        nearest axis-aligned neighbour planes
     bevel.rs         the single-face bevel read and the convex-corner probe
+    probes.rs        the five fixed interior probes the whole-body families sample faces at
     turned.rs        what turned-stock treatments share: coaxial external cylinders, cone rims
     stacks.rs        coaxial segments read at their ends (open / flat / drill point)
     fillets.rs  chamfers.rs  holes.rs  countersinks.rs  hole_patterns.rs  bosses.rs  angled_steps.rs  flats.rs

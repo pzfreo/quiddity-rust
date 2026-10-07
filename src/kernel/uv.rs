@@ -573,6 +573,12 @@ impl Part {
     /// A periodic direction the face closes around (a seam edge, or a loop that winds once
     /// round) spans exactly one period starting at the seam.
     pub fn uv_bounds(&self, face: usize) -> Option<(f64, f64, f64, f64)> {
+        *self.cache[face]
+            .uv_bounds
+            .get_or_init(|| self.compute_uv_bounds(face))
+    }
+
+    fn compute_uv_bounds(&self, face: usize) -> Option<(f64, f64, f64, f64)> {
         let f = &self.faces[face];
         if self.whole_sphere(face) {
             return Some((0.0, TAU, -PI / 2.0, PI / 2.0));

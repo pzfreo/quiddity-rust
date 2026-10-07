@@ -9,19 +9,12 @@ use serde::Serialize;
 use super::Context;
 use super::body::BodyKey;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::probes::{Sample, probe_samples};
 use crate::kernel::brep::Part;
 use crate::kernel::classify::State;
-use crate::kernel::geom::{self, COORD_FLOOR, Surface, V3, length_tol};
+use crate::kernel::geom::{self, COORD_FLOOR, Surface, length_tol};
 use crate::kernel::py;
 
-/// Five separated interior probes, as fractions of the face's parameter ranges.
-pub(crate) const UV_PROBES: [(f64, f64); 5] = [
-    (0.25, 0.25),
-    (0.5, 0.5),
-    (0.75, 0.75),
-    (0.25, 0.75),
-    (0.75, 0.25),
-];
 const PAIR_REL_TOL: f64 = 3e-4;
 const SPLINE_BLEND_REL_TOL: f64 = 5e-3;
 const OPPOSED_NORMAL_COS: f64 = -0.9999;
@@ -95,25 +88,6 @@ fn kind(surface: &Surface) -> Kind {
 struct Hit {
     target: usize,
     distance: f64,
-}
-
-/// A point on a face with its parameters.
-pub(crate) struct Sample {
-    pub point: V3,
-    pub uv: (f64, f64),
-}
-
-/// The fixed parameter-space probes that land inside the face (`_samples`, first half).
-pub(crate) fn probe_samples(part: &Part, face: usize) -> Vec<Sample> {
-    let Some(domain) = part.domain(face) else {
-        return Vec::new();
-    };
-    UV_PROBES
-        .iter()
-        .filter_map(|&(u, v)| part.position_at(face, u, v))
-        .filter(|(_, (u, v))| domain.contains(*u, *v))
-        .map(|(point, uv)| Sample { point, uv })
-        .collect()
 }
 
 /// `_samples`: the probes inside the face, or, when fewer than two land inside (a narrow patch
