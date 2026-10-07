@@ -57,6 +57,11 @@ impl<'a> Classifier<'a> {
         Self::from_rays(RayCaster::for_solid(part, solid))
     }
 
+    /// Classifies against the given faces (closed shells between them).
+    pub fn for_faces(part: &'a Part, faces: Vec<usize>) -> Self {
+        Self::from_rays(RayCaster::for_faces(part, faces))
+    }
+
     fn from_rays(rays: RayCaster<'a>) -> Self {
         let mut edges: Vec<usize> = rays
             .faces

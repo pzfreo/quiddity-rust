@@ -3,6 +3,8 @@
 
 #![allow(dead_code)]
 
+pub mod drawing;
+
 use std::path::{Path, PathBuf};
 
 use serde_json::Value;

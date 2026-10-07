@@ -34,6 +34,15 @@ checked against every one Python asks over the corpus: the volume a probe shares
 `tests/patches.rs`). Faces stored as B-splines that are exactly planes, cylinders, cones or
 spheres are recovered as such (`kernel/recover.rs`), as Python's `_effective_surfaces` does.
 
+For draftwright-rust, the kernel draws a part's views without OpenCascade's hidden-line
+algorithm or booleans (`kernel/hlr.rs`): every visible and hidden edge and silhouette, and a
+section view's kept half and cut outline. `crates/haecceity/tests/drawings.rs` checks them
+against OpenCascade's drawings of the corpus: 85 parts in four views and 98 sections. The cut
+outlines agree on 95 of 99 parts, where the other four are OpenCascade boolean failures. The
+views that differ by more than 1e-3 mm are listed in `tests/fixtures/known_drawings.json`.
+Most of them agree within 0.03 mm, where OpenCascade's hidden-line output approximates
+projected curves.
+
 ## Layout
 
 ```
@@ -64,6 +73,10 @@ crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code
                      lengths integrated between the corners of the solid ∩ probe arrangement
     mass.rs          exact solid volume and area: Green's theorem along the exact edges,
                      Gauss-Legendre quadrature (BRepGProp)
+    hlr.rs           hidden-line projection and section views (HLRBRep, draftwright's
+                     section A–A): edges and traced silhouettes cut where their projections
+                     cross, each piece's visibility by one ray; section contours traced
+                     across the faces
     py.rs            Python's numeric semantics: fsum, compensated sum, hypot, %, rounding,
                      tuple ordering — wherever results must agree to the bit
 src/
@@ -94,9 +107,16 @@ crates/haecceity/tests/
   probes.rs          every volume probe Python's recognisers ask over the corpus, answered by
                      volume.rs (tools/capture_probes.py records them)
   kernel.rs          kernel behaviour on real parts
+  drawings.rs        projections and section views against OpenCascade's drawings
+                     (tools/capture_hlr.py, tools/capture_section.py record them)
+crates/haecceity/examples/
+  hlr_compare.rs     the drawings comparison, every score printed, with listings of the
+                     curves either side draws differently
 tools/
   capture_probes.py  records every volume probe Python asks over the corpus
   capture_patches.py records every covered_patch question Python asks over the corpus
+  capture_hlr.py     records OpenCascade's hidden-line projection of every corpus part
+  capture_section.py records draftwright's section view of every corpus part
   capture_plugin.py  pytest plugin that records the Python suite's recogniser calls
   export_corpus.py   records Python's answers over the corpus
   export_fixtures.py hand-built fillet evidence cases

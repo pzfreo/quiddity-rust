@@ -11,6 +11,7 @@ pub mod classify;
 pub mod cloud;
 pub mod cover;
 pub mod geom;
+pub mod hlr;
 pub mod mass;
 pub mod nurbs;
 pub mod poly;

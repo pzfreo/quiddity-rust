@@ -66,9 +66,16 @@ impl<'a> RayCaster<'a> {
     pub fn for_faces(part: &'a Part, faces: Vec<usize>) -> Self {
         let face_boxes: Vec<Bounds> = (0..part.faces.len())
             .map(|i| match &part.faces[i].surface {
+                // A freeform face's box is sampled, so padded to be sure of it: its control
+                // net's box is certain but can be far larger (a helix's spans its cylinder).
                 Surface::Freeform { surface, .. } => {
+                    let b = part.face_bounds(i);
+                    let pad = 0.02 * b.diagonal() + 1e-3;
                     let (min, max) = surface.control_bounds();
-                    Bounds { min, max }
+                    Bounds {
+                        min: [0, 1, 2].map(|k| (b.min[k] - pad).max(min[k])),
+                        max: [0, 1, 2].map(|k| (b.max[k] + pad).min(max[k])),
+                    }
                 }
                 _ => part.face_bounds(i),
             })
@@ -118,6 +125,42 @@ impl<'a> RayCaster<'a> {
     pub fn hits(&self, origin: V3, dir: V3, t_max: f64) -> Option<Vec<Hit>> {
         let (crossings, _) = self.crossings(origin, dir, t_max)?;
         Some(crossings.into_iter().map(|c| c.hit).collect())
+    }
+
+    /// Whether the ray meets any face beyond `t_min` (and within `t_max`): the question
+    /// visibility asks, answered at the first such face.
+    pub fn any_hit(&self, origin: V3, dir: V3, t_min: f64, t_max: f64) -> bool {
+        let mut stack = vec![(&self.root_box, &self.root)];
+        while let Some((b, node)) = stack.pop() {
+            if !ray_meets_box(origin, dir, t_max, b, self.edge_tol) {
+                continue;
+            }
+            match node {
+                Node::Split(lb, l, rb, r) => {
+                    stack.push((lb, l));
+                    stack.push((rb, r));
+                }
+                Node::Leaf(faces) => {
+                    for &i in faces {
+                        if !ray_meets_box(origin, dir, t_max, &self.face_boxes[i], self.edge_tol) {
+                            continue;
+                        }
+                        let Some((ts, _)) = self.part.faces[i].surface.ray_hits(origin, dir, t_max)
+                        else {
+                            continue;
+                        };
+                        let met = ts.into_iter().filter(|&t| t > t_min).any(|t| {
+                            self.contact(i, geom::add(origin, geom::scale(dir, t)))
+                                .is_some()
+                        });
+                        if met {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        false
     }
 
     /// The hits that lie on their faces' trimmed regions themselves, not merely within the

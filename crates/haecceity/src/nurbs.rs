@@ -88,6 +88,8 @@ pub struct NurbsCurve {
     weights: Vec<f64>,
     knots: Vec<f64>,
     closed: bool,
+    /// Samples over the domain seeding inversion, built on first use.
+    table: std::sync::OnceLock<Vec<(f64, V3)>>,
 }
 
 /// Whether the arrays describe a well-formed B-spline: `knots = n + degree + 1`, positive
@@ -121,6 +123,7 @@ impl NurbsCurve {
             weights,
             knots,
             closed: false,
+            table: std::sync::OnceLock::new(),
         };
         let (lo, hi) = curve.domain();
         let size = curve
@@ -213,10 +216,16 @@ impl NurbsCurve {
     /// by Newton steps on the squared distance.
     pub fn invert(&self, p: V3) -> f64 {
         let (lo, hi) = self.domain();
-        let n = 512;
-        let mut t = (0..=n)
-            .map(|i| lo + (hi - lo) * i as f64 / n as f64)
-            .map(|t| (geom::dist(self.value(t), p), t))
+        let table = self.table.get_or_init(|| {
+            let n = 512;
+            (0..=n)
+                .map(|i| lo + (hi - lo) * i as f64 / n as f64)
+                .map(|t| (t, self.value(t)))
+                .collect()
+        });
+        let mut t = table
+            .iter()
+            .map(|&(t, q)| (geom::dist(q, p), t))
             .min_by(|a, b| a.0.total_cmp(&b.0))
             .expect("samples")
             .1;
@@ -259,6 +268,31 @@ struct Grid {
     us: Vec<f64>,
     vs: Vec<f64>,
     points: Vec<Vec<V3>>,
+    /// Blocks of cells (`i0..i1`, `j0..j1`) with a box holding every seed their cells can
+    /// give, so a ray tests only the cells of blocks it passes.
+    blocks: Vec<(usize, usize, usize, usize, [V3; 2])>,
+}
+
+/// Cells per block side.
+const BLOCK: usize = 8;
+
+/// Whether a ray reaches a box within `t_max`.
+fn ray_meets(origin: V3, dir: V3, t_max: f64, [lo, hi]: [V3; 2]) -> bool {
+    let (mut t0, mut t1) = (0.0f64, t_max);
+    for i in 0..3 {
+        if dir[i].abs() < 1e-300 {
+            if origin[i] < lo[i] || origin[i] > hi[i] {
+                return false;
+            }
+            continue;
+        }
+        let (a, b) = ((lo[i] - origin[i]) / dir[i], (hi[i] - origin[i]) / dir[i]);
+        (t0, t1) = (t0.max(a.min(b)), t1.min(a.max(b)));
+        if t0 > t1 {
+            return false;
+        }
+    }
+    true
 }
 
 /// How far (mm) a hinted inversion may land from its point before a global search is tried.
@@ -334,11 +368,47 @@ impl NurbsSurface {
         self.grid.get_or_init(|| {
             let us = grid_params(&self.knots_u, self.degree_u);
             let vs = grid_params(&self.knots_v, self.degree_v);
-            let points = us
+            let points: Vec<Vec<V3>> = us
                 .iter()
                 .map(|&u| vs.iter().map(|&v| self.value(u, v)).collect())
                 .collect();
-            Grid { us, vs, points }
+            let mut blocks = Vec::new();
+            for i0 in (0..us.len() - 1).step_by(BLOCK) {
+                for j0 in (0..vs.len() - 1).step_by(BLOCK) {
+                    let (i1, j1) = (
+                        (i0 + BLOCK).min(us.len() - 1),
+                        (j0 + BLOCK).min(vs.len() - 1),
+                    );
+                    let (mut lo, mut hi, mut pad) =
+                        ([f64::INFINITY; 3], [f64::NEG_INFINITY; 3], 0.0f64);
+                    for i in i0..i1 {
+                        for j in j0..j1 {
+                            let q = [
+                                points[i][j],
+                                points[i + 1][j],
+                                points[i + 1][j + 1],
+                                points[i][j + 1],
+                            ];
+                            pad =
+                                pad.max(0.25 * geom::dist(q[0], q[2]).max(geom::dist(q[1], q[3])));
+                            for p in q {
+                                for k in 0..3 {
+                                    lo[k] = lo[k].min(p[k]);
+                                    hi[k] = hi[k].max(p[k]);
+                                }
+                            }
+                        }
+                    }
+                    let box_ = [lo.map(|c| c - pad), hi.map(|c| c + pad)];
+                    blocks.push((i0, i1, j0, j1, box_));
+                }
+            }
+            Grid {
+                us,
+                vs,
+                points,
+                blocks,
+            }
         })
     }
 
@@ -463,8 +533,15 @@ impl NurbsSurface {
     pub fn ray_hits(&self, origin: V3, dir: V3, t_max: f64) -> (Vec<(f64, f64, f64)>, bool) {
         let g = self.grid();
         let mut seeds = Vec::new();
-        for i in 0..g.us.len() - 1 {
-            for j in 0..g.vs.len() - 1 {
+        let cells = g
+            .blocks
+            .iter()
+            .filter(|b| ray_meets(origin, dir, t_max, b.4))
+            .flat_map(|&(i0, i1, j0, j1, _)| {
+                (i0..i1).flat_map(move |i| (j0..j1).map(move |j| (i, j)))
+            });
+        for (i, j) in cells {
+            {
                 let quad = [
                     g.points[i][j],
                     g.points[i + 1][j],
