@@ -6,19 +6,32 @@
 use super::geom::{self, V3};
 
 fn find_span(knots: &[f64], degree: usize, n: usize, t: f64) -> usize {
-    // n = number of control points; valid spans are degree..n-1.
-    let mut span = degree;
-    while span + 1 < n && knots[span + 1] <= t {
-        span += 1;
+    // n = number of control points; valid spans are degree..n-1: the last whose knot is <= t.
+    degree + knots[degree + 1..n.max(degree + 1)].partition_point(|&k| k <= t)
+}
+
+/// OpenCascade's largest B-spline degree; basis values live on the stack up to it.
+const MAX_DEGREE: usize = 25;
+
+/// Up to `MAX_DEGREE + 1` basis values, read as a slice.
+#[derive(Clone, Copy)]
+struct Basis {
+    values: [f64; MAX_DEGREE + 1],
+    len: usize,
+}
+
+impl std::ops::Deref for Basis {
+    type Target = [f64];
+    fn deref(&self) -> &[f64] {
+        &self.values[..self.len]
     }
-    span
 }
 
 /// The `degree + 1` non-zero basis functions at *t* in *span* (Piegl & Tiller A2.2).
-fn basis(knots: &[f64], degree: usize, span: usize, t: f64) -> Vec<f64> {
-    let mut n = vec![0.0; degree + 1];
-    let mut left = vec![0.0; degree + 1];
-    let mut right = vec![0.0; degree + 1];
+fn basis(knots: &[f64], degree: usize, span: usize, t: f64) -> Basis {
+    let mut n = [0.0; MAX_DEGREE + 1];
+    let mut left = [0.0; MAX_DEGREE + 1];
+    let mut right = [0.0; MAX_DEGREE + 1];
     n[0] = 1.0;
     for j in 1..=degree {
         left[j] = t - knots[span + 1 - j];
@@ -36,28 +49,34 @@ fn basis(knots: &[f64], degree: usize, span: usize, t: f64) -> Vec<f64> {
         }
         n[j] = saved;
     }
-    n
+    Basis {
+        values: n,
+        len: degree + 1,
+    }
 }
 
 /// The basis functions and their first derivatives at *t* in *span*.
-fn basis_and_derivative(knots: &[f64], degree: usize, span: usize, t: f64) -> (Vec<f64>, Vec<f64>) {
+fn basis_and_derivative(knots: &[f64], degree: usize, span: usize, t: f64) -> (Basis, Basis) {
     let n = basis(knots, degree, span, t);
+    let mut d = Basis {
+        values: [0.0; MAX_DEGREE + 1],
+        len: degree + 1,
+    };
     if degree == 0 {
-        return (n, vec![0.0]);
+        return (n, d);
     }
     // dN(i,p) = p (N(i,p-1) / (k[i+p]-k[i]) - N(i+1,p-1) / (k[i+p+1]-k[i+1])).
     let lower = basis(knots, degree - 1, span, t);
     let p = degree as f64;
     let ratio = |num: f64, den: f64| if den.abs() < 1e-300 { 0.0 } else { num / den };
-    let d = (0..=degree)
-        .map(|j| {
-            let i = span - degree + j;
-            let left = if j >= 1 { lower[j - 1] } else { 0.0 };
-            let right = if j < degree { lower[j] } else { 0.0 };
-            p * (ratio(left, knots[i + degree] - knots[i])
-                - ratio(right, knots[i + degree + 1] - knots[i + 1]))
-        })
-        .collect();
+    for j in 0..=degree {
+        let i = span - degree + j;
+        let left = if j >= 1 { lower[j - 1] } else { 0.0 };
+        let right = if j < degree { lower[j] } else { 0.0 };
+        d.values[j] = p
+            * (ratio(left, knots[i + degree] - knots[i])
+                - ratio(right, knots[i + degree + 1] - knots[i + 1]));
+    }
     (n, d)
 }
 
@@ -74,7 +93,8 @@ pub struct NurbsCurve {
 /// Whether the arrays describe a well-formed B-spline: `knots = n + degree + 1`, positive
 /// weights, non-decreasing knots and a non-empty domain.
 fn well_formed(degree: usize, n: usize, weights: usize, knots: &[f64]) -> bool {
-    n > degree
+    degree <= MAX_DEGREE
+        && n > degree
         && weights == n
         && knots.len() == n + degree + 1
         && knots.windows(2).all(|w| w[0] <= w[1])

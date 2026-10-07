@@ -21,6 +21,9 @@ pub struct FaceDomain {
     periodic: (bool, bool),
     u_range: (f64, f64),
     v_range: (f64, f64),
+    /// The segments binned by the ray's fixed coordinate, so a query tests only those that can
+    /// cross its ray.
+    index: SegmentIndex,
 }
 
 fn range<'a>(
@@ -37,11 +40,18 @@ fn range<'a>(
 impl FaceDomain {
     pub fn new(loops: &[UvLoop], periodic: (bool, bool)) -> Self {
         let all = || loops.iter().flat_map(|l| l.points.iter());
+        let (u_range, v_range) = (range(all(), |p| p.0), range(all(), |p| p.1));
+        let loops: Vec<Vec<(f64, f64)>> = loops.iter().map(|l| l.points.clone()).collect();
+        // The ray runs in +u (swapped) on a face closed in v but open in u, else in +v.
+        let swap = periodic.1 && v_range.1 - v_range.0 >= TAU - 1e-9;
+        let periodic_a = if swap { true } else { periodic.0 };
+        let index = SegmentIndex::new(&loops, swap, periodic_a);
         FaceDomain {
-            u_range: range(all(), |p| p.0),
-            v_range: range(all(), |p| p.1),
-            loops: loops.iter().map(|l| l.points.clone()).collect(),
+            loops,
             periodic,
+            u_range,
+            v_range,
+            index,
         }
     }
 
@@ -70,14 +80,7 @@ impl FaceDomain {
             if u > umax {
                 return false;
             }
-            return crossing_parity(
-                &self.loops,
-                v,
-                u,
-                true,
-                true,
-                umax + 0.5 * (TAU - (umax - umin)),
-            );
+            return self.crossing_parity(v, u, umax + 0.5 * (TAU - (umax - umin)));
         }
         let mut v = v;
         let mut v_end = f64::INFINITY;
@@ -89,28 +92,21 @@ impl FaceDomain {
             v_end = vmax + 0.5 * (TAU - (vmax - vmin));
         }
         let u = if pu { u.rem_euclid(TAU) } else { u };
-        crossing_parity(&self.loops, u, v, pu, false, v_end)
+        self.crossing_parity(u, v, v_end)
     }
-}
 
-/// Parity of the crossings of the parameter-space ray `(a, b) → (a, b_end)` with the loops,
-/// where `a` is each loop point's first coordinate (its second when `swap`). `periodic_a` wraps
-/// each segment next to `a`.
-fn crossing_parity(
-    loops: &[Vec<(f64, f64)>],
-    a: f64,
-    b: f64,
-    periodic_a: bool,
-    swap: bool,
-    b_end: f64,
-) -> bool {
-    let pick = |p: &(f64, f64)| if swap { (p.1, p.0) } else { (p.0, p.1) };
-    let mut count = 0usize;
-    for lp in loops {
-        for w in lp.windows(2) {
-            let (mut a0, b0) = pick(&w[0]);
-            let (mut a1, b1) = pick(&w[1]);
-            if periodic_a {
+    /// Parity of the crossings of the parameter-space ray `(a, b) → (a, b_end)` with the loops,
+    /// where `a` is each loop point's first coordinate (its second when the index is swapped).
+    /// A periodic `a` wraps each segment next to `a`.
+    fn crossing_parity(&self, a: f64, b: f64, b_end: f64) -> bool {
+        let SegmentIndex { swap, periodic, .. } = self.index;
+        let pick = |p: &(f64, f64)| if swap { (p.1, p.0) } else { (p.0, p.1) };
+        let mut count = 0usize;
+        for &(l, k) in self.index.candidates(a) {
+            let lp = &self.loops[l as usize];
+            let (mut a0, b0) = pick(&lp[k as usize]);
+            let (mut a1, b1) = pick(&lp[k as usize + 1]);
+            if periodic {
                 let shift = geom::nearest_turn(a0, a) - a0;
                 a0 += shift;
                 a1 += shift;
@@ -123,8 +119,88 @@ fn crossing_parity(
                 count += 1;
             }
         }
+        count % 2 == 1
     }
-    count % 2 == 1
+}
+
+/// Loop segments (loop, first point) binned by their span in the ray's fixed coordinate `a`:
+/// over the period when `a` is periodic (a segment spanning more than half a turn goes in
+/// every bin, as which turn it is wrapped to depends on the query), else over the loops' range.
+/// Bins are padded, so a segment is only ever left out of a bin it cannot cross a ray in.
+#[derive(Debug)]
+struct SegmentIndex {
+    swap: bool,
+    periodic: bool,
+    lo: f64,
+    width: f64,
+    bins: Vec<Vec<(u32, u32)>>,
+}
+
+impl SegmentIndex {
+    fn new(loops: &[Vec<(f64, f64)>], swap: bool, periodic: bool) -> Self {
+        let a = |p: &(f64, f64)| if swap { p.1 } else { p.0 };
+        let segments: Vec<(u32, u32)> = loops
+            .iter()
+            .enumerate()
+            .flat_map(|(l, lp)| (0..lp.len().saturating_sub(1)).map(move |k| (l as u32, k as u32)))
+            .collect();
+        let (lo, hi) = if periodic {
+            (0.0, TAU)
+        } else {
+            range(loops.iter().flatten(), a)
+        };
+        let n = (segments.len() / 4).clamp(1, 4096);
+        let width = ((hi - lo) / n as f64).max(1e-300);
+        let mut bins = vec![Vec::new(); n];
+        let pad = 1e-9 * (1.0 + (hi - lo).abs());
+        for &(l, k) in &segments {
+            let lp = &loops[l as usize];
+            let (a0, a1) = (a(&lp[k as usize]), a(&lp[k as usize + 1]));
+            let (mut s0, mut s1) = (a0.min(a1), a0.max(a1));
+            if periodic {
+                if s1 - s0 > std::f64::consts::PI {
+                    bins.iter_mut().for_each(|b| b.push((l, k)));
+                    continue;
+                }
+                let base = a0.rem_euclid(TAU) - a0;
+                (s0, s1) = (s0 + base, s1 + base);
+            }
+            let first = ((s0 - pad - lo) / width).floor() as i64;
+            let last = ((s1 + pad - lo) / width).floor() as i64;
+            let n = n as i64;
+            let (first, last) = if periodic {
+                (first, last.min(first + n - 1))
+            } else {
+                (first.max(0), last.min(n - 1))
+            };
+            for b in first..=last {
+                bins[b.rem_euclid(n) as usize].push((l, k));
+            }
+        }
+        for b in &mut bins {
+            b.dedup();
+        }
+        SegmentIndex {
+            swap,
+            periodic,
+            lo,
+            width,
+            bins,
+        }
+    }
+
+    /// The segments that may cross a ray at `a`.
+    fn candidates(&self, a: f64) -> &[(u32, u32)] {
+        let n = self.bins.len() as i64;
+        let x = if self.periodic { a.rem_euclid(TAU) } else { a };
+        let b = ((x - self.lo) / self.width).floor() as i64;
+        let b = if self.periodic {
+            b.rem_euclid(n)
+        } else {
+            b.clamp(0, n - 1)
+        };
+        &self.bins[b as usize]
+    }
 }
 
 /// One loop of a face in its surface's (u, v) space, unwrapped across periodic parameters.
@@ -906,5 +982,65 @@ mod tests {
         let d = domain(vec![pts], (true, false));
         assert!(d.contains(2.0, 0.5));
         assert!(!d.contains(2.0, -0.5));
+    }
+
+    #[test]
+    fn binned_crossings_agree_with_every_segment() {
+        // A wavy band round u with a hole, on a torus closed in v, and a plane annulus.
+        let band: Vec<(f64, f64)> = (0..=200)
+            .map(|k| {
+                let u = TAU * k as f64 / 200.0;
+                (u, 1.0 + 0.3 * (5.0 * u).sin())
+            })
+            .chain((0..=200).map(|k| {
+                let u = TAU * (200 - k) as f64 / 200.0;
+                (u, 3.0 + 0.2 * (3.0 * u).cos())
+            }))
+            .chain([(0.0, 1.0)])
+            .collect();
+        let hole: Vec<(f64, f64)> = (0..=40)
+            .map(|k| {
+                let t = TAU * k as f64 / 40.0;
+                (2.0 + 0.4 * t.cos(), 2.0 + 0.4 * t.sin())
+            })
+            .collect();
+        let tube: Vec<(f64, f64)> = band.iter().map(|&(u, v)| (v * 0.5, u)).collect();
+        for (loops, periodic) in [
+            (vec![band.clone(), hole.clone()], (true, false)),
+            (vec![band, hole], (false, false)),
+            (vec![tube], (true, true)),
+        ] {
+            let d = domain(loops.clone(), periodic);
+            let SegmentIndex {
+                swap,
+                periodic: wrap,
+                ..
+            } = d.index;
+            let pick = |p: &(f64, f64)| if swap { (p.1, p.0) } else { (p.0, p.1) };
+            // Every segment, as the index's candidates are tested.
+            let brute = |a: f64, b: f64, b_end: f64| {
+                let mut count = 0;
+                for lp in &d.loops {
+                    for w in lp.windows(2) {
+                        let ((mut a0, b0), (mut a1, b1)) = (pick(&w[0]), pick(&w[1]));
+                        if wrap {
+                            let shift = geom::nearest_turn(a0, a) - a0;
+                            (a0, a1) = (a0 + shift, a1 + shift);
+                        }
+                        if (a0 > a) != (a1 > a) {
+                            let bc = b0 + (a - a0) / (a1 - a0) * (b1 - b0);
+                            count += usize::from(bc > b && bc < b_end);
+                        }
+                    }
+                }
+                count % 2 == 1
+            };
+            for i in 0..97 {
+                for j in 0..61 {
+                    let (a, b) = (-1.0 + 8.5 * i as f64 / 97.0, -0.5 + 4.5 * j as f64 / 61.0);
+                    assert_eq!(d.crossing_parity(a, b, 1e9), brute(a, b, 1e9), "{a} {b}");
+                }
+            }
+        }
     }
 }
