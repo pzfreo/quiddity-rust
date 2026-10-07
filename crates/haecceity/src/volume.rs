@@ -18,10 +18,143 @@ use super::classify::{Classifier, State};
 use super::geom::{self, Bounds, COORD_FLOOR, Curve, Frame, Surface, V3};
 use super::rays::RayCaster;
 
-/// A probe region: an axis-aligned box, or a solid (its part's first solid).
+/// A probe region: an axis-aligned box, a solid (its part's first solid), or a planar region
+/// swept along a coordinate axis (`Solid.extrude(face, ...)`).
 pub enum Probe<'a> {
     Box(Bounds),
     Solid(RayCaster<'a>),
+    Prism(Prism),
+}
+
+/// A planar region normal to coordinate *axis*, swept from `lo` to `hi` along it. The region is
+/// given by its boundary loops (outer and holes alike, any orientation: inside is decided by
+/// crossing parity); only the two coordinates across *axis* of their points are read.
+pub struct Prism {
+    pub axis: usize,
+    pub lo: f64,
+    pub hi: f64,
+    pub loops: Vec<Vec<PrismEdge>>,
+}
+
+/// One boundary edge of a prism's region, as its samples in order, and whether it is a
+/// straight segment.
+pub struct PrismEdge {
+    pub points: Vec<V3>,
+    pub straight: bool,
+}
+
+impl Prism {
+    /// The two coordinates across the axis.
+    fn across(&self) -> (usize, usize) {
+        ((self.axis + 1) % 3, (self.axis + 2) % 3)
+    }
+
+    fn segments(&self) -> impl Iterator<Item = ([f64; 2], [f64; 2])> + '_ {
+        let (u, v) = self.across();
+        self.loops
+            .iter()
+            .flatten()
+            .flat_map(|e| e.points.windows(2))
+            .map(move |w| ([w[0][u], w[0][v]], [w[1][u], w[1][v]]))
+    }
+
+    /// The region's area: the largest loop less the others (its holes).
+    fn area(&self) -> f64 {
+        let (u, v) = self.across();
+        let mut areas: Vec<f64> = self
+            .loops
+            .iter()
+            .map(|lp| {
+                let twice: f64 = lp
+                    .iter()
+                    .flat_map(|e| e.points.windows(2))
+                    .map(|w| w[0][u] * w[1][v] - w[1][u] * w[0][v])
+                    .sum();
+                0.5 * twice.abs()
+            })
+            .collect();
+        areas.sort_by(|a, b| b.total_cmp(a));
+        areas
+            .first()
+            .map_or(0.0, |outer| outer - areas[1..].iter().sum::<f64>())
+    }
+
+    fn bounds(&self) -> Bounds {
+        let mut b = Bounds::empty();
+        for e in self.loops.iter().flatten() {
+            for p in &e.points {
+                b.add(*p);
+            }
+        }
+        b.min[self.axis] = self.lo;
+        b.max[self.axis] = self.hi;
+        b
+    }
+
+    /// Where the line `o + t d` crosses the region's boundary, across the axis, sorted, over
+    /// the whole line. Half-open at segment ends, so a line through a vertex crosses once.
+    fn crossings(&self, o: [f64; 2], d: [f64; 2]) -> Vec<f64> {
+        let side = |p: [f64; 2]| d[0] * (p[1] - o[1]) - d[1] * (p[0] - o[0]);
+        let dd = d[0] * d[0] + d[1] * d[1];
+        let mut ts: Vec<f64> = self
+            .segments()
+            .filter_map(|(p, q)| {
+                let (s0, s1) = (side(p), side(q));
+                if (s0 > 0.0) == (s1 > 0.0) {
+                    return None;
+                }
+                let k = s0 / (s0 - s1);
+                let x = [p[0] + k * (q[0] - p[0]), p[1] + k * (q[1] - p[1])];
+                Some(((x[0] - o[0]) * d[0] + (x[1] - o[1]) * d[1]) / dd)
+            })
+            .collect();
+        ts.sort_by(f64::total_cmp);
+        ts
+    }
+
+    /// The prism's intervals along a line, within [0, reach].
+    fn intervals(&self, origin: V3, dir: V3, reach: f64) -> Vec<(f64, f64)> {
+        let a = self.axis;
+        let (mut lo, mut hi) = (0.0f64, reach);
+        if dir[a].abs() < 1e-300 {
+            if origin[a] < self.lo || origin[a] > self.hi {
+                return Vec::new();
+            }
+        } else {
+            let (p, q) = (
+                (self.lo - origin[a]) / dir[a],
+                (self.hi - origin[a]) / dir[a],
+            );
+            (lo, hi) = (lo.max(p.min(q)), hi.min(p.max(q)));
+        }
+        if lo >= hi {
+            return Vec::new();
+        }
+        let (u, v) = self.across();
+        let (o, d) = ([origin[u], origin[v]], [dir[u], dir[v]]);
+        if d[0].hypot(d[1]) < 1e-12 {
+            // Along the axis: inside the region or not, by the parity of a ray across it.
+            let beyond = self
+                .crossings(o, [1.0, 0.0])
+                .iter()
+                .filter(|&&t| t > 0.0)
+                .count();
+            return if beyond % 2 == 1 {
+                vec![(lo, hi)]
+            } else {
+                Vec::new()
+            };
+        }
+        self.crossings(o, d)
+            .as_chunks::<2>()
+            .0
+            .iter()
+            .filter_map(|&[enter, leave]| {
+                let (a, b) = (enter.max(lo), leave.min(hi));
+                (a < b).then_some((a, b))
+            })
+            .collect()
+    }
 }
 
 /// Halvings allowed within one interval between breaks, where curved faces bend the length.
@@ -53,6 +186,7 @@ pub fn probe_volume(probe: &Probe<'_>) -> f64 {
             s[0] * s[1] * s[2]
         }
         Probe::Solid(rays) => rays.part.solid_mass(0).map_or(0.0, |m| m.0),
+        Probe::Prism(prism) => prism.area() * (prism.hi - prism.lo),
     }
 }
 
@@ -61,6 +195,7 @@ impl Probe<'_> {
         match self {
             Probe::Box(b) => *b,
             Probe::Solid(rays) => rays.bounds(),
+            Probe::Prism(prism) => prism.bounds(),
         }
     }
 
@@ -86,6 +221,7 @@ impl Probe<'_> {
                 if lo < hi { vec![(lo, hi)] } else { Vec::new() }
             }
             Probe::Solid(rays) => intervals(rays, origin, dir, reach),
+            Probe::Prism(prism) => prism.intervals(origin, dir, reach),
         }
     }
 
@@ -96,7 +232,7 @@ impl Probe<'_> {
         };
         let span = geom::dist(p, q);
         let ts: Vec<f64> = match self {
-            Probe::Box(_) => self
+            Probe::Box(_) | Probe::Prism(_) => self
                 .intervals(p, dir, span)
                 .into_iter()
                 .flat_map(|(a, b)| [a, b])
@@ -186,6 +322,51 @@ impl<'a> Side<'a> {
     }
 }
 
+impl Side<'_> {
+    /// A prism's edges at both ends and along the axis from each edge's start, the planes of
+    /// its ends and straight sides, and whether it has curved sides.
+    fn of_prism(prism: &Prism) -> Self {
+        let a = prism.axis;
+        let at = |p: V3, x: f64| {
+            let mut q = p;
+            q[a] = x;
+            q
+        };
+        let unit_axis = [0, 1, 2].map(|k| if k == a { 1.0 } else { 0.0 });
+        let mut edges = Vec::new();
+        let mut planes = vec![(unit_axis, prism.lo), (unit_axis, prism.hi)];
+        let mut curved = false;
+        for e in prism.loops.iter().flatten() {
+            let (Some(&first), Some(&last)) = (e.points.first(), e.points.last()) else {
+                continue;
+            };
+            for x in [prism.lo, prism.hi] {
+                let points: Vec<V3> = e.points.iter().map(|&p| at(p, x)).collect();
+                edges.push(Polyline {
+                    points: points.into(),
+                    curve: None,
+                    straight: e.straight,
+                });
+            }
+            edges.push(Polyline {
+                points: vec![at(first, prism.lo), at(first, prism.hi)].into(),
+                curve: None,
+                straight: true,
+            });
+            if !e.straight {
+                curved = true;
+            } else if let Some(n) = geom::unit(geom::cross(geom::sub(last, first), unit_axis)) {
+                planes.push((n, geom::dot(n, at(first, prism.lo))));
+            }
+        }
+        Side {
+            edges,
+            planes,
+            curved,
+        }
+    }
+}
+
 impl<'a> Polyline<'a> {
     fn of(edge: &'a Edge) -> Self {
         // Conics invert in closed form; other curves keep their samples' crossing, within the
@@ -220,6 +401,7 @@ fn shared(solid: &Classifier<'_>, probe: &Probe<'_>, inset: f64) -> Pair {
     let theirs = match probe {
         Probe::Box(b) => Side::of_box(b),
         Probe::Solid(p) => Side::of_solid(p, &region),
+        Probe::Prism(p) => Side::of_prism(p),
     };
     // Slices across the probe's longest side, lines along the next.
     let size = geom::sub(pb.max, pb.min);

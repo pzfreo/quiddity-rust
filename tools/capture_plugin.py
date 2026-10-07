@@ -60,6 +60,25 @@ def _real(module, name):
     return getattr(function, "__wrapped__", function)
 
 
+def _target(package, name):
+    """The recogniser *name*: exported by the package, or defined by one of its modules (a
+    family whose entry point the package does not export, such as round-bottom slots)."""
+
+    found = getattr(package, name, None)
+    if found is not None:
+        return found
+    for module in list(sys.modules.values()):
+        module_name = getattr(module, "__name__", "")
+        function = getattr(module, name, None)
+        if (
+            function is not None
+            and module_name.startswith(package.__name__ + ".")
+            and getattr(function, "__module__", None) == module_name
+        ):
+            return function
+    raise AttributeError(f"{name} is not defined by any loaded {package.__name__} module")
+
+
 def _is_part(value) -> bool:
     return hasattr(value, "wrapped") and hasattr(value, "faces")
 
@@ -175,7 +194,7 @@ def pytest_collection_modifyitems(session, config, items):
 
     reals = {}
     for target in TARGETS:
-        reals[target] = getattr(quiddity, target)
+        reals[target] = _target(quiddity, target)
     for module in list(sys.modules.values()):
         if module is None:
             continue
@@ -199,7 +218,14 @@ def pytest_sessionfinish(session, exitstatus):
         if not (c["function"] in TARGETS and c["test"].split("::")[0] in _rerun_files)
     ]
     merged = kept + _calls
+    # Skip counts of functions this run did not capture are kept as they were.
+    skipped = {
+        k: v
+        for k, v in previous.get("skipped", {}).items()
+        if k.split(":")[0] not in TARGETS
+    }
+    skipped.update(_skipped)
     manifest.write_text(
-        json.dumps({"calls": merged, "skipped": _skipped}, indent=1, allow_nan=False) + "\n"
+        json.dumps({"calls": merged, "skipped": skipped}, indent=1, allow_nan=False) + "\n"
     )
     print(f"\ncaptured {len(_calls)} calls ({len(merged)} total) into {manifest}", file=sys.stderr)

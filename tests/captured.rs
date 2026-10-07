@@ -155,3 +155,8 @@ fn thin_wall_bodies_match_python() {
 fn interior_voids_match_python() {
     replay("recognise_interior_voids");
 }
+
+#[test]
+fn round_bottom_blind_slots_match_python() {
+    replay("recognise_round_bottom_blind_slots");
+}

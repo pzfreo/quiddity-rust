@@ -24,6 +24,7 @@ OpenCascade is reimplemented in `src/kernel`.
 | Circular face patterns | `recognise_circular_face_patterns` | 5/5 | see below |
 | Thin-wall bodies | `recognise_thin_wall_bodies` | 10/14 (4 known divergences) | see below |
 | Interior voids | `recognise_interior_voids` | 6/6 | see below |
+| Round-bottom blind slots | `recognise_round_bottom_blind_slots` | 25/27 (2 known divergences) | see below |
 
 Known divergences are listed, with reasons, in `tests/fixtures/captured/known_divergences.json`
 (captured calls) and `tests/fixtures/known_divergences.json` (corpus).
@@ -69,8 +70,9 @@ crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code
     poly.rs          real polynomial roots by isolation (exact ray-torus hits)
     recover.rs       planes, cylinders, cones and spheres stored as B-splines, fitted and
                      certified by their largest deviation (ShapeAnalysis_CanonicalRecognition)
-    volume.rs        the volume a probe shares with a solid, without a boolean: exact ray
-                     lengths integrated between the corners of the solid ∩ probe arrangement
+    volume.rs        the volume a probe (box, solid, or a planar region swept along an axis)
+                     shares with a solid, without a boolean: exact ray lengths integrated
+                     between the corners of the solid ∩ probe arrangement
     mass.rs          exact solid volume and area: Green's theorem along the exact edges,
                      Gauss-Legendre quadrature (BRepGProp)
     hlr.rs           hidden-line projection and section views (HLRBRep, draftwright's
@@ -91,9 +93,11 @@ src/
     probes.rs        the five fixed interior probes the whole-body families sample faces at
     turned.rs        what turned-stock treatments share: coaxial external cylinders, cone rims
     stacks.rs        coaxial segments read at their ends (open / flat / drill point)
+    regions.rs       logical plane/cylinder face regions, their boundary wire and its runs,
+                     the stock face a recess opens through, and the empty-sweep probe
     fillets.rs  chamfers.rs  holes.rs  countersinks.rs  hole_patterns.rs  bosses.rs  angled_steps.rs  flats.rs
     paired_ramp_steps.rs  oriented_chamfers.rs  levels.rs  circular_face_patterns.rs
-    thin_walls.rs  interior_voids.rs
+    thin_walls.rs  interior_voids.rs  round_bottom_slots.rs
   bin/quiddity.rs    `quiddity part.step` → JSON
 tests/
   captured.rs        replays every recogniser call the Python test suite makes

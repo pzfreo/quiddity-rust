@@ -27,6 +27,8 @@ pub mod oriented_chamfers;
 pub mod paired_ramp_steps;
 pub mod planes;
 pub mod probes;
+pub mod regions;
+pub mod round_bottom_slots;
 pub mod stacks;
 pub mod thin_walls;
 pub mod turned;
@@ -57,6 +59,7 @@ pub struct Features {
     pub hole_patterns: Vec<hole_patterns::HolePattern>,
     pub thin_wall_bodies: Vec<thin_walls::ThinWallBody>,
     pub interior_voids: Vec<interior_voids::InteriorVoid>,
+    pub round_bottom_blind_slots: Vec<round_bottom_slots::RoundBottomBlindSlot>,
 }
 
 /// Recognise every ported family on *part* with default options; holes carry their
@@ -80,6 +83,7 @@ pub fn recognise(part: &Part) -> Features {
         countersinks,
         thin_wall_bodies: records(thin_walls::discover(&ctx)),
         interior_voids: records(interior_voids::discover(&ctx)),
+        round_bottom_blind_slots: records(round_bottom_slots::discover(&ctx)),
     }
 }
 

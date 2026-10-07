@@ -176908,9 +176908,788 @@
      ]
     }
    ]
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_axis_open_sign_scale_and_step_roundtrip_are_stable",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "4e090fe361c883ac.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      -1.5,
+      10.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      -1.5,
+      10.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_axis_open_sign_scale_and_step_roundtrip_are_stable",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "4e090fe361c883ac.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      -1.5,
+      10.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      -1.5,
+      10.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_axis_open_sign_scale_and_step_roundtrip_are_stable",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "b21e35a82c680b44.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": -1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      1.5,
+      -10.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": -1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      1.5,
+      -10.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_axis_open_sign_scale_and_step_roundtrip_are_stable",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "f6dbab367fcbc081.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "z",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      -10.0,
+      -1.5
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "z",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      -10.0,
+      -1.5
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_axis_open_sign_scale_and_step_roundtrip_are_stable",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "a094f87476398b93.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "z",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      10.0,
+      -1.5,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "z",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      10.0,
+      -1.5,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_axis_open_sign_scale_and_step_roundtrip_are_stable",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "e78488589725f09d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 0.02,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 0.003,
+     "flat_width": 0.004,
+     "at": [
+      -0.0,
+      -0.002,
+      0.01
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 0.02,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 0.003,
+     "flat_width": 0.004,
+     "at": [
+      0.0,
+      -0.002,
+      0.01
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_axis_open_sign_scale_and_step_roundtrip_are_stable",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "31259302151dd88b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20000.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3000.0,
+     "flat_width": 4000.0,
+     "at": [
+      -0.0,
+      -1500.0,
+      10000.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20000.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3000.0,
+     "flat_width": 4000.0,
+     "at": [
+      0.0,
+      -1500.0,
+      10000.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_helper_refusal_boundaries_are_total_and_fail_closed",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "4e090fe361c883ac.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_helper_refusal_boundaries_are_total_and_fail_closed",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "4e090fe361c883ac.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_translation_mirror_and_arbitrary_framed_presentation_preserve_the_feature",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "6b528bcaf79d2af5.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      17.0,
+      -24.5,
+      19.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      17.0,
+      -24.5,
+      19.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_translation_mirror_and_arbitrary_framed_presentation_preserve_the_feature",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "ad030d3929fb213b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      -1.5,
+      -10.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      -1.5,
+      -10.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_translation_mirror_and_arbitrary_framed_presentation_preserve_the_feature",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "024a4f79b2f604ba.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_opposite_depth_openings_have_distinct_public_records",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "4e090fe361c883ac.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      -1.5,
+      10.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      -1.5,
+      10.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_opposite_depth_openings_have_distinct_public_records",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "c81f083c5b01ca5d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": -1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      -1.5,
+      10.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": -1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      -1.5,
+      10.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_cap_side_and_context_subdivisions_preserve_the_logical_feature",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "4e090fe361c883ac.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      -1.5,
+      10.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      -1.5,
+      10.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_cap_holes_and_stock_continuations_are_rejected",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "53a2d7d9d0a76ab1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_cap_holes_and_stock_continuations_are_rejected",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "7d29299b8b1289a7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_floor_holes_and_boundary_notches_are_rejected",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "54ae3abf374db39c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_floor_holes_and_boundary_notches_are_rejected",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "cc38cd2581e21b10.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_through_and_doubly_capped_u_sections_are_rejected",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "6583e2d61680c22e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_through_and_doubly_capped_u_sections_are_rejected",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "bfe9aedcb742c4e0.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_rectangular_notches_and_top_open_obround_pockets_are_other_families",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "4731694b9461690c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_rectangular_notches_and_top_open_obround_pockets_are_other_families",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "e0f54f88110191bd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_material_inside_the_claimed_sweep_rejects_the_candidate",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "95b92882341e091c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_compound_members_and_equal_occurrences_remain_distinct",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "913d5d01a4abebdb.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      -1.5,
+      10.0
+     ]
+    },
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      100.0,
+      -1.5,
+      10.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      0.0,
+      -1.5,
+      10.0
+     ]
+    },
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      100.0,
+      -1.5,
+      10.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_invalid_open_solid_and_mixed_compound_never_publish_invalid_evidence",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "cd34a5e4c9ce13b2.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_round_bottom_slots.py::test_two_slots_on_one_body_are_distinct_and_do_not_overlap_recess_families",
+   "function": "recognise_round_bottom_blind_slots",
+   "file": "fa958629f692c3c9.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      -13.0,
+      -1.5,
+      10.0
+     ]
+    },
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      13.0,
+      -1.5,
+      10.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      -13.0,
+      -1.5,
+      10.0
+     ]
+    },
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "radius": 3.0,
+     "flat_width": 4.0,
+     "at": [
+      13.0,
+      -1.5,
+      10.0
+     ]
+    }
+   ]
   }
  ],
  "skipped": {
-  "recognise_interior_voids: capture failed: RuntimeError": 2
+  "recognise_interior_voids: capture failed: RuntimeError": 2,
+  "recognise_round_bottom_blind_slots: capture failed: RuntimeError": 1
  }
 }

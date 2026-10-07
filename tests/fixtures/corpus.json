@@ -5597,6 +5597,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -20806,6 +20813,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -118097,6 +118111,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -125611,6 +125632,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -140313,6 +140341,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -157228,6 +157263,13 @@
       ]
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -160470,6 +160512,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -202352,6 +202401,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -231193,6 +231249,13 @@
       ]
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -255433,6 +255496,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -256278,6 +256348,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -256787,6 +256864,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -258030,6 +258114,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -258921,6 +259012,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -260204,6 +260302,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -262810,6 +262915,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -264266,6 +264378,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -266014,6 +266133,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -268871,6 +268997,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -270187,6 +270320,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -272907,6 +273047,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -274383,6 +274530,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -276153,6 +276307,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -277815,6 +277976,57 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "open_sign": -1,
+        "length": 2.42,
+        "width_axis": "y",
+        "depth_axis": "z",
+        "depth_sign": 1,
+        "radius": 0.541,
+        "flat_width": 1.0,
+        "at": [
+         1.21,
+         16.119,
+         23.944
+        ]
+       },
+       {
+        "axis": "y",
+        "open_sign": -1,
+        "length": 4.662,
+        "width_axis": "z",
+        "depth_axis": "x",
+        "depth_sign": -1,
+        "radius": 4.396,
+        "flat_width": 1.0,
+        "at": [
+         2.198,
+         2.331,
+         11.002
+        ]
+       }
+      ],
+      "defining": [
+       [
+        2,
+        3,
+        4,
+        15
+       ],
+       [
+        12,
+        13,
+        14,
+        20
+       ]
+      ]
      }
     ],
     "recognise_hole_patterns": [
@@ -279585,6 +279797,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -281305,6 +281524,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -283391,6 +283617,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -284831,6 +285064,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -286279,6 +286519,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -287204,6 +287451,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -289057,6 +289311,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -291093,6 +291354,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -292971,6 +293239,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -294693,6 +294968,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -296977,6 +297259,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -298711,6 +299000,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -300316,6 +300612,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -302413,6 +302716,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -303423,6 +303733,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -305197,6 +305514,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -306793,6 +307117,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -308699,6 +309030,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -310413,6 +310751,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -312453,6 +312798,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -314683,6 +315035,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -315877,6 +316236,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -317216,6 +317582,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -319183,6 +319556,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -320744,6 +321124,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -322331,6 +322718,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -323934,6 +324328,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -325636,6 +326037,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -326963,6 +327371,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -329190,6 +329605,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -330471,6 +330893,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -332829,6 +333258,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -334206,6 +334642,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -336236,6 +336679,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -337998,6 +338448,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -338946,6 +339403,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -340406,6 +340870,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -341394,6 +341865,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -343034,6 +343512,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -345239,6 +345724,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -346317,6 +346809,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -347887,6 +348386,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -349285,6 +349791,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -350129,6 +350642,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -351478,6 +351998,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -352638,6 +353165,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -353782,6 +354316,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -355362,6 +355903,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -357222,6 +357770,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -358710,6 +359265,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -360822,6 +361384,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -362565,6 +363134,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -363726,6 +364302,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -365307,6 +365890,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -367320,6 +367910,57 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "open_sign": 1,
+        "length": 13.494,
+        "width_axis": "z",
+        "depth_axis": "x",
+        "depth_sign": 1,
+        "radius": 0.67,
+        "flat_width": 1.0,
+        "at": [
+         24.122,
+         25.637,
+         5.809
+        ]
+       },
+       {
+        "axis": "z",
+        "open_sign": 1,
+        "length": 12.356,
+        "width_axis": "x",
+        "depth_axis": "y",
+        "depth_sign": -1,
+        "radius": 2.0,
+        "flat_width": 7.933,
+        "at": [
+         15.281,
+         1.0,
+         17.301
+        ]
+       }
+      ],
+      "defining": [
+       [
+        19,
+        20,
+        21,
+        33
+       ],
+       [
+        9,
+        11,
+        12,
+        32
+       ]
+      ]
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -368902,6 +369543,36 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "open_sign": 1,
+        "length": 4.712,
+        "width_axis": "y",
+        "depth_axis": "x",
+        "depth_sign": -1,
+        "radius": 2.74,
+        "flat_width": 1.0,
+        "at": [
+         1.37,
+         20.511,
+         8.1
+        ]
+       }
+      ],
+      "defining": [
+       [
+        20,
+        21,
+        22,
+        23
+       ]
+      ]
      }
     ],
     "recognise_hole_patterns": [
@@ -370588,6 +371259,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -372774,6 +373452,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -375444,6 +376129,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -376925,6 +377617,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -378669,6 +379368,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -380257,6 +380963,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -382205,6 +382918,36 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "open_sign": 1,
+        "length": 10.29,
+        "width_axis": "x",
+        "depth_axis": "z",
+        "depth_sign": -1,
+        "radius": 1.958,
+        "flat_width": 1.0,
+        "at": [
+         21.52,
+         9.885,
+         0.979
+        ]
+       }
+      ],
+      "defining": [
+       [
+        21,
+        22,
+        23,
+        28
+       ]
+      ]
      }
     ],
     "recognise_hole_patterns": [
@@ -384561,6 +385304,36 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "open_sign": -1,
+        "length": 20.192,
+        "width_axis": "z",
+        "depth_axis": "y",
+        "depth_sign": -1,
+        "radius": 0.5,
+        "flat_width": 1.0,
+        "at": [
+         10.096,
+         0.25,
+         10.0
+        ]
+       }
+      ],
+      "defining": [
+       [
+        8,
+        9,
+        10,
+        38
+       ]
+      ]
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -386520,6 +387293,13 @@
         34
        ]
       ]
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_hole_patterns": [
@@ -393948,6 +394728,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -424649,6 +425436,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -434348,6 +435142,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -460149,6 +460950,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -471554,6 +472362,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -478899,6 +479714,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -491662,6 +492484,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -505805,6 +506634,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -515016,6 +515852,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -526275,6 +527118,13 @@
       "defining": []
      }
     ],
+    "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -532723,6 +533573,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_round_bottom_blind_slots": [
      {
       "options": {},
       "result": [],
