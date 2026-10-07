@@ -3,10 +3,12 @@
 //! The recognisers ([`features`]) stand on the geometry kernel, [`haecceity`], re-exported as
 //! [`kernel`].
 
+pub mod correspondence;
 pub mod features;
 /// The geometry kernel, [`haecceity`], under the name the recognisers use.
 pub use haecceity as kernel;
 
+pub use correspondence::{Correspondence, Fingerprints, correspond};
 pub use features::angled_steps::{AngledStep, recognise_angled_steps};
 pub use features::bosses::{BossRecord, recognise_bosses};
 pub use features::chamfers::{Chamfer, ChamferOptions, recognise_chamfers};

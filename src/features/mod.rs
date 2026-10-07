@@ -42,6 +42,8 @@ pub mod volume_probe;
 pub use context::Context;
 pub use evidence::{EvidenceError, Occurrence};
 
+use std::collections::BTreeMap;
+
 use serde::Serialize;
 
 use crate::kernel::brep::Part;
@@ -72,38 +74,102 @@ pub struct Features {
     pub through_steps: Vec<through_steps::ThroughStep>,
     pub turned_steps: Vec<turned_steps::TurnedStep>,
     pub round_bottom_blind_slots: Vec<round_bottom_slots::RoundBottomBlindSlot>,
+    /// Each family's defining faces, record by record, under the family's field name. Derived
+    /// families (hole and gusset rib patterns) have none of their own: their members' faces are
+    /// theirs ([`crate::correspondence`]).
+    #[serde(skip)]
+    pub defining: Defining,
 }
+
+/// Defining faces by family field name, then record.
+pub type Defining = BTreeMap<&'static str, Vec<Vec<usize>>>;
 
 /// Recognise every ported family on *part* with default options; holes carry their
 /// countersinks, and patterns are found among those holes.
 pub fn recognise(part: &Part) -> Features {
     let ctx = Context::new(part);
     let seats = countersinks::discover(&ctx);
-    let holes = records(holes::discover(&ctx, &seats));
-    let countersinks = records(seats);
-    let gusset_ribs = records(gussets::discover(&ctx));
+    let mut defining = BTreeMap::new();
+    let holes = kept(&mut defining, "holes", holes::discover(&ctx, &seats));
+    let countersinks = kept(&mut defining, "countersinks", seats);
+    let gusset_ribs = kept(&mut defining, "gusset_ribs", gussets::discover(&ctx));
     Features {
-        fillets: records(fillets::discover(&ctx, &Default::default())),
-        chamfers: records(chamfers::discover(&ctx, &Default::default())),
-        bosses: records(bosses::discover(&ctx)),
-        angled_steps: records(angled_steps::discover(&ctx)),
-        flats: records(flats::discover(&ctx)),
-        paired_ramp_steps: records(paired_ramp_steps::discover(&ctx)),
-        oriented_chamfers: records(oriented_chamfers::discover(&ctx, &Default::default())),
-        circular_face_patterns: records(circular_face_patterns::discover(&ctx)),
-        oblique_through_steps: records(oblique_through_steps::discover(&ctx)),
-        circular_blind_steps: records(circular_blind_steps::discover(&ctx)),
+        fillets: kept(
+            &mut defining,
+            "fillets",
+            fillets::discover(&ctx, &Default::default()),
+        ),
+        chamfers: kept(
+            &mut defining,
+            "chamfers",
+            chamfers::discover(&ctx, &Default::default()),
+        ),
+        bosses: kept(&mut defining, "bosses", bosses::discover(&ctx)),
+        angled_steps: kept(&mut defining, "angled_steps", angled_steps::discover(&ctx)),
+        flats: kept(&mut defining, "flats", flats::discover(&ctx)),
+        paired_ramp_steps: kept(
+            &mut defining,
+            "paired_ramp_steps",
+            paired_ramp_steps::discover(&ctx),
+        ),
+        oriented_chamfers: kept(
+            &mut defining,
+            "oriented_chamfers",
+            oriented_chamfers::discover(&ctx, &Default::default()),
+        ),
+        circular_face_patterns: kept(
+            &mut defining,
+            "circular_face_patterns",
+            circular_face_patterns::discover(&ctx),
+        ),
+        oblique_through_steps: kept(
+            &mut defining,
+            "oblique_through_steps",
+            oblique_through_steps::discover(&ctx),
+        ),
+        circular_blind_steps: kept(
+            &mut defining,
+            "circular_blind_steps",
+            circular_blind_steps::discover(&ctx),
+        ),
         hole_patterns: hole_patterns::recognise_hole_patterns(&holes),
         holes,
         gusset_rib_patterns: gussets::recognise_gusset_rib_patterns(&gusset_ribs),
         gusset_ribs,
         countersinks,
-        thin_wall_bodies: records(thin_walls::discover(&ctx)),
-        interior_voids: records(interior_voids::discover(&ctx)),
-        through_steps: records(through_steps::discover(&ctx)),
-        turned_steps: turned_steps::sorted(records(turned_steps::discover(&ctx))),
-        round_bottom_blind_slots: records(round_bottom_slots::discover(&ctx)),
+        thin_wall_bodies: kept(
+            &mut defining,
+            "thin_wall_bodies",
+            thin_walls::discover(&ctx),
+        ),
+        interior_voids: kept(
+            &mut defining,
+            "interior_voids",
+            interior_voids::discover(&ctx),
+        ),
+        through_steps: kept(
+            &mut defining,
+            "through_steps",
+            through_steps::discover(&ctx),
+        ),
+        turned_steps: kept(
+            &mut defining,
+            "turned_steps",
+            turned_steps::sorted_occurrences(turned_steps::discover(&ctx)),
+        ),
+        round_bottom_blind_slots: kept(
+            &mut defining,
+            "round_bottom_blind_slots",
+            round_bottom_slots::discover(&ctx),
+        ),
+        defining,
     }
+}
+
+/// The records of a family's occurrences, their defining faces kept under the family's name.
+fn kept<R>(defining: &mut Defining, family: &'static str, found: Vec<Occurrence<R>>) -> Vec<R> {
+    defining.insert(family, found.iter().map(|o| o.defining.clone()).collect());
+    records(found)
 }
 
 /// The records of a family's occurrences, in order.
