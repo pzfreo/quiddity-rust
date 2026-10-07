@@ -43,6 +43,7 @@ from quiddity.oriented_chamfers import _discover_oriented_chamfers  # noqa: E402
 from quiddity.paired_ramp_steps import _discover_paired_ramp_steps  # noqa: E402
 from quiddity.thin_walls import _claim_records as _claim_walls  # noqa: E402
 from quiddity.thin_walls import _discover_thin_wall_bodies  # noqa: E402
+from quiddity.through_steps import _discover_through_steps  # noqa: E402
 
 from quiddity import (  # noqa: E402
     recognise_flats,
@@ -59,6 +60,7 @@ from quiddity import (  # noqa: E402
     recognise_oriented_chamfers,
     recognise_paired_ramp_steps,
     recognise_thin_wall_bodies,
+    recognise_through_steps,
 )
 from OCP.BRepTools import BRepTools  # noqa: E402
 
@@ -171,6 +173,8 @@ def main() -> None:
         voids = (FamilyId.INTERIOR_VOIDS, lambda p, o: recognise_interior_voids(p),
                  lambda p, ledger, o: _claim_voids(_discover_interior_voids(p, graph=ledger.graph), p,
                                                    ledger.writer))
+        through = (FamilyId.THROUGH_STEPS, lambda p, o: recognise_through_steps(p),
+                   lambda p, ledger, o: _discover_through_steps(p, graph=ledger.graph, sink=ledger.writer.sink))
         entries.append(
             {
                 "file": str(path.relative_to(CORPUS)),
@@ -198,6 +202,7 @@ def main() -> None:
                     ],
                     "recognise_thin_wall_bodies": [_run(part, "recognise_thin_wall_bodies", *walls, {})],
                     "recognise_interior_voids": [_run(part, "recognise_interior_voids", *voids, {})],
+                    "recognise_through_steps": [_run(part, "recognise_through_steps", *through, {})],
                     "recognise_hole_patterns": [
                         {"options": {"csinks": "auto"}, "result": _plain(recognise_hole_patterns(holes))}
                     ],

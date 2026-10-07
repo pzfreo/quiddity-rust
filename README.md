@@ -24,6 +24,7 @@ OpenCascade is reimplemented in `src/kernel`.
 | Circular face patterns | `recognise_circular_face_patterns` | 5/5 | see below |
 | Thin-wall bodies | `recognise_thin_wall_bodies` | 10/14 (4 known divergences) | see below |
 | Interior voids | `recognise_interior_voids` | 6/6 | see below |
+| Through steps | `recognise_through_steps` | 141/141 | see below |
 
 Known divergences are listed, with reasons, in `tests/fixtures/captured/known_divergences.json`
 (captured calls) and `tests/fixtures/known_divergences.json` (corpus).
@@ -93,7 +94,8 @@ src/
     stacks.rs        coaxial segments read at their ends (open / flat / drill point)
     fillets.rs  chamfers.rs  holes.rs  countersinks.rs  hole_patterns.rs  bosses.rs  angled_steps.rs  flats.rs
     paired_ramp_steps.rs  oriented_chamfers.rs  levels.rs  circular_face_patterns.rs
-    thin_walls.rs  interior_voids.rs
+    thin_walls.rs  interior_voids.rs  through_steps.rs
+    volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over kernel/volume.rs
   bin/quiddity.rs    `quiddity part.step` → JSON
 tests/
   captured.rs        replays every recogniser call the Python test suite makes

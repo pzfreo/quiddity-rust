@@ -5597,6 +5597,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -20806,6 +20813,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -118097,6 +118111,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -125611,6 +125632,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -140313,6 +140341,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -157228,6 +157263,13 @@
       ]
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -160470,6 +160512,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -202352,6 +202401,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -231193,6 +231249,13 @@
       ]
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -255433,6 +255496,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -256278,6 +256348,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -256787,6 +256864,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -258030,6 +258114,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -258921,6 +259012,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -260204,6 +260302,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -262810,6 +262915,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -264266,6 +264378,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -266018,6 +266137,97 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "length": 34.473,
+        "at": [
+         8.585,
+         17.237,
+         1.174
+        ],
+        "section": [
+         [
+          0.0,
+          2.348
+         ],
+         [
+          17.171,
+          2.348
+         ],
+         [
+          17.171,
+          0.0
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         31.863756,
+         34.473419,
+         35.87759,
+         15543.1009861,
+         6458.7035297
+        ],
+        "endpoint_scopes": [
+         "solid",
+         "solid"
+        ]
+       },
+       {
+        "axis": "y",
+        "length": 34.473,
+        "at": [
+         13.987,
+         17.237,
+         27.419
+        ],
+        "section": [
+         [
+          0.0,
+          18.96
+         ],
+         [
+          27.974,
+          18.96
+         ],
+         [
+          27.974,
+          35.878
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         31.863756,
+         34.473419,
+         35.87759,
+         15543.1009861,
+         6458.7035297
+        ],
+        "endpoint_scopes": [
+         "solid",
+         "solid"
+        ]
+       }
+      ],
+      "defining": [
+       [
+        6,
+        8
+       ],
+       [
+        2,
+        7
+       ]
+      ]
      }
     ],
     "recognise_hole_patterns": [
@@ -268871,6 +269081,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -270187,6 +270404,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -272907,6 +273131,56 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "length": 47.948,
+        "at": [
+         23.974,
+         19.876,
+         3.584
+        ],
+        "section": [
+         [
+          10.091,
+          0.0
+         ],
+         [
+          10.091,
+          7.168
+         ],
+         [
+          29.66,
+          7.168
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         47.948425,
+         29.660011,
+         11.616298,
+         9435.42236746,
+         5329.0429027
+        ],
+        "endpoint_scopes": [
+         "solid",
+         "solid"
+        ]
+       }
+      ],
+      "defining": [
+       [
+        4,
+        6
+       ]
+      ]
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -274383,6 +274657,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -276153,6 +276434,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -277811,6 +278099,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -279585,6 +279880,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -281305,6 +281607,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -283391,6 +283700,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -284831,6 +285147,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -286279,6 +286602,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -287204,6 +287534,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -289057,6 +289394,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -291093,6 +291437,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -292971,6 +293322,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -294697,6 +295055,56 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "length": 17.673,
+        "at": [
+         7.876,
+         8.837,
+         3.352
+        ],
+        "section": [
+         [
+          2.598,
+          0.0
+         ],
+         [
+          2.598,
+          6.703
+         ],
+         [
+          13.154,
+          6.703
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         13.153753,
+         17.673415,
+         33.933579,
+         4448.71355463,
+         2574.66477282
+        ],
+        "endpoint_scopes": [
+         "solid",
+         "solid"
+        ]
+       }
+      ],
+      "defining": [
+       [
+        6,
+        7
+       ]
+      ]
      }
     ],
     "recognise_hole_patterns": [
@@ -296977,6 +297385,56 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "length": 22.832,
+        "at": [
+         27.988,
+         11.416,
+         3.583
+        ],
+        "section": [
+         [
+          24.596,
+          0.0
+         ],
+         [
+          24.596,
+          7.166
+         ],
+         [
+          31.38,
+          7.166
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         31.379945,
+         22.832076,
+         10.218296,
+         5747.33255657,
+         2993.44074457
+        ],
+        "endpoint_scopes": [
+         "solid",
+         "solid"
+        ]
+       }
+      ],
+      "defining": [
+       [
+        5,
+        6
+       ]
+      ]
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -298711,6 +299169,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -300320,6 +300785,56 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "length": 44.729,
+        "at": [
+         9.367,
+         5.756,
+         22.365
+        ],
+        "section": [
+         [
+          0.0,
+          11.513
+         ],
+         [
+          18.734,
+          11.513
+         ],
+         [
+          18.734,
+          0.0
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         28.794382,
+         32.267721,
+         44.72925,
+         29264.485408,
+         8270.7126459
+        ],
+        "endpoint_scopes": [
+         "solid",
+         "solid"
+        ]
+       }
+      ],
+      "defining": [
+       [
+        9,
+        19
+       ]
+      ]
      }
     ],
     "recognise_hole_patterns": [
@@ -302413,6 +302928,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -303427,6 +303949,56 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "length": 23.226,
+        "at": [
+         25.23,
+         3.755,
+         11.613
+        ],
+        "section": [
+         [
+          19.645,
+          0.0
+         ],
+         [
+          19.645,
+          7.51
+         ],
+         [
+          30.816,
+          7.51
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         30.81569,
+         20.181537,
+         23.225993,
+         12328.8812887,
+         3695.22883186
+        ],
+        "endpoint_scopes": [
+         "solid",
+         "solid"
+        ]
+       }
+      ],
+      "defining": [
+       [
+        12,
+        18
+       ]
+      ]
      }
     ],
     "recognise_hole_patterns": [
@@ -305197,6 +305769,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -306793,6 +307372,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -308699,6 +309285,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -310413,6 +311006,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -312453,6 +313053,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -314683,6 +315290,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -315877,6 +316491,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -317216,6 +317837,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -319183,6 +319811,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -320744,6 +321379,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -322331,6 +322973,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -323934,6 +324583,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -325636,6 +326292,97 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "length": 29.751,
+        "at": [
+         14.876,
+         7.965,
+         39.398
+        ],
+        "section": [
+         [
+          0.0,
+          30.835
+         ],
+         [
+          15.93,
+          30.835
+         ],
+         [
+          15.93,
+          47.96
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         29.751124,
+         47.724932,
+         47.960419,
+         31943.184049,
+         9082.84387182
+        ],
+        "endpoint_scopes": [
+         "solid",
+         "solid"
+        ]
+       },
+       {
+        "axis": "z",
+        "length": 47.96,
+        "at": [
+         23.714,
+         42.783,
+         23.98
+        ],
+        "section": [
+         [
+          21.711,
+          37.842
+         ],
+         [
+          25.718,
+          37.842
+         ],
+         [
+          25.718,
+          47.725
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         29.751124,
+         47.724932,
+         47.960419,
+         31943.184049,
+         9082.84387182
+        ],
+        "endpoint_scopes": [
+         "local",
+         "solid"
+        ]
+       }
+      ],
+      "defining": [
+       [
+        2,
+        4
+       ],
+       [
+        17,
+        18
+       ]
+      ]
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -326963,6 +327710,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -329190,6 +329944,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -330471,6 +331232,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -332829,6 +333597,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -334206,6 +334981,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -336236,6 +337018,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -337998,6 +338787,56 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "length": 23.22,
+        "at": [
+         3.599,
+         11.61,
+         20.843
+        ],
+        "section": [
+         [
+          0.0,
+          9.462
+         ],
+         [
+          7.198,
+          9.462
+         ],
+         [
+          7.198,
+          32.224
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         38.011616,
+         23.219978,
+         32.224329,
+         21657.4793239,
+         5652.93035453
+        ],
+        "endpoint_scopes": [
+         "solid",
+         "solid"
+        ]
+       }
+      ],
+      "defining": [
+       [
+        14,
+        15
+       ]
+      ]
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -338946,6 +339785,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -340406,6 +341252,56 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "length": 31.203,
+        "at": [
+         15.223,
+         15.602,
+         13.325
+        ],
+        "section": [
+         [
+          0.0,
+          8.933
+         ],
+         [
+          30.446,
+          8.933
+         ],
+         [
+          30.446,
+          17.718
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         35.504757,
+         31.203467,
+         17.717572,
+         7528.10575422,
+         3366.46561355
+        ],
+        "endpoint_scopes": [
+         "solid",
+         "solid"
+        ]
+       }
+      ],
+      "defining": [
+       [
+        2,
+        8
+       ]
+      ]
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -341394,6 +342290,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -343034,6 +343937,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -345239,6 +346149,56 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "length": 30.899,
+        "at": [
+         16.168,
+         3.8,
+         15.449
+        ],
+        "section": [
+         [
+          0.0,
+          7.6
+         ],
+         [
+          32.337,
+          7.6
+         ],
+         [
+          32.337,
+          0.0
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         39.713853,
+         27.439126,
+         30.898575,
+         25085.9612198,
+         7269.14786549
+        ],
+        "endpoint_scopes": [
+         "solid",
+         "solid"
+        ]
+       }
+      ],
+      "defining": [
+       [
+        1,
+        16
+       ]
+      ]
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -346321,6 +347281,56 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "length": 47.028,
+        "at": [
+         5.727,
+         10.831,
+         23.514
+        ],
+        "section": [
+         [
+          0.0,
+          8.813
+         ],
+         [
+          11.454,
+          8.813
+         ],
+         [
+          11.454,
+          12.85
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         21.437321,
+         12.849634,
+         47.027662,
+         10145.1640613,
+         4269.86442836
+        ],
+        "endpoint_scopes": [
+         "solid",
+         "solid"
+        ]
+       }
+      ],
+      "defining": [
+       [
+        2,
+        5
+       ]
+      ]
      }
     ],
     "recognise_hole_patterns": [
@@ -347887,6 +348897,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -349285,6 +350302,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -350133,6 +351157,56 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "length": 48.938,
+        "at": [
+         24.469,
+         31.754,
+         3.884
+        ],
+        "section": [
+         [
+          22.246,
+          0.0
+         ],
+         [
+          22.246,
+          7.769
+         ],
+         [
+          41.262,
+          7.769
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         48.938485,
+         41.261545,
+         16.517707,
+         20804.9743663,
+         6093.05803983
+        ],
+        "endpoint_scopes": [
+         "solid",
+         "solid"
+        ]
+       }
+      ],
+      "defining": [
+       [
+        3,
+        4
+       ]
+      ]
      }
     ],
     "recognise_hole_patterns": [
@@ -351478,6 +352552,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -352638,6 +353719,56 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "length": 24.449,
+        "at": [
+         12.225,
+         25.257,
+         9.573
+        ],
+        "section": [
+         [
+          3.633,
+          0.0
+         ],
+         [
+          3.633,
+          19.147
+         ],
+         [
+          46.881,
+          19.147
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         24.449038,
+         46.881286,
+         20.326525,
+         2128.85941571,
+         3136.36596597
+        ],
+        "endpoint_scopes": [
+         "solid",
+         "solid"
+        ]
+       }
+      ],
+      "defining": [
+       [
+        2,
+        3
+       ]
+      ]
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -353782,6 +354913,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -355362,6 +356500,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -357222,6 +358367,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -358714,6 +359866,56 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "length": 37.679,
+        "at": [
+         18.84,
+         13.944,
+         25.139
+        ],
+        "section": [
+         [
+          10.485,
+          8.395
+         ],
+         [
+          17.403,
+          8.395
+         ],
+         [
+          17.403,
+          41.883
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         37.679124,
+         43.201527,
+         41.882594,
+         44358.4084171,
+         9449.22509274
+        ],
+        "endpoint_scopes": [
+         "local",
+         "solid"
+        ]
+       }
+      ],
+      "defining": [
+       [
+        7,
+        8
+       ]
+      ]
      }
     ],
     "recognise_hole_patterns": [
@@ -360822,6 +362024,56 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "length": 46.977,
+        "at": [
+         8.722,
+         22.703,
+         23.489
+        ],
+        "section": [
+         [
+          4.045,
+          34.06
+         ],
+         [
+          4.045,
+          11.345
+         ],
+         [
+          13.398,
+          11.345
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         13.398243,
+         34.05974,
+         46.977415,
+         10579.9378862,
+         5518.47382268
+        ],
+        "endpoint_scopes": [
+         "solid",
+         "solid"
+        ]
+       }
+      ],
+      "defining": [
+       [
+        17,
+        18
+       ]
+      ]
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -362565,6 +363817,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -363726,6 +364985,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -365307,6 +366573,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -367320,6 +368593,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -368898,6 +370178,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -370588,6 +371875,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -372774,6 +374068,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -375444,6 +376745,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -376925,6 +378233,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -378669,6 +379984,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -380257,6 +381579,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -382201,6 +383530,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -384561,6 +385897,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -386520,6 +387863,13 @@
         34
        ]
       ]
+     }
+    ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_hole_patterns": [
@@ -393948,6 +395298,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -424649,6 +426006,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -434348,6 +435712,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -460149,6 +461520,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -471554,6 +472932,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -478899,6 +480284,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -491662,6 +493054,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -505805,6 +507204,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -515016,6 +516422,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
@@ -526275,6 +527688,13 @@
       "defining": []
      }
     ],
+    "recognise_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -532723,6 +534143,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_through_steps": [
      {
       "options": {},
       "result": [],
