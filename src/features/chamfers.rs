@@ -5,7 +5,7 @@
 
 use std::collections::BTreeMap;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use super::Context;
 use super::bevel::{classify_bevel, convex_bevel};
@@ -32,7 +32,9 @@ pub struct Chamfer {
     pub corner: Option<V3>,
 }
 
-#[derive(Clone, Copy, Debug)]
+/// Options named as `recognise_chamfers`' keyword arguments.
+#[derive(Clone, Copy, Debug, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct ChamferOptions {
     /// The minimum leg (an edge break below it is not reported); 0 by default.
     pub tol: Option<f64>,

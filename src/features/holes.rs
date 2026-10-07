@@ -60,11 +60,26 @@ pub struct HoleRecord {
     pub csink: Option<CounterSink>,
 }
 
-#[derive(Clone, Copy, Debug, Default)]
+/// Options named as `recognise_holes`' keyword arguments.
+#[derive(Clone, Copy, Debug, Default, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct HoleOptions {
-    /// Compose recognised countersinks onto the holes they flare (Python's
-    /// `csinks=recognise_countersinks(part)`); off by default, as there.
+    /// Compose recognised countersinks onto the holes they flare: Python's
+    /// `csinks=recognise_countersinks(part)`, spelled `"csinks": "auto"`. Off by default, as
+    /// there.
+    #[serde(rename = "csinks", deserialize_with = "auto_flag")]
     pub with_countersinks: bool,
+}
+
+/// `null` → off, `"auto"` → on.
+fn auto_flag<'de, D: serde::Deserializer<'de>>(d: D) -> Result<bool, D::Error> {
+    match Option::<String>::deserialize(d)?.as_deref() {
+        None => Ok(false),
+        Some("auto") => Ok(true),
+        Some(other) => Err(serde::de::Error::custom(format!(
+            "csinks must be \"auto\" or null, not {other:?}"
+        ))),
+    }
 }
 
 /// The evidence path: holes with their defining cylinder faces and the faces that close them,

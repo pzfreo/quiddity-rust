@@ -107,6 +107,6 @@ reader reproduces:
 - Closed edges (full circles) are exempt from the orientability check: their recorded
   direction is not evidence.
 
-Known kernel limitations: sphere patches that pass through a pole have approximate interior
+Known kernel limitations: OpenCascade's healing adds missing seam edges to periodic faces (and splits closed edges they cross), which the reader does not; sphere patches that pass through a pole have approximate interior
 bounding boxes; closed surfaces of revolution/extrusion in NURBS form are treated as
 non-periodic; torus ray intersection is sampled rather than solved in closed form.

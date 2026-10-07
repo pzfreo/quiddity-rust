@@ -2948,7 +2948,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": [
        {
@@ -8132,7 +8132,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -45306,7 +45306,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": [
        {
@@ -47718,7 +47718,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -52590,7 +52590,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -58661,7 +58661,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": [
        {
@@ -59645,7 +59645,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -75582,7 +75582,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -87007,7 +87007,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": [
        {
@@ -95053,7 +95053,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": [
        {
@@ -95513,7 +95513,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -95754,7 +95754,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -96281,7 +96281,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -96618,7 +96618,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -97103,7 +97103,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -97909,7 +97909,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -98457,7 +98457,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -98984,7 +98984,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -99899,7 +99899,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -100348,7 +100348,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -101123,7 +101123,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -101650,7 +101650,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -102201,7 +102201,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -102738,7 +102738,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -103279,7 +103279,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -103826,7 +103826,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -104552,7 +104552,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -105032,7 +105032,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -105583,7 +105583,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -105938,7 +105938,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -106521,7 +106521,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -107202,7 +107202,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -107841,7 +107841,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -108478,7 +108478,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -109228,7 +109228,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -109821,7 +109821,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -110379,7 +110379,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -111070,7 +111070,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -111415,7 +111415,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -112038,7 +112038,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -112620,7 +112620,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -113223,7 +113223,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -113774,7 +113774,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -114462,7 +114462,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -115135,7 +115135,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -115539,7 +115539,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -116020,7 +116020,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -116701,7 +116701,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -117287,7 +117287,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -117871,7 +117871,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -118436,7 +118436,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -118945,7 +118945,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -119433,7 +119433,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -120220,7 +120220,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -120755,7 +120755,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -121562,7 +121562,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -122111,7 +122111,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -122806,7 +122806,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -123395,7 +123395,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -123726,7 +123726,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -124200,7 +124200,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -124513,7 +124513,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -125018,7 +125018,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -125755,7 +125755,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -126124,7 +126124,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -126651,7 +126651,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -127192,7 +127192,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -127515,7 +127515,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -127992,7 +127992,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -128385,7 +128385,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -128792,7 +128792,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -129311,7 +129311,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -129904,7 +129904,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -130371,7 +130371,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -131033,7 +131033,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -131694,7 +131694,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -132118,7 +132118,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -132670,7 +132670,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -133354,7 +133354,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -133839,7 +133839,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -134472,7 +134472,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -135190,7 +135190,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -135923,7 +135923,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -136449,7 +136449,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -137025,7 +137025,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -137577,7 +137577,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -138202,7 +138202,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -138907,7 +138907,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -139531,7 +139531,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }
@@ -142074,7 +142074,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": [
        {
@@ -155003,7 +155003,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": [
        {
@@ -158971,7 +158971,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": [
        {
@@ -169991,7 +169991,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": [
        {
@@ -175084,7 +175084,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": [
        {
@@ -178152,7 +178152,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": [
        {
@@ -183266,7 +183266,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": [
        {
@@ -188717,7 +188717,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": [
        {
@@ -192439,7 +192439,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": [
        {
@@ -197807,7 +197807,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": [
        {
@@ -200081,7 +200081,7 @@
     "recognise_hole_patterns": [
      {
       "options": {
-       "holes": "csinks auto"
+       "csinks": "auto"
       },
       "result": []
      }

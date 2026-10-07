@@ -91,9 +91,13 @@ def _record(name, real, args, kwargs, result):
 
     from quiddity import import_step_geometry
 
-    simple = {k: v for k, v in kwargs.items() if v is None or isinstance(v, (bool, int, float, str))}
+    simple = {
+        k: v
+        for k, v in kwargs.items()
+        if k not in HINTS and (v is None or isinstance(v, (bool, int, float, str)))
+    }
     # Precomputed inventories the port derives itself from the same part.
-    hints = sorted(k for k in kwargs if k in HINTS and k not in simple)
+    hints = sorted(k for k in kwargs if k in HINTS)
     rich = sorted(set(kwargs) - set(simple) - set(hints))
     if "csinks" in rich and args and _is_part(args[0]):
         import quiddity

@@ -20,23 +20,9 @@ fn manifest() -> Value {
         .unwrap()
 }
 
-fn options(v: &Value) -> FilletOptions {
-    let mut o = FilletOptions::default();
-    if let Some(m) = v.get("min_radius").and_then(Value::as_f64) {
-        o.min_radius = Some(m);
-    }
-    if let Some(f) = v.get("max_radius_frac").and_then(Value::as_f64) {
-        o.max_radius_frac = f;
-    }
-    if let Some(c) = v.get("include_cylindrical").and_then(Value::as_bool) {
-        o.include_cylindrical = c;
-    }
-    o
-}
-
 fn check_runs(name: &str, part: &Part, runs: &[Value], problems: &mut Vec<String>) {
     for run in runs {
-        let opts = options(&run["options"]);
+        let opts: FilletOptions = common::options(&run["options"]);
         let got: Vec<Value> = recognise_fillets(part, &opts)
             .iter()
             .map(|r| serde_json::to_value(r).unwrap())

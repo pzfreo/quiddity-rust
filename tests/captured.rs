@@ -21,11 +21,14 @@ fn load(name: &str) -> Value {
 fn replay(function: &str) {
     let calls = load("calls.json");
     let known: Vec<Value> = serde_json::from_value(load("known_divergences.json")).unwrap();
-    let known: Vec<&str> = known
-        .iter()
-        .filter(|d| d["function"] == function)
-        .map(|d| d["test"].as_str().unwrap())
-        .collect();
+    let known: Vec<&Value> = known.iter().filter(|d| d["function"] == function).collect();
+    // An entry names a test, optionally narrowed to one file and one option set.
+    let covers = |d: &Value, c: &Value| {
+        d["test"] == c["test"]
+            && d.get("file").is_none_or(|f| *f == c["file"])
+            && d.get("options").is_none_or(|o| *o == c["options"])
+    };
+    let mut used = vec![false; known.len()];
     let mut parts: BTreeMap<String, Part> = BTreeMap::new();
     let (mut passed, mut expected, mut failures) = (0, 0, Vec::new());
     let calls: Vec<&Value> = calls["calls"]
@@ -48,7 +51,8 @@ fn replay(function: &str) {
         let test = c["test"].as_str().unwrap();
         if common::same(&got, &c["result"]) {
             passed += 1;
-        } else if known.contains(&test) {
+        } else if let Some(i) = known.iter().position(|d| covers(d, c)) {
+            used[i] = true;
             expected += 1;
         } else {
             failures.push(format!(
@@ -61,9 +65,15 @@ fn replay(function: &str) {
         "{function}: {passed} match, {expected} known divergences, {} unexpected",
         failures.len()
     );
+    let stale: Vec<&Value> = known
+        .iter()
+        .zip(&used)
+        .filter(|(_, u)| !**u)
+        .map(|(d, _)| *d)
+        .collect();
     assert!(
-        failures.is_empty(),
-        "{} of {} calls differ:\n{}",
+        failures.is_empty() && stale.is_empty(),
+        "{} of {} calls differ:\n{}\nknown divergences that no longer differ: {stale:?}",
         failures.len(),
         calls.len(),
         failures.join("\n")

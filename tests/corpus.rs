@@ -29,6 +29,10 @@ fn corpus_dir() -> Option<PathBuf> {
 #[test]
 fn corpus_matches_python() {
     let Some(dir) = corpus_dir() else {
+        assert!(
+            std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
+            "QUIDDITY_CORPUS_REQUIRED is set but the corpus was not found"
+        );
         eprintln!("corpus not found; set QUIDDITY_CORPUS");
         return;
     };
@@ -77,8 +81,14 @@ fn corpus_matches_python() {
         p.starts_with(&format!("{} ", d["file"].as_str().unwrap()))
             || p.starts_with(&format!("{}:", d["file"].as_str().unwrap()))
     };
-    let matches =
-        |p: &str, d: &Value| is_known(p, d) && p.contains(d["contains"].as_str().unwrap());
+    // `contains` is one string or a list of strings the problem must all contain.
+    let matches = |p: &str, d: &Value| {
+        is_known(p, d)
+            && match &d["contains"] {
+                Value::Array(all) => all.iter().all(|c| p.contains(c.as_str().unwrap())),
+                one => p.contains(one.as_str().unwrap()),
+            }
+    };
     let unexpected: Vec<&String> = problems
         .iter()
         .filter(|p| !known.iter().any(|d| matches(p, d)))
@@ -106,7 +116,7 @@ fn check_fillet_evidence(
     run: &Value,
     problems: &mut Vec<String>,
 ) {
-    let opts = common::fillet_options(&run["options"]);
+    let opts: quiddity::FilletOptions = common::options(&run["options"]);
     match (
         discover_verified(&Context::new(part), &opts),
         run.get("evidence_error"),

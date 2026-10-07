@@ -93,7 +93,7 @@ def main() -> None:
                         {"options": {"csinks": "auto"}, "result": _plain(holes)},
                     ],
                     "recognise_hole_patterns": [
-                        {"options": {"holes": "csinks auto"}, "result": _plain(recognise_hole_patterns(holes))}
+                        {"options": {"csinks": "auto"}, "result": _plain(recognise_hole_patterns(holes))}
                     ],
                 },
             }

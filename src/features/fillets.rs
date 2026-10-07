@@ -6,7 +6,7 @@
 use std::collections::BTreeMap;
 use std::f64::consts::PI;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use super::Context;
 use super::bevel::convex_bevel;
@@ -35,7 +35,9 @@ pub struct Fillet {
     pub side: &'static str,
 }
 
-#[derive(Clone, Copy, Debug)]
+/// Options named as `recognise_fillets`' keyword arguments.
+#[derive(Clone, Copy, Debug, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct FilletOptions {
     pub min_radius: Option<f64>,
     pub max_radius_frac: f64,

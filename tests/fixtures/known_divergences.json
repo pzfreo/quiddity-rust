@@ -12,7 +12,10 @@
   {
     "file": "nist/nist_ctc_02_asme1_rc.stp",
     "reason": "Four r25 fillet anchors differ by 0.001 in z: OpenCascade sizes the face's v range from the pcurve it builds on import for a B-spline edge this file gives no usable B-spline pcurve for, and the true mid-point sits on a rounding boundary.",
-    "contains": "recognise_fillets"
+    "contains": [
+      "recognise_fillets",
+      "fields {\"at\"}"
+    ]
   },
   {
     "file": "inventory_refusal/13975.step.gz",
@@ -26,22 +29,64 @@
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
-    "contains": "recognise_holes",
-    "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
+    "contains": [
+      "recognise_holes",
+      "fields {\"depth\", \"location\"}"
+    ],
+    "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge. Here the 0.019 mm overshoot also moves one blind hole's depth across a 0.01 rounding step (24.52 vs 24.5)."
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
-    "contains": "recognise_holes",
+    "contains": [
+      "recognise_holes",
+      "fields {\"location\"}"
+    ],
     "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
   },
   {
     "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "contains": "recognise_holes",
+    "contains": [
+      "recognise_holes",
+      "fields {\"location\"}"
+    ],
     "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
   },
   {
     "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "contains": "recognise_hole_patterns",
+    "contains": [
+      "recognise_hole_patterns",
+      "fields {\"center\", \"holes\"}"
+    ],
     "reason": "The grid's member holes carry the opening-location difference recorded for this file's recognise_holes."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "contains": "edges, Python has",
+    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus."
+  },
+  {
+    "file": "nist/nist_ctc_01_asme1_rd.stp",
+    "contains": "edges, Python has",
+    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus."
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "contains": "edges, Python has",
+    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus."
+  },
+  {
+    "file": "nist/nist_ftc_06_asme1_rd.stp",
+    "contains": "edges, Python has",
+    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus."
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "contains": "edges, Python has",
+    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus."
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "contains": "edges, Python has",
+    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus."
   }
 ]
