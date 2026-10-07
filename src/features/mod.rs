@@ -21,11 +21,13 @@ pub mod fillets;
 pub mod flats;
 pub mod hole_patterns;
 pub mod holes;
+pub mod interior_voids;
 pub mod levels;
 pub mod oriented_chamfers;
 pub mod paired_ramp_steps;
 pub mod planes;
 pub mod stacks;
+pub mod thin_walls;
 pub mod turned;
 
 pub use context::Context;
@@ -52,6 +54,8 @@ pub struct Features {
     pub holes: Vec<holes::HoleRecord>,
     pub countersinks: Vec<countersinks::CounterSink>,
     pub hole_patterns: Vec<hole_patterns::HolePattern>,
+    pub thin_wall_bodies: Vec<thin_walls::ThinWallBody>,
+    pub interior_voids: Vec<interior_voids::InteriorVoid>,
 }
 
 /// Recognise every ported family on *part* with default options; holes carry their
@@ -73,6 +77,8 @@ pub fn recognise(part: &Part) -> Features {
         hole_patterns: hole_patterns::recognise_hole_patterns(&holes),
         holes,
         countersinks,
+        thin_wall_bodies: records(thin_walls::discover(&ctx)),
+        interior_voids: records(interior_voids::discover(&ctx)),
     }
 }
 

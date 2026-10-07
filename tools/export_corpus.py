@@ -37,8 +37,12 @@ from quiddity.countersinks import _discover_countersinks  # noqa: E402
 from quiddity.fillets import _discover_fillets  # noqa: E402
 from quiddity.flats import _discover_flats  # noqa: E402
 from quiddity.holes import _discover_holes  # noqa: E402
+from quiddity.interior_voids import _claim_records as _claim_voids  # noqa: E402
+from quiddity.interior_voids import _discover_interior_voids  # noqa: E402
 from quiddity.oriented_chamfers import _discover_oriented_chamfers  # noqa: E402
 from quiddity.paired_ramp_steps import _discover_paired_ramp_steps  # noqa: E402
+from quiddity.thin_walls import _claim_records as _claim_walls  # noqa: E402
+from quiddity.thin_walls import _discover_thin_wall_bodies  # noqa: E402
 
 from quiddity import (  # noqa: E402
     recognise_flats,
@@ -51,8 +55,10 @@ from quiddity import (  # noqa: E402
     recognise_countersinks,
     recognise_hole_patterns,
     recognise_holes,
+    recognise_interior_voids,
     recognise_oriented_chamfers,
     recognise_paired_ramp_steps,
+    recognise_thin_wall_bodies,
 )
 from OCP.BRepTools import BRepTools  # noqa: E402
 
@@ -159,6 +165,12 @@ def main() -> None:
                     lambda p, ledger, o: _discover_circular_face_patterns(p, writer=ledger.writer))
         hole = (FamilyId.HOLES, lambda p, o: recognise_holes(p, **hole_kwargs(o)),
                 lambda p, ledger, o: _discover_holes(p, writer=ledger.writer, **hole_kwargs(o)))
+        walls = (FamilyId.THIN_WALL_BODIES, lambda p, o: recognise_thin_wall_bodies(p),
+                 lambda p, ledger, o: _claim_walls(_discover_thin_wall_bodies(p, graph=ledger.graph), p,
+                                                   ledger.writer))
+        voids = (FamilyId.INTERIOR_VOIDS, lambda p, o: recognise_interior_voids(p),
+                 lambda p, ledger, o: _claim_voids(_discover_interior_voids(p, graph=ledger.graph), p,
+                                                   ledger.writer))
         entries.append(
             {
                 "file": str(path.relative_to(CORPUS)),
@@ -184,6 +196,8 @@ def main() -> None:
                     "recognise_holes": [
                         _run(part, "recognise_holes", *hole, o) for o in ({}, {"csinks": "auto"})
                     ],
+                    "recognise_thin_wall_bodies": [_run(part, "recognise_thin_wall_bodies", *walls, {})],
+                    "recognise_interior_voids": [_run(part, "recognise_interior_voids", *voids, {})],
                     "recognise_hole_patterns": [
                         {"options": {"csinks": "auto"}, "result": _plain(recognise_hole_patterns(holes))}
                     ],

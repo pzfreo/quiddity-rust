@@ -7,6 +7,7 @@
 use std::f64::consts::{PI, TAU};
 
 use super::nurbs::{NurbsCurve, NurbsSurface};
+use super::poly;
 
 pub type V3 = [f64; 3];
 
@@ -521,44 +522,37 @@ impl Surface {
             } => {
                 let o = frame.to_local(origin);
                 let d = frame.dir_to_local(dir);
-                let f = |t: f64| {
-                    let p = [o[0] + t * d[0], o[1] + t * d[1], o[2] + t * d[2]];
-                    let s = dot(p, p) + major * major - minor * minor;
-                    s * s - 4.0 * major * major * (p[0] * p[0] + p[1] * p[1])
-                };
-                // Bracket the quartic's roots inside the bounding sphere, then bisect.
+                // Within the bounding sphere only, and measured from where the ray enters it, so
+                // the quartic's coefficients stay well conditioned however far away the origin is.
                 let reach = major + minor;
-                let b = dot(o, d);
-                let c = dot(o, o) - reach * reach;
-                let disc = b * b - c;
+                let b = dot(o, d) / dot(d, d);
+                let disc = b * b - (dot(o, o) - reach * reach) / dot(d, d);
                 if disc > 0.0 {
                     let (t0, t1) = ((-b - disc.sqrt()).max(0.0), (-b + disc.sqrt()).min(t_max));
                     if t1 > t0 {
-                        let steps = 4000;
-                        let h = (t1 - t0) / steps as f64;
-                        let mut prev_t = t0;
-                        let mut prev_f = f(t0);
-                        for i in 1..=steps {
-                            let t = t0 + h * i as f64;
-                            let ft = f(t);
-                            if prev_f == 0.0 {
-                                hits.push(prev_t);
-                            } else if prev_f.signum() != ft.signum() {
-                                let (mut lo, mut hi, mut flo) = (prev_t, t, prev_f);
-                                for _ in 0..80 {
-                                    let mid = 0.5 * (lo + hi);
-                                    let fm = f(mid);
-                                    if fm.signum() == flo.signum() {
-                                        lo = mid;
-                                        flo = fm;
-                                    } else {
-                                        hi = mid;
-                                    }
-                                }
-                                hits.push(0.5 * (lo + hi));
-                            }
-                            prev_t = t;
-                            prev_f = ft;
+                        let e = add(o, scale(d, t0));
+                        // (|p|² + R² − r²)² − 4R²(px² + py²) along p = e + s d.
+                        let q = [
+                            dot(e, e) + major * major - minor * minor,
+                            2.0 * dot(e, d),
+                            dot(d, d),
+                        ];
+                        let w = [
+                            e[0] * e[0] + e[1] * e[1],
+                            2.0 * (e[0] * d[0] + e[1] * d[1]),
+                            d[0] * d[0] + d[1] * d[1],
+                        ];
+                        let r2 = 4.0 * major * major;
+                        let c = [
+                            q[0] * q[0] - r2 * w[0],
+                            2.0 * q[0] * q[1] - r2 * w[1],
+                            q[1] * q[1] + 2.0 * q[0] * q[2] - r2 * w[2],
+                            2.0 * q[1] * q[2],
+                            q[2] * q[2],
+                        ];
+                        for root in poly::roots(&c, 0.0, t1 - t0) {
+                            grazing |= root.touching;
+                            hits.push(t0 + root.x);
                         }
                     }
                 }

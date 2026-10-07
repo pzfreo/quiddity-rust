@@ -64,5 +64,35 @@
     "test": "tests/test_recognition.py::test_exact_converted_external_cylinder_reaches_the_existing_boss_consumer",
     "reason": "Python recovers a boss from cylinders stored as B-spline surfaces through its effective-surface recovery (_effective_surfaces.py); the port reads native analytic cylinders only and finds no boss.",
     "verdict": "rust-wrong"
+  },
+  {
+    "test": "tests/test_thin_walls.py::test_degenerate_wall_ray_normal_discards_only_unproved_evidence",
+    "function": "recognise_thin_wall_bodies",
+    "verdict": "not-applicable",
+    "reason": "The test monkeypatches the wall-ray function to raise; the captured answer reflects that patch, not the part."
+  },
+  {
+    "test": "tests/test_thin_walls.py::test_public_cadgenbench_shell_inputs_keep_imported_wall_evidence[cgb207-0.87-45]",
+    "function": "recognise_thin_wall_bodies",
+    "verdict": "undetermined",
+    "reason": "As the corpus entry for cgb207: same wall pairs; thicknesses differ in the sixth figure with the probe placement, and the body key and paired area fraction follow the untraced B-spline area difference."
+  },
+  {
+    "test": "tests/test_thin_walls.py::test_cgb207_joint_rounds_are_paired_and_every_remainder_is_classified",
+    "function": "recognise_thin_wall_bodies",
+    "verdict": "undetermined",
+    "reason": "As the corpus entry for cgb207: same wall pairs; thicknesses differ in the sixth figure with the probe placement, and the body key and paired area fraction follow the untraced B-spline area difference."
+  },
+  {
+    "test": "tests/test_freeform_surfaces.py::test_cgb241_outer_skins_have_rebuildable_support_and_inner_offset_links",
+    "function": "recognise_thin_wall_bodies",
+    "verdict": "rust-correct",
+    "reason": "As the corpus entry for cgb241: same pairs and thicknesses; the body key and paired area fraction follow OpenCascade's planar face area, 1% off its own B-spline edges (traced)."
+  },
+  {
+    "test": "tests/test_interior_voids.py::test_polyhedral_core_with_small_port_survives_rigid_rotation",
+    "function": "recognise_interior_voids",
+    "verdict": "undetermined",
+    "reason": "Same void, faces, openings and enclosed samples; air_samples differs by 64 of 172642, cells of a sampling grid whose centres fall on the rotated part's oblique faces."
   }
 ]

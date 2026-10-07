@@ -181,6 +181,16 @@ impl Part {
 
     fn compute_face_mass(&self, face: usize) -> Option<[f64; 2]> {
         let surface = &self.faces[face].surface;
+        // A whole sphere has no boundary to integrate along; its area and flux (3V) are exact.
+        if let Surface::Sphere { frame, radius } = surface
+            && self.whole_sphere(face)
+        {
+            let sense = if frame.direct() { 1.0 } else { -1.0 };
+            return Some([
+                4.0 * std::f64::consts::PI * radius * radius,
+                sense * 4.0 * std::f64::consts::PI * radius.powi(3),
+            ]);
+        }
         self.face_integral(face, |u, v| {
             let (p, su, sv) = match surface {
                 Surface::Freeform { surface, .. } => surface.value_and_partials(u, v),

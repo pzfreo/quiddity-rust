@@ -169140,9 +169140,7777 @@
      "fit_error": 0.0
     }
    ]
+  },
+  {
+   "test": "tests/test_thin_walls.py::test_open_shell_with_two_thicknesses_reports_each_wall_pair",
+   "function": "recognise_thin_wall_bodies",
+   "file": "af339eddce74fc4b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -40.0,
+      -20.0,
+      50.0,
+      40.0,
+      20.0,
+      57344.0,
+      42784.0
+     ],
+     "thickness": 2.0,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 9,
+       "thickness": 2.0
+      },
+      {
+       "first_face": 1,
+       "second_face": 6,
+       "thickness": 2.0
+      },
+      {
+       "first_face": 3,
+       "second_face": 8,
+       "thickness": 2.0
+      },
+      {
+       "first_face": 4,
+       "second_face": 10,
+       "thickness": 4.0
+      },
+      {
+       "first_face": 5,
+       "second_face": 7,
+       "thickness": 2.0
+      }
+     ],
+     "unpaired_faces": [
+      2
+     ],
+     "rim_regions": [
+      [
+       2
+      ]
+     ],
+     "paired_area_fraction": 0.9835452505609573,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       0,
+       1,
+       3,
+       4,
+       5
+      ],
+      "inner_faces": [
+       6,
+       7,
+       8,
+       9,
+       10
+      ],
+      "opening_rims": [
+       [
+        2
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 2,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ],
+   "result": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -40.0,
+      -20.0,
+      50.0,
+      40.0,
+      20.0,
+      57344.0,
+      42784.0
+     ],
+     "thickness": 2.0,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 9,
+       "thickness": 2.0
+      },
+      {
+       "first_face": 1,
+       "second_face": 6,
+       "thickness": 2.0
+      },
+      {
+       "first_face": 3,
+       "second_face": 8,
+       "thickness": 2.0
+      },
+      {
+       "first_face": 4,
+       "second_face": 10,
+       "thickness": 4.0
+      },
+      {
+       "first_face": 5,
+       "second_face": 7,
+       "thickness": 2.0
+      }
+     ],
+     "unpaired_faces": [
+      2
+     ],
+     "rim_regions": [
+      [
+       2
+      ]
+     ],
+     "paired_area_fraction": 0.9835452505609573,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       0,
+       1,
+       3,
+       4,
+       5
+      ],
+      "inner_faces": [
+       6,
+       7,
+       8,
+       9,
+       10
+      ],
+      "opening_rims": [
+       [
+        2
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 2,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_thin_walls.py::test_degenerate_wall_ray_normal_discards_only_unproved_evidence",
+   "function": "recognise_thin_wall_bodies",
+   "file": "64126b8e8abc3752.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -40.0,
+      -20.0,
+      50.0,
+      40.0,
+      20.0,
+      41760.0,
+      29928.0
+     ],
+     "thickness": 3.0,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 6,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 1,
+       "second_face": 7,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 3,
+       "second_face": 9,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 5,
+       "second_face": 8,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      2,
+      4
+     ],
+     "rim_regions": [
+      [
+       2
+      ],
+      [
+       4
+      ]
+     ],
+     "paired_area_fraction": 0.9302325581395349,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       0,
+       1,
+       3,
+       5
+      ],
+      "inner_faces": [
+       6,
+       7,
+       8,
+       9
+      ],
+      "opening_rims": [
+       [
+        2
+       ],
+       [
+        4
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 2,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 4,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ],
+   "result": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -40.0,
+      -20.0,
+      50.0,
+      40.0,
+      20.0,
+      41760.0,
+      29928.0
+     ],
+     "thickness": 3.0,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 6,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 1,
+       "second_face": 7,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 3,
+       "second_face": 9,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 5,
+       "second_face": 8,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      2,
+      4
+     ],
+     "rim_regions": [
+      [
+       2
+      ],
+      [
+       4
+      ]
+     ],
+     "paired_area_fraction": 0.9302325581395349,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       0,
+       1,
+       3,
+       5
+      ],
+      "inner_faces": [
+       6,
+       7,
+       8,
+       9
+      ],
+      "opening_rims": [
+       [
+        2
+       ],
+       [
+        4
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 2,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 4,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_thin_walls.py::test_degenerate_wall_ray_normal_discards_only_unproved_evidence",
+   "function": "recognise_thin_wall_bodies",
+   "file": "64126b8e8abc3752.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_thin_walls.py::test_degenerate_wall_ray_normal_discards_only_unproved_evidence",
+   "function": "recognise_thin_wall_bodies",
+   "file": "64126b8e8abc3752.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -40.0,
+      -20.0,
+      50.0,
+      40.0,
+      20.0,
+      41760.0,
+      29928.0
+     ],
+     "thickness": 3.0,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 6,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 1,
+       "second_face": 7,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 3,
+       "second_face": 9,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 5,
+       "second_face": 8,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      2,
+      4
+     ],
+     "rim_regions": [
+      [
+       2
+      ],
+      [
+       4
+      ]
+     ],
+     "paired_area_fraction": 0.9302325581395349,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       0,
+       1,
+       3,
+       5
+      ],
+      "inner_faces": [
+       6,
+       7,
+       8,
+       9
+      ],
+      "opening_rims": [
+       [
+        2
+       ],
+       [
+        4
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 2,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 4,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ],
+   "result": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -40.0,
+      -20.0,
+      50.0,
+      40.0,
+      20.0,
+      41760.0,
+      29928.0
+     ],
+     "thickness": 3.0,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 6,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 1,
+       "second_face": 7,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 3,
+       "second_face": 9,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 5,
+       "second_face": 8,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      2,
+      4
+     ],
+     "rim_regions": [
+      [
+       2
+      ],
+      [
+       4
+      ]
+     ],
+     "paired_area_fraction": 0.9302325581395349,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       0,
+       1,
+       3,
+       5
+      ],
+      "inner_faces": [
+       6,
+       7,
+       8,
+       9
+      ],
+      "opening_rims": [
+       [
+        2
+       ],
+       [
+        4
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 2,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 4,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_thin_walls.py::test_open_shell_exposes_wall_pairs_and_leaves_mouth_faces_unpaired",
+   "function": "recognise_thin_wall_bodies",
+   "file": "64126b8e8abc3752.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -40.0,
+      -20.0,
+      50.0,
+      40.0,
+      20.0,
+      41760.0,
+      29928.0
+     ],
+     "thickness": 3.0,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 6,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 1,
+       "second_face": 7,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 3,
+       "second_face": 9,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 5,
+       "second_face": 8,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      2,
+      4
+     ],
+     "rim_regions": [
+      [
+       2
+      ],
+      [
+       4
+      ]
+     ],
+     "paired_area_fraction": 0.9302325581395349,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       0,
+       1,
+       3,
+       5
+      ],
+      "inner_faces": [
+       6,
+       7,
+       8,
+       9
+      ],
+      "opening_rims": [
+       [
+        2
+       ],
+       [
+        4
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 2,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 4,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ],
+   "result": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -40.0,
+      -20.0,
+      50.0,
+      40.0,
+      20.0,
+      41760.0,
+      29928.0
+     ],
+     "thickness": 3.0,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 6,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 1,
+       "second_face": 7,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 3,
+       "second_face": 9,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 5,
+       "second_face": 8,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      2,
+      4
+     ],
+     "rim_regions": [
+      [
+       2
+      ],
+      [
+       4
+      ]
+     ],
+     "paired_area_fraction": 0.9302325581395349,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       0,
+       1,
+       3,
+       5
+      ],
+      "inner_faces": [
+       6,
+       7,
+       8,
+       9
+      ],
+      "opening_rims": [
+       [
+        2
+       ],
+       [
+        4
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 2,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 4,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_thin_walls.py::test_pairs_are_proven_per_solid_and_follow_input_face_roster",
+   "function": "recognise_thin_wall_bodies",
+   "file": "5966088cde442e72.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -40.0,
+      -20.0,
+      50.0,
+      40.0,
+      20.0,
+      41760.0,
+      29928.0
+     ],
+     "thickness": 3.0,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 6,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 1,
+       "second_face": 7,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 3,
+       "second_face": 9,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 5,
+       "second_face": 8,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      2,
+      4
+     ],
+     "rim_regions": [
+      [
+       2
+      ],
+      [
+       4
+      ]
+     ],
+     "paired_area_fraction": 0.9302325581395349,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       0,
+       1,
+       3,
+       5
+      ],
+      "inner_faces": [
+       6,
+       7,
+       8,
+       9
+      ],
+      "opening_rims": [
+       [
+        2
+       ],
+       [
+        4
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 2,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 4,
+       "kind": "cut_edge"
+      }
+     ]
+    },
+    {
+     "body_index": 1,
+     "body_key": [
+      150.0,
+      -40.0,
+      -20.0,
+      250.0,
+      40.0,
+      20.0,
+      41760.0,
+      29928.0
+     ],
+     "thickness": 3.0,
+     "face_pairs": [
+      {
+       "first_face": 10,
+       "second_face": 16,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 11,
+       "second_face": 17,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 13,
+       "second_face": 19,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 15,
+       "second_face": 18,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      12,
+      14
+     ],
+     "rim_regions": [
+      [
+       12
+      ],
+      [
+       14
+      ]
+     ],
+     "paired_area_fraction": 0.9302325581395349,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       10,
+       11,
+       13,
+       15
+      ],
+      "inner_faces": [
+       16,
+       17,
+       18,
+       19
+      ],
+      "opening_rims": [
+       [
+        12
+       ],
+       [
+        14
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 12,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 14,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ],
+   "result": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -40.0,
+      -20.0,
+      50.0,
+      40.0,
+      20.0,
+      41760.0,
+      29928.0
+     ],
+     "thickness": 3.0,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 6,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 1,
+       "second_face": 7,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 3,
+       "second_face": 9,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 5,
+       "second_face": 8,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      2,
+      4
+     ],
+     "rim_regions": [
+      [
+       2
+      ],
+      [
+       4
+      ]
+     ],
+     "paired_area_fraction": 0.9302325581395349,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       0,
+       1,
+       3,
+       5
+      ],
+      "inner_faces": [
+       6,
+       7,
+       8,
+       9
+      ],
+      "opening_rims": [
+       [
+        2
+       ],
+       [
+        4
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 2,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 4,
+       "kind": "cut_edge"
+      }
+     ]
+    },
+    {
+     "body_index": 1,
+     "body_key": [
+      150.0,
+      -40.0,
+      -20.0,
+      250.0,
+      40.0,
+      20.0,
+      41760.0,
+      29928.0
+     ],
+     "thickness": 3.0,
+     "face_pairs": [
+      {
+       "first_face": 10,
+       "second_face": 16,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 11,
+       "second_face": 17,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 13,
+       "second_face": 19,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 15,
+       "second_face": 18,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      12,
+      14
+     ],
+     "rim_regions": [
+      [
+       12
+      ],
+      [
+       14
+      ]
+     ],
+     "paired_area_fraction": 0.9302325581395349,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       10,
+       11,
+       13,
+       15
+      ],
+      "inner_faces": [
+       16,
+       17,
+       18,
+       19
+      ],
+      "opening_rims": [
+       [
+        12
+       ],
+       [
+        14
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 12,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 14,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_thin_walls.py::test_rotated_shell_keeps_thickness_and_exact_face_evidence",
+   "function": "recognise_thin_wall_bodies",
+   "file": "ba787b076c27d1c3.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -49.229758,
+      -95.340379,
+      -35.813291,
+      83.229758,
+      35.340379,
+      51.813291,
+      41760.0,
+      29928.0
+     ],
+     "thickness": 3.0000000000000004,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 6,
+       "thickness": 2.9999999999999973
+      },
+      {
+       "first_face": 1,
+       "second_face": 7,
+       "thickness": 2.999999999999999
+      },
+      {
+       "first_face": 3,
+       "second_face": 9,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 5,
+       "second_face": 8,
+       "thickness": 3.000000000000005
+      }
+     ],
+     "unpaired_faces": [
+      2,
+      4
+     ],
+     "rim_regions": [
+      [
+       2
+      ],
+      [
+       4
+      ]
+     ],
+     "paired_area_fraction": 0.9302325581395349,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       0,
+       1,
+       3,
+       5
+      ],
+      "inner_faces": [
+       6,
+       7,
+       8,
+       9
+      ],
+      "opening_rims": [
+       [
+        2
+       ],
+       [
+        4
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 2,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 4,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ],
+   "result": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -49.229758,
+      -95.340379,
+      -35.813291,
+      83.229758,
+      35.340379,
+      51.813291,
+      41760.0,
+      29928.0
+     ],
+     "thickness": 2.9999999999999982,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 6,
+       "thickness": 2.9999999999999987
+      },
+      {
+       "first_face": 1,
+       "second_face": 7,
+       "thickness": 2.999999999999999
+      },
+      {
+       "first_face": 3,
+       "second_face": 9,
+       "thickness": 2.999999999999999
+      },
+      {
+       "first_face": 5,
+       "second_face": 8,
+       "thickness": 2.9999999999999956
+      }
+     ],
+     "unpaired_faces": [
+      2,
+      4
+     ],
+     "rim_regions": [
+      [
+       2
+      ],
+      [
+       4
+      ]
+     ],
+     "paired_area_fraction": 0.9302325581395349,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       0,
+       1,
+       3,
+       5
+      ],
+      "inner_faces": [
+       6,
+       7,
+       8,
+       9
+      ],
+      "opening_rims": [
+       [
+        2
+       ],
+       [
+        4
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 2,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 4,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_thin_walls.py::test_solid_block_has_no_dominant_thin_wall",
+   "function": "recognise_thin_wall_bodies",
+   "file": "ae0793744275f38d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_thin_walls.py::test_solid_block_has_no_dominant_thin_wall",
+   "function": "recognise_thin_wall_bodies",
+   "file": "2caaec9a06135756.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_thin_walls.py::test_open_pipe_pairs_curved_skins_and_rim_faces",
+   "function": "recognise_thin_wall_bodies",
+   "file": "f059038539ab738d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -20.0,
+      -20.0,
+      -50.0,
+      20.0,
+      20.0,
+      50.0,
+      34871.6784548,
+      23945.2192057
+     ],
+     "thickness": 3.0,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 3,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      1,
+      2
+     ],
+     "rim_regions": [
+      [
+       1
+      ],
+      [
+       2
+      ]
+     ],
+     "paired_area_fraction": 0.970873786407767,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       0
+      ],
+      "inner_faces": [
+       3
+      ],
+      "opening_rims": [
+       [
+        1
+       ],
+       [
+        2
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 1,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 2,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ],
+   "result": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -20.0,
+      -20.0,
+      -50.0,
+      20.0,
+      20.0,
+      50.0,
+      34871.6784548,
+      23945.2192057
+     ],
+     "thickness": 3.0,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 3,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      1,
+      2
+     ],
+     "rim_regions": [
+      [
+       1
+      ],
+      [
+       2
+      ]
+     ],
+     "paired_area_fraction": 0.970873786407769,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       0
+      ],
+      "inner_faces": [
+       3
+      ],
+      "opening_rims": [
+       [
+        1
+       ],
+       [
+        2
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 1,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 2,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_thin_walls.py::test_unpaired_through_cut_is_heuristically_after_shell_and_not_an_opening",
+   "function": "recognise_thin_wall_bodies",
+   "file": "126a1ff4a80d046c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -40.0,
+      -20.0,
+      50.0,
+      40.0,
+      20.0,
+      41288.761102,
+      29802.3362939
+     ],
+     "thickness": 3.0,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 7,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 1,
+       "second_face": 8,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 4,
+       "second_face": 10,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 6,
+       "second_face": 9,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      2,
+      3,
+      5,
+      11
+     ],
+     "rim_regions": [
+      [
+       2
+      ],
+      [
+       3
+      ],
+      [
+       5
+      ],
+      [
+       11
+      ]
+     ],
+     "paired_area_fraction": 0.9236135202029556,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       0,
+       1,
+       4,
+       6
+      ],
+      "inner_faces": [
+       7,
+       8,
+       9,
+       10
+      ],
+      "opening_rims": [
+       [
+        2
+       ],
+       [
+        3
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": [
+       5,
+       11
+      ]
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 2,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 3,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 5,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 11,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ],
+   "result": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -40.0,
+      -20.0,
+      50.0,
+      40.0,
+      20.0,
+      41288.761102,
+      29802.3362939
+     ],
+     "thickness": 3.0,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 7,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 1,
+       "second_face": 8,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 4,
+       "second_face": 10,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 6,
+       "second_face": 9,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      2,
+      3,
+      5,
+      11
+     ],
+     "rim_regions": [
+      [
+       2
+      ],
+      [
+       3
+      ],
+      [
+       5
+      ],
+      [
+       11
+      ]
+     ],
+     "paired_area_fraction": 0.9236135202029552,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       0,
+       1,
+       4,
+       6
+      ],
+      "inner_faces": [
+       7,
+       8,
+       9,
+       10
+      ],
+      "opening_rims": [
+       [
+        2
+       ],
+       [
+        3
+       ]
+      ],
+      "before_shell_collar_pairs": [],
+      "after_shell_cut_faces": [
+       5,
+       11
+      ]
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 2,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 3,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 5,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 11,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_thin_walls.py::test_public_cadgenbench_shell_inputs_keep_imported_wall_evidence[cgb207-0.87-45]",
+   "function": "recognise_thin_wall_bodies",
+   "file": "cdbb50ecd934508f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -73.121463,
+      -41.183964,
+      -32.499246,
+      72.709502,
+      43.759725,
+      32.501752,
+      111664.728262,
+      73704.8545079
+     ],
+     "thickness": 3.0000007862064417,
+     "face_pairs": [
+      {
+       "first_face": 114,
+       "second_face": 179,
+       "thickness": 2.9957754351269825
+      },
+      {
+       "first_face": 115,
+       "second_face": 180,
+       "thickness": 3.000115261793222
+      },
+      {
+       "first_face": 116,
+       "second_face": 181,
+       "thickness": 3.0001081747513583
+      },
+      {
+       "first_face": 117,
+       "second_face": 182,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 118,
+       "second_face": 183,
+       "thickness": 2.9999999999999876
+      },
+      {
+       "first_face": 119,
+       "second_face": 184,
+       "thickness": 3.003597060896543
+      },
+      {
+       "first_face": 120,
+       "second_face": 185,
+       "thickness": 3.0021500831269927
+      },
+      {
+       "first_face": 121,
+       "second_face": 186,
+       "thickness": 3.003597014936628
+      },
+      {
+       "first_face": 122,
+       "second_face": 187,
+       "thickness": 2.999999999999989
+      },
+      {
+       "first_face": 123,
+       "second_face": 188,
+       "thickness": 3.000000000000001
+      },
+      {
+       "first_face": 124,
+       "second_face": 189,
+       "thickness": 3.0000000000000115
+      },
+      {
+       "first_face": 125,
+       "second_face": 190,
+       "thickness": 3.002192735721285
+      },
+      {
+       "first_face": 126,
+       "second_face": 191,
+       "thickness": 2.999765099208846
+      },
+      {
+       "first_face": 127,
+       "second_face": 198,
+       "thickness": 2.9999999999999982
+      },
+      {
+       "first_face": 128,
+       "second_face": 199,
+       "thickness": 2.999999999999993
+      },
+      {
+       "first_face": 129,
+       "second_face": 200,
+       "thickness": 3.0000000000000013
+      },
+      {
+       "first_face": 130,
+       "second_face": 208,
+       "thickness": 2.9999999999999605
+      },
+      {
+       "first_face": 131,
+       "second_face": 210,
+       "thickness": 3.000000000000001
+      },
+      {
+       "first_face": 132,
+       "second_face": 212,
+       "thickness": 2.999999999999994
+      },
+      {
+       "first_face": 133,
+       "second_face": 213,
+       "thickness": 3.000000000000001
+      },
+      {
+       "first_face": 134,
+       "second_face": 214,
+       "thickness": 3.000189341239952
+      },
+      {
+       "first_face": 135,
+       "second_face": 215,
+       "thickness": 3.000000000000001
+      },
+      {
+       "first_face": 136,
+       "second_face": 216,
+       "thickness": 3.0000000000000027
+      },
+      {
+       "first_face": 137,
+       "second_face": 217,
+       "thickness": 3.000000000000002
+      },
+      {
+       "first_face": 138,
+       "second_face": 218,
+       "thickness": 3.000000000000011
+      },
+      {
+       "first_face": 139,
+       "second_face": 219,
+       "thickness": 3.0000000000000284
+      },
+      {
+       "first_face": 140,
+       "second_face": 220,
+       "thickness": 2.999999999999987
+      },
+      {
+       "first_face": 141,
+       "second_face": 221,
+       "thickness": 3.0000000000000018
+      },
+      {
+       "first_face": 142,
+       "second_face": 224,
+       "thickness": 3.00705205227424
+      },
+      {
+       "first_face": 143,
+       "second_face": 227,
+       "thickness": 2.9999999999999436
+      },
+      {
+       "first_face": 144,
+       "second_face": 233,
+       "thickness": 2.9999999999999987
+      },
+      {
+       "first_face": 145,
+       "second_face": 234,
+       "thickness": 3.000000000000019
+      },
+      {
+       "first_face": 146,
+       "second_face": 235,
+       "thickness": 3.0000000000000004
+      },
+      {
+       "first_face": 147,
+       "second_face": 236,
+       "thickness": 2.9999999999999822
+      },
+      {
+       "first_face": 148,
+       "second_face": 237,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 149,
+       "second_face": 238,
+       "thickness": 3.0000000000000036
+      },
+      {
+       "first_face": 150,
+       "second_face": 239,
+       "thickness": 2.999999999999976
+      },
+      {
+       "first_face": 151,
+       "second_face": 240,
+       "thickness": 3.0000000000000044
+      },
+      {
+       "first_face": 152,
+       "second_face": 241,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 153,
+       "second_face": 242,
+       "thickness": 2.9999999999999973
+      },
+      {
+       "first_face": 155,
+       "second_face": 246,
+       "thickness": 2.9999999999999956
+      },
+      {
+       "first_face": 157,
+       "second_face": 248,
+       "thickness": 2.9999999999999942
+      },
+      {
+       "first_face": 158,
+       "second_face": 249,
+       "thickness": 2.999999999999995
+      },
+      {
+       "first_face": 159,
+       "second_face": 252,
+       "thickness": 3.0000000000011546
+      },
+      {
+       "first_face": 160,
+       "second_face": 254,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 161,
+       "second_face": 255,
+       "thickness": 2.999999999999745
+      },
+      {
+       "first_face": 162,
+       "second_face": 257,
+       "thickness": 2.999999999999507
+      },
+      {
+       "first_face": 163,
+       "second_face": 258,
+       "thickness": 3.000000000000018
+      },
+      {
+       "first_face": 164,
+       "second_face": 259,
+       "thickness": 2.9999999999999782
+      },
+      {
+       "first_face": 165,
+       "second_face": 260,
+       "thickness": 3.000000000004891
+      },
+      {
+       "first_face": 166,
+       "second_face": 261,
+       "thickness": 2.9999999999999964
+      },
+      {
+       "first_face": 167,
+       "second_face": 262,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 168,
+       "second_face": 263,
+       "thickness": 3.0000000000002274
+      },
+      {
+       "first_face": 169,
+       "second_face": 264,
+       "thickness": 3.0000000000013207
+      },
+      {
+       "first_face": 170,
+       "second_face": 265,
+       "thickness": 3.0000000000006977
+      },
+      {
+       "first_face": 171,
+       "second_face": 267,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 172,
+       "second_face": 268,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 173,
+       "second_face": 269,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      154,
+      156,
+      174,
+      175,
+      176,
+      177,
+      178,
+      192,
+      193,
+      194,
+      195,
+      196,
+      197,
+      201,
+      202,
+      203,
+      204,
+      205,
+      206,
+      207,
+      209,
+      211,
+      222,
+      223,
+      225,
+      226,
+      228,
+      229,
+      230,
+      231,
+      232,
+      243,
+      244,
+      245,
+      247,
+      250,
+      251,
+      253,
+      256,
+      266,
+      270,
+      271,
+      272,
+      273,
+      274,
+      275,
+      276,
+      277,
+      278,
+      279,
+      280,
+      281,
+      282,
+      283,
+      284,
+      285
+     ],
+     "rim_regions": [
+      [
+       251
+      ],
+      [
+       271
+      ],
+      [
+       272
+      ]
+     ],
+     "paired_area_fraction": 0.8948085243249981,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       179,
+       180,
+       181,
+       182,
+       183,
+       184,
+       185,
+       186,
+       187,
+       188,
+       189,
+       190,
+       191,
+       198,
+       199,
+       200,
+       208,
+       210,
+       212,
+       213,
+       214,
+       215,
+       216,
+       217,
+       218,
+       219,
+       220,
+       221,
+       224,
+       227,
+       237,
+       241,
+       242,
+       246,
+       248,
+       252,
+       254,
+       255,
+       257,
+       258,
+       259,
+       260,
+       261,
+       263,
+       264,
+       265,
+       267,
+       268,
+       269
+      ],
+      "inner_faces": [
+       114,
+       115,
+       116,
+       117,
+       118,
+       119,
+       120,
+       121,
+       122,
+       123,
+       124,
+       125,
+       126,
+       127,
+       128,
+       129,
+       130,
+       131,
+       132,
+       133,
+       134,
+       135,
+       136,
+       137,
+       138,
+       139,
+       140,
+       141,
+       142,
+       143,
+       148,
+       152,
+       153,
+       155,
+       157,
+       158,
+       159,
+       160,
+       161,
+       162,
+       163,
+       164,
+       165,
+       166,
+       168,
+       169,
+       170,
+       171,
+       172,
+       173
+      ],
+      "opening_rims": [
+       [
+        251
+       ],
+       [
+        271
+       ],
+       [
+        272
+       ]
+      ],
+      "before_shell_collar_pairs": [
+       {
+        "first_face": 144,
+        "second_face": 233,
+        "thickness": 2.9999999999999987
+       },
+       {
+        "first_face": 146,
+        "second_face": 235,
+        "thickness": 3.0000000000000004
+       },
+       {
+        "first_face": 150,
+        "second_face": 239,
+        "thickness": 2.999999999999976
+       },
+       {
+        "first_face": 151,
+        "second_face": 240,
+        "thickness": 3.0000000000000044
+       },
+       {
+        "first_face": 163,
+        "second_face": 258,
+        "thickness": 3.000000000000018
+       }
+      ],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 0,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 1,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 2,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 3,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 4,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 5,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 6,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 7,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 8,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 9,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 10,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 11,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 12,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 13,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 14,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 15,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 16,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 17,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 18,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 19,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 20,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 21,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 22,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 23,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 24,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 25,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 26,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 27,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 28,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 29,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 30,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 31,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 32,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 33,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 34,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 35,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 36,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 37,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 38,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 39,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 40,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 41,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 42,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 43,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 44,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 45,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 46,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 47,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 48,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 49,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 50,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 51,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 52,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 53,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 54,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 55,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 56,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 57,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 58,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 59,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 60,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 61,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 62,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 63,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 64,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 65,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 66,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 67,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 68,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 69,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 70,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 71,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 72,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 73,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 74,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 75,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 76,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 77,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 78,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 79,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 80,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 81,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 82,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 83,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 84,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 85,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 86,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 87,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 88,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 89,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 90,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 91,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 92,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 93,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 94,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 95,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 96,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 97,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 98,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 99,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 100,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 101,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 102,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 103,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 104,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 105,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 106,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 107,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 108,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 109,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 110,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 111,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 112,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 113,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 154,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 156,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 174,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 175,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 176,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 177,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 178,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 192,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 193,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 194,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 195,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 196,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 197,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 201,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 202,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 203,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 204,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 205,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 206,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 207,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 209,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 211,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 222,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 223,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 225,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 226,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 228,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 229,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 230,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 231,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 232,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 243,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 244,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 245,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 247,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 250,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 251,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 253,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 256,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 266,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 270,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 271,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 272,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 273,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 274,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 275,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 276,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 277,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 278,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 279,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 280,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 281,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 282,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 283,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 284,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 285,
+       "kind": "joint_blend"
+      }
+     ]
+    }
+   ],
+   "result": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -73.121463,
+      -41.183964,
+      -32.499246,
+      72.709502,
+      43.759725,
+      32.501752,
+      111662.001445,
+      73704.9679907
+     ],
+     "thickness": 3.0000007922529535,
+     "face_pairs": [
+      {
+       "first_face": 114,
+       "second_face": 179,
+       "thickness": 2.9957754351269825
+      },
+      {
+       "first_face": 115,
+       "second_face": 180,
+       "thickness": 3.0001152617932214
+      },
+      {
+       "first_face": 116,
+       "second_face": 181,
+       "thickness": 3.000108174751362
+      },
+      {
+       "first_face": 117,
+       "second_face": 182,
+       "thickness": 2.999999999999999
+      },
+      {
+       "first_face": 118,
+       "second_face": 183,
+       "thickness": 2.9999999999999876
+      },
+      {
+       "first_face": 119,
+       "second_face": 184,
+       "thickness": 3.003597060896553
+      },
+      {
+       "first_face": 120,
+       "second_face": 185,
+       "thickness": 3.0021547305340723
+      },
+      {
+       "first_face": 121,
+       "second_face": 186,
+       "thickness": 3.0035970149366373
+      },
+      {
+       "first_face": 122,
+       "second_face": 187,
+       "thickness": 2.999999999999989
+      },
+      {
+       "first_face": 123,
+       "second_face": 188,
+       "thickness": 3.000000000000001
+      },
+      {
+       "first_face": 124,
+       "second_face": 189,
+       "thickness": 3.0000000000000115
+      },
+      {
+       "first_face": 125,
+       "second_face": 190,
+       "thickness": 3.0021927357212865
+      },
+      {
+       "first_face": 126,
+       "second_face": 191,
+       "thickness": 2.999765099208846
+      },
+      {
+       "first_face": 127,
+       "second_face": 198,
+       "thickness": 2.9999999999999982
+      },
+      {
+       "first_face": 128,
+       "second_face": 199,
+       "thickness": 2.999999999999993
+      },
+      {
+       "first_face": 129,
+       "second_face": 200,
+       "thickness": 3.0000000000000013
+      },
+      {
+       "first_face": 130,
+       "second_face": 208,
+       "thickness": 2.9999999999999605
+      },
+      {
+       "first_face": 131,
+       "second_face": 210,
+       "thickness": 3.000000000000001
+      },
+      {
+       "first_face": 132,
+       "second_face": 212,
+       "thickness": 2.999999999999994
+      },
+      {
+       "first_face": 133,
+       "second_face": 213,
+       "thickness": 3.000000000000001
+      },
+      {
+       "first_face": 134,
+       "second_face": 214,
+       "thickness": 3.0001897769087864
+      },
+      {
+       "first_face": 135,
+       "second_face": 215,
+       "thickness": 3.000000000000001
+      },
+      {
+       "first_face": 136,
+       "second_face": 216,
+       "thickness": 3.0000000000000027
+      },
+      {
+       "first_face": 137,
+       "second_face": 217,
+       "thickness": 2.9999999999999964
+      },
+      {
+       "first_face": 138,
+       "second_face": 218,
+       "thickness": 3.000000000000011
+      },
+      {
+       "first_face": 139,
+       "second_face": 219,
+       "thickness": 3.0000000000000284
+      },
+      {
+       "first_face": 140,
+       "second_face": 220,
+       "thickness": 2.999999999999987
+      },
+      {
+       "first_face": 141,
+       "second_face": 221,
+       "thickness": 2.9999999999999916
+      },
+      {
+       "first_face": 142,
+       "second_face": 224,
+       "thickness": 3.0070520522742394
+      },
+      {
+       "first_face": 143,
+       "second_face": 227,
+       "thickness": 2.999999999999989
+      },
+      {
+       "first_face": 144,
+       "second_face": 233,
+       "thickness": 2.9999999999999987
+      },
+      {
+       "first_face": 145,
+       "second_face": 234,
+       "thickness": 3.000000000000019
+      },
+      {
+       "first_face": 146,
+       "second_face": 235,
+       "thickness": 3.0000000000000004
+      },
+      {
+       "first_face": 147,
+       "second_face": 236,
+       "thickness": 2.9999999999999822
+      },
+      {
+       "first_face": 148,
+       "second_face": 237,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 149,
+       "second_face": 238,
+       "thickness": 3.0000000000000036
+      },
+      {
+       "first_face": 150,
+       "second_face": 239,
+       "thickness": 2.999999999999976
+      },
+      {
+       "first_face": 151,
+       "second_face": 240,
+       "thickness": 3.0000000000000044
+      },
+      {
+       "first_face": 152,
+       "second_face": 241,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 153,
+       "second_face": 242,
+       "thickness": 2.9999999999999973
+      },
+      {
+       "first_face": 155,
+       "second_face": 246,
+       "thickness": 2.9999999999999956
+      },
+      {
+       "first_face": 157,
+       "second_face": 248,
+       "thickness": 2.9999999999999942
+      },
+      {
+       "first_face": 158,
+       "second_face": 249,
+       "thickness": 2.999999999999995
+      },
+      {
+       "first_face": 159,
+       "second_face": 252,
+       "thickness": 3.0000000000011546
+      },
+      {
+       "first_face": 160,
+       "second_face": 254,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 161,
+       "second_face": 255,
+       "thickness": 2.999999999999745
+      },
+      {
+       "first_face": 162,
+       "second_face": 257,
+       "thickness": 2.999999999999507
+      },
+      {
+       "first_face": 163,
+       "second_face": 258,
+       "thickness": 3.000000000000018
+      },
+      {
+       "first_face": 164,
+       "second_face": 259,
+       "thickness": 2.9999999999999782
+      },
+      {
+       "first_face": 165,
+       "second_face": 260,
+       "thickness": 3.000000000004891
+      },
+      {
+       "first_face": 166,
+       "second_face": 261,
+       "thickness": 2.9999999999999964
+      },
+      {
+       "first_face": 167,
+       "second_face": 262,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 168,
+       "second_face": 263,
+       "thickness": 3.0000000000002274
+      },
+      {
+       "first_face": 169,
+       "second_face": 264,
+       "thickness": 3.0000000000013207
+      },
+      {
+       "first_face": 170,
+       "second_face": 265,
+       "thickness": 3.0000000000006977
+      },
+      {
+       "first_face": 171,
+       "second_face": 267,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 172,
+       "second_face": 268,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 173,
+       "second_face": 269,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      154,
+      156,
+      174,
+      175,
+      176,
+      177,
+      178,
+      192,
+      193,
+      194,
+      195,
+      196,
+      197,
+      201,
+      202,
+      203,
+      204,
+      205,
+      206,
+      207,
+      209,
+      211,
+      222,
+      223,
+      225,
+      226,
+      228,
+      229,
+      230,
+      231,
+      232,
+      243,
+      244,
+      245,
+      247,
+      250,
+      251,
+      253,
+      256,
+      266,
+      270,
+      271,
+      272,
+      273,
+      274,
+      275,
+      276,
+      277,
+      278,
+      279,
+      280,
+      281,
+      282,
+      283,
+      284,
+      285
+     ],
+     "rim_regions": [
+      [
+       251
+      ],
+      [
+       271
+      ],
+      [
+       272
+      ]
+     ],
+     "paired_area_fraction": 0.8948074121535626,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       179,
+       180,
+       181,
+       182,
+       183,
+       184,
+       185,
+       186,
+       187,
+       188,
+       189,
+       190,
+       191,
+       198,
+       199,
+       200,
+       208,
+       210,
+       212,
+       213,
+       214,
+       215,
+       216,
+       217,
+       218,
+       219,
+       220,
+       221,
+       224,
+       227,
+       237,
+       241,
+       242,
+       246,
+       248,
+       252,
+       254,
+       255,
+       257,
+       258,
+       259,
+       260,
+       261,
+       263,
+       264,
+       265,
+       267,
+       268,
+       269
+      ],
+      "inner_faces": [
+       114,
+       115,
+       116,
+       117,
+       118,
+       119,
+       120,
+       121,
+       122,
+       123,
+       124,
+       125,
+       126,
+       127,
+       128,
+       129,
+       130,
+       131,
+       132,
+       133,
+       134,
+       135,
+       136,
+       137,
+       138,
+       139,
+       140,
+       141,
+       142,
+       143,
+       148,
+       152,
+       153,
+       155,
+       157,
+       158,
+       159,
+       160,
+       161,
+       162,
+       163,
+       164,
+       165,
+       166,
+       168,
+       169,
+       170,
+       171,
+       172,
+       173
+      ],
+      "opening_rims": [
+       [
+        251
+       ],
+       [
+        271
+       ],
+       [
+        272
+       ]
+      ],
+      "before_shell_collar_pairs": [
+       {
+        "first_face": 144,
+        "second_face": 233,
+        "thickness": 2.9999999999999987
+       },
+       {
+        "first_face": 146,
+        "second_face": 235,
+        "thickness": 3.0000000000000004
+       },
+       {
+        "first_face": 150,
+        "second_face": 239,
+        "thickness": 2.999999999999976
+       },
+       {
+        "first_face": 151,
+        "second_face": 240,
+        "thickness": 3.0000000000000044
+       },
+       {
+        "first_face": 163,
+        "second_face": 258,
+        "thickness": 3.000000000000018
+       }
+      ],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 0,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 1,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 2,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 3,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 4,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 5,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 6,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 7,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 8,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 9,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 10,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 11,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 12,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 13,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 14,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 15,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 16,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 17,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 18,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 19,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 20,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 21,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 22,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 23,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 24,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 25,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 26,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 27,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 28,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 29,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 30,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 31,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 32,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 33,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 34,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 35,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 36,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 37,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 38,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 39,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 40,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 41,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 42,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 43,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 44,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 45,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 46,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 47,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 48,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 49,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 50,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 51,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 52,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 53,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 54,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 55,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 56,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 57,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 58,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 59,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 60,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 61,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 62,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 63,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 64,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 65,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 66,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 67,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 68,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 69,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 70,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 71,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 72,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 73,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 74,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 75,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 76,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 77,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 78,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 79,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 80,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 81,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 82,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 83,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 84,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 85,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 86,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 87,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 88,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 89,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 90,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 91,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 92,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 93,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 94,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 95,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 96,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 97,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 98,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 99,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 100,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 101,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 102,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 103,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 104,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 105,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 106,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 107,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 108,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 109,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 110,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 111,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 112,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 113,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 154,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 156,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 174,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 175,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 176,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 177,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 178,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 192,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 193,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 194,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 195,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 196,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 197,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 201,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 202,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 203,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 204,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 205,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 206,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 207,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 209,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 211,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 222,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 223,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 225,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 226,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 228,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 229,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 230,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 231,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 232,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 243,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 244,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 245,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 247,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 250,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 251,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 253,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 256,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 266,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 270,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 271,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 272,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 273,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 274,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 275,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 276,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 277,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 278,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 279,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 280,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 281,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 282,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 283,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 284,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 285,
+       "kind": "joint_blend"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_thin_walls.py::test_cgb207_joint_rounds_are_paired_and_every_remainder_is_classified",
+   "function": "recognise_thin_wall_bodies",
+   "file": "cdbb50ecd934508f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -73.121463,
+      -41.183964,
+      -32.499246,
+      72.709502,
+      43.759725,
+      32.501752,
+      111664.728262,
+      73704.8545079
+     ],
+     "thickness": 3.0000007862064417,
+     "face_pairs": [
+      {
+       "first_face": 114,
+       "second_face": 179,
+       "thickness": 2.9957754351269825
+      },
+      {
+       "first_face": 115,
+       "second_face": 180,
+       "thickness": 3.000115261793222
+      },
+      {
+       "first_face": 116,
+       "second_face": 181,
+       "thickness": 3.0001081747513583
+      },
+      {
+       "first_face": 117,
+       "second_face": 182,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 118,
+       "second_face": 183,
+       "thickness": 2.9999999999999876
+      },
+      {
+       "first_face": 119,
+       "second_face": 184,
+       "thickness": 3.003597060896543
+      },
+      {
+       "first_face": 120,
+       "second_face": 185,
+       "thickness": 3.0021500831269927
+      },
+      {
+       "first_face": 121,
+       "second_face": 186,
+       "thickness": 3.003597014936628
+      },
+      {
+       "first_face": 122,
+       "second_face": 187,
+       "thickness": 2.999999999999989
+      },
+      {
+       "first_face": 123,
+       "second_face": 188,
+       "thickness": 3.000000000000001
+      },
+      {
+       "first_face": 124,
+       "second_face": 189,
+       "thickness": 3.0000000000000115
+      },
+      {
+       "first_face": 125,
+       "second_face": 190,
+       "thickness": 3.002192735721285
+      },
+      {
+       "first_face": 126,
+       "second_face": 191,
+       "thickness": 2.999765099208846
+      },
+      {
+       "first_face": 127,
+       "second_face": 198,
+       "thickness": 2.9999999999999982
+      },
+      {
+       "first_face": 128,
+       "second_face": 199,
+       "thickness": 2.999999999999993
+      },
+      {
+       "first_face": 129,
+       "second_face": 200,
+       "thickness": 3.0000000000000013
+      },
+      {
+       "first_face": 130,
+       "second_face": 208,
+       "thickness": 2.9999999999999605
+      },
+      {
+       "first_face": 131,
+       "second_face": 210,
+       "thickness": 3.000000000000001
+      },
+      {
+       "first_face": 132,
+       "second_face": 212,
+       "thickness": 2.999999999999994
+      },
+      {
+       "first_face": 133,
+       "second_face": 213,
+       "thickness": 3.000000000000001
+      },
+      {
+       "first_face": 134,
+       "second_face": 214,
+       "thickness": 3.000189341239952
+      },
+      {
+       "first_face": 135,
+       "second_face": 215,
+       "thickness": 3.000000000000001
+      },
+      {
+       "first_face": 136,
+       "second_face": 216,
+       "thickness": 3.0000000000000027
+      },
+      {
+       "first_face": 137,
+       "second_face": 217,
+       "thickness": 3.000000000000002
+      },
+      {
+       "first_face": 138,
+       "second_face": 218,
+       "thickness": 3.000000000000011
+      },
+      {
+       "first_face": 139,
+       "second_face": 219,
+       "thickness": 3.0000000000000284
+      },
+      {
+       "first_face": 140,
+       "second_face": 220,
+       "thickness": 2.999999999999987
+      },
+      {
+       "first_face": 141,
+       "second_face": 221,
+       "thickness": 3.0000000000000018
+      },
+      {
+       "first_face": 142,
+       "second_face": 224,
+       "thickness": 3.00705205227424
+      },
+      {
+       "first_face": 143,
+       "second_face": 227,
+       "thickness": 2.9999999999999436
+      },
+      {
+       "first_face": 144,
+       "second_face": 233,
+       "thickness": 2.9999999999999987
+      },
+      {
+       "first_face": 145,
+       "second_face": 234,
+       "thickness": 3.000000000000019
+      },
+      {
+       "first_face": 146,
+       "second_face": 235,
+       "thickness": 3.0000000000000004
+      },
+      {
+       "first_face": 147,
+       "second_face": 236,
+       "thickness": 2.9999999999999822
+      },
+      {
+       "first_face": 148,
+       "second_face": 237,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 149,
+       "second_face": 238,
+       "thickness": 3.0000000000000036
+      },
+      {
+       "first_face": 150,
+       "second_face": 239,
+       "thickness": 2.999999999999976
+      },
+      {
+       "first_face": 151,
+       "second_face": 240,
+       "thickness": 3.0000000000000044
+      },
+      {
+       "first_face": 152,
+       "second_face": 241,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 153,
+       "second_face": 242,
+       "thickness": 2.9999999999999973
+      },
+      {
+       "first_face": 155,
+       "second_face": 246,
+       "thickness": 2.9999999999999956
+      },
+      {
+       "first_face": 157,
+       "second_face": 248,
+       "thickness": 2.9999999999999942
+      },
+      {
+       "first_face": 158,
+       "second_face": 249,
+       "thickness": 2.999999999999995
+      },
+      {
+       "first_face": 159,
+       "second_face": 252,
+       "thickness": 3.0000000000011546
+      },
+      {
+       "first_face": 160,
+       "second_face": 254,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 161,
+       "second_face": 255,
+       "thickness": 2.999999999999745
+      },
+      {
+       "first_face": 162,
+       "second_face": 257,
+       "thickness": 2.999999999999507
+      },
+      {
+       "first_face": 163,
+       "second_face": 258,
+       "thickness": 3.000000000000018
+      },
+      {
+       "first_face": 164,
+       "second_face": 259,
+       "thickness": 2.9999999999999782
+      },
+      {
+       "first_face": 165,
+       "second_face": 260,
+       "thickness": 3.000000000004891
+      },
+      {
+       "first_face": 166,
+       "second_face": 261,
+       "thickness": 2.9999999999999964
+      },
+      {
+       "first_face": 167,
+       "second_face": 262,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 168,
+       "second_face": 263,
+       "thickness": 3.0000000000002274
+      },
+      {
+       "first_face": 169,
+       "second_face": 264,
+       "thickness": 3.0000000000013207
+      },
+      {
+       "first_face": 170,
+       "second_face": 265,
+       "thickness": 3.0000000000006977
+      },
+      {
+       "first_face": 171,
+       "second_face": 267,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 172,
+       "second_face": 268,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 173,
+       "second_face": 269,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      154,
+      156,
+      174,
+      175,
+      176,
+      177,
+      178,
+      192,
+      193,
+      194,
+      195,
+      196,
+      197,
+      201,
+      202,
+      203,
+      204,
+      205,
+      206,
+      207,
+      209,
+      211,
+      222,
+      223,
+      225,
+      226,
+      228,
+      229,
+      230,
+      231,
+      232,
+      243,
+      244,
+      245,
+      247,
+      250,
+      251,
+      253,
+      256,
+      266,
+      270,
+      271,
+      272,
+      273,
+      274,
+      275,
+      276,
+      277,
+      278,
+      279,
+      280,
+      281,
+      282,
+      283,
+      284,
+      285
+     ],
+     "rim_regions": [
+      [
+       251
+      ],
+      [
+       271
+      ],
+      [
+       272
+      ]
+     ],
+     "paired_area_fraction": 0.8948085243249981,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       179,
+       180,
+       181,
+       182,
+       183,
+       184,
+       185,
+       186,
+       187,
+       188,
+       189,
+       190,
+       191,
+       198,
+       199,
+       200,
+       208,
+       210,
+       212,
+       213,
+       214,
+       215,
+       216,
+       217,
+       218,
+       219,
+       220,
+       221,
+       224,
+       227,
+       237,
+       241,
+       242,
+       246,
+       248,
+       252,
+       254,
+       255,
+       257,
+       258,
+       259,
+       260,
+       261,
+       263,
+       264,
+       265,
+       267,
+       268,
+       269
+      ],
+      "inner_faces": [
+       114,
+       115,
+       116,
+       117,
+       118,
+       119,
+       120,
+       121,
+       122,
+       123,
+       124,
+       125,
+       126,
+       127,
+       128,
+       129,
+       130,
+       131,
+       132,
+       133,
+       134,
+       135,
+       136,
+       137,
+       138,
+       139,
+       140,
+       141,
+       142,
+       143,
+       148,
+       152,
+       153,
+       155,
+       157,
+       158,
+       159,
+       160,
+       161,
+       162,
+       163,
+       164,
+       165,
+       166,
+       168,
+       169,
+       170,
+       171,
+       172,
+       173
+      ],
+      "opening_rims": [
+       [
+        251
+       ],
+       [
+        271
+       ],
+       [
+        272
+       ]
+      ],
+      "before_shell_collar_pairs": [
+       {
+        "first_face": 144,
+        "second_face": 233,
+        "thickness": 2.9999999999999987
+       },
+       {
+        "first_face": 146,
+        "second_face": 235,
+        "thickness": 3.0000000000000004
+       },
+       {
+        "first_face": 150,
+        "second_face": 239,
+        "thickness": 2.999999999999976
+       },
+       {
+        "first_face": 151,
+        "second_face": 240,
+        "thickness": 3.0000000000000044
+       },
+       {
+        "first_face": 163,
+        "second_face": 258,
+        "thickness": 3.000000000000018
+       }
+      ],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 0,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 1,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 2,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 3,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 4,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 5,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 6,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 7,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 8,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 9,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 10,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 11,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 12,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 13,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 14,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 15,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 16,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 17,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 18,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 19,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 20,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 21,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 22,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 23,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 24,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 25,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 26,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 27,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 28,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 29,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 30,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 31,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 32,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 33,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 34,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 35,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 36,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 37,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 38,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 39,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 40,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 41,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 42,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 43,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 44,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 45,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 46,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 47,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 48,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 49,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 50,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 51,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 52,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 53,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 54,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 55,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 56,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 57,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 58,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 59,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 60,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 61,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 62,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 63,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 64,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 65,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 66,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 67,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 68,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 69,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 70,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 71,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 72,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 73,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 74,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 75,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 76,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 77,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 78,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 79,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 80,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 81,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 82,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 83,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 84,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 85,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 86,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 87,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 88,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 89,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 90,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 91,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 92,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 93,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 94,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 95,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 96,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 97,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 98,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 99,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 100,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 101,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 102,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 103,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 104,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 105,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 106,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 107,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 108,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 109,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 110,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 111,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 112,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 113,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 154,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 156,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 174,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 175,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 176,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 177,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 178,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 192,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 193,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 194,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 195,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 196,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 197,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 201,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 202,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 203,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 204,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 205,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 206,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 207,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 209,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 211,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 222,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 223,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 225,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 226,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 228,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 229,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 230,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 231,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 232,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 243,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 244,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 245,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 247,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 250,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 251,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 253,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 256,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 266,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 270,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 271,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 272,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 273,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 274,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 275,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 276,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 277,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 278,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 279,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 280,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 281,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 282,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 283,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 284,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 285,
+       "kind": "joint_blend"
+      }
+     ]
+    }
+   ],
+   "result": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -73.121463,
+      -41.183964,
+      -32.499246,
+      72.709502,
+      43.759725,
+      32.501752,
+      111662.001445,
+      73704.9679907
+     ],
+     "thickness": 3.0000007922529535,
+     "face_pairs": [
+      {
+       "first_face": 114,
+       "second_face": 179,
+       "thickness": 2.9957754351269825
+      },
+      {
+       "first_face": 115,
+       "second_face": 180,
+       "thickness": 3.0001152617932214
+      },
+      {
+       "first_face": 116,
+       "second_face": 181,
+       "thickness": 3.000108174751362
+      },
+      {
+       "first_face": 117,
+       "second_face": 182,
+       "thickness": 2.999999999999999
+      },
+      {
+       "first_face": 118,
+       "second_face": 183,
+       "thickness": 2.9999999999999876
+      },
+      {
+       "first_face": 119,
+       "second_face": 184,
+       "thickness": 3.003597060896553
+      },
+      {
+       "first_face": 120,
+       "second_face": 185,
+       "thickness": 3.0021547305340723
+      },
+      {
+       "first_face": 121,
+       "second_face": 186,
+       "thickness": 3.0035970149366373
+      },
+      {
+       "first_face": 122,
+       "second_face": 187,
+       "thickness": 2.999999999999989
+      },
+      {
+       "first_face": 123,
+       "second_face": 188,
+       "thickness": 3.000000000000001
+      },
+      {
+       "first_face": 124,
+       "second_face": 189,
+       "thickness": 3.0000000000000115
+      },
+      {
+       "first_face": 125,
+       "second_face": 190,
+       "thickness": 3.0021927357212865
+      },
+      {
+       "first_face": 126,
+       "second_face": 191,
+       "thickness": 2.999765099208846
+      },
+      {
+       "first_face": 127,
+       "second_face": 198,
+       "thickness": 2.9999999999999982
+      },
+      {
+       "first_face": 128,
+       "second_face": 199,
+       "thickness": 2.999999999999993
+      },
+      {
+       "first_face": 129,
+       "second_face": 200,
+       "thickness": 3.0000000000000013
+      },
+      {
+       "first_face": 130,
+       "second_face": 208,
+       "thickness": 2.9999999999999605
+      },
+      {
+       "first_face": 131,
+       "second_face": 210,
+       "thickness": 3.000000000000001
+      },
+      {
+       "first_face": 132,
+       "second_face": 212,
+       "thickness": 2.999999999999994
+      },
+      {
+       "first_face": 133,
+       "second_face": 213,
+       "thickness": 3.000000000000001
+      },
+      {
+       "first_face": 134,
+       "second_face": 214,
+       "thickness": 3.0001897769087864
+      },
+      {
+       "first_face": 135,
+       "second_face": 215,
+       "thickness": 3.000000000000001
+      },
+      {
+       "first_face": 136,
+       "second_face": 216,
+       "thickness": 3.0000000000000027
+      },
+      {
+       "first_face": 137,
+       "second_face": 217,
+       "thickness": 2.9999999999999964
+      },
+      {
+       "first_face": 138,
+       "second_face": 218,
+       "thickness": 3.000000000000011
+      },
+      {
+       "first_face": 139,
+       "second_face": 219,
+       "thickness": 3.0000000000000284
+      },
+      {
+       "first_face": 140,
+       "second_face": 220,
+       "thickness": 2.999999999999987
+      },
+      {
+       "first_face": 141,
+       "second_face": 221,
+       "thickness": 2.9999999999999916
+      },
+      {
+       "first_face": 142,
+       "second_face": 224,
+       "thickness": 3.0070520522742394
+      },
+      {
+       "first_face": 143,
+       "second_face": 227,
+       "thickness": 2.999999999999989
+      },
+      {
+       "first_face": 144,
+       "second_face": 233,
+       "thickness": 2.9999999999999987
+      },
+      {
+       "first_face": 145,
+       "second_face": 234,
+       "thickness": 3.000000000000019
+      },
+      {
+       "first_face": 146,
+       "second_face": 235,
+       "thickness": 3.0000000000000004
+      },
+      {
+       "first_face": 147,
+       "second_face": 236,
+       "thickness": 2.9999999999999822
+      },
+      {
+       "first_face": 148,
+       "second_face": 237,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 149,
+       "second_face": 238,
+       "thickness": 3.0000000000000036
+      },
+      {
+       "first_face": 150,
+       "second_face": 239,
+       "thickness": 2.999999999999976
+      },
+      {
+       "first_face": 151,
+       "second_face": 240,
+       "thickness": 3.0000000000000044
+      },
+      {
+       "first_face": 152,
+       "second_face": 241,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 153,
+       "second_face": 242,
+       "thickness": 2.9999999999999973
+      },
+      {
+       "first_face": 155,
+       "second_face": 246,
+       "thickness": 2.9999999999999956
+      },
+      {
+       "first_face": 157,
+       "second_face": 248,
+       "thickness": 2.9999999999999942
+      },
+      {
+       "first_face": 158,
+       "second_face": 249,
+       "thickness": 2.999999999999995
+      },
+      {
+       "first_face": 159,
+       "second_face": 252,
+       "thickness": 3.0000000000011546
+      },
+      {
+       "first_face": 160,
+       "second_face": 254,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 161,
+       "second_face": 255,
+       "thickness": 2.999999999999745
+      },
+      {
+       "first_face": 162,
+       "second_face": 257,
+       "thickness": 2.999999999999507
+      },
+      {
+       "first_face": 163,
+       "second_face": 258,
+       "thickness": 3.000000000000018
+      },
+      {
+       "first_face": 164,
+       "second_face": 259,
+       "thickness": 2.9999999999999782
+      },
+      {
+       "first_face": 165,
+       "second_face": 260,
+       "thickness": 3.000000000004891
+      },
+      {
+       "first_face": 166,
+       "second_face": 261,
+       "thickness": 2.9999999999999964
+      },
+      {
+       "first_face": 167,
+       "second_face": 262,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 168,
+       "second_face": 263,
+       "thickness": 3.0000000000002274
+      },
+      {
+       "first_face": 169,
+       "second_face": 264,
+       "thickness": 3.0000000000013207
+      },
+      {
+       "first_face": 170,
+       "second_face": 265,
+       "thickness": 3.0000000000006977
+      },
+      {
+       "first_face": 171,
+       "second_face": 267,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 172,
+       "second_face": 268,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 173,
+       "second_face": 269,
+       "thickness": 3.0
+      }
+     ],
+     "unpaired_faces": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      154,
+      156,
+      174,
+      175,
+      176,
+      177,
+      178,
+      192,
+      193,
+      194,
+      195,
+      196,
+      197,
+      201,
+      202,
+      203,
+      204,
+      205,
+      206,
+      207,
+      209,
+      211,
+      222,
+      223,
+      225,
+      226,
+      228,
+      229,
+      230,
+      231,
+      232,
+      243,
+      244,
+      245,
+      247,
+      250,
+      251,
+      253,
+      256,
+      266,
+      270,
+      271,
+      272,
+      273,
+      274,
+      275,
+      276,
+      277,
+      278,
+      279,
+      280,
+      281,
+      282,
+      283,
+      284,
+      285
+     ],
+     "rim_regions": [
+      [
+       251
+      ],
+      [
+       271
+      ],
+      [
+       272
+      ]
+     ],
+     "paired_area_fraction": 0.8948074121535626,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       179,
+       180,
+       181,
+       182,
+       183,
+       184,
+       185,
+       186,
+       187,
+       188,
+       189,
+       190,
+       191,
+       198,
+       199,
+       200,
+       208,
+       210,
+       212,
+       213,
+       214,
+       215,
+       216,
+       217,
+       218,
+       219,
+       220,
+       221,
+       224,
+       227,
+       237,
+       241,
+       242,
+       246,
+       248,
+       252,
+       254,
+       255,
+       257,
+       258,
+       259,
+       260,
+       261,
+       263,
+       264,
+       265,
+       267,
+       268,
+       269
+      ],
+      "inner_faces": [
+       114,
+       115,
+       116,
+       117,
+       118,
+       119,
+       120,
+       121,
+       122,
+       123,
+       124,
+       125,
+       126,
+       127,
+       128,
+       129,
+       130,
+       131,
+       132,
+       133,
+       134,
+       135,
+       136,
+       137,
+       138,
+       139,
+       140,
+       141,
+       142,
+       143,
+       148,
+       152,
+       153,
+       155,
+       157,
+       158,
+       159,
+       160,
+       161,
+       162,
+       163,
+       164,
+       165,
+       166,
+       168,
+       169,
+       170,
+       171,
+       172,
+       173
+      ],
+      "opening_rims": [
+       [
+        251
+       ],
+       [
+        271
+       ],
+       [
+        272
+       ]
+      ],
+      "before_shell_collar_pairs": [
+       {
+        "first_face": 144,
+        "second_face": 233,
+        "thickness": 2.9999999999999987
+       },
+       {
+        "first_face": 146,
+        "second_face": 235,
+        "thickness": 3.0000000000000004
+       },
+       {
+        "first_face": 150,
+        "second_face": 239,
+        "thickness": 2.999999999999976
+       },
+       {
+        "first_face": 151,
+        "second_face": 240,
+        "thickness": 3.0000000000000044
+       },
+       {
+        "first_face": 163,
+        "second_face": 258,
+        "thickness": 3.000000000000018
+       }
+      ],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 0,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 1,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 2,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 3,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 4,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 5,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 6,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 7,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 8,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 9,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 10,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 11,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 12,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 13,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 14,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 15,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 16,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 17,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 18,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 19,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 20,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 21,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 22,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 23,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 24,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 25,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 26,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 27,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 28,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 29,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 30,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 31,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 32,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 33,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 34,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 35,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 36,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 37,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 38,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 39,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 40,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 41,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 42,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 43,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 44,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 45,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 46,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 47,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 48,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 49,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 50,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 51,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 52,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 53,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 54,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 55,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 56,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 57,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 58,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 59,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 60,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 61,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 62,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 63,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 64,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 65,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 66,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 67,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 68,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 69,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 70,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 71,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 72,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 73,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 74,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 75,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 76,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 77,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 78,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 79,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 80,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 81,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 82,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 83,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 84,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 85,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 86,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 87,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 88,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 89,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 90,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 91,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 92,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 93,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 94,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 95,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 96,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 97,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 98,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 99,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 100,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 101,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 102,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 103,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 104,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 105,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 106,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 107,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 108,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 109,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 110,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 111,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 112,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 113,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 154,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 156,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 174,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 175,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 176,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 177,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 178,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 192,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 193,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 194,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 195,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 196,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 197,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 201,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 202,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 203,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 204,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 205,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 206,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 207,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 209,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 211,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 222,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 223,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 225,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 226,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 228,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 229,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 230,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 231,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 232,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 243,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 244,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 245,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 247,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 250,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 251,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 253,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 256,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 266,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 270,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 271,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 272,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 273,
+       "kind": "non_wall_feature"
+      },
+      {
+       "face": 274,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 275,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 276,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 277,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 278,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 279,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 280,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 281,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 282,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 283,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 284,
+       "kind": "joint_blend"
+      },
+      {
+       "face": 285,
+       "kind": "joint_blend"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_interior_voids.py::test_closed_and_small_port_spherical_cores",
+   "function": "recognise_interior_voids",
+   "file": "c2c392ec476f9440.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -50.0,
+      -50.0,
+      50.0,
+      50.0,
+      50.0,
+      934550.15305,
+      67853.981634
+     ],
+     "void_faces": [
+      6
+     ],
+     "openings": [],
+     "estimated_volume": 65826.416015625,
+     "volume_method": "six_axis_grid",
+     "grid_pitch": 1.5625,
+     "enclosed_samples": 17256,
+     "air_samples": 17256
+    }
+   ],
+   "result": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -50.0,
+      -50.0,
+      50.0,
+      50.0,
+      50.0,
+      934550.15305,
+      67853.981634
+     ],
+     "void_faces": [
+      6
+     ],
+     "openings": [],
+     "estimated_volume": 65826.416015625,
+     "volume_method": "six_axis_grid",
+     "grid_pitch": 1.5625,
+     "enclosed_samples": 17256,
+     "air_samples": 17256
+    }
+   ]
+  },
+  {
+   "test": "tests/test_interior_voids.py::test_closed_and_small_port_spherical_cores",
+   "function": "recognise_interior_voids",
+   "file": "ce9571ef2c21b215.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -50.0,
+      -50.0,
+      50.0,
+      50.0,
+      50.0,
+      932566.889784,
+      68497.3669198
+     ],
+     "void_faces": [
+      7
+     ],
+     "openings": [
+      [
+       6
+      ]
+     ],
+     "estimated_volume": 61920.166015625,
+     "volume_method": "six_axis_grid",
+     "grid_pitch": 1.5625,
+     "enclosed_samples": 16232,
+     "air_samples": 17768
+    }
+   ],
+   "result": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -50.0,
+      -50.0,
+      50.0,
+      50.0,
+      50.0,
+      932566.889784,
+      68497.3669198
+     ],
+     "void_faces": [
+      7
+     ],
+     "openings": [
+      [
+       6
+      ]
+     ],
+     "estimated_volume": 61920.166015625,
+     "volume_method": "six_axis_grid",
+     "grid_pitch": 1.5625,
+     "enclosed_samples": 16232,
+     "air_samples": 17768
+    }
+   ]
+  },
+  {
+   "test": "tests/test_interior_voids.py::test_open_pockets_and_through_bores_are_not_cores",
+   "function": "recognise_interior_voids",
+   "file": "7bb8ddbd40da949e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_interior_voids.py::test_open_pockets_and_through_bores_are_not_cores",
+   "function": "recognise_interior_voids",
+   "file": "7d9c9830e95e0eef.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_interior_voids.py::test_polyhedral_core_with_small_port_survives_rigid_rotation",
+   "function": "recognise_interior_voids",
+   "file": "fd5c41a32da0c8ef.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -50.0,
+      -50.0,
+      50.0,
+      50.0,
+      50.0,
+      933643.80551,
+      70385.3981634
+     ],
+     "void_faces": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+     ],
+     "openings": [
+      [
+       6
+      ]
+     ],
+     "estimated_volume": 63873.291015625,
+     "volume_method": "six_axis_grid",
+     "grid_pitch": 1.5625,
+     "enclosed_samples": 16744,
+     "air_samples": 18184
+    }
+   ],
+   "result": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -50.0,
+      -50.0,
+      -50.0,
+      50.0,
+      50.0,
+      50.0,
+      933643.80551,
+      70385.3981634
+     ],
+     "void_faces": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+     ],
+     "openings": [
+      [
+       6
+      ]
+     ],
+     "estimated_volume": 63873.291015625,
+     "volume_method": "six_axis_grid",
+     "grid_pitch": 1.5625,
+     "enclosed_samples": 16744,
+     "air_samples": 18184
+    }
+   ]
+  },
+  {
+   "test": "tests/test_interior_voids.py::test_polyhedral_core_with_small_port_survives_rigid_rotation",
+   "function": "recognise_interior_voids",
+   "file": "19f50fdb56ffc065.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -71.96441,
+      -77.615444,
+      -74.626119,
+      71.96441,
+      77.615444,
+      74.626119,
+      933643.80551,
+      70385.3981634
+     ],
+     "void_faces": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+     ],
+     "openings": [
+      [
+       2
+      ]
+     ],
+     "estimated_volume": 65780.23738188256,
+     "volume_method": "six_axis_grid",
+     "grid_pitch": 2.42548263862477,
+     "enclosed_samples": 4610,
+     "air_samples": 172642
+    }
+   ],
+   "result": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -71.96441,
+      -77.615444,
+      -74.626119,
+      71.96441,
+      77.615444,
+      74.626119,
+      933643.80551,
+      70385.3981634
+     ],
+     "void_faces": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+     ],
+     "openings": [
+      [
+       2
+      ]
+     ],
+     "estimated_volume": 65780.23738189504,
+     "volume_method": "six_axis_grid",
+     "grid_pitch": 2.4254826386249237,
+     "enclosed_samples": 4610,
+     "air_samples": 172642
+    }
+   ]
+  },
+  {
+   "test": "tests/test_freeform_surfaces.py::test_cgb241_outer_skins_have_rebuildable_support_and_inner_offset_links",
+   "function": "recognise_thin_wall_bodies",
+   "file": "8443bc2e5a9d6ca9.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -370.790141,
+      -266.566004,
+      -106.322118,
+      374.530663,
+      264.889134,
+      114.836142,
+      936974.75014,
+      619139.684378
+     ],
+     "thickness": 3.000013154444219,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 31,
+       "thickness": 2.9999999999999853
+      },
+      {
+       "first_face": 1,
+       "second_face": 30,
+       "thickness": 3.0000000000001603
+      },
+      {
+       "first_face": 2,
+       "second_face": 29,
+       "thickness": 3.0000000000000013
+      },
+      {
+       "first_face": 3,
+       "second_face": 23,
+       "thickness": 2.999999999999788
+      },
+      {
+       "first_face": 4,
+       "second_face": 17,
+       "thickness": 2.9999999999999942
+      },
+      {
+       "first_face": 5,
+       "second_face": 51,
+       "thickness": 3.0000000000000013
+      },
+      {
+       "first_face": 6,
+       "second_face": 50,
+       "thickness": 2.9999999999998384
+      },
+      {
+       "first_face": 7,
+       "second_face": 49,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 8,
+       "second_face": 43,
+       "thickness": 2.9999999999997184
+      },
+      {
+       "first_face": 9,
+       "second_face": 37,
+       "thickness": 2.9999999999999867
+      },
+      {
+       "first_face": 12,
+       "second_face": 32,
+       "thickness": 3.0000089771761593
+      },
+      {
+       "first_face": 13,
+       "second_face": 33,
+       "thickness": 2.999996933648719
+      },
+      {
+       "first_face": 14,
+       "second_face": 34,
+       "thickness": 3.0000003589606123
+      },
+      {
+       "first_face": 15,
+       "second_face": 35,
+       "thickness": 3.000000472759612
+      },
+      {
+       "first_face": 16,
+       "second_face": 36,
+       "thickness": 2.999999999995561
+      },
+      {
+       "first_face": 18,
+       "second_face": 38,
+       "thickness": 2.999999999991898
+      },
+      {
+       "first_face": 19,
+       "second_face": 39,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 20,
+       "second_face": 40,
+       "thickness": 2.999999999957121
+      },
+      {
+       "first_face": 21,
+       "second_face": 41,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 22,
+       "second_face": 42,
+       "thickness": 3.0003831623426547
+      },
+      {
+       "first_face": 24,
+       "second_face": 44,
+       "thickness": 3.0000000000035385
+      },
+      {
+       "first_face": 25,
+       "second_face": 45,
+       "thickness": 2.9999999999999267
+      },
+      {
+       "first_face": 26,
+       "second_face": 46,
+       "thickness": 2.999999999992424
+      },
+      {
+       "first_face": 27,
+       "second_face": 47,
+       "thickness": 3.0000000000000084
+      },
+      {
+       "first_face": 28,
+       "second_face": 48,
+       "thickness": 3.0000000000007483
+      }
+     ],
+     "unpaired_faces": [
+      10,
+      11
+     ],
+     "rim_regions": [
+      [
+       10
+      ],
+      [
+       11
+      ]
+     ],
+     "paired_area_fraction": 0.9954497618567951,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       5,
+       6,
+       7,
+       8,
+       9,
+       12,
+       13,
+       14,
+       15,
+       16,
+       17,
+       18,
+       19,
+       20,
+       21,
+       22,
+       23,
+       24,
+       25,
+       26,
+       27,
+       28,
+       29,
+       30,
+       31
+      ],
+      "inner_faces": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       32,
+       33,
+       34,
+       35,
+       36,
+       37,
+       38,
+       39,
+       40,
+       41,
+       42,
+       43,
+       44,
+       45,
+       46,
+       47,
+       48,
+       49,
+       50,
+       51
+      ],
+      "opening_rims": [
+       [
+        10
+       ],
+       [
+        11
+       ]
+      ],
+      "before_shell_collar_pairs": [
+       {
+        "first_face": 0,
+        "second_face": 31,
+        "thickness": 2.9999999999999853
+       },
+       {
+        "first_face": 1,
+        "second_face": 30,
+        "thickness": 3.0000000000001603
+       },
+       {
+        "first_face": 2,
+        "second_face": 29,
+        "thickness": 3.0000000000000013
+       },
+       {
+        "first_face": 5,
+        "second_face": 51,
+        "thickness": 3.0000000000000013
+       },
+       {
+        "first_face": 6,
+        "second_face": 50,
+        "thickness": 2.9999999999998384
+       },
+       {
+        "first_face": 7,
+        "second_face": 49,
+        "thickness": 3.0
+       }
+      ],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 10,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 11,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ],
+   "result": [
+    {
+     "body_index": 0,
+     "body_key": [
+      -370.790141,
+      -266.566004,
+      -106.322118,
+      374.530663,
+      264.889134,
+      114.836142,
+      936976.690811,
+      619140.074476
+     ],
+     "thickness": 3.000013154444214,
+     "face_pairs": [
+      {
+       "first_face": 0,
+       "second_face": 31,
+       "thickness": 2.9999999999999853
+      },
+      {
+       "first_face": 1,
+       "second_face": 30,
+       "thickness": 3.0000000000001603
+      },
+      {
+       "first_face": 2,
+       "second_face": 29,
+       "thickness": 3.0000000000000013
+      },
+      {
+       "first_face": 3,
+       "second_face": 23,
+       "thickness": 2.999999999999788
+      },
+      {
+       "first_face": 4,
+       "second_face": 17,
+       "thickness": 2.9999999999999942
+      },
+      {
+       "first_face": 5,
+       "second_face": 51,
+       "thickness": 3.0000000000000604
+      },
+      {
+       "first_face": 6,
+       "second_face": 50,
+       "thickness": 2.999999999999569
+      },
+      {
+       "first_face": 7,
+       "second_face": 49,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 8,
+       "second_face": 43,
+       "thickness": 2.9999999999997184
+      },
+      {
+       "first_face": 9,
+       "second_face": 37,
+       "thickness": 2.9999999999999867
+      },
+      {
+       "first_face": 12,
+       "second_face": 32,
+       "thickness": 3.0000089771761593
+      },
+      {
+       "first_face": 13,
+       "second_face": 33,
+       "thickness": 2.9999969336487187
+      },
+      {
+       "first_face": 14,
+       "second_face": 34,
+       "thickness": 3.0000003589606123
+      },
+      {
+       "first_face": 15,
+       "second_face": 35,
+       "thickness": 3.0000004727596106
+      },
+      {
+       "first_face": 16,
+       "second_face": 36,
+       "thickness": 2.999999999995561
+      },
+      {
+       "first_face": 18,
+       "second_face": 38,
+       "thickness": 2.999999999991898
+      },
+      {
+       "first_face": 19,
+       "second_face": 39,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 20,
+       "second_face": 40,
+       "thickness": 2.999999999957121
+      },
+      {
+       "first_face": 21,
+       "second_face": 41,
+       "thickness": 3.0
+      },
+      {
+       "first_face": 22,
+       "second_face": 42,
+       "thickness": 3.0003831623426547
+      },
+      {
+       "first_face": 24,
+       "second_face": 44,
+       "thickness": 3.0000000000035385
+      },
+      {
+       "first_face": 25,
+       "second_face": 45,
+       "thickness": 2.999999999999964
+      },
+      {
+       "first_face": 26,
+       "second_face": 46,
+       "thickness": 2.999999999992424
+      },
+      {
+       "first_face": 27,
+       "second_face": 47,
+       "thickness": 3.0000000000000084
+      },
+      {
+       "first_face": 28,
+       "second_face": 48,
+       "thickness": 3.0000000000007483
+      }
+     ],
+     "unpaired_faces": [
+      10,
+      11
+     ],
+     "rim_regions": [
+      [
+       10
+      ],
+      [
+       11
+      ]
+     ],
+     "paired_area_fraction": 0.995449764723739,
+     "history_hint": {
+      "basis": "heuristic",
+      "direction": "inward",
+      "outer_faces": [
+       5,
+       6,
+       7,
+       8,
+       9,
+       12,
+       13,
+       14,
+       15,
+       16,
+       17,
+       18,
+       19,
+       20,
+       21,
+       22,
+       23,
+       24,
+       25,
+       26,
+       27,
+       28,
+       29,
+       30,
+       31
+      ],
+      "inner_faces": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       32,
+       33,
+       34,
+       35,
+       36,
+       37,
+       38,
+       39,
+       40,
+       41,
+       42,
+       43,
+       44,
+       45,
+       46,
+       47,
+       48,
+       49,
+       50,
+       51
+      ],
+      "opening_rims": [
+       [
+        10
+       ],
+       [
+        11
+       ]
+      ],
+      "before_shell_collar_pairs": [
+       {
+        "first_face": 0,
+        "second_face": 31,
+        "thickness": 2.9999999999999853
+       },
+       {
+        "first_face": 1,
+        "second_face": 30,
+        "thickness": 3.0000000000001603
+       },
+       {
+        "first_face": 2,
+        "second_face": 29,
+        "thickness": 3.0000000000000013
+       },
+       {
+        "first_face": 5,
+        "second_face": 51,
+        "thickness": 3.0000000000000604
+       },
+       {
+        "first_face": 6,
+        "second_face": 50,
+        "thickness": 2.999999999999569
+       },
+       {
+        "first_face": 7,
+        "second_face": 49,
+        "thickness": 3.0
+       }
+      ],
+      "after_shell_cut_faces": []
+     },
+     "unpaired_face_classes": [
+      {
+       "face": 10,
+       "kind": "cut_edge"
+      },
+      {
+       "face": 11,
+       "kind": "cut_edge"
+      }
+     ]
+    }
+   ]
   }
  ],
  "skipped": {
-  "recognise_risers: capture failed: RuntimeError": 3
+  "recognise_interior_voids: capture failed: RuntimeError": 2
  }
 }

@@ -2,7 +2,7 @@
 //! parameters (with singular points routed along their parameter line), OpenCascade-compatible
 //! parameter ranges, and point containment.
 
-use std::f64::consts::TAU;
+use std::f64::consts::{PI, TAU};
 
 use super::brep::{Part, Pcurve};
 use super::geom::{self, Surface, V3};
@@ -431,9 +431,31 @@ impl Part {
             .domain
             .get_or_init(|| {
                 let f = &self.faces[face];
+                if self.whole_sphere(face) {
+                    // The band between the two pole lines, as a sphere zone between circles is.
+                    let pole = |v: f64| UvLoop {
+                        points: periodic_line(0.0, TAU, v),
+                        anchors: Vec::new(),
+                        winds_u: false,
+                        winds_v: false,
+                    };
+                    return Some(FaceDomain::new(
+                        &[pole(-PI / 2.0), pole(PI / 2.0)],
+                        f.surface.periodic(),
+                    ));
+                }
                 Some(FaceDomain::new(self.uv_loops(face)?, f.surface.periodic()))
             })
             .as_ref()
+    }
+
+    /// A sphere bounded only by vertex loops at its poles is the whole sphere (OpenCascade adds
+    /// the missing seam on import and ranges it over every u and v).
+    pub(super) fn whole_sphere(&self, face: usize) -> bool {
+        let f = &self.faces[face];
+        matches!(f.surface, Surface::Sphere { .. })
+            && !f.loops.is_empty()
+            && f.loops.iter().all(|lp| lp.vertex.is_some())
     }
 
     /// Each loop as a closed polyline in (u, v), with periodic parameters unwrapped so each
@@ -552,6 +574,9 @@ impl Part {
     /// round) spans exactly one period starting at the seam.
     pub fn uv_bounds(&self, face: usize) -> Option<(f64, f64, f64, f64)> {
         let f = &self.faces[face];
+        if self.whole_sphere(face) {
+            return Some((0.0, TAU, -PI / 2.0, PI / 2.0));
+        }
         if let Surface::Plane { frame } = f.surface {
             // A plane's range is exactly its edges' extent in plane coordinates.
             let mut range = [

@@ -154,7 +154,13 @@ impl Reader<'_> {
                 major: t.major_radius * mm,
                 minor: t.minor_radius * mm,
             }),
-            SurfaceKind::BSpline(_) | SurfaceKind::BSplineWithKnots(_) => {
+            // Every B-spline form, rational ones included (written as complex entities), is
+            // one GeomAbs_BSplineSurface to OpenCascade.
+            SurfaceKind::BSpline(_)
+            | SurfaceKind::BSplineWithKnots(_)
+            | SurfaceKind::QuasiUniform(_)
+            | SurfaceKind::Uniform(_)
+            | SurfaceKind::Other("RATIONAL_B_SPLINE_SURFACE" | "COMPLEX") => {
                 self.freeform(face, "BSPLINE")
             }
             SurfaceKind::Bezier(_) => self.freeform(face, "BEZIER"),

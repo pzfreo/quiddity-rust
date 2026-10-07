@@ -12,5 +12,12 @@
     "family": "holes",
     "verdict": "rust-wrong",
     "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same."
+  },
+  {
+    "file": "mfcadpp_regressions/11512.step",
+    "motion": "rot_y180",
+    "family": "interior_voids",
+    "verdict": "rust-wrong",
+    "reason": "The void grid is anchored at the box's minimum corner with its cell count rounded up, so turned over its cells sit elsewhere on the part, and a void whose widening is two cells deep (faces 17, 30, 31) passes the throat test in one orientation only. Python's grid is anchored the same way. A grid centred on the box would map onto itself under these motions; a decision that does not rest on the grid's phase would fix it outright."
   }
 ]

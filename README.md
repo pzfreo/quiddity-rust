@@ -22,6 +22,8 @@ OpenCascade is reimplemented in `src/kernel`.
 | Face levels | `recognise_face_levels` | 36/36 | — |
 | Risers | `recognise_risers` | 66/66 | — |
 | Circular face patterns | `recognise_circular_face_patterns` | 5/5 | see below |
+| Thin-wall bodies | `recognise_thin_wall_bodies` | 10/14 (4 known divergences) | see below |
+| Interior voids | `recognise_interior_voids` | 5/6 (1 known divergence) | see below |
 
 Known divergences are listed, with reasons, in `tests/fixtures/captured/known_divergences.json`
 (captured calls) and `tests/fixtures/known_divergences.json` (corpus). The main gap is
@@ -47,6 +49,9 @@ src/
                      nearest neighbours, exact point-to-face distance
     classify.rs      point-in-solid (whole part or one solid) by ray parity, with
                      on-boundary detection (BRepClass3d)
+    rays.rs          every hit of a ray on a solid's trimmed faces, through a box hierarchy
+                     (IntCurvesFace_ShapeIntersector); cracks the file leaves between faces
+    poly.rs          real polynomial roots by isolation (exact ray-torus hits)
     mass.rs          exact solid volume and area: Green's theorem along the exact edges,
                      Gauss-Legendre quadrature (BRepGProp)
     py.rs            Python's numeric semantics: fsum, compensated sum, hypot, %, rounding,
@@ -63,6 +68,7 @@ src/
     stacks.rs        coaxial segments read at their ends (open / flat / drill point)
     fillets.rs  chamfers.rs  holes.rs  countersinks.rs  hole_patterns.rs  bosses.rs  angled_steps.rs  flats.rs
     paired_ramp_steps.rs  oriented_chamfers.rs  levels.rs  circular_face_patterns.rs
+    thin_walls.rs  interior_voids.rs
   bin/quiddity.rs    `quiddity part.step` → JSON
 tests/
   captured.rs        replays every recogniser call the Python test suite makes
@@ -167,4 +173,10 @@ reader reproduces:
 
 Known kernel limitations: OpenCascade's healing adds missing seam edges to periodic faces (and splits closed edges they cross), which the reader does not; sphere patches that pass through a pole have approximate interior
 bounding boxes; closed surfaces of revolution/extrusion in NURBS form are treated as
-non-periodic; torus ray intersection is sampled rather than solved in closed form.
+non-periodic.
+
+Rays meet a face where they cross it inside its trim, or within the band by which one of its
+edges strays from its surface: B-spline faces exported as approximations of their neighbours
+leave cracks up to a few tenths of a millimetre wide, which OpenCascade covers with the edge
+tolerances it sets on import. A hit found only in that band gives way to the face across the
+crack. A sphere bounded only by a vertex loop at a pole is the whole sphere.

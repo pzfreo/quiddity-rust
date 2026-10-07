@@ -12,12 +12,14 @@ use super::cylinders::{CylinderEvidence, analyse_cylinders};
 use crate::kernel::brep::Part;
 use crate::kernel::classify::Classifier;
 use crate::kernel::geom::Bounds;
+use crate::kernel::rays::RayCaster;
 
 pub struct Context<'a> {
     pub part: &'a Part,
     bounds: OnceLock<Bounds>,
     classifier: OnceLock<Classifier<'a>>,
     solid_classifiers: Vec<OnceLock<Classifier<'a>>>,
+    solid_rays: Vec<OnceLock<RayCaster<'a>>>,
     cylinders: OnceLock<Vec<CylinderEvidence>>,
     signatures: OnceLock<Vec<Option<BodyKey>>>,
 }
@@ -29,6 +31,7 @@ impl<'a> Context<'a> {
             bounds: OnceLock::new(),
             classifier: OnceLock::new(),
             solid_classifiers: part.solids.iter().map(|_| OnceLock::new()).collect(),
+            solid_rays: part.solids.iter().map(|_| OnceLock::new()).collect(),
             cylinders: OnceLock::new(),
             signatures: OnceLock::new(),
         }
@@ -47,6 +50,11 @@ impl<'a> Context<'a> {
     /// The point classifier for one solid alone.
     pub fn solid_classifier(&self, solid: usize) -> &Classifier<'a> {
         self.solid_classifiers[solid].get_or_init(|| Classifier::for_solid(self.part, solid))
+    }
+
+    /// Rays against one solid's faces (`IntCurvesFace_ShapeIntersector` loaded with the solid).
+    pub fn solid_rays(&self, solid: usize) -> &RayCaster<'a> {
+        self.solid_rays[solid].get_or_init(|| RayCaster::for_solid(self.part, solid))
     }
 
     /// Each solid's body key (`unambiguous_body_keys`).

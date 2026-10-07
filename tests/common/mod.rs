@@ -72,6 +72,8 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
         "recognise_face_levels" => json(quiddity::recognise_face_levels(part, &options(kwargs))),
         "recognise_risers" => json(quiddity::recognise_risers(part, &options(kwargs))),
         "recognise_holes" => json(recognise_holes(part, &options(kwargs))),
+        "recognise_thin_wall_bodies" => json(quiddity::recognise_thin_wall_bodies(part)),
+        "recognise_interior_voids" => json(quiddity::recognise_interior_voids(part)),
         // Over a part: the patterns among the part's holes found with these hole options.
         "recognise_hole_patterns" => json(recognise_hole_patterns(&recognise_holes(
             part,
@@ -123,6 +125,12 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
                 vec![]
             };
             holes::discover_verified(&ctx, &seats).map(faces)
+        }
+        "recognise_thin_wall_bodies" => {
+            quiddity::features::thin_walls::discover_verified(&ctx).map(faces)
+        }
+        "recognise_interior_voids" => {
+            quiddity::features::interior_voids::discover_verified(&ctx).map(faces)
         }
         other => panic!("{other} has no evidence path"),
     };

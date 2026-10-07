@@ -145,3 +145,13 @@ fn face_levels_match_python() {
 fn risers_match_python() {
     replay("recognise_risers");
 }
+
+#[test]
+fn thin_wall_bodies_match_python() {
+    replay("recognise_thin_wall_bodies");
+}
+
+#[test]
+fn interior_voids_match_python() {
+    replay("recognise_interior_voids");
+}

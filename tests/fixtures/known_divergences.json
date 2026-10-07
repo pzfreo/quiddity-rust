@@ -6,12 +6,6 @@
     "verdict": "rust-correct"
   },
   {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "reason": "As cgb202: BRepCheck_UnorientableShape after OpenCascade's import healing; the file's topology is closed and consistently oriented.",
-    "contains": "evidence",
-    "verdict": "rust-correct"
-  },
-  {
     "file": "nist/nist_ctc_02_asme1_rc.stp",
     "reason": "Four r25 fillet anchors differ by 0.001 in z: OpenCascade sizes the face's v range from the pcurve it builds on import for a B-spline edge this file gives no usable B-spline pcurve for, and the true mid-point sits on a rounding boundary.",
     "contains": [
@@ -154,7 +148,7 @@
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
-    "reason": "As for cgb203, and OpenCascade's import healing re-orients and re-parameterises some of this file's cone faces (see the evidence entry).",
+    "reason": "As for cgb203, and OpenCascade's import healing re-orients and re-parameterises some of this file's cone faces.",
     "contains": "uv_bounds differ",
     "verdict": "rust-correct"
   },
@@ -208,7 +202,7 @@
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
-    "reason": "A countersink cone meets its bore in a convex edge; OpenCascade's import healing re-orients faces of this solid (see the evidence entry), which flips its reading.",
+    "reason": "A countersink cone meets its bore in a convex edge; OpenCascade's import healing re-orients faces of this solid, which flips its reading.",
     "contains": "arcs differ",
     "verdict": "rust-correct"
   },
@@ -340,5 +334,41 @@
     ],
     "verdict": "rust-correct",
     "reason": "A Ø22 through hole open at both ends, Ø102 at one and Ø110 at the other. By Python's own rule the wider end is the opening, but at the Ø110 end the bore and the Ø110 segment end level and Python takes whichever comes first in face order as the end's segment (the Ø22 bore), so it drills from the Ø102 end; turned over, Python itself drills from the Ø110 end. The port takes the widest segment reaching an end (the mouth) and answers the same in every orientation."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "contains": "recognise_thin_wall_bodies",
+    "verdict": "undetermined",
+    "reason": "Same wall pairs. Pair thicknesses differ in the sixth figure because the probes sit at fractions of each face's parameter range, which the port takes from the exact edges (see this file's uv_bounds entry); the body key and paired area fraction follow this file's untraced B-spline area difference (see its masses entry)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb241.step",
+    "contains": "recognise_thin_wall_bodies",
+    "verdict": "rust-correct",
+    "reason": "Same wall pairs and thicknesses; the body key and paired area fraction come from face areas, where OpenCascade integrates a planar face over pcurves 1% off its 3D B-spline edges (traced; see this file's masses entry)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb245.step",
+    "contains": "recognise_thin_wall_bodies",
+    "verdict": "undetermined",
+    "reason": "Only the body key differs: its volume and area follow this file's untraced B-spline mass difference (see its masses entry)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "contains": "recognise_interior_voids",
+    "verdict": "undetermined",
+    "reason": "Same void faces and openings; the sample counts (and so the estimated volume) differ by about 2%: the void grid is a sampling instrument anchored at the solid's box, and OpenCascade's box is padded (by 1e-7 on this part's faces) where the port's is exact, so the two grids sit a fraction of a micron apart and cells whose centres fall on a face flip, and the body key follows this file's mass difference."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "contains": "recognise_interior_voids",
+    "verdict": "undetermined",
+    "reason": "Same void faces and openings; the sample counts differ by about 1%: the void grid is a sampling instrument anchored at the solid's box, and OpenCascade's box is padded (by 1e-7 on this part's faces) where the port's is exact, so the two grids sit a fraction of a micron apart and cells whose centres fall on a face flip, and the body key follows this file's mass difference."
+  },
+  {
+    "file": "mfcadpp_regressions/11512.step",
+    "contains": "recognise_interior_voids",
+    "verdict": "undetermined",
+    "reason": "Python reports a second, 24-cell void (faces 13 and 14) that the port rejects as not widening behind its throat (core clearance 2 cells, throat 2). the void grid is a sampling instrument anchored at the solid's box, and OpenCascade's box is padded (by 1e-7 on this part's faces) where the port's is exact, so the two grids sit a fraction of a micron apart and cells whose centres fall on a face flip: four material cells differ (101906 vs 101910), which is enough to move a two-cell clearance. Neither grid is the geometry; the decision rests on the grid's phase."
   }
 ]
