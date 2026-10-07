@@ -19,3 +19,41 @@ pub mod planes;
 
 pub use context::Context;
 pub use evidence::{EvidenceError, Occurrence};
+
+use serde::Serialize;
+
+use crate::kernel::brep::Part;
+
+/// Every ported family's records for one part, computed in one run that shares its analysis.
+/// Families are independent here: the Python aggregate's cross-family reconciliation
+/// (`build_recognition_result`) is not ported.
+#[derive(Clone, Debug, Serialize)]
+pub struct Features {
+    pub fillets: Vec<fillets::Fillet>,
+    pub holes: Vec<holes::HoleRecord>,
+    pub countersinks: Vec<countersinks::CounterSink>,
+    pub hole_patterns: Vec<hole_patterns::HolePattern>,
+}
+
+/// Recognise every ported family on *part* with default options; holes carry their
+/// countersinks, and patterns are found among those holes.
+pub fn recognise(part: &Part) -> Features {
+    let ctx = Context::new(part);
+    let countersinks: Vec<_> = countersinks::discover(&ctx)
+        .into_iter()
+        .map(|o| o.record)
+        .collect();
+    let holes: Vec<_> = holes::discover(&ctx, &countersinks)
+        .into_iter()
+        .map(|o| o.record)
+        .collect();
+    Features {
+        fillets: fillets::discover(&ctx, &fillets::FilletOptions::default())
+            .into_iter()
+            .map(|o| o.record)
+            .collect(),
+        hole_patterns: hole_patterns::recognise_hole_patterns(&holes),
+        holes,
+        countersinks,
+    }
+}
