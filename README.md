@@ -111,12 +111,18 @@ src/
     oblique_through_steps.rs  circular_blind_steps.rs
     turned_steps.rs  round_bottom_slots.rs  gussets.rs
     volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over kernel/volume.rs
-  bin/quiddity.rs    `quiddity part.step` → JSON
+  correspondence/    revision matching (docs/correspondence.md): fingerprint.rs (features and
+                     faces), align.rs (rigid alignment), assign.rs (Hungarian with an
+                     unmatched option), faces.rs (seeded propagation), mod.rs (`correspond`)
+  bin/quiddity.rs    `quiddity part.step` → JSON with fingerprints;
+                     `quiddity correspond old new` → the correspondence as JSON
 tests/
   captured.rs        replays every recogniser call the Python test suite makes
   corpus.rs          every ported recogniser over the shared 100-file STEP corpus
   evidence.rs        fillet defining faces and evidence refusals on hand-built cases
   invariance.rs      every corpus part moved and turned: each family must find the same faces
+  correspondence.rs  every corpus part corresponds with itself moved, everything carried; the
+                     build123d revision pairs get their expected classes
   fixtures/          STEP parts and Python's recorded answers, shared by both crates
 crates/haecceity/tests/
   patches.rs         every covered_patch question Python asks over the corpus, answered by
@@ -137,13 +143,15 @@ tools/
   capture_plugin.py  pytest plugin that records the Python suite's recogniser calls
   export_corpus.py   records Python's answers over the corpus
   export_fixtures.py hand-built fillet evidence cases
+  capture_revisions.py builds the revision pairs in build123d, with their expected classes
 ```
 
 ## Running
 
 ```
 cargo build --release
-./target/release/quiddity part.step
+./target/release/quiddity part.step > part.json            # records and fingerprints
+./target/release/quiddity correspond old.json new.json      # or two STEP files
 cargo test --workspace --release   # corpus tests need ../quiddity/tests/corpus or QUIDDITY_CORPUS
 ```
 

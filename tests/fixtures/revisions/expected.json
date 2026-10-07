@@ -1,0 +1,392 @@
+{
+  "tool": "tools/capture_revisions.py",
+  "cases": [
+    {
+      "name": "hole_moved",
+      "aligned": true,
+      "expect": [
+        {
+          "label": "the 6 mm hole moved",
+          "family": "holes",
+          "class": "adapted",
+          "old_at": [
+            40,
+            45,
+            5.0
+          ],
+          "new_at": [
+            25,
+            45,
+            5.0
+          ],
+          "changes": [
+            "position"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "boss_resized",
+      "aligned": true,
+      "expect": [
+        {
+          "label": "the boss resized",
+          "family": "bosses",
+          "class": "adapted",
+          "old_at": [
+            70.0,
+            40.0,
+            15.538461538461538
+          ],
+          "new_at": [
+            70.0,
+            40.0,
+            15.793103448275861
+          ],
+          "changes": [
+            "sizes.diameter"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "hole_added",
+      "aligned": true,
+      "expect": [
+        {
+          "label": "the 7 mm hole added",
+          "family": "holes",
+          "class": "new",
+          "old_at": null,
+          "new_at": [
+            30,
+            30,
+            5.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "hole_removed",
+      "aligned": true,
+      "expect": [
+        {
+          "label": "the 7 mm hole removed",
+          "family": "holes",
+          "class": "orphaned",
+          "old_at": [
+            30,
+            30,
+            5.0
+          ],
+          "new_at": null
+        }
+      ]
+    },
+    {
+      "name": "boss_removed",
+      "aligned": true,
+      "expect": [
+        {
+          "label": "the boss removed",
+          "family": "bosses",
+          "class": "orphaned",
+          "old_at": [
+            70.0,
+            40.0,
+            15.538461538461538
+          ],
+          "new_at": null
+        }
+      ]
+    },
+    {
+      "name": "plate_thickened",
+      "aligned": false,
+      "expect": [
+        {
+          "label": "the 5 mm hole at (15, 15) deepened",
+          "family": "holes",
+          "class": "adapted",
+          "old_at": [
+            15.0,
+            15.0,
+            5.0
+          ],
+          "new_at": [
+            15.0,
+            15.0,
+            6.0
+          ],
+          "changes": [
+            "sizes.depth"
+          ]
+        },
+        {
+          "label": "the 6 mm hole at (40, 45) deepened",
+          "family": "holes",
+          "class": "adapted",
+          "old_at": [
+            40.0,
+            45.0,
+            5.0
+          ],
+          "new_at": [
+            40.0,
+            45.0,
+            6.0
+          ],
+          "changes": [
+            "sizes.depth"
+          ]
+        },
+        {
+          "label": "the 8 mm hole at (85, 15) deepened",
+          "family": "holes",
+          "class": "adapted",
+          "old_at": [
+            85.0,
+            15.0,
+            5.0
+          ],
+          "new_at": [
+            85.0,
+            15.0,
+            6.0
+          ],
+          "changes": [
+            "sizes.depth"
+          ]
+        },
+        {
+          "label": "the 4 mm hole at (30, 30) deepened",
+          "family": "holes",
+          "class": "adapted",
+          "old_at": [
+            30.0,
+            30.0,
+            5.0
+          ],
+          "new_at": [
+            30.0,
+            30.0,
+            6.0
+          ],
+          "changes": [
+            "sizes.depth"
+          ]
+        },
+        {
+          "label": "the 4 mm hole at (50, 30) deepened",
+          "family": "holes",
+          "class": "adapted",
+          "old_at": [
+            50.0,
+            30.0,
+            5.0
+          ],
+          "new_at": [
+            50.0,
+            30.0,
+            6.0
+          ],
+          "changes": [
+            "sizes.depth"
+          ]
+        },
+        {
+          "label": "the 4 mm hole at (70, 30) deepened",
+          "family": "holes",
+          "class": "adapted",
+          "old_at": [
+            70.0,
+            30.0,
+            5.0
+          ],
+          "new_at": [
+            70.0,
+            30.0,
+            6.0
+          ],
+          "changes": [
+            "sizes.depth"
+          ]
+        },
+        {
+          "label": "the close row's hole at x = 55",
+          "family": "holes",
+          "class": "ambiguous",
+          "old_at": [
+            55.0,
+            52.0,
+            5.0
+          ],
+          "new_at": [
+            55.0,
+            52.0,
+            6.0
+          ]
+        },
+        {
+          "label": "the close row's hole at x = 60",
+          "family": "holes",
+          "class": "ambiguous",
+          "old_at": [
+            60.0,
+            52.0,
+            5.0
+          ],
+          "new_at": [
+            60.0,
+            52.0,
+            6.0
+          ]
+        },
+        {
+          "label": "the close row's hole at x = 65",
+          "family": "holes",
+          "class": "ambiguous",
+          "old_at": [
+            65.0,
+            52.0,
+            5.0
+          ],
+          "new_at": [
+            65.0,
+            52.0,
+            6.0
+          ]
+        },
+        {
+          "label": "the wide row",
+          "family": "hole_patterns",
+          "class": "carried",
+          "old_at": [
+            50.0,
+            30.0,
+            5.0
+          ],
+          "new_at": [
+            50.0,
+            30.0,
+            6.0
+          ]
+        },
+        {
+          "label": "the close row",
+          "family": "hole_patterns",
+          "class": "carried",
+          "old_at": [
+            60.0,
+            52.0,
+            5.0
+          ],
+          "new_at": [
+            60.0,
+            52.0,
+            6.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "whole_part_moved",
+      "aligned": true,
+      "expect": []
+    },
+    {
+      "name": "part_and_hole_moved",
+      "aligned": true,
+      "expect": [
+        {
+          "label": "the 6 mm hole moved",
+          "family": "holes",
+          "class": "adapted",
+          "old_at": [
+            40,
+            45,
+            5.0
+          ],
+          "new_at": [
+            205.0,
+            -44.99999999999999,
+            58.000000000000014
+          ],
+          "changes": [
+            "position"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "pattern_grown",
+      "aligned": true,
+      "expect": [
+        {
+          "label": "the row of holes",
+          "family": "hole_patterns",
+          "class": "adapted",
+          "old_at": [
+            38.0,
+            30.0,
+            5.0
+          ],
+          "new_at": [
+            50.0,
+            30.0,
+            5.0
+          ],
+          "changes": [
+            "sizes.count"
+          ]
+        },
+        {
+          "label": "the fifth hole",
+          "family": "holes",
+          "class": "new",
+          "old_at": null,
+          "new_at": [
+            68,
+            30,
+            5.0
+          ]
+        },
+        {
+          "label": "the sixth hole",
+          "family": "holes",
+          "class": "new",
+          "old_at": null,
+          "new_at": [
+            80,
+            30,
+            5.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fillet_resized",
+      "aligned": true,
+      "expect": [
+        {
+          "label": "the corner fillet",
+          "family": "fillets",
+          "class": "adapted",
+          "old_at": [
+            97.0,
+            57.0,
+            5.0
+          ],
+          "new_at": [
+            95.0,
+            55.0,
+            5.0
+          ],
+          "changes": [
+            "sizes.radius"
+          ]
+        }
+      ]
+    }
+  ]
+}

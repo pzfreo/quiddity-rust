@@ -475,6 +475,69 @@ impl Part {
     }
 }
 
+/// A face's first moments: what revision matching fingerprints a face by.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct FaceMoments {
+    pub area: f64,
+    /// The area-weighted mean point of the face (on a curved face, generally off it).
+    pub centroid: V3,
+    /// ∬ n dA with n the outward unit normal: the face's projected area along each axis. Zero for
+    /// a closed face (a whole sphere) and for a full cylinder band.
+    pub area_vector: V3,
+}
+
+impl Part {
+    /// The face's area, centroid and outward area vector, by the same boundary quadrature as
+    /// [`Part::face_mass`]; `None` where that cannot integrate the face.
+    pub fn face_moments(&self, face: usize) -> Option<FaceMoments> {
+        let fc = &self.faces[face];
+        let surface = &fc.surface;
+        if let Surface::Sphere { frame, radius } = surface
+            && self.whole_sphere(face)
+        {
+            return Some(FaceMoments {
+                area: 4.0 * std::f64::consts::PI * radius * radius,
+                centroid: frame.origin,
+                area_vector: [0.0; 3],
+            });
+        }
+        let at = |u: f64, v: f64| match surface {
+            Surface::Freeform { surface, .. } => {
+                let (p, su, sv) = surface.value_and_partials(u, v);
+                (p, geom::cross(su, sv))
+            }
+            _ => {
+                let (su, sv) = surface.partials(u, v);
+                (surface.value(u, v), geom::cross(su, sv))
+            }
+        };
+        let [area, mx] = self.face_integral(face, |u, v| {
+            let (p, n) = at(u, v);
+            let w = geom::norm(n);
+            [w, p[0] * w]
+        })?;
+        let [my, mz] = self.face_integral(face, |u, v| {
+            let (p, n) = at(u, v);
+            let w = geom::norm(n);
+            [p[1] * w, p[2] * w]
+        })?;
+        let [nx, ny] = self.face_integral(face, |u, v| {
+            let n = at(u, v).1;
+            [n[0], n[1]]
+        })?;
+        let [nz, _] = self.face_integral(face, |u, v| [at(u, v).1[2], 0.0])?;
+        if area == 0.0 || area.is_nan() {
+            return None;
+        }
+        let sense = if fc.reversed { -1.0 } else { 1.0 };
+        Some(FaceMoments {
+            area: area.abs(),
+            centroid: [mx / area, my / area, mz / area],
+            area_vector: [nx, ny, nz].map(|c| sense * c * area.signum()),
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

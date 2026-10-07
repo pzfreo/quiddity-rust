@@ -59,20 +59,28 @@ pub fn recognise_turned_steps(part: &Part) -> Vec<TurnedStep> {
 /// Steps in the order `recognise_turned_steps` returns them (`discover` keeps proposal order,
 /// which is the order Python issues their evidence in).
 pub fn sorted(mut steps: Vec<TurnedStep>) -> Vec<TurnedStep> {
-    steps.sort_by(|a, b| {
-        a.profile
-            .is_some()
-            .cmp(&b.profile.is_some())
-            .then_with(|| match (&a.profile, &b.profile) {
-                (Some(p), Some(q)) => p.order(q),
-                _ => std::cmp::Ordering::Equal,
-            })
-            .then(a.axis.cmp(&b.axis))
-            .then(py::order(a.lo, b.lo))
-            .then(py::order(a.hi, b.hi))
-            .then(py::order(a.diameter, b.diameter))
-    });
+    steps.sort_by(order);
     steps
+}
+
+/// Occurrences in the order [`sorted`] gives their records.
+pub fn sorted_occurrences(mut found: Vec<Occurrence<TurnedStep>>) -> Vec<Occurrence<TurnedStep>> {
+    found.sort_by(|a, b| order(&a.record, &b.record));
+    found
+}
+
+fn order(a: &TurnedStep, b: &TurnedStep) -> std::cmp::Ordering {
+    a.profile
+        .is_some()
+        .cmp(&b.profile.is_some())
+        .then_with(|| match (&a.profile, &b.profile) {
+            (Some(p), Some(q)) => p.order(q),
+            _ => std::cmp::Ordering::Equal,
+        })
+        .then(a.axis.cmp(&b.axis))
+        .then(py::order(a.lo, b.lo))
+        .then(py::order(a.hi, b.hi))
+        .then(py::order(a.diameter, b.diameter))
 }
 
 /// The evidence path: every step with the bands that set its diameter, all on one valid solid.
