@@ -30,6 +30,10 @@ fn classifier_sees_material_hole_and_outside() {
     // On a face, as BRepClass3d reports within its tolerance.
     assert_eq!(c.classify([15.0, 3.0, 2.0]), State::On);
     assert_eq!(c.classify([5.0, 0.0, 0.0]), State::On);
+    // On edges: a block corner, a block edge and the bore's rim.
+    assert_eq!(c.classify([15.0, 15.0, 10.0]), State::On);
+    assert_eq!(c.classify([15.0, 15.0, 3.0]), State::On);
+    assert_eq!(c.classify([0.0, 5.0, 10.0]), State::On);
 }
 
 #[test]

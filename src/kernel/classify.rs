@@ -112,7 +112,16 @@ impl<'a> Classifier<'a> {
     /// Whether *p* lies on a face, within [`ON_TOLERANCE`] (the tolerance the Python
     /// implementation hands `BRepClass3d_SolidClassifier::Perform`).
     fn on_boundary(&self, p: V3) -> bool {
-        (0..self.part.faces.len()).any(|i| {
+        // On an edge, a face's own containment test is at its boundary and may say no.
+        let on_edge = self.part.edges.iter().enumerate().any(|(e, edge)| {
+            self.edge_boxes[e].contains(p, self.edge_tol)
+                && edge
+                    .samples
+                    .windows(2)
+                    .any(|w| point_segment_distance(p, w[0], w[1]) <= self.edge_tol)
+                && geom::dist(edge.curve.value(edge.curve.parameter(p)), p) <= ON_TOLERANCE
+        });
+        on_edge || (0..self.part.faces.len()).any(|i| {
             if !self.face_boxes[i].contains(p, ON_TOLERANCE) {
                 return false;
             }
