@@ -12,6 +12,7 @@ pub mod bevel;
 pub mod body;
 pub mod bosses;
 pub mod chamfers;
+pub mod circular_blind_steps;
 pub mod circular_face_patterns;
 pub mod context;
 pub mod countersinks;
@@ -23,6 +24,7 @@ pub mod hole_patterns;
 pub mod holes;
 pub mod interior_voids;
 pub mod levels;
+pub mod oblique_through_steps;
 pub mod oriented_chamfers;
 pub mod paired_ramp_steps;
 pub mod planes;
@@ -54,6 +56,8 @@ pub struct Features {
     pub paired_ramp_steps: Vec<paired_ramp_steps::PairedRampStep>,
     pub oriented_chamfers: Vec<oriented_chamfers::OrientedChamfer>,
     pub circular_face_patterns: Vec<circular_face_patterns::CircularFacePattern>,
+    pub oblique_through_steps: Vec<oblique_through_steps::ObliqueThroughStep>,
+    pub circular_blind_steps: Vec<circular_blind_steps::CircularBlindStep>,
     pub holes: Vec<holes::HoleRecord>,
     pub countersinks: Vec<countersinks::CounterSink>,
     pub hole_patterns: Vec<hole_patterns::HolePattern>,
@@ -78,6 +82,8 @@ pub fn recognise(part: &Part) -> Features {
         paired_ramp_steps: records(paired_ramp_steps::discover(&ctx)),
         oriented_chamfers: records(oriented_chamfers::discover(&ctx, &Default::default())),
         circular_face_patterns: records(circular_face_patterns::discover(&ctx)),
+        oblique_through_steps: records(oblique_through_steps::discover(&ctx)),
+        circular_blind_steps: records(circular_blind_steps::discover(&ctx)),
         hole_patterns: hole_patterns::recognise_hole_patterns(&holes),
         holes,
         countersinks,

@@ -187540,9 +187540,2796 @@
    "rich_arguments": [],
    "in_memory": [],
    "result": []
+  },
+  {
+   "test": "tests/test_oblique_through_steps.py::test_oblique_step_is_in_aggregate_and_census",
+   "function": "recognise_oblique_through_steps",
+   "file": "9683f6213a4aa5bd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.0,
+      0.707107,
+      -0.707107
+     ],
+     "length": 28.284,
+     "at": [
+      20.0,
+      30.0,
+      10.0
+     ],
+     "depth_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "depth": 20.0,
+     "across_direction": [
+      0.0,
+      -0.707107,
+      -0.707107
+     ],
+     "wall_outline": [
+      [
+       -14.142,
+       14.142
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       28.284,
+       0.0
+      ],
+      [
+       0.0,
+       28.284
+      ]
+     ],
+     "body_key": [
+      0.0,
+      0.0,
+      0.0,
+      40.0,
+      40.0,
+      20.0,
+      20000.0,
+      5365.68542495
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.0,
+      0.707107,
+      -0.707107
+     ],
+     "length": 28.284,
+     "at": [
+      20.0,
+      30.0,
+      10.0
+     ],
+     "depth_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "depth": 20.0,
+     "across_direction": [
+      0.0,
+      -0.707107,
+      -0.707107
+     ],
+     "wall_outline": [
+      [
+       -14.142,
+       14.142
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       28.284,
+       0.0
+      ],
+      [
+       0.0,
+       28.284
+      ]
+     ],
+     "body_key": [
+      0.0,
+      0.0,
+      0.0,
+      40.0,
+      40.0,
+      20.0,
+      20000.0,
+      5365.68542495
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_oblique_through_steps.py::test_triangular_and_locally_ended_wedges_remain_unclaimed",
+   "function": "recognise_oblique_through_steps",
+   "file": "d71844e68305ff01.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_oblique_through_steps.py::test_triangular_and_locally_ended_wedges_remain_unclaimed",
+   "function": "recognise_oblique_through_steps",
+   "file": "4f5f3b097855f049.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_oblique_through_steps.py::test_step_survives_step_round_trip_face_order_scale_and_principal_rotations",
+   "function": "recognise_oblique_through_steps",
+   "file": "9683f6213a4aa5bd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.0,
+      0.707107,
+      -0.707107
+     ],
+     "length": 28.284,
+     "at": [
+      20.0,
+      30.0,
+      10.0
+     ],
+     "depth_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "depth": 20.0,
+     "across_direction": [
+      0.0,
+      -0.707107,
+      -0.707107
+     ],
+     "wall_outline": [
+      [
+       -14.142,
+       14.142
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       28.284,
+       0.0
+      ],
+      [
+       0.0,
+       28.284
+      ]
+     ],
+     "body_key": [
+      0.0,
+      0.0,
+      0.0,
+      40.0,
+      40.0,
+      20.0,
+      20000.0,
+      5365.68542495
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.0,
+      0.707107,
+      -0.707107
+     ],
+     "length": 28.284,
+     "at": [
+      20.0,
+      30.0,
+      10.0
+     ],
+     "depth_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "depth": 20.0,
+     "across_direction": [
+      0.0,
+      -0.707107,
+      -0.707107
+     ],
+     "wall_outline": [
+      [
+       -14.142,
+       14.142
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       28.284,
+       0.0
+      ],
+      [
+       0.0,
+       28.284
+      ]
+     ],
+     "body_key": [
+      0.0,
+      0.0,
+      0.0,
+      40.0,
+      40.0,
+      20.0,
+      20000.0,
+      5365.68542495
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_oblique_through_steps.py::test_step_survives_step_round_trip_face_order_scale_and_principal_rotations",
+   "function": "recognise_oblique_through_steps",
+   "file": "183352c3c3203fb5.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.0,
+      0.707107,
+      -0.707107
+     ],
+     "length": 28.284,
+     "at": [
+      20.0,
+      30.0,
+      10.0
+     ],
+     "depth_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "depth": 20.0,
+     "across_direction": [
+      0.0,
+      -0.707107,
+      -0.707107
+     ],
+     "wall_outline": [
+      [
+       -14.142,
+       14.142
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       28.284,
+       0.0
+      ],
+      [
+       0.0,
+       28.284
+      ]
+     ],
+     "body_key": [
+      0.0,
+      0.0,
+      0.0,
+      40.0,
+      40.0,
+      20.0,
+      20000.0,
+      5365.68542495
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.0,
+      0.707107,
+      -0.707107
+     ],
+     "length": 28.284,
+     "at": [
+      20.0,
+      30.0,
+      10.0
+     ],
+     "depth_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "depth": 20.0,
+     "across_direction": [
+      0.0,
+      -0.707107,
+      -0.707107
+     ],
+     "wall_outline": [
+      [
+       -14.142,
+       14.142
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       28.284,
+       0.0
+      ],
+      [
+       0.0,
+       28.284
+      ]
+     ],
+     "body_key": [
+      0.0,
+      0.0,
+      0.0,
+      40.0,
+      40.0,
+      20.0,
+      20000.0,
+      5365.68542495
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_oblique_through_steps.py::test_step_survives_step_round_trip_face_order_scale_and_principal_rotations",
+   "function": "recognise_oblique_through_steps",
+   "file": "b753abba3500c1b4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.0,
+      0.707107,
+      0.707107
+     ],
+     "length": 28.284,
+     "at": [
+      20.0,
+      -10.0,
+      30.0
+     ],
+     "depth_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "depth": 20.0,
+     "across_direction": [
+      0.0,
+      0.707107,
+      -0.707107
+     ],
+     "wall_outline": [
+      [
+       -14.142,
+       14.142
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       28.284,
+       0.0
+      ],
+      [
+       0.0,
+       28.284
+      ]
+     ],
+     "body_key": [
+      0.0,
+      -20.0,
+      0.0,
+      40.0,
+      0.0,
+      40.0,
+      20000.0,
+      5365.68542495
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.0,
+      0.707107,
+      0.707107
+     ],
+     "length": 28.284,
+     "at": [
+      20.0,
+      -10.0,
+      30.0
+     ],
+     "depth_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "depth": 20.0,
+     "across_direction": [
+      0.0,
+      0.707107,
+      -0.707107
+     ],
+     "wall_outline": [
+      [
+       -14.142,
+       14.142
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       28.284,
+       0.0
+      ],
+      [
+       0.0,
+       28.284
+      ]
+     ],
+     "body_key": [
+      0.0,
+      -20.0,
+      0.0,
+      40.0,
+      0.0,
+      40.0,
+      20000.0,
+      5365.68542495
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_oblique_through_steps.py::test_step_survives_step_round_trip_face_order_scale_and_principal_rotations",
+   "function": "recognise_oblique_through_steps",
+   "file": "427264aea913741d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.707107,
+      -0.707107,
+      0.0
+     ],
+     "length": 28.284,
+     "at": [
+      10.0,
+      30.0,
+      -20.0
+     ],
+     "depth_direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "depth": 20.0,
+     "across_direction": [
+      -0.707107,
+      -0.707107,
+      0.0
+     ],
+     "wall_outline": [
+      [
+       0.0,
+       0.0
+      ],
+      [
+       28.284,
+       0.0
+      ],
+      [
+       42.426,
+       14.142
+      ],
+      [
+       28.284,
+       28.284
+      ]
+     ],
+     "body_key": [
+      0.0,
+      0.0,
+      -40.0,
+      20.0,
+      40.0,
+      0.0,
+      20000.0,
+      5365.68542495
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.707107,
+      -0.707107,
+      0.0
+     ],
+     "length": 28.284,
+     "at": [
+      10.0,
+      30.0,
+      -20.0
+     ],
+     "depth_direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "depth": 20.0,
+     "across_direction": [
+      -0.707107,
+      -0.707107,
+      0.0
+     ],
+     "wall_outline": [
+      [
+       0.0,
+       0.0
+      ],
+      [
+       28.284,
+       0.0
+      ],
+      [
+       42.426,
+       14.142
+      ],
+      [
+       28.284,
+       28.284
+      ]
+     ],
+     "body_key": [
+      0.0,
+      0.0,
+      -40.0,
+      20.0,
+      40.0,
+      0.0,
+      20000.0,
+      5365.68542495
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_oblique_through_steps.py::test_step_survives_step_round_trip_face_order_scale_and_principal_rotations",
+   "function": "recognise_oblique_through_steps",
+   "file": "2278a80239c1217b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.0,
+      0.707107,
+      0.707107
+     ],
+     "length": 28.284,
+     "at": [
+      -20.0,
+      -30.0,
+      10.0
+     ],
+     "depth_direction": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "depth": 20.0,
+     "across_direction": [
+      0.0,
+      0.707107,
+      -0.707107
+     ],
+     "wall_outline": [
+      [
+       0.0,
+       0.0
+      ],
+      [
+       28.284,
+       0.0
+      ],
+      [
+       42.426,
+       14.142
+      ],
+      [
+       28.284,
+       28.284
+      ]
+     ],
+     "body_key": [
+      -40.0,
+      -40.0,
+      0.0,
+      0.0,
+      0.0,
+      20.0,
+      20000.0,
+      5365.68542495
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.0,
+      0.707107,
+      0.707107
+     ],
+     "length": 28.284,
+     "at": [
+      -20.0,
+      -30.0,
+      10.0
+     ],
+     "depth_direction": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "depth": 20.0,
+     "across_direction": [
+      0.0,
+      0.707107,
+      -0.707107
+     ],
+     "wall_outline": [
+      [
+       0.0,
+       0.0
+      ],
+      [
+       28.284,
+       0.0
+      ],
+      [
+       42.426,
+       14.142
+      ],
+      [
+       28.284,
+       28.284
+      ]
+     ],
+     "body_key": [
+      -40.0,
+      -40.0,
+      0.0,
+      0.0,
+      0.0,
+      20.0,
+      20000.0,
+      5365.68542495
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_oblique_through_steps.py::test_step_survives_step_round_trip_face_order_scale_and_principal_rotations",
+   "function": "recognise_oblique_through_steps",
+   "file": "53623b4d1c477565.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.0,
+      0.707107,
+      -0.707107
+     ],
+     "length": 1.414,
+     "at": [
+      1.0,
+      1.5,
+      0.5
+     ],
+     "depth_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "depth": 1.0,
+     "across_direction": [
+      0.0,
+      -0.707107,
+      -0.707107
+     ],
+     "wall_outline": [
+      [
+       -0.707,
+       0.707
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       1.414,
+       0.0
+      ],
+      [
+       0.0,
+       1.414
+      ]
+     ],
+     "body_key": [
+      0.0,
+      0.0,
+      0.0,
+      2.0,
+      2.0,
+      1.0,
+      2.5,
+      13.4142135624
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.0,
+      0.707107,
+      -0.707107
+     ],
+     "length": 1.414,
+     "at": [
+      1.0,
+      1.5,
+      0.5
+     ],
+     "depth_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "depth": 1.0,
+     "across_direction": [
+      0.0,
+      -0.707107,
+      -0.707107
+     ],
+     "wall_outline": [
+      [
+       -0.707,
+       0.707
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       1.414,
+       0.0
+      ],
+      [
+       0.0,
+       1.414
+      ]
+     ],
+     "body_key": [
+      0.0,
+      0.0,
+      0.0,
+      2.0,
+      2.0,
+      1.0,
+      2.5,
+      13.4142135624
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_oblique_through_steps.py::test_step_survives_step_round_trip_face_order_scale_and_principal_rotations",
+   "function": "recognise_oblique_through_steps",
+   "file": "4b985ebd8e91712e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.0,
+      0.707107,
+      -0.707107
+     ],
+     "length": 2828.427,
+     "at": [
+      2000.0,
+      3000.0,
+      1000.0
+     ],
+     "depth_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "depth": 2000.0,
+     "across_direction": [
+      0.0,
+      -0.707107,
+      -0.707107
+     ],
+     "wall_outline": [
+      [
+       -1414.214,
+       1414.214
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       2828.427,
+       0.0
+      ],
+      [
+       0.0,
+       2828.427
+      ]
+     ],
+     "body_key": [
+      0.0,
+      0.0,
+      0.0,
+      4000.0,
+      4000.0,
+      2000.0,
+      20000000000.0,
+      53656854.2495
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.0,
+      0.707107,
+      -0.707107
+     ],
+     "length": 2828.427,
+     "at": [
+      2000.0,
+      3000.0,
+      1000.0
+     ],
+     "depth_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "depth": 2000.0,
+     "across_direction": [
+      0.0,
+      -0.707107,
+      -0.707107
+     ],
+     "wall_outline": [
+      [
+       -1414.214,
+       1414.214
+      ],
+      [
+       0.0,
+       0.0
+      ],
+      [
+       2828.427,
+       0.0
+      ],
+      [
+       0.0,
+       2828.427
+      ]
+     ],
+     "body_key": [
+      0.0,
+      0.0,
+      0.0,
+      4000.0,
+      4000.0,
+      2000.0,
+      20000000000.0,
+      53656854.2495
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_record_locates_the_blind_terminal_opening_and_quarter_section",
+   "function": "recognise_circular_blind_steps",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_direct_and_aggregate_paths_keep_exact_two_face_provenance_and_drop_the_fillet",
+   "function": "recognise_circular_blind_steps",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_exact_bspline_cylinder_keeps_record_and_original_surface_provenance",
+   "function": "recognise_circular_blind_steps",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_scale_rotation_and_step_round_trip_preserve_the_occurrence",
+   "function": "recognise_circular_blind_steps",
+   "file": "034677914b2acfc1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "radius": 0.2,
+     "length": 1.25,
+     "centreline": [
+      [
+       -0.25,
+       0.75,
+       0.5
+      ],
+      [
+       1.0,
+       0.75,
+       0.5
+      ]
+     ],
+     "section": [
+      [
+       0.55,
+       0.5
+      ],
+      [
+       0.75,
+       0.5
+      ],
+      [
+       0.75,
+       0.3
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "radius": 0.2,
+     "length": 1.25,
+     "centreline": [
+      [
+       -0.25,
+       0.75,
+       0.5
+      ],
+      [
+       1.0,
+       0.75,
+       0.5
+      ]
+     ],
+     "section": [
+      [
+       0.55,
+       0.5
+      ],
+      [
+       0.75,
+       0.5
+      ],
+      [
+       0.75,
+       0.3
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_scale_rotation_and_step_round_trip_preserve_the_occurrence",
+   "function": "recognise_circular_blind_steps",
+   "file": "81935b1f9d8e5a32.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "radius": 0.2,
+     "length": 1.25,
+     "centreline": [
+      [
+       -0.75,
+       -0.25,
+       0.5
+      ],
+      [
+       -0.75,
+       1.0,
+       0.5
+      ]
+     ],
+     "section": [
+      [
+       -0.75,
+       0.3
+      ],
+      [
+       -0.75,
+       0.5
+      ],
+      [
+       -0.55,
+       0.5
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "radius": 0.2,
+     "length": 1.25,
+     "centreline": [
+      [
+       -0.75,
+       -0.25,
+       0.5
+      ],
+      [
+       -0.75,
+       1.0,
+       0.5
+      ]
+     ],
+     "section": [
+      [
+       -0.75,
+       0.3
+      ],
+      [
+       -0.75,
+       0.5
+      ],
+      [
+       -0.55,
+       0.5
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_scale_rotation_and_step_round_trip_preserve_the_occurrence",
+   "function": "recognise_circular_blind_steps",
+   "file": "fcdda3aa5d6cdc31.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "radius": 0.2,
+     "length": 1.25,
+     "centreline": [
+      [
+       -0.75,
+       -0.25,
+       0.5
+      ],
+      [
+       -0.75,
+       1.0,
+       0.5
+      ]
+     ],
+     "section": [
+      [
+       -0.75,
+       0.3
+      ],
+      [
+       -0.75,
+       0.5
+      ],
+      [
+       -0.55,
+       0.5
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "radius": 0.2,
+     "length": 1.25,
+     "centreline": [
+      [
+       -0.75,
+       -0.25,
+       0.5
+      ],
+      [
+       -0.75,
+       1.0,
+       0.5
+      ]
+     ],
+     "section": [
+      [
+       -0.75,
+       0.3
+      ],
+      [
+       -0.75,
+       0.5
+      ],
+      [
+       -0.55,
+       0.5
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_scale_rotation_and_step_round_trip_preserve_the_occurrence",
+   "function": "recognise_circular_blind_steps",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_scale_rotation_and_step_round_trip_preserve_the_occurrence",
+   "function": "recognise_circular_blind_steps",
+   "file": "092677e24c1ea6a8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -15.0,
+       -5.0,
+       10.0
+      ],
+      [
+       -15.0,
+       20.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       -15.0,
+       6.0
+      ],
+      [
+       -15.0,
+       10.0
+      ],
+      [
+       -11.0,
+       10.0
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -15.0,
+       -5.0,
+       10.0
+      ],
+      [
+       -15.0,
+       20.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       -15.0,
+       6.0
+      ],
+      [
+       -15.0,
+       10.0
+      ],
+      [
+       -11.0,
+       10.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_scale_rotation_and_step_round_trip_preserve_the_occurrence",
+   "function": "recognise_circular_blind_steps",
+   "file": "b4fc30f32c07da42.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -15.0,
+       -5.0,
+       10.0
+      ],
+      [
+       -15.0,
+       20.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       -15.0,
+       6.0
+      ],
+      [
+       -15.0,
+       10.0
+      ],
+      [
+       -11.0,
+       10.0
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -15.0,
+       -5.0,
+       10.0
+      ],
+      [
+       -15.0,
+       20.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       -15.0,
+       6.0
+      ],
+      [
+       -15.0,
+       10.0
+      ],
+      [
+       -11.0,
+       10.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_scale_rotation_and_step_round_trip_preserve_the_occurrence",
+   "function": "recognise_circular_blind_steps",
+   "file": "edc30852641a703f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "radius": 400.0,
+     "length": 2500.0,
+     "centreline": [
+      [
+       -500.0,
+       1500.0,
+       1000.0
+      ],
+      [
+       2000.0,
+       1500.0,
+       1000.0
+      ]
+     ],
+     "section": [
+      [
+       1100.0,
+       1000.0
+      ],
+      [
+       1500.0,
+       1000.0
+      ],
+      [
+       1500.0,
+       600.0
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "radius": 400.0,
+     "length": 2500.0,
+     "centreline": [
+      [
+       -500.0,
+       1500.0,
+       1000.0
+      ],
+      [
+       2000.0,
+       1500.0,
+       1000.0
+      ]
+     ],
+     "section": [
+      [
+       1100.0,
+       1000.0
+      ],
+      [
+       1500.0,
+       1000.0
+      ],
+      [
+       1500.0,
+       600.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_scale_rotation_and_step_round_trip_preserve_the_occurrence",
+   "function": "recognise_circular_blind_steps",
+   "file": "5ba7fe59ab5542e7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "radius": 400.0,
+     "length": 2500.0,
+     "centreline": [
+      [
+       -1500.0,
+       -500.0,
+       1000.0
+      ],
+      [
+       -1500.0,
+       2000.0,
+       1000.0
+      ]
+     ],
+     "section": [
+      [
+       -1500.0,
+       600.0
+      ],
+      [
+       -1500.0,
+       1000.0
+      ],
+      [
+       -1100.0,
+       1000.0
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "radius": 400.0,
+     "length": 2500.0,
+     "centreline": [
+      [
+       -1500.0,
+       -500.0,
+       1000.0
+      ],
+      [
+       -1500.0,
+       2000.0,
+       1000.0
+      ]
+     ],
+     "section": [
+      [
+       -1500.0,
+       600.0
+      ],
+      [
+       -1500.0,
+       1000.0
+      ],
+      [
+       -1100.0,
+       1000.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_scale_rotation_and_step_round_trip_preserve_the_occurrence",
+   "function": "recognise_circular_blind_steps",
+   "file": "c82e05b0bdd65378.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "radius": 400.0,
+     "length": 2500.0,
+     "centreline": [
+      [
+       -1500.0,
+       -500.0,
+       1000.0
+      ],
+      [
+       -1500.0,
+       2000.0,
+       1000.0
+      ]
+     ],
+     "section": [
+      [
+       -1500.0,
+       600.0
+      ],
+      [
+       -1500.0,
+       1000.0
+      ],
+      [
+       -1100.0,
+       1000.0
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "radius": 400.0,
+     "length": 2500.0,
+     "centreline": [
+      [
+       -1500.0,
+       -500.0,
+       1000.0
+      ],
+      [
+       -1500.0,
+       2000.0,
+       1000.0
+      ]
+     ],
+     "section": [
+      [
+       -1500.0,
+       600.0
+      ],
+      [
+       -1500.0,
+       1000.0
+      ],
+      [
+       -1100.0,
+       1000.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_scale_rotation_and_step_round_trip_preserve_the_occurrence",
+   "function": "recognise_circular_blind_steps",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_quarter_turn_parameter_tolerance_accepts_inside_and_refuses_outside",
+   "function": "recognise_circular_blind_steps",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_quarter_turn_parameter_tolerance_accepts_inside_and_refuses_outside",
+   "function": "recognise_circular_blind_steps",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_quarter_turn_parameter_tolerance_accepts_inside_and_refuses_outside",
+   "function": "recognise_circular_blind_steps",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_quarter_turn_parameter_tolerance_accepts_inside_and_refuses_outside",
+   "function": "recognise_circular_blind_steps",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_reflections_preserve_opening_direction_and_occupied_quadrant",
+   "function": "recognise_circular_blind_steps",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_reflections_preserve_opening_direction_and_occupied_quadrant",
+   "function": "recognise_circular_blind_steps",
+   "file": "85e5cdbaee3f051b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       5.0,
+       15.0,
+       10.0
+      ],
+      [
+       -20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       5.0,
+       15.0,
+       10.0
+      ],
+      [
+       -20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_reflections_preserve_opening_direction_and_occupied_quadrant",
+   "function": "recognise_circular_blind_steps",
+   "file": "4e09bf66d2c8bc55.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       -15.0,
+       10.0
+      ],
+      [
+       20.0,
+       -15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       -15.0,
+       6.0
+      ],
+      [
+       -15.0,
+       10.0
+      ],
+      [
+       -11.0,
+       10.0
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       -15.0,
+       10.0
+      ],
+      [
+       20.0,
+       -15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       -15.0,
+       6.0
+      ],
+      [
+       -15.0,
+       10.0
+      ],
+      [
+       -11.0,
+       10.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_blind_bore_through_groove_half_cylinder_and_capped_cut_fail_closed",
+   "function": "recognise_circular_blind_steps",
+   "file": "fcf0ba7aa52e858e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_blind_bore_through_groove_half_cylinder_and_capped_cut_fail_closed",
+   "function": "recognise_circular_blind_steps",
+   "file": "974673c7cdb48d11.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_blind_bore_through_groove_half_cylinder_and_capped_cut_fail_closed",
+   "function": "recognise_circular_blind_steps",
+   "file": "61795c47db3ddd84.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_blind_bore_through_groove_half_cylinder_and_capped_cut_fail_closed",
+   "function": "recognise_circular_blind_steps",
+   "file": "2056d738758be10a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_external_conical_oblique_and_enclosed_cylindrical_lookalikes_fail_closed",
+   "function": "recognise_circular_blind_steps",
+   "file": "c81443bfcd9ea50a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_external_conical_oblique_and_enclosed_cylindrical_lookalikes_fail_closed",
+   "function": "recognise_circular_blind_steps",
+   "file": "a7a418d575704be7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_external_conical_oblique_and_enclosed_cylindrical_lookalikes_fail_closed",
+   "function": "recognise_circular_blind_steps",
+   "file": "be6b5f9eebea62e5.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_external_conical_oblique_and_enclosed_cylindrical_lookalikes_fail_closed",
+   "function": "recognise_circular_blind_steps",
+   "file": "1c956608aa2b4474.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_material_bridge_missing_terminal_and_incomplete_side_fail_closed",
+   "function": "recognise_circular_blind_steps",
+   "file": "68339ccc90445e27.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_material_bridge_missing_terminal_and_incomplete_side_fail_closed",
+   "function": "recognise_circular_blind_steps",
+   "file": "974673c7cdb48d11.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_material_bridge_missing_terminal_and_incomplete_side_fail_closed",
+   "function": "recognise_circular_blind_steps",
+   "file": "cb726fc6cac982c2.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_faces_from_separate_incomplete_solids_cannot_form_one_step",
+   "function": "recognise_circular_blind_steps",
+   "file": "2056d738758be10a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_faces_from_separate_incomplete_solids_cannot_form_one_step",
+   "function": "recognise_circular_blind_steps",
+   "file": "2d3d4393961aefc7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_open_shell_and_foreign_cylinder_inventory_fail_before_issuance",
+   "function": "recognise_circular_blind_steps",
+   "file": "aa698f333e21fc98.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_compound_order_preserves_two_distinct_occurrences",
+   "function": "recognise_circular_blind_steps",
+   "file": "02ac34bf340323e0.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    },
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       95.0,
+       15.0,
+       10.0
+      ],
+      [
+       120.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    },
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       95.0,
+       15.0,
+       10.0
+      ],
+      [
+       120.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_blind_steps.py::test_compound_order_preserves_two_distinct_occurrences",
+   "function": "recognise_circular_blind_steps",
+   "file": "7b2ddc318dd06e29.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    },
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       95.0,
+       15.0,
+       10.0
+      ],
+      [
+       120.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       -5.0,
+       15.0,
+       10.0
+      ],
+      [
+       20.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    },
+    {
+     "axis": "x",
+     "radius": 4.0,
+     "length": 25.0,
+     "centreline": [
+      [
+       95.0,
+       15.0,
+       10.0
+      ],
+      [
+       120.0,
+       15.0,
+       10.0
+      ]
+     ],
+     "section": [
+      [
+       11.0,
+       10.0
+      ],
+      [
+       15.0,
+       10.0
+      ],
+      [
+       15.0,
+       6.0
+      ]
+     ]
+    }
+   ]
   }
  ],
  "skipped": {
-  "recognise_through_steps: capture failed: RuntimeError": 7
+  "recognise_interior_voids: capture failed: RuntimeError": 2,
+  "recognise_through_steps: capture failed: RuntimeError": 7,
+  "recognise_oblique_through_steps: capture failed: RuntimeError": 1,
+  "recognise_circular_blind_steps: capture failed: RuntimeError": 2
  }
 }

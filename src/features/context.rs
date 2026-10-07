@@ -11,8 +11,10 @@ use super::body::{BodyKey, body_signature, unambiguous_body_keys};
 use super::cylinders::{CylinderEvidence, analyse_cylinders};
 use crate::kernel::brep::Part;
 use crate::kernel::classify::Classifier;
-use crate::kernel::geom::Bounds;
+use crate::kernel::geom::{Bounds, V3};
 use crate::kernel::rays::RayCaster;
+use crate::kernel::sweep::extrude_face;
+use crate::kernel::volume::{Probe, common_volume};
 
 pub struct Context<'a> {
     pub part: &'a Part,
@@ -68,5 +70,20 @@ impl<'a> Context<'a> {
     /// Every native cylindrical face (`analyse_cylinders`), in solid then face order.
     pub fn cylinders(&self) -> &[CylinderEvidence] {
         self.cylinders.get_or_init(|| analyse_cylinders(self.part))
+    }
+
+    /// The volume *face* moved by *offset* and swept along *sweep* shares with one solid
+    /// (`probe_volume` of a `Solid.extrude` of the face), or `None` when the face cannot be
+    /// swept exactly (see [`extrude_face`]).
+    pub fn swept_face_volume(
+        &self,
+        solid: usize,
+        face: usize,
+        offset: V3,
+        sweep: V3,
+    ) -> Option<f64> {
+        let prism = extrude_face(self.part, face, offset, sweep)?;
+        let probe = Probe::Solid(RayCaster::for_solid(&prism, 0));
+        Some(common_volume(self.solid_classifier(solid), &probe))
     }
 }

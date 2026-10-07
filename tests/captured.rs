@@ -160,3 +160,13 @@ fn interior_voids_match_python() {
 fn through_steps_match_python() {
     replay("recognise_through_steps");
 }
+
+#[test]
+fn oblique_through_steps_match_python() {
+    replay("recognise_oblique_through_steps");
+}
+
+#[test]
+fn circular_blind_steps_match_python() {
+    replay("recognise_circular_blind_steps");
+}

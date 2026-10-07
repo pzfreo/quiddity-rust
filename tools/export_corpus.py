@@ -32,11 +32,15 @@ from quiddity._claims import ClaimLedger  # noqa: E402
 from quiddity.angled_steps import _discover_angled_steps  # noqa: E402
 from quiddity.bosses import _discover_bosses  # noqa: E402
 from quiddity.chamfers import _discover_chamfers  # noqa: E402
+from quiddity._cylinder_substrate import analyse_cylinders  # noqa: E402
+from quiddity._effective_surfaces import effective_faces_for_graph  # noqa: E402
+from quiddity.circular_blind_steps import _discover_circular_blind_steps  # noqa: E402
 from quiddity.circular_face_patterns import _discover_circular_face_patterns  # noqa: E402
 from quiddity.countersinks import _discover_countersinks  # noqa: E402
 from quiddity.fillets import _discover_fillets  # noqa: E402
 from quiddity.flats import _discover_flats  # noqa: E402
 from quiddity.holes import _discover_holes  # noqa: E402
+from quiddity.oblique_through_steps import _discover_oblique_through_steps  # noqa: E402
 from quiddity.interior_voids import _claim_records as _claim_voids  # noqa: E402
 from quiddity.interior_voids import _discover_interior_voids  # noqa: E402
 from quiddity.oriented_chamfers import _discover_oriented_chamfers  # noqa: E402
@@ -51,12 +55,14 @@ from quiddity import (  # noqa: E402
     recognise_bosses,
     recognise_fillets,
     recognise_chamfers,
+    recognise_circular_blind_steps,
     recognise_circular_face_patterns,
     import_step_geometry,
     recognise_countersinks,
     recognise_hole_patterns,
     recognise_holes,
     recognise_interior_voids,
+    recognise_oblique_through_steps,
     recognise_oriented_chamfers,
     recognise_paired_ramp_steps,
     recognise_thin_wall_bodies,
@@ -165,6 +171,18 @@ def main() -> None:
                     lambda p, ledger, o: _discover_oriented_chamfers(p, graph=ledger.graph, sink=ledger.writer.sink))
         circular = (FamilyId.CIRCULAR_FACE_PATTERNS, lambda p, o: recognise_circular_face_patterns(p),
                     lambda p, ledger, o: _discover_circular_face_patterns(p, writer=ledger.writer))
+        oblique = (FamilyId.OBLIQUE_THROUGH_STEPS, lambda p, o: recognise_oblique_through_steps(p),
+                   lambda p, ledger, o: _discover_oblique_through_steps(p, graph=ledger.graph,
+                                                                        sink=ledger.writer.sink))
+
+        def _circular_blind(p, ledger, o):
+            effective = effective_faces_for_graph(ledger.graph)
+            return _discover_circular_blind_steps(
+                p, graph=ledger.graph, cylinders=analyse_cylinders(p, face_surfaces=effective),
+                effective=effective, sink=ledger.writer.sink)
+
+        circular_blind = (FamilyId.CIRCULAR_BLIND_STEPS, lambda p, o: recognise_circular_blind_steps(p),
+                          _circular_blind)
         hole = (FamilyId.HOLES, lambda p, o: recognise_holes(p, **hole_kwargs(o)),
                 lambda p, ledger, o: _discover_holes(p, writer=ledger.writer, **hole_kwargs(o)))
         walls = (FamilyId.THIN_WALL_BODIES, lambda p, o: recognise_thin_wall_bodies(p),
@@ -196,6 +214,12 @@ def main() -> None:
                     "recognise_oriented_chamfers": [_run(part, "recognise_oriented_chamfers", *oriented, {})],
                     "recognise_circular_face_patterns": [
                         _run(part, "recognise_circular_face_patterns", *circular, {})
+                    ],
+                    "recognise_oblique_through_steps": [
+                        _run(part, "recognise_oblique_through_steps", *oblique, {})
+                    ],
+                    "recognise_circular_blind_steps": [
+                        _run(part, "recognise_circular_blind_steps", *circular_blind, {})
                     ],
                     "recognise_holes": [
                         _run(part, "recognise_holes", *hole, o) for o in ({}, {"csinks": "auto"})

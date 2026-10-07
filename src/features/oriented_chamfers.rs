@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use super::Context;
 use super::body::BodyKey;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::planes::{coordinates, linear_quad, normalized, plane_normal};
 use crate::kernel::brep::{Arc, Part};
 use crate::kernel::classify::{Classifier, State};
 use crate::kernel::geom::{
@@ -76,43 +77,6 @@ pub fn discover_verified(
     opts: &OrientedChamferOptions,
 ) -> Result<Vec<Occurrence<OrientedChamfer>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx, opts))
-}
-
-/// `gp_Vec::Normalized` divides each component (multiplying by the reciprocal can differ in
-/// the last bit).
-fn normalized(a: V3) -> V3 {
-    let l = norm(a);
-    a.map(|c| c / l)
-}
-
-/// `_coordinates`: each component rounded, without a negative zero.
-fn coordinates(p: V3, digits: usize) -> V3 {
-    p.map(|c| py::without_negative_zero(py::round_to(c, digits)))
-}
-
-/// A plane bounded by one loop of four straight edges (`_linear_quad`).
-fn linear_quad(part: &Part, face: usize) -> bool {
-    let f = &part.faces[face];
-    let edges = part.face_edges(face);
-    let mut vertices: Vec<usize> = edges
-        .iter()
-        .flat_map(|&e| [part.edges[e].vertices.0, part.edges[e].vertices.1])
-        .collect();
-    vertices.sort_unstable();
-    vertices.dedup();
-    matches!(f.surface, Surface::Plane { .. })
-        && f.loops.len() == 1
-        && part.outer_edges(face).len() == 4
-        && part
-            .outer_edges(face)
-            .iter()
-            .all(|&e| matches!(part.edges[e].curve, Curve::Line { .. }))
-        && vertices.len() == 4
-}
-
-/// The planar plane's outward normal (`face.normal_at()`).
-fn plane_normal(part: &Part, face: usize) -> Option<V3> {
-    part.face_normal(face, 0.0, 0.0).map(normalized)
 }
 
 /// The one straight edge a convex planar neighbour shares with the bevel, and the neighbour's

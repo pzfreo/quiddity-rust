@@ -10,6 +10,7 @@ pub use haecceity as kernel;
 pub use features::angled_steps::{AngledStep, recognise_angled_steps};
 pub use features::bosses::{BossRecord, recognise_bosses};
 pub use features::chamfers::{Chamfer, ChamferOptions, recognise_chamfers};
+pub use features::circular_blind_steps::{CircularBlindStep, recognise_circular_blind_steps};
 pub use features::circular_face_patterns::{CircularFacePattern, recognise_circular_face_patterns};
 pub use features::countersinks::{CounterSink, recognise_countersinks};
 pub use features::fillets::{Fillet, FilletOptions, recognise_fillets};
@@ -21,6 +22,7 @@ pub use features::levels::{
     FaceLevel, FaceLevelOptions, RiserEvidence, RiserOptions, recognise_face_levels,
     recognise_risers,
 };
+pub use features::oblique_through_steps::{ObliqueThroughStep, recognise_oblique_through_steps};
 pub use features::oriented_chamfers::{
     OrientedChamfer, OrientedChamferOptions, recognise_oriented_chamfers,
 };
