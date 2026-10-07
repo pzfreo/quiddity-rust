@@ -195,7 +195,9 @@ impl Reader<'_> {
         };
         let (su, sv) = match surface {
             Surface::Plane { .. } => (self.to_mm, self.to_mm),
-            Surface::Cylinder { .. } | Surface::Cone { .. } => (self.to_rad, self.to_mm),
+            Surface::Cylinder { .. } => (self.to_rad, self.to_mm),
+            // STEP's cone v is axial height; OpenCascade's runs along the slant.
+            Surface::Cone { semi_angle, .. } => (self.to_rad, self.to_mm / semi_angle.cos()),
             Surface::Sphere { .. } | Surface::Torus { .. } => (self.to_rad, self.to_rad),
             Surface::Freeform { .. } | Surface::Other { .. } => return Vec::new(),
         };

@@ -9,7 +9,7 @@ use std::f64::consts::TAU;
 
 use serde::{Deserialize, Serialize};
 
-use super::holes::{CounterBore, HoleRecord};
+use super::holes::{Bottom, CounterBore, HoleRecord};
 use crate::kernel::geom::{self, V3, dominant_axis_preferring_z};
 use crate::kernel::py;
 
@@ -67,7 +67,7 @@ struct HoleSpec {
     axis: V3,
     diameter: f64,
     depth: Option<f64>,
-    bottom: String,
+    bottom: Bottom,
     cbore: Option<CounterBore>,
     spotface: Option<CounterBore>,
     csink: Option<(f64, f64)>,
@@ -84,8 +84,8 @@ impl HoleSpec {
                 }
             }),
             diameter: h.diameter,
-            depth: (h.bottom != "through").then_some(h.depth),
-            bottom: h.bottom.clone(),
+            depth: (h.bottom != Bottom::Through).then_some(h.depth),
+            bottom: h.bottom,
             cbore: h.cbore.clone(),
             spotface: h.spotface.clone(),
             csink: h

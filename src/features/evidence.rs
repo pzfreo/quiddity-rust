@@ -15,11 +15,20 @@ pub struct Occurrence<R> {
 pub enum EvidenceError {
     /// A defining face has no single valid solid shared with the rest of its evidence.
     NoValidSolid,
+    /// Two occurrences claim one defining face, or one face both defines and is consulted.
+    SharedEvidence,
 }
 
 impl std::fmt::Display for EvidenceError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "defining face has no unambiguous valid solid")
+        match self {
+            EvidenceError::NoValidSolid => {
+                write!(f, "defining face has no unambiguous valid solid")
+            }
+            EvidenceError::SharedEvidence => {
+                write!(f, "evidence faces are shared between occurrences")
+            }
+        }
     }
 }
 

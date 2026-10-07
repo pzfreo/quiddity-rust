@@ -41,8 +41,9 @@ pub struct Features {
 /// countersinks, and patterns are found among those holes.
 pub fn recognise(part: &Part) -> Features {
     let ctx = Context::new(part);
-    let countersinks = records(countersinks::discover(&ctx));
-    let holes = records(holes::discover(&ctx, &countersinks));
+    let seats = countersinks::discover(&ctx);
+    let holes = records(holes::discover(&ctx, &seats));
+    let countersinks = records(seats);
     Features {
         fillets: records(fillets::discover(&ctx, &Default::default())),
         chamfers: records(chamfers::discover(&ctx, &Default::default())),

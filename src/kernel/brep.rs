@@ -207,15 +207,13 @@ impl Part {
         b
     }
 
-    /// Faces of each edge, in face order (`edge_face_map`). A seam edge lists its face twice.
+    /// Faces of each edge, in face order (`edge_face_map`). A seam edge lists its face once.
     pub fn edge_faces(&self) -> &[Vec<usize>] {
         self.edge_faces.get_or_init(|| {
             let mut out = vec![Vec::new(); self.edges.len()];
-            for (i, f) in self.faces.iter().enumerate() {
-                for lp in &f.loops {
-                    for &(e, _) in &lp.edges {
-                        out[e].push(i);
-                    }
+            for face in 0..self.faces.len() {
+                for e in self.face_edges(face) {
+                    out[e].push(face);
                 }
             }
             out

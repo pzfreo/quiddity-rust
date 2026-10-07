@@ -10,13 +10,11 @@ use std::collections::BTreeSet;
 use serde::{Deserialize, Serialize};
 
 use super::Context;
-use super::countersinks::{
-    CounterSink, HoleMouth, countersink_matches_hole, recognise_countersinks,
-};
+use super::countersinks::{self, CounterSink, HoleMouth, countersink_matches_hole};
 use super::cylinders::{
     STACK_GAP_FRAC, Segment, axis_point_at, full_cylinders, line_key, merge_runs, segments,
 };
-use super::evidence::Occurrence;
+use super::evidence::{self, EvidenceError, Occurrence};
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, Surface, V3};
 use crate::kernel::py;
@@ -35,6 +33,17 @@ pub struct CounterBore {
     pub depth: f64,
 }
 
+/// What closes a hole's deep end.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Bottom {
+    Through,
+    Flat,
+    DrillPoint,
+    /// The adjacent geometry matches none of the others.
+    Unknown,
+}
+
 /// A drilled hole: `axis` points from the opening into the hole, `location` is the axis point at
 /// the opening; `diameter`/`depth` describe the bore (the narrowest segment), with `depth` from
 /// the top of the bore to the hole's deep end. `bottom` is `"through"`, `"flat"`,
@@ -45,7 +54,7 @@ pub struct HoleRecord {
     pub location: V3,
     pub diameter: f64,
     pub depth: f64,
-    pub bottom: String,
+    pub bottom: Bottom,
     pub cbore: Option<CounterBore>,
     pub spotface: Option<CounterBore>,
     pub csink: Option<CounterSink>,
@@ -58,11 +67,30 @@ pub struct HoleOptions {
     pub with_countersinks: bool,
 }
 
+/// The evidence path: holes with their defining cylinder faces and the faces that close them,
+/// published only if each lies in one valid solid and no countersink seats two holes.
+pub fn discover_verified(
+    ctx: &Context<'_>,
+    csinks: &[Occurrence<CounterSink>],
+) -> Result<Vec<Occurrence<HoleRecord>>, EvidenceError> {
+    let found = discover(ctx, csinks);
+    for cs in csinks {
+        let seats = found
+            .iter()
+            .filter(|h| cs.defining.iter().all(|f| h.context.contains(f)))
+            .count();
+        if seats > 1 {
+            return Err(EvidenceError::SharedEvidence);
+        }
+    }
+    evidence::verified(ctx.part, found)
+}
+
 /// `recognise_holes`.
 pub fn recognise_holes(part: &Part, opts: &HoleOptions) -> Vec<HoleRecord> {
     let ctx = Context::new(part);
     let csinks = if opts.with_countersinks {
-        recognise_countersinks(part)
+        countersinks::discover(&ctx)
     } else {
         Vec::new()
     };
@@ -123,9 +151,10 @@ fn end_partners(part: &Part, seg: &Segment, s_end: f64) -> Vec<usize> {
     ranked.into_iter().map(|r| r.2).collect()
 }
 
-/// Classify one axial end of a segment from the face beyond it (`_classify_end`). Planes,
-/// cones and tori decide; a curved wall is a weak signal that counts only when nothing decides.
-fn classify_end(part: &Part, seg: &Segment, s_end: f64, hi_end: bool) -> End {
+/// Classify one axial end of a segment from the face beyond it (`_classify_end`), with the
+/// faces that close it (its `terminal_faces`). Planes, cones and tori decide; a curved wall is a
+/// weak signal that counts only when nothing decides.
+fn classify_end(part: &Part, seg: &Segment, s_end: f64, hi_end: bool) -> (End, Vec<usize>) {
     let d = seg.direction;
     let e_sign = if hi_end { 1.0 } else { -1.0 };
     let mut weak = None;
@@ -136,10 +165,10 @@ fn classify_end(part: &Part, seg: &Segment, s_end: f64, hi_end: bool) -> End {
                 let apex = surface.cone_apex().expect("a cone");
                 let outward = (geom::dot(apex, d) - s_end) * e_sign > 0.0;
                 if seg.external {
-                    return if outward { End::Open } else { End::Flat };
+                    return (if outward { End::Open } else { End::Flat }, vec![]);
                 }
                 if !outward {
-                    return End::Open; // an entry chamfer or countersink widens the bore
+                    return (End::Open, vec![]); // an entry chamfer or countersink widens the bore
                 }
                 // Apex outward closes the bore — unless a plane across the cone faces back
                 // along the axis, which makes it a chamfered flat floor.
@@ -148,49 +177,52 @@ fn classify_end(part: &Part, seg: &Segment, s_end: f64, hi_end: bool) -> End {
                         if n == partner || seg.faces.contains(&n) {
                             continue;
                         }
-                        if let Some(normal) = plane_normal(part, n) {
-                            if geom::dot(normal, d).abs() > 0.9 {
-                                return End::Flat;
-                            }
+                        if plane_normal(part, n)
+                            .is_some_and(|normal| geom::dot(normal, d).abs() > 0.9)
+                        {
+                            return (End::Flat, vec![n]);
                         }
                     }
                 }
-                return End::DrillPoint;
+                return (End::DrillPoint, vec![partner]);
             }
             Surface::Torus { major, .. } => {
                 let curls_in = *major < seg.diameter / 2.0;
-                return match (seg.external, curls_in) {
-                    (false, true) | (true, false) => End::Flat,
-                    _ => End::Open,
+                let state = if seg.external != curls_in {
+                    End::Flat
+                } else {
+                    End::Open
                 };
+                return (state, vec![]);
             }
             Surface::Plane { .. } => {
                 let normal = plane_normal(part, partner).expect("a plane");
                 let alignment = py::dot(&normal, &d) * e_sign;
                 if alignment < -0.5 {
-                    return End::Flat;
+                    return (End::Flat, vec![partner]);
                 }
                 if alignment > 0.5 {
-                    return End::Open;
+                    return (End::Open, vec![partner]);
                 }
             }
             Surface::Sphere { .. } => {
                 let convex = part.frame_points_outward(partner).unwrap_or(false);
-                weak = Some(if seg.external == convex {
+                let state = if seg.external == convex {
                     End::Flat
                 } else {
                     End::Open
-                });
+                };
+                weak = Some((state, vec![partner]));
             }
             Surface::Cylinder { .. } => {
-                weak = Some(if seg.external { End::Flat } else { End::Open });
+                weak = Some((if seg.external { End::Flat } else { End::Open }, vec![]));
             }
             // A freeform face may be an exact plane in spline form; Python certifies that
             // through its effective-surface recovery, which this port does not yet have.
             _ => {}
         }
     }
-    weak.unwrap_or(End::Unknown)
+    weak.unwrap_or((End::Unknown, vec![]))
 }
 
 /// A planar face's outward normal.
@@ -284,8 +316,8 @@ fn merge_stacks(part: &Part, stacks: Vec<Vec<Segment>>) -> Vec<Vec<Segment>> {
             let (a, b) = (&cur[ai], &nxt[bi]);
             let closed = |end: End| matches!(end, End::Flat | End::DrillPoint);
             if same_diameter(a.diameter, b.diameter)
-                && !closed(classify_end(part, a, a.s_hi, true))
-                && !closed(classify_end(part, b, b.s_lo, false))
+                && !closed(classify_end(part, a, a.s_hi, true).0)
+                && !closed(classify_end(part, b, b.s_lo, false).0)
                 && shares_interruption(a, b)
             {
                 let mut joined = a.clone();
@@ -323,28 +355,34 @@ fn merge_stacks(part: &Part, stacks: Vec<Vec<Segment>>) -> Vec<Vec<Segment>> {
 /// Which end of a stack is the opening and what closes the other (`_drilled_from`). With both
 /// ends open the wider segment's end wins (counterbores sit at the opening); a tie falls to the
 /// high end.
-fn drilled_from(part: &Part, stack: &[Segment]) -> (bool, usize, f64, &'static str) {
+fn drilled_from(part: &Part, stack: &[Segment]) -> (bool, usize, f64, Bottom, Vec<usize>) {
     let lo = py::first_min(stack, |s| s.s_lo);
     let hi = py::first_max(stack, |s| s.s_hi);
-    let lo_state = classify_end(part, &stack[lo], stack[lo].s_lo, false);
-    let hi_state = classify_end(part, &stack[hi], stack[hi].s_hi, true);
+    let (lo_state, lo_faces) = classify_end(part, &stack[lo], stack[lo].s_lo, false);
+    let (hi_state, hi_faces) = classify_end(part, &stack[hi], stack[hi].s_hi, true);
     let from_hi = match (lo_state == End::Open, hi_state == End::Open) {
         (true, false) => false,
         (false, true) => true,
         _ => stack[hi].diameter >= stack[lo].diameter,
     };
-    let (opening, opening_s, bottom) = if from_hi {
-        (hi, stack[hi].s_hi, lo_state)
+    let (opening, opening_s, bottom, faces) = if from_hi {
+        (hi, stack[hi].s_hi, lo_state, lo_faces)
     } else {
-        (lo, stack[lo].s_lo, hi_state)
+        (lo, stack[lo].s_lo, hi_state, hi_faces)
     };
     let bottom = match bottom {
-        End::Open => "through",
-        End::Flat => "flat",
-        End::DrillPoint => "drill_point",
-        End::Unknown => "unknown",
+        End::Open => Bottom::Through,
+        End::Flat => Bottom::Flat,
+        End::DrillPoint => Bottom::DrillPoint,
+        End::Unknown => Bottom::Unknown,
     };
-    (from_hi, opening, opening_s, bottom)
+    // Only a closing face is evidence of the bottom.
+    let terminal = if matches!(bottom, Bottom::Flat | Bottom::DrillPoint) {
+        faces
+    } else {
+        vec![]
+    };
+    (from_hi, opening, opening_s, bottom, terminal)
 }
 
 /// The counterbore and spotface between the opening and the bore (`_near_side_steps`). Steps
@@ -439,7 +477,10 @@ fn bore_depth(
 
 /// Holes in stack order, each with its defining cylinder faces; *csinks* are composed onto the
 /// holes they flare.
-pub fn discover(ctx: &Context<'_>, csinks: &[CounterSink]) -> Vec<Occurrence<HoleRecord>> {
+pub fn discover(
+    ctx: &Context<'_>,
+    csinks: &[Occurrence<CounterSink>],
+) -> Vec<Occurrence<HoleRecord>> {
     let part = ctx.part;
     let cyls = ctx.cylinders();
     let (z, cross): (Vec<_>, Vec<_>) = cyls.iter().cloned().partition(|c| c.axis == 2);
@@ -455,7 +496,7 @@ pub fn discover(ctx: &Context<'_>, csinks: &[CounterSink]) -> Vec<Occurrence<Hol
     let mut out = Vec::new();
     for stack in stacks {
         let d = stack[0].direction;
-        let (from_hi, opening, opening_s, bottom) = drilled_from(part, &stack);
+        let (from_hi, opening, opening_s, bottom, mut terminal) = drilled_from(part, &stack);
         let mut ordered = stack.clone();
         // A stable sort by s_hi, descending when drilled from the high end.
         ordered.sort_by(|a, b| {
@@ -466,7 +507,7 @@ pub fn discover(ctx: &Context<'_>, csinks: &[CounterSink]) -> Vec<Occurrence<Hol
         let bore_i = py::first_min(&ordered, |s| s.diameter);
         let bore = &ordered[bore_i];
         let (cbore, spotface, step_faces) = near_side_steps(&ordered[..bore_i]);
-        let (depth, mut defining) = bore_depth(&stack, bore, bottom == "through", from_hi);
+        let (depth, mut defining) = bore_depth(&stack, bore, bottom == Bottom::Through, from_hi);
         defining.extend(step_faces);
         let axis = if from_hi { geom::scale(d, -1.0) } else { d }.map(py::without_negative_zero);
         let location = axis_point_at(&stack[opening], opening_s).map(|c| py::quantise(c, 11));
@@ -475,7 +516,7 @@ pub fn discover(ctx: &Context<'_>, csinks: &[CounterSink]) -> Vec<Occurrence<Hol
             location,
             diameter: bore.diameter,
             depth: py::round_to(depth, 2),
-            bottom: bottom.to_owned(),
+            bottom,
             cbore,
             spotface,
             csink: None,
@@ -485,16 +526,20 @@ pub fn discover(ctx: &Context<'_>, csinks: &[CounterSink]) -> Vec<Occurrence<Hol
             location: record.location,
             diameter: record.diameter,
             depth: record.depth,
-            through: record.bottom == "through",
+            through: record.bottom == Bottom::Through,
         };
-        record.csink = csinks
+        if let Some(cs) = csinks
             .iter()
-            .find(|cs| countersink_matches_hole(cs, &mouth))
-            .cloned();
+            .find(|cs| countersink_matches_hole(&cs.record, &mouth))
+        {
+            record.csink = Some(cs.record.clone());
+            // The seat's face is consulted evidence: it must share the hole's solid.
+            terminal.extend(&cs.defining);
+        }
         out.push(Occurrence {
             record,
             defining,
-            context: Vec::new(),
+            context: terminal,
         });
     }
     out
