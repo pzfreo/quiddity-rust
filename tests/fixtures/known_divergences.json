@@ -92,7 +92,7 @@
   {
     "file": "inventory_refusal/14052.step.gz",
     "contains": ": evidence",
-    "reason": "A deliberately malformed corpus part: OpenCascade's BRepCheck finds geometric faults the port's topological validity check (closed, orientable) does not look for, so Python refuses hole and boss evidence and the port publishes it.",
+    "reason": "A deliberately malformed corpus part: OpenCascade's BRepCheck finds geometric faults the port's topological validity check (closed, orientable) does not look for, so Python refuses hole, boss and plate evidence and the port publishes it.",
     "verdict": "rust-wrong"
   },
   {

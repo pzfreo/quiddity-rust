@@ -5746,7 +5746,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -6350,20 +6371,6 @@
         "diameter": 110.0
        }
       ]
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -21321,39 +21328,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -21487,6 +21473,34 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -118808,7 +118822,56 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "width": 54.0,
+        "diameter": 180.0,
+        "at": [
+         145.793,
+         -137.5,
+         -4.777
+        ],
+        "profile": {
+         "axis": "y",
+         "axis_origin": [
+          98.48550853,
+          0.0,
+          -4.77735108
+         ],
+         "body_bounds": [
+          -225.26830263,
+          224.23840013,
+          -177.5000001,
+          177.5000001,
+          -131.97204621,
+          123.80105588
+         ],
+         "body_key": null
+        }
+       }
+      ],
+      "evidence_error": "groove evidence has no common valid solid"
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -118970,48 +119033,6 @@
         ]
        }
       ]
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "y",
-        "width": 54.0,
-        "diameter": 180.0,
-        "at": [
-         145.793,
-         -137.5,
-         -4.777
-        ],
-        "profile": {
-         "axis": "y",
-         "axis_origin": [
-          98.48550853,
-          0.0,
-          -4.77735108
-         ],
-         "body_bounds": [
-          -225.26830263,
-          224.23840013,
-          -177.5000001,
-          177.5000001,
-          -131.97204621,
-          123.80105588
-         ],
-         "body_key": null
-        }
-       }
-      ],
-      "evidence_error": "groove evidence has no common valid solid"
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -126439,7 +126460,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -126472,20 +126514,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -141224,7 +141252,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -141257,20 +141306,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -158403,7 +158438,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -158521,20 +158577,6 @@
         "angle": 3.28
        }
       ]
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -161734,7 +161776,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -161767,20 +161830,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -203693,7 +203742,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -203726,20 +203796,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -232617,7 +232673,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -233125,20 +233202,6 @@
         "diameter": 46.69
        }
       ]
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -256940,7 +257003,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -257058,20 +257142,6 @@
         "angle": 0.0
        }
       ]
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -258010,39 +258080,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -258081,6 +258130,34 @@
         11
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -258739,7 +258816,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -258772,20 +258870,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -260202,7 +260286,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -260235,20 +260340,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -261182,7 +261273,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -261215,20 +261327,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -262548,11 +262646,41 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": 20.717,
+        "hi": 22.111,
+        "u": 4.925192363815297,
+        "v": 9.167421842773576,
+        "body_key": null
+       }
+      ],
+      "evidence_error": "Plate role face has no unambiguous valid solid"
      }
     ],
     "recognise_edge_open_circular_pockets": [
@@ -262581,29 +262709,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "x",
-        "lo": 20.717,
-        "hi": 22.111,
-        "u": 4.925192363815297,
-        "v": 9.167421842773576,
-        "body_key": null
-       }
-      ],
-      "evidence_error": "Plate role face has no unambiguous valid solid"
      }
     ]
    }
@@ -265240,39 +265345,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -265310,6 +265394,34 @@
         27
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -266845,7 +266957,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -266878,20 +267011,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -268760,39 +268879,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -268851,6 +268949,34 @@
         6
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -271738,7 +271864,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -271821,20 +271968,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -273193,39 +273326,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -273263,6 +273375,34 @@
         13
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -276056,39 +276196,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -276147,6 +276266,34 @@
         4
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -277665,7 +277812,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -277698,20 +277866,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -279512,7 +279666,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -279545,20 +279720,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -281303,39 +281464,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -281373,6 +281513,34 @@
         9
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -283177,39 +283345,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -283249,6 +283396,34 @@
         19
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -285011,39 +285186,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -285081,6 +285235,34 @@
         8
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -287234,7 +287416,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -287267,20 +287470,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -288858,39 +289047,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -288928,6 +289096,34 @@
         11
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -290406,7 +290602,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -290439,20 +290656,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -291420,7 +291623,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -291453,20 +291677,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -293356,7 +293566,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -293389,20 +293620,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -295469,39 +295686,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -295539,6 +295735,34 @@
         17
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -297453,7 +297677,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -297486,20 +297731,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -299307,7 +299538,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -299340,20 +299592,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -301711,7 +301949,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -301744,20 +302003,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -303528,39 +303773,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -303598,6 +303822,34 @@
         12
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -305288,7 +305540,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -305321,20 +305594,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -307462,7 +307721,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -307495,20 +307775,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -308604,7 +308870,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -308637,20 +308924,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -310455,7 +310728,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -310488,20 +310782,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -312198,7 +312478,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -312231,20 +312532,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -314239,39 +314526,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -314309,6 +314575,34 @@
         5
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -316102,7 +316396,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -316135,20 +316450,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -318225,7 +318526,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -318258,20 +318580,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -320532,7 +320840,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -320615,20 +320944,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -321865,39 +322180,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -321957,6 +322251,34 @@
         7
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -323332,7 +323654,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -323365,20 +323708,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -325376,7 +325705,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -325409,20 +325759,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -327063,7 +327399,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -327096,20 +327453,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -328770,7 +329113,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -328803,20 +329167,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -330479,7 +330829,28 @@
       ]
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -330512,20 +330883,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -332342,7 +332699,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -332375,20 +332753,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -333795,7 +334159,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -333828,20 +334213,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -336099,7 +336470,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -336192,20 +336584,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -337529,7 +337907,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -337562,20 +337961,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -339964,7 +340349,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -340052,20 +340458,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -341485,7 +341877,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -341518,20 +341931,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -343592,7 +343991,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -343625,20 +344045,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -345480,7 +345886,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -345513,20 +345940,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -346554,7 +346967,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -346587,20 +347021,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -348171,39 +348591,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -348241,6 +348640,34 @@
         9
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -349271,39 +349698,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -349384,6 +349790,34 @@
         11
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -351060,39 +351494,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -351130,6 +351543,34 @@
         22
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -353408,7 +353849,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -353441,20 +353903,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -354618,7 +355066,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -354651,20 +355120,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -356302,39 +356757,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -356372,6 +356806,34 @@
         21
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -357806,7 +358268,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -357839,20 +358322,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -358782,7 +359251,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -358815,20 +359305,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -360208,7 +360684,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -360241,20 +360738,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -361494,11 +361977,55 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "lo": 19.147,
+        "hi": 20.327,
+        "u": 12.2245191492405,
+        "v": 24.31230755332049,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         24.449038,
+         46.881286,
+         20.326525,
+         2128.85941571,
+         3136.36596597
+        ]
+       }
+      ],
+      "defining": [
+       [
+        2,
+        6
+       ]
+      ]
      }
     ],
     "recognise_edge_open_circular_pockets": [
@@ -361572,43 +362099,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "z",
-        "lo": 19.147,
-        "hi": 20.327,
-        "u": 12.2245191492405,
-        "v": 24.31230755332049,
-        "body_key": [
-         0.0,
-         0.0,
-         0.0,
-         24.449038,
-         46.881286,
-         20.326525,
-         2128.85941571,
-         3136.36596597
-        ]
-       }
-      ],
-      "defining": [
-       [
-        2,
-        6
-       ]
-      ]
      }
     ]
    }
@@ -362795,7 +363285,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -362828,20 +363339,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -364458,39 +364955,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -364549,6 +365025,34 @@
         6
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -366497,7 +367001,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -366530,20 +367055,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -368117,7 +368628,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -368150,20 +368682,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -370349,39 +370867,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -370440,6 +370937,34 @@
         18
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -372219,7 +372744,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -372252,20 +372798,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -373506,39 +374038,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -373577,6 +374088,34 @@
         8
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -375254,7 +375793,28 @@
       ]
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -375332,20 +375892,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -377470,7 +378016,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -377503,20 +378070,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -379160,7 +379713,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -379193,20 +379767,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -381005,39 +381565,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -381096,6 +381635,34 @@
         14
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -383378,7 +383945,28 @@
       ]
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -383411,20 +383999,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -386125,7 +386699,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -386158,20 +386753,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -387732,7 +388313,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -387765,20 +388367,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -389625,7 +390213,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -389658,20 +390267,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -391409,7 +392004,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -391442,20 +392058,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -393531,7 +394133,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -393564,20 +394187,6 @@
        "csinks": "auto"
       },
       "result": []
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -395991,39 +396600,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -396062,6 +396650,34 @@
         9
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -398082,39 +398698,18 @@
       ]
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -398153,6 +398748,34 @@
         10
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
@@ -405621,11 +406244,55 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "lo": -50.0,
+        "hi": 0.0,
+        "u": -1.3336864520883474,
+        "v": -1.2085531605485111,
+        "body_key": [
+         -400.0,
+         -225.0,
+         -100.0,
+         400.0,
+         225.0,
+         50.0,
+         14642823.5574,
+         807968.557755
+        ]
+       }
+      ],
+      "defining": [
+       [
+        3,
+        68
+       ]
+      ]
      }
     ],
     "recognise_edge_open_circular_pockets": [
@@ -405822,43 +406489,6 @@
         "height": 90.0,
         "angle": 0.0
        }
-      ]
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "z",
-        "lo": -50.0,
-        "hi": 0.0,
-        "u": -1.3336864520883474,
-        "v": -1.2085531605485111,
-        "body_key": [
-         -400.0,
-         -225.0,
-         -100.0,
-         400.0,
-         225.0,
-         50.0,
-         14642823.5574,
-         807968.557755
-        ]
-       }
-      ],
-      "defining": [
-       [
-        3,
-        68
-       ]
       ]
      }
     ]
@@ -436422,7 +437052,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -437514,20 +438165,6 @@
         "diameter": 156.45
        }
       ]
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -446210,11 +446847,55 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "lo": 76.2,
+        "hi": 78.108,
+        "u": -119.64675637806975,
+        "v": 242.6193151260392,
+        "body_key": [
+         -249.561087,
+         0.0,
+         0.0,
+         53.402246,
+         485.4448,
+         162.68015,
+         331938.272118,
+         354978.605402
+        ]
+       }
+      ],
+      "defining": [
+       [
+        7,
+        8
+       ]
+      ]
      }
     ],
     "recognise_edge_open_circular_pockets": [
@@ -446493,43 +447174,6 @@
         "height": 31.75,
         "angle": 90.0
        }
-      ]
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "z",
-        "lo": 76.2,
-        "hi": 78.108,
-        "u": -119.64675637806975,
-        "v": 242.6193151260392,
-        "body_key": [
-         -249.561087,
-         0.0,
-         0.0,
-         53.402246,
-         485.4448,
-         162.68015,
-         331938.272118,
-         354978.605402
-        ]
-       }
-      ],
-      "defining": [
-       [
-        7,
-        8
-       ]
       ]
      }
     ]
@@ -472111,7 +472755,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -473037,20 +473702,6 @@
         "angle": 0.0
        }
       ]
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -483709,7 +484360,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -483871,20 +484543,6 @@
         ]
        }
       ]
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -491143,11 +491801,77 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "lo": 0.0,
+        "hi": 31.75,
+        "u": -6.175271626488092e-13,
+        "v": -119.05733950665609,
+        "body_key": [
+         -152.4,
+         0.0,
+         -247.65,
+         152.4,
+         97.79,
+         0.0,
+         3323546.07078,
+         283415.422871
+        ]
+       },
+       {
+        "axis": "z",
+        "lo": -31.75,
+        "hi": 0.0,
+        "u": 2.5489582468002987e-15,
+        "v": 52.048907246778526,
+        "body_key": [
+         -152.4,
+         0.0,
+         -247.65,
+         152.4,
+         97.79,
+         0.0,
+         3323546.07078,
+         283415.422871
+        ]
+       }
+      ],
+      "defining": [
+       [
+        10,
+        12
+       ],
+       [
+        5,
+        7,
+        14
+       ]
+      ]
      }
     ],
     "recognise_edge_open_circular_pockets": [
@@ -491366,65 +492090,6 @@
         "height": 127.0,
         "angle": 90.0
        }
-      ]
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "y",
-        "lo": 0.0,
-        "hi": 31.75,
-        "u": -6.175271626488092e-13,
-        "v": -119.05733950665609,
-        "body_key": [
-         -152.4,
-         0.0,
-         -247.65,
-         152.4,
-         97.79,
-         0.0,
-         3323546.07078,
-         283415.422871
-        ]
-       },
-       {
-        "axis": "z",
-        "lo": -31.75,
-        "hi": 0.0,
-        "u": 2.5489582468002987e-15,
-        "v": 52.048907246778526,
-        "body_key": [
-         -152.4,
-         0.0,
-         -247.65,
-         152.4,
-         97.79,
-         0.0,
-         3323546.07078,
-         283415.422871
-        ]
-       }
-      ],
-      "defining": [
-       [
-        10,
-        12
-       ],
-       [
-        5,
-        7,
-        14
-       ]
       ]
      }
     ]
@@ -504034,11 +504699,139 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": -152.4,
+        "hi": -143.103,
+        "u": -53.99391400731381,
+        "v": 1.716267936449237e-14,
+        "body_key": [
+         -155.802955,
+         -123.19,
+         -111.352955,
+         155.802955,
+         12.7,
+         111.352955,
+         1726247.57917,
+         391371.347278
+        ]
+       },
+       {
+        "axis": "x",
+        "lo": 143.103,
+        "hi": 152.4,
+        "u": -55.179922130374045,
+        "v": -3.0525925286983456e-14,
+        "body_key": [
+         -155.802955,
+         -123.19,
+         -111.352955,
+         155.802955,
+         12.7,
+         111.352955,
+         1726247.57917,
+         391371.347278
+        ]
+       },
+       {
+        "axis": "y",
+        "lo": -120.65,
+        "hi": -115.57,
+        "u": 5.358576659633585e-15,
+        "v": -3.1085512381830113e-15,
+        "body_key": [
+         -155.802955,
+         -123.19,
+         -111.352955,
+         155.802955,
+         12.7,
+         111.352955,
+         1726247.57917,
+         391371.347278
+        ]
+       },
+       {
+        "axis": "z",
+        "lo": -107.95,
+        "hi": -98.653,
+        "u": -0.2816631341686929,
+        "v": -54.438308274452254,
+        "body_key": [
+         -155.802955,
+         -123.19,
+         -111.352955,
+         155.802955,
+         12.7,
+         111.352955,
+         1726247.57917,
+         391371.347278
+        ]
+       },
+       {
+        "axis": "z",
+        "lo": 98.653,
+        "hi": 107.95,
+        "u": -0.6973213866035274,
+        "v": -54.38474525088378,
+        "body_key": [
+         -155.802955,
+         -123.19,
+         -111.352955,
+         155.802955,
+         12.7,
+         111.352955,
+         1726247.57917,
+         391371.347278
+        ]
+       }
+      ],
+      "defining": [
+       [
+        83,
+        171
+       ],
+       [
+        85,
+        243
+       ],
+       [
+        86,
+        177
+       ],
+       [
+        84,
+        173
+       ],
+       [
+        87,
+        184
+       ]
+      ]
      }
     ],
     "recognise_edge_open_circular_pockets": [
@@ -504479,127 +505272,6 @@
         "height": 162.56,
         "angle": 90.0
        }
-      ]
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "x",
-        "lo": -152.4,
-        "hi": -143.103,
-        "u": -53.99391400731381,
-        "v": 1.716267936449237e-14,
-        "body_key": [
-         -155.802955,
-         -123.19,
-         -111.352955,
-         155.802955,
-         12.7,
-         111.352955,
-         1726247.57917,
-         391371.347278
-        ]
-       },
-       {
-        "axis": "x",
-        "lo": 143.103,
-        "hi": 152.4,
-        "u": -55.179922130374045,
-        "v": -3.0525925286983456e-14,
-        "body_key": [
-         -155.802955,
-         -123.19,
-         -111.352955,
-         155.802955,
-         12.7,
-         111.352955,
-         1726247.57917,
-         391371.347278
-        ]
-       },
-       {
-        "axis": "y",
-        "lo": -120.65,
-        "hi": -115.57,
-        "u": 5.358576659633585e-15,
-        "v": -3.1085512381830113e-15,
-        "body_key": [
-         -155.802955,
-         -123.19,
-         -111.352955,
-         155.802955,
-         12.7,
-         111.352955,
-         1726247.57917,
-         391371.347278
-        ]
-       },
-       {
-        "axis": "z",
-        "lo": -107.95,
-        "hi": -98.653,
-        "u": -0.2816631341686929,
-        "v": -54.438308274452254,
-        "body_key": [
-         -155.802955,
-         -123.19,
-         -111.352955,
-         155.802955,
-         12.7,
-         111.352955,
-         1726247.57917,
-         391371.347278
-        ]
-       },
-       {
-        "axis": "z",
-        "lo": 98.653,
-        "hi": 107.95,
-        "u": -0.6973213866035274,
-        "v": -54.38474525088378,
-        "body_key": [
-         -155.802955,
-         -123.19,
-         -111.352955,
-         155.802955,
-         12.7,
-         111.352955,
-         1726247.57917,
-         391371.347278
-        ]
-       }
-      ],
-      "defining": [
-       [
-        83,
-        171
-       ],
-       [
-        85,
-        243
-       ],
-       [
-        86,
-        177
-       ],
-       [
-        84,
-        173
-       ],
-       [
-        87,
-        184
-       ]
       ]
      }
     ]
@@ -518361,11 +519033,139 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": -146.018,
+        "hi": -139.668,
+        "u": -6.209746146856137e-15,
+        "v": 24.319466838980226,
+        "body_key": [
+         -155.79725,
+         -111.34725,
+         0.0,
+         155.79725,
+         111.34725,
+         48.26,
+         503592.175353,
+         191687.872944
+        ]
+       },
+       {
+        "axis": "x",
+        "lo": 139.668,
+        "hi": 146.018,
+        "u": -0.009929015432236,
+        "v": 23.9601764801447,
+        "body_key": [
+         -155.79725,
+         -111.34725,
+         0.0,
+         155.79725,
+         111.34725,
+         48.26,
+         503592.175353,
+         191687.872944
+        ]
+       },
+       {
+        "axis": "y",
+        "lo": -102.457,
+        "hi": -96.107,
+        "u": -7.643756400315494e-15,
+        "v": 24.296369527269526,
+        "body_key": [
+         -155.79725,
+         -111.34725,
+         0.0,
+         155.79725,
+         111.34725,
+         48.26,
+         503592.175353,
+         191687.872944
+        ]
+       },
+       {
+        "axis": "y",
+        "lo": 96.107,
+        "hi": 102.457,
+        "u": 7.552260951217742e-15,
+        "v": 24.296369527269526,
+        "body_key": [
+         -155.79725,
+         -111.34725,
+         0.0,
+         155.79725,
+         111.34725,
+         48.26,
+         503592.175353,
+         191687.872944
+        ]
+       },
+       {
+        "axis": "z",
+        "lo": 44.831,
+        "hi": 48.26,
+        "u": 13.185776282721273,
+        "v": -0.2503974397598691,
+        "body_key": [
+         -155.79725,
+         -111.34725,
+         0.0,
+         155.79725,
+         111.34725,
+         48.26,
+         503592.175353,
+         191687.872944
+        ]
+       }
+      ],
+      "defining": [
+       [
+        48,
+        119
+       ],
+       [
+        123,
+        235
+       ],
+       [
+        52,
+        121
+       ],
+       [
+        59,
+        117
+       ],
+       [
+        1,
+        2
+       ]
+      ]
      }
     ],
     "recognise_edge_open_circular_pockets": [
@@ -518606,127 +519406,6 @@
          0.0
         ]
        }
-      ]
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "x",
-        "lo": -146.018,
-        "hi": -139.668,
-        "u": -6.209746146856137e-15,
-        "v": 24.319466838980226,
-        "body_key": [
-         -155.79725,
-         -111.34725,
-         0.0,
-         155.79725,
-         111.34725,
-         48.26,
-         503592.175353,
-         191687.872944
-        ]
-       },
-       {
-        "axis": "x",
-        "lo": 139.668,
-        "hi": 146.018,
-        "u": -0.009929015432236,
-        "v": 23.9601764801447,
-        "body_key": [
-         -155.79725,
-         -111.34725,
-         0.0,
-         155.79725,
-         111.34725,
-         48.26,
-         503592.175353,
-         191687.872944
-        ]
-       },
-       {
-        "axis": "y",
-        "lo": -102.457,
-        "hi": -96.107,
-        "u": -7.643756400315494e-15,
-        "v": 24.296369527269526,
-        "body_key": [
-         -155.79725,
-         -111.34725,
-         0.0,
-         155.79725,
-         111.34725,
-         48.26,
-         503592.175353,
-         191687.872944
-        ]
-       },
-       {
-        "axis": "y",
-        "lo": 96.107,
-        "hi": 102.457,
-        "u": 7.552260951217742e-15,
-        "v": 24.296369527269526,
-        "body_key": [
-         -155.79725,
-         -111.34725,
-         0.0,
-         155.79725,
-         111.34725,
-         48.26,
-         503592.175353,
-         191687.872944
-        ]
-       },
-       {
-        "axis": "z",
-        "lo": 44.831,
-        "hi": 48.26,
-        "u": 13.185776282721273,
-        "v": -0.2503974397598691,
-        "body_key": [
-         -155.79725,
-         -111.34725,
-         0.0,
-         155.79725,
-         111.34725,
-         48.26,
-         503592.175353,
-         191687.872944
-        ]
-       }
-      ],
-      "defining": [
-       [
-        48,
-        119
-       ],
-       [
-        123,
-        235
-       ],
-       [
-        52,
-        121
-       ],
-       [
-        59,
-        117
-       ],
-       [
-        1,
-        2
-       ]
       ]
      }
     ]
@@ -527768,7 +528447,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -528078,20 +528778,6 @@
         ]
        }
       ]
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -539104,7 +539790,28 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
      {
       "options": {},
       "result": [],
@@ -539742,20 +540449,6 @@
         ]
        }
       ]
-     }
-    ],
-    "recognise_grooves": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_plates": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -545641,39 +546334,18 @@
       "defining": []
      }
     ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
       "result": [],
       "defining": []
-     }
-    ],
-    "recognise_edge_open_circular_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_edge_open_prismatic_recesses": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
      }
     ],
     "recognise_grooves": [
@@ -545716,6 +546388,34 @@
         96
        ]
       ]
+     }
+    ],
+    "recognise_edge_open_circular_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_edge_open_prismatic_recesses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
      }
     ]
    }
