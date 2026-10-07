@@ -1,5 +1,7 @@
 //! Kernel behaviour on real parts read from STEP.
 
+mod common;
+
 use std::path::Path;
 
 use haecceity::classify::{Classifier, State};
@@ -194,6 +196,37 @@ fn areas_and_volumes_are_exact() {
             part.solid_mass(0).map(|m| m.1),
             4.0 * PI * PI * big * small * turn + 2.0 * PI * small * small,
             name,
+        );
+    }
+}
+
+/// Drill points written as just their rim circle — a cone face with one loop, no seam and no
+/// apex vertex loop — reach the apex, as OpenCascade completes them on import (it adds a seam
+/// and a degenerate edge there). Each area is OpenCascade's `BRepGProp::SurfaceProperties`
+/// (the file read by build123d's `import_step`, the face at this index). The files' degree is
+/// 0.0174532925 rad, so the rim circle lies off the cone by about 1e-9 of its radius and the
+/// two integrations agree to that, not to machine precision.
+#[test]
+fn drill_points_bounded_by_their_rim_alone_reach_the_apex() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    for (file, face, occ) in [
+        ("nist/nist_ftc_07_asme1_rd.stp", 209, 36.946366733370226),
+        ("nist/nist_ftc_10_asme1_rb.stp", 174, 27.717219757814156),
+    ] {
+        let part = read_step_file(&dir.join(file)).unwrap();
+        let area = part.face_mass(face).map(|m| m[0]).unwrap_or(0.0);
+        assert!(
+            (area - occ).abs() <= 1e-8 * occ,
+            "{file} face {face}: {area} vs OpenCascade's {occ}"
+        );
+        let apex = part.faces[face].surface.cone_apex().unwrap();
+        let b = part.face_bounds(face);
+        assert!(
+            (0..3).all(|k| b.min[k] <= apex[k] + 1e-9 && apex[k] - 1e-9 <= b.max[k]),
+            "{file} face {face}: bounds miss the apex"
         );
     }
 }

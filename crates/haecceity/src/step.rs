@@ -796,6 +796,7 @@ pub fn read_step_placed(bytes: &[u8], outer: &Placement) -> Result<Part, StepErr
             }
             members.push(out_faces.len());
             let surface = reader.surface(&face);
+            close_cone_at_apex(&surface, &mut loops, &edges_out);
             let pcurves = reader.pcurves(&face, &surface, &edge_index, &edges_out);
             out_faces.push(Face {
                 surface,
@@ -812,6 +813,69 @@ pub fn read_step_placed(bytes: &[u8], outer: &Placement) -> Result<Part, StepErr
         }
     }
     Ok(Part::new(out_faces, edges_out, solids))
+}
+
+/// A cone face bounded by a single loop running round the axis (a drill point written as just
+/// its rim circle, with no seam and no `VERTEX_LOOP`) can only be the part of the cone between
+/// that loop and the apex — the other side is unbounded. OpenCascade's import completes it with
+/// a seam and a degenerate edge at the apex; here it gets the apex's vertex loop, the form such
+/// a face takes when the file writes it out, so its domain, area and bounds reach the apex.
+fn close_cone_at_apex(surface: &Surface, loops: &mut Vec<Loop>, edges: &[Edge]) {
+    let (Surface::Cone { frame, .. }, Some(apex)) = (surface, surface.cone_apex()) else {
+        return;
+    };
+    if loops
+        .iter()
+        .any(|lp| lp.vertex.is_some() || lp.edges.is_empty())
+    {
+        return;
+    }
+    // A loop that already reaches the apex (along a seam, as OpenCascade writes a cone) bounds
+    // the face there itself.
+    let reach = frame.to_local(apex)[2].abs().max(1.0) * 1e-7;
+    if loops.iter().flat_map(|lp| &lp.edges).any(|&(e, _)| {
+        edges[e]
+            .samples
+            .iter()
+            .any(|&p| geom::dist(p, apex) < reach)
+    }) {
+        return;
+    }
+    // Turns round the axis: the swept angle of the loop's samples, each step taken the short
+    // way round.
+    let turns = |lp: &Loop| {
+        let angles: Vec<f64> = lp
+            .edges
+            .iter()
+            .flat_map(|&(e, forward)| {
+                let samples = &edges[e].samples;
+                let ordered: Box<dyn Iterator<Item = &V3>> = if forward {
+                    Box::new(samples.iter())
+                } else {
+                    Box::new(samples.iter().rev())
+                };
+                ordered.map(|&p| {
+                    let l = frame.to_local(p);
+                    l[1].atan2(l[0])
+                })
+            })
+            .collect();
+        let swept: f64 = angles
+            .iter()
+            .zip(angles.iter().cycle().skip(1))
+            .map(|(a, b)| {
+                let d = b - a;
+                d - std::f64::consts::TAU * (d / std::f64::consts::TAU).round()
+            })
+            .sum();
+        (swept / std::f64::consts::TAU).round() != 0.0
+    };
+    if loops.iter().filter(|lp| turns(lp)).count() == 1 {
+        loops.push(Loop {
+            edges: Vec::new(),
+            vertex: Some(apex),
+        });
+    }
 }
 
 /// Read a STEP file from disk, transparently gunzipping `*.gz`.
