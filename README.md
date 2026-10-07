@@ -118,7 +118,9 @@ difference is recorded with its reason. Some older emulation remains where remov
 cost many records (face ranges boxed by B-spline pcurve poles, which hole depths follow).
 
 The corpus test also checks kernel answers directly against OpenCascade: every face's
-`BRepTools::UVBounds` and the arc between every pair of neighbours.
+`BRepTools::UVBounds`, the arc between every pair of neighbours, and every solid's volume and
+area (to 1e-9; the files that differ all have B-spline geometry, and each records its worst
+difference as a power of ten).
 
 ## Notes on matching OpenCascade
 
@@ -128,7 +130,8 @@ reader reproduces:
 - `FACE_BOUND` orientation flags are not trusted: OpenCascade writes `.F.` on some toroidal
   faces whose edges are already listed in the face's sense and fixes the result on reading.
   Face containment therefore uses orientation-free crossing parity; orientation only breaks
-  genuine ties (which way round a sphere's pole a boundary goes).
+  genuine ties (which way round a sphere's pole a boundary goes, and which side of its two
+  loops a seamless torus band lies — files written by OpenCascade always have the seam).
 - A placement without a reference direction takes `gp_Ax2`'s default x axis.
 - Face UV ranges include the control polygons of B-spline pcurves that span their edge,
   because OpenCascade boxes pcurves by their poles.

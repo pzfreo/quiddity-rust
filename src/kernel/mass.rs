@@ -16,7 +16,7 @@ use std::sync::OnceLock;
 use super::brep::Part;
 use super::geom::{self, Curve, Surface, V3};
 use super::nurbs::breaks;
-use super::sampling::edge_interval;
+use super::sampling::{edge_interval, extreme_parameters};
 use super::uv::UvLoop;
 
 /// Gauss–Legendre nodes and weights on [-1, 1], in ascending order.
@@ -103,22 +103,35 @@ fn surface_cuts(surface: &Surface, along_v: bool, a: f64, b: f64) -> Vec<f64> {
 }
 
 /// How an integral along an edge is cut: lines in one piece, conics every half radian, B-spline
-/// curves at their knots (and in a few pieces besides, for the surface's own variation).
-fn curve_cuts(curve: &Curve, t0: f64, t1: f64) -> Vec<f64> {
+/// curves at their knots (and in a few pieces besides, for the surface's own variation) — and
+/// wherever the edge passes through a sphere's pole, where u jumps and the integrand with it.
+fn curve_cuts(surface: &Surface, curve: &Curve, t0: f64, t1: f64) -> Vec<f64> {
+    let mut breaks = match surface {
+        // A pole is where the curve is extreme along the axis; a pass near it (within the
+        // band boundary samples route along the pole) is cut there too, which is harmless.
+        Surface::Sphere { frame, radius } => extreme_parameters(curve, (t0, t1), &[frame.z])
+            .into_iter()
+            .filter(|&t| {
+                let height = geom::dot(geom::sub(curve.value(t), frame.origin), frame.z);
+                height.abs() > radius * 0.02f64.cos()
+            })
+            .collect(),
+        _ => Vec::new(),
+    };
     match curve {
-        Curve::Line { .. } => vec![t0, t1],
+        Curve::Line { .. } => cuts(t0, t1, 1, &breaks),
         Curve::Circle { .. } | Curve::Ellipse { .. } => {
-            cuts(t0, t1, ((t1 - t0).abs() / 0.5).ceil() as usize, &[])
+            cuts(t0, t1, ((t1 - t0).abs() / 0.5).ceil() as usize, &breaks)
         }
         Curve::Nurbs(n) => {
             // A closed curve's edge may run past its domain's end.
             let period = curve.period().unwrap_or(0.0);
-            let knots: Vec<f64> = n
-                .breaks()
-                .into_iter()
-                .flat_map(|k| [k - period, k, k + period])
-                .collect();
-            cuts(t0, t1, 4, &knots)
+            breaks.extend(
+                n.breaks()
+                    .into_iter()
+                    .flat_map(|k| [k - period, k, k + period]),
+            );
+            cuts(t0, t1, 4, &breaks)
         }
     }
 }
@@ -279,7 +292,7 @@ impl Part {
             }
             let (mut first_node, mut last_node) = (None, None);
             // Nodes are visited in walking order, so periodic parameters unwrap node by node.
-            for w in curve_cuts(&ed.curve, t0, t1).windows(2) {
+            for w in curve_cuts(surface, &ed.curve, t0, t1).windows(2) {
                 let (half, centre) = (0.5 * (w[1] - w[0]), 0.5 * (w[1] + w[0]));
                 for &(x, weight) in gauss_nodes() {
                     let t = centre + half * x;

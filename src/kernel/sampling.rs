@@ -95,7 +95,15 @@ pub fn arc_extremes(curve: &Curve, start: V3, end: V3, same_sense: bool, closed:
 /// The interior points of the curve over `interval` where the coordinate along each of `dirs`
 /// is extreme: in closed form for circles and ellipses, by refining the best of a dense scan for
 /// B-splines; a line has none (its ends are its extremes).
-pub fn extremes_along(curve: &Curve, (a, b): (f64, f64), dirs: &[V3]) -> Vec<V3> {
+pub fn extremes_along(curve: &Curve, interval: (f64, f64), dirs: &[V3]) -> Vec<V3> {
+    extreme_parameters(curve, interval, dirs)
+        .into_iter()
+        .map(|t| curve.value(t))
+        .collect()
+}
+
+/// The curve parameters of `extremes_along`'s points.
+pub fn extreme_parameters(curve: &Curve, (a, b): (f64, f64), dirs: &[V3]) -> Vec<f64> {
     let (lo, hi) = if a <= b { (a, b) } else { (b, a) };
     let mut out = Vec::new();
     for &d in dirs {
@@ -114,7 +122,7 @@ pub fn extremes_along(curve: &Curve, (a, b): (f64, f64), dirs: &[V3]) -> Vec<V3>
             for k in -2..=3 {
                 for t in [base + k as f64 * TAU, base + PI + k as f64 * TAU] {
                     if t > lo && t < hi {
-                        out.push(curve.value(t));
+                        out.push(t);
                     }
                 }
             }
@@ -141,7 +149,7 @@ pub fn extremes_along(curve: &Curve, (a, b): (f64, f64), dirs: &[V3]) -> Vec<V3>
                     x0 = c;
                 }
             }
-            out.push(curve.value(0.5 * (x0 + x1)));
+            out.push(0.5 * (x0 + x1));
         }
     }
     out

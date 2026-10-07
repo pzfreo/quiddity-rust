@@ -91,10 +91,12 @@ def _run(part, function, family, recognise, discover, options: dict) -> dict:
 
 
 def _kernel(part) -> dict:
-    """Per face, ``BRepTools::UVBounds``; per neighbouring pair (both ways round), the arc."""
+    """Per face, ``BRepTools::UVBounds``; per neighbouring pair (both ways round), the arc; per
+    solid, its volume and area."""
 
     graph = FaceGraph(part)
     return {
+        "solids": [[float(s.volume), float(s.area)] for s in part.solids()],
         "uv_bounds": [list(BRepTools.UVBounds_s(face.wrapped)) for face in part.faces()],
         "arcs": [
             [a.index, b.index, graph.arc(a, b)] for a in graph.nodes for b in graph.neighbours(a)

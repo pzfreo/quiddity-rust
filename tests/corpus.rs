@@ -1,6 +1,7 @@
 //! Parity over the shared STEP corpus: for every corpus file, the face inventory, the kernel
-//! answers recognisers lean on and each ported recogniser's answer must match what `tools/export_corpus.py` recorded from Python, except for
-//! the differences listed (with reasons) in `tests/fixtures/known_divergences.json`.
+//! answers recognisers lean on (and solid masses) and each ported recogniser's answer must match
+//! what `tools/export_corpus.py` recorded from Python, except for the differences listed (with
+//! reasons) in `tests/fixtures/known_divergences.json`.
 
 mod common;
 
@@ -139,9 +140,39 @@ fn check_evidence(
     }
 }
 
-/// Each face's UV range (`BRepTools::UVBounds`) and the arc between each pair of neighbours
-/// agree with OpenCascade's. One problem per file and query, naming the first few faces.
+/// Each solid's volume and area, each face's UV range (`BRepTools::UVBounds`) and the arc
+/// between each pair of neighbours agree with OpenCascade's. One problem per file and query,
+/// naming the first few faces.
+///
+/// Masses agree to 1e-9 except where OpenCascade integrates approximations (B-spline pcurves)
+/// or the file's boundary does not close; the problem names the worst relative difference as a
+/// power of ten, so a known divergence pins how far apart the answers may be.
 fn check_kernel(name: &str, part: &quiddity::Part, kernel: &Value, problems: &mut Vec<String>) {
+    let want = kernel["solids"].as_array().unwrap();
+    if want.len() != part.solids.len() {
+        problems.push(format!(
+            "{name}: {} solids, OpenCascade has {}",
+            part.solids.len(),
+            want.len()
+        ));
+    } else {
+        let mut worst: f64 = 0.0;
+        for (s, w) in want.iter().enumerate() {
+            let (v, a) = (w[0].as_f64().unwrap(), w[1].as_f64().unwrap());
+            worst = match part.solid_mass(s) {
+                Some((gv, ga)) => worst
+                    .max((gv - v).abs() / v.abs())
+                    .max((ga - a).abs() / a.abs()),
+                None => f64::INFINITY,
+            };
+        }
+        if worst > 1e-9 {
+            problems.push(format!(
+                "{name}: solid masses differ by up to 1e{}",
+                worst.log10().ceil()
+            ));
+        }
+    }
     let mut report = |what: &str, bad: Vec<String>| {
         if !bad.is_empty() {
             problems.push(format!(

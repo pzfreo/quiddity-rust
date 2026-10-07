@@ -162,6 +162,20 @@ fn areas_and_volumes_are_exact() {
         4.0 * PI * PI * 10.0 * 2.0,
         "torus area",
     );
+    // A hemisphere (r = 12.7) bounded by one closed great circle through both poles, starting
+    // 37° round from one, so a quadrature panel would straddle each pole.
+    let part = fixture("hemisphere_one_edge.step");
+    let r: f64 = 12.7;
+    close(
+        part.solid_mass(0).map(|m| m.0),
+        2.0 / 3.0 * PI * r.powi(3),
+        "hemisphere volume",
+    );
+    close(
+        part.solid_mass(0).map(|m| m.1),
+        3.0 * PI * r * r,
+        "hemisphere area",
+    );
     // Torus elbows with no seam edge, so the face is a band between two loops running round
     // v: Torus(20, 1) swept 200° (more than half a turn, so the nearer turn is the wrong side),
     // and Torus(7, 3) whose loops describe the 240° band rather than its 120° complement.

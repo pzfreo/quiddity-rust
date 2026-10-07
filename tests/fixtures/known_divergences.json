@@ -178,5 +178,85 @@
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "reason": "A countersink cone meets its bore in a convex edge; OpenCascade's import healing re-orients faces of this solid (see the evidence entry), which flips its reading.",
     "contains": "arcs differ"
+  },
+  {
+    "file": "cadgenbench/threaded_connector_109.step",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
+    "contains": "solid masses differ by up to 1e-7"
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
+    "contains": "solid masses differ by up to 1e-2"
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
+    "contains": "solid masses differ by up to 1e-3"
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
+    "contains": "solid masses differ by up to 1e-2"
+  },
+  {
+    "file": "cadgenbench_inputs/cgb241.step",
+    "reason": "Traced: a planar face's area is 1% apart because OpenCascade integrates it over the file's pcurves, which disagree with the 3D B-spline edges the port integrates (exact geometry policy).",
+    "contains": "solid masses differ by up to 1e-1"
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
+    "contains": "solid masses differ by up to 1e-3"
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "reason": "Traced: the helical thread face (B-spline) has area 193.57 in the port and 210.36 in OpenCascade, whose result follows its pcurve approximation of the helix boundary.",
+    "contains": "solid masses differ by up to 1e-3"
+  },
+  {
+    "file": "cadgenbench_inputs/cgb245.step",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
+    "contains": "solid masses differ by up to 1e-5"
+  },
+  {
+    "file": "gramel/string_post.step",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
+    "contains": "solid masses differ by up to 1e-4"
+  },
+  {
+    "file": "mfcadpp/10138.step",
+    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually.",
+    "contains": "solid masses differ by up to 1e-8"
+  },
+  {
+    "file": "mfcadpp/10156.step",
+    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually.",
+    "contains": "solid masses differ by up to 1e-8"
+  },
+  {
+    "file": "mfcadpp_regressions/11512.step",
+    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually.",
+    "contains": "solid masses differ by up to 1e-8"
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
+    "contains": "solid masses differ by up to 1e-5"
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually.",
+    "contains": "solid masses differ by up to 1e-7"
+  },
+  {
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
+    "contains": "solid masses differ by up to 1e-6"
+  },
+  {
+    "file": "ttt_inputs/sm-hanger.step",
+    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually.",
+    "contains": "solid masses differ by up to 1e-8"
   }
 ]
