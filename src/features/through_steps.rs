@@ -476,7 +476,8 @@ fn recognise_one(
 }
 
 /// Every through step, ordered as Python sorts the records. Python raises when a step's faces
-/// share no valid solid; the port leaves such a step out, and the evidence path refuses.
+/// share no valid solid; the port leaves such a step out on both paths (as thin walls and
+/// interior voids do), so the evidence path does not refuse either.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<ThroughStep>> {
     let part = ctx.part;
     let planes: Planes = (0..part.faces.len())

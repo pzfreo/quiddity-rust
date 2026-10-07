@@ -23,7 +23,8 @@ pub fn effective_plane(part: &Part, face: usize) -> Option<(V3, f64)> {
         _ => return None,
     };
     let z = frame.z;
-    // `max` keeps the first of ties, and the key ranks the later axis higher.
+    // `max_by` keeps the last of ties, so ties go to the later axis, as Python's
+    // `max(key=(abs, axis))` does.
     let dominant = (0..3)
         .max_by(|&a, &b| py::order(z[a].abs(), z[b].abs()))
         .expect("three components");
