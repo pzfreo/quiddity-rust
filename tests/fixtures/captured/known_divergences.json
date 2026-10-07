@@ -58,5 +58,29 @@
     "function": "recognise_round_bottom_blind_slots",
     "verdict": "not-applicable",
     "reason": "Both calls run with _same_span or _region_face monkeypatched to refuse, so Python's empty answer reflects the patch; the part is the plain slot the other tests on the same file (4e090fe361c883ac) find, and the port finds it."
+  },
+  {
+    "test": "tests/test_groove_exclusions.py::test_cones_elsewhere_on_the_part_are_not_lead_ins",
+    "function": "recognise_grooves",
+    "verdict": "rust-correct",
+    "reason": "Same groove (Ø24, width 5, at z 15.5); only the profile's body key and box differ. The cross boss meets the shaft along B-spline intersection edges: OpenCascade's default mass integration gives volume 40082.4153 and area 7917.3889, its adaptive integration (BRepGProp eps 1e-12) 40082.3492618 and 7917.3772167, which the port's 40082.3492619 and 7917.3772168 agree with. The box differs only by OpenCascade's 1e-7 tolerance padding."
+  },
+  {
+    "test": "tests/test_benchmark_plate_body_locality.py::test_disabled_arm_recreates_only_the_whole_compound_plate_projection",
+    "function": "recognise_plates",
+    "verdict": "not-applicable",
+    "reason": "The second call runs with _plate_scopes monkeypatched to treat the two-solid compound as one body, so its answer (two whole-compound plates) reflects the patch; the first call on the same part, unpatched, matches."
+  },
+  {
+    "test": "tests/test_plate_attribution.py::test_axis_alignment_gate_below_equal_and_above[0.989999-False]",
+    "function": "recognise_plates",
+    "verdict": "not-applicable",
+    "reason": "The test monkeypatches Face.normal_at to report a dominant normal component of 0.989999, just under the alignment gate, so Python's empty answer reflects the patch; the part's true normals are axis-aligned and the port finds its plates (as Python does at 0.99 and 0.990001)."
+  },
+  {
+    "test": "tests/test_plate_attribution.py::test_two_body_plates_survive_nested_compounds_and_arbitrary_framed_motion",
+    "function": "recognise_plates",
+    "verdict": "equivalent",
+    "reason": "Same four plates (axes, lo, hi and body keys; centres within 1e-9). The two y plates tie on (axis, lo, hi) and on u (16.363636363640 on both bodies), so their order falls to u's last bits: Python's face centroids put the +70 body's first by 7e-15, the port's (accurate to ~1e-10 after the framed motion) the other. Either order lists the same plates."
   }
 ]

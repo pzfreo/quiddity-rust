@@ -79,16 +79,23 @@ fn refine(curve: &Curve, lo: (f64, V3), hi: (f64, V3), depth: usize, out: &mut V
     }
 }
 
-/// Exact extremes of a circle arc per world axis — the samples alone would undercut a bulge.
-pub fn arc_extremes(curve: &Curve, start: V3, end: V3, same_sense: bool, closed: bool) -> Vec<V3> {
+/// Exact extremes of a circle arc along each of *dirs* — the samples alone would undercut a
+/// bulge.
+pub fn arc_extremes(
+    curve: &Curve,
+    start: V3,
+    end: V3,
+    same_sense: bool,
+    closed: bool,
+    dirs: &[V3],
+) -> Vec<V3> {
     if !matches!(curve, Curve::Circle { .. }) {
         return vec![];
     }
-    let axes = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
     extremes_along(
         curve,
         edge_interval(curve, start, end, same_sense, closed),
-        &axes,
+        dirs,
     )
 }
 

@@ -20,6 +20,7 @@ pub mod cylinders;
 pub mod evidence;
 pub mod fillets;
 pub mod flats;
+pub mod grooves;
 pub mod gussets;
 pub mod hole_patterns;
 pub mod holes;
@@ -29,6 +30,7 @@ pub mod oblique_through_steps;
 pub mod oriented_chamfers;
 pub mod paired_ramp_steps;
 pub mod planes;
+pub mod plates;
 pub mod probes;
 pub mod regions;
 pub mod round_bottom_slots;
@@ -73,6 +75,8 @@ pub struct Features {
     pub interior_voids: Vec<interior_voids::InteriorVoid>,
     pub through_steps: Vec<through_steps::ThroughStep>,
     pub turned_steps: Vec<turned_steps::TurnedStep>,
+    pub grooves: Vec<grooves::Groove>,
+    pub plates: Vec<plates::Plate>,
     pub round_bottom_blind_slots: Vec<round_bottom_slots::RoundBottomBlindSlot>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole and gusset rib patterns) have none of their own: their members' faces are
@@ -156,6 +160,12 @@ pub fn recognise(part: &Part) -> Features {
             &mut defining,
             "turned_steps",
             turned_steps::sorted_occurrences(turned_steps::discover(&ctx)),
+        ),
+        grooves: kept(&mut defining, "grooves", grooves::discover(&ctx)),
+        plates: kept(
+            &mut defining,
+            "plates",
+            plates::discover(&ctx, &Default::default()),
         ),
         round_bottom_blind_slots: kept(
             &mut defining,

@@ -382,5 +382,32 @@
     ],
     "verdict": "undetermined",
     "reason": "Same four steps (the rungs the Python test pins: 3.4, 5, 6, 7.5) and the same defining faces; only the profile's body key differs, because it carries the solid's volume and area and this file's masses differ by up to 1e-4 (listed above: OpenCascade integrates its approximated B-spline pcurves, the port the exact curves)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "contains": [
+      "recognise_grooves",
+      "fields {\"profile\"}"
+    ],
+    "verdict": "rust-correct",
+    "reason": "Same groove (Ø180, width 54, on face 2074). Only the profile's body key differs: Python has none because OpenCascade's BRepCheck calls this solid unorientable after its import healing (see this file's evidence entry), and for the same reason Python refuses the groove's evidence; the port keys the valid solid. Its body box also differs by OpenCascade's 1e-7 tolerance padding."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "contains": [
+      "recognise_plates",
+      "fields {\"body_key\"}"
+    ],
+    "verdict": "rust-wrong",
+    "reason": "Same plate. Python's body key is None, and it refuses the plate's evidence, because OpenCascade's BRepCheck finds geometric faults in this deliberately malformed part that the port's topological validity check does not look for (see this file's evidence entry)."
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "contains": [
+      "recognise_plates",
+      "fields {\"body_key\"}"
+    ],
+    "verdict": "rust-wrong",
+    "reason": "Same five plates, centres and defining faces; only the body key's mass terms differ: the port's solid volume 1730910.905 and area 391075.864 against OpenCascade's 1726247.579 and 391371.347, which its adaptive integration confirms (1726247.579, 391371.347). The port's solid mass is wrong on this file (its face_mass gives 0 area on face 209, the haecceity fix stream F addresses; the inventory also differs by the seams OpenCascade's healing adds, so the corpus test's mass check never runs here)."
   }
 ]
