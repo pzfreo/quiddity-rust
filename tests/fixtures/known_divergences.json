@@ -93,5 +93,90 @@
       "fields {\"at\"}"
     ],
     "reason": "Flat anchors are planar face centroids. build123d's Face.center() calls BRepGProp::SurfaceProperties at its default accuracy, which is off by ~1.4e-3 mm on face 123 (40.52111 vs 40.52252 at eps=1e-9); the port integrates the exact boundary (40.52252), and the difference crosses the 0.001 rounding grid."
+  },
+  {
+    "file": "cadgenbench/threaded_connector_109.step",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree.",
+    "contains": "uv_bounds differ"
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree.",
+    "contains": "uv_bounds differ"
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree.",
+    "contains": "uv_bounds differ"
+  },
+  {
+    "file": "cadgenbench_inputs/cgb241.step",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree.",
+    "contains": "uv_bounds differ"
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree.",
+    "contains": "uv_bounds differ"
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree. On its cones the port boxes the file's B-spline pcurves by their poles where OpenCascade's own pcurve is exact.",
+    "contains": "uv_bounds differ"
+  },
+  {
+    "file": "cadgenbench_inputs/cgb245.step",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree.",
+    "contains": "uv_bounds differ"
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "reason": "As for cgb203, and OpenCascade's import healing re-orients and re-parameterises some of this file's cone faces (see the evidence entry).",
+    "contains": "uv_bounds differ"
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree.",
+    "contains": "uv_bounds differ"
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "reason": "Sphere and cylinder ranges differ in the fifth digit: OpenCascade bounds them from approximated pcurves; the port from the exact edges.",
+    "contains": "uv_bounds differ"
+  },
+  {
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "reason": "As nist_ctc_04: sphere ranges from approximated pcurves near a pole.",
+    "contains": "uv_bounds differ"
+  },
+  {
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "reason": "A cylinder's axial range differs by 5e-5: OpenCascade bounds it by the control polygon of a B-spline pcurve it builds on import.",
+    "contains": "uv_bounds differ"
+  },
+  {
+    "file": "cadgenbench/flanged_spool_132.step",
+    "reason": "The same angular range a whole turn apart: OpenCascade starts it where the file's pcurve does (negative u); the port in [0, 2π).",
+    "contains": "uv_bounds differ"
+  },
+  {
+    "file": "nist/nist_ftc_09_asme1_rd.stp",
+    "reason": "Cone ranges a whole turn apart (the same faces): OpenCascade starts them where the file's pcurves do.",
+    "contains": "uv_bounds differ"
+  },
+  {
+    "file": "ttt_inputs/sm-hanger.step",
+    "reason": "Faces 11 and 12 meet folded back on themselves (outward normals opposite), so convex or concave is undefined; each kernel's round-off picks one.",
+    "contains": "arcs differ"
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "reason": "Face 16 (B-spline) meets its neighbours almost tangentially (normals 0.06° apart, an approximated blend); the side the turn falls is within each kernel's approximation.",
+    "contains": "arcs differ"
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "reason": "A countersink cone meets its bore in a convex edge; OpenCascade's import healing re-orients faces of this solid (see the evidence entry), which flips its reading.",
+    "contains": "arcs differ"
   }
 ]

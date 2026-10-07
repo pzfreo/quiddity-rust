@@ -1,9 +1,9 @@
 //! Edges as polylines: the parameter interval an edge covers on its curve, adaptive sampling
-//! to a chord tolerance, and the exact extremes of circular arcs.
+//! to a chord tolerance, and the exact extremes of curved edges.
 
-use std::f64::consts::TAU;
+use std::f64::consts::{PI, TAU};
 
-use super::geom::{self, Curve, V3};
+use super::geom::{self, Curve, V3, dot};
 
 /// Edge samples stand in for the exact curve wherever a polyline is needed (parameter-space
 /// loops, boundary distances); the chord may stray from the curve by at most this much (mm).
@@ -81,23 +81,67 @@ fn refine(curve: &Curve, lo: (f64, V3), hi: (f64, V3), depth: usize, out: &mut V
 
 /// Exact extremes of a circle arc per world axis — the samples alone would undercut a bulge.
 pub fn arc_extremes(curve: &Curve, start: V3, end: V3, same_sense: bool, closed: bool) -> Vec<V3> {
-    let Curve::Circle { frame, .. } = curve else {
+    if !matches!(curve, Curve::Circle { .. }) {
         return vec![];
-    };
-    let (a, b) = edge_interval(curve, start, end, same_sense, closed);
+    }
+    let axes = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
+    extremes_along(
+        curve,
+        edge_interval(curve, start, end, same_sense, closed),
+        &axes,
+    )
+}
+
+/// The interior points of the curve over `interval` where the coordinate along each of `dirs`
+/// is extreme: in closed form for circles and ellipses, by refining the best of a dense scan for
+/// B-splines; a line has none (its ends are its extremes).
+pub fn extremes_along(curve: &Curve, (a, b): (f64, f64), dirs: &[V3]) -> Vec<V3> {
     let (lo, hi) = if a <= b { (a, b) } else { (b, a) };
     let mut out = Vec::new();
-    for i in 0..3 {
-        let base = frame.y[i].atan2(frame.x[i]);
-        for k in -2..=3 {
-            for t in [
-                base + k as f64 * TAU,
-                base + std::f64::consts::PI + k as f64 * TAU,
-            ] {
-                if t > lo && t < hi {
-                    out.push(curve.value(t));
+    for &d in dirs {
+        // Along d, a conic is A·cos t + B·sin t + C: stationary at atan2(B, A) and half a turn on.
+        let base = match curve {
+            Curve::Line { .. } => continue,
+            Curve::Circle { frame, .. } => Some(dot(frame.y, d).atan2(dot(frame.x, d))),
+            Curve::Ellipse {
+                frame,
+                major,
+                minor,
+            } => Some((minor * dot(frame.y, d)).atan2(major * dot(frame.x, d))),
+            Curve::Nurbs(_) => None,
+        };
+        if let Some(base) = base {
+            for k in -2..=3 {
+                for t in [base + k as f64 * TAU, base + PI + k as f64 * TAU] {
+                    if t > lo && t < hi {
+                        out.push(curve.value(t));
+                    }
                 }
             }
+            continue;
+        }
+        for sign in [1.0, -1.0] {
+            let g = |t: f64| sign * dot(curve.value(t), d);
+            let n = 256;
+            let at = |i: usize| lo + (hi - lo) * i as f64 / n as f64;
+            let best = (0..=n)
+                .max_by(|&i, &j| g(at(i)).total_cmp(&g(at(j))))
+                .unwrap();
+            if best == 0 || best == n {
+                continue;
+            }
+            // Golden-section search for the maximum between the neighbouring scan points.
+            let (mut x0, mut x1) = (at(best - 1), at(best + 1));
+            let r = 0.5 * (5f64.sqrt() - 1.0);
+            for _ in 0..80 {
+                let (c, e) = (x1 - r * (x1 - x0), x0 + r * (x1 - x0));
+                if g(c) > g(e) {
+                    x1 = e;
+                } else {
+                    x0 = c;
+                }
+            }
+            out.push(curve.value(0.5 * (x0 + x1)));
         }
     }
     out

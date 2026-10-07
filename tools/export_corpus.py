@@ -3,7 +3,9 @@
     QUIDDITY=../quiddity ../quiddity/.venv/bin/python tools/export_corpus.py
 
 Writes ``tests/fixtures/corpus.json``: per corpus file, a face inventory (proves the Rust reader
-walks faces in OpenCascade's order) and, per recogniser and option set, Python's records. The
+walks faces in OpenCascade's order), the kernel answers the recognisers lean on (each face's
+``BRepTools::UVBounds`` and the arc between each pair of neighbours) and, per recogniser and
+option set, Python's records. The
 corpus itself stays in the quiddity checkout; ``tests/corpus.rs`` finds it through
 ``QUIDDITY_CORPUS`` or ``../quiddity/tests/corpus``.
 """
@@ -34,6 +36,7 @@ from quiddity.countersinks import _discover_countersinks  # noqa: E402
 from quiddity.fillets import _discover_fillets  # noqa: E402
 from quiddity.flats import _discover_flats  # noqa: E402
 from quiddity.holes import _discover_holes  # noqa: E402
+from quiddity.paired_ramp_steps import _discover_paired_ramp_steps  # noqa: E402
 
 from quiddity import (  # noqa: E402
     recognise_flats,
@@ -45,7 +48,9 @@ from quiddity import (  # noqa: E402
     recognise_countersinks,
     recognise_hole_patterns,
     recognise_holes,
+    recognise_paired_ramp_steps,
 )
+from OCP.BRepTools import BRepTools  # noqa: E402
 
 CORPUS = QUIDDITY / "tests" / "corpus"
 OUT = Path(__file__).resolve().parent.parent / "tests" / "fixtures" / "corpus.json"
@@ -80,6 +85,18 @@ def _run(part, function, family, recognise, discover, options: dict) -> dict:
         "options": options,
         "result": _plain(recognise(part, options)),
         **_evidence(part, family, lambda ledger: discover(part, ledger, options)),
+    }
+
+
+def _kernel(part) -> dict:
+    """Per face, ``BRepTools::UVBounds``; per neighbouring pair (both ways round), the arc."""
+
+    graph = FaceGraph(part)
+    return {
+        "uv_bounds": [list(BRepTools.UVBounds_s(face.wrapped)) for face in part.faces()],
+        "arcs": [
+            [a.index, b.index, graph.arc(a, b)] for a in graph.nodes for b in graph.neighbours(a)
+        ],
     }
 
 
@@ -128,12 +145,15 @@ def main() -> None:
                                                               sink=ledger.writer.sink))
         flat = (FamilyId.FLATS, lambda p, o: recognise_flats(p),
                 lambda p, ledger, o: _discover_flats(p, cyls=None, face_edges=None, writer=ledger.writer))
+        ramp = (FamilyId.PAIRED_RAMP_STEPS, lambda p, o: recognise_paired_ramp_steps(p),
+                lambda p, ledger, o: _discover_paired_ramp_steps(p, graph=ledger.graph, sink=ledger.writer.sink))
         hole = (FamilyId.HOLES, lambda p, o: recognise_holes(p, **hole_kwargs(o)),
                 lambda p, ledger, o: _discover_holes(p, writer=ledger.writer, **hole_kwargs(o)))
         entries.append(
             {
                 "file": str(path.relative_to(CORPUS)),
                 "inventory": _inventory(part),
+                "kernel": _kernel(part),
                 "results": {
                     "recognise_fillets": [
                         _run(part, "recognise_fillets", *fillet, o)
@@ -146,6 +166,7 @@ def main() -> None:
                     "recognise_bosses": [_run(part, "recognise_bosses", *boss, {})],
                     "recognise_angled_steps": [_run(part, "recognise_angled_steps", *angled, {})],
                     "recognise_flats": [_run(part, "recognise_flats", *flat, {})],
+                    "recognise_paired_ramp_steps": [_run(part, "recognise_paired_ramp_steps", *ramp, {})],
                     "recognise_holes": [
                         _run(part, "recognise_holes", *hole, o) for o in ({}, {"csinks": "auto"})
                     ],

@@ -325,16 +325,16 @@ impl Part {
         let mut direction = direction;
         if ed.is_closed() {
             let step = 1e-4 * self.face_bounds(a).diagonal().max(1e-9);
-            let probe = geom::add(point, geom::scale(geom::cross(na, direction), step));
-            let inside = self.faces[a]
-                .surface
-                .parameters(probe, None)
-                .zip(self.domain(a))
-                .map(|((u, v), d)| d.contains(u, v));
-            match inside {
-                Some(true) => {}
-                Some(false) => direction = geom::scale(direction, -1.0),
-                None => return Arc::Unknown,
+            let surface = &self.faces[a].surface;
+            let hint = surface.parameters(point, None);
+            let on_face = |side: f64| {
+                let left = geom::scale(geom::cross(na, direction), side * step);
+                let (u, v) = surface.parameters(geom::add(point, left), hint)?;
+                Some(self.domain(a)?.contains(u, v))
+            };
+            // Only clear evidence (the face on the right, not the left) overrides the record.
+            if on_face(1.0) == Some(false) && on_face(-1.0) == Some(true) {
+                direction = geom::scale(direction, -1.0);
             }
         }
         if geom::dot(geom::cross(na, direction), nb) < 0.0 {

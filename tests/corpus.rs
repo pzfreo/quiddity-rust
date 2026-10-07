@@ -1,5 +1,5 @@
-//! Parity over the shared STEP corpus: for every corpus file, the face inventory and each ported
-//! recogniser's answer must match what `tools/export_corpus.py` recorded from Python, except for
+//! Parity over the shared STEP corpus: for every corpus file, the face inventory, the kernel
+//! answers recognisers lean on and each ported recogniser's answer must match what `tools/export_corpus.py` recorded from Python, except for
 //! the differences listed (with reasons) in `tests/fixtures/known_divergences.json`.
 
 mod common;
@@ -45,12 +45,17 @@ fn corpus_matches_python() {
                 continue;
             }
         };
+        let before = problems.len();
         common::check_inventory(
             name,
             &part,
             entry["inventory"].as_array().unwrap(),
             &mut problems,
         );
+        // Kernel answers are per face index, meaningless once the inventories disagree.
+        if problems.len() == before {
+            check_kernel(name, &part, &entry["kernel"], &mut problems);
+        }
         for (function, runs) in entry["results"].as_object().unwrap() {
             for run in runs.as_array().unwrap() {
                 let tally = counts.entry(function.clone()).or_default();
@@ -132,4 +137,42 @@ fn check_evidence(
             run["options"]
         )),
     }
+}
+
+/// Each face's UV range (`BRepTools::UVBounds`) and the arc between each pair of neighbours
+/// agree with OpenCascade's. One problem per file and query, naming the first few faces.
+fn check_kernel(name: &str, part: &quiddity::Part, kernel: &Value, problems: &mut Vec<String>) {
+    let mut report = |what: &str, bad: Vec<String>| {
+        if !bad.is_empty() {
+            problems.push(format!(
+                "{name}: {what} differ on {}: {}",
+                bad.len(),
+                bad[..bad.len().min(3)].join("; ")
+            ));
+        }
+    };
+    let mut bad = Vec::new();
+    for (face, want) in kernel["uv_bounds"].as_array().unwrap().iter().enumerate() {
+        let got = part
+            .uv_bounds(face)
+            .map(|(u0, u1, v0, v1)| [u0, u1, v0, v1]);
+        let got = serde_json::to_value(got).unwrap();
+        if !common::same(&got, want) {
+            let kind = format!("{:?}", part.faces[face].surface.kind());
+            bad.push(format!("face {face} ({kind}) {got} vs {want}"));
+        }
+    }
+    report("uv_bounds", bad);
+    let mut bad = Vec::new();
+    for pair in kernel["arcs"].as_array().unwrap() {
+        let (a, b) = (
+            pair[0].as_u64().unwrap() as usize,
+            pair[1].as_u64().unwrap() as usize,
+        );
+        let got = part.arc(a, b).map(|arc| format!("{arc:?}").to_lowercase());
+        if got.as_deref() != pair[2].as_str() {
+            bad.push(format!("faces {a}-{b} {got:?} vs {}", pair[2]));
+        }
+    }
+    report("arcs", bad);
 }

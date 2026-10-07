@@ -6,6 +6,7 @@ use std::f64::consts::TAU;
 
 use super::brep::{Part, Pcurve};
 use super::geom::{self, Surface, V3};
+use super::sampling::{edge_interval, extremes_along};
 
 /// The face's boundary as (u, v) polylines.
 ///
@@ -144,7 +145,7 @@ impl Part {
     /// OpenCascade's pcurves sit — to choose the outer loop; every other loop is then moved to
     /// the period nearest the outer loop's centre, so a hole far round a partial face from the
     /// face's first sample still lands inside it.
-    fn loop_placement(&self, face: usize) -> Option<(usize, Vec<(f64, f64)>)> {
+    pub(super) fn loop_placement(&self, face: usize) -> Option<(usize, Vec<(f64, f64)>)> {
         let loops = self.uv_loops(face)?;
         let (pu, pv) = self.faces[face].surface.periodic();
         let boxes: Vec<[f64; 4]> = loops
@@ -377,6 +378,36 @@ impl Part {
     /// round) spans exactly one period starting at the seam.
     pub fn uv_bounds(&self, face: usize) -> Option<(f64, f64, f64, f64)> {
         let f = &self.faces[face];
+        if let Surface::Plane { frame } = f.surface {
+            // A plane's range is exactly its edges' extent in plane coordinates.
+            let mut range = [
+                f64::INFINITY,
+                f64::NEG_INFINITY,
+                f64::INFINITY,
+                f64::NEG_INFINITY,
+            ];
+            for e in self.face_edges(face) {
+                let ed = &self.edges[e];
+                let interval =
+                    edge_interval(&ed.curve, ed.start, ed.end, ed.same_sense, ed.is_closed());
+                let ends = [ed.curve.value(interval.0), ed.curve.value(interval.1)];
+                for p in
+                    ends.into_iter()
+                        .chain(extremes_along(&ed.curve, interval, &[frame.x, frame.y]))
+                {
+                    let l = frame.to_local(p);
+                    range = [
+                        range[0].min(l[0]),
+                        range[1].max(l[0]),
+                        range[2].min(l[1]),
+                        range[3].max(l[1]),
+                    ];
+                }
+            }
+            return range[0]
+                .is_finite()
+                .then_some((range[0], range[1], range[2], range[3]));
+        }
         let (pu, pv) = f.surface.periodic();
         let loops = self.uv_loops(face)?;
         let mut range = [
@@ -428,6 +459,11 @@ impl Part {
                     continue;
                 };
                 let mut last = (start.0 + shift.0, start.1 + shift.1);
+                let (lu, lv) = (
+                    self::range(uv.points.iter(), |p| p.0),
+                    self::range(uv.points.iter(), |p| p.1),
+                );
+                let loop_centre = (0.5 * (lu.0 + lu.1) + shift.0, 0.5 * (lv.0 + lv.1) + shift.1);
                 for &(e, forward) in &lp.edges {
                     let samples = &self.edges[e].samples;
                     let ordered: Box<dyn Iterator<Item = &V3>> = if forward {
@@ -437,10 +473,28 @@ impl Part {
                     };
                     let mut pts = Vec::with_capacity(samples.len());
                     for p in ordered {
-                        let q = near(f.surface.parameters(*p, None)?, last);
+                        let q = f.surface.parameters(*p, None)?;
+                        if f.surface.singular_v(q.1).is_some() {
+                            continue; // a pole or apex: its u is arbitrary
+                        }
+                        let q = near(q, last);
                         pts.push(q);
                         last = q;
                     }
+                    if pts.is_empty() {
+                        continue;
+                    }
+                    // Put the edge in the period its loop occupies: across a skipped pole or apex
+                    // sample, continuity alone cannot tell which turn the edge is on.
+                    let n = pts.len() as f64;
+                    let mean = (
+                        pts.iter().map(|p| p.0).sum::<f64>() / n,
+                        pts.iter().map(|p| p.1).sum::<f64>() / n,
+                    );
+                    let placed = near(mean, loop_centre);
+                    let (du, dv) = (placed.0 - mean.0, placed.1 - mean.1);
+                    pts.iter_mut().for_each(|p| *p = (p.0 + du, p.1 + dv));
+                    last = *pts.last().expect("non-empty");
                     let own: Vec<&Pcurve> = f
                         .pcurves
                         .iter()
@@ -451,11 +505,7 @@ impl Part {
                         pts.iter().for_each(|&p| add(p));
                         continue;
                     }
-                    let n = pts.len() as f64;
-                    let centre = (
-                        pts.iter().map(|p| p.0).sum::<f64>() / n,
-                        pts.iter().map(|p| p.1).sum::<f64>() / n,
-                    );
+                    let centre = placed;
                     for curve in own {
                         match curve {
                             Pcurve::Poles(poles) => {
@@ -568,6 +618,19 @@ fn route_singular_points(
         .chain(&singular[..first_regular])
         .copied()
         .collect();
+    // With a single singular run, route the way that leaves the closed loop turning least round
+    // u (a face that does run round the axis is described as well by a loop that does not wind
+    // but spans the turn); only a tie needs the orientation.
+    let runs = (0..n)
+        .filter(|&k| singular[k] && !singular[(k + n - 1) % n])
+        .count();
+    let regular_turn: f64 = (0..n)
+        .filter(|&k| !singular[k] && !singular[(k + 1) % n])
+        .map(|k| {
+            let (a, b) = (raw[k].0, raw[(k + 1) % n].0);
+            geom::nearest_turn(b, a) - a
+        })
+        .sum();
     let mut out = Vec::with_capacity(n + 64);
     let mut i = 0;
     while i < n {
@@ -592,7 +655,16 @@ fn route_singular_points(
         let v = surface.singular_v(raw[start].1).expect("a singular sample");
         let (ua, ub) = (raw[before].0, raw[after].0);
         let mut ub = geom::nearest_turn(ub, ua);
-        if (ub - ua).abs() > 1e-6 {
+        let gap = |ub: f64| (regular_turn + ub - ua).abs();
+        let unambiguous = runs == 1
+            && (gap(ub + TAU) - gap(ub)).abs() > 1e-6
+            && (gap(ub - TAU) - gap(ub)).abs() > 1e-6;
+        if unambiguous {
+            ub = [ub - TAU, ub, ub + TAU]
+                .into_iter()
+                .min_by(|a, b| gap(*a).total_cmp(&gap(*b)))
+                .unwrap();
+        } else if (ub - ua).abs() > 1e-6 {
             // Rising to the top line (v above the boundary's) runs -u for a forward face.
             let rising = v > raw[before].1;
             let toward = if rising != reversed { -1.0 } else { 1.0 };
