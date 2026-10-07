@@ -15,6 +15,7 @@ use super::evidence::Occurrence;
 use super::planes::nearest_axis_aligned_planes;
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, AXIS_ALIGNED_COS, COORD_FLOOR, Surface, V3, dominant_axis};
+use crate::kernel::py;
 
 /// Coaxial analytic axes may differ by modelling noise only (a fraction of the diameter).
 const COAXIAL_FRAC: f64 = 1e-4;
@@ -73,10 +74,10 @@ fn chamfer(
 ) -> Chamfer {
     Chamfer {
         axis: ['x', 'y', 'z'][axis],
-        leg1: geom::round3(leg_hi),
-        leg2: geom::round3(leg_lo),
-        angle: geom::round_to(leg_lo.atan2(leg_hi).to_degrees(), 2),
-        at: at.map(geom::round3),
+        leg1: py::round_to3(leg_hi),
+        leg2: py::round_to3(leg_lo),
+        angle: py::round_to(leg_lo.atan2(leg_hi).to_degrees(), 2),
+        at: at.map(py::round_to3),
         turned,
         corner,
     }
@@ -101,7 +102,7 @@ pub fn discover(ctx: &Context<'_>, opts: &ChamferOptions) -> Vec<Occurrence<Cham
         a.record
             .axis
             .cmp(&b.record.axis)
-            .then_with(|| geom::python_order(&a.record.at, &b.record.at))
+            .then_with(|| py::tuple_order(&a.record.at, &b.record.at))
     });
     out
 }
@@ -122,7 +123,7 @@ fn planar(ctx: &Context<'_>, face: usize, tol: f64, max_leg: f64) -> Option<Occu
         return None; // a concave corner: a gusset, rib or web
     }
     let corner = [0, 1, 2].map(|i| {
-        geom::round3(if i == bevel.edge_axis {
+        py::round_to3(if i == bevel.edge_axis {
             centre[i]
         } else {
             planes[&i]

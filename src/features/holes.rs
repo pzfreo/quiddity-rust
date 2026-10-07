@@ -19,6 +19,7 @@ use super::cylinders::{
 use super::evidence::Occurrence;
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, Surface, V3};
+use crate::kernel::py;
 
 /// Two quantised diameters are one diameter within this proportion.
 const SAME_DIAMETER_FRAC: f64 = 1e-4;
@@ -118,11 +119,7 @@ fn end_partners(part: &Part, seg: &Segment, s_end: f64) -> Vec<usize> {
             }
         }
     }
-    ranked.sort_by(|a, b| {
-        a.0.partial_cmp(&b.0)
-            .unwrap_or(std::cmp::Ordering::Equal)
-            .then(a.1.cmp(&b.1))
-    });
+    ranked.sort_by(|a, b| py::order(a.0, b.0).then(a.1.cmp(&b.1)));
     ranked.into_iter().map(|r| r.2).collect()
 }
 
@@ -169,7 +166,7 @@ fn classify_end(part: &Part, seg: &Segment, s_end: f64, hi_end: bool) -> End {
             }
             Surface::Plane { .. } => {
                 let normal = plane_normal(part, partner).expect("a plane");
-                let alignment = geom::dot(normal, d) * e_sign;
+                let alignment = py::dot(&normal, &d) * e_sign;
                 if alignment < -0.5 {
                     return End::Flat;
                 }
@@ -259,11 +256,11 @@ fn merge_stacks(part: &Part, stacks: Vec<Vec<Segment>>) -> Vec<Vec<Segment>> {
             let radius = cut.diameter / 2.0;
             let radial_tolerance = geom::length_tol(radius, 5e-6);
             endpoints.iter().all(|&point| {
-                let axial = geom::dot(point, cut.direction);
+                let axial = py::dot(&point, &cut.direction);
                 let centre = axis_point_at(cut, axial);
                 cut.s_lo - tolerance <= axial
                     && axial <= cut.s_hi + tolerance
-                    && geom::dist(point, centre) < radius + radial_tolerance
+                    && py::dist(&point, &centre) < radius + radial_tolerance
             })
         })
     };
@@ -278,16 +275,12 @@ fn merge_stacks(part: &Part, stacks: Vec<Vec<Segment>>) -> Vec<Vec<Segment>> {
     let mut merged = Vec::new();
     for (_, mut line) in by_line {
         let low = |st: &Vec<Segment>| st.iter().map(|s| s.s_lo).fold(f64::INFINITY, f64::min);
-        line.sort_by(|a, b| {
-            low(a)
-                .partial_cmp(&low(b))
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
+        line.sort_by(|a, b| py::order(low(a), low(b)));
         let mut stacks = line.into_iter();
         let mut cur = stacks.next().expect("a non-empty group");
         for nxt in stacks {
-            let ai = first_max(&cur, |s| s.s_hi);
-            let bi = first_min(&nxt, |s| s.s_lo);
+            let ai = py::first_max(&cur, |s| s.s_hi);
+            let bi = py::first_min(&nxt, |s| s.s_lo);
             let (a, b) = (&cur[ai], &nxt[bi]);
             let closed = |end: End| matches!(end, End::Flat | End::DrillPoint);
             if same_diameter(a.diameter, b.diameter)
@@ -327,34 +320,12 @@ fn merge_stacks(part: &Part, stacks: Vec<Vec<Segment>>) -> Vec<Vec<Segment>> {
     merged
 }
 
-/// Index of the first maximum (Python's `max` keeps the first of ties).
-fn first_max<T>(items: &[T], key: impl Fn(&T) -> f64) -> usize {
-    let mut best = 0;
-    for i in 1..items.len() {
-        if key(&items[i]) > key(&items[best]) {
-            best = i;
-        }
-    }
-    best
-}
-
-/// Index of the first minimum.
-fn first_min<T>(items: &[T], key: impl Fn(&T) -> f64) -> usize {
-    let mut best = 0;
-    for i in 1..items.len() {
-        if key(&items[i]) < key(&items[best]) {
-            best = i;
-        }
-    }
-    best
-}
-
 /// Which end of a stack is the opening and what closes the other (`_drilled_from`). With both
 /// ends open the wider segment's end wins (counterbores sit at the opening); a tie falls to the
 /// high end.
 fn drilled_from(part: &Part, stack: &[Segment]) -> (bool, usize, f64, &'static str) {
-    let lo = first_min(stack, |s| s.s_lo);
-    let hi = first_max(stack, |s| s.s_hi);
+    let lo = py::first_min(stack, |s| s.s_lo);
+    let hi = py::first_max(stack, |s| s.s_hi);
     let lo_state = classify_end(part, &stack[lo], stack[lo].s_lo, false);
     let hi_state = classify_end(part, &stack[hi], stack[hi].s_hi, true);
     let from_hi = match (lo_state == End::Open, hi_state == End::Open) {
@@ -386,7 +357,7 @@ fn near_side_steps(steps: &[Segment]) -> (Option<CounterBore>, Option<CounterBor
             continue;
         }
         min_d = step.diameter;
-        let key = geom::quantise_to(step.diameter, 4);
+        let key = py::quantise(step.diameter, 4);
         match spans.iter_mut().find(|s| s.0 == key) {
             Some(s) => {
                 s.1 = s.1.min(step.s_lo);
@@ -400,7 +371,7 @@ fn near_side_steps(steps: &[Segment]) -> (Option<CounterBore>, Option<CounterBor
     for (key, lo, hi, step_faces) in spans {
         let spec = CounterBore {
             diameter: key,
-            depth: geom::round_to(hi - lo, 2),
+            depth: py::round_to(hi - lo, 2),
         };
         let slot = if spec.depth < SPOTFACE_MAX_RATIO * spec.diameter {
             &mut spotface
@@ -488,24 +459,22 @@ pub fn discover(ctx: &Context<'_>, csinks: &[CounterSink]) -> Vec<Occurrence<Hol
         let mut ordered = stack.clone();
         // A stable sort by s_hi, descending when drilled from the high end.
         ordered.sort_by(|a, b| {
-            let o = a
-                .s_hi
-                .partial_cmp(&b.s_hi)
-                .unwrap_or(std::cmp::Ordering::Equal);
+            // Python's reverse=True keeps equal keys in input order, as reversing does here.
+            let o = py::order(a.s_hi, b.s_hi);
             if from_hi { o.reverse() } else { o }
         });
-        let bore_i = first_min(&ordered, |s| s.diameter);
+        let bore_i = py::first_min(&ordered, |s| s.diameter);
         let bore = &ordered[bore_i];
         let (cbore, spotface, step_faces) = near_side_steps(&ordered[..bore_i]);
         let (depth, mut defining) = bore_depth(&stack, bore, bottom == "through", from_hi);
         defining.extend(step_faces);
-        let axis = if from_hi { geom::scale(d, -1.0) } else { d }.map(geom::without_negative_zero);
-        let location = axis_point_at(&stack[opening], opening_s).map(|c| geom::quantise_to(c, 11));
+        let axis = if from_hi { geom::scale(d, -1.0) } else { d }.map(py::without_negative_zero);
+        let location = axis_point_at(&stack[opening], opening_s).map(|c| py::quantise(c, 11));
         let mut record = HoleRecord {
             axis,
             location,
             diameter: bore.diameter,
-            depth: geom::round_to(depth, 2),
+            depth: py::round_to(depth, 2),
             bottom: bottom.to_owned(),
             cbore,
             spotface,

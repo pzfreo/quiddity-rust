@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 
 use super::holes::{CounterBore, HoleRecord};
 use crate::kernel::geom::{self, V3, dominant_axis_preferring_z};
+use crate::kernel::py;
 
 const PATTERN_REL_TOL: f64 = 0.02;
 const PATTERN_ABS_TOL: f64 = 0.1;
@@ -56,7 +57,7 @@ fn pattern_tol(nominal: f64) -> f64 {
 }
 
 fn hypot2(a: (f64, f64), b: (f64, f64)) -> f64 {
-    (b.0 - a.0).hypot(b.1 - a.1)
+    py::hypot(&[b.0 - a.0, b.1 - a.1])
 }
 
 /// The machining spec holes of one drilled feature share (`HoleSpec.from_hole`): compared with
@@ -79,7 +80,7 @@ impl HoleSpec {
                 if c.abs() < 1e-6 {
                     0.0
                 } else {
-                    geom::round_to(c, 6)
+                    py::round_to(c, 6)
                 }
             }),
             diameter: h.diameter,
@@ -98,7 +99,7 @@ impl HoleSpec {
 /// Two orthonormal vectors spanning the plane perpendicular to *axis*: the dominant axis's
 /// canonical in-plane basis, Gram-Schmidt'd against the actual axis (`_plane_uv`).
 fn plane_uv(axis: V3) -> (V3, V3) {
-    let a = geom::unit(axis).expect("a hole axis is a unit vector");
+    let a = py::unit(axis).expect("a hole axis is a unit vector");
     let (u0, v0) = match dominant_axis_preferring_z(a) {
         0 => ([0.0, 1.0, 0.0], [0.0, 0.0, 1.0]),
         1 => ([0.0, 0.0, 1.0], [1.0, 0.0, 0.0]),
@@ -107,9 +108,9 @@ fn plane_uv(axis: V3) -> (V3, V3) {
     let project_out = |w: V3, dirs: &[V3]| {
         let mut w = w;
         for d in dirs {
-            w = geom::sub(w, geom::scale(*d, geom::dot(w, *d)));
+            w = geom::sub(w, geom::scale(*d, py::dot(&w, d)));
         }
-        geom::unit(w).expect("a seed basis is never parallel to its own axis")
+        py::unit(w).expect("a seed basis is never parallel to its own axis")
     };
     let u = project_out(u0, &[a]);
     (u, project_out(v0, &[a, u]))
@@ -118,12 +119,7 @@ fn plane_uv(axis: V3) -> (V3, V3) {
 /// Bounded clusters of coordinates, as index lists in ascending order (`cluster_coordinates`).
 fn cluster_coordinates(coordinates: &[f64], tol: f64) -> Vec<Vec<usize>> {
     let mut order: Vec<usize> = (0..coordinates.len()).collect();
-    order.sort_by(|&a, &b| {
-        coordinates[a]
-            .partial_cmp(&coordinates[b])
-            .unwrap_or(std::cmp::Ordering::Equal)
-            .then(a.cmp(&b))
-    });
+    order.sort_by(|&a, &b| py::order(coordinates[a], coordinates[b]).then(a.cmp(&b)));
     let mut clusters: Vec<Vec<usize>> = Vec::new();
     for index in order {
         match clusters.last_mut() {
@@ -136,22 +132,22 @@ fn cluster_coordinates(coordinates: &[f64], tol: f64) -> Vec<Vec<usize>> {
 
 /// Holes whose openings share one plane perpendicular to *axis* (`_opening_plane_clusters`).
 fn opening_plane_clusters(members: &[&HoleRecord], axis: V3) -> Vec<Vec<usize>> {
-    let direction = geom::unit(axis).expect("unit axis");
+    let direction = py::unit(axis).expect("unit axis");
     let origin = members[0].location;
     let offsets: Vec<f64> = members
         .iter()
-        .map(|m| geom::dot(geom::sub(m.location, origin), direction))
+        .map(|m| py::dot(&geom::sub(m.location, origin), &direction))
         .collect();
     let scale = members
         .iter()
-        .map(|m| geom::dist(origin, m.location))
+        .map(|m| py::dist(&origin, &m.location))
         .fold(members[0].diameter, f64::max);
     cluster_coordinates(&offsets, geom::length_tol(scale, OPENING_PLANE_REL_TOL))
 }
 
 fn mean_location(holes: &[&HoleRecord]) -> V3 {
     let n = holes.len() as f64;
-    [0, 1, 2].map(|i| holes.iter().map(|h| h.location[i]).sum::<f64>() / n)
+    [0, 1, 2].map(|i| py::sum(holes.iter().map(|h| h.location[i])) / n)
 }
 
 fn owned(holes: &[&HoleRecord]) -> Vec<HoleRecord> {
@@ -162,16 +158,16 @@ fn owned(holes: &[&HoleRecord]) -> Vec<HoleRecord> {
 fn as_bolt_circle(holes: &[&HoleRecord], pts: &[(f64, f64)]) -> Option<HolePattern> {
     let n = pts.len() as f64;
     let c = (
-        pts.iter().map(|p| p.0).sum::<f64>() / n,
-        pts.iter().map(|p| p.1).sum::<f64>() / n,
+        py::sum(pts.iter().map(|p| p.0)) / n,
+        py::sum(pts.iter().map(|p| p.1)) / n,
     );
     let radii: Vec<f64> = pts.iter().map(|p| hypot2(c, *p)).collect();
-    let r = radii.iter().sum::<f64>() / n;
+    let r = py::sum(radii.iter().copied()) / n;
     if r < PATTERN_ABS_TOL || radii.iter().any(|ri| (ri - r).abs() > pattern_tol(r)) {
         return None;
     }
     let mut angles: Vec<f64> = pts.iter().map(|p| (p.1 - c.1).atan2(p.0 - c.0)).collect();
-    angles.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    angles.sort_by(|a, b| py::order(*a, *b));
     let mut gaps: Vec<f64> = angles.windows(2).map(|w| w[1] - w[0]).collect();
     gaps.push(TAU - (angles[angles.len() - 1] - angles[0]));
     let even = TAU / n;
@@ -184,7 +180,7 @@ fn as_bolt_circle(holes: &[&HoleRecord], pts: &[(f64, f64)]) -> Option<HolePatte
     Some(HolePattern::BoltCircle {
         holes: owned(holes),
         center: mean_location(holes),
-        diameter: geom::round_to(2.0 * r, 2),
+        diameter: py::round_to(2.0 * r, 2),
     })
 }
 
@@ -198,7 +194,7 @@ fn circumcircle(p0: (f64, f64), p1: (f64, f64), p2: (f64, f64)) -> Option<(f64, 
     let (a2, b2, c2) = (ax * ax + ay * ay, bx * bx + by * by, cx * cx + cy * cy);
     let ux = (a2 * (by - cy) + b2 * (cy - ay) + c2 * (ay - by)) / d;
     let uy = (a2 * (cx - bx) + b2 * (ax - cx) + c2 * (bx - ax)) / d;
-    Some((ux, uy, (ax - ux).hypot(ay - uy)))
+    Some((ux, uy, py::hypot(&[ax - ux, ay - uy])))
 }
 
 type Candidate = (HolePattern, Vec<usize>);
@@ -217,11 +213,7 @@ fn bolt_circle_candidates(members: &[&HoleRecord], pts: &[(f64, f64)]) -> Vec<Ca
                 if r < PATTERN_ABS_TOL {
                     continue;
                 }
-                let key = [
-                    geom::round_to(cx, 2),
-                    geom::round_to(cy, 2),
-                    geom::round_to(r, 2),
-                ];
+                let key = [py::round_to(cx, 2), py::round_to(cy, 2), py::round_to(r, 2)];
                 if seen.contains(&key) {
                     continue;
                 }
@@ -247,10 +239,10 @@ fn bolt_circle_candidates(members: &[&HoleRecord], pts: &[(f64, f64)]) -> Vec<Ca
 /// Distance along and perpendicular to a directed line.
 fn line_position(point: V3, origin: V3, direction: V3) -> (f64, f64) {
     let rel = geom::sub(point, origin);
-    let along = geom::dot(rel, direction);
+    let along = py::dot(&rel, &direction);
     (
         along,
-        geom::norm(geom::sub(rel, geom::scale(direction, along))),
+        py::hypot(&geom::sub(rel, geom::scale(direction, along))),
     )
 }
 
@@ -260,17 +252,17 @@ fn as_linear_array(members: &[&HoleRecord], pts: &[V3]) -> Option<HolePattern> {
     let mut best = (0, 1);
     for i in 0..n {
         for j in i + 1..n {
-            if geom::dist(pts[i], pts[j]) > geom::dist(pts[best.0], pts[best.1]) {
+            if py::dist(&pts[i], &pts[j]) > py::dist(&pts[best.0], &pts[best.1]) {
                 best = (i, j);
             }
         }
     }
     let (first, last) = (pts[best.0], pts[best.1]);
-    let span = geom::dist(first, last);
+    let span = py::dist(&last, &first);
     if span < PATTERN_ABS_TOL {
         return None;
     }
-    let direction = geom::scale(geom::sub(last, first), 1.0 / span);
+    let direction = geom::sub(last, first).map(|c| c / span);
     let line_tol = pattern_tol(span / (n - 1) as f64);
     let mut projections = Vec::with_capacity(n);
     for p in pts {
@@ -281,7 +273,7 @@ fn as_linear_array(members: &[&HoleRecord], pts: &[V3]) -> Option<HolePattern> {
         projections.push(along);
     }
     let mut ts = projections.clone();
-    ts.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    ts.sort_by(|a, b| py::order(*a, *b));
     let pitch = span / (n - 1) as f64;
     if ts
         .windows(2)
@@ -293,13 +285,13 @@ fn as_linear_array(members: &[&HoleRecord], pts: &[V3]) -> Option<HolePattern> {
         .into_iter()
         .zip(members.iter().copied())
         .collect();
-    ordered.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
+    ordered.sort_by(|a, b| py::order(a.0, b.0));
     let d = geom::sub(ordered[ordered.len() - 1].1.location, ordered[0].1.location);
-    let norm = geom::norm(d);
+    let norm = py::hypot(&d);
     Some(HolePattern::LinearArray {
         holes: ordered.iter().map(|(_, h)| (*h).clone()).collect(),
-        pitch: geom::round_to(pitch, 2),
-        direction: d.map(|c| geom::without_negative_zero(c / norm)),
+        pitch: py::round_to(pitch, 2),
+        direction: d.map(|c| py::without_negative_zero(c / norm)),
     })
 }
 
@@ -309,11 +301,11 @@ fn linear_array_candidates(members: &[&HoleRecord], pts: &[V3]) -> Vec<Candidate
     let (mut out, mut seen) = (Vec::new(), Vec::<Vec<usize>>::new());
     for i in 0..n {
         for j in i + 1..n {
-            let span = geom::dist(pts[i], pts[j]);
+            let span = py::dist(&pts[j], &pts[i]);
             if span < PATTERN_ABS_TOL {
                 continue;
             }
-            let direction = geom::scale(geom::sub(pts[j], pts[i]), 1.0 / span);
+            let direction = geom::sub(pts[j], pts[i]).map(|c| c / span);
             let tol = pattern_tol(span);
             let mut positions: Vec<(usize, f64)> = (0..n)
                 .filter_map(|m| {
@@ -321,7 +313,7 @@ fn linear_array_candidates(members: &[&HoleRecord], pts: &[V3]) -> Vec<Candidate
                     (perpendicular <= tol).then_some((m, along))
                 })
                 .collect();
-            positions.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(std::cmp::Ordering::Equal));
+            positions.sort_by(|a, b| py::order(a.1, b.1));
             let order: Vec<usize> = positions.iter().map(|p| p.0).collect();
             let ts: Vec<f64> = positions.iter().map(|p| p.1).collect();
             let mut a = 0;
@@ -364,7 +356,7 @@ fn rect_grid(members: &[&HoleRecord], pts: &[(f64, f64)]) -> Option<HolePattern>
                 continue;
             }
             let (dx, dy) = (pts[j].0 - pts[i].0, pts[j].1 - pts[i].1);
-            let length = dx.hypot(dy);
+            let length = py::hypot(&[dx, dy]);
             if length > PATTERN_ABS_TOL {
                 diffs.push((length, dx, dy));
             }
@@ -373,7 +365,7 @@ fn rect_grid(members: &[&HoleRecord], pts: &[(f64, f64)]) -> Option<HolePattern>
     if diffs.is_empty() {
         return None;
     }
-    diffs.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    diffs.sort_by(|a, b| py::tuple_order(&[a.0, a.1, a.2], &[b.0, b.1, b.2]));
     let (l1, b1x, b1y) = diffs[0];
     let u1 = (b1x / l1, b1y / l1);
     let &(l2, b2x, b2y) = diffs
@@ -414,9 +406,9 @@ fn rect_grid(members: &[&HoleRecord], pts: &[(f64, f64)]) -> Option<HolePattern>
         holes: owned(members),
         rows,
         cols,
-        row_pitch: geom::round_to(l2, 2),
-        col_pitch: geom::round_to(l1, 2),
-        angle: geom::round_to(u1.1.atan2(u1.0).to_degrees().rem_euclid(180.0), 2),
+        row_pitch: py::round_to(l2, 2),
+        col_pitch: py::round_to(l1, 2),
+        angle: py::round_to(py::modulo(u1.1.atan2(u1.0).to_degrees(), 180.0), 2),
         center: mean_location(members),
     })
 }
@@ -442,15 +434,13 @@ fn rectangular_hole_set(holes: &[&HoleRecord], pts: &[(f64, f64)]) -> Option<Hol
                 && (hypot2(pts[f.0], pts[f.1]) - hypot2(pts[s.0], pts[s.1])).abs() <= tol
         })?;
     let c = (
-        pts.iter().map(|p| p.0).sum::<f64>() / 4.0,
-        pts.iter().map(|p| p.1).sum::<f64>() / 4.0,
+        py::sum(pts.iter().map(|p| p.0)) / 4.0,
+        py::sum(pts.iter().map(|p| p.1)) / 4.0,
     );
     let mut order: Vec<usize> = (0..4).collect();
     order.sort_by(|&a, &b| {
         let angle = |i: usize| (pts[i].1 - c.1).atan2(pts[i].0 - c.0);
-        angle(a)
-            .partial_cmp(&angle(b))
-            .unwrap_or(std::cmp::Ordering::Equal)
+        py::order(angle(a), angle(b))
     });
     let vectors: Vec<(f64, f64)> = (0..4)
         .map(|i| {
@@ -460,7 +450,7 @@ fn rectangular_hole_set(holes: &[&HoleRecord], pts: &[(f64, f64)]) -> Option<Hol
             )
         })
         .collect();
-    let lengths: Vec<f64> = vectors.iter().map(|v| v.0.hypot(v.1)).collect();
+    let lengths: Vec<f64> = vectors.iter().map(|v| py::hypot(&[v.0, v.1])).collect();
     let shortest = lengths.iter().copied().fold(f64::INFINITY, f64::min);
     if shortest <= tol
         || (lengths[0] - lengths[2]).abs() > tol
@@ -473,21 +463,17 @@ fn rectangular_hole_set(holes: &[&HoleRecord], pts: &[(f64, f64)]) -> Option<Hol
     }
     let long = if lengths[0] >= lengths[1] { 0 } else { 1 };
     let (width, height) = (lengths[long], lengths[1 - long]);
-    let mut angle = vectors[long]
-        .1
-        .atan2(vectors[long].0)
-        .to_degrees()
-        .rem_euclid(180.0);
+    let mut angle = py::modulo(vectors[long].1.atan2(vectors[long].0).to_degrees(), 180.0);
     if (width - height).abs() <= tol {
-        angle = angle.rem_euclid(90.0);
+        angle = py::modulo(angle, 90.0);
     }
     let ordered: Vec<&HoleRecord> = order.iter().map(|&i| holes[i]).collect();
     Some(HolePattern::RectangularHoleSet {
         holes: owned(&ordered),
         center: mean_location(holes),
-        width: geom::round_to(width, 2),
-        height: geom::round_to(height, 2),
-        angle: geom::round_to(angle, 2),
+        width: py::round_to(width, 2),
+        height: py::round_to(height, 2),
+        angle: py::round_to(angle, 2),
     })
 }
 
@@ -509,7 +495,12 @@ pub fn recognise_hole_patterns(holes: &[HoleRecord]) -> Vec<HolePattern> {
         let (u, v) = plane_uv(spec.axis);
         let pts: Vec<(f64, f64)> = members
             .iter()
-            .map(|h| (geom::dot(h.location, u), geom::dot(h.location, v)))
+            .map(|h| {
+                (
+                    py::sum((0..3).map(|i| h.location[i] * u[i])),
+                    py::sum((0..3).map(|i| h.location[i] * v[i])),
+                )
+            })
             .collect();
         let planes = opening_plane_clusters(&members, spec.axis);
         if planes.len() == 1 {

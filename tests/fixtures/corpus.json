@@ -1373,6 +1373,436 @@
       ]
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -64.5,
+         0.0,
+         0.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -64.5,
+         -0.0,
+         4.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -64.5,
+         0.0,
+         108.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -64.5,
+         -0.0,
+         112.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -54.5,
+         -0.0,
+         128.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -54.5,
+         -0.0,
+         139.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -27.25,
+         -47.198,
+         128.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -27.25,
+         -47.198,
+         139.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -27.25,
+         47.198,
+         128.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -27.25,
+         47.198,
+         139.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         27.25,
+         -47.198,
+         128.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         27.25,
+         -47.198,
+         139.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         27.25,
+         47.198,
+         128.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         27.25,
+         47.198,
+         139.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         54.5,
+         0.0,
+         128.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         54.5,
+         0.0,
+         139.5
+        ],
+        "turned": true,
+        "corner": null
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -64.5,
+         0.0,
+         0.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -64.5,
+         -0.0,
+         4.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -64.5,
+         0.0,
+         108.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -64.5,
+         -0.0,
+         112.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -54.5,
+         -0.0,
+         128.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -54.5,
+         -0.0,
+         139.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -27.25,
+         -47.198,
+         128.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -27.25,
+         -47.198,
+         139.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -27.25,
+         47.198,
+         128.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -27.25,
+         47.198,
+         139.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         27.25,
+         -47.198,
+         128.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         27.25,
+         -47.198,
+         139.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         27.25,
+         47.198,
+         128.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         27.25,
+         47.198,
+         139.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         54.5,
+         0.0,
+         128.5
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         54.5,
+         0.0,
+         139.5
+        ],
+        "turned": true,
+        "corner": null
+       }
+      ]
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -7599,6 +8029,46 @@
         ],
         "turned": true,
         "side": "convex"
+       }
+      ]
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 4.47,
+        "leg2": 4.04,
+        "angle": 42.11,
+        "at": [
+         -63.235,
+         -0.0,
+         141.44
+        ],
+        "turned": true,
+        "corner": null
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 4.47,
+        "leg2": 4.04,
+        "angle": 42.11,
+        "at": [
+         -63.235,
+         -0.0,
+         141.44
+        ],
+        "turned": true,
+        "corner": null
        }
       ]
      }
@@ -43643,6 +44113,18 @@
       ]
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -47162,6 +47644,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -51843,6 +52337,18 @@
         "side": "convex"
        }
       ]
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
      }
     ],
     "recognise_countersinks": [
@@ -57430,6 +57936,18 @@
       ]
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -58981,6 +59499,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -74603,6 +75133,18 @@
       ]
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -83844,6 +84386,900 @@
       ]
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -20.14,
+         48.618,
+         -34.251
+        ],
+        "turned": false,
+        "corner": [
+         -20.14,
+         48.868,
+         -34.001
+        ]
+       },
+       {
+        "axis": "x",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -13.132,
+         -35.882,
+         -49.751
+        ],
+        "turned": false,
+        "corner": [
+         -13.132,
+         -36.132,
+         -50.001
+        ]
+       },
+       {
+        "axis": "x",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -13.132,
+         33.618,
+         -49.751
+        ],
+        "turned": false,
+        "corner": [
+         -13.132,
+         33.868,
+         -50.001
+        ]
+       },
+       {
+        "axis": "x",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -6.123,
+         48.618,
+         -34.251
+        ],
+        "turned": false,
+        "corner": [
+         -6.123,
+         48.868,
+         -34.001
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -62.596,
+         -3.382,
+         -43.651
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -62.596,
+         1.118,
+         -43.651
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -58.022,
+         -1.132,
+         -49.751
+        ],
+        "turned": false,
+        "corner": [
+         -58.272,
+         -1.132,
+         -50.001
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -34.882,
+         -36.211,
+         -49.751
+        ],
+        "turned": false,
+        "corner": [
+         -35.132,
+         -36.211,
+         -50.001
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -34.882,
+         33.948,
+         -49.751
+        ],
+        "turned": false,
+        "corner": [
+         -35.132,
+         33.948,
+         -50.001
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -29.23,
+         48.618,
+         -18.75
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -26.142,
+         48.618,
+         -27.778
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -25.484,
+         48.618,
+         -15.871
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -22.258,
+         48.618,
+         -10.286
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -10.838,
+         -50.882,
+         -29.526
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -5.958,
+         -50.882,
+         24.642
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -4.005,
+         48.618,
+         -10.286
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -0.779,
+         48.618,
+         -15.871
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -0.121,
+         48.618,
+         -27.778
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         2.967,
+         48.618,
+         -18.75
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         8.618,
+         -36.211,
+         -49.751
+        ],
+        "turned": false,
+        "corner": [
+         8.868,
+         -36.211,
+         -50.001
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         8.618,
+         33.948,
+         -49.751
+        ],
+        "turned": false,
+        "corner": [
+         8.868,
+         33.948,
+         -50.001
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         31.759,
+         -1.132,
+         -49.751
+        ],
+        "turned": false,
+        "corner": [
+         32.009,
+         -1.132,
+         -50.001
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         41.118,
+         -50.882,
+         -3.997
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         42.612,
+         1.118,
+         -45.535
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         45.053,
+         -3.382,
+         -45.559
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         46.177,
+         1.118,
+         -44.956
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -54.947,
+         -24.222,
+         -49.751
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -54.947,
+         21.959,
+         -49.751
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -29.132,
+         -46.882,
+         -49.751
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -29.132,
+         44.618,
+         -49.751
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -15.381,
+         48.619,
+         -22.533
+        ],
+        "turned": false,
+        "corner": [
+         -15.632,
+         48.868,
+         -22.427
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 1.5,
+        "leg2": 1.5,
+        "angle": 45.0,
+        "at": [
+         -13.132,
+         -45.382,
+         49.249
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.5,
+        "leg2": 1.5,
+        "angle": 45.0,
+        "at": [
+         -13.132,
+         43.118,
+         49.249
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -10.882,
+         48.619,
+         -22.533
+        ],
+        "turned": false,
+        "corner": [
+         -10.632,
+         48.868,
+         -22.427
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         2.868,
+         -46.882,
+         -49.751
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         2.868,
+         44.618,
+         -49.751
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         28.684,
+         -24.222,
+         -49.751
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         28.684,
+         21.959,
+         -49.751
+        ],
+        "turned": true,
+        "corner": null
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": [
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -62.596,
+         -3.382,
+         -43.651
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -62.596,
+         1.118,
+         -43.651
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -29.23,
+         48.618,
+         -18.75
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -26.142,
+         48.618,
+         -27.778
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -25.484,
+         48.618,
+         -15.871
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -22.258,
+         48.618,
+         -10.286
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -10.838,
+         -50.882,
+         -29.526
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -5.958,
+         -50.882,
+         24.642
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -4.005,
+         48.618,
+         -10.286
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -0.779,
+         48.618,
+         -15.871
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -0.121,
+         48.618,
+         -27.778
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         2.967,
+         48.618,
+         -18.75
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         41.118,
+         -50.882,
+         -3.997
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         42.612,
+         1.118,
+         -45.535
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         45.053,
+         -3.382,
+         -45.559
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         46.177,
+         1.118,
+         -44.956
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -54.947,
+         -24.222,
+         -49.751
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -54.947,
+         21.959,
+         -49.751
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -29.132,
+         -46.882,
+         -49.751
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         -29.132,
+         44.618,
+         -49.751
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.5,
+        "leg2": 1.5,
+        "angle": 45.0,
+        "at": [
+         -13.132,
+         -45.382,
+         49.249
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.5,
+        "leg2": 1.5,
+        "angle": 45.0,
+        "at": [
+         -13.132,
+         43.118,
+         49.249
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         2.868,
+         -46.882,
+         -49.751
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         2.868,
+         44.618,
+         -49.751
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         28.684,
+         -24.222,
+         -49.751
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         28.684,
+         21.959,
+         -49.751
+        ],
+        "turned": true,
+        "corner": null
+       }
+      ]
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -93006,6 +94442,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -93914,6 +95362,98 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 0.3,
+        "leg2": 0.3,
+        "angle": 45.0,
+        "at": [
+         0.65,
+         0.0,
+         4.85
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "x",
+        "leg1": 0.3,
+        "leg2": 0.3,
+        "angle": 45.0,
+        "at": [
+         2.35,
+         -0.0,
+         4.85
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "x",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         23.25,
+         -0.0,
+         1.25
+        ],
+        "turned": true,
+        "corner": null
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 0.3,
+        "leg2": 0.3,
+        "angle": 45.0,
+        "at": [
+         0.65,
+         0.0,
+         4.85
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "x",
+        "leg1": 0.3,
+        "leg2": 0.3,
+        "angle": 45.0,
+        "at": [
+         2.35,
+         -0.0,
+         4.85
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "x",
+        "leg1": 0.5,
+        "leg2": 0.5,
+        "angle": 45.0,
+        "at": [
+         23.25,
+         -0.0,
+         1.25
+        ],
+        "turned": true,
+        "corner": null
+       }
+      ]
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -94125,6 +95665,72 @@
       },
       "defining": [],
       "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 1.5,
+        "leg2": 1.5,
+        "angle": 45.0,
+        "at": [
+         -4.25,
+         0.0,
+         0.75
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -2.5,
+         -0.0,
+         31.5
+        ],
+        "turned": true,
+        "corner": null
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 1.5,
+        "leg2": 1.5,
+        "angle": 45.0,
+        "at": [
+         -4.25,
+         0.0,
+         0.75
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 1.0,
+        "leg2": 1.0,
+        "angle": 45.0,
+        "at": [
+         -2.5,
+         -0.0,
+         31.5
+        ],
+        "turned": true,
+        "corner": null
+       }
+      ]
      }
     ],
     "recognise_countersinks": [
@@ -94568,6 +96174,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -94926,6 +96544,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -95363,6 +96993,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -96234,6 +97876,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -96675,6 +98329,36 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 11.775,
+        "leg2": 8.245,
+        "angle": 35.0,
+        "at": [
+         5.325,
+         5.888,
+         4.122
+        ],
+        "turned": false,
+        "corner": [
+         5.325,
+         0.0,
+         0.0
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -97246,6 +98930,36 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 12.194,
+        "leg2": 7.546,
+        "angle": 31.75,
+        "at": [
+         25.767,
+         3.773,
+         8.887
+        ],
+        "turned": false,
+        "corner": [
+         31.864,
+         0.0,
+         8.887
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -98096,6 +99810,36 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "leg1": 10.62,
+        "leg2": 1.99,
+        "angle": 10.61,
+        "at": [
+         5.302,
+         5.762,
+         18.954
+        ],
+        "turned": false,
+        "corner": [
+         0.0,
+         5.819,
+         17.961
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -98533,6 +100277,53 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "leg1": 1.407,
+        "leg2": 1.407,
+        "angle": 45.0,
+        "at": [
+         0.703,
+         17.182,
+         0.703
+        ],
+        "turned": false,
+        "corner": [
+         0.0,
+         17.182,
+         0.0
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 3.401,
+        "leg2": 3.401,
+        "angle": 45.0,
+        "at": [
+         41.876,
+         1.701,
+         19.718
+        ],
+        "turned": false,
+        "corner": [
+         43.577,
+         0.0,
+         19.718
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -99299,6 +101090,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -99737,6 +101540,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -100353,6 +102168,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -100878,6 +102705,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -101389,6 +103228,36 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "leg1": 7.612,
+        "leg2": 2.685,
+        "angle": 19.43,
+        "at": [
+         10.192,
+         3.628,
+         3.806
+        ],
+        "turned": false,
+        "corner": [
+         11.535,
+         3.628,
+         0.0
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -101883,6 +103752,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -102564,6 +104445,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -103068,6 +104961,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -103519,6 +105424,70 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "leg1": 1.134,
+        "leg2": 1.134,
+        "angle": 45.0,
+        "at": [
+         23.049,
+         23.894,
+         0.561
+        ],
+        "turned": false,
+        "corner": [
+         23.623,
+         23.537,
+         0.0
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 3.876,
+        "leg2": 3.876,
+        "angle": 45.0,
+        "at": [
+         17.375,
+         1.938,
+         13.526
+        ],
+        "turned": false,
+        "corner": [
+         19.313,
+         0.0,
+         13.526
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 0.1,
+        "leg2": 0.1,
+        "angle": 45.0,
+        "at": [
+         23.573,
+         34.603,
+         11.602
+        ],
+        "turned": false,
+        "corner": [
+         23.623,
+         34.653,
+         11.577
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -103877,6 +105846,36 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "leg1": 1.989,
+        "leg2": 1.989,
+        "angle": 45.0,
+        "at": [
+         23.837,
+         28.5,
+         0.995
+        ],
+        "turned": false,
+        "corner": [
+         24.831,
+         28.5,
+         0.0
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -104468,6 +106467,36 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 15.052,
+        "leg2": 2.239,
+        "angle": 8.46,
+        "at": [
+         9.828,
+         13.446,
+         7.526
+        ],
+        "turned": false,
+        "corner": [
+         9.828,
+         14.663,
+         0.0
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -105063,6 +107092,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -105693,6 +107734,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -106261,6 +108314,36 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 8.014,
+        "leg2": 5.991,
+        "angle": 36.78,
+        "at": [
+         9.147,
+         7.36,
+         9.404
+        ],
+        "turned": false,
+        "corner": [
+         13.154,
+         10.355,
+         9.404
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -107056,6 +109139,36 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 4.5,
+        "leg2": 3.768,
+        "angle": 39.94,
+        "at": [
+         10.505,
+         16.034,
+         4.41
+        ],
+        "turned": false,
+        "corner": [
+         9.974,
+         13.928,
+         5.109
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -107619,6 +109732,36 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 8.388,
+        "leg2": 2.31,
+        "angle": 15.39,
+        "at": [
+         8.375,
+         16.849,
+         6.257
+        ],
+        "turned": false,
+        "corner": [
+         12.57,
+         18.004,
+         6.257
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -108126,6 +110269,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -108826,6 +110981,36 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "leg1": 0.1,
+        "leg2": 0.1,
+        "angle": 45.0,
+        "at": [
+         37.566,
+         19.842,
+         0.05
+        ],
+        "turned": false,
+        "corner": [
+         37.616,
+         19.842,
+         0.0
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -109176,6 +111361,36 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "leg1": 2.173,
+        "leg2": 2.173,
+        "angle": 45.0,
+        "at": [
+         1.086,
+         10.091,
+         22.14
+        ],
+        "turned": false,
+        "corner": [
+         0.0,
+         10.091,
+         23.226
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -109659,6 +111874,36 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 18.575,
+        "leg2": 12.942,
+        "angle": 34.87,
+        "at": [
+         9.604,
+         6.25,
+         18.268
+        ],
+        "turned": false,
+        "corner": [
+         0.0,
+         0.0,
+         17.713
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -110269,6 +112514,53 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 2.162,
+        "leg2": 2.162,
+        "angle": 45.0,
+        "at": [
+         5.003,
+         23.142,
+         1.081
+        ],
+        "turned": false,
+        "corner": [
+         5.003,
+         24.223,
+         0.0
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 0.1,
+        "leg2": 0.1,
+        "angle": 45.0,
+        "at": [
+         0.05,
+         12.111,
+         10.377
+        ],
+        "turned": false,
+        "corner": [
+         0.0,
+         12.111,
+         10.427
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -110860,6 +113152,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -111396,6 +113700,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -112018,6 +114334,36 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 1.217,
+        "leg2": 1.217,
+        "angle": 45.0,
+        "at": [
+         0.608,
+         0.608,
+         8.327
+        ],
+        "turned": false,
+        "corner": [
+         0.0,
+         0.0,
+         8.327
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -112718,6 +115064,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -113110,6 +115468,53 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 0.96,
+        "leg2": 0.96,
+        "angle": 45.0,
+        "at": [
+         37.299,
+         0.48,
+         7.829
+        ],
+        "turned": false,
+        "corner": [
+         37.299,
+         0.0,
+         8.309
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 0.967,
+        "leg2": 0.967,
+        "angle": 45.0,
+        "at": [
+         0.483,
+         17.116,
+         28.878
+        ],
+        "turned": false,
+        "corner": [
+         0.0,
+         17.116,
+         29.361
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -113523,6 +115928,36 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 3.938,
+        "leg2": 3.938,
+        "angle": 45.0,
+        "at": [
+         12.646,
+         1.969,
+         7.738
+        ],
+        "turned": false,
+        "corner": [
+         14.615,
+         0.0,
+         7.738
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -114159,6 +116594,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -114733,6 +117180,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -115248,6 +117707,36 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 20.215,
+        "leg2": 9.585,
+        "angle": 25.37,
+        "at": [
+         21.195,
+         41.149,
+         15.111
+        ],
+        "turned": false,
+        "corner": [
+         31.4,
+         45.895,
+         14.771
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -115858,6 +118347,36 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 7.76,
+        "leg2": 2.0,
+        "angle": 14.45,
+        "at": [
+         3.88,
+         38.198,
+         3.426
+        ],
+        "turned": false,
+        "corner": [
+         0.0,
+         39.198,
+         3.426
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -116393,6 +118912,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -116792,6 +119323,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -117534,6 +120077,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -118054,6 +120609,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -118888,6 +121455,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -119386,6 +121965,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -120108,6 +122699,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -120721,6 +123324,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -121075,6 +123690,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -121522,6 +124149,36 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "leg1": 3.162,
+        "leg2": 2.911,
+        "angle": 42.63,
+        "at": [
+         34.049,
+         21.059,
+         16.136
+        ],
+        "turned": false,
+        "corner": [
+         35.505,
+         21.059,
+         17.718
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -121820,6 +124477,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -122275,6 +124944,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -122967,6 +125648,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -123395,6 +126088,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -123913,6 +126618,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -124368,6 +127085,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -124712,6 +127441,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -125180,6 +127921,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -125558,6 +128311,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -125953,6 +128718,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -126460,6 +129237,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -127082,6 +129871,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -127534,6 +130335,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -128149,6 +130962,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -128726,6 +131551,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -129207,6 +132044,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -129747,6 +132596,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -130386,6 +133247,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -130915,6 +133788,36 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 14.632,
+        "leg2": 5.077,
+        "angle": 19.13,
+        "at": [
+         17.626,
+         34.818,
+         7.918
+        ],
+        "turned": false,
+        "corner": [
+         17.626,
+         42.134,
+         10.456
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -131441,6 +134344,36 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 11.662,
+        "leg2": 8.627,
+        "angle": 36.49,
+        "at": [
+         25.359,
+         6.718,
+         36.413
+        ],
+        "turned": false,
+        "corner": [
+         22.32,
+         0.0,
+         23.22
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -132183,6 +135116,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -132945,6 +135890,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -133400,6 +136357,36 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "leg1": 5.666,
+        "leg2": 1.0,
+        "angle": 10.01,
+        "at": [
+         21.5,
+         14.992,
+         12.359
+        ],
+        "turned": false,
+        "corner": [
+         21.0,
+         14.992,
+         15.193
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -133970,6 +136957,53 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 12.566,
+        "leg2": 2.605,
+        "angle": 11.71,
+        "at": [
+         6.606,
+         1.302,
+         18.456
+        ],
+        "turned": false,
+        "corner": [
+         6.606,
+         0.0,
+         24.738
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 10.368,
+        "leg2": 2.0,
+        "angle": 10.92,
+        "at": [
+         1.0,
+         24.197,
+         23.528
+        ],
+        "turned": false,
+        "corner": [
+         0.0,
+         29.381,
+         23.528
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -134469,6 +137503,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -135120,6 +138166,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -135816,6 +138874,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -136352,6 +139422,53 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "leg1": 3.598,
+        "leg2": 3.598,
+        "angle": 45.0,
+        "at": [
+         1.772,
+         2.805,
+         13.037
+        ],
+        "turned": false,
+        "corner": [
+         0.0,
+         2.931,
+         14.863
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 6.121,
+        "leg2": 2.685,
+        "angle": 23.68,
+        "at": [
+         22.449,
+         4.172,
+         8.148
+        ],
+        "turned": false,
+        "corner": [
+         25.468,
+         7.153,
+         8.096
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -138507,6 +141624,70 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "angle": 45.0,
+        "at": [
+         -47.544,
+         0.0,
+         47.456
+        ],
+        "turned": false,
+        "corner": [
+         -50.0,
+         0.0,
+         50.0
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "angle": 45.0,
+        "at": [
+         47.544,
+         0.0,
+         47.456
+        ],
+        "turned": false,
+        "corner": [
+         50.0,
+         0.0,
+         50.0
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 50.0,
+        "leg2": 50.0,
+        "angle": 45.0,
+        "at": [
+         375.0,
+         200.0,
+         -50.0
+        ],
+        "turned": false,
+        "corner": [
+         400.0,
+         225.0,
+         -50.0
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -148703,6 +151884,18 @@
       "result": []
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -155097,6 +158290,121 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 25.4,
+        "leg2": 25.4,
+        "angle": 45.0,
+        "at": [
+         -248.607,
+         72.69,
+         116.208
+        ],
+        "turned": false,
+        "corner": [
+         -248.607,
+         59.99,
+         128.908
+        ]
+       },
+       {
+        "axis": "x",
+        "leg1": 25.4,
+        "leg2": 25.4,
+        "angle": 45.0,
+        "at": [
+         -248.607,
+         412.755,
+         116.208
+        ],
+        "turned": false,
+        "corner": [
+         -248.607,
+         425.455,
+         128.908
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 12.7,
+        "leg2": 12.7,
+        "angle": 45.0,
+        "at": [
+         -234.95,
+         6.35,
+         0.954
+        ],
+        "turned": false,
+        "corner": [
+         -241.3,
+         0.0,
+         0.954
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 12.7,
+        "leg2": 12.7,
+        "angle": 45.0,
+        "at": [
+         -234.95,
+         479.095,
+         0.954
+        ],
+        "turned": false,
+        "corner": [
+         -241.3,
+         485.445,
+         0.954
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 12.7,
+        "leg2": 12.7,
+        "angle": 45.0,
+        "at": [
+         -6.35,
+         6.35,
+         0.954
+        ],
+        "turned": false,
+        "corner": [
+         0.0,
+         0.0,
+         0.954
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 12.7,
+        "leg2": 12.7,
+        "angle": 45.0,
+        "at": [
+         -6.35,
+         479.095,
+         0.954
+        ],
+        "turned": false,
+        "corner": [
+         0.0,
+         485.445,
+         0.954
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -164278,6 +167586,155 @@
       ]
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "angle": 45.0,
+        "at": [
+         -116.5,
+         270.5,
+         -37.5
+        ],
+        "turned": false,
+        "corner": [
+         -116.5,
+         273.0,
+         -40.0
+        ]
+       },
+       {
+        "axis": "x",
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "angle": 45.0,
+        "at": [
+         -116.5,
+         405.5,
+         -37.5
+        ],
+        "turned": false,
+        "corner": [
+         -116.5,
+         403.0,
+         -40.0
+        ]
+       },
+       {
+        "axis": "x",
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "angle": 45.0,
+        "at": [
+         116.5,
+         270.5,
+         -37.5
+        ],
+        "turned": false,
+        "corner": [
+         116.5,
+         273.0,
+         -40.0
+        ]
+       },
+       {
+        "axis": "x",
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "angle": 45.0,
+        "at": [
+         116.5,
+         405.5,
+         -37.5
+        ],
+        "turned": false,
+        "corner": [
+         116.5,
+         403.0,
+         -40.0
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "angle": 45.0,
+        "at": [
+         -156.5,
+         307.588,
+         -37.5
+        ],
+        "turned": false,
+        "corner": [
+         -154.0,
+         307.588,
+         -40.0
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "angle": 45.0,
+        "at": [
+         -76.5,
+         307.588,
+         -37.5
+        ],
+        "turned": false,
+        "corner": [
+         -79.0,
+         307.588,
+         -40.0
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "angle": 45.0,
+        "at": [
+         76.5,
+         307.588,
+         -37.5
+        ],
+        "turned": false,
+        "corner": [
+         79.0,
+         307.588,
+         -40.0
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 5.0,
+        "leg2": 5.0,
+        "angle": 45.0,
+        "at": [
+         156.5,
+         307.588,
+         -37.5
+        ],
+        "turned": false,
+        "corner": [
+         154.0,
+         307.588,
+         -40.0
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -170670,6 +174127,124 @@
       ]
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 6.35,
+        "leg2": 6.35,
+        "angle": 45.0,
+        "at": [
+         0.0,
+         -149.225,
+         123.825
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 6.35,
+        "leg2": 6.35,
+        "angle": 45.0,
+        "at": [
+         -0.0,
+         -28.575,
+         479.425
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 6.35,
+        "leg2": 6.35,
+        "angle": 45.0,
+        "at": [
+         0.0,
+         28.575,
+         479.425
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 6.35,
+        "leg2": 6.35,
+        "angle": 45.0,
+        "at": [
+         -0.0,
+         149.225,
+         123.825
+        ],
+        "turned": true,
+        "corner": null
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 6.35,
+        "leg2": 6.35,
+        "angle": 45.0,
+        "at": [
+         0.0,
+         -149.225,
+         123.825
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 6.35,
+        "leg2": 6.35,
+        "angle": 45.0,
+        "at": [
+         -0.0,
+         -28.575,
+         479.425
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 6.35,
+        "leg2": 6.35,
+        "angle": 45.0,
+        "at": [
+         0.0,
+         28.575,
+         479.425
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 6.35,
+        "leg2": 6.35,
+        "angle": 45.0,
+        "at": [
+         -0.0,
+         149.225,
+         123.825
+        ],
+        "turned": true,
+        "corner": null
+       }
+      ]
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -173907,6 +177482,157 @@
         ],
         "turned": true,
         "side": "convex"
+       }
+      ]
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 101.6,
+        "leg2": 50.8,
+        "angle": 26.57,
+        "at": [
+         0.0,
+         72.432,
+         -82.466
+        ],
+        "turned": false,
+        "corner": [
+         0.0,
+         97.79,
+         -133.35
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 38.1,
+        "leg2": 6.35,
+        "angle": 9.46,
+        "at": [
+         -76.2,
+         66.04,
+         -146.05
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 38.1,
+        "leg2": 6.35,
+        "angle": 9.46,
+        "at": [
+         76.2,
+         66.04,
+         -146.05
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "z",
+        "leg1": 31.75,
+        "leg2": 14.805,
+        "angle": 25.0,
+        "at": [
+         -96.303,
+         81.915,
+         -15.875
+        ],
+        "turned": false,
+        "corner": [
+         -88.9,
+         97.79,
+         -15.875
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 31.75,
+        "leg2": 14.805,
+        "angle": 25.0,
+        "at": [
+         -68.797,
+         81.915,
+         -15.875
+        ],
+        "turned": false,
+        "corner": [
+         -76.2,
+         97.79,
+         -15.875
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 31.75,
+        "leg2": 14.805,
+        "angle": 25.0,
+        "at": [
+         68.797,
+         81.915,
+         -15.875
+        ],
+        "turned": false,
+        "corner": [
+         76.2,
+         97.79,
+         -15.875
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 31.75,
+        "leg2": 14.805,
+        "angle": 25.0,
+        "at": [
+         96.303,
+         81.915,
+         -15.875
+        ],
+        "turned": false,
+        "corner": [
+         88.9,
+         97.79,
+         -15.875
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": [
+       {
+        "axis": "y",
+        "leg1": 38.1,
+        "leg2": 6.35,
+        "angle": 9.46,
+        "at": [
+         -76.2,
+         66.04,
+         -146.05
+        ],
+        "turned": true,
+        "corner": null
+       },
+       {
+        "axis": "y",
+        "leg1": 38.1,
+        "leg2": 6.35,
+        "angle": 9.46,
+        "at": [
+         76.2,
+         66.04,
+         -146.05
+        ],
+        "turned": true,
+        "corner": null
        }
       ]
      }
@@ -178650,6 +182376,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -184188,6 +187926,18 @@
       ]
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -187434,6 +191184,155 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "leg1": 6.35,
+        "leg2": 6.35,
+        "angle": 45.0,
+        "at": [
+         -92.075,
+         1.519,
+         -114.3
+        ],
+        "turned": false,
+        "corner": [
+         -95.25,
+         1.519,
+         -117.475
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 6.35,
+        "leg2": 6.35,
+        "angle": 45.0,
+        "at": [
+         -92.075,
+         1.519,
+         114.3
+        ],
+        "turned": false,
+        "corner": [
+         -95.25,
+         1.519,
+         117.475
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 12.7,
+        "leg2": 7.332,
+        "angle": 30.0,
+        "at": [
+         -68.263,
+         1.519,
+         -136.034
+        ],
+        "turned": false,
+        "corner": [
+         -74.612,
+         1.519,
+         -139.7
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 12.7,
+        "leg2": 7.332,
+        "angle": 30.0,
+        "at": [
+         -68.263,
+         1.519,
+         136.034
+        ],
+        "turned": false,
+        "corner": [
+         -74.612,
+         1.519,
+         139.7
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 12.7,
+        "leg2": 7.332,
+        "angle": 30.0,
+        "at": [
+         68.263,
+         1.519,
+         -136.034
+        ],
+        "turned": false,
+        "corner": [
+         74.612,
+         1.519,
+         -139.7
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 12.7,
+        "leg2": 7.332,
+        "angle": 30.0,
+        "at": [
+         68.263,
+         1.519,
+         136.034
+        ],
+        "turned": false,
+        "corner": [
+         74.612,
+         1.519,
+         139.7
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 6.35,
+        "leg2": 6.35,
+        "angle": 45.0,
+        "at": [
+         92.075,
+         1.519,
+         -114.3
+        ],
+        "turned": false,
+        "corner": [
+         95.25,
+         1.519,
+         -117.475
+        ]
+       },
+       {
+        "axis": "y",
+        "leg1": 6.35,
+        "leg2": 6.35,
+        "angle": 45.0,
+        "at": [
+         92.075,
+         1.519,
+         114.3
+        ],
+        "turned": false,
+        "corner": [
+         95.25,
+         1.519,
+         117.475
+        ]
+       }
+      ]
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],
@@ -192745,6 +196644,18 @@
       ]
      }
     ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
+      "result": []
+     }
+    ],
     "recognise_countersinks": [
      {
       "options": {},
@@ -196060,6 +199971,18 @@
        "include_cylindrical": false
       },
       "defining": [],
+      "result": []
+     }
+    ],
+    "recognise_chamfers": [
+     {
+      "options": {},
+      "result": []
+     },
+     {
+      "options": {
+       "include_planar": false
+      },
       "result": []
      }
     ],

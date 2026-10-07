@@ -3,6 +3,7 @@
 
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, COORD_FLOOR, Surface, V3, dominant_axis_preferring_z};
+use crate::kernel::py;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct CylinderEvidence {
@@ -25,7 +26,7 @@ fn canonical(value: f64, floor: f64) -> f64 {
     if value.abs() <= floor {
         0.0
     } else {
-        format!("{value:.11e}").parse().expect("float")
+        py::quantise(value, 12)
     }
 }
 
@@ -51,7 +52,7 @@ pub fn analyse_cylinders(part: &Part) -> Vec<CylinderEvidence> {
         let axis = dominant_axis_preferring_z(frame.z);
         let sign = if frame.z[axis] > 0.0 { 1.0 } else { -1.0 };
         let direction = geom::scale(frame.z, sign);
-        let s_ap: f64 = (0..3).map(|i| frame.origin[i] * direction[i]).sum();
+        let s_ap = py::fsum((0..3).map(|i| frame.origin[i] * direction[i]));
         let axial = (s_ap + sign * v0, s_ap + sign * v1);
         let axial = (
             canonical(axial.0, COORD_FLOOR),
@@ -60,7 +61,7 @@ pub fn analyse_cylinders(part: &Part) -> Vec<CylinderEvidence> {
         out.push(CylinderEvidence {
             face,
             solid,
-            diameter: geom::quantise(radius * 2.0),
+            diameter: py::quantise6(radius * 2.0),
             axis,
             u_extent: u1 - u0,
             axis_point: frame.origin.map(|c| canonical(c, COORD_FLOOR)),
@@ -75,12 +76,12 @@ pub fn analyse_cylinders(part: &Part) -> Vec<CylinderEvidence> {
 
 /// Whether two unit-direction axis lines are parallel and within *tol* (`_coaxial_axis_lines`).
 pub fn coaxial_axis_lines(pa: V3, da: V3, pb: V3, db: V3, tol: f64) -> bool {
-    if geom::dot(da, db).abs() < 1.0 - 1e-6 {
+    if py::sum((0..3).map(|i| da[i] * db[i])).abs() < 1.0 - 1e-6 {
         return false;
     }
     let offset = geom::sub(pa, pb);
-    let along = geom::dot(offset, db);
-    let d2: f64 = (0..3).map(|i| (offset[i] - along * db[i]).powi(2)).sum();
+    let along = py::sum((0..3).map(|i| offset[i] * db[i]));
+    let d2 = py::sum((0..3).map(|i| (offset[i] - along * db[i]).powi(2)));
     d2 <= tol * tol
 }
 
@@ -169,16 +170,16 @@ pub fn line_key(c: &impl Coaxial) -> Vec<f64> {
         d[0],
         d[1],
         d[2],
-        geom::round_to(p[0] - t * d[0], 3),
-        geom::round_to(p[1] - t * d[1], 3),
-        geom::round_to(p[2] - t * d[2], 3),
+        py::round_to(p[0] - t * d[0], 3),
+        py::round_to(p[1] - t * d[1], 3),
+        py::round_to(p[2] - t * d[2], 3),
     ]
 }
 
 /// `_cyl_group_key`: the line key plus the diameter to four significant figures.
 pub fn group_key(c: &impl Coaxial) -> Vec<f64> {
     let mut key = line_key(c);
-    key.push(geom::quantise_to(c.diameter(), 4));
+    key.push(py::quantise(c.diameter(), 4));
     key
 }
 
@@ -195,12 +196,7 @@ pub fn merge_runs<T: Coaxial + Clone>(items: &[T], key: impl Fn(&T) -> Vec<f64>)
     }
     let mut runs = Vec::new();
     for (_, mut group) in groups {
-        group.sort_by(|a, b| {
-            a.span()
-                .0
-                .partial_cmp(&b.span().0)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
+        group.sort_by(|a, b| py::order(a.span().0, b.span().0));
         let mut run = vec![group[0].clone()];
         let mut hi = group[0].span().1;
         for c in &group[1..] {

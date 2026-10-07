@@ -659,50 +659,6 @@ pub fn nearest_turn(a: f64, reference: f64) -> f64 {
     a - TAU * ((a - reference + PI) / TAU).floor()
 }
 
-/// Python's `round(value, 3)`: correctly rounded on the exact binary value.
-/// Python's `round(value, digits)`: correctly rounded on the exact binary value.
-pub fn round_to(value: f64, digits: usize) -> f64 {
-    format!("{value:.digits$}")
-        .parse()
-        .expect("formatted float parses")
-}
-
-/// `quiddity._geometry.quantise`: *value* to *figures* significant figures.
-pub fn quantise_to(value: f64, figures: usize) -> f64 {
-    let precision = figures.saturating_sub(1);
-    format!("{value:.precision$e}")
-        .parse()
-        .expect("formatted float parses")
-}
-
-/// Python's ordering of float tuples: lexicographic, with -0.0 equal to 0.0 (so `total_cmp`,
-/// which separates them, would reorder ties).
-pub fn python_order(a: &[f64], b: &[f64]) -> std::cmp::Ordering {
-    a.iter()
-        .zip(b)
-        .map(|(x, y)| x.partial_cmp(y).unwrap_or(std::cmp::Ordering::Equal))
-        .find(|o| o.is_ne())
-        .unwrap_or_else(|| a.len().cmp(&b.len()))
-}
-
-/// `without_negative_zero`: -0.0 becomes 0.0, so records compare and print as Python's do.
-pub fn without_negative_zero(value: f64) -> f64 {
-    if value == 0.0 { 0.0 } else { value }
-}
-
-pub fn round3(value: f64) -> f64 {
-    format!("{value:.3}")
-        .parse()
-        .expect("formatted float parses")
-}
-
-/// `quiddity._geometry.quantise`: *value* to six significant figures.
-pub fn quantise(value: f64) -> f64 {
-    format!("{value:.5e}")
-        .parse()
-        .expect("formatted float parses")
-}
-
 /// `quiddity._geometry.length_tol`.
 pub fn length_tol(nominal: f64, rel: f64) -> f64 {
     rel * nominal + COORD_FLOOR
@@ -715,19 +671,6 @@ pub const INTERIOR_PROBE_FRAC: f64 = 0.05;
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn rounding_matches_python() {
-        // Values from CPython's round(x, 3) and float(f"{x:.6g}").
-        assert_eq!(round3(2.0005), 2.001);
-        assert_eq!(round3(0.0625), 0.062);
-        assert_eq!(round3(1.2345), 1.234);
-        assert_eq!(round3(19.4145), 19.415);
-        assert!(round3(-0.0004) == 0.0 && round3(-0.0004).is_sign_negative());
-        assert_eq!(quantise(1234567.0), 1234570.0);
-        assert_eq!(quantise(0.000123456789), 0.000123457);
-        assert_eq!(quantise(2.5e-7), 2.5e-7);
-    }
 
     #[test]
     fn default_x_axis_follows_gp_ax2() {

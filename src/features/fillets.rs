@@ -15,6 +15,7 @@ use super::evidence::{self, EvidenceError, Occurrence};
 use super::planes::nearest_axis_aligned_planes;
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, AXIS_ALIGNED_COS, Surface, V3, dominant_axis};
+use crate::kernel::py;
 
 /// A minimum-evidence threshold, deliberately absolute (ADR 0008).
 const MIN_RADIUS: f64 = 0.6;
@@ -90,8 +91,8 @@ fn occurrence(
     Occurrence {
         record: Fillet {
             axis: ['x', 'y', 'z'][axis],
-            radius: geom::round3(radius),
-            at: at.map(geom::round3),
+            radius: py::round_to3(radius),
+            at: at.map(py::round_to3),
             turned,
             side: "convex",
         },
@@ -132,17 +133,7 @@ pub fn discover(ctx: &Context<'_>, opts: &FilletOptions) -> Vec<Occurrence<Fille
     out.sort_by(|a, b| {
         let key = |o: &Occurrence<Fillet>| (o.record.axis, o.record.at);
         let (ka, kb) = (key(a), key(b));
-        ka.0.cmp(&kb.0).then_with(|| {
-            // Python's tuple order: -0.0 equals 0.0 (so `total_cmp` would reorder ties).
-            (0..3)
-                .map(|i| {
-                    ka.1[i]
-                        .partial_cmp(&kb.1[i])
-                        .unwrap_or(std::cmp::Ordering::Equal)
-                })
-                .find(|o| o.is_ne())
-                .unwrap_or(std::cmp::Ordering::Equal)
-        })
+        ka.0.cmp(&kb.0).then_with(|| py::tuple_order(&ka.1, &kb.1))
     });
     out
 }

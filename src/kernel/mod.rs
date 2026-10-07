@@ -6,6 +6,7 @@ pub mod brep;
 pub mod classify;
 pub mod geom;
 pub mod nurbs;
+pub mod py;
 pub mod sampling;
 pub mod step;
 pub mod uv;

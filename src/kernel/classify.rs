@@ -22,6 +22,9 @@ const DIRECTIONS: [V3; 7] = [
     [-0.1111, -0.9333, 0.3412],
 ];
 
+/// A point this close to a face is on the boundary.
+pub const ON_TOLERANCE: f64 = 1e-6;
+
 /// Precomputed culling boxes for repeated queries against one part.
 pub struct Classifier<'a> {
     part: &'a Part,
@@ -40,6 +43,8 @@ pub struct Classifier<'a> {
 pub enum State {
     In,
     Out,
+    /// Within [`ON_TOLERANCE`] of a face (`TopAbs_ON`).
+    On,
     /// Every ray was ambiguous, or the part has a surface this classifier cannot intersect.
     Unknown,
 }
@@ -78,6 +83,9 @@ impl<'a> Classifier<'a> {
     }
 
     pub fn classify(&self, p: V3) -> State {
+        if self.on_boundary(p) {
+            return State::On;
+        }
         let mut votes = (0usize, 0usize);
         for dir in DIRECTIONS {
             let Some(dir) = geom::unit(dir) else { continue };
@@ -99,6 +107,31 @@ impl<'a> Classifier<'a> {
             std::cmp::Ordering::Less => State::Out,
             std::cmp::Ordering::Equal => State::Unknown,
         }
+    }
+
+    /// Whether *p* lies on a face, within [`ON_TOLERANCE`] (the tolerance the Python
+    /// implementation hands `BRepClass3d_SolidClassifier::Perform`).
+    fn on_boundary(&self, p: V3) -> bool {
+        (0..self.part.faces.len()).any(|i| {
+            if !self.face_boxes[i].contains(p, ON_TOLERANCE) {
+                return false;
+            }
+            let face = &self.part.faces[i];
+            let Some((u, v)) = face.surface.parameters(p, None) else {
+                return false;
+            };
+            geom::dist(face.surface.value(u, v), p) <= ON_TOLERANCE
+                && self.part.domain(i).is_some_and(|d| d.contains(u, v))
+        })
+    }
+
+    /// Each probe ray's crossing count (`None` when ambiguous), for diagnosing a classification.
+    pub fn explain(&self, p: V3) -> Vec<Option<usize>> {
+        DIRECTIONS
+            .iter()
+            .filter_map(|d| geom::unit(*d))
+            .map(|d| self.crossings(p, d))
+            .collect()
     }
 
     /// Number of face crossings along the ray, or `None` when the ray is ambiguous.

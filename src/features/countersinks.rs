@@ -6,6 +6,7 @@ use super::Context;
 use super::evidence::Occurrence;
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, Curve, Surface, V3};
+use crate::kernel::py;
 
 /// Does this cone sit on that bore? A fraction of the drill radius.
 const MINOR_MATCH_FRAC: f64 = 0.0167;
@@ -53,8 +54,8 @@ pub fn recognise_countersinks(part: &Part) -> Vec<CounterSink> {
 pub fn countersink_matches_hole(cs: &CounterSink, hole: &HoleMouth) -> bool {
     let minor = [0, 1, 2].map(|i| cs.location[i] + cs.depth * cs.axis[i]);
     let offset = geom::sub(minor, hole.location);
-    let axial = geom::dot(offset, hole.axis);
-    let perpendicular = geom::norm(geom::sub(offset, geom::scale(hole.axis, axial)));
+    let axial = py::sum((0..3).map(|i| offset[i] * hole.axis[i]));
+    let perpendicular = py::hypot(&[0, 1, 2].map(|i| offset[i] - axial * hole.axis[i]));
     if perpendicular > geom::length_tol(hole.diameter, HOLE_AXIS_FRAC)
         || (cs.drill_diameter - hole.diameter).abs()
             > geom::length_tol(hole.diameter, HOLE_DIA_FRAC)
@@ -87,8 +88,8 @@ pub fn cone_rims(part: &Part, face: usize) -> Option<((f64, V3), (f64, V3), f64)
     if circles.len() < 2 {
         return None;
     }
-    circles.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
-    let included = geom::round_to(2.0 * semi_angle.to_degrees().abs(), 2);
+    circles.sort_by(|a, b| py::order(a.0, b.0));
+    let included = py::round_to(2.0 * semi_angle.to_degrees().abs(), 2);
     Some((circles[0], circles[circles.len() - 1], included))
 }
 
@@ -149,7 +150,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<CounterSink>> {
             l if l > 0.0 => l,
             _ => 1.0,
         };
-        let axis = geom::scale(along, 1.0 / length);
+        let axis = along.map(|c| c / length);
         let seated = cylinders.iter().any(|&(r, lp, ld)| {
             (r - minor_r).abs() <= geom::length_tol(minor_r, MINOR_MATCH_FRAC)
                 && geom::dot(axis, ld).abs() > 1.0 - 1e-3
@@ -158,7 +159,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<CounterSink>> {
         if !seated {
             continue;
         }
-        let r4 = |x: f64| geom::round_to(x, 4);
+        let r4 = |x: f64| py::round_to(x, 4);
         out.push(Occurrence {
             record: CounterSink {
                 axis: axis.map(r4),
@@ -181,12 +182,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<CounterSink>> {
                 o.record.major_diameter,
             ]
         };
-        let (ka, kb) = (key(a), key(b));
-        ka.iter()
-            .zip(&kb)
-            .map(|(x, y)| x.partial_cmp(y).unwrap_or(std::cmp::Ordering::Equal))
-            .find(|o| o.is_ne())
-            .unwrap_or(std::cmp::Ordering::Equal)
+        py::tuple_order(&key(a), &key(b))
     });
     out
 }

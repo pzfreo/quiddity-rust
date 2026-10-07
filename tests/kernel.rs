@@ -27,6 +27,9 @@ fn classifier_sees_material_hole_and_outside() {
     assert_eq!(c.classify([14.999, 0.0, 0.0]), State::In);
     assert_eq!(c.classify([5.001, 0.0, 0.0]), State::In);
     assert_eq!(c.classify([4.999, 0.0, 0.0]), State::Out);
+    // On a face, as BRepClass3d reports within its tolerance.
+    assert_eq!(c.classify([15.0, 3.0, 2.0]), State::On);
+    assert_eq!(c.classify([5.0, 0.0, 0.0]), State::On);
 }
 
 #[test]
