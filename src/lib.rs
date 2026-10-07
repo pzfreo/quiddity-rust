@@ -14,6 +14,10 @@ pub use features::fillets::{Fillet, FilletOptions, recognise_fillets};
 pub use features::flats::{Flat, recognise_flats};
 pub use features::hole_patterns::{HolePattern, recognise_hole_patterns};
 pub use features::holes::{HoleOptions, HoleRecord, recognise_holes};
+pub use features::levels::{
+    FaceLevel, FaceLevelOptions, RiserEvidence, RiserOptions, recognise_face_levels,
+    recognise_risers,
+};
 pub use features::oriented_chamfers::{
     OrientedChamfer, OrientedChamferOptions, recognise_oriented_chamfers,
 };

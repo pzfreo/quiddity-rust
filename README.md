@@ -19,6 +19,8 @@ OpenCascade is reimplemented in `src/kernel`.
 | Bosses | `recognise_bosses` | 131/133 (2 known divergences) | see below |
 | Hole patterns | `recognise_hole_patterns` | 470/470 | see below |
 | Oriented chamfers | `recognise_oriented_chamfers` | 15/15 | see below |
+| Face levels | `recognise_face_levels` | 36/36 | — |
+| Risers | `recognise_risers` | 66/66 | — |
 
 Known divergences are listed, with reasons, in `tests/fixtures/captured/known_divergences.json`
 (captured calls) and `tests/fixtures/known_divergences.json` (corpus). The main gap is
@@ -57,7 +59,7 @@ src/
     turned.rs        what turned-stock treatments share: coaxial external cylinders, cone rims
     stacks.rs        coaxial segments read at their ends (open / flat / drill point)
     fillets.rs  chamfers.rs  holes.rs  countersinks.rs  hole_patterns.rs  bosses.rs  angled_steps.rs  flats.rs
-    paired_ramp_steps.rs  oriented_chamfers.rs
+    paired_ramp_steps.rs  oriented_chamfers.rs  levels.rs
   bin/quiddity.rs    `quiddity part.step` → JSON
 tests/
   captured.rs        replays every recogniser call the Python test suite makes

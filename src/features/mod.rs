@@ -20,6 +20,7 @@ pub mod fillets;
 pub mod flats;
 pub mod hole_patterns;
 pub mod holes;
+pub mod levels;
 pub mod oriented_chamfers;
 pub mod paired_ramp_steps;
 pub mod planes;

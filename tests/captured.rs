@@ -129,3 +129,13 @@ fn paired_ramp_steps_match_python() {
 fn oriented_chamfers_match_python() {
     replay("recognise_oriented_chamfers");
 }
+
+#[test]
+fn face_levels_match_python() {
+    replay("recognise_face_levels");
+}
+
+#[test]
+fn risers_match_python() {
+    replay("recognise_risers");
+}

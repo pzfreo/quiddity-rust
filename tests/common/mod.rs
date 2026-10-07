@@ -64,6 +64,8 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
             part,
             &options(kwargs),
         )),
+        "recognise_face_levels" => json(quiddity::recognise_face_levels(part, &options(kwargs))),
+        "recognise_risers" => json(quiddity::recognise_risers(part, &options(kwargs))),
         "recognise_holes" => json(recognise_holes(part, &options(kwargs))),
         // Over a part: the patterns among the part's holes found with these hole options.
         "recognise_hole_patterns" => json(recognise_hole_patterns(&recognise_holes(

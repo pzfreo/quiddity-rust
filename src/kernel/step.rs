@@ -572,17 +572,60 @@ fn reachable_surface_models(model: &m::StepModel, rg: &step_io::RefGraph) -> Vec
         .collect()
 }
 
+/// The product definitions whose shape lists surface model *index*, directly or through a
+/// plain `SHAPE_REPRESENTATION_RELATIONSHIP`.
+fn surface_model_owners(
+    model: &m::StepModel,
+    rg: &step_io::RefGraph,
+    index: usize,
+) -> Vec<m::EntityKey> {
+    let key = m::EntityKey::ShellBasedSurfaceModel(m::ShellBasedSurfaceModelId(index));
+    let mut reps: Vec<m::EntityKey> = rg.referrers(key).to_vec();
+    for rep in reps.clone() {
+        for r in rg.referrers(rep) {
+            if let m::EntityKey::ShapeRepresentationRelationship(i) = r {
+                let srr = model.shape_representation_relationship_arena.get(i.0);
+                reps.extend([&srr.rep_1, &srr.rep_2].into_iter().filter_map(rep_key));
+            }
+        }
+    }
+    let mut owners = Vec::new();
+    for rep in reps {
+        for r in rg.referrers(rep) {
+            let m::EntityKey::ShapeDefinitionRepresentation(i) = r else {
+                continue;
+            };
+            let sdr = model.shape_definition_representation_arena.get(i.0);
+            let m::RepresentedDefinitionRef::ProductDefinitionShape(pds) = &sdr.definition else {
+                continue;
+            };
+            match model.product_definition_shape_arena.get(pds.0).definition {
+                m::CharacterizedDefinitionRef::ProductDefinition(d) => {
+                    owners.push(m::EntityKey::ProductDefinition(d))
+                }
+                m::CharacterizedDefinitionRef::ProductDefinitionWithAssociatedDocuments(d) => {
+                    owners.push(m::EntityKey::ProductDefinitionWithAssociatedDocuments(d))
+                }
+                _ => {}
+            }
+        }
+    }
+    owners
+}
+
 /// Every solid reachable from an assembly definition, with its accumulated placement.
 fn collect_instances<'m>(
     def: step_io::scene::product::ProductDef<'m>,
     placement: Placement,
     to_mm: f64,
     out: &mut Vec<(step_io::scene::geometry::Solid<'m>, Placement)>,
+    placed: &mut Vec<(m::EntityKey, Placement)>,
     depth: usize,
 ) {
     if depth > 64 {
         return;
     }
+    placed.push((def.key(), placement));
     for solid in def.solids() {
         out.push((solid, placement));
     }
@@ -596,7 +639,14 @@ fn collect_instances<'m>(
             .map_or(IDENTITY, |mtx| {
                 [0, 1, 2].map(|i| [mtx[i][0], mtx[i][1], mtx[i][2], mtx[i][3] * to_mm])
             });
-        collect_instances(child, compose(&placement, &local), to_mm, out, depth + 1);
+        collect_instances(
+            child,
+            compose(&placement, &local),
+            to_mm,
+            out,
+            placed,
+            depth + 1,
+        );
     }
 }
 
@@ -633,9 +683,9 @@ pub fn read_step(bytes: &[u8]) -> Result<Part, StepError> {
     // Shells in the order OpenCascade's explorer meets them: placed solid instances, then open
     // shells.
     let mut shells: Vec<(bool, Placement, Vec<(StepFace<'_>, bool)>)> = Vec::new();
-    let mut instances = Vec::new();
+    let (mut instances, mut placed) = (Vec::new(), Vec::new());
     for root in scene.root_definitions() {
-        collect_instances(root, IDENTITY, reader.to_mm, &mut instances, 0);
+        collect_instances(root, IDENTITY, reader.to_mm, &mut instances, &mut placed, 0);
     }
     if instances.is_empty() {
         instances = scene.all_solids().map(|s| (s, IDENTITY)).collect();
@@ -652,21 +702,33 @@ pub fn read_step(bytes: &[u8]) -> Result<Part, StepError> {
     let rg = model.ref_graph();
     for index in reachable_surface_models(&model, &rg) {
         let sbsm = model.shell_based_surface_model_arena.get(index);
-        for shell in &sbsm.sbsm_boundary {
-            let faces = match shell {
-                m::ShellRef::OpenShell(i) => &model.open_shell_arena.get(i.0).cfs_faces,
-                m::ShellRef::ClosedShell(i) => &model.closed_shell_arena.get(i.0).cfs_faces,
-                _ => continue,
-            };
-            shells.push((
-                false,
-                IDENTITY,
-                faces
-                    .iter()
-                    .filter_map(&face_of)
-                    .map(|f| (f, false))
-                    .collect(),
-            ));
+        // Placed like the assembly instances of the product that owns it, once per instance.
+        let owners = surface_model_owners(&model, &rg, index);
+        let mut placements: Vec<Placement> = placed
+            .iter()
+            .filter(|(def, _)| owners.contains(def))
+            .map(|(_, p)| *p)
+            .collect();
+        if placements.is_empty() {
+            placements.push(IDENTITY);
+        }
+        for placement in placements {
+            for shell in &sbsm.sbsm_boundary {
+                let faces = match shell {
+                    m::ShellRef::OpenShell(i) => &model.open_shell_arena.get(i.0).cfs_faces,
+                    m::ShellRef::ClosedShell(i) => &model.closed_shell_arena.get(i.0).cfs_faces,
+                    _ => continue,
+                };
+                shells.push((
+                    false,
+                    placement,
+                    faces
+                        .iter()
+                        .filter_map(&face_of)
+                        .map(|f| (f, false))
+                        .collect(),
+                ));
+            }
         }
     }
 
