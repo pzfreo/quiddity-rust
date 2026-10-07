@@ -7,6 +7,7 @@
 //! inventory, the point classifier, the part's box — lives in the context so a run computes it
 //! once however many families ask.
 
+pub mod angled_steps;
 pub mod bevel;
 pub mod bosses;
 pub mod chamfers;
@@ -36,6 +37,7 @@ pub struct Features {
     pub fillets: Vec<fillets::Fillet>,
     pub chamfers: Vec<chamfers::Chamfer>,
     pub bosses: Vec<bosses::BossRecord>,
+    pub angled_steps: Vec<angled_steps::AngledStep>,
     pub holes: Vec<holes::HoleRecord>,
     pub countersinks: Vec<countersinks::CounterSink>,
     pub hole_patterns: Vec<hole_patterns::HolePattern>,
@@ -52,6 +54,7 @@ pub fn recognise(part: &Part) -> Features {
         fillets: records(fillets::discover(&ctx, &Default::default())),
         chamfers: records(chamfers::discover(&ctx, &Default::default())),
         bosses: records(bosses::discover(&ctx)),
+        angled_steps: records(angled_steps::discover(&ctx)),
         hole_patterns: hole_patterns::recognise_hole_patterns(&holes),
         holes,
         countersinks,

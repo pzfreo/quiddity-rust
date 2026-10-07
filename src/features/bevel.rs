@@ -73,6 +73,20 @@ pub fn near_corner(centre: V3, edge_axis: usize, planes: &BTreeMap<usize, f64>, 
     [0, 1, 2].map(|i| corner[i] + step * (centre[i] - corner[i]))
 }
 
+/// Is there material just beyond the virtual corner, away from the bevel
+/// (`material_beyond_corner`)? A bevel on a recess wall replaces the corner where two of its
+/// walls meet, with the stock behind it; a bevel on an edge of the part has free space there.
+pub fn material_beyond_corner(
+    ctx: &Context<'_>,
+    centre: V3,
+    edge_axis: usize,
+    planes: &BTreeMap<usize, f64>,
+) -> bool {
+    ctx.classifier()
+        .classify(near_corner(centre, edge_axis, planes, -1.0))
+        == State::In
+}
+
 /// Does the virtual sharp corner the bevel replaces lie outside the solid (`convex_bevel`)?
 /// Only a clean `IN` counts as material, as with `BRepClass3d`.
 pub fn convex_bevel(

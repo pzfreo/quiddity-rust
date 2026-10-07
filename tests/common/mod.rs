@@ -57,6 +57,7 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
         "recognise_chamfers" => json(recognise_chamfers(part, &options(kwargs))),
         "recognise_countersinks" => json(recognise_countersinks(part)),
         "recognise_bosses" => json(quiddity::recognise_bosses(part)),
+        "recognise_angled_steps" => json(quiddity::recognise_angled_steps(part)),
         "recognise_holes" => json(recognise_holes(part, &options(kwargs))),
         // Over a part: the patterns among the part's holes found with these hole options.
         "recognise_hole_patterns" => json(recognise_hole_patterns(&recognise_holes(
@@ -87,6 +88,9 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
         "recognise_chamfers" => chamfers::discover_verified(&ctx, &options(kwargs)).map(faces),
         "recognise_countersinks" => countersinks::discover_verified(&ctx).map(faces),
         "recognise_bosses" => quiddity::features::bosses::discover_verified(&ctx).map(faces),
+        "recognise_angled_steps" => {
+            quiddity::features::angled_steps::discover_verified(&ctx).map(faces)
+        }
         "recognise_holes" => {
             let opts: quiddity::HoleOptions = options(kwargs);
             let seats = if opts.with_countersinks {

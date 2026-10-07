@@ -109,3 +109,8 @@ fn chamfers_match_python() {
 fn bosses_match_python() {
     replay("recognise_bosses");
 }
+
+#[test]
+fn angled_steps_match_python() {
+    replay("recognise_angled_steps");
+}

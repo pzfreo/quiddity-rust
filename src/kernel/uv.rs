@@ -6,6 +6,7 @@ use std::f64::consts::TAU;
 
 use super::brep::Part;
 use super::geom::{self, Surface, V3};
+use super::py;
 
 /// The face's boundary as (u, v) polylines.
 ///
@@ -133,6 +134,21 @@ pub struct UvLoop {
 }
 
 impl Part {
+    /// The face's outer loop (`BRepTools::OuterWire`): the only loop, or the one whose
+    /// parameter-space box is largest.
+    pub fn outer_loop(&self, face: usize) -> Option<usize> {
+        let loops = self.uv_loops(face)?;
+        let area = |lp: &UvLoop| {
+            let (mut lo, mut hi) = ([f64::INFINITY; 2], [f64::NEG_INFINITY; 2]);
+            for &(u, v) in &lp.points {
+                (lo[0], lo[1], hi[0], hi[1]) =
+                    (lo[0].min(u), lo[1].min(v), hi[0].max(u), hi[1].max(v));
+            }
+            (hi[0] - lo[0]) * (hi[1] - lo[1])
+        };
+        (!loops.is_empty()).then(|| py::first_max(loops, area))
+    }
+
     /// build123d's `Face.center()`: the area centroid of a planar face, otherwise the surface
     /// point at the middle of the face's parameter range.
     pub fn face_centre(&self, face: usize) -> Option<V3> {
