@@ -58,21 +58,6 @@ fn effective_linear_sides(part: &Part, face: usize) -> Option<usize> {
     )
 }
 
-/// The distinct edges of the face's outer loop (`outer_wire().edges()`).
-fn outer_edges(part: &Part, face: usize) -> usize {
-    let Some(outer) = part.outer_loop(face) else {
-        return 0;
-    };
-    let mut edges: Vec<usize> = part.faces[face].loops[outer]
-        .edges
-        .iter()
-        .map(|e| e.0)
-        .collect();
-    edges.sort_unstable();
-    edges.dedup();
-    edges.len()
-}
-
 /// The axis-aligned triangular flats among the face's neighbours (`_terminal_read`).
 fn terminals(part: &Part, face: usize) -> Vec<usize> {
     part.neighbours(face)
@@ -80,7 +65,7 @@ fn terminals(part: &Part, face: usize) -> Vec<usize> {
         .filter(|&other| {
             axis_aligned_axis(part, other).is_some()
                 && (part.face_edges(other).len() == 3 || {
-                    let outer = outer_edges(part, other);
+                    let outer = part.outer_edges(other).len();
                     outer == 3 || (outer > 3 && effective_linear_sides(part, other) == Some(3))
                 })
         })

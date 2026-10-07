@@ -36,6 +36,7 @@ from quiddity.countersinks import _discover_countersinks  # noqa: E402
 from quiddity.fillets import _discover_fillets  # noqa: E402
 from quiddity.flats import _discover_flats  # noqa: E402
 from quiddity.holes import _discover_holes  # noqa: E402
+from quiddity.oriented_chamfers import _discover_oriented_chamfers  # noqa: E402
 from quiddity.paired_ramp_steps import _discover_paired_ramp_steps  # noqa: E402
 
 from quiddity import (  # noqa: E402
@@ -48,6 +49,7 @@ from quiddity import (  # noqa: E402
     recognise_countersinks,
     recognise_hole_patterns,
     recognise_holes,
+    recognise_oriented_chamfers,
     recognise_paired_ramp_steps,
 )
 from OCP.BRepTools import BRepTools  # noqa: E402
@@ -147,6 +149,8 @@ def main() -> None:
                 lambda p, ledger, o: _discover_flats(p, cyls=None, face_edges=None, writer=ledger.writer))
         ramp = (FamilyId.PAIRED_RAMP_STEPS, lambda p, o: recognise_paired_ramp_steps(p),
                 lambda p, ledger, o: _discover_paired_ramp_steps(p, graph=ledger.graph, sink=ledger.writer.sink))
+        oriented = (FamilyId.ORIENTED_CHAMFERS, lambda p, o: recognise_oriented_chamfers(p),
+                    lambda p, ledger, o: _discover_oriented_chamfers(p, graph=ledger.graph, sink=ledger.writer.sink))
         hole = (FamilyId.HOLES, lambda p, o: recognise_holes(p, **hole_kwargs(o)),
                 lambda p, ledger, o: _discover_holes(p, writer=ledger.writer, **hole_kwargs(o)))
         entries.append(
@@ -167,6 +171,7 @@ def main() -> None:
                     "recognise_angled_steps": [_run(part, "recognise_angled_steps", *angled, {})],
                     "recognise_flats": [_run(part, "recognise_flats", *flat, {})],
                     "recognise_paired_ramp_steps": [_run(part, "recognise_paired_ramp_steps", *ramp, {})],
+                    "recognise_oriented_chamfers": [_run(part, "recognise_oriented_chamfers", *oriented, {})],
                     "recognise_holes": [
                         _run(part, "recognise_holes", *hole, o) for o in ({}, {"csinks": "auto"})
                     ],

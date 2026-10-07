@@ -146,6 +146,21 @@ impl Part {
         self.loop_placement(face).map(|(outer, _)| outer)
     }
 
+    /// The distinct edges of the face's outer loop (`outer_wire().edges()`).
+    pub fn outer_edges(&self, face: usize) -> Vec<usize> {
+        let Some(outer) = self.outer_loop(face) else {
+            return Vec::new();
+        };
+        let mut edges: Vec<usize> = self.faces[face].loops[outer]
+            .edges
+            .iter()
+            .map(|e| e.0)
+            .collect();
+        edges.sort_unstable();
+        edges.dedup();
+        edges
+    }
+
     /// The outer loop and, per loop, the shift (a whole number of periods) that places it in one
     /// parameter period with the others. Loops are first centred in `[0, 2π)` — where
     /// OpenCascade's pcurves sit — to choose the outer loop; every other loop is then moved to

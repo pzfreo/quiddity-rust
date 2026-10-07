@@ -60,6 +60,10 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
         "recognise_paired_ramp_steps" => json(quiddity::recognise_paired_ramp_steps(part)),
         "recognise_flats" => json(quiddity::recognise_flats(part)),
         "recognise_angled_steps" => json(quiddity::recognise_angled_steps(part)),
+        "recognise_oriented_chamfers" => json(quiddity::recognise_oriented_chamfers(
+            part,
+            &options(kwargs),
+        )),
         "recognise_holes" => json(recognise_holes(part, &options(kwargs))),
         // Over a part: the patterns among the part's holes found with these hole options.
         "recognise_hole_patterns" => json(recognise_hole_patterns(&recognise_holes(
@@ -96,6 +100,10 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
         "recognise_flats" => quiddity::features::flats::discover_verified(&ctx).map(faces),
         "recognise_angled_steps" => {
             quiddity::features::angled_steps::discover_verified(&ctx).map(faces)
+        }
+        "recognise_oriented_chamfers" => {
+            quiddity::features::oriented_chamfers::discover_verified(&ctx, &options(kwargs))
+                .map(faces)
         }
         "recognise_holes" => {
             let opts: quiddity::HoleOptions = options(kwargs);

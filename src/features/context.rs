@@ -7,6 +7,7 @@
 
 use std::sync::OnceLock;
 
+use super::body::{BodyKey, body_signature, unambiguous_body_keys};
 use super::cylinders::{CylinderEvidence, analyse_cylinders};
 use crate::kernel::brep::Part;
 use crate::kernel::classify::Classifier;
@@ -16,7 +17,9 @@ pub struct Context<'a> {
     pub part: &'a Part,
     bounds: OnceLock<Bounds>,
     classifier: OnceLock<Classifier<'a>>,
+    solid_classifiers: Vec<OnceLock<Classifier<'a>>>,
     cylinders: OnceLock<Vec<CylinderEvidence>>,
+    signatures: OnceLock<Vec<Option<BodyKey>>>,
 }
 
 impl<'a> Context<'a> {
@@ -25,7 +28,9 @@ impl<'a> Context<'a> {
             part,
             bounds: OnceLock::new(),
             classifier: OnceLock::new(),
+            solid_classifiers: part.solids.iter().map(|_| OnceLock::new()).collect(),
             cylinders: OnceLock::new(),
+            signatures: OnceLock::new(),
         }
     }
 
@@ -37,6 +42,21 @@ impl<'a> Context<'a> {
     /// The point classifier for the whole part.
     pub fn classifier(&self) -> &Classifier<'a> {
         self.classifier.get_or_init(|| Classifier::new(self.part))
+    }
+
+    /// The point classifier for one solid alone.
+    pub fn solid_classifier(&self, solid: usize) -> &Classifier<'a> {
+        self.solid_classifiers[solid].get_or_init(|| Classifier::for_solid(self.part, solid))
+    }
+
+    /// Each solid's body key (`unambiguous_body_keys`).
+    pub fn body_keys(&self, require_valid_solid: bool) -> Vec<Option<BodyKey>> {
+        let signatures = self.signatures.get_or_init(|| {
+            (0..self.part.solids.len())
+                .map(|s| body_signature(self.part, s))
+                .collect()
+        });
+        unambiguous_body_keys(self.part, signatures, require_valid_solid)
     }
 
     /// Every native cylindrical face (`analyse_cylinders`), in solid then face order.

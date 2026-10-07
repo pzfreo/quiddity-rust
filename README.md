@@ -18,6 +18,7 @@ OpenCascade is reimplemented in `src/kernel`.
 | Paired ramp steps | `recognise_paired_ramp_steps` | 109/109 | see below |
 | Bosses | `recognise_bosses` | 131/133 (2 known divergences) | see below |
 | Hole patterns | `recognise_hole_patterns` | 470/470 | see below |
+| Oriented chamfers | `recognise_oriented_chamfers` | 15/15 | see below |
 
 Known divergences are listed, with reasons, in `tests/fixtures/captured/known_divergences.json`
 (captured calls) and `tests/fixtures/known_divergences.json` (corpus). The main gap is
@@ -39,20 +40,24 @@ src/
     sampling.rs      edges as polylines (adaptive, 0.2 µm chord tolerance)
     uv.rs            faces in parameter space: unwrapped loops, singular points, OpenCascade-
                      compatible UV ranges (BRepTools::UVBounds), point containment
-    classify.rs      point-in-solid by ray parity, with on-boundary detection (BRepClass3d)
+    classify.rs      point-in-solid (whole part or one solid) by ray parity, with
+                     on-boundary detection (BRepClass3d)
+    mass.rs          exact solid volume and area: Green's theorem along the exact edges,
+                     Gauss-Legendre quadrature (BRepGProp)
     py.rs            Python's numeric semantics: fsum, compensated sum, hypot, %, rounding,
                      tuple ordering — wherever results must agree to the bit
   features/          the recognisers, one module per family, plus what they share
     context.rs       Context: one run over one part; box, classifier, cylinder inventory
                      computed once, on first use
     evidence.rs      Occurrence<R> (record + defining faces) and the valid-solid check
+    body.rs          body keys: a solid's box, volume and area, unique within the part
     cylinders.rs     the cylinder inventory, runs, segments, coaxial keys
     planes.rs        nearest axis-aligned neighbour planes
     bevel.rs         the single-face bevel read and the convex-corner probe
     turned.rs        what turned-stock treatments share: coaxial external cylinders, cone rims
     stacks.rs        coaxial segments read at their ends (open / flat / drill point)
     fillets.rs  chamfers.rs  holes.rs  countersinks.rs  hole_patterns.rs  bosses.rs  angled_steps.rs  flats.rs
-    paired_ramp_steps.rs
+    paired_ramp_steps.rs  oriented_chamfers.rs
   bin/quiddity.rs    `quiddity part.step` → JSON
 tests/
   captured.rs        replays every recogniser call the Python test suite makes
@@ -100,6 +105,18 @@ cargo test --release           # corpus test needs ../quiddity/tests/corpus or Q
 Float comparison: values must agree to one part in a million (sub-micron at part scale);
 Python-rounded fields agree exactly. Below that the kernels' parameter-range arithmetic
 differs in its last digits.
+
+## What parity means
+
+Python's *specified* numeric behaviour is matched exactly: rounding grids, summation order,
+tie-breaking, thresholds (`kernel/py.rs`). OpenCascade's *accidents* are not reproduced: where
+it approximates (pcurves it builds on import, a fixed Gauss order on B-spline faces), heals a
+file, or decides a degenerate case by round-off, the port computes the true geometry and the
+difference is recorded with its reason. Some older emulation remains where removing it would
+cost many records (face ranges boxed by B-spline pcurve poles, which hole depths follow).
+
+The corpus test also checks kernel answers directly against OpenCascade: every face's
+`BRepTools::UVBounds` and the arc between every pair of neighbours.
 
 ## Notes on matching OpenCascade
 

@@ -155062,9 +155062,1507 @@
    "rich_arguments": [],
    "in_memory": [],
    "result": []
+  },
+  {
+   "test": "tests/test_oriented_chamfers.py::test_aggregate_census_and_principal_edge_exclusion",
+   "function": "recognise_oriented_chamfers",
+   "file": "aa80434054958f86.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.5,
+      -0.866025,
+      0.0
+     ],
+     "length": 30.0,
+     "at": [
+      -16.454,
+      -9.5,
+      9.0
+     ],
+     "corner": [
+      -17.321,
+      -10.0,
+      10.0
+     ],
+     "leg1": 2.0,
+     "leg2": 2.0,
+     "leg1_direction": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "leg2_direction": [
+      0.866025,
+      0.5,
+      0.0
+     ],
+     "support_spans": [
+      [
+       -15.0,
+       15.0
+      ],
+      [
+       -15.0,
+       15.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -24.820508,
+      -22.990381,
+      -10.0,
+      24.820508,
+      22.990381,
+      10.0,
+      23940.0,
+      5160.85281374
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.5,
+      -0.866025,
+      0.0
+     ],
+     "length": 30.0,
+     "at": [
+      -16.454,
+      -9.5,
+      9.0
+     ],
+     "corner": [
+      -17.321,
+      -10.0,
+      10.0
+     ],
+     "leg1": 2.0,
+     "leg2": 2.0,
+     "leg1_direction": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "leg2_direction": [
+      0.866025,
+      0.5,
+      0.0
+     ],
+     "support_spans": [
+      [
+       -15.0,
+       15.0
+      ],
+      [
+       -15.0,
+       15.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -24.820508,
+      -22.990381,
+      -10.0,
+      24.820508,
+      22.990381,
+      10.0,
+      23940.0,
+      5160.85281374
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_oriented_chamfers.py::test_aggregate_census_and_principal_edge_exclusion",
+   "function": "recognise_oriented_chamfers",
+   "file": "e168345c79538dd5.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_oriented_chamfers.py::test_local_rotated_boss_bevel_survives_a_principal_stock_frame",
+   "function": "recognise_oriented_chamfers",
+   "file": "700b9797ee625886.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.5,
+      -0.866025,
+      0.0
+     ],
+     "length": 20.0,
+     "at": [
+      -8.227,
+      -4.75,
+      14.5
+     ],
+     "corner": [
+      -8.66,
+      -5.0,
+      15.0
+     ],
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "leg1_direction": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "leg2_direction": [
+      0.866025,
+      0.5,
+      0.0
+     ],
+     "support_spans": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -10.0,
+       10.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -40.0,
+      -40.0,
+      -5.0,
+      40.0,
+      40.0,
+      15.0,
+      67990.0,
+      16787.2842712
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.5,
+      -0.866025,
+      0.0
+     ],
+     "length": 20.0,
+     "at": [
+      -8.227,
+      -4.75,
+      14.5
+     ],
+     "corner": [
+      -8.66,
+      -5.0,
+      15.0
+     ],
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "leg1_direction": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "leg2_direction": [
+      0.866025,
+      0.5,
+      0.0
+     ],
+     "support_spans": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -10.0,
+       10.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -40.0,
+      -40.0,
+      -5.0,
+      40.0,
+      40.0,
+      15.0,
+      67990.0,
+      16787.2842712
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_oriented_chamfers.py::test_step_face_order_scale_and_rotation_preserve_one_occurrence",
+   "function": "recognise_oriented_chamfers",
+   "file": "aa80434054958f86.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.5,
+      -0.866025,
+      0.0
+     ],
+     "length": 30.0,
+     "at": [
+      -16.454,
+      -9.5,
+      9.0
+     ],
+     "corner": [
+      -17.321,
+      -10.0,
+      10.0
+     ],
+     "leg1": 2.0,
+     "leg2": 2.0,
+     "leg1_direction": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "leg2_direction": [
+      0.866025,
+      0.5,
+      0.0
+     ],
+     "support_spans": [
+      [
+       -15.0,
+       15.0
+      ],
+      [
+       -15.0,
+       15.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -24.820508,
+      -22.990381,
+      -10.0,
+      24.820508,
+      22.990381,
+      10.0,
+      23940.0,
+      5160.85281374
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.5,
+      -0.866025,
+      0.0
+     ],
+     "length": 30.0,
+     "at": [
+      -16.454,
+      -9.5,
+      9.0
+     ],
+     "corner": [
+      -17.321,
+      -10.0,
+      10.0
+     ],
+     "leg1": 2.0,
+     "leg2": 2.0,
+     "leg1_direction": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "leg2_direction": [
+      0.866025,
+      0.5,
+      0.0
+     ],
+     "support_spans": [
+      [
+       -15.0,
+       15.0
+      ],
+      [
+       -15.0,
+       15.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -24.820508,
+      -22.990381,
+      -10.0,
+      24.820508,
+      22.990381,
+      10.0,
+      23940.0,
+      5160.85281374
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_oriented_chamfers.py::test_step_face_order_scale_and_rotation_preserve_one_occurrence",
+   "function": "recognise_oriented_chamfers",
+   "file": "e2713bd96c5e92bc.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.5,
+      -0.866025,
+      0.0
+     ],
+     "length": 30.0,
+     "at": [
+      -16.454,
+      -9.5,
+      9.0
+     ],
+     "corner": [
+      -17.321,
+      -10.0,
+      10.0
+     ],
+     "leg1": 2.0,
+     "leg2": 2.0,
+     "leg1_direction": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "leg2_direction": [
+      0.866025,
+      0.5,
+      0.0
+     ],
+     "support_spans": [
+      [
+       -15.0,
+       15.0
+      ],
+      [
+       -15.0,
+       15.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -24.820508,
+      -22.990381,
+      -10.0,
+      24.820508,
+      22.990381,
+      10.0,
+      23940.0,
+      5160.85281374
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.5,
+      -0.866025,
+      0.0
+     ],
+     "length": 30.0,
+     "at": [
+      -16.454,
+      -9.5,
+      9.0
+     ],
+     "corner": [
+      -17.321,
+      -10.0,
+      10.0
+     ],
+     "leg1": 2.0,
+     "leg2": 2.0,
+     "leg1_direction": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "leg2_direction": [
+      0.866025,
+      0.5,
+      0.0
+     ],
+     "support_spans": [
+      [
+       -15.0,
+       15.0
+      ],
+      [
+       -15.0,
+       15.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -24.820508,
+      -22.990381,
+      -10.0,
+      24.820508,
+      22.990381,
+      10.0,
+      23940.0,
+      5160.85281374
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_oriented_chamfers.py::test_step_face_order_scale_and_rotation_preserve_one_occurrence",
+   "function": "recognise_oriented_chamfers",
+   "file": "c98548454047be5f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.5,
+      0.0,
+      -0.866025
+     ],
+     "length": 30.0,
+     "at": [
+      -16.454,
+      -9.0,
+      -9.5
+     ],
+     "corner": [
+      -17.321,
+      -10.0,
+      -10.0
+     ],
+     "leg1": 2.0,
+     "leg2": 2.0,
+     "leg1_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "leg2_direction": [
+      0.866025,
+      0.0,
+      0.5
+     ],
+     "support_spans": [
+      [
+       -15.0,
+       15.0
+      ],
+      [
+       -15.0,
+       15.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -24.820508,
+      -10.0,
+      -22.990381,
+      24.820508,
+      10.0,
+      22.990381,
+      23940.0,
+      5160.85281374
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.5,
+      0.0,
+      -0.866025
+     ],
+     "length": 30.0,
+     "at": [
+      -16.454,
+      -9.0,
+      -9.5
+     ],
+     "corner": [
+      -17.321,
+      -10.0,
+      -10.0
+     ],
+     "leg1": 2.0,
+     "leg2": 2.0,
+     "leg1_direction": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "leg2_direction": [
+      0.866025,
+      0.0,
+      0.5
+     ],
+     "support_spans": [
+      [
+       -15.0,
+       15.0
+      ],
+      [
+       -15.0,
+       15.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -24.820508,
+      -10.0,
+      -22.990381,
+      24.820508,
+      10.0,
+      22.990381,
+      23940.0,
+      5160.85281374
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_oriented_chamfers.py::test_step_face_order_scale_and_rotation_preserve_one_occurrence",
+   "function": "recognise_oriented_chamfers",
+   "file": "8c2af7f198ac3b85.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.0,
+      -0.866025,
+      -0.5
+     ],
+     "length": 30.0,
+     "at": [
+      9.0,
+      -9.5,
+      16.454
+     ],
+     "corner": [
+      10.0,
+      -10.0,
+      17.321
+     ],
+     "leg1": 2.0,
+     "leg2": 2.0,
+     "leg1_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "leg2_direction": [
+      0.0,
+      0.5,
+      -0.866025
+     ],
+     "support_spans": [
+      [
+       -15.0,
+       15.0
+      ],
+      [
+       -15.0,
+       15.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -10.0,
+      -22.990381,
+      -24.820508,
+      10.0,
+      22.990381,
+      24.820508,
+      23940.0,
+      5160.85281374
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.0,
+      -0.866025,
+      -0.5
+     ],
+     "length": 30.0,
+     "at": [
+      9.0,
+      -9.5,
+      16.454
+     ],
+     "corner": [
+      10.0,
+      -10.0,
+      17.321
+     ],
+     "leg1": 2.0,
+     "leg2": 2.0,
+     "leg1_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "leg2_direction": [
+      0.0,
+      0.5,
+      -0.866025
+     ],
+     "support_spans": [
+      [
+       -15.0,
+       15.0
+      ],
+      [
+       -15.0,
+       15.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -10.0,
+      -22.990381,
+      -24.820508,
+      10.0,
+      22.990381,
+      24.820508,
+      23940.0,
+      5160.85281374
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_oriented_chamfers.py::test_step_face_order_scale_and_rotation_preserve_one_occurrence",
+   "function": "recognise_oriented_chamfers",
+   "file": "c666cb754163430a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.5,
+      -0.866025,
+      0.0
+     ],
+     "length": 30.0,
+     "at": [
+      16.454,
+      9.5,
+      9.0
+     ],
+     "corner": [
+      17.321,
+      10.0,
+      10.0
+     ],
+     "leg1": 2.0,
+     "leg2": 2.0,
+     "leg1_direction": [
+      -0.866025,
+      -0.5,
+      0.0
+     ],
+     "leg2_direction": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "support_spans": [
+      [
+       -15.0,
+       15.0
+      ],
+      [
+       -15.0,
+       15.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -24.820508,
+      -22.990381,
+      -10.0,
+      24.820508,
+      22.990381,
+      10.0,
+      23940.0,
+      5160.85281374
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.5,
+      -0.866025,
+      0.0
+     ],
+     "length": 30.0,
+     "at": [
+      16.454,
+      9.5,
+      9.0
+     ],
+     "corner": [
+      17.321,
+      10.0,
+      10.0
+     ],
+     "leg1": 2.0,
+     "leg2": 2.0,
+     "leg1_direction": [
+      -0.866025,
+      -0.5,
+      0.0
+     ],
+     "leg2_direction": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "support_spans": [
+      [
+       -15.0,
+       15.0
+      ],
+      [
+       -15.0,
+       15.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -24.820508,
+      -22.990381,
+      -10.0,
+      24.820508,
+      22.990381,
+      10.0,
+      23940.0,
+      5160.85281374
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_oriented_chamfers.py::test_step_face_order_scale_and_rotation_preserve_one_occurrence",
+   "function": "recognise_oriented_chamfers",
+   "file": "6ebfb0790177d084.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.5,
+      -0.866025,
+      0.0
+     ],
+     "length": 1.5,
+     "at": [
+      -0.823,
+      -0.475,
+      0.45
+     ],
+     "corner": [
+      -0.866,
+      -0.5,
+      0.5
+     ],
+     "leg1": 0.1,
+     "leg2": 0.1,
+     "leg1_direction": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "leg2_direction": [
+      0.866025,
+      0.5,
+      0.0
+     ],
+     "support_spans": [
+      [
+       -0.75,
+       0.75
+      ],
+      [
+       -0.75,
+       0.75
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -1.241025,
+      -1.149519,
+      -0.5,
+      1.241025,
+      1.149519,
+      0.5,
+      2.9925,
+      12.9021320344
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.5,
+      -0.866025,
+      0.0
+     ],
+     "length": 1.5,
+     "at": [
+      -0.823,
+      -0.475,
+      0.45
+     ],
+     "corner": [
+      -0.866,
+      -0.5,
+      0.5
+     ],
+     "leg1": 0.1,
+     "leg2": 0.1,
+     "leg1_direction": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "leg2_direction": [
+      0.866025,
+      0.5,
+      0.0
+     ],
+     "support_spans": [
+      [
+       -0.75,
+       0.75
+      ],
+      [
+       -0.75,
+       0.75
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -1.241025,
+      -1.149519,
+      -0.5,
+      1.241025,
+      1.149519,
+      0.5,
+      2.9925,
+      12.9021320343
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_oriented_chamfers.py::test_step_face_order_scale_and_rotation_preserve_one_occurrence",
+   "function": "recognise_oriented_chamfers",
+   "file": "51920d0ba08310b9.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.5,
+      -0.866025,
+      0.0
+     ],
+     "length": 3000.0,
+     "at": [
+      -1645.448,
+      -950.0,
+      900.0
+     ],
+     "corner": [
+      -1732.051,
+      -1000.0,
+      1000.0
+     ],
+     "leg1": 200.0,
+     "leg2": 200.0,
+     "leg1_direction": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "leg2_direction": [
+      0.866025,
+      0.5,
+      0.0
+     ],
+     "support_spans": [
+      [
+       -1500.0,
+       1500.0
+      ],
+      [
+       -1500.0,
+       1500.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -2482.050808,
+      -2299.038106,
+      -1000.0,
+      2482.050808,
+      2299.038106,
+      1000.0,
+      23940000000.0,
+      51608528.1374
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.5,
+      -0.866025,
+      0.0
+     ],
+     "length": 3000.0,
+     "at": [
+      -1645.448,
+      -950.0,
+      900.0
+     ],
+     "corner": [
+      -1732.051,
+      -1000.0,
+      1000.0
+     ],
+     "leg1": 200.0,
+     "leg2": 200.0,
+     "leg1_direction": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "leg2_direction": [
+      0.866025,
+      0.5,
+      0.0
+     ],
+     "support_spans": [
+      [
+       -1500.0,
+       1500.0
+      ],
+      [
+       -1500.0,
+       1500.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -2482.050808,
+      -2299.038106,
+      -1000.0,
+      2482.050808,
+      2299.038106,
+      1000.0,
+      23940000000.0,
+      51608528.1374
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_oriented_chamfers.py::test_material_side_and_size_gates_reject_large_or_unproved_bevels",
+   "function": "recognise_oriented_chamfers",
+   "file": "aa80434054958f86.step.gz",
+   "options": {
+    "max_leg_frac": 0.01
+   },
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_oriented_chamfers.py::test_material_side_and_size_gates_reject_large_or_unproved_bevels",
+   "function": "recognise_oriented_chamfers",
+   "file": "81d52b240e672e9f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_oriented_chamfers.py::test_rotated_blind_step_and_gussets_are_not_oriented_chamfers",
+   "function": "recognise_oriented_chamfers",
+   "file": "e1864138e0334ed2.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_oriented_chamfers.py::test_rotated_blind_step_and_gussets_are_not_oriented_chamfers",
+   "function": "recognise_oriented_chamfers",
+   "file": "7d42b60970897363.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_oriented_chamfers.py::test_rotated_chamfered_box_keeps_four_edge_breaks_without_end_faces",
+   "function": "recognise_oriented_chamfers",
+   "file": "484ee320a5f9cf1f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "run": [
+      0.0,
+      0.5,
+      -0.866025
+     ],
+     "length": 20.0,
+     "at": [
+      -88.5,
+      -11.691,
+      -6.75
+     ],
+     "corner": [
+      -90.0,
+      -12.99,
+      -7.5
+     ],
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "leg1_direction": [
+      0.0,
+      0.866025,
+      0.5
+     ],
+     "leg2_direction": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "support_spans": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -10.0,
+       10.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -90.0,
+      -17.990381,
+      -16.160254,
+      -50.0,
+      17.990381,
+      16.160254,
+      23640.0,
+      5023.41125497
+     ]
+    },
+    {
+     "run": [
+      0.0,
+      0.5,
+      -0.866025
+     ],
+     "length": 20.0,
+     "at": [
+      -88.5,
+      11.691,
+      6.75
+     ],
+     "corner": [
+      -90.0,
+      12.99,
+      7.5
+     ],
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "leg1_direction": [
+      0.0,
+      -0.866025,
+      -0.5
+     ],
+     "leg2_direction": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "support_spans": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -10.0,
+       10.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -90.0,
+      -17.990381,
+      -16.160254,
+      -50.0,
+      17.990381,
+      16.160254,
+      23640.0,
+      5023.41125497
+     ]
+    },
+    {
+     "run": [
+      0.0,
+      0.5,
+      -0.866025
+     ],
+     "length": 20.0,
+     "at": [
+      -51.5,
+      -11.691,
+      -6.75
+     ],
+     "corner": [
+      -50.0,
+      -12.99,
+      -7.5
+     ],
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "leg1_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "leg2_direction": [
+      0.0,
+      0.866025,
+      0.5
+     ],
+     "support_spans": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -10.0,
+       10.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -90.0,
+      -17.990381,
+      -16.160254,
+      -50.0,
+      17.990381,
+      16.160254,
+      23640.0,
+      5023.41125497
+     ]
+    },
+    {
+     "run": [
+      0.0,
+      0.5,
+      -0.866025
+     ],
+     "length": 20.0,
+     "at": [
+      -51.5,
+      11.691,
+      6.75
+     ],
+     "corner": [
+      -50.0,
+      12.99,
+      7.5
+     ],
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "leg1_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "leg2_direction": [
+      0.0,
+      -0.866025,
+      -0.5
+     ],
+     "support_spans": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -10.0,
+       10.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -90.0,
+      -17.990381,
+      -16.160254,
+      -50.0,
+      17.990381,
+      16.160254,
+      23640.0,
+      5023.41125497
+     ]
+    }
+   ],
+   "result": [
+    {
+     "run": [
+      0.0,
+      0.5,
+      -0.866025
+     ],
+     "length": 20.0,
+     "at": [
+      -88.5,
+      -11.691,
+      -6.75
+     ],
+     "corner": [
+      -90.0,
+      -12.99,
+      -7.5
+     ],
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "leg1_direction": [
+      0.0,
+      0.866025,
+      0.5
+     ],
+     "leg2_direction": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "support_spans": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -10.0,
+       10.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -90.0,
+      -17.990381,
+      -16.160254,
+      -50.0,
+      17.990381,
+      16.160254,
+      23640.0,
+      5023.41125497
+     ]
+    },
+    {
+     "run": [
+      0.0,
+      0.5,
+      -0.866025
+     ],
+     "length": 20.0,
+     "at": [
+      -88.5,
+      11.691,
+      6.75
+     ],
+     "corner": [
+      -90.0,
+      12.99,
+      7.5
+     ],
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "leg1_direction": [
+      0.0,
+      -0.866025,
+      -0.5
+     ],
+     "leg2_direction": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "support_spans": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -10.0,
+       10.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -90.0,
+      -17.990381,
+      -16.160254,
+      -50.0,
+      17.990381,
+      16.160254,
+      23640.0,
+      5023.41125497
+     ]
+    },
+    {
+     "run": [
+      0.0,
+      0.5,
+      -0.866025
+     ],
+     "length": 20.0,
+     "at": [
+      -51.5,
+      -11.691,
+      -6.75
+     ],
+     "corner": [
+      -50.0,
+      -12.99,
+      -7.5
+     ],
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "leg1_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "leg2_direction": [
+      0.0,
+      0.866025,
+      0.5
+     ],
+     "support_spans": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -10.0,
+       10.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -90.0,
+      -17.990381,
+      -16.160254,
+      -50.0,
+      17.990381,
+      16.160254,
+      23640.0,
+      5023.41125497
+     ]
+    },
+    {
+     "run": [
+      0.0,
+      0.5,
+      -0.866025
+     ],
+     "length": 20.0,
+     "at": [
+      -51.5,
+      11.691,
+      6.75
+     ],
+     "corner": [
+      -50.0,
+      12.99,
+      7.5
+     ],
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "leg1_direction": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "leg2_direction": [
+      0.0,
+      -0.866025,
+      -0.5
+     ],
+     "support_spans": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -10.0,
+       10.0
+      ]
+     ],
+     "angle": 45.0,
+     "body_key": [
+      -90.0,
+      -17.990381,
+      -16.160254,
+      -50.0,
+      17.990381,
+      16.160254,
+      23640.0,
+      5023.41125497
+     ]
+    }
+   ]
   }
  ],
  "skipped": {
-  "recognise_paired_ramp_steps: capture failed: RuntimeError": 1
+  "recognise_oriented_chamfers: capture failed: RuntimeError": 1
  }
 }

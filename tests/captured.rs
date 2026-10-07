@@ -124,3 +124,8 @@ fn flats_match_python() {
 fn paired_ramp_steps_match_python() {
     replay("recognise_paired_ramp_steps");
 }
+
+#[test]
+fn oriented_chamfers_match_python() {
+    replay("recognise_oriented_chamfers");
+}

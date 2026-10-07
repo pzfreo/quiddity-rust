@@ -28,6 +28,9 @@ pub const ON_TOLERANCE: f64 = 1e-6;
 /// Precomputed culling boxes for repeated queries against one part.
 pub struct Classifier<'a> {
     part: &'a Part,
+    /// The faces bounding the material classified, and their edges.
+    faces: Vec<usize>,
+    edges: Vec<usize>,
     /// Per face, a box that certainly contains it (freeform faces use their control points).
     face_boxes: Vec<Bounds>,
     /// Per edge, the box of its samples.
@@ -50,7 +53,21 @@ pub enum State {
 }
 
 impl<'a> Classifier<'a> {
+    /// Classifies against the whole part.
     pub fn new(part: &'a Part) -> Self {
+        Self::for_faces(part, (0..part.faces.len()).collect())
+    }
+
+    /// Classifies against one solid alone, as when the Python implementation probes a solid
+    /// of a compound rather than the part.
+    pub fn for_solid(part: &'a Part, solid: usize) -> Self {
+        Self::for_faces(part, part.solids[solid].faces.clone())
+    }
+
+    fn for_faces(part: &'a Part, faces: Vec<usize>) -> Self {
+        let mut edges: Vec<usize> = faces.iter().flat_map(|&f| part.face_edges(f)).collect();
+        edges.sort_unstable();
+        edges.dedup();
         let face_boxes: Vec<Bounds> = (0..part.faces.len())
             .map(|i| match &part.faces[i].surface {
                 Surface::Freeform { surface, .. } => {
@@ -70,11 +87,13 @@ impl<'a> Classifier<'a> {
             })
             .collect();
         let mut all = Bounds::empty();
-        for b in &face_boxes {
-            all.merge(b);
+        for &f in &faces {
+            all.merge(&face_boxes[f]);
         }
         Classifier {
             part,
+            faces,
+            edges,
             face_boxes,
             edge_boxes,
             reach: all.diagonal() * 2.0 + 1.0,
@@ -113,7 +132,8 @@ impl<'a> Classifier<'a> {
     /// implementation hands `BRepClass3d_SolidClassifier::Perform`).
     fn on_boundary(&self, p: V3) -> bool {
         // On an edge, a face's own containment test is at its boundary and may say no.
-        let on_edge = self.part.edges.iter().enumerate().any(|(e, edge)| {
+        let on_edge = self.edges.iter().any(|&e| {
+            let edge = &self.part.edges[e];
             self.edge_boxes[e].contains(p, self.edge_tol)
                 && edge
                     .samples
@@ -122,7 +142,7 @@ impl<'a> Classifier<'a> {
                 && geom::dist(edge.curve.value(edge.curve.parameter(p)), p) <= ON_TOLERANCE
         });
         on_edge
-            || (0..self.part.faces.len()).any(|i| {
+            || self.faces.iter().any(|&i| {
                 if !self.face_boxes[i].contains(p, ON_TOLERANCE) {
                     return false;
                 }
@@ -147,7 +167,8 @@ impl<'a> Classifier<'a> {
     /// Number of face crossings along the ray, or `None` when the ray is ambiguous.
     fn crossings(&self, p: V3, dir: V3) -> Option<usize> {
         let mut count = 0;
-        for (i, face) in self.part.faces.iter().enumerate() {
+        for &i in &self.faces {
+            let face = &self.part.faces[i];
             if !ray_meets_box(p, dir, &self.face_boxes[i], self.edge_tol) {
                 continue;
             }

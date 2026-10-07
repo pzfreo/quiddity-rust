@@ -133,8 +133,16 @@ fn areas_and_volumes_are_exact() {
     // and back (r = 8), a cap closed through a pole (r = 3: 2πr² of the cap), and a cylinder
     // stored as a closed B-spline surface (r = 4, h = 10) with its disc ends.
     let face = |name: &str, f: usize| fixture(name).face_mass(f).map(|m| m[0]);
-    close(face("captured/9808e56042d8be45.step.gz", 3), 128.0 * PI, "hemisphere");
-    close(face("turned_with_sphere.step", 9), 18.0 * PI, "spherical cap");
+    close(
+        face("captured/9808e56042d8be45.step.gz", 3),
+        128.0 * PI,
+        "hemisphere",
+    );
+    close(
+        face("turned_with_sphere.step", 9),
+        18.0 * PI,
+        "spherical cap",
+    );
     let bspline = |got: Option<f64>, want: f64, what: &str| {
         let got = got.unwrap_or_else(|| panic!("{what}: none"));
         assert!((got - want).abs() <= 1e-9 * want, "{what}: {got} vs {want}");
