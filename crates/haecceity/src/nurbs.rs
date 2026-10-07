@@ -142,6 +142,22 @@ impl NurbsCurve {
         )
     }
 
+    pub fn degree(&self) -> usize {
+        self.degree
+    }
+
+    pub fn control_points(&self) -> &[V3] {
+        &self.control_points
+    }
+
+    pub fn weights(&self) -> &[f64] {
+        &self.weights
+    }
+
+    pub fn knots(&self) -> &[f64] {
+        &self.knots
+    }
+
     pub fn value(&self, t: f64) -> V3 {
         let (lo, hi) = self.domain();
         let t = t.clamp(lo, hi);

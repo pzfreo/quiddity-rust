@@ -35,6 +35,174 @@ pub struct Projected {
     pub class: Class,
     pub visible: bool,
     pub points: Vec<[f64; 2]>,
+    /// The stretch exactly, when it is a stretch of an edge whose curve projects to a curve of
+    /// its own kind (silhouettes and section outlines are traced, and have only their points).
+    pub exact: Option<Exact>,
+}
+
+/// A projected curve exactly, in view coordinates, from its first point to its last.
+#[derive(Clone, Debug, PartialEq)]
+pub enum Exact {
+    Line([f64; 2], [f64; 2]),
+    /// `centre + radii[0] cos t x_axis + radii[1] sin t y_axis`, for t from `t0` to `t1`
+    /// (the axes perpendicular unit vectors, `radii[0] >= radii[1]`).
+    Conic {
+        centre: [f64; 2],
+        radii: [f64; 2],
+        x_axis: [f64; 2],
+        y_axis: [f64; 2],
+        t0: f64,
+        t1: f64,
+    },
+    /// A rational B-spline (its poles projected, its weights and knots unchanged), for t from
+    /// `t0` to `t1`.
+    Nurbs {
+        degree: usize,
+        poles: Vec<[f64; 2]>,
+        weights: Vec<f64>,
+        knots: Vec<f64>,
+        t0: f64,
+        t1: f64,
+    },
+}
+
+impl Exact {
+    /// The point at parameter *t* (for a line, the fraction along it).
+    pub fn at(&self, t: f64) -> [f64; 2] {
+        match self {
+            Exact::Line(a, b) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t],
+            Exact::Conic {
+                centre,
+                radii,
+                x_axis,
+                y_axis,
+                ..
+            } => {
+                let (c, s) = (radii[0] * t.cos(), radii[1] * t.sin());
+                [
+                    centre[0] + c * x_axis[0] + s * y_axis[0],
+                    centre[1] + c * x_axis[1] + s * y_axis[1],
+                ]
+            }
+            Exact::Nurbs {
+                degree,
+                poles,
+                weights,
+                knots,
+                ..
+            } => {
+                let p: Vec<V3> = poles.iter().map(|q| [q[0], q[1], 0.0]).collect();
+                let curve =
+                    super::nurbs::NurbsCurve::new(*degree, p, weights.clone(), knots.clone())
+                        .expect("projected from a well-formed curve");
+                let q = curve.value(t);
+                [q[0], q[1]]
+            }
+        }
+    }
+
+    /// The parameter range drawn, first to last.
+    pub fn range(&self) -> (f64, f64) {
+        match self {
+            Exact::Line(..) => (0.0, 1.0),
+            Exact::Conic { t0, t1, .. } | Exact::Nurbs { t0, t1, .. } => (*t0, *t1),
+        }
+    }
+}
+
+/// The stretch *run* (points along *curve*, in order) seen in *view*, exactly: lines stay
+/// lines, a circle or an ellipse becomes an ellipse (by its principal axes), a NURBS curve the
+/// curve of its projected poles. `None` where the curve is seen edge-on or its parameters do
+/// not run steadily along the stretch.
+fn exact(curve: &Curve, view: &View, run: &[V3]) -> Option<Exact> {
+    let (first, last) = (view.map(run[0]), view.map(*run.last()?));
+    if let Curve::Line { .. } = curve {
+        return Some(Exact::Line(first, last));
+    }
+    // The stretch's parameters, unwrapped along it where the curve is closed.
+    let period = match curve {
+        Curve::Circle { .. } | Curve::Ellipse { .. } => Some(std::f64::consts::TAU),
+        Curve::Nurbs(n) if n.is_closed() => Some(n.domain().1 - n.domain().0),
+        _ => None,
+    };
+    let mut ts: Vec<f64> = Vec::with_capacity(run.len());
+    for p in run {
+        let mut t = curve.parameter(*p);
+        if let (Some(period), Some(&prev)) = (period, ts.last()) {
+            t += period * ((prev - t) / period).round();
+        }
+        ts.push(t);
+    }
+    let rising = ts[ts.len() - 1] > ts[0];
+    if ts
+        .windows(2)
+        .any(|w| (w[1] > w[0]) != rising && (w[1] - w[0]).abs() > 1e-9)
+    {
+        return None;
+    }
+    let (t0, t1) = (ts[0], ts[ts.len() - 1]);
+    match curve {
+        Curve::Circle { frame, radius } => conic(
+            view,
+            frame.origin,
+            geom::scale(frame.x, *radius),
+            geom::scale(frame.y, *radius),
+            t0,
+            t1,
+        ),
+        Curve::Ellipse {
+            frame,
+            major,
+            minor,
+        } => conic(
+            view,
+            frame.origin,
+            geom::scale(frame.x, *major),
+            geom::scale(frame.y, *minor),
+            t0,
+            t1,
+        ),
+        Curve::Nurbs(n) => Some(Exact::Nurbs {
+            degree: n.degree(),
+            poles: n.control_points().iter().map(|p| view.map(*p)).collect(),
+            weights: n.weights().to_vec(),
+            knots: n.knots().to_vec(),
+            t0,
+            t1,
+        }),
+        Curve::Line { .. } => unreachable!("returned above"),
+    }
+}
+
+/// The projection of `centre + cos t a + sin t b` (a and b conjugate semi-diameters once seen)
+/// as an ellipse by its principal axes, its parameter shifted to match.
+fn conic(view: &View, centre: V3, a: V3, b: V3, t0: f64, t1: f64) -> Option<Exact> {
+    let (a, b) = (view.map(a), view.map(b));
+    let dot = |p: [f64; 2], q: [f64; 2]| p[0] * q[0] + p[1] * q[1];
+    // At the principal axes the derivative is perpendicular to the radius.
+    let shift = 0.5 * (2.0 * dot(a, b)).atan2(dot(a, a) - dot(b, b));
+    let (c, s) = (shift.cos(), shift.sin());
+    let mut major = [a[0] * c + b[0] * s, a[1] * c + b[1] * s];
+    let mut minor = [-a[0] * s + b[0] * c, -a[1] * s + b[1] * c];
+    let (mut ra, mut rb) = (dot(major, major).sqrt(), dot(minor, minor).sqrt());
+    let mut shift = shift;
+    if rb > ra {
+        // The other principal axis is the longer: start a quarter turn on.
+        (major, minor) = (minor, [-major[0], -major[1]]);
+        (ra, rb) = (rb, ra);
+        shift += std::f64::consts::FRAC_PI_2;
+    }
+    if rb <= 1e-9 * ra {
+        return None; // seen edge-on: a segment, drawn by its points
+    }
+    Some(Exact::Conic {
+        centre: view.map(centre),
+        radii: [ra, rb],
+        x_axis: [major[0] / ra, major[1] / ra],
+        y_axis: [minor[0] / rb, minor[1] / rb],
+        t0: t0 - shift,
+        t1: t1 - shift,
+    })
 }
 
 /// An orthographic view: looking along `-toward` (`toward` points at the viewer), with `up`
@@ -276,10 +444,15 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Vec<Projected> {
             hidden(at, start)
         };
         for (visible, run) in pieces(points, &cuts[i], &judge) {
+            let exact = match on {
+                On::Edge(curve, _) => exact(curve, view, &run),
+                _ => None,
+            };
             out.push(Projected {
                 class: *class,
                 visible,
                 points: run.iter().map(|p| view.map(*p)).collect(),
+                exact,
             });
         }
     }

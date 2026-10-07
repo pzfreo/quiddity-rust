@@ -81,3 +81,75 @@ fn drawings_match_opencascade() {
             .join("\n")
     );
 }
+
+/// Every stretch drawn with an exact curve is that curve: its ends meet the stretch's (cut on a chord), and the
+/// curve between them lies along the stretch's points (within their chords' 0.2 µm tolerance).
+#[test]
+fn exact_curves_follow_their_points() {
+    use haecceity::hlr::{Class, View, project};
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let all = load_gz(&common::fixtures().join("hlr.json.gz"));
+    let (mut exact, mut edges, mut problems) = (0, 0, Vec::new());
+    for record in all["parts"].as_array().unwrap().iter().step_by(4) {
+        let file = record["file"].as_str().unwrap();
+        let part = read_step_file(&dir.join(file)).unwrap();
+        for (toward, up) in [
+            ([0.0, -1.0, 0.0], [0.0, 0.0, 1.0]),
+            ([0.0, 0.0, 1.0], [0.0, 1.0, 0.0]),
+            ([1.0, 0.0, 0.0], [0.0, 0.0, 1.0]),
+            ([1.0, -1.0, 1.0], [0.0, 0.0, 1.0]),
+        ] {
+            let view = View::new(toward, up).unwrap();
+            for piece in project(&part, &view) {
+                if piece.class != Class::Outline {
+                    edges += 1;
+                }
+                let Some(curve) = &piece.exact else { continue };
+                exact += 1;
+                let pts = &piece.points;
+                let (t0, t1) = curve.range();
+                let gap = |a: [f64; 2], b: [f64; 2]| (a[0] - b[0]).hypot(a[1] - b[1]);
+                let ends = gap(curve.at(t0), pts[0]).max(gap(curve.at(t1), pts[pts.len() - 1]));
+                let along = (0..=32)
+                    .map(|k| {
+                        let q = curve.at(t0 + (t1 - t0) * k as f64 / 32.0);
+                        pts.windows(2)
+                            .map(|w| segment_distance(q, w[0], w[1]))
+                            .fold(f64::INFINITY, f64::min)
+                    })
+                    .fold(0.0, f64::max);
+                if ends > 3e-4 || along > 3e-4 {
+                    problems.push(format!(
+                        "{file} {toward:?}: {curve:?} ends {ends:.1e} along {along:.1e}"
+                    ));
+                }
+            }
+        }
+    }
+    println!("{exact} of {edges} edge stretches exact");
+    assert!(
+        problems.is_empty(),
+        "{} stray:\n{}",
+        problems.len(),
+        problems
+            .iter()
+            .take(10)
+            .cloned()
+            .collect::<Vec<_>>()
+            .join("\n")
+    );
+}
+
+fn segment_distance(p: [f64; 2], a: [f64; 2], b: [f64; 2]) -> f64 {
+    let (dx, dy) = (b[0] - a[0], b[1] - a[1]);
+    let len2 = dx * dx + dy * dy;
+    let t = if len2 == 0.0 {
+        0.0
+    } else {
+        (((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / len2).clamp(0.0, 1.0)
+    };
+    (p[0] - a[0] - t * dx).hypot(p[1] - a[1] - t * dy)
+}
