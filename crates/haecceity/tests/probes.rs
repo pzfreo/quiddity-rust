@@ -6,11 +6,11 @@ mod common;
 use std::collections::BTreeMap;
 use std::io::Read;
 
-use quiddity::kernel::classify::Classifier;
-use quiddity::kernel::geom::Bounds;
-use quiddity::kernel::rays::RayCaster;
-use quiddity::kernel::volume::{Probe, common_volume, probe_volume};
-use quiddity::{Part, read_step, read_step_file};
+use haecceity::classify::Classifier;
+use haecceity::geom::Bounds;
+use haecceity::rays::RayCaster;
+use haecceity::volume::{Probe, common_volume, probe_volume};
+use haecceity::{Part, read_step, read_step_file};
 use serde_json::Value;
 
 fn probes() -> Vec<Value> {

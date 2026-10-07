@@ -158,7 +158,7 @@ pub fn extreme_parameters(curve: &Curve, (a, b): (f64, f64), dirs: &[V3]) -> Vec
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::kernel::geom::Frame;
+    use crate::geom::Frame;
 
     fn unit_circle() -> Curve {
         Curve::Circle {

@@ -5,8 +5,8 @@ mod common;
 
 use std::io::Read;
 
-use quiddity::kernel::cover::covered;
-use quiddity::read_step;
+use haecceity::cover::covered;
+use haecceity::read_step;
 use serde_json::Value;
 
 #[test]

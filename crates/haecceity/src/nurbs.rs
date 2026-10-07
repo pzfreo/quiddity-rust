@@ -699,7 +699,7 @@ mod tests {
                 assert!((d[k] - (p[k] - q[k]) / (2.0 * e)).abs() < 1e-7);
             }
             // Tangent to the unit circle.
-            assert!(crate::kernel::geom::dot(d, arc.value(t)).abs() < 1e-12);
+            assert!(crate::geom::dot(d, arc.value(t)).abs() < 1e-12);
         }
     }
 }

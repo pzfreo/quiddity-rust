@@ -1,10 +1,11 @@
 //! Quiddity: deterministic, geometry-only feature recognition for STEP B-Rep — Rust port.
 //!
-//! Two layers: [`kernel`] is the geometry engine (STEP import, B-rep, exact geometry,
-//! parameter-space trimming, point classification) and [`features`] holds the recognisers.
+//! The recognisers ([`features`]) stand on the geometry kernel, [`haecceity`], re-exported as
+//! [`kernel`].
 
 pub mod features;
-pub mod kernel;
+/// The geometry kernel, [`haecceity`], under the name the recognisers use.
+pub use haecceity as kernel;
 
 pub use features::angled_steps::{AngledStep, recognise_angled_steps};
 pub use features::bosses::{BossRecord, recognise_bosses};

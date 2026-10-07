@@ -679,8 +679,7 @@ pub fn clears_threshold(magnitude: f64, threshold: f64) -> bool {
 /// its lowest member, in ascending order (ties in input order).
 pub fn cluster_coordinates(coordinates: &[f64], tol: f64) -> Vec<Vec<usize>> {
     let mut order: Vec<usize> = (0..coordinates.len()).collect();
-    order
-        .sort_by(|&a, &b| crate::kernel::py::order(coordinates[a], coordinates[b]).then(a.cmp(&b)));
+    order.sort_by(|&a, &b| crate::py::order(coordinates[a], coordinates[b]).then(a.cmp(&b)));
     let mut clusters: Vec<Vec<usize>> = Vec::new();
     for index in order {
         match clusters.last_mut() {

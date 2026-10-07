@@ -2,13 +2,13 @@
 
 use std::path::Path;
 
-use quiddity::kernel::classify::{Classifier, State};
-use quiddity::read_step_file;
+use haecceity::classify::{Classifier, State};
+use haecceity::read_step_file;
 
-fn fixture(name: &str) -> quiddity::Part {
+fn fixture(name: &str) -> haecceity::Part {
     read_step_file(
         &Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("tests/fixtures")
+            .join("../../tests/fixtures")
             .join(name),
     )
     .unwrap()
@@ -52,7 +52,7 @@ fn reading_is_deterministic_and_topology_is_closed() {
 
 #[test]
 fn arcs_read_convex_rims_and_concave_pocket_corners() {
-    use quiddity::kernel::brep::Arc;
+    use haecceity::brep::Arc;
     // Box(30, 30, 20) - Cylinder(5, 20): every edge, the bore rims included, is a convex wedge.
     let part = fixture("rejected_bored_box.step");
     for a in 0..part.faces.len() {
@@ -81,7 +81,7 @@ fn arcs_read_convex_rims_and_concave_pocket_corners() {
 
 #[test]
 fn arcs_at_closed_edges_ignore_their_recorded_direction() {
-    use quiddity::kernel::brep::Arc;
+    use haecceity::brep::Arc;
     // The bore rims are full circles; flip every face's use of them and the read must not change.
     let mut part = fixture("rejected_bored_box.step");
     let closed: Vec<bool> = part.edges.iter().map(|e| e.is_closed()).collect();

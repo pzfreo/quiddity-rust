@@ -340,7 +340,7 @@ impl Part {
         &self,
         edge: usize,
         forward: bool,
-        frame: &crate::kernel::geom::Frame,
+        frame: &crate::geom::Frame,
     ) -> (f64, f64, f64) {
         const NODES: [(f64, f64); 8] = [
             (-0.960_289_856_497_536_3, 0.101_228_536_290_376_26),
@@ -353,7 +353,7 @@ impl Part {
             (0.960_289_856_497_536_3, 0.101_228_536_290_376_26),
         ];
         let ed = &self.edges[edge];
-        let (mut t0, mut t1) = crate::kernel::sampling::edge_interval(
+        let (mut t0, mut t1) = crate::sampling::edge_interval(
             &ed.curve,
             ed.start,
             ed.end,
@@ -364,7 +364,7 @@ impl Part {
             std::mem::swap(&mut t0, &mut t1);
         }
         let pieces = match ed.curve {
-            crate::kernel::geom::Curve::Line { .. } => 1,
+            crate::geom::Curve::Line { .. } => 1,
             _ => 32,
         };
         let local = |t: f64| {
@@ -998,7 +998,7 @@ mod tests {
 
     #[test]
     fn hemisphere_closed_through_its_pole() {
-        let frame = crate::kernel::geom::Frame {
+        let frame = crate::geom::Frame {
             origin: [0.0; 3],
             x: [1.0, 0.0, 0.0],
             y: [0.0, 1.0, 0.0],

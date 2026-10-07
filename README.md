@@ -37,8 +37,9 @@ spheres are recovered as such (`kernel/recover.rs`), as Python's `_effective_sur
 ## Layout
 
 ```
-src/
-  kernel/            the geometry engine (what OpenCascade is to the Python code)
+crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code), its own
+  src/               crate so draftwright-rust can share it; quiddity re-exports it as
+                     `quiddity::kernel`
     step.rs          STEP → Part: assemblies flattened with placements, units, voids,
                      reachable surface models, vertex loops, pcurve control polygons
     brep.rs          Part: faces, loops, edges, solids in OpenCascade's traversal order;
@@ -65,6 +66,7 @@ src/
                      Gauss-Legendre quadrature (BRepGProp)
     py.rs            Python's numeric semantics: fsum, compensated sum, hypot, %, rounding,
                      tuple ordering — wherever results must agree to the bit
+src/
   features/          the recognisers, one module per family, plus what they share
     context.rs       Context: one run over one part; box, classifier, cylinder inventory
                      computed once, on first use
@@ -85,12 +87,16 @@ tests/
   corpus.rs          every ported recogniser over the shared 100-file STEP corpus
   evidence.rs        fillet defining faces and evidence refusals on hand-built cases
   invariance.rs      every corpus part moved and turned: each family must find the same faces
+  fixtures/          STEP parts and Python's recorded answers, shared by both crates
+crates/haecceity/tests/
   patches.rs         every covered_patch question Python asks over the corpus, answered by
-                     kernel/cover.rs (tools/capture_patches.py records them)
+                     cover.rs (tools/capture_patches.py records them)
   probes.rs          every volume probe Python's recognisers ask over the corpus, answered by
-                     kernel/volume.rs (tools/capture_probes.py records them)
+                     volume.rs (tools/capture_probes.py records them)
   kernel.rs          kernel behaviour on real parts
 tools/
+  capture_probes.py  records every volume probe Python asks over the corpus
+  capture_patches.py records every covered_patch question Python asks over the corpus
   capture_plugin.py  pytest plugin that records the Python suite's recogniser calls
   export_corpus.py   records Python's answers over the corpus
   export_fixtures.py hand-built fillet evidence cases
@@ -101,7 +107,7 @@ tools/
 ```
 cargo build --release
 ./target/release/quiddity part.step
-cargo test --release           # corpus test needs ../quiddity/tests/corpus or QUIDDITY_CORPUS
+cargo test --workspace --release   # corpus tests need ../quiddity/tests/corpus or QUIDDITY_CORPUS
 ```
 
 ## How a family is ported

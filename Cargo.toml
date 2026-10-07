@@ -1,3 +1,6 @@
+[workspace]
+members = ["crates/haecceity"]
+
 [package]
 name = "quiddity"
 version = "0.1.0"
@@ -5,8 +8,6 @@ edition = "2024"
 license = "Apache-2.0"
 
 [dependencies]
-flate2 = "1.1.10"
+haecceity = { path = "crates/haecceity" }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.151"
-step-io = "0.2.5"
-
