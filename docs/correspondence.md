@@ -19,9 +19,15 @@ results.
 Every recognised feature and every face gets a fingerprint in the result. It is deterministic,
 serialised, and versioned (`fingerprint_version`).
 
-- **Feature:** family and subtype, its intrinsic sizes (diameter, depth, width, length, radius,
-  angle, as the family has them), its axis or normal, its position in the part's frame, its
-  pattern count and pitch, and the type of its parent face.
+- **Feature:** three parts.
+  - *Semantics:* family and subtype, its intrinsic sizes (diameter, depth, width, length,
+    radius, angle, as the family has them), and its pattern count and pitch.
+  - *Placement:* its axis or normal, and its position in the part's frame.
+  - *Neighbourhood:* its subgraph of the attributed adjacency graph (Joshi & Chang 1988). This
+    covers the feature's own faces, and the faces it meets with how it meets them: surface type,
+    whether each shared edge is convex, concave or tangent, and the meeting face's role (a
+    planar face it enters, the floor it ends on, a boss it sits on). It is recorded as a
+    canonical, order-independent signature.
 - **Face:** surface type and parameters (radius, half-angle, axis), its centroid, area and
   outward normal, and its adjacency signature (the types of its neighbours, and whether each
   edge is convex or concave).
@@ -42,8 +48,23 @@ rebind.
 
 ### 2. Match the features
 
-- **Costs:** for each family, a cost matrix over old × new. The costs compare subtype, intrinsic
-  sizes, axis, pattern count and pitch, and parent-face type, and then position (once aligned).
+- **Costs:** for each family, a cost matrix over old × new. Each cost sums three weighted
+  terms:
+  - *semantics:* subtype, intrinsic sizes, pattern count and pitch;
+  - *neighbourhood:* the distance between the two AAG signatures;
+  - *placement:* axis, and position (once aligned).
+
+  The terms do different jobs:
+  - **Neighbourhood** is unaffected by rigid motion, and holds when a feature moves or resizes.
+    It carries the match where position is weak, in an unaligned revision or for a moved
+    feature. It also tells apart features that are alike in size and place but sit in different
+    surroundings, such as a hole through a flange and a blind hole into a boss.
+  - **Placement** separates what the neighbourhood can't: truly symmetric repeats, such as the
+    instances of a hole pattern, whose neighbourhoods are identical.
+  - When placement is down-weighted (an unaligned result) and such repeats remain within the
+    margin, they are reported as ambiguous, never guessed.
+
+  The weights, like the thresholds, are tuned on revision pairs.
 - **Assignment:** one to one, by the Hungarian method, with an explicit "unmatched" column.
 - **Classification:**
   - **carried:** low cost, and the winner clearly ahead of the runner-up;
@@ -86,6 +107,8 @@ JSON-lines and MCP surface beside recognition.
 - **Jones et al., "B-rep Matching for Collaborating Across CAD Systems"** (SIGGRAPH 2023) learn
   the scoring on top of that matcher. They report a residue that stays genuinely ambiguous.
 - **Bidarra et al. (2005)** argue for anchoring on features rather than boundary faces.
+- **Joshi & Chang (CAD 1988)** introduced the attributed adjacency graph used here for both
+  features and faces.
 - **Vandenbrande et al. (US 8,576,224)** align two B-reps by matching planar faces with the
   Hungarian method.
 
