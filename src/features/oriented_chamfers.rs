@@ -135,7 +135,6 @@ fn edge_info(part: &Part, bevel: usize, neighbour: usize) -> Option<(usize, V3)>
 /// The run the probes and limits of one solid share.
 struct Body<'c, 'a> {
     classifier: &'c Classifier<'a>,
-    key: Option<BodyKey>,
     stock_size: f64,
     bounds: Bounds,
     max_leg_frac: f64,
@@ -273,7 +272,7 @@ fn pair(
         leg2_direction: coordinates(legs[1].1, 6),
         support_spans: [span(legs[0].2), span(legs[1].2)],
         angle: py::round_to(legs[1].0.atan2(legs[0].0).to_degrees(), 2),
-        body_key: body.key.clone(),
+        body_key: None, // filled in by `discover`
     })
 }
 
@@ -287,8 +286,7 @@ pub fn discover(
         "max_leg_frac must be between zero and one"
     );
     let part = ctx.part;
-    let keys = ctx.body_keys(true);
-    let mut out = Vec::new();
+    let mut found = Vec::new();
     for (s, solid) in part.solids.iter().enumerate() {
         // A one-body part is probed whole, a compound's body alone.
         let classifier = if part.solids.len() == 1 {
@@ -299,7 +297,6 @@ pub fn discover(
         let bounds = part.solid_bounds(s);
         let body = Body {
             classifier,
-            key: keys[s].clone(),
             stock_size: bounds.max_extent(),
             bounds,
             max_leg_frac: opts.max_leg_frac,
@@ -330,14 +327,20 @@ pub fn discover(
                 .filter_map(|(i, j)| pair(part, &body, bevel, neighbours[i], neighbours[j]))
                 .collect();
             if let [record] = &records[..] {
-                out.push(Occurrence {
-                    record: record.clone(),
-                    defining: vec![bevel],
-                    context: vec![],
-                });
+                found.push((s, record.clone(), bevel));
             }
         }
     }
+    // Body keys need every solid's exact mass, so they are only computed for parts with records.
+    let keys = if found.is_empty() { vec![] } else { ctx.body_keys(true) };
+    let mut out: Vec<_> = found
+        .into_iter()
+        .map(|(s, record, bevel)| Occurrence {
+            record: OrientedChamfer { body_key: keys[s].clone(), ..record },
+            defining: vec![bevel],
+            context: vec![],
+        })
+        .collect();
     out.sort_by(|a, b| py::tuple_order(&a.record.sort_key(), &b.record.sort_key()));
     out
 }

@@ -174,6 +174,12 @@ impl Part {
     /// The face's area and the flux of the position vector through it along the surface's
     /// natural normal.
     pub fn face_mass(&self, face: usize) -> Option<[f64; 2]> {
+        *self.cache[face]
+            .mass
+            .get_or_init(|| self.compute_face_mass(face))
+    }
+
+    fn compute_face_mass(&self, face: usize) -> Option<[f64; 2]> {
         let surface = &self.faces[face].surface;
         self.face_integral(face, |u, v| {
             let (p, su, sv) = match surface {

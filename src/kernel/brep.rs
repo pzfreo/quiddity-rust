@@ -75,6 +75,7 @@ pub(super) struct FaceCache {
     pub(super) uv_loops: OnceLock<Option<Vec<UvLoop>>>,
     pub(super) domain: OnceLock<Option<FaceDomain>>,
     pub(super) bounds: OnceLock<Bounds>,
+    pub(super) mass: OnceLock<Option<[f64; 2]>>,
 }
 
 impl Edge {
