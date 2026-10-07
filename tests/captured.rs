@@ -170,3 +170,8 @@ fn oblique_through_steps_match_python() {
 fn circular_blind_steps_match_python() {
     replay("recognise_circular_blind_steps");
 }
+
+#[test]
+fn turned_steps_match_python() {
+    replay("recognise_turned_steps");
+}

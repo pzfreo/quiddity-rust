@@ -27,6 +27,7 @@ OpenCascade is reimplemented in `src/kernel`.
 | Through steps | `recognise_through_steps` | 141/141 | see below |
 | Oblique through steps | `recognise_oblique_through_steps` | 10/10 | see below |
 | Circular blind steps | `recognise_circular_blind_steps` | 36/36 | see below |
+| Turned steps | `recognise_turned_steps` | 286/287 (1 known divergence) | see below |
 
 Known divergences are listed, with reasons, in `tests/fixtures/captured/known_divergences.json`
 (captured calls) and `tests/fixtures/known_divergences.json` (corpus).
@@ -91,15 +92,18 @@ src/
     evidence.rs      Occurrence<R> (record + defining faces) and the valid-solid check
     body.rs          body keys: a solid's box, volume and area, unique within the part
     cylinders.rs     the cylinder inventory, runs, segments, coaxial keys
-    planes.rs        nearest axis-aligned neighbour planes
+    planes.rs        nearest axis-aligned neighbour planes; a face's effective plane (native,
+                     or a B-spline certified as one)
     bevel.rs         the single-face bevel read and the convex-corner probe
     probes.rs        the five fixed interior probes the whole-body families sample faces at
-    turned.rs        what turned-stock treatments share: coaxial external cylinders, cone rims
+    turned.rs        what turned-stock treatments share: coaxial external cylinders, cone rims,
+                     the turned-profile key steps and grooves publish
     stacks.rs        coaxial segments read at their ends (open / flat / drill point)
     fillets.rs  chamfers.rs  holes.rs  countersinks.rs  hole_patterns.rs  bosses.rs  angled_steps.rs  flats.rs
     paired_ramp_steps.rs  oriented_chamfers.rs  levels.rs  circular_face_patterns.rs
     thin_walls.rs  interior_voids.rs  through_steps.rs
     oblique_through_steps.rs  circular_blind_steps.rs
+    turned_steps.rs
     volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over kernel/volume.rs
   bin/quiddity.rs    `quiddity part.step` → JSON
 tests/

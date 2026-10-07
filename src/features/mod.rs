@@ -33,6 +33,7 @@ pub mod stacks;
 pub mod thin_walls;
 pub mod through_steps;
 pub mod turned;
+pub mod turned_steps;
 pub mod volume_probe;
 
 pub use context::Context;
@@ -64,6 +65,7 @@ pub struct Features {
     pub thin_wall_bodies: Vec<thin_walls::ThinWallBody>,
     pub interior_voids: Vec<interior_voids::InteriorVoid>,
     pub through_steps: Vec<through_steps::ThroughStep>,
+    pub turned_steps: Vec<turned_steps::TurnedStep>,
 }
 
 /// Recognise every ported family on *part* with default options; holes carry their
@@ -90,6 +92,7 @@ pub fn recognise(part: &Part) -> Features {
         thin_wall_bodies: records(thin_walls::discover(&ctx)),
         interior_voids: records(interior_voids::discover(&ctx)),
         through_steps: records(through_steps::discover(&ctx)),
+        turned_steps: turned_steps::sorted(records(turned_steps::discover(&ctx))),
     }
 }
 

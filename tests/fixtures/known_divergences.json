@@ -364,5 +364,23 @@
     "contains": "recognise_interior_voids",
     "verdict": "undetermined",
     "reason": "Same void faces and openings; the sample counts differ by about 1%: the void grid is a sampling instrument anchored at the solid's box, and OpenCascade's box is padded (by 1e-7 on this part's faces) where the port's is exact, so the two grids sit a fraction of a micron apart and cells whose centres fall on a face flip, and the body key follows this file's mass difference."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "contains": [
+      "recognise_turned_steps",
+      "fields {\"profile\"}"
+    ],
+    "verdict": "undetermined",
+    "reason": "Same five steps (positions and diameters) and the same defining faces; only the profile's body key differs, because it carries the solid's volume and area and this file's masses differ (listed above: OpenCascade integrates its approximated B-spline pcurves, the port the exact curves). The body box agrees within OpenCascade's 1e-7 tolerance padding."
+  },
+  {
+    "file": "gramel/string_post.step",
+    "contains": [
+      "recognise_turned_steps",
+      "fields {\"profile\"}"
+    ],
+    "verdict": "undetermined",
+    "reason": "Same four steps (the rungs the Python test pins: 3.4, 5, 6, 7.5) and the same defining faces; only the profile's body key differs, because it carries the solid's volume and area and this file's masses differ by up to 1e-4 (listed above: OpenCascade integrates its approximated B-spline pcurves, the port the exact curves)."
   }
 ]

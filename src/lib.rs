@@ -29,5 +29,7 @@ pub use features::oriented_chamfers::{
 pub use features::paired_ramp_steps::{PairedRampStep, recognise_paired_ramp_steps};
 pub use features::thin_walls::{ThinWallBody, recognise_thin_wall_bodies};
 pub use features::through_steps::{ThroughStep, recognise_through_steps};
+pub use features::turned::TurnedProfileKey;
+pub use features::turned_steps::{TurnedStep, recognise_turned_steps};
 pub use kernel::brep::Part;
 pub use kernel::step::{read_step, read_step_file};

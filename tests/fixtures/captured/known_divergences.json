@@ -46,5 +46,11 @@
     "function": "recognise_holes",
     "verdict": "not-applicable",
     "reason": "The test monkeypatches Python's material-side certification of recovered planes to refuse, so its answer ('unknown' bottom) reflects the patch; the part is a plain through hole, which the port reads from the recovered end planes' own orientation."
+  },
+  {
+    "test": "tests/test_turned_thread_shoulders.py::test_certified_nurbs_planes_still_establish_shoulders",
+    "function": "recognise_turned_steps",
+    "verdict": "not-applicable",
+    "reason": "Python is handed a precomputed face_surfaces query (a rich argument), so the capture records no answer on the re-read STEP to compare with. The port's answer equals the captured in-memory answer: two steps, 0-40 at 30 and 40-70 at 16, their shoulder found on the certified B-spline plane."
   }
 ]

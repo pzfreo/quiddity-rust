@@ -77,6 +77,7 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
         "recognise_through_steps" => json(quiddity::recognise_through_steps(part)),
         "recognise_oblique_through_steps" => json(quiddity::recognise_oblique_through_steps(part)),
         "recognise_circular_blind_steps" => json(quiddity::recognise_circular_blind_steps(part)),
+        "recognise_turned_steps" => json(quiddity::recognise_turned_steps(part)),
         // Over a part: the patterns among the part's holes found with these hole options.
         "recognise_hole_patterns" => json(recognise_hole_patterns(&recognise_holes(
             part,
@@ -143,6 +144,9 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
         }
         "recognise_circular_blind_steps" => {
             quiddity::features::circular_blind_steps::discover_verified(&ctx).map(faces)
+        }
+        "recognise_turned_steps" => {
+            quiddity::features::turned_steps::discover_verified(&ctx).map(faces)
         }
         other => panic!("{other} has no evidence path"),
     };
