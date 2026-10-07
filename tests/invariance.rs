@@ -12,8 +12,8 @@ use quiddity::Part;
 use quiddity::features::{
     Context, Occurrence, angled_steps, bosses, chamfers, circular_blind_steps,
     circular_face_patterns, countersinks, fillets, flats, grooves, gussets, holes, interior_voids,
-    oblique_through_steps, oriented_chamfers, paired_ramp_steps, plates, round_bottom_slots,
-    thin_walls, through_steps, turned_steps,
+    oblique_through_steps, oriented_chamfers, paired_ramp_steps, plates, rectangular_blind_slots,
+    round_bottom_slots, thin_walls, through_steps, turned_steps,
 };
 use quiddity::kernel::step::{IDENTITY, Placement, read_step_file_placed};
 
@@ -117,6 +117,10 @@ fn signature(part: &Part) -> BTreeMap<&'static str, Vec<Vec<usize>>> {
         (
             "round_bottom_blind_slots",
             faces(round_bottom_slots::discover(&ctx)),
+        ),
+        (
+            "rectangular_blind_slots",
+            faces(rectangular_blind_slots::discover(&ctx)),
         ),
         ("gusset_ribs", faces(gussets::discover(&ctx))),
         ("grooves", faces(grooves::discover(&ctx))),

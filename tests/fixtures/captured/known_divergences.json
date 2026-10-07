@@ -82,5 +82,17 @@
     "function": "recognise_plates",
     "verdict": "equivalent",
     "reason": "Same four plates (axes, lo, hi and body keys; centres within 1e-9). The two y plates tie on (axis, lo, hi) and on u (16.363636363640 on both bodies), so their order falls to u's last bits: Python's face centroids put the +70 body's first by 7e-15, the port's (accurate to ~1e-10 after the framed motion) the other. Either order lists the same plates."
+  },
+  {
+    "test": "tests/test_rectangular_blind_slots.py::test_failed_material_proof_refuses_the_candidate[_common_convex_context]",
+    "function": "recognise_rectangular_blind_slots",
+    "verdict": "not-applicable",
+    "reason": "The call runs with _common_convex_context monkeypatched to refuse, so Python's empty answer reflects the patch; the part is the plain slot the other tests on the same file (7edb959cec898e4b) find, and the port finds it."
+  },
+  {
+    "test": "tests/test_rectangular_blind_slots.py::test_failed_material_proof_refuses_the_candidate[_empty_sweep]",
+    "function": "recognise_rectangular_blind_slots",
+    "verdict": "not-applicable",
+    "reason": "The call runs with _empty_sweep monkeypatched to refuse, so Python's empty answer reflects the patch; the part is the plain slot the other tests on the same file (7edb959cec898e4b) find, and the port finds it."
   }
 ]

@@ -81,6 +81,9 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
         "recognise_round_bottom_blind_slots" => {
             json(quiddity::recognise_round_bottom_blind_slots(part))
         }
+        "recognise_rectangular_blind_slots" => {
+            json(quiddity::recognise_rectangular_blind_slots(part))
+        }
         "recognise_gusset_ribs" => json(quiddity::recognise_gusset_ribs(part)),
         "recognise_grooves" => json(quiddity::recognise_grooves(part)),
         "recognise_plates" => json(quiddity::recognise_plates(part, &options(kwargs))),
@@ -160,6 +163,9 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
         }
         "recognise_round_bottom_blind_slots" => {
             quiddity::features::round_bottom_slots::discover_verified(&ctx).map(faces)
+        }
+        "recognise_rectangular_blind_slots" => {
+            quiddity::features::rectangular_blind_slots::discover_verified(&ctx).map(faces)
         }
         "recognise_gusset_ribs" => quiddity::features::gussets::discover_verified(&ctx).map(faces),
         "recognise_grooves" => quiddity::features::grooves::discover_verified(&ctx).map(faces),

@@ -5739,6 +5739,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -21287,6 +21294,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -118759,6 +118773,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -126363,6 +126384,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -141127,6 +141155,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -158291,6 +158326,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -161595,6 +161637,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -203539,6 +203588,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -232442,6 +232498,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -256744,6 +256807,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -257793,6 +257863,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -258495,6 +258572,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -259943,6 +260027,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -260896,6 +260987,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -262241,6 +262339,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -264918,6 +265023,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -266496,6 +266608,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -268390,6 +268509,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -271353,6 +271479,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -272731,6 +272864,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -275579,6 +275719,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -277161,6 +277308,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -278993,6 +279147,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -280761,6 +280922,13 @@
         20
        ]
       ]
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_gusset_ribs": [
@@ -282616,6 +282784,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -284423,6 +284598,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -286631,6 +286813,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -288234,6 +288423,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -289761,6 +289957,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -290748,6 +290951,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -292663,6 +292873,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -294761,6 +294978,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -296724,6 +296948,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -298551,6 +298782,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -300940,6 +301178,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -302736,6 +302981,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -304469,6 +304721,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -306628,6 +306887,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -307743,6 +308009,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -309579,6 +309852,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -311295,6 +311575,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -313321,6 +313608,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -315157,6 +315451,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -317259,6 +317560,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -319551,6 +319859,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -320807,6 +321122,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -322253,6 +322575,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -324282,6 +324611,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -325942,6 +326278,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -327634,6 +327977,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -329297,6 +329647,36 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "open_sign": -1,
+        "length": 9.15,
+        "width_axis": "z",
+        "depth_axis": "y",
+        "depth_sign": 1,
+        "width": 3.344,
+        "depth": 2.049,
+        "at": [
+         4.575,
+         38.174,
+         33.902
+        ]
+       }
+      ],
+      "defining": [
+       [
+        7,
+        9,
+        11,
+        18
+       ]
+      ]
      }
     ],
     "recognise_gusset_ribs": [
@@ -331141,6 +331521,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -332567,6 +332954,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -334856,6 +335250,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -336199,6 +336600,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -338619,6 +339027,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -340058,6 +340473,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -342150,6 +342572,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -344017,6 +344446,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -345064,6 +345500,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -346666,6 +347109,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -347739,6 +348189,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -349507,6 +349964,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -351840,6 +352304,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -353023,6 +353494,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -354692,6 +355170,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -356175,6 +356660,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -357124,6 +357616,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -358535,6 +359034,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -359800,6 +360306,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -361029,6 +361542,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -362671,6 +363191,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -364695,6 +365222,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -366288,6 +366822,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -368505,6 +369046,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -370354,6 +370902,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -371614,6 +372169,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -373322,6 +373884,36 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "open_sign": 1,
+        "length": 3.906,
+        "width_axis": "x",
+        "depth_axis": "z",
+        "depth_sign": 1,
+        "width": 2.0,
+        "depth": 3.219,
+        "at": [
+         2.055,
+         31.381,
+         18.888
+        ]
+       }
+      ],
+      "defining": [
+       [
+        8,
+        9,
+        11,
+        22
+       ]
+      ]
      }
     ],
     "recognise_gusset_ribs": [
@@ -375474,6 +376066,13 @@
       ]
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -377141,6 +377740,13 @@
         23
        ]
       ]
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_gusset_ribs": [
@@ -378961,6 +379567,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -381294,6 +381907,36 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "open_sign": -1,
+        "length": 11.514,
+        "width_axis": "z",
+        "depth_axis": "y",
+        "depth_sign": 1,
+        "width": 6.699,
+        "depth": 6.691,
+        "at": [
+         5.757,
+         9.947,
+         5.11
+        ]
+       }
+      ],
+      "defining": [
+       [
+        6,
+        7,
+        8,
+        35
+       ]
+      ]
      }
     ],
     "recognise_gusset_ribs": [
@@ -384022,6 +384665,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -385602,6 +386252,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -387480,6 +388137,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -389237,6 +389901,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -391342,6 +392013,13 @@
         28
        ]
       ]
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_gusset_ribs": [
@@ -393783,6 +394461,13 @@
       ]
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -395828,6 +396513,36 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "open_sign": 1,
+        "length": 11.672,
+        "width_axis": "x",
+        "depth_axis": "z",
+        "depth_sign": 1,
+        "width": 2.458,
+        "depth": 6.674,
+        "at": [
+         14.066,
+         22.157,
+         11.526
+        ]
+       }
+      ],
+      "defining": [
+       [
+        18,
+        19,
+        20,
+        29
+       ]
+      ]
      }
     ],
     "recognise_gusset_ribs": [
@@ -403342,6 +404057,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -434128,6 +434850,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -443889,6 +444618,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -469775,6 +470511,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -481352,6 +482095,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -488759,6 +489509,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -501629,6 +502386,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -515941,6 +516705,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -525321,6 +526092,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],
@@ -536642,6 +537420,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_gusset_ribs": [
      {
       "options": {},
@@ -543152,6 +543937,13 @@
      }
     ],
     "recognise_round_bottom_blind_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_rectangular_blind_slots": [
      {
       "options": {},
       "result": [],

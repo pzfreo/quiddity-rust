@@ -221387,6 +221387,712 @@
      ]
     }
    ]
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_axis_sign_scale_translation_frame_and_step_roundtrip_are_stable",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "7edb959cec898e4b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      0.0,
+      7.5,
+      10.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      0.0,
+      7.5,
+      10.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_axis_sign_scale_translation_frame_and_step_roundtrip_are_stable",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "7edb959cec898e4b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      0.0,
+      7.5,
+      10.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      0.0,
+      7.5,
+      10.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_axis_sign_scale_translation_frame_and_step_roundtrip_are_stable",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "c24a6f6600e95fb1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": -1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      0.0,
+      -7.5,
+      -10.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": -1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      0.0,
+      -7.5,
+      -10.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_axis_sign_scale_translation_frame_and_step_roundtrip_are_stable",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "89b6b827b4024bd0.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "z",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      0.0,
+      -10.0,
+      7.5
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "open_sign": 1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "z",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      0.0,
+      -10.0,
+      7.5
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_axis_sign_scale_translation_frame_and_step_roundtrip_are_stable",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "f52fc7a169301814.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "z",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "z",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      10.0,
+      7.5,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_axis_sign_scale_translation_frame_and_step_roundtrip_are_stable",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "d5bdd864e907bfb8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      123.0,
+      -49.5,
+      101.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      123.0,
+      -49.5,
+      101.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_axis_sign_scale_translation_frame_and_step_roundtrip_are_stable",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "8f7b34c4cd2f92ce.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 0.02,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 0.01,
+     "depth": 0.005,
+     "at": [
+      0.0,
+      0.007,
+      0.01
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 0.02,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 0.01,
+     "depth": 0.005,
+     "at": [
+      0.0,
+      0.007,
+      0.01
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_axis_sign_scale_translation_frame_and_step_roundtrip_are_stable",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "42f460029495346c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20000.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10000.0,
+     "depth": 5000.0,
+     "at": [
+      0.0,
+      7500.0,
+      10000.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20000.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10000.0,
+     "depth": 5000.0,
+     "at": [
+      0.0,
+      7500.0,
+      10000.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_enclosed_pocket_doubly_open_channel_and_non_slot_role_are_refused",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "1c2c716db9f13522.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_enclosed_pocket_doubly_open_channel_and_non_slot_role_are_refused",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "244e81e5b6d4b1a4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_enclosed_pocket_doubly_open_channel_and_non_slot_role_are_refused",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "e03395f86cbe0b38.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_compound_members_cannot_supply_one_cross_solid_slot",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "5c1ff9d03f9ae65e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_split_cap_sides_floor_and_compound_order_preserve_complete_occurrences",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "9bbd7dc9e5d4e879.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      0.0,
+      7.5,
+      10.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      0.0,
+      7.5,
+      10.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_split_cap_sides_floor_and_compound_order_preserve_complete_occurrences",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "7edb959cec898e4b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      0.0,
+      7.5,
+      10.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      0.0,
+      7.5,
+      10.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_split_cap_sides_floor_and_compound_order_preserve_complete_occurrences",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "95af9505cc7ad5ee.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      -50.0,
+      7.5,
+      10.0
+     ]
+    },
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      50.0,
+      7.5,
+      10.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      -50.0,
+      7.5,
+      10.0
+     ]
+    },
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      50.0,
+      7.5,
+      10.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_split_cap_sides_floor_and_compound_order_preserve_complete_occurrences",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "bf658479e5679974.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      -50.0,
+      7.5,
+      10.0
+     ]
+    },
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      50.0,
+      7.5,
+      10.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      -50.0,
+      7.5,
+      10.0
+     ]
+    },
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      50.0,
+      7.5,
+      10.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_perforated_side_or_floor_is_not_a_complete_rectangular_section[interruption0]",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "b9bccf7af6b826d3.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_perforated_side_or_floor_is_not_a_complete_rectangular_section[interruption1]",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "494b292e23d7b1db.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_material_in_sweep_and_open_invalid_body_are_refused",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "745372ed1c34adce.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_material_in_sweep_and_open_invalid_body_are_refused",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "db61869547bced0b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_failed_material_proof_refuses_the_candidate[_common_convex_context]",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "7edb959cec898e4b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_failed_material_proof_refuses_the_candidate[_empty_sweep]",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "7edb959cec898e4b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_rectangular_blind_slots.py::test_raw_aggregate_projects_the_new_family",
+   "function": "recognise_rectangular_blind_slots",
+   "file": "7edb959cec898e4b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      0.0,
+      7.5,
+      10.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "open_sign": -1,
+     "length": 20.0,
+     "width_axis": "x",
+     "depth_axis": "y",
+     "depth_sign": 1,
+     "width": 10.0,
+     "depth": 5.0,
+     "at": [
+      0.0,
+      7.5,
+      10.0
+     ]
+    }
+   ]
   }
  ],
  "skipped": {
@@ -221397,6 +222103,7 @@
   "recognise_turned_steps: capture failed: RuntimeError": 18,
   "recognise_round_bottom_blind_slots: capture failed: RuntimeError": 1,
   "recognise_plates: capture failed: RuntimeError": 4,
-  "recognise_grooves: capture failed: RuntimeError": 3
+  "recognise_grooves: capture failed: RuntimeError": 3,
+  "recognise_rectangular_blind_slots: capture failed: RuntimeError": 1
  }
 }

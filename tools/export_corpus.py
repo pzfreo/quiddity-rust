@@ -48,6 +48,10 @@ from quiddity.interior_voids import _discover_interior_voids  # noqa: E402
 from quiddity.oriented_chamfers import _discover_oriented_chamfers  # noqa: E402
 from quiddity.paired_ramp_steps import _discover_paired_ramp_steps  # noqa: E402
 from quiddity.plates import _discover_plates  # noqa: E402
+from quiddity.rectangular_blind_slots import (  # noqa: E402
+    _discover_rectangular_blind_slots,
+    recognise_rectangular_blind_slots,
+)
 from quiddity.round_bottom_slots import (  # noqa: E402
     _discover_round_bottom_blind_slots,
     recognise_round_bottom_blind_slots,
@@ -199,6 +203,9 @@ def main() -> None:
         round_bottom = (FamilyId.ROUND_BOTTOM_BLIND_SLOTS, lambda p, o: recognise_round_bottom_blind_slots(p),
                         lambda p, ledger, o: _discover_round_bottom_blind_slots(p, graph=ledger.graph,
                                                                                 sink=ledger.writer.sink))
+        rectangular = (FamilyId.RECTANGULAR_BLIND_SLOTS, lambda p, o: recognise_rectangular_blind_slots(p),
+                       lambda p, ledger, o: _discover_rectangular_blind_slots(p, graph=ledger.graph,
+                                                                              sink=ledger.writer.sink))
         hole = (FamilyId.HOLES, lambda p, o: recognise_holes(p, **hole_kwargs(o)),
                 lambda p, ledger, o: _discover_holes(p, writer=ledger.writer, **hole_kwargs(o)))
         walls = (FamilyId.THIN_WALL_BODIES, lambda p, o: recognise_thin_wall_bodies(p),
@@ -255,6 +262,9 @@ def main() -> None:
                     "recognise_turned_steps": [_run(part, "recognise_turned_steps", *turned_steps, {})],
                     "recognise_round_bottom_blind_slots": [
                         _run(part, "recognise_round_bottom_blind_slots", *round_bottom, {})
+                    ],
+                    "recognise_rectangular_blind_slots": [
+                        _run(part, "recognise_rectangular_blind_slots", *rectangular, {})
                     ],
                     "recognise_gusset_ribs": [_run(part, "recognise_gusset_ribs", *gusset, {})],
                     "recognise_grooves": [_run(part, "recognise_grooves", *grooves, {})],

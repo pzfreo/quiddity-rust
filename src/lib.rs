@@ -34,6 +34,9 @@ pub use features::oriented_chamfers::{
 };
 pub use features::paired_ramp_steps::{PairedRampStep, recognise_paired_ramp_steps};
 pub use features::plates::{Plate, PlateOptions, recognise_plates};
+pub use features::rectangular_blind_slots::{
+    RectangularBlindSlot, recognise_rectangular_blind_slots,
+};
 pub use features::round_bottom_slots::{RoundBottomBlindSlot, recognise_round_bottom_blind_slots};
 pub use features::thin_walls::{ThinWallBody, recognise_thin_wall_bodies};
 pub use features::through_steps::{ThroughStep, recognise_through_steps};
