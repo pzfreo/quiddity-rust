@@ -1,4 +1,5 @@
-"""Export the Python fillet test parts as STEP files plus the Python recogniser's answers.
+"""Export hand-built fillet evidence cases: parts as STEP plus Python's records, defining faces
+and evidence refusals (the captured-call replay covers records only; this covers evidence).
 
 Run from the quiddity checkout's environment:
 
@@ -47,7 +48,6 @@ from quiddity._features import analyse_cylinders  # noqa: E402
 from quiddity.fillets import _discover_fillets  # noqa: E402
 
 OUT = Path(__file__).resolve().parent.parent / "tests" / "fixtures"
-CORPUS = QUIDDITY / "tests" / "corpus"
 
 
 def _record(record) -> dict:
@@ -241,24 +241,9 @@ def _filleted_box():
     return build()
 
 
-def corpus_files():
-    for path in sorted(CORPUS.rglob("*")):
-        if path.suffix.lower() in (".step", ".stp") or path.name.lower().endswith(
-            (".step.gz", ".stp.gz")
-        ):
-            yield path
-
-
-def _load_corpus(path: Path, scratch: Path):
-    if path.suffix == ".gz":
-        scratch.write_bytes(gzip.decompress(path.read_bytes()))
-        return import_step_geometry(str(scratch))
-    return import_step_geometry(str(path))
-
-
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
-    manifest = {"built": [], "corpus": []}
+    manifest = {"built": []}
     for name, build, option_sets in built_cases():
         part = build()
         target = OUT / f"{name}.step"
@@ -272,21 +257,6 @@ def main() -> None:
             entry["runs"].append({"options": opts, **run})
         manifest["built"].append(entry)
         print(name, [len(r["records"]) for r in entry["runs"]], file=sys.stderr)
-
-    scratch = OUT / "_scratch.step"
-    for path in corpus_files():
-        try:
-            part = _load_corpus(path, scratch)
-        except Exception as error:  # noqa: BLE001 -- record unreadable corpus parts, don't stop
-            print("skip", path, error, file=sys.stderr)
-            continue
-        rel = str(path.relative_to(CORPUS))
-        entry = {"file": rel, "inventory": _inventory(part), "runs": []}
-        for opts in [{"include_cylindrical": True}, {"include_cylindrical": False}]:
-            entry["runs"].append({"options": opts, **_run(part, opts)})
-        manifest["corpus"].append(entry)
-        print(rel, [len(r["records"]) for r in entry["runs"]], file=sys.stderr)
-    scratch.unlink(missing_ok=True)
 
     def finite(value):
         if isinstance(value, float) and not math.isfinite(value):

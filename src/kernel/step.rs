@@ -419,7 +419,9 @@ fn spans_edge(surface: &Surface, poles: &[(f64, f64)], (a, b): (V3, V3)) -> bool
         surface.value(first.0, first.1),
         surface.value(last.0, last.1),
     );
-    let tol = 1e-6 * (1.0 + geom::norm(a).max(geom::norm(b)));
+    // Files approximate their pcurves; a curve longer than its edge misses a vertex by a large
+    // fraction of the edge, an approximation by far less.
+    let tol = (0.01 * geom::dist(a, b)).max(1e-4);
     let near = |x: V3, y: V3| geom::dist(x, y) <= tol;
     (near(p, a) && near(q, b)) || (near(p, b) && near(q, a))
 }
