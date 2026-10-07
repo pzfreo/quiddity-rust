@@ -4,7 +4,8 @@
 use std::collections::BTreeMap;
 
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{self, AXIS_ALIGNED_COS, Surface, dominant_axis};
+use crate::kernel::geom::{self, AXIS_ALIGNED_COS, Curve, Surface, V3, dominant_axis, norm};
+use crate::kernel::py;
 
 /// The axis a planar face's normal aligns with and the plane's coordinate along it.
 pub fn axis_aligned_axis(part: &Part, face: usize) -> Option<(usize, f64)> {
@@ -75,4 +76,41 @@ pub fn nearest_axis_aligned_planes(
         selected.insert(axis, 0.5 * (lo + hi));
     }
     selected
+}
+
+/// `gp_Vec::Normalized` divides each component (multiplying by the reciprocal can differ in
+/// the last bit).
+pub fn normalized(a: V3) -> V3 {
+    let l = norm(a);
+    a.map(|c| c / l)
+}
+
+/// `_coordinates`: each component rounded, without a negative zero.
+pub fn coordinates(p: V3, digits: usize) -> V3 {
+    p.map(|c| py::without_negative_zero(py::round_to(c, digits)))
+}
+
+/// A plane bounded by one loop of four straight edges (`_linear_quad`).
+pub fn linear_quad(part: &Part, face: usize) -> bool {
+    let f = &part.faces[face];
+    let edges = part.face_edges(face);
+    let mut vertices: Vec<usize> = edges
+        .iter()
+        .flat_map(|&e| [part.edges[e].vertices.0, part.edges[e].vertices.1])
+        .collect();
+    vertices.sort_unstable();
+    vertices.dedup();
+    matches!(f.surface, Surface::Plane { .. })
+        && f.loops.len() == 1
+        && part.outer_edges(face).len() == 4
+        && part
+            .outer_edges(face)
+            .iter()
+            .all(|&e| matches!(part.edges[e].curve, Curve::Line { .. }))
+        && vertices.len() == 4
+}
+
+/// The planar plane's outward normal (`face.normal_at()`).
+pub fn plane_normal(part: &Part, face: usize) -> Option<V3> {
+    part.face_normal(face, 0.0, 0.0).map(normalized)
 }

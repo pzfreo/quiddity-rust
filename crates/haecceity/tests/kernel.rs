@@ -197,3 +197,40 @@ fn areas_and_volumes_are_exact() {
         );
     }
 }
+
+#[test]
+fn swept_faces_are_closed_prisms_of_the_face() {
+    use haecceity::geom::{Surface, scale};
+    use haecceity::sweep::extrude_face;
+    for name in [
+        "golden_circular_blind_step.step",
+        "golden_oblique_through_step.step",
+    ] {
+        let part = fixture(name);
+        let mut swept = 0;
+        for face in 0..part.faces.len() {
+            let Surface::Plane { frame } = part.faces[face].surface else {
+                continue;
+            };
+            let Some([area, _]) = part.face_mass(face) else {
+                continue;
+            };
+            // Along the outward normal and against it, from a moved start.
+            for sign in [2.5, -2.5] {
+                let Some(prism) = extrude_face(&part, face, [0.5, -1.0, 2.0], scale(frame.z, sign))
+                else {
+                    continue;
+                };
+                swept += 1;
+                assert!(prism.solid_is_valid(0), "{name} face {face}");
+                let (volume, _) = prism.solid_mass(0).unwrap();
+                assert!(
+                    (volume - area * 2.5).abs() <= 1e-9 * volume,
+                    "{name} face {face}: {volume} vs {}",
+                    area * 2.5
+                );
+            }
+        }
+        assert!(swept > 0, "{name}: no face swept");
+    }
+}

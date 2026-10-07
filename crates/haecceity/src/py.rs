@@ -184,6 +184,11 @@ pub fn first_max<T>(items: &[T], key: impl Fn(&T) -> f64) -> usize {
     best
 }
 
+/// `math.isclose(a, b, rel_tol=rel, abs_tol=abs)` (Python's default `rel_tol` is 1e-9).
+pub fn isclose(a: f64, b: f64, rel: f64, abs: f64) -> bool {
+    a == b || (a - b).abs() <= (rel * a.abs().max(b.abs())).max(abs)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -20,6 +20,7 @@ pub mod rays;
 pub mod recover;
 pub mod sampling;
 pub mod step;
+pub mod sweep;
 pub mod uv;
 pub mod volume;
 

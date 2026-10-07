@@ -10,8 +10,9 @@ use std::collections::BTreeMap;
 
 use quiddity::Part;
 use quiddity::features::{
-    Context, Occurrence, angled_steps, bosses, chamfers, circular_face_patterns, countersinks,
-    fillets, flats, holes, interior_voids, oriented_chamfers, paired_ramp_steps, thin_walls,
+    Context, Occurrence, angled_steps, bosses, chamfers, circular_blind_steps,
+    circular_face_patterns, countersinks, fillets, flats, holes, interior_voids,
+    oblique_through_steps, oriented_chamfers, paired_ramp_steps, thin_walls,
 };
 use quiddity::kernel::step::{IDENTITY, Placement, read_step_file_placed};
 
@@ -102,6 +103,14 @@ fn signature(part: &Part) -> BTreeMap<&'static str, Vec<Vec<usize>>> {
         ),
         ("thin_walls", faces(thin_walls::discover(&ctx))),
         ("interior_voids", faces(interior_voids::discover(&ctx))),
+        (
+            "oblique_through_steps",
+            faces(oblique_through_steps::discover(&ctx)),
+        ),
+        (
+            "circular_blind_steps",
+            faces(circular_blind_steps::discover(&ctx)),
+        ),
         ("countersinks", faces(seats)),
         ("holes", faces(holes)),
     ])

@@ -24,6 +24,8 @@ OpenCascade is reimplemented in `src/kernel`.
 | Circular face patterns | `recognise_circular_face_patterns` | 5/5 | see below |
 | Thin-wall bodies | `recognise_thin_wall_bodies` | 10/14 (4 known divergences) | see below |
 | Interior voids | `recognise_interior_voids` | 6/6 | see below |
+| Oblique through steps | `recognise_oblique_through_steps` | 10/10 | see below |
+| Circular blind steps | `recognise_circular_blind_steps` | 36/36 | see below |
 
 Known divergences are listed, with reasons, in `tests/fixtures/captured/known_divergences.json`
 (captured calls) and `tests/fixtures/known_divergences.json` (corpus).
@@ -71,6 +73,8 @@ crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code
                      certified by their largest deviation (ShapeAnalysis_CanonicalRecognition)
     volume.rs        the volume a probe shares with a solid, without a boolean: exact ray
                      lengths integrated between the corners of the solid ∩ probe arrangement
+    sweep.rs         a planar face swept into a prism solid, the probe shape the recognisers
+                     build with Solid.extrude (BRepPrimAPI_MakePrism)
     mass.rs          exact solid volume and area: Green's theorem along the exact edges,
                      Gauss-Legendre quadrature (BRepGProp)
     hlr.rs           hidden-line projection and section views (HLRBRep, draftwright's
@@ -93,7 +97,7 @@ src/
     stacks.rs        coaxial segments read at their ends (open / flat / drill point)
     fillets.rs  chamfers.rs  holes.rs  countersinks.rs  hole_patterns.rs  bosses.rs  angled_steps.rs  flats.rs
     paired_ramp_steps.rs  oriented_chamfers.rs  levels.rs  circular_face_patterns.rs
-    thin_walls.rs  interior_voids.rs
+    thin_walls.rs  interior_voids.rs  oblique_through_steps.rs  circular_blind_steps.rs
   bin/quiddity.rs    `quiddity part.step` → JSON
 tests/
   captured.rs        replays every recogniser call the Python test suite makes
