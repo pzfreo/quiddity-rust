@@ -1966,6 +1966,20 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -8669,6 +8683,47 @@
         205,
         209,
         213
+       ]
+      ]
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "across": 52.571,
+        "at": [
+         -36.588,
+         -36.497,
+         418.412
+        ],
+        "axis_line": [
+         0.0,
+         0.0
+        ],
+        "stock_span": [
+         410.477,
+         420.0
+        ],
+        "axis_direction": [
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      ],
+      "defining": [
+       [
+        139
        ]
       ]
      }
@@ -44942,6 +44997,109 @@
       "evidence_error": "Boss defining faces do not prove one valid solid"
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "across": 8.0,
+        "at": [
+         -25.93,
+         -57.674,
+         -0.777
+        ],
+        "axis_line": [
+         98.486,
+         -4.777
+        ],
+        "stock_span": [
+         -47.5,
+         149.584
+        ],
+        "axis_direction": [
+         0.0,
+         1.0,
+         0.0
+        ]
+       },
+       {
+        "axis": "y",
+        "across": 8.0,
+        "at": [
+         -25.044,
+         -58.324,
+         -8.777
+        ],
+        "axis_line": [
+         98.486,
+         -4.777
+        ],
+        "stock_span": [
+         -47.5,
+         149.584
+        ],
+        "axis_direction": [
+         0.0,
+         1.0,
+         0.0
+        ]
+       },
+       {
+        "axis": "y",
+        "across": 22.161,
+        "at": [
+         -0.108,
+         31.297,
+         -57.708
+        ],
+        "axis_line": [
+         13.024,
+         -81.727
+        ],
+        "stock_span": [
+         151.645,
+         177.5
+        ],
+        "axis_direction": [
+         0.0,
+         1.0,
+         0.0
+        ]
+       },
+       {
+        "axis": "y",
+        "across": 214.587,
+        "at": [
+         91.134,
+         166.5,
+         113.637
+        ],
+        "axis_line": [
+         87.655,
+         -0.012
+        ],
+        "stock_span": [
+         155.204,
+         177.5
+        ],
+        "axis_direction": [
+         0.0,
+         1.0,
+         0.0
+        ]
+       }
+      ],
+      "evidence_error": "flat defining face has no unambiguous valid solid"
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -48505,6 +48663,20 @@
         147
        ]
       ]
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -53282,6 +53454,20 @@
         258
        ]
       ]
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -59058,6 +59244,20 @@
       "evidence_error": "Boss defining faces do not prove one valid solid"
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -60690,6 +60890,20 @@
         49
        ]
       ]
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -76314,6 +76528,147 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "across": 80.0,
+        "at": [
+         -79.378,
+         35.234,
+         13.98
+        ],
+        "axis_line": [
+         -13.555,
+         5.234
+        ],
+        "stock_span": [
+         3.193,
+         31.693
+        ],
+        "axis_direction": [
+         0.0,
+         0.0,
+         1.0
+        ]
+       },
+       {
+        "axis": "z",
+        "across": 80.0,
+        "at": [
+         -67.329,
+         -44.766,
+         15.15
+        ],
+        "axis_line": [
+         -13.555,
+         5.234
+        ],
+        "stock_span": [
+         3.193,
+         31.693
+        ],
+        "axis_direction": [
+         0.0,
+         0.0,
+         1.0
+        ]
+       },
+       {
+        "axis": "z",
+        "across": 80.0,
+        "at": [
+         40.521,
+         -44.766,
+         14.752
+        ],
+        "axis_line": [
+         -13.555,
+         5.234
+        ],
+        "stock_span": [
+         3.193,
+         31.693
+        ],
+        "axis_direction": [
+         0.0,
+         0.0,
+         1.0
+        ]
+       },
+       {
+        "axis": "z",
+        "across": 61.097,
+        "at": [
+         53.562,
+         7.91,
+         -21.404
+        ],
+        "axis_line": [
+         24.958,
+         -10.899
+        ],
+        "stock_span": [
+         -29.428,
+         -13.428
+        ],
+        "axis_direction": [
+         0.0,
+         0.0,
+         1.0
+        ]
+       },
+       {
+        "axis": "z",
+        "across": 80.0,
+        "at": [
+         66.446,
+         35.234,
+         1.097
+        ],
+        "axis_line": [
+         -13.555,
+         5.234
+        ],
+        "stock_span": [
+         3.193,
+         31.693
+        ],
+        "axis_direction": [
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      ],
+      "defining": [
+       [
+        97
+       ],
+       [
+        126
+       ],
+       [
+        123
+       ],
+       [
+        237
+       ],
+       [
+        93
+       ]
+      ]
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -86836,6 +87191,72 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "across": 5.0,
+        "at": [
+         -15.632,
+         46.118,
+         -22.639
+        ],
+        "axis_line": [
+         -13.132,
+         -0.001
+        ],
+        "stock_span": [
+         43.868,
+         48.368
+        ],
+        "axis_direction": [
+         0.0,
+         1.0,
+         0.0
+        ]
+       },
+       {
+        "axis": "y",
+        "across": 5.0,
+        "at": [
+         -10.632,
+         46.118,
+         -22.639
+        ],
+        "axis_line": [
+         -13.132,
+         -0.001
+        ],
+        "stock_span": [
+         43.868,
+         48.368
+        ],
+        "axis_direction": [
+         0.0,
+         1.0,
+         0.0
+        ]
+       }
+      ],
+      "defining": [
+       [
+        260
+       ],
+       [
+        255
+       ]
+      ]
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -96432,6 +96853,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -97664,6 +98099,20 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -98028,6 +98477,20 @@
         6
        ]
       ]
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -98548,6 +99011,72 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "across": 2.4,
+        "at": [
+         -1.2,
+         0.0,
+         3.6
+        ],
+        "axis_line": [
+         0.0,
+         0.0
+        ],
+        "stock_span": [
+         0.0,
+         7.2
+        ],
+        "axis_direction": [
+         0.0,
+         0.0,
+         1.0
+        ]
+       },
+       {
+        "axis": "z",
+        "across": 2.4,
+        "at": [
+         1.2,
+         0.0,
+         3.6
+        ],
+        "axis_line": [
+         0.0,
+         0.0
+        ],
+        "stock_span": [
+         0.0,
+         7.2
+        ],
+        "axis_direction": [
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      ],
+      "defining": [
+       [
+        11
+       ],
+       [
+        13
+       ]
+      ]
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -98941,6 +99470,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -99421,6 +99964,20 @@
        }
       ],
       "evidence_error": "Boss defining faces do not prove one valid solid"
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -100314,6 +100871,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -100797,6 +101368,42 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 11.775,
+        "leg2": 8.245,
+        "angle": 35.0,
+        "length": 10.65,
+        "at": [
+         5.325,
+         5.888,
+         4.122
+        ],
+        "corner": [
+         5.325,
+         0.0,
+         0.0
+        ]
+       }
+      ],
+      "defining": [
+       [
+        4
+       ]
+      ]
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -101428,6 +102035,42 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 12.194,
+        "leg2": 7.546,
+        "angle": 31.75,
+        "length": 17.774,
+        "at": [
+         25.767,
+         3.773,
+         8.887
+        ],
+        "corner": [
+         31.864,
+         0.0,
+         8.887
+        ]
+       }
+      ],
+      "defining": [
+       [
+        10
+       ]
+      ]
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -102346,6 +102989,20 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -102853,6 +103510,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -103646,6 +104317,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -104105,6 +104790,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -104762,6 +105461,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -105305,6 +106018,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -105868,6 +106595,42 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "leg1": 7.612,
+        "leg2": 2.685,
+        "angle": 19.43,
+        "length": 7.256,
+        "at": [
+         10.192,
+         3.628,
+         3.806
+        ],
+        "corner": [
+         11.535,
+         3.628,
+         0.0
+        ]
+       }
+      ],
+      "defining": [
+       [
+        7
+       ]
+      ]
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -106383,6 +107146,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -107098,6 +107875,42 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 27.626,
+        "leg2": 13.883,
+        "angle": 26.68,
+        "length": 15.734,
+        "at": [
+         7.643,
+         9.431,
+         13.47
+        ],
+        "corner": [
+         7.867,
+         5.834,
+         0.0
+        ]
+       }
+      ],
+      "defining": [
+       [
+        4
+       ]
+      ]
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -107633,6 +108446,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -108224,6 +109051,20 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -108664,6 +109505,20 @@
         15
        ]
       ]
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -109311,6 +110166,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -109924,6 +110793,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -110618,6 +111501,20 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -111243,6 +112140,42 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 8.014,
+        "leg2": 5.991,
+        "angle": 36.78,
+        "length": 5.402,
+        "at": [
+         9.147,
+         7.36,
+         9.404
+        ],
+        "corner": [
+         13.154,
+         10.355,
+         9.404
+        ]
+       }
+      ],
+      "defining": [
+       [
+        16
+       ]
+      ]
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -112106,6 +113039,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -112723,6 +113670,42 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 8.388,
+        "leg2": 2.31,
+        "angle": 15.39,
+        "length": 12.513,
+        "at": [
+         8.375,
+         16.849,
+         6.257
+        ],
+        "corner": [
+         12.57,
+         18.004,
+         6.257
+        ]
+       }
+      ],
+      "defining": [
+       [
+        24
+       ]
+      ]
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -113281,6 +114264,20 @@
         6
        ]
       ]
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -114063,6 +115060,20 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -114464,6 +115475,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -114993,6 +116018,62 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "leg1": 46.14,
+        "leg2": 7.304,
+        "angle": 9.0,
+        "length": 2.803,
+        "at": [
+         23.853,
+         1.401,
+         23.07
+        ],
+        "corner": [
+         27.505,
+         1.401,
+         0.0
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 18.575,
+        "leg2": 12.942,
+        "angle": 34.87,
+        "length": 35.426,
+        "at": [
+         9.604,
+         6.25,
+         18.268
+        ],
+        "corner": [
+         0.0,
+         0.0,
+         17.713
+        ]
+       }
+      ],
+      "defining": [
+       [
+        13
+       ],
+       [
+        4
+       ]
+      ]
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -115692,6 +116773,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -116315,6 +117410,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -116878,6 +117987,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -117553,6 +118676,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -118294,6 +119431,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -118757,6 +119908,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -119257,6 +120422,20 @@
         25
        ]
       ]
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -119943,6 +121122,20 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -120573,6 +121766,20 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -121167,6 +122374,42 @@
         25
        ]
       ]
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 20.215,
+        "leg2": 9.585,
+        "angle": 25.37,
+        "length": 6.794,
+        "at": [
+         21.195,
+         41.149,
+         15.111
+        ],
+        "corner": [
+         31.4,
+         45.895,
+         14.771
+        ]
+       }
+      ],
+      "defining": [
+       [
+        21
+       ]
+      ]
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -121865,6 +123108,42 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 7.76,
+        "leg2": 2.0,
+        "angle": 14.45,
+        "length": 6.851,
+        "at": [
+         3.88,
+         38.198,
+         3.426
+        ],
+        "corner": [
+         0.0,
+         39.198,
+         3.426
+        ]
+       }
+      ],
+      "defining": [
+       [
+        8
+       ]
+      ]
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -122432,6 +123711,42 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 23.057,
+        "leg2": 10.278,
+        "angle": 24.03,
+        "length": 23.54,
+        "at": [
+         17.981,
+         5.139,
+         11.528
+        ],
+        "corner": [
+         17.981,
+         0.0,
+         0.0
+        ]
+       }
+      ],
+      "defining": [
+       [
+        25
+       ]
+      ]
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -122874,6 +124189,20 @@
         22
        ]
       ]
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -123706,6 +125035,20 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -124324,6 +125667,20 @@
         21
        ]
       ]
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -125201,6 +126558,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -125757,6 +127128,20 @@
         25
        ]
       ]
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -126558,6 +127943,42 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 20.051,
+        "leg2": 12.155,
+        "angle": 31.22,
+        "length": 7.281,
+        "at": [
+         3.641,
+         10.025,
+         6.077
+        ],
+        "corner": [
+         3.641,
+         0.0,
+         0.0
+        ]
+       }
+      ],
+      "defining": [
+       [
+        5
+       ]
+      ]
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -127209,6 +128630,42 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 18.413,
+        "leg2": 12.768,
+        "angle": 34.74,
+        "length": 23.162,
+        "at": [
+         31.628,
+         9.207,
+         20.643
+        ],
+        "corner": [
+         38.012,
+         0.0,
+         20.643
+        ]
+       }
+      ],
+      "defining": [
+       [
+        10
+       ]
+      ]
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -127590,6 +129047,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -128085,6 +129556,42 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "leg1": 3.162,
+        "leg2": 2.911,
+        "angle": 42.63,
+        "length": 20.289,
+        "at": [
+         34.049,
+         21.059,
+         16.136
+        ],
+        "corner": [
+         35.505,
+         21.059,
+         17.718
+        ]
+       }
+      ],
+      "defining": [
+       [
+        24
+       ]
+      ]
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -128404,6 +129911,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -128883,6 +130404,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -129647,6 +131182,20 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -130110,6 +131659,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -130653,6 +132216,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -131168,6 +132745,20 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -131547,6 +133138,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -132069,6 +133674,20 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -132476,6 +134095,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -132903,6 +134536,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -133442,6 +135089,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -134099,6 +135760,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -134572,6 +136247,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -135213,6 +136902,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -135841,6 +137544,20 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -136385,6 +138102,42 @@
         20
        ]
       ]
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 22.582,
+        "leg2": 7.139,
+        "angle": 17.54,
+        "length": 7.582,
+        "at": [
+         32.35,
+         18.426,
+         11.291
+        ],
+        "corner": [
+         32.35,
+         21.996,
+         0.0
+        ]
+       }
+      ],
+      "defining": [
+       [
+        14
+       ]
+      ]
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -136950,6 +138703,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -137642,6 +139409,20 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -138225,6 +140006,42 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 14.632,
+        "leg2": 5.077,
+        "angle": 19.13,
+        "length": 5.189,
+        "at": [
+         17.626,
+         34.818,
+         7.918
+        ],
+        "corner": [
+         17.626,
+         42.134,
+         10.456
+        ]
+       }
+      ],
+      "defining": [
+       [
+        18
+       ]
+      ]
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -138838,6 +140655,20 @@
         30
        ]
       ]
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -139613,6 +141444,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -140410,6 +142255,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -140930,6 +142789,20 @@
         26
        ]
       ]
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -141571,6 +143444,82 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "leg1": 12.566,
+        "leg2": 2.605,
+        "angle": 11.71,
+        "length": 7.062,
+        "at": [
+         6.606,
+         1.302,
+         18.456
+        ],
+        "corner": [
+         6.606,
+         0.0,
+         24.738
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 10.368,
+        "leg2": 2.0,
+        "angle": 10.92,
+        "length": 2.422,
+        "at": [
+         1.0,
+         24.197,
+         23.528
+        ],
+        "corner": [
+         0.0,
+         29.381,
+         23.528
+        ]
+       },
+       {
+        "axis": "z",
+        "leg1": 24.469,
+        "leg2": 4.042,
+        "angle": 9.38,
+        "length": 23.35,
+        "at": [
+         8.116,
+         17.147,
+         13.064
+        ],
+        "corner": [
+         6.095,
+         29.381,
+         13.064
+        ]
+       }
+      ],
+      "defining": [
+       [
+        15
+       ],
+       [
+        5
+       ],
+       [
+        13
+       ]
+      ]
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -142088,6 +144037,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -142769,6 +144732,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -143492,6 +145469,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -144091,6 +146082,42 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "leg1": 6.121,
+        "leg2": 2.685,
+        "angle": 23.68,
+        "length": 13.534,
+        "at": [
+         22.449,
+         4.172,
+         8.148
+        ],
+        "corner": [
+         25.468,
+         7.153,
+         8.096
+        ]
+       }
+      ],
+      "defining": [
+       [
+        32
+       ]
+      ]
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -146332,6 +148359,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -156596,6 +158637,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -163826,6 +165881,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -173446,6 +175515,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -180304,6 +182387,122 @@
       ]
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "across": 403.86,
+        "at": [
+         -199.469,
+         0.0,
+         54.61
+        ],
+        "axis_line": [
+         0.0,
+         -146.05
+        ],
+        "stock_span": [
+         -263.525,
+         -141.467
+        ],
+        "axis_direction": [
+         1.0,
+         0.0,
+         0.0
+        ]
+       },
+       {
+        "axis": "x",
+        "across": 403.86,
+        "at": [
+         199.469,
+         0.0,
+         54.61
+        ],
+        "axis_line": [
+         0.0,
+         -146.05
+        ],
+        "stock_span": [
+         141.467,
+         263.525
+        ],
+        "axis_direction": [
+         1.0,
+         0.0,
+         0.0
+        ]
+       },
+       {
+        "axis": "z",
+        "across": 527.05,
+        "at": [
+         -263.525,
+         -0.0,
+         23.302
+        ],
+        "axis_line": [
+         0.0,
+         0.0
+        ],
+        "stock_span": [
+         0.0,
+         25.4
+        ],
+        "axis_direction": [
+         0.0,
+         0.0,
+         1.0
+        ]
+       },
+       {
+        "axis": "z",
+        "across": 527.05,
+        "at": [
+         263.525,
+         -0.0,
+         23.302
+        ],
+        "axis_line": [
+         0.0,
+         0.0
+        ],
+        "stock_span": [
+         0.0,
+         25.4
+        ],
+        "axis_direction": [
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      ],
+      "defining": [
+       [
+        7
+       ],
+       [
+        8
+       ],
+       [
+        18
+       ],
+       [
+        2
+       ]
+      ]
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -184068,6 +186267,20 @@
         90
        ]
       ]
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -188908,6 +191121,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -194592,6 +196819,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -198192,6 +200433,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],
@@ -203710,6 +205965,20 @@
       "defining": []
      }
     ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -207238,6 +209507,20 @@
      }
     ],
     "recognise_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_angled_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_flats": [
      {
       "options": {},
       "result": [],

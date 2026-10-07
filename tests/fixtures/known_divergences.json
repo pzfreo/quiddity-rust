@@ -85,5 +85,13 @@
     "file": "inventory_refusal/14052.step.gz",
     "contains": ": evidence",
     "reason": "A deliberately malformed corpus part: OpenCascade's BRepCheck finds geometric faults the port's topological validity check (closed, orientable) does not look for, so Python refuses hole and boss evidence and the port publishes it."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "contains": [
+      "recognise_flats",
+      "fields {\"at\"}"
+    ],
+    "reason": "Flat anchors are planar face centroids. build123d's Face.center() calls BRepGProp::SurfaceProperties at its default accuracy, which is off by ~1.4e-3 mm on face 123 (40.52111 vs 40.52252 at eps=1e-9); the port integrates the exact boundary (40.52252), and the difference crosses the 0.001 rounding grid."
   }
 ]

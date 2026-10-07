@@ -149,6 +149,65 @@ impl Part {
         (!loops.is_empty()).then(|| py::first_max(loops, area))
     }
 
+    /// ∮ (x dy − y dx)/2, ∮ x² dy/2 and −∮ y² dx/2 along one edge in the plane of *frame*, by
+    /// Gauss–Legendre quadrature on short pieces of the exact curve.
+    fn edge_moments(
+        &self,
+        edge: usize,
+        forward: bool,
+        frame: &crate::kernel::geom::Frame,
+    ) -> (f64, f64, f64) {
+        const NODES: [(f64, f64); 8] = [
+            (-0.960_289_856_497_536_3, 0.101_228_536_290_376_26),
+            (-0.796_666_477_413_626_7, 0.222_381_034_453_374_47),
+            (-0.525_532_409_916_329, 0.313_706_645_877_887_3),
+            (-0.183_434_642_495_649_8, 0.362_683_783_378_362),
+            (0.183_434_642_495_649_8, 0.362_683_783_378_362),
+            (0.525_532_409_916_329, 0.313_706_645_877_887_3),
+            (0.796_666_477_413_626_7, 0.222_381_034_453_374_47),
+            (0.960_289_856_497_536_3, 0.101_228_536_290_376_26),
+        ];
+        let ed = &self.edges[edge];
+        let (mut t0, mut t1) = crate::kernel::sampling::edge_interval(
+            &ed.curve,
+            ed.start,
+            ed.end,
+            ed.same_sense,
+            ed.is_closed(),
+        );
+        if !forward {
+            std::mem::swap(&mut t0, &mut t1);
+        }
+        let pieces = match ed.curve {
+            crate::kernel::geom::Curve::Line { .. } => 1,
+            _ => 32,
+        };
+        let local = |t: f64| {
+            let l = frame.to_local(ed.curve.value(t));
+            (l[0], l[1])
+        };
+        let (mut a, mut mx, mut my) = (0.0, 0.0, 0.0);
+        for k in 0..pieces {
+            let (lo, hi) = (
+                t0 + (t1 - t0) * k as f64 / pieces as f64,
+                t0 + (t1 - t0) * (k + 1) as f64 / pieces as f64,
+            );
+            let (half, centre) = (0.5 * (hi - lo), 0.5 * (hi + lo));
+            let h = 1e-6 * half.abs().max(1e-12);
+            for (x, w) in NODES {
+                let t = centre + half * x;
+                let (px, py) = local(t);
+                let (p1, p0) = (local(t + h), local(t - h));
+                let (dx, dy) = ((p1.0 - p0.0) / (2.0 * h), (p1.1 - p0.1) / (2.0 * h));
+                let weight = w * half;
+                a += weight * 0.5 * (px * dy - py * dx);
+                mx += weight * 0.5 * px * px * dy;
+                my -= weight * 0.5 * py * py * dx;
+            }
+        }
+        (a, mx, my)
+    }
+
     /// build123d's `Face.center()`: the area centroid of a planar face, otherwise the surface
     /// point at the middle of the face's parameter range.
     pub fn face_centre(&self, face: usize) -> Option<V3> {
@@ -157,21 +216,20 @@ impl Part {
             let (u0, u1, v0, v1) = self.uv_bounds(face)?;
             return Some(f.surface.value(0.5 * (u0 + u1), 0.5 * (v0 + v1)));
         };
-        // Shoelace over each loop in plane coordinates; the largest loop is the outer
-        // boundary and the rest are holes in it (loop orientation is not relied on).
-        let mut loops: Vec<(f64, f64, f64)> = self
-            .uv_loops(face)?
+        // Green's theorem along each loop's exact edge curves, in plane coordinates; the largest
+        // loop is the outer boundary and the rest are holes in it (loop orientation is not
+        // relied on). Polyline shoelaces would carry the samples' chord error.
+        let mut loops: Vec<(f64, f64, f64)> = f
+            .loops
             .iter()
+            .filter(|lp| !lp.edges.is_empty())
             .map(|lp| {
-                let (mut a, mut cx, mut cy) = (0.0, 0.0, 0.0);
-                for w in lp.points.windows(2) {
-                    let ((x0, y0), (x1, y1)) = (w[0], w[1]);
-                    let k = x0 * y1 - x1 * y0;
-                    a += k;
-                    cx += (x0 + x1) * k;
-                    cy += (y0 + y1) * k;
+                let (mut a, mut mx, mut my) = (0.0, 0.0, 0.0);
+                for &(e, forward) in &lp.edges {
+                    let (da, dmx, dmy) = self.edge_moments(e, forward, &frame);
+                    (a, mx, my) = (a + da, mx + dmx, my + dmy);
                 }
-                (a.abs() / 2.0, cx / (3.0 * a), cy / (3.0 * a))
+                (a.abs(), mx / a, my / a)
             })
             .collect();
         loops.sort_by(|a, b| b.0.total_cmp(&a.0));
