@@ -4,7 +4,35 @@
 use std::collections::BTreeMap;
 
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{self, AXIS_ALIGNED_COS, Surface, dominant_axis};
+use crate::kernel::geom::{self, AXIS_ALIGNED_COS, Surface, V3, dominant_axis};
+use crate::kernel::py;
+
+/// A planar face's plane as `validated_parameters(PLANE, …)` gives it: the unit normal with its
+/// dominant component (ties to the later axis) made non-negative, and the plane's offset along
+/// it. A B-spline or Bezier face counts when it is certified a plane (`_effective_surfaces`).
+pub fn effective_plane(part: &Part, face: usize) -> Option<(V3, f64)> {
+    let frame = match &part.faces[face].surface {
+        Surface::Plane { frame } => *frame,
+        Surface::Freeform {
+            kind: "BSPLINE" | "BEZIER",
+            ..
+        } => match part.recovered(face) {
+            Some(Surface::Plane { frame }) => *frame,
+            _ => return None,
+        },
+        _ => return None,
+    };
+    let z = frame.z;
+    // `max` keeps the first of ties, and the key ranks the later axis higher.
+    let dominant = (0..3)
+        .max_by(|&a, &b| py::order(z[a].abs(), z[b].abs()))
+        .expect("three components");
+    let sign = if z[dominant] >= 0.0 { 1.0 } else { -1.0 };
+    let normal = z.map(|c| if c == 0.0 { 0.0 } else { sign * c });
+    let offset = py::sum((0..3).map(|i| frame.origin[i] * normal[i]));
+    let norm = py::sum(normal.iter().map(|c| c * c)).sqrt();
+    ((norm - 1.0).abs() <= 1e-9 && offset.is_finite()).then_some((normal, offset))
+}
 
 /// The axis a planar face's normal aligns with and the plane's coordinate along it.
 pub fn axis_aligned_axis(part: &Part, face: usize) -> Option<(usize, f64)> {

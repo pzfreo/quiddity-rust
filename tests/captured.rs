@@ -155,3 +155,8 @@ fn thin_wall_bodies_match_python() {
 fn interior_voids_match_python() {
     replay("recognise_interior_voids");
 }
+
+#[test]
+fn turned_steps_match_python() {
+    replay("recognise_turned_steps");
+}

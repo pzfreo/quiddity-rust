@@ -5597,6 +5597,120 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "lo": 0.0,
+        "hi": 5.0,
+        "diameter": 130.0,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -65.0,
+          65.0,
+          -65.0,
+          65.0,
+          -0.0,
+          140.0
+         ],
+         "body_key": [
+          -65.0,
+          -65.0,
+          0.0,
+          65.0,
+          65.0,
+          140.0,
+          248052.032028,
+          105428.864881
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": 5.0,
+        "hi": 108.0,
+        "diameter": 70.0,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -65.0,
+          65.0,
+          -65.0,
+          65.0,
+          -0.0,
+          140.0
+         ],
+         "body_key": [
+          -65.0,
+          -65.0,
+          0.0,
+          65.0,
+          65.0,
+          140.0,
+          248052.032028,
+          105428.864881
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": 108.0,
+        "hi": 113.0,
+        "diameter": 130.0,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -65.0,
+          65.0,
+          -65.0,
+          65.0,
+          -0.0,
+          140.0
+         ],
+         "body_key": [
+          -65.0,
+          -65.0,
+          0.0,
+          65.0,
+          65.0,
+          140.0,
+          248052.032028,
+          105428.864881
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        87
+       ],
+       [
+        89
+       ],
+       [
+        70
+       ]
+      ]
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -20810,6 +20924,290 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "lo": 0.0,
+        "hi": 57.42,
+        "diameter": 130.94,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -65.47,
+          65.47,
+          -65.47,
+          65.47,
+          0.0,
+          420.0000001
+         ],
+         "body_key": [
+          -65.47,
+          -65.47,
+          0.0,
+          65.47,
+          65.47,
+          420.0,
+          2008493.17813,
+          319596.096198
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": 57.42,
+        "hi": 67.42,
+        "diameter": 122.0,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -65.47,
+          65.47,
+          -65.47,
+          65.47,
+          0.0,
+          420.0000001
+         ],
+         "body_key": [
+          -65.47,
+          -65.47,
+          0.0,
+          65.47,
+          65.47,
+          420.0,
+          2008493.17813,
+          319596.096198
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": 67.42,
+        "hi": 87.42,
+        "diameter": 130.94,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -65.47,
+          65.47,
+          -65.47,
+          65.47,
+          0.0,
+          420.0000001
+         ],
+         "body_key": [
+          -65.47,
+          -65.47,
+          0.0,
+          65.47,
+          65.47,
+          420.0,
+          2008493.17813,
+          319596.096198
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": 87.42,
+        "hi": 93.42,
+        "diameter": 122.0,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -65.47,
+          65.47,
+          -65.47,
+          65.47,
+          0.0,
+          420.0000001
+         ],
+         "body_key": [
+          -65.47,
+          -65.47,
+          0.0,
+          65.47,
+          65.47,
+          420.0,
+          2008493.17813,
+          319596.096198
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": 93.42,
+        "hi": 113.42,
+        "diameter": 130.94,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -65.47,
+          65.47,
+          -65.47,
+          65.47,
+          0.0,
+          420.0000001
+         ],
+         "body_key": [
+          -65.47,
+          -65.47,
+          0.0,
+          65.47,
+          65.47,
+          420.0,
+          2008493.17813,
+          319596.096198
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": 113.42,
+        "hi": 343.13,
+        "diameter": 122.0,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -65.47,
+          65.47,
+          -65.47,
+          65.47,
+          0.0,
+          420.0000001
+         ],
+         "body_key": [
+          -65.47,
+          -65.47,
+          0.0,
+          65.47,
+          65.47,
+          420.0,
+          2008493.17813,
+          319596.096198
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": 366.82,
+        "hi": 420.0,
+        "diameter": 103.12,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -65.47,
+          65.47,
+          -65.47,
+          65.47,
+          0.0,
+          420.0000001
+         ],
+         "body_key": [
+          -65.47,
+          -65.47,
+          0.0,
+          65.47,
+          65.47,
+          420.0,
+          2008493.17813,
+          319596.096198
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        163
+       ],
+       [
+        214
+       ],
+       [
+        218,
+        222,
+        226,
+        230,
+        234,
+        238,
+        242,
+        246,
+        250,
+        254,
+        258,
+        262
+       ],
+       [
+        316
+       ],
+       [
+        271,
+        275,
+        279,
+        283,
+        287,
+        291,
+        295,
+        299,
+        303,
+        307,
+        311,
+        315
+       ],
+       [
+        162,
+        217
+       ],
+       [
+        2,
+        7,
+        23,
+        43,
+        62,
+        81,
+        100,
+        119
+       ]
+      ]
      }
     ],
     "recognise_hole_patterns": [
@@ -118097,6 +118495,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -125611,6 +126016,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -140313,6 +140725,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -157228,6 +157647,200 @@
       ]
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "lo": -30.0,
+        "hi": -29.0,
+        "diameter": 60.0,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          -5.84828868,
+          -3.48739147,
+          0.0
+         ],
+         "body_bounds": [
+          -66.30518492,
+          66.30518492,
+          -63.48739147,
+          63.48739147,
+          -30.0000001,
+          30.0000001
+         ],
+         "body_key": [
+          -66.305185,
+          -63.487391,
+          -30.0,
+          66.305185,
+          63.487391,
+          30.0,
+          223533.796305,
+          52563.7070404
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": -29.0,
+        "hi": -25.0,
+        "diameter": 95.0,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          -5.84828868,
+          -3.48739147,
+          0.0
+         ],
+         "body_bounds": [
+          -66.30518492,
+          66.30518492,
+          -63.48739147,
+          63.48739147,
+          -30.0000001,
+          30.0000001
+         ],
+         "body_key": [
+          -66.305185,
+          -63.487391,
+          -30.0,
+          66.305185,
+          63.487391,
+          30.0,
+          223533.796305,
+          52563.7070404
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": -25.0,
+        "hi": -17.0,
+        "diameter": 120.0,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          -5.84828868,
+          -3.48739147,
+          0.0
+         ],
+         "body_bounds": [
+          -66.30518492,
+          66.30518492,
+          -63.48739147,
+          63.48739147,
+          -30.0000001,
+          30.0000001
+         ],
+         "body_key": [
+          -66.305185,
+          -63.487391,
+          -30.0,
+          66.305185,
+          63.487391,
+          30.0,
+          223533.796305,
+          52563.7070404
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": -17.0,
+        "hi": -15.0,
+        "diameter": 80.0,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          -5.84828868,
+          -3.48739147,
+          0.0
+         ],
+         "body_bounds": [
+          -66.30518492,
+          66.30518492,
+          -63.48739147,
+          63.48739147,
+          -30.0000001,
+          30.0000001
+         ],
+         "body_key": [
+          -66.305185,
+          -63.487391,
+          -30.0,
+          66.305185,
+          63.487391,
+          30.0,
+          223533.796305,
+          52563.7070404
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": -15.0,
+        "hi": 30.0,
+        "diameter": 60.0,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          -5.84828868,
+          -3.48739147,
+          0.0
+         ],
+         "body_bounds": [
+          -66.30518492,
+          66.30518492,
+          -63.48739147,
+          63.48739147,
+          -30.0000001,
+          30.0000001
+         ],
+         "body_key": [
+          -66.305185,
+          -63.487391,
+          -30.0,
+          66.305185,
+          63.487391,
+          30.0,
+          223533.796305,
+          52563.7070404
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        321,
+        330,
+        332,
+        334,
+        336,
+        338,
+        340,
+        342
+       ],
+       [
+        314
+       ],
+       [
+        310,
+        344,
+        345,
+        346
+       ],
+       [
+        322
+       ],
+       [
+        358
+       ]
+      ]
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -160470,6 +161083,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -202352,6 +202972,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -231193,6 +231820,13 @@
       ]
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -255433,6 +256067,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -256278,6 +256919,155 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": -0.0,
+        "hi": 0.5,
+        "diameter": 6.0,
+        "profile": {
+         "axis": "x",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -0.0,
+          23.5,
+          -5.0,
+          5.0,
+          -5.0,
+          5.0
+         ],
+         "body_key": [
+          0.0,
+          -5.0,
+          -5.0,
+          23.5,
+          5.0,
+          5.0,
+          345.897728741,
+          450.845217554
+         ]
+        }
+       },
+       {
+        "axis": "x",
+        "lo": 0.5,
+        "hi": 2.5,
+        "diameter": 10.0,
+        "profile": {
+         "axis": "x",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -0.0,
+          23.5,
+          -5.0,
+          5.0,
+          -5.0,
+          5.0
+         ],
+         "body_key": [
+          0.0,
+          -5.0,
+          -5.0,
+          23.5,
+          5.0,
+          5.0,
+          345.897728741,
+          450.845217554
+         ]
+        }
+       },
+       {
+        "axis": "x",
+        "lo": 2.5,
+        "hi": 5.5,
+        "diameter": 5.0,
+        "profile": {
+         "axis": "x",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -0.0,
+          23.5,
+          -5.0,
+          5.0,
+          -5.0,
+          5.0
+         ],
+         "body_key": [
+          0.0,
+          -5.0,
+          -5.0,
+          23.5,
+          5.0,
+          5.0,
+          345.897728741,
+          450.845217554
+         ]
+        }
+       },
+       {
+        "axis": "x",
+        "lo": 5.5,
+        "hi": 23.5,
+        "diameter": 3.0,
+        "profile": {
+         "axis": "x",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -0.0,
+          23.5,
+          -5.0,
+          5.0,
+          -5.0,
+          5.0
+         ],
+         "body_key": [
+          0.0,
+          -5.0,
+          -5.0,
+          23.5,
+          5.0,
+          5.0,
+          345.897728741,
+          450.845217554
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        9
+       ],
+       [
+        3
+       ],
+       [
+        2
+       ],
+       [
+        6
+       ]
+      ]
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -256791,6 +257581,120 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "lo": 0.0,
+        "hi": 14.0,
+        "diameter": 10.0,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -5.0,
+          5.0,
+          -5.0,
+          5.0,
+          -0.0,
+          32.0
+         ],
+         "body_key": [
+          -5.0,
+          -5.0,
+          0.0,
+          5.0,
+          5.0,
+          32.0,
+          1580.33564199,
+          897.246058412
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": 14.0,
+        "hi": 19.0,
+        "diameter": 6.25,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -5.0,
+          5.0,
+          -5.0,
+          5.0,
+          -0.0,
+          32.0
+         ],
+         "body_key": [
+          -5.0,
+          -5.0,
+          0.0,
+          5.0,
+          5.0,
+          32.0,
+          1580.33564199,
+          897.246058412
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": 19.0,
+        "hi": 32.0,
+        "diameter": 6.0,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -5.0,
+          5.0,
+          -5.0,
+          5.0,
+          -0.0,
+          32.0
+         ],
+         "body_key": [
+          -5.0,
+          -5.0,
+          0.0,
+          5.0,
+          5.0,
+          32.0,
+          1580.33564199,
+          897.246058412
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        0
+       ],
+       [
+        4
+       ],
+       [
+        6
+       ]
+      ]
      }
     ],
     "recognise_hole_patterns": [
@@ -258030,6 +258934,156 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "lo": 0.0,
+        "hi": 7.2,
+        "diameter": 3.4,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -3.7500001,
+          3.7500001,
+          -3.7500001,
+          3.7500001,
+          0.0,
+          14.8
+         ],
+         "body_key": [
+          -3.75,
+          -3.75,
+          0.0,
+          3.75,
+          3.75,
+          14.8,
+          250.186131225,
+          359.360478474
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": 7.2,
+        "hi": 8.3,
+        "diameter": 5.0,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -3.7500001,
+          3.7500001,
+          -3.7500001,
+          3.7500001,
+          0.0,
+          14.8
+         ],
+         "body_key": [
+          -3.75,
+          -3.75,
+          0.0,
+          3.75,
+          3.75,
+          14.8,
+          250.186131225,
+          359.360478474
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": 8.3,
+        "hi": 13.8,
+        "diameter": 6.0,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -3.7500001,
+          3.7500001,
+          -3.7500001,
+          3.7500001,
+          0.0,
+          14.8
+         ],
+         "body_key": [
+          -3.75,
+          -3.75,
+          0.0,
+          3.75,
+          3.75,
+          14.8,
+          250.186131225,
+          359.360478474
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": 13.8,
+        "hi": 14.8,
+        "diameter": 7.5,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -3.7500001,
+          3.7500001,
+          -3.7500001,
+          3.7500001,
+          0.0,
+          14.8
+         ],
+         "body_key": [
+          -3.75,
+          -3.75,
+          0.0,
+          3.75,
+          3.75,
+          14.8,
+          250.186131225,
+          359.360478474
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        10,
+        12
+       ],
+       [
+        6
+       ],
+       [
+        0
+       ],
+       [
+        9
+       ]
+      ]
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -258921,6 +259975,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -260204,6 +261265,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -262810,6 +263878,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -264266,6 +265341,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -266014,6 +267096,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -268871,6 +269960,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -270187,6 +271283,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -272907,6 +274010,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -274383,6 +275493,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -276153,6 +277270,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -277811,6 +278935,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -279585,6 +280716,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -281305,6 +282443,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -283391,6 +284536,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -284831,6 +285983,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -286279,6 +287438,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -287204,6 +288370,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -289057,6 +290230,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -291093,6 +292273,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -292971,6 +294158,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -294693,6 +295887,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -296977,6 +298178,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -298711,6 +299919,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -300316,6 +301531,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -302413,6 +303635,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -303423,6 +304652,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -305197,6 +306433,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -306793,6 +308036,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -308699,6 +309949,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -310413,6 +311670,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -312453,6 +313717,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -314683,6 +315954,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -315877,6 +317155,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -317216,6 +318501,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -319183,6 +320475,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -320744,6 +322043,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -322331,6 +323637,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -323934,6 +325247,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -325636,6 +326956,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -326963,6 +328290,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -329190,6 +330524,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -330471,6 +331812,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -332829,6 +334177,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -334206,6 +335561,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -336236,6 +337598,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -337998,6 +339367,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -338946,6 +340322,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -340406,6 +341789,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -341394,6 +342784,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -343034,6 +344431,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -345239,6 +346643,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -346317,6 +347728,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -347887,6 +349305,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -349285,6 +350710,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -350129,6 +351561,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -351478,6 +352917,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -352638,6 +354084,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -353782,6 +355235,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -355362,6 +356822,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -357222,6 +358689,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -358710,6 +360184,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -360822,6 +362303,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -362565,6 +364053,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -363726,6 +365221,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -365307,6 +366809,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -367320,6 +368829,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -368898,6 +370414,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -370588,6 +372111,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -372774,6 +374304,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -375444,6 +376981,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -376925,6 +378469,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -378669,6 +380220,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -380257,6 +381815,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -382201,6 +383766,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -384561,6 +386133,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -386520,6 +388099,13 @@
         34
        ]
       ]
+     }
+    ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_hole_patterns": [
@@ -393948,6 +395534,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -424649,6 +426242,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -434348,6 +435948,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -460149,6 +461756,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -471554,6 +473168,123 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "lo": 0.0,
+        "hi": 25.4,
+        "diameter": 558.8,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -263.5250001,
+          263.5250001,
+          -279.4,
+          279.4,
+          0.0,
+          482.6
+         ],
+         "body_key": [
+          -263.525,
+          -279.4,
+          0.0,
+          263.525,
+          279.4,
+          482.6,
+          12694921.7301,
+          861242.945579
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": 25.4,
+        "hi": 127.0,
+        "diameter": 304.8,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -263.5250001,
+          263.5250001,
+          -279.4,
+          279.4,
+          0.0,
+          482.6
+         ],
+         "body_key": [
+          -263.525,
+          -279.4,
+          0.0,
+          263.525,
+          279.4,
+          482.6,
+          12694921.7301,
+          861242.945579
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "lo": 279.4,
+        "hi": 482.6,
+        "diameter": 63.5,
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -263.5250001,
+          263.5250001,
+          -279.4,
+          279.4,
+          0.0,
+          482.6
+         ],
+         "body_key": [
+          -263.525,
+          -279.4,
+          0.0,
+          263.525,
+          279.4,
+          482.6,
+          12694921.7301,
+          861242.945579
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        1,
+        182
+       ],
+       [
+        10,
+        81
+       ],
+       [
+        128,
+        129
+       ]
+      ]
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -478899,6 +480630,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -491662,6 +493400,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -505805,6 +507550,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -515016,6 +516768,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],
@@ -526275,6 +528034,13 @@
       "defining": []
      }
     ],
+    "recognise_turned_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_hole_patterns": [
      {
       "options": {
@@ -532723,6 +534489,13 @@
      }
     ],
     "recognise_interior_voids": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_turned_steps": [
      {
       "options": {},
       "result": [],

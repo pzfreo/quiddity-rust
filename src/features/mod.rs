@@ -30,6 +30,7 @@ pub mod probes;
 pub mod stacks;
 pub mod thin_walls;
 pub mod turned;
+pub mod turned_steps;
 
 pub use context::Context;
 pub use evidence::{EvidenceError, Occurrence};
@@ -57,6 +58,7 @@ pub struct Features {
     pub hole_patterns: Vec<hole_patterns::HolePattern>,
     pub thin_wall_bodies: Vec<thin_walls::ThinWallBody>,
     pub interior_voids: Vec<interior_voids::InteriorVoid>,
+    pub turned_steps: Vec<turned_steps::TurnedStep>,
 }
 
 /// Recognise every ported family on *part* with default options; holes carry their
@@ -80,6 +82,7 @@ pub fn recognise(part: &Part) -> Features {
         countersinks,
         thin_wall_bodies: records(thin_walls::discover(&ctx)),
         interior_voids: records(interior_voids::discover(&ctx)),
+        turned_steps: turned_steps::sorted(records(turned_steps::discover(&ctx))),
     }
 }
 
