@@ -21,6 +21,7 @@ fn load(name: &str) -> Value {
 fn replay(function: &str) {
     let calls = load("calls.json");
     let known: Vec<Value> = serde_json::from_value(load("known_divergences.json")).unwrap();
+    common::check_verdicts("captured/known_divergences.json", &known);
     let known: Vec<&Value> = known.iter().filter(|d| d["function"] == function).collect();
     // An entry names a test, optionally narrowed to one file and one option set.
     let covers = |d: &Value, c: &Value| {

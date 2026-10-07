@@ -31,9 +31,9 @@ impl std::fmt::Display for StepError {
 impl std::error::Error for StepError {}
 
 /// A rigid placement, rows of `[R | t]` with `t` in millimetres.
-type Placement = [[f64; 4]; 3];
+pub type Placement = [[f64; 4]; 3];
 
-const IDENTITY: Placement = [
+pub const IDENTITY: Placement = [
     [1.0, 0.0, 0.0, 0.0],
     [0.0, 1.0, 0.0, 0.0],
     [0.0, 0.0, 1.0, 0.0],
@@ -659,6 +659,22 @@ fn raw_edge_curve(model: &m::StepModel, edge: &StepEdge<'_>) -> m::CurveRef {
 
 /// Read a STEP file's bytes into a [`Part`].
 pub fn read_step(bytes: &[u8]) -> Result<Part, StepError> {
+    read_step_placed(bytes, &IDENTITY)
+}
+
+/// Read a STEP file's bytes into a [`Part`] moved by *outer*, a proper rigid motion applied
+/// above every instance placement, as if the file's roots were placed by it.
+pub fn read_step_placed(bytes: &[u8], outer: &Placement) -> Result<Part, StepError> {
+    let r = outer.map(|row| [row[0], row[1], row[2]]);
+    let det = r[0][0] * (r[1][1] * r[2][2] - r[1][2] * r[2][1])
+        - r[0][1] * (r[1][0] * r[2][2] - r[1][2] * r[2][0])
+        + r[0][2] * (r[1][0] * r[2][1] - r[1][1] * r[2][0]);
+    if (det - 1.0).abs() > 1e-12 {
+        // Frames are rebuilt right-handed (y = z × x), so a reflection would not be honoured.
+        return Err(StepError::Unsupported(
+            "outer placement must be a proper rotation".into(),
+        ));
+    }
     let (model, _report) = step_io::read(bytes).map_err(|e| StepError::Parse(e.to_string()))?;
     let scene = model.scene();
     let units = scene.units();
@@ -685,10 +701,10 @@ pub fn read_step(bytes: &[u8]) -> Result<Part, StepError> {
     let mut shells = Vec::new();
     let (mut instances, mut placed) = (Vec::new(), Vec::new());
     for root in scene.root_definitions() {
-        collect_instances(root, IDENTITY, reader.to_mm, &mut instances, &mut placed, 0);
+        collect_instances(root, *outer, reader.to_mm, &mut instances, &mut placed, 0);
     }
     if instances.is_empty() {
-        instances = scene.all_solids().map(|s| (s, IDENTITY)).collect();
+        instances = scene.all_solids().map(|s| (s, *outer)).collect();
     }
     for (solid, placement) in instances {
         // The outer shell, then each void shell (whose faces face inward, hence the flip).
@@ -710,7 +726,7 @@ pub fn read_step(bytes: &[u8]) -> Result<Part, StepError> {
             .map(|(_, p)| *p)
             .collect();
         if placements.is_empty() {
-            placements.push(IDENTITY);
+            placements.push(*outer);
         }
         for placement in placements {
             for shell in &sbsm.sbsm_boundary {
@@ -794,6 +810,19 @@ pub fn read_step(bytes: &[u8]) -> Result<Part, StepError> {
 
 /// Read a STEP file from disk, transparently gunzipping `*.gz`.
 pub fn read_step_file(path: &std::path::Path) -> Result<Part, Box<dyn std::error::Error>> {
+    Ok(read_step(&step_file_bytes(path)?)?)
+}
+
+/// [`read_step_file`] moved by *outer* (see [`read_step_placed`]).
+pub fn read_step_file_placed(
+    path: &std::path::Path,
+    outer: &Placement,
+) -> Result<Part, Box<dyn std::error::Error>> {
+    Ok(read_step_placed(&step_file_bytes(path)?, outer)?)
+}
+
+/// A STEP file's bytes, gunzipped when the name ends in `.gz`.
+fn step_file_bytes(path: &std::path::Path) -> std::io::Result<Vec<u8>> {
     let bytes = std::fs::read(path)?;
     let bytes = if path.extension().is_some_and(|e| e == "gz") {
         use std::io::Read;
@@ -803,5 +832,5 @@ pub fn read_step_file(path: &std::path::Path) -> Result<Part, Box<dyn std::error
     } else {
         bytes
     };
-    Ok(read_step(&bytes)?)
+    Ok(bytes)
 }

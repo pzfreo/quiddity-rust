@@ -5,29 +5,12 @@
 
 mod common;
 
-use std::path::{Path, PathBuf};
-
 use quiddity::read_step_file;
 use serde_json::Value;
 
-fn fixtures() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures")
-}
-
-fn load(name: &str) -> Value {
-    serde_json::from_str(&std::fs::read_to_string(fixtures().join(name)).unwrap()).unwrap()
-}
-
-fn corpus_dir() -> Option<PathBuf> {
-    let dir = std::env::var("QUIDDITY_CORPUS")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| Path::new(env!("CARGO_MANIFEST_DIR")).join("../quiddity/tests/corpus"));
-    dir.is_dir().then_some(dir)
-}
-
 #[test]
 fn corpus_matches_python() {
-    let Some(dir) = corpus_dir() else {
+    let Some(dir) = common::corpus_dir() else {
         assert!(
             std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
             "QUIDDITY_CORPUS_REQUIRED is set but the corpus was not found"
@@ -37,7 +20,7 @@ fn corpus_matches_python() {
     };
     let mut problems = Vec::new();
     let mut counts = std::collections::BTreeMap::<String, (usize, usize)>::new();
-    for entry in load("corpus.json")["files"].as_array().unwrap() {
+    for entry in common::load("corpus.json")["files"].as_array().unwrap() {
         let name = entry["file"].as_str().unwrap();
         let part = match read_step_file(&dir.join(name)) {
             Ok(p) => p,
@@ -80,7 +63,8 @@ fn corpus_matches_python() {
     for (function, (ok, bad)) in &counts {
         eprintln!("{function}: {ok} runs match, {bad} differ");
     }
-    let known: Vec<Value> = serde_json::from_value(load("known_divergences.json")).unwrap();
+    let known: Vec<Value> = serde_json::from_value(common::load("known_divergences.json")).unwrap();
+    common::check_verdicts("known_divergences.json", &known);
     let is_known = |p: &str, d: &Value| {
         p.starts_with(&format!("{} ", d["file"].as_str().unwrap()))
             || p.starts_with(&format!("{}:", d["file"].as_str().unwrap()))

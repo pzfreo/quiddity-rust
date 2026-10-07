@@ -1,0 +1,16 @@
+[
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "motion": "rot_x90",
+    "family": "holes",
+    "verdict": "rust-wrong",
+    "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same."
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "motion": "rot_y180",
+    "family": "holes",
+    "verdict": "rust-wrong",
+    "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same."
+  }
+]

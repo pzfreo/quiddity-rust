@@ -9,7 +9,7 @@ use super::cylinders::{
 };
 use super::evidence::{self, EvidenceError, Occurrence};
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{self, Surface, V3};
+use crate::kernel::geom::{self, COORD_FLOOR, Surface, V3};
 use crate::kernel::py;
 
 /// A flat's normal must be radial to within this much (its dot with the axis).
@@ -124,7 +124,10 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Flat>> {
                 + (at[1] - ax[1]) * normal[1]
                 + (at[2] - ax[2]) * normal[2];
             let r = c.diameter / 2.0;
-            if !(CHORD_MIN < s && s < r - CHORD_MARGIN) || r - s < MIN_FLAT_DEPTH {
+            // A flat exactly as deep as the minimum qualifies wherever the part sits: within
+            // COORD_FLOOR of it, the comparison would be decided by coordinate round-off.
+            let too_shallow = r - s < MIN_FLAT_DEPTH && MIN_FLAT_DEPTH - (r - s) > COORD_FLOOR;
+            if !(CHORD_MIN < s && s < r - CHORD_MARGIN) || too_shallow {
                 continue; // facing the axis (a slot wall), outside the stock, or a sliver
             }
             if !chord_ends_reach_od(&vertices(part, face), ax, d, normal, r) {

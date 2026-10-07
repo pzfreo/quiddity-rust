@@ -18,7 +18,7 @@ use super::cylinders::{
 use super::evidence::{self, EvidenceError, Occurrence};
 use super::stacks::{End, classify_end, end_partners};
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{self, Surface, V3};
+use crate::kernel::geom::{self, COORD_FLOOR, Surface, V3};
 use crate::kernel::py;
 
 /// Two quantised diameters are one diameter within this proportion.
@@ -242,10 +242,10 @@ fn merge_stacks(part: &Part, stacks: Vec<Vec<Segment>>) -> Vec<Vec<Segment>> {
 
 /// Which end of a stack is the opening and what closes the other (`_drilled_from`). With both
 /// ends open the wider segment's end wins (counterbores sit at the opening); a tie falls to the
-/// high end.
+/// high end, so a stack symmetric end to end reads from whichever end is high in world space.
 fn drilled_from(part: &Part, stack: &[Segment]) -> (bool, usize, f64, Bottom, Vec<usize>) {
-    let lo = py::first_min(stack, |s| s.s_lo);
-    let hi = py::first_max(stack, |s| s.s_hi);
+    let lo = end_segment(stack, |s| -s.s_lo);
+    let hi = end_segment(stack, |s| s.s_hi);
     let (lo_state, lo_faces) = classify_end(part, &stack[lo], stack[lo].s_lo, false);
     let (hi_state, hi_faces) = classify_end(part, &stack[hi], stack[hi].s_hi, true);
     let from_hi = match (lo_state == End::Open, hi_state == End::Open) {
@@ -271,6 +271,20 @@ fn drilled_from(part: &Part, stack: &[Segment]) -> (bool, usize, f64, Bottom, Ve
         vec![]
     };
     (from_hi, opening, opening_s, bottom, terminal)
+}
+
+/// The segment that forms one end of a stack: the one reaching furthest by *reach*, and of
+/// those reaching it (within COORD_FLOOR) the widest, which is the mouth. Python takes the first
+/// in stack order, which is face order, so turning the part over can pick a different segment.
+fn end_segment(stack: &[Segment], reach: impl Fn(&Segment) -> f64) -> usize {
+    let far = stack.iter().map(&reach).fold(f64::NEG_INFINITY, f64::max);
+    let mut best: Option<usize> = None;
+    for (i, s) in stack.iter().enumerate() {
+        if far - reach(s) <= COORD_FLOOR && best.is_none_or(|b| s.diameter > stack[b].diameter) {
+            best = Some(i);
+        }
+    }
+    best.expect("a stack has segments")
 }
 
 /// The counterbore and spotface between the opening and the bore (`_near_side_steps`). Steps
@@ -386,11 +400,27 @@ pub fn discover(
         let d = stack[0].direction;
         let (from_hi, opening, opening_s, bottom, mut terminal) = drilled_from(part, &stack);
         let mut ordered = stack.clone();
-        // A stable sort by s_hi, descending when drilled from the high end.
+        // Nearest the opening first: by the near end of each segment, which is s_hi drilling
+        // down from the high end and s_lo drilling up from the low end. (Python sorts by s_hi
+        // both ways, so overlapping segments order differently once the part is turned over.)
+        // Segments starting level with each other put the wider first, as the mouth is outermost
+        // (Python keeps them in face order). The sort is stable.
         ordered.sort_by(|a, b| {
-            // Python's reverse=True keeps equal keys in input order, as reversing does here.
-            let o = py::order(a.s_hi, b.s_hi);
-            if from_hi { o.reverse() } else { o }
+            let near = if from_hi {
+                py::order(a.s_hi, b.s_hi).reverse()
+            } else {
+                py::order(a.s_lo, b.s_lo)
+            };
+            let level = if from_hi {
+                a.s_hi - b.s_hi
+            } else {
+                a.s_lo - b.s_lo
+            };
+            if level.abs() <= COORD_FLOOR {
+                py::order(a.diameter, b.diameter).reverse()
+            } else {
+                near
+            }
         });
         let bore_i = py::first_min(&ordered, |s| s.diameter);
         let bore = &ordered[bore_i];

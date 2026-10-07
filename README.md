@@ -68,6 +68,7 @@ tests/
   captured.rs        replays every recogniser call the Python test suite makes
   corpus.rs          every ported recogniser over the shared 100-file STEP corpus
   evidence.rs        fillet defining faces and evidence refusals on hand-built cases
+  invariance.rs      every corpus part moved and turned: each family must find the same faces
   kernel.rs          kernel behaviour on real parts
 tools/
   capture_plugin.py  pytest plugin that records the Python suite's recogniser calls
@@ -112,6 +113,20 @@ cargo test --release           # corpus test needs ../quiddity/tests/corpus or Q
 Float comparison: values must agree to one part in a million (sub-micron at part scale);
 Python-rounded fields agree exactly. Below that the kernels' parameter-range arithmetic
 differs in its last digits.
+
+## Beyond parity
+
+Matching Python is a stepping stone; the goal is the right answer. Every listed difference
+(`known_divergences.json` in both fixture directories, and `known_invariance.json`) carries a
+`verdict`: `rust-correct` (the port has the true geometry, and the reason gives the evidence),
+`rust-wrong` (a port limitation), `equivalent` (one geometry, two representations),
+`undetermined`, or `not-applicable`. The tests refuse an entry without one.
+
+`tests/invariance.rs` checks what Python cannot vouch for: every corpus part is re-read moved by
+a translation and right-angle rotations (`read_step_placed`), and each family must find the same
+features on the same faces. Arbitrary rotations are left to the frame normalisation Python does
+before recognising (not yet ported); reflections are refused by the reader for now, which rebuilds
+frames right-handed.
 
 ## What parity means
 
