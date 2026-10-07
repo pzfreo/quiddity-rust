@@ -176908,9 +176908,10641 @@
      ]
     }
    ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_neighbouring_steps_report_proved_local_leg_endpoints",
+   "function": "recognise_through_steps",
+   "file": "a903eba83199ae13.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      10.0,
+      10.0,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       5.0
+      ],
+      [
+       15.0,
+       5.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      17.5,
+      2.5,
+      0.0
+     ],
+     "section": [
+      [
+       15.0,
+       5.0
+      ],
+      [
+       15.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      10.0,
+      10.0,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       5.0
+      ],
+      [
+       15.0,
+       5.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      17.5,
+      2.5,
+      0.0
+     ],
+     "section": [
+      [
+       15.0,
+       5.0
+      ],
+      [
+       15.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_neighbouring_steps_report_proved_local_leg_endpoints",
+   "function": "recognise_through_steps",
+   "file": "a903eba83199ae13.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      10.0,
+      10.0,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       5.0
+      ],
+      [
+       15.0,
+       5.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      17.5,
+      2.5,
+      0.0
+     ],
+     "section": [
+      [
+       15.0,
+       5.0
+      ],
+      [
+       15.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      10.0,
+      10.0,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       5.0
+      ],
+      [
+       15.0,
+       5.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      17.5,
+      2.5,
+      0.0
+     ],
+     "section": [
+      [
+       15.0,
+       5.0
+      ],
+      [
+       15.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_two_local_legs_in_an_internal_staircase_are_not_a_through_step",
+   "function": "recognise_through_steps",
+   "file": "5cca0c9918474f12.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      0.0,
+      5.0,
+      0.0
+     ],
+     "section": [
+      [
+       -5.0,
+       15.0
+      ],
+      [
+       -5.0,
+       -5.0
+      ],
+      [
+       5.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      12100.0,
+      4010.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      15.0,
+      -11.0,
+      0.0
+     ],
+     "section": [
+      [
+       10.0,
+       -10.0
+      ],
+      [
+       10.0,
+       -12.0
+      ],
+      [
+       20.0,
+       -12.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      12100.0,
+      4010.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      0.0,
+      5.0,
+      0.0
+     ],
+     "section": [
+      [
+       -5.0,
+       15.0
+      ],
+      [
+       -5.0,
+       -5.0
+      ],
+      [
+       5.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      12100.0,
+      4010.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      15.0,
+      -11.0,
+      0.0
+     ],
+     "section": [
+      [
+       10.0,
+       -10.0
+      ],
+      [
+       10.0,
+       -12.0
+      ],
+      [
+       20.0,
+       -12.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      12100.0,
+      4010.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_local_leg_endpoints_survive_rotation_scale_step_and_face_order",
+   "function": "recognise_through_steps",
+   "file": "a903eba83199ae13.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      10.0,
+      10.0,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       5.0
+      ],
+      [
+       15.0,
+       5.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      17.5,
+      2.5,
+      0.0
+     ],
+     "section": [
+      [
+       15.0,
+       5.0
+      ],
+      [
+       15.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      10.0,
+      10.0,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       5.0
+      ],
+      [
+       15.0,
+       5.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      17.5,
+      2.5,
+      0.0
+     ],
+     "section": [
+      [
+       15.0,
+       5.0
+      ],
+      [
+       15.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_local_leg_endpoints_survive_rotation_scale_step_and_face_order",
+   "function": "recognise_through_steps",
+   "file": "abd4ea5aa78d7f84.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      10.0,
+      10.0,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       5.0
+      ],
+      [
+       15.0,
+       5.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      17.5,
+      2.5,
+      0.0
+     ],
+     "section": [
+      [
+       15.0,
+       5.0
+      ],
+      [
+       15.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      10.0,
+      10.0,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       5.0
+      ],
+      [
+       15.0,
+       5.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      17.5,
+      2.5,
+      0.0
+     ],
+     "section": [
+      [
+       15.0,
+       5.0
+      ],
+      [
+       15.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_local_leg_endpoints_survive_rotation_scale_step_and_face_order",
+   "function": "recognise_through_steps",
+   "file": "a10465e2d6af8d3b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      10.0,
+      0.0,
+      10.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       5.0
+      ],
+      [
+       15.0,
+       5.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      17.5,
+      0.0,
+      2.5
+     ],
+     "section": [
+      [
+       15.0,
+       5.0
+      ],
+      [
+       15.0,
+       -0.0
+      ],
+      [
+       20.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      10.0,
+      0.0,
+      10.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       5.0
+      ],
+      [
+       15.0,
+       5.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      17.5,
+      0.0,
+      2.5
+     ],
+     "section": [
+      [
+       15.0,
+       5.0
+      ],
+      [
+       15.0,
+       -0.0
+      ],
+      [
+       20.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_local_leg_endpoints_survive_rotation_scale_step_and_face_order",
+   "function": "recognise_through_steps",
+   "file": "ee47bbbd7c96af31.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "length": 20.0,
+     "at": [
+      0.0,
+      2.5,
+      -17.5
+     ],
+     "section": [
+      [
+       0.0,
+       -20.0
+      ],
+      [
+       0.0,
+       -15.0
+      ],
+      [
+       5.0,
+       -15.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      -20.0,
+      10.0,
+      15.0,
+      20.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "x",
+     "length": 20.0,
+     "at": [
+      0.0,
+      10.0,
+      -10.0
+     ],
+     "section": [
+      [
+       5.0,
+       -15.0
+      ],
+      [
+       5.0,
+       -5.0
+      ],
+      [
+       15.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      -20.0,
+      10.0,
+      15.0,
+      20.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "length": 20.0,
+     "at": [
+      0.0,
+      2.5,
+      -17.5
+     ],
+     "section": [
+      [
+       0.0,
+       -20.0
+      ],
+      [
+       0.0,
+       -15.0
+      ],
+      [
+       5.0,
+       -15.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      -20.0,
+      10.0,
+      15.0,
+      20.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "x",
+     "length": 20.0,
+     "at": [
+      0.0,
+      10.0,
+      -10.0
+     ],
+     "section": [
+      [
+       5.0,
+       -15.0
+      ],
+      [
+       5.0,
+       -5.0
+      ],
+      [
+       15.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      -20.0,
+      10.0,
+      15.0,
+      20.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_local_leg_endpoints_survive_rotation_scale_step_and_face_order",
+   "function": "recognise_through_steps",
+   "file": "1b5545f773be0c5c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -17.5,
+      -2.5,
+      0.0
+     ],
+     "section": [
+      [
+       -20.0,
+       0.0
+      ],
+      [
+       -15.0,
+       0.0
+      ],
+      [
+       -15.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -10.0,
+      -10.0,
+      0.0
+     ],
+     "section": [
+      [
+       -15.0,
+       -5.0
+      ],
+      [
+       -5.0,
+       -5.0
+      ],
+      [
+       -5.0,
+       -15.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -17.5,
+      -2.5,
+      0.0
+     ],
+     "section": [
+      [
+       -20.0,
+       0.0
+      ],
+      [
+       -15.0,
+       0.0
+      ],
+      [
+       -15.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -10.0,
+      -10.0,
+      0.0
+     ],
+     "section": [
+      [
+       -15.0,
+       -5.0
+      ],
+      [
+       -5.0,
+       -5.0
+      ],
+      [
+       -5.0,
+       -15.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      20500.0,
+      4850.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_local_leg_endpoints_survive_rotation_scale_step_and_face_order",
+   "function": "recognise_through_steps",
+   "file": "3a4a8f3972f30d55.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 1.0,
+     "at": [
+      0.5,
+      0.5,
+      0.0
+     ],
+     "section": [
+      [
+       0.25,
+       0.75
+      ],
+      [
+       0.25,
+       0.25
+      ],
+      [
+       0.75,
+       0.25
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.75,
+      -0.5,
+      1.0,
+      0.75,
+      0.5,
+      2.5625,
+      12.125
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 1.0,
+     "at": [
+      0.875,
+      0.125,
+      0.0
+     ],
+     "section": [
+      [
+       0.75,
+       0.25
+      ],
+      [
+       0.75,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.75,
+      -0.5,
+      1.0,
+      0.75,
+      0.5,
+      2.5625,
+      12.125
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 1.0,
+     "at": [
+      0.5,
+      0.5,
+      0.0
+     ],
+     "section": [
+      [
+       0.25,
+       0.75
+      ],
+      [
+       0.25,
+       0.25
+      ],
+      [
+       0.75,
+       0.25
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.75,
+      -0.5,
+      1.0,
+      0.75,
+      0.5,
+      2.5625,
+      12.125
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 1.0,
+     "at": [
+      0.875,
+      0.125,
+      0.0
+     ],
+     "section": [
+      [
+       0.75,
+       0.25
+      ],
+      [
+       0.75,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.75,
+      -0.5,
+      1.0,
+      0.75,
+      0.5,
+      2.5625,
+      12.125
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_local_leg_endpoints_survive_rotation_scale_step_and_face_order",
+   "function": "recognise_through_steps",
+   "file": "04d775b1dc0bfb57.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 2000.0,
+     "at": [
+      1000.0,
+      1000.0,
+      0.0
+     ],
+     "section": [
+      [
+       500.0,
+       1500.0
+      ],
+      [
+       500.0,
+       500.0
+      ],
+      [
+       1500.0,
+       500.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1500.0,
+      -1000.0,
+      2000.0,
+      1500.0,
+      1000.0,
+      20500000000.0,
+      48500000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 2000.0,
+     "at": [
+      1750.0,
+      250.0,
+      0.0
+     ],
+     "section": [
+      [
+       1500.0,
+       500.0
+      ],
+      [
+       1500.0,
+       0.0
+      ],
+      [
+       2000.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1500.0,
+      -1000.0,
+      2000.0,
+      1500.0,
+      1000.0,
+      20500000000.0,
+      48500000.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 2000.0,
+     "at": [
+      1000.0,
+      1000.0,
+      0.0
+     ],
+     "section": [
+      [
+       500.0,
+       1500.0
+      ],
+      [
+       500.0,
+       500.0
+      ],
+      [
+       1500.0,
+       500.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1500.0,
+      -1000.0,
+      2000.0,
+      1500.0,
+      1000.0,
+      20500000000.0,
+      48500000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 2000.0,
+     "at": [
+      1750.0,
+      250.0,
+      0.0
+     ],
+     "section": [
+      [
+       1500.0,
+       500.0
+      ],
+      [
+       1500.0,
+       0.0
+      ],
+      [
+       2000.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1500.0,
+      -1000.0,
+      2000.0,
+      1500.0,
+      1000.0,
+      20500000000.0,
+      48500000.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_aggregate_candidate_result_and_census_are_one_accepted_occurrence",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_record_supports_run_and_open_section_dimension_projection",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_rectangular_step_is_rotation_mirror_scale_and_step_roundtrip_stable",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_rectangular_step_is_rotation_mirror_scale_and_step_roundtrip_stable",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_rectangular_step_is_rotation_mirror_scale_and_step_roundtrip_stable",
+   "function": "recognise_through_steps",
+   "file": "49298b25cc7bc14b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      12.5,
+      0.0,
+      7.5
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       -0.0
+      ],
+      [
+       20.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      12.5,
+      0.0,
+      7.5
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       -0.0
+      ],
+      [
+       20.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_rectangular_step_is_rotation_mirror_scale_and_step_roundtrip_stable",
+   "function": "recognise_through_steps",
+   "file": "f011b0cb0ef4d982.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "length": 20.0,
+     "at": [
+      0.0,
+      7.5,
+      -12.5
+     ],
+     "section": [
+      [
+       0.0,
+       -20.0
+      ],
+      [
+       0.0,
+       -5.0
+      ],
+      [
+       15.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      -20.0,
+      10.0,
+      15.0,
+      20.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "length": 20.0,
+     "at": [
+      0.0,
+      7.5,
+      -12.5
+     ],
+     "section": [
+      [
+       0.0,
+       -20.0
+      ],
+      [
+       0.0,
+       -5.0
+      ],
+      [
+       15.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      -20.0,
+      10.0,
+      15.0,
+      20.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_rectangular_step_is_rotation_mirror_scale_and_step_roundtrip_stable",
+   "function": "recognise_through_steps",
+   "file": "6b6a5e5708cf64d0.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -12.5,
+      -7.5,
+      0.0
+     ],
+     "section": [
+      [
+       -20.0,
+       0.0
+      ],
+      [
+       -5.0,
+       0.0
+      ],
+      [
+       -5.0,
+       -15.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -12.5,
+      -7.5,
+      0.0
+     ],
+     "section": [
+      [
+       -20.0,
+       0.0
+      ],
+      [
+       -5.0,
+       0.0
+      ],
+      [
+       -5.0,
+       -15.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_rectangular_step_is_rotation_mirror_scale_and_step_roundtrip_stable",
+   "function": "recognise_through_steps",
+   "file": "d82590381719fb8b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      12.5,
+      0.0,
+      7.5
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       -0.0
+      ],
+      [
+       20.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      12.5,
+      0.0,
+      7.5
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       -0.0
+      ],
+      [
+       20.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_rectangular_step_is_rotation_mirror_scale_and_step_roundtrip_stable",
+   "function": "recognise_through_steps",
+   "file": "66f4eb25fb16fccc.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "length": 20.0,
+     "at": [
+      0.0,
+      7.5,
+      -12.5
+     ],
+     "section": [
+      [
+       0.0,
+       -20.0
+      ],
+      [
+       0.0,
+       -5.0
+      ],
+      [
+       15.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      -20.0,
+      10.0,
+      15.0,
+      20.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "length": 20.0,
+     "at": [
+      0.0,
+      7.5,
+      -12.5
+     ],
+     "section": [
+      [
+       0.0,
+       -20.0
+      ],
+      [
+       0.0,
+       -5.0
+      ],
+      [
+       15.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      -20.0,
+      10.0,
+      15.0,
+      20.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_rectangular_step_is_rotation_mirror_scale_and_step_roundtrip_stable",
+   "function": "recognise_through_steps",
+   "file": "54950d08519e41c1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       -20.0,
+       0.0
+      ],
+      [
+       -5.0,
+       0.0
+      ],
+      [
+       -5.0,
+       15.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       -20.0,
+       0.0
+      ],
+      [
+       -5.0,
+       0.0
+      ],
+      [
+       -5.0,
+       15.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_rectangular_step_is_rotation_mirror_scale_and_step_roundtrip_stable",
+   "function": "recognise_through_steps",
+   "file": "2eeb8bc728729aa3.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 0.02,
+     "at": [
+      0.013,
+      0.007,
+      0.0
+     ],
+     "section": [
+      [
+       0.005,
+       0.015
+      ],
+      [
+       0.005,
+       0.0
+      ],
+      [
+       0.02,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -0.02,
+      -0.015,
+      -0.01,
+      0.02,
+      0.015,
+      0.01,
+      1.95e-05,
+      0.00475
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 0.02,
+     "at": [
+      0.013,
+      0.007,
+      0.0
+     ],
+     "section": [
+      [
+       0.005,
+       0.015
+      ],
+      [
+       0.005,
+       0.0
+      ],
+      [
+       0.02,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -0.02,
+      -0.015,
+      -0.01,
+      0.02,
+      0.015,
+      0.01,
+      1.95e-05,
+      0.00475
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_rectangular_step_is_rotation_mirror_scale_and_step_roundtrip_stable",
+   "function": "recognise_through_steps",
+   "file": "c743263f103bdcb8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20000.0,
+     "at": [
+      12500.0,
+      7500.0,
+      0.0
+     ],
+     "section": [
+      [
+       5000.0,
+       15000.0
+      ],
+      [
+       5000.0,
+       0.0
+      ],
+      [
+       20000.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20000.0,
+      -15000.0,
+      -10000.0,
+      20000.0,
+      15000.0,
+      10000.0,
+      19500000000000.0,
+      4750000000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20000.0,
+     "at": [
+      12500.0,
+      7500.0,
+      0.0
+     ],
+     "section": [
+      [
+       5000.0,
+       15000.0
+      ],
+      [
+       5000.0,
+       0.0
+      ],
+      [
+       20000.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20000.0,
+      -15000.0,
+      -10000.0,
+      20000.0,
+      15000.0,
+      10000.0,
+      19500000000000.0,
+      4750000000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_coplanar_face_subdivision_is_representation_only",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_coplanar_terminal_subdivision_is_representation_only",
+   "function": "recognise_through_steps",
+   "file": "0b7df166f3672ee8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_coplanar_terminal_subdivision_is_representation_only",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_coplanar_terminal_subdivision_is_representation_only",
+   "function": "recognise_through_steps",
+   "file": "6ff41e6e39c5318e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      -7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       -15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      -7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       -15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_coplanar_terminal_subdivision_is_representation_only",
+   "function": "recognise_through_steps",
+   "file": "c9d13e11f90ea7c9.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      -7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       -15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      -7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       -15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_needs_presence_and_convex_joins_not_full_section_coverage[step]",
+   "function": "recognise_through_steps",
+   "file": "8a54c92245bbe905.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_needs_presence_and_convex_joins_not_full_section_coverage[step]",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_needs_presence_and_convex_joins_not_full_section_coverage[pocket]",
+   "function": "recognise_through_steps",
+   "file": "a395e6ec7fca914e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_needs_presence_and_convex_joins_not_full_section_coverage[pocket]",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_needs_presence_and_convex_joins_not_full_section_coverage[hole]",
+   "function": "recognise_through_steps",
+   "file": "ac4d4d4ead9405bf.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19123.0088816,
+      4768.23007676
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19123.0088816,
+      4768.23007676
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_needs_presence_and_convex_joins_not_full_section_coverage[hole]",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[step]",
+   "function": "recognise_through_steps",
+   "file": "8a54c92245bbe905.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[step]",
+   "function": "recognise_through_steps",
+   "file": "55e8ec8541ea2a65.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      12.5,
+      0.0,
+      7.5
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       -0.0
+      ],
+      [
+       20.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      12.5,
+      0.0,
+      7.5
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       -0.0
+      ],
+      [
+       20.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[step]",
+   "function": "recognise_through_steps",
+   "file": "c8a1aecd56d637a4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "length": 20.0,
+     "at": [
+      0.0,
+      7.5,
+      -12.5
+     ],
+     "section": [
+      [
+       0.0,
+       -20.0
+      ],
+      [
+       0.0,
+       -5.0
+      ],
+      [
+       15.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      -20.0,
+      10.0,
+      15.0,
+      20.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "length": 20.0,
+     "at": [
+      0.0,
+      7.5,
+      -12.5
+     ],
+     "section": [
+      [
+       0.0,
+       -20.0
+      ],
+      [
+       0.0,
+       -5.0
+      ],
+      [
+       15.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      -20.0,
+      10.0,
+      15.0,
+      20.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[step]",
+   "function": "recognise_through_steps",
+   "file": "84b933d1227312c8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -12.5,
+      -7.5,
+      0.0
+     ],
+     "section": [
+      [
+       -20.0,
+       0.0
+      ],
+      [
+       -5.0,
+       0.0
+      ],
+      [
+       -5.0,
+       -15.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -12.5,
+      -7.5,
+      0.0
+     ],
+     "section": [
+      [
+       -20.0,
+       0.0
+      ],
+      [
+       -5.0,
+       0.0
+      ],
+      [
+       -5.0,
+       -15.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[step]",
+   "function": "recognise_through_steps",
+   "file": "e3026e87b5d6292f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 1.0,
+     "at": [
+      0.625,
+      0.375,
+      0.0
+     ],
+     "section": [
+      [
+       0.25,
+       0.75
+      ],
+      [
+       0.25,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.75,
+      -0.5,
+      1.0,
+      0.75,
+      0.5,
+      2.4,
+      11.775
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 1.0,
+     "at": [
+      0.625,
+      0.375,
+      0.0
+     ],
+     "section": [
+      [
+       0.25,
+       0.75
+      ],
+      [
+       0.25,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.75,
+      -0.5,
+      1.0,
+      0.75,
+      0.5,
+      2.4,
+      11.775
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[step]",
+   "function": "recognise_through_steps",
+   "file": "c0d186f97a37e478.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 2000.0,
+     "at": [
+      1250.0,
+      750.0,
+      0.0
+     ],
+     "section": [
+      [
+       500.0,
+       1500.0
+      ],
+      [
+       500.0,
+       0.0
+      ],
+      [
+       2000.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1500.0,
+      -1000.0,
+      2000.0,
+      1500.0,
+      1000.0,
+      19200000000.0,
+      47100000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 2000.0,
+     "at": [
+      1250.0,
+      750.0,
+      0.0
+     ],
+     "section": [
+      [
+       500.0,
+       1500.0
+      ],
+      [
+       500.0,
+       0.0
+      ],
+      [
+       2000.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1500.0,
+      -1000.0,
+      2000.0,
+      1500.0,
+      1000.0,
+      19200000000.0,
+      47100000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[step]",
+   "function": "recognise_through_steps",
+   "file": "161f30d0e6511ef6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[pocket]",
+   "function": "recognise_through_steps",
+   "file": "a395e6ec7fca914e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[pocket]",
+   "function": "recognise_through_steps",
+   "file": "a9e218fd84f850af.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      12.5,
+      0.0,
+      7.5
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       -0.0
+      ],
+      [
+       20.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      12.5,
+      0.0,
+      7.5
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       -0.0
+      ],
+      [
+       20.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[pocket]",
+   "function": "recognise_through_steps",
+   "file": "43bf20f21ab880f5.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "length": 20.0,
+     "at": [
+      0.0,
+      7.5,
+      -12.5
+     ],
+     "section": [
+      [
+       0.0,
+       -20.0
+      ],
+      [
+       0.0,
+       -5.0
+      ],
+      [
+       15.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      -20.0,
+      10.0,
+      15.0,
+      20.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "length": 20.0,
+     "at": [
+      0.0,
+      7.5,
+      -12.5
+     ],
+     "section": [
+      [
+       0.0,
+       -20.0
+      ],
+      [
+       0.0,
+       -5.0
+      ],
+      [
+       15.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      -20.0,
+      10.0,
+      15.0,
+      20.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[pocket]",
+   "function": "recognise_through_steps",
+   "file": "581daf47333b9c8f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -12.5,
+      -7.5,
+      0.0
+     ],
+     "section": [
+      [
+       -20.0,
+       0.0
+      ],
+      [
+       -5.0,
+       0.0
+      ],
+      [
+       -5.0,
+       -15.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -12.5,
+      -7.5,
+      0.0
+     ],
+     "section": [
+      [
+       -20.0,
+       0.0
+      ],
+      [
+       -5.0,
+       0.0
+      ],
+      [
+       -5.0,
+       -15.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[pocket]",
+   "function": "recognise_through_steps",
+   "file": "46c1d3ea6eaaf4c4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 1.0,
+     "at": [
+      0.625,
+      0.375,
+      0.0
+     ],
+     "section": [
+      [
+       0.25,
+       0.75
+      ],
+      [
+       0.25,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.75,
+      -0.5,
+      1.0,
+      0.75,
+      0.5,
+      2.4,
+      11.775
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 1.0,
+     "at": [
+      0.625,
+      0.375,
+      0.0
+     ],
+     "section": [
+      [
+       0.25,
+       0.75
+      ],
+      [
+       0.25,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.75,
+      -0.5,
+      1.0,
+      0.75,
+      0.5,
+      2.4,
+      11.775
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[pocket]",
+   "function": "recognise_through_steps",
+   "file": "8df762836041ba91.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 2000.0,
+     "at": [
+      1250.0,
+      750.0,
+      0.0
+     ],
+     "section": [
+      [
+       500.0,
+       1500.0
+      ],
+      [
+       500.0,
+       0.0
+      ],
+      [
+       2000.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1500.0,
+      -1000.0,
+      2000.0,
+      1500.0,
+      1000.0,
+      19200000000.0,
+      47100000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 2000.0,
+     "at": [
+      1250.0,
+      750.0,
+      0.0
+     ],
+     "section": [
+      [
+       500.0,
+       1500.0
+      ],
+      [
+       500.0,
+       0.0
+      ],
+      [
+       2000.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1500.0,
+      -1000.0,
+      2000.0,
+      1500.0,
+      1000.0,
+      19200000000.0,
+      47100000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[pocket]",
+   "function": "recognise_through_steps",
+   "file": "83e45d3a076c818a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19200.0,
+      4710.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[hole]",
+   "function": "recognise_through_steps",
+   "file": "ac4d4d4ead9405bf.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19123.0088816,
+      4768.23007676
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19123.0088816,
+      4768.23007676
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[hole]",
+   "function": "recognise_through_steps",
+   "file": "7e238043061d0be7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      12.5,
+      0.0,
+      7.5
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       -0.0
+      ],
+      [
+       20.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      19123.0088816,
+      4768.23007676
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      12.5,
+      0.0,
+      7.5
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       -0.0
+      ],
+      [
+       20.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      19123.0088816,
+      4768.23007676
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[hole]",
+   "function": "recognise_through_steps",
+   "file": "62c00ae9682eeb50.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "length": 20.0,
+     "at": [
+      0.0,
+      7.5,
+      -12.5
+     ],
+     "section": [
+      [
+       0.0,
+       -20.0
+      ],
+      [
+       0.0,
+       -5.0
+      ],
+      [
+       15.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      -20.0,
+      10.0,
+      15.0,
+      20.0,
+      19123.0088816,
+      4768.23007676
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "length": 20.0,
+     "at": [
+      0.0,
+      7.5,
+      -12.5
+     ],
+     "section": [
+      [
+       0.0,
+       -20.0
+      ],
+      [
+       0.0,
+       -5.0
+      ],
+      [
+       15.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      -20.0,
+      10.0,
+      15.0,
+      20.0,
+      19123.0088816,
+      4768.23007676
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[hole]",
+   "function": "recognise_through_steps",
+   "file": "dd77b4b21db49f6c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -12.5,
+      -7.5,
+      0.0
+     ],
+     "section": [
+      [
+       -20.0,
+       0.0
+      ],
+      [
+       -5.0,
+       0.0
+      ],
+      [
+       -5.0,
+       -15.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19123.0088816,
+      4768.23007676
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -12.5,
+      -7.5,
+      0.0
+     ],
+     "section": [
+      [
+       -20.0,
+       0.0
+      ],
+      [
+       -5.0,
+       0.0
+      ],
+      [
+       -5.0,
+       -15.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19123.0088816,
+      4768.23007676
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[hole]",
+   "function": "recognise_through_steps",
+   "file": "5d585d69f33ec179.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 1.0,
+     "at": [
+      0.625,
+      0.375,
+      0.0
+     ],
+     "section": [
+      [
+       0.25,
+       0.75
+      ],
+      [
+       0.25,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.75,
+      -0.5,
+      1.0,
+      0.75,
+      0.5,
+      2.3903761102,
+      11.9205751919
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 1.0,
+     "at": [
+      0.625,
+      0.375,
+      0.0
+     ],
+     "section": [
+      [
+       0.25,
+       0.75
+      ],
+      [
+       0.25,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.75,
+      -0.5,
+      1.0,
+      0.75,
+      0.5,
+      2.3903761102,
+      11.9205751919
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[hole]",
+   "function": "recognise_through_steps",
+   "file": "a87a9a7c2c04cc04.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 2000.0,
+     "at": [
+      1250.0,
+      750.0,
+      0.0
+     ],
+     "section": [
+      [
+       500.0,
+       1500.0
+      ],
+      [
+       500.0,
+       0.0
+      ],
+      [
+       2000.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1500.0,
+      -1000.0,
+      2000.0,
+      1500.0,
+      1000.0,
+      19123008881.6,
+      47682300.7676
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 2000.0,
+     "at": [
+      1250.0,
+      750.0,
+      0.0
+     ],
+     "section": [
+      [
+       500.0,
+       1500.0
+      ],
+      [
+       500.0,
+       0.0
+      ],
+      [
+       2000.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1500.0,
+      -1000.0,
+      2000.0,
+      1500.0,
+      1000.0,
+      19123008881.6,
+      47682300.7676
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_survives_frame_scale_step_and_face_order[hole]",
+   "function": "recognise_through_steps",
+   "file": "0ccd0332168387be.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19123.0088816,
+      4768.23007676
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19123.0088816,
+      4768.23007676
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_channels_pockets_and_slots_are_not_through_steps",
+   "function": "recognise_through_steps",
+   "file": "7b476f0d9a930238.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_through_steps.py::test_channels_pockets_and_slots_are_not_through_steps",
+   "function": "recognise_through_steps",
+   "file": "2842b49957c0693b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_through_steps.py::test_channels_pockets_and_slots_are_not_through_steps",
+   "function": "recognise_through_steps",
+   "file": "6af1040a0be5d10e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_through_steps.py::test_a_third_cospanning_concave_wall_is_not_one_open_step",
+   "function": "recognise_through_steps",
+   "file": "7b476f0d9a930238.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_through_steps.py::test_a_third_cospanning_concave_wall_is_not_one_open_step",
+   "function": "recognise_through_steps",
+   "file": "970a5d2070bbff65.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_through_steps.py::test_material_inside_the_original_removed_prism_changes_the_proved_local_section",
+   "function": "recognise_through_steps",
+   "file": "01ddf640585a60ed.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      10.0,
+      11.75,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       8.5
+      ],
+      [
+       15.0,
+       8.5
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19900.0,
+      5190.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      10.0,
+      11.75,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       8.5
+      ],
+      [
+       15.0,
+       8.5
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19900.0,
+      5190.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_material_inside_the_original_removed_prism_changes_the_proved_local_section",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_material_inside_the_original_removed_prism_changes_the_proved_local_section",
+   "function": "recognise_through_steps",
+   "file": "c8332aafc8ebe50e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      10.0,
+      11.75,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       8.5
+      ],
+      [
+       15.0,
+       8.5
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19600.0,
+      5150.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      10.0,
+      11.75,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       8.5
+      ],
+      [
+       15.0,
+       8.5
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19600.0,
+      5150.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "local"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_material_inside_the_original_removed_prism_changes_the_proved_local_section",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_an_additive_l_solid_has_the_same_history_free_geometry",
+   "function": "recognise_through_steps",
+   "file": "e64cd01c5320f43e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      15.0,
+      5.0,
+      0.0
+     ],
+     "section": [
+      [
+       10.0,
+       15.0
+      ],
+      [
+       10.0,
+       -5.0
+      ],
+      [
+       20.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      14000.0,
+      3800.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      15.0,
+      5.0,
+      0.0
+     ],
+     "section": [
+      [
+       10.0,
+       15.0
+      ],
+      [
+       10.0,
+       -5.0
+      ],
+      [
+       20.0,
+       -5.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      14000.0,
+      3800.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_a_step_capped_at_one_run_end_is_blind_not_through",
+   "function": "recognise_through_steps",
+   "file": "40ae7a5baff92d8e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_through_steps.py::test_notched_terminal_with_partial_cap_is_not_through",
+   "function": "recognise_through_steps",
+   "file": "eb58612bd41bd45f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_through_steps.py::test_a_terminal_reduced_to_one_small_island_does_not_prove_the_step",
+   "function": "recognise_through_steps",
+   "file": "094b1acc31773072.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_through_steps.py::test_a_convex_straight_boundary_notch_preserves_the_step_proof",
+   "function": "recognise_through_steps",
+   "file": "346dfabe0941824e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19476.0,
+      4762.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19476.0,
+      4762.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_a_convex_straight_boundary_notch_preserves_the_step_proof",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_a_tapered_defining_wall_is_not_a_constant_section_step",
+   "function": "recognise_through_steps",
+   "file": "f6a22ffa38387d3f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_through_steps.py::test_a_tapered_defining_wall_is_not_a_constant_section_step",
+   "function": "recognise_through_steps",
+   "file": "f37c4e4a51f2bda8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_through_steps.py::test_a_tapered_defining_wall_is_not_a_constant_section_step",
+   "function": "recognise_through_steps",
+   "file": "61a653793bf0a892.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_through_steps.py::test_a_curved_boundary_interruption_preserves_the_step_proof",
+   "function": "recognise_through_steps",
+   "file": "a098cf2cab038309.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19342.9203673,
+      4761.41592654
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19342.9203673,
+      4761.41592654
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_a_curved_boundary_interruption_preserves_the_step_proof",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_a_curved_boundary_interruption_preserves_the_step_proof",
+   "function": "recognise_through_steps",
+   "file": "9f13b3f300116b7e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -12.5,
+      -7.5,
+      0.0
+     ],
+     "section": [
+      [
+       -20.0,
+       0.0
+      ],
+      [
+       -5.0,
+       0.0
+      ],
+      [
+       -5.0,
+       -15.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19342.9203673,
+      4761.41592654
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -12.5,
+      -7.5,
+      0.0
+     ],
+     "section": [
+      [
+       -20.0,
+       0.0
+      ],
+      [
+       -5.0,
+       0.0
+      ],
+      [
+       -5.0,
+       -15.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19342.9203673,
+      4761.41592654
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_a_curved_boundary_interruption_preserves_the_step_proof",
+   "function": "recognise_through_steps",
+   "file": "5c11fe6962795aa2.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -12.5,
+      -7.5,
+      0.0
+     ],
+     "section": [
+      [
+       -20.0,
+       0.0
+      ],
+      [
+       -5.0,
+       0.0
+      ],
+      [
+       -5.0,
+       -15.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -12.5,
+      -7.5,
+      0.0
+     ],
+     "section": [
+      [
+       -20.0,
+       0.0
+      ],
+      [
+       -5.0,
+       0.0
+      ],
+      [
+       -5.0,
+       -15.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_an_inner_wire_interruption_is_rotation_scale_and_step_stable",
+   "function": "recognise_through_steps",
+   "file": "344d31c3fc29b4eb.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 1.0,
+     "at": [
+      0.625,
+      0.375,
+      0.0
+     ],
+     "section": [
+      [
+       0.25,
+       0.75
+      ],
+      [
+       0.25,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.75,
+      -0.5,
+      1.0,
+      0.75,
+      0.5,
+      2.41786504592,
+      12.2676990817
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 1.0,
+     "at": [
+      0.625,
+      0.375,
+      0.0
+     ],
+     "section": [
+      [
+       0.25,
+       0.75
+      ],
+      [
+       0.25,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.75,
+      -0.5,
+      1.0,
+      0.75,
+      0.5,
+      2.41786504592,
+      12.2676990817
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_an_inner_wire_interruption_is_rotation_scale_and_step_stable",
+   "function": "recognise_through_steps",
+   "file": "c4a3ac0f07e88c6c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 1.0,
+     "at": [
+      0.625,
+      0.375,
+      0.0
+     ],
+     "section": [
+      [
+       0.25,
+       0.75
+      ],
+      [
+       0.25,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.75,
+      -0.5,
+      1.0,
+      0.75,
+      0.5,
+      2.4375,
+      11.875
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 1.0,
+     "at": [
+      0.625,
+      0.375,
+      0.0
+     ],
+     "section": [
+      [
+       0.25,
+       0.75
+      ],
+      [
+       0.25,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.75,
+      -0.5,
+      1.0,
+      0.75,
+      0.5,
+      2.4375,
+      11.875
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_an_inner_wire_interruption_is_rotation_scale_and_step_stable",
+   "function": "recognise_through_steps",
+   "file": "cd58b9c4ac340c9f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 1.0,
+     "at": [
+      0.625,
+      0.0,
+      0.375
+     ],
+     "section": [
+      [
+       0.25,
+       0.75
+      ],
+      [
+       0.25,
+       -0.0
+      ],
+      [
+       1.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.5,
+      -0.75,
+      1.0,
+      0.5,
+      0.75,
+      2.41786504592,
+      12.2676990817
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 1.0,
+     "at": [
+      0.625,
+      0.0,
+      0.375
+     ],
+     "section": [
+      [
+       0.25,
+       0.75
+      ],
+      [
+       0.25,
+       -0.0
+      ],
+      [
+       1.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.5,
+      -0.75,
+      1.0,
+      0.5,
+      0.75,
+      2.41786504592,
+      12.2676990817
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_an_inner_wire_interruption_is_rotation_scale_and_step_stable",
+   "function": "recognise_through_steps",
+   "file": "5f51a4d501f9dc12.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 1.0,
+     "at": [
+      0.625,
+      0.0,
+      0.375
+     ],
+     "section": [
+      [
+       0.25,
+       0.75
+      ],
+      [
+       0.25,
+       -0.0
+      ],
+      [
+       1.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.5,
+      -0.75,
+      1.0,
+      0.5,
+      0.75,
+      2.4375,
+      11.875
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 1.0,
+     "at": [
+      0.625,
+      0.0,
+      0.375
+     ],
+     "section": [
+      [
+       0.25,
+       0.75
+      ],
+      [
+       0.25,
+       -0.0
+      ],
+      [
+       1.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -1.0,
+      -0.5,
+      -0.75,
+      1.0,
+      0.5,
+      0.75,
+      2.4375,
+      11.875
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_an_inner_wire_interruption_is_rotation_scale_and_step_stable",
+   "function": "recognise_through_steps",
+   "file": "f73cfd71c1fc4292.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19342.9203673,
+      4907.07963268
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19342.9203673,
+      4907.07963268
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_an_inner_wire_interruption_is_rotation_scale_and_step_stable",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_an_inner_wire_interruption_is_rotation_scale_and_step_stable",
+   "function": "recognise_through_steps",
+   "file": "eb7241fa0d7c6bdb.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      12.5,
+      0.0,
+      7.5
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       -0.0
+      ],
+      [
+       20.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      19342.9203673,
+      4907.07963268
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      12.5,
+      0.0,
+      7.5
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       -0.0
+      ],
+      [
+       20.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      19342.9203673,
+      4907.07963268
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_an_inner_wire_interruption_is_rotation_scale_and_step_stable",
+   "function": "recognise_through_steps",
+   "file": "23b8310bee7ec36e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      12.5,
+      0.0,
+      7.5
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       -0.0
+      ],
+      [
+       20.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 20.0,
+     "at": [
+      12.5,
+      0.0,
+      7.5
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       -0.0
+      ],
+      [
+       20.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -10.0,
+      -15.0,
+      20.0,
+      10.0,
+      15.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_an_inner_wire_interruption_is_rotation_scale_and_step_stable",
+   "function": "recognise_through_steps",
+   "file": "aa66d87b8217d3f6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 2000.0,
+     "at": [
+      1250.0,
+      750.0,
+      0.0
+     ],
+     "section": [
+      [
+       500.0,
+       1500.0
+      ],
+      [
+       500.0,
+       0.0
+      ],
+      [
+       2000.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1500.0,
+      -1000.0,
+      2000.0,
+      1500.0,
+      1000.0,
+      19342920367.3,
+      49070796.3268
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 2000.0,
+     "at": [
+      1250.0,
+      750.0,
+      0.0
+     ],
+     "section": [
+      [
+       500.0,
+       1500.0
+      ],
+      [
+       500.0,
+       0.0
+      ],
+      [
+       2000.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1500.0,
+      -1000.0,
+      2000.0,
+      1500.0,
+      1000.0,
+      19342920367.3,
+      49070796.3268
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_an_inner_wire_interruption_is_rotation_scale_and_step_stable",
+   "function": "recognise_through_steps",
+   "file": "52d0440a2968df7e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 2000.0,
+     "at": [
+      1250.0,
+      750.0,
+      0.0
+     ],
+     "section": [
+      [
+       500.0,
+       1500.0
+      ],
+      [
+       500.0,
+       0.0
+      ],
+      [
+       2000.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1500.0,
+      -1000.0,
+      2000.0,
+      1500.0,
+      1000.0,
+      19500000000.0,
+      47500000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 2000.0,
+     "at": [
+      1250.0,
+      750.0,
+      0.0
+     ],
+     "section": [
+      [
+       500.0,
+       1500.0
+      ],
+      [
+       500.0,
+       0.0
+      ],
+      [
+       2000.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1500.0,
+      -1000.0,
+      2000.0,
+      1500.0,
+      1000.0,
+      19500000000.0,
+      47500000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_an_inner_wire_interruption_is_rotation_scale_and_step_stable",
+   "function": "recognise_through_steps",
+   "file": "9257fa1457e47eed.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 2000.0,
+     "at": [
+      1250.0,
+      0.0,
+      750.0
+     ],
+     "section": [
+      [
+       500.0,
+       1500.0
+      ],
+      [
+       500.0,
+       -0.0
+      ],
+      [
+       2000.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1000.0,
+      -1500.0,
+      2000.0,
+      1000.0,
+      1500.0,
+      19342920367.3,
+      49070796.3268
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 2000.0,
+     "at": [
+      1250.0,
+      0.0,
+      750.0
+     ],
+     "section": [
+      [
+       500.0,
+       1500.0
+      ],
+      [
+       500.0,
+       -0.0
+      ],
+      [
+       2000.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1000.0,
+      -1500.0,
+      2000.0,
+      1000.0,
+      1500.0,
+      19342920367.3,
+      49070796.3268
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_an_inner_wire_interruption_is_rotation_scale_and_step_stable",
+   "function": "recognise_through_steps",
+   "file": "44465235672e86b9.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 2000.0,
+     "at": [
+      1250.0,
+      0.0,
+      750.0
+     ],
+     "section": [
+      [
+       500.0,
+       1500.0
+      ],
+      [
+       500.0,
+       -0.0
+      ],
+      [
+       2000.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1000.0,
+      -1500.0,
+      2000.0,
+      1000.0,
+      1500.0,
+      19500000000.0,
+      47500000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 2000.0,
+     "at": [
+      1250.0,
+      0.0,
+      750.0
+     ],
+     "section": [
+      [
+       500.0,
+       1500.0
+      ],
+      [
+       500.0,
+       -0.0
+      ],
+      [
+       2000.0,
+       -0.0
+      ]
+     ],
+     "body_key": [
+      -2000.0,
+      -1000.0,
+      -1500.0,
+      2000.0,
+      1000.0,
+      1500.0,
+      19500000000.0,
+      47500000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_an_inner_wire_interruption_is_rotation_scale_and_step_stable",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_an_interrupted_wall_keeps_exact_graph_owned_evidence_and_aggregate_parity",
+   "function": "recognise_through_steps",
+   "file": "f73cfd71c1fc4292.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19342.9203673,
+      4907.07963268
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19342.9203673,
+      4907.07963268
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_an_interruption_crossing_the_defining_seam_fails_closed",
+   "function": "recognise_through_steps",
+   "file": "de9cc4d28ff8c28b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_through_steps.py::test_compound_members_are_recognised_independently",
+   "function": "recognise_through_steps",
+   "file": "5dd384f08c7eea89.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      112.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       105.0,
+       15.0
+      ],
+      [
+       105.0,
+       0.0
+      ],
+      [
+       120.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      80.0,
+      -15.0,
+      -10.0,
+      120.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      112.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       105.0,
+       15.0
+      ],
+      [
+       105.0,
+       0.0
+      ],
+      [
+       120.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      80.0,
+      -15.0,
+      -10.0,
+      120.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_compound_members_are_recognised_independently",
+   "function": "recognise_through_steps",
+   "file": "cbb68144051229f8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      112.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       105.0,
+       15.0
+      ],
+      [
+       105.0,
+       0.0
+      ],
+      [
+       120.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      80.0,
+      -15.0,
+      -10.0,
+      120.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      112.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       105.0,
+       15.0
+      ],
+      [
+       105.0,
+       0.0
+      ],
+      [
+       120.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      80.0,
+      -15.0,
+      -10.0,
+      120.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_compound_members_are_recognised_independently",
+   "function": "recognise_through_steps",
+   "file": "737b51bb608a3189.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      112.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       105.0,
+       15.0
+      ],
+      [
+       105.0,
+       0.0
+      ],
+      [
+       120.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      80.0,
+      -15.0,
+      -10.0,
+      120.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      112.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       105.0,
+       15.0
+      ],
+      [
+       105.0,
+       0.0
+      ],
+      [
+       120.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      80.0,
+      -15.0,
+      -10.0,
+      120.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_open_body_and_cross_solid_final_shape_composite_are_refused",
+   "function": "recognise_through_steps",
+   "file": "ef40dcc3018920ca.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_through_steps.py::test_open_body_and_cross_solid_final_shape_composite_are_refused",
+   "function": "recognise_through_steps",
+   "file": "1d10b7d1c755bd86.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_through_steps.py::test_foreign_evidence_fails_before_any_family_candidate_is_issued",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_through_steps.py::test_multiple_steps_on_one_solid_keep_feature_local_locations",
+   "function": "recognise_through_steps",
+   "file": "1de49a36a1aa8daf.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -30.0,
+      -17.5,
+      0.0
+     ],
+     "section": [
+      [
+       -40.0,
+       -10.0
+      ],
+      [
+       -20.0,
+       -10.0
+      ],
+      [
+       -20.0,
+       -25.0
+      ]
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      -10.0,
+      40.0,
+      25.0,
+      10.0,
+      68000.0,
+      12000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      30.0,
+      17.5,
+      0.0
+     ],
+     "section": [
+      [
+       20.0,
+       25.0
+      ],
+      [
+       20.0,
+       10.0
+      ],
+      [
+       40.0,
+       10.0
+      ]
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      -10.0,
+      40.0,
+      25.0,
+      10.0,
+      68000.0,
+      12000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      -30.0,
+      -17.5,
+      0.0
+     ],
+     "section": [
+      [
+       -40.0,
+       -10.0
+      ],
+      [
+       -20.0,
+       -10.0
+      ],
+      [
+       -20.0,
+       -25.0
+      ]
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      -10.0,
+      40.0,
+      25.0,
+      10.0,
+      68000.0,
+      12000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      30.0,
+      17.5,
+      0.0
+     ],
+     "section": [
+      [
+       20.0,
+       25.0
+      ],
+      [
+       20.0,
+       10.0
+      ],
+      [
+       40.0,
+       10.0
+      ]
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      -10.0,
+      40.0,
+      25.0,
+      10.0,
+      68000.0,
+      12000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_riser_through_step_body_identity.py::test_same_body_risers_and_through_steps_publish_one_join",
+   "function": "recognise_through_steps",
+   "file": "ac218c87be76c9d9.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      -7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -5.0,
+       10.0
+      ],
+      [
+       -5.0,
+       20.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       5.0,
+       20.0
+      ],
+      [
+       5.0,
+       10.0
+      ],
+      [
+       10.0,
+       10.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      -7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -5.0,
+       10.0
+      ],
+      [
+       -5.0,
+       20.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       5.0,
+       20.0
+      ],
+      [
+       5.0,
+       10.0
+      ],
+      [
+       10.0,
+       10.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_riser_through_step_body_identity.py::test_same_body_risers_and_through_steps_publish_one_join",
+   "function": "recognise_through_steps",
+   "file": "ac218c87be76c9d9.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      -7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -5.0,
+       10.0
+      ],
+      [
+       -5.0,
+       20.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       5.0,
+       20.0
+      ],
+      [
+       5.0,
+       10.0
+      ],
+      [
+       10.0,
+       10.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      -7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -5.0,
+       10.0
+      ],
+      [
+       -5.0,
+       20.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       5.0,
+       20.0
+      ],
+      [
+       5.0,
+       10.0
+      ],
+      [
+       10.0,
+       10.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_riser_through_step_body_identity.py::test_quarter_millimetre_air_gap_keeps_remote_through_step_distinct",
+   "function": "recognise_through_steps",
+   "file": "43be346c3add4c4e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      -7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -5.0,
+       10.0
+      ],
+      [
+       -5.0,
+       20.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       5.0,
+       20.0
+      ],
+      [
+       5.0,
+       10.0
+      ],
+      [
+       10.0,
+       10.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      37.75,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       45.25
+      ],
+      [
+       5.0,
+       30.25
+      ],
+      [
+       20.0,
+       30.25
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      15.25,
+      -10.0,
+      20.0,
+      45.25,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      -7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -5.0,
+       10.0
+      ],
+      [
+       -5.0,
+       20.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       5.0,
+       20.0
+      ],
+      [
+       5.0,
+       10.0
+      ],
+      [
+       10.0,
+       10.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      37.75,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       45.25
+      ],
+      [
+       5.0,
+       30.25
+      ],
+      [
+       20.0,
+       30.25
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      15.25,
+      -10.0,
+      20.0,
+      45.25,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_riser_through_step_body_identity.py::test_exact_touch_without_shared_solid_does_not_create_shared_identity",
+   "function": "recognise_through_steps",
+   "file": "1e45dac974567614.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      -7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -5.0,
+       10.0
+      ],
+      [
+       -5.0,
+       20.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       5.0,
+       20.0
+      ],
+      [
+       5.0,
+       10.0
+      ],
+      [
+       10.0,
+       10.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      37.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       45.0
+      ],
+      [
+       5.0,
+       30.0
+      ],
+      [
+       20.0,
+       30.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      15.0,
+      -10.0,
+      20.0,
+      45.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      -7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -5.0,
+       10.0
+      ],
+      [
+       -5.0,
+       20.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       5.0,
+       20.0
+      ],
+      [
+       5.0,
+       10.0
+      ],
+      [
+       10.0,
+       10.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      37.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       45.0
+      ],
+      [
+       5.0,
+       30.0
+      ],
+      [
+       20.0,
+       30.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      15.0,
+      -10.0,
+      20.0,
+      45.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_riser_through_step_body_identity.py::test_exact_touch_without_shared_solid_does_not_create_shared_identity",
+   "function": "recognise_through_steps",
+   "file": "b4034c888de786f8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      -7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -5.0,
+       10.0
+      ],
+      [
+       -5.0,
+       20.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       5.0,
+       20.0
+      ],
+      [
+       5.0,
+       10.0
+      ],
+      [
+       10.0,
+       10.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      37.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       45.0
+      ],
+      [
+       5.0,
+       30.0
+      ],
+      [
+       20.0,
+       30.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      15.0,
+      -10.0,
+      20.0,
+      45.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      -7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -5.0,
+       10.0
+      ],
+      [
+       -5.0,
+       20.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       5.0,
+       20.0
+      ],
+      [
+       5.0,
+       10.0
+      ],
+      [
+       10.0,
+       10.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      37.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       45.0
+      ],
+      [
+       5.0,
+       30.0
+      ],
+      [
+       20.0,
+       30.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      15.0,
+      -10.0,
+      20.0,
+      45.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_riser_through_step_body_identity.py::test_coincident_equal_signatures_refuse_both_family_joins",
+   "function": "recognise_through_steps",
+   "file": "146a28a97bb93e4d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      -7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -5.0,
+       10.0
+      ],
+      [
+       -5.0,
+       20.0
+      ]
+     ],
+     "body_key": null,
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      -7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -5.0,
+       10.0
+      ],
+      [
+       -5.0,
+       20.0
+      ]
+     ],
+     "body_key": null,
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       5.0,
+       20.0
+      ],
+      [
+       5.0,
+       10.0
+      ],
+      [
+       10.0,
+       10.0
+      ]
+     ],
+     "body_key": null,
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       5.0,
+       20.0
+      ],
+      [
+       5.0,
+       10.0
+      ],
+      [
+       10.0,
+       10.0
+      ]
+     ],
+     "body_key": null,
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      -7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -5.0,
+       10.0
+      ],
+      [
+       -5.0,
+       20.0
+      ]
+     ],
+     "body_key": null,
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      -7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -5.0,
+       10.0
+      ],
+      [
+       -5.0,
+       20.0
+      ]
+     ],
+     "body_key": null,
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       5.0,
+       20.0
+      ],
+      [
+       5.0,
+       10.0
+      ],
+      [
+       10.0,
+       10.0
+      ]
+     ],
+     "body_key": null,
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       5.0,
+       20.0
+      ],
+      [
+       5.0,
+       10.0
+      ],
+      [
+       10.0,
+       10.0
+      ]
+     ],
+     "body_key": null,
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_riser_through_step_body_identity.py::test_compound_body_joins_survive_step_round_trip",
+   "function": "recognise_through_steps",
+   "file": "6c6fdfde46ca99dd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      -7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -5.0,
+       10.0
+      ],
+      [
+       -5.0,
+       20.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       5.0,
+       20.0
+      ],
+      [
+       5.0,
+       10.0
+      ],
+      [
+       10.0,
+       10.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      37.75,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       45.25
+      ],
+      [
+       5.0,
+       30.25
+      ],
+      [
+       20.0,
+       30.25
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      15.25,
+      -10.0,
+      20.0,
+      45.25,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      -7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       -10.0,
+       10.0
+      ],
+      [
+       -5.0,
+       10.0
+      ],
+      [
+       -5.0,
+       20.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "y",
+     "length": 30.0,
+     "at": [
+      7.5,
+      0.0,
+      15.0
+     ],
+     "section": [
+      [
+       5.0,
+       20.0
+      ],
+      [
+       5.0,
+       10.0
+      ],
+      [
+       10.0,
+       10.0
+      ]
+     ],
+     "body_key": [
+      -10.0,
+      -15.0,
+      0.0,
+      10.0,
+      15.0,
+      20.0,
+      9000.0,
+      3000.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    },
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      37.75,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       45.25
+      ],
+      [
+       5.0,
+       30.25
+      ],
+      [
+       20.0,
+       30.25
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      15.25,
+      -10.0,
+      20.0,
+      45.25,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_records_are_frozen_and_json_serializable",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_every_record_type_is_actually_exercised",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "78cad3d7476afb70.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "ce30ea612029f8ba.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "63eb54cc99e74641.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "ab0e3dfc5203a621.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "3aa3fee8a5ce2624.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "c7ee6c53ea0011e7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "236ea4cc9bd6bfe4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "04aec2096ae6ebfa.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "c31caa7ecbb2d309.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "97c1f9960ddab64f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "9683f6213a4aa5bd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "ee52f5590e82077a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "7802ff06fec22161.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "ecafad7c9184d591.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 70.0,
+     "at": [
+      -57.5,
+      0.0,
+      20.0
+     ],
+     "section": [
+      [
+       -60.0,
+       4.0
+      ],
+      [
+       -55.0,
+       4.0
+      ],
+      [
+       -55.0,
+       36.0
+      ]
+     ],
+     "body_key": [
+      -60.0,
+      -35.0,
+      -4.0,
+      60.0,
+      35.0,
+      36.0,
+      114512.0,
+      28166.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 70.0,
+     "at": [
+      -57.5,
+      0.0,
+      20.0
+     ],
+     "section": [
+      [
+       -60.0,
+       4.0
+      ],
+      [
+       -55.0,
+       4.0
+      ],
+      [
+       -55.0,
+       36.0
+      ]
+     ],
+     "body_key": [
+      -60.0,
+      -35.0,
+      -4.0,
+      60.0,
+      35.0,
+      36.0,
+      114512.0,
+      28166.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "54fe727555b63158.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "363474613e1bde28.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "7edb959cec898e4b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "length": 20.0,
+     "at": [
+      12.5,
+      7.5,
+      0.0
+     ],
+     "section": [
+      [
+       5.0,
+       15.0
+      ],
+      [
+       5.0,
+       0.0
+      ],
+      [
+       20.0,
+       0.0
+      ]
+     ],
+     "body_key": [
+      -20.0,
+      -15.0,
+      -10.0,
+      20.0,
+      15.0,
+      10.0,
+      19500.0,
+      4750.0
+     ],
+     "endpoint_scopes": [
+      "solid",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "b4955f88525ea716.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "4e090fe361c883ac.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "786005dcbc3b0bea.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "12a159d1bdde516d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "644f8fd20345b417.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "length": 50.0,
+     "at": [
+      45.0,
+      -25.0,
+      16.5
+     ],
+     "section": [
+      [
+       40.0,
+       19.0
+      ],
+      [
+       40.0,
+       14.0
+      ],
+      [
+       50.0,
+       14.0
+      ]
+     ],
+     "body_key": [
+      0.0,
+      -50.0,
+      0.0,
+      50.0,
+      0.0,
+      25.0,
+      52440.0,
+      9436.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "length": 50.0,
+     "at": [
+      45.0,
+      -25.0,
+      16.5
+     ],
+     "section": [
+      [
+       40.0,
+       19.0
+      ],
+      [
+       40.0,
+       14.0
+      ],
+      [
+       50.0,
+       14.0
+      ]
+     ],
+     "body_key": [
+      0.0,
+      -50.0,
+      0.0,
+      50.0,
+      0.0,
+      25.0,
+      52440.0,
+      9436.0
+     ],
+     "endpoint_scopes": [
+      "local",
+      "solid"
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "016c60d49a52fa18.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "4ee8cff9e649797a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "b49df060f139705a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "235d9e4d3a5e8dbe.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "992c483db538da62.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "52c28c694ef89625.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_through_steps",
+   "file": "0a3141da4c6d054d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
   }
  ],
  "skipped": {
-  "recognise_interior_voids: capture failed: RuntimeError": 2
+  "recognise_through_steps: capture failed: RuntimeError": 7
  }
 }
