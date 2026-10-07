@@ -1,5 +1,5 @@
 //! Python's numeric semantics, wherever the port must reproduce the Python implementation's
-//! results bit for bit: rounding, summation, norms, the `%` operator, tuple ordering and
+//! results to the last bit: rounding, summation, norms, the `%` operator, tuple ordering and
 //! first-wins `min`/`max`.
 //!
 //! A last-bit difference matters here because records are rounded (to decimals or significant
@@ -96,7 +96,12 @@ pub fn sum(values: impl IntoIterator<Item = f64>) -> f64 {
         };
         total = t;
     }
-    total + compensation
+    // CPython drops a non-finite compensation, so an infinite term sums to inf rather than NaN.
+    if compensation.is_finite() {
+        total + compensation
+    } else {
+        total
+    }
 }
 
 /// `quiddity._geometry.dot`: the exactly rounded dot product (`fsum` of the products).
@@ -105,6 +110,8 @@ pub fn dot(a: &[f64], b: &[f64]) -> f64 {
 }
 
 /// `math.hypot(*values)`: the square root of the correctly rounded sum of the exact squares.
+/// CPython scales and corrects differently, so the two can differ in the last bit; both are
+/// within an ulp of the true norm.
 pub fn hypot(values: &[f64]) -> f64 {
     let mut terms = Vec::with_capacity(2 * values.len());
     for &x in values {
@@ -187,6 +194,7 @@ mod tests {
         assert_eq!(fsum([0.1; 10]), 1.0);
         assert_eq!(sum([1e16, 1.0, -1e16]), 1.0);
         assert!(sum([-0.0, -0.0]).is_sign_positive());
+        assert_eq!(sum([1.0, f64::INFINITY]), f64::INFINITY);
         assert_eq!(dot(&[1e8, 1.0], &[1e8, -1e16]), 0.0);
     }
 
