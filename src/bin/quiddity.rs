@@ -14,11 +14,10 @@ fn main() -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
-    let fillets = quiddity::recognise_fillets(&part, &quiddity::FilletOptions::default());
-    let document = serde_json::json!({ "fillets": fillets });
+    let features = quiddity::features::recognise(&part);
     println!(
         "{}",
-        serde_json::to_string_pretty(&document).expect("records serialise")
+        serde_json::to_string_pretty(&features).expect("records serialise")
     );
     ExitCode::SUCCESS
 }

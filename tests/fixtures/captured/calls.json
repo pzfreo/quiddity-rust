@@ -140559,10 +140559,3469 @@
    "options": {},
    "rich_arguments": [],
    "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_records_are_frozen_and_json_serializable",
+   "function": "recognise_chamfers",
+   "file": "5f4582080f09bf58.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      13.5,
+      13.5,
+      -0.0
+     ],
+     "turned": false,
+     "corner": [
+      15.0,
+      15.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      13.5,
+      13.5,
+      -0.0
+     ],
+     "turned": false,
+     "corner": [
+      15.0,
+      15.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_every_record_type_is_actually_exercised",
+   "function": "recognise_chamfers",
+   "file": "5f4582080f09bf58.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      13.5,
+      13.5,
+      -0.0
+     ],
+     "turned": false,
+     "corner": [
+      15.0,
+      15.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      13.5,
+      13.5,
+      -0.0
+     ],
+     "turned": false,
+     "corner": [
+      15.0,
+      15.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "6b0ce256f4c70482.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      25.0,
+      48.5,
+      23.5
+     ],
+     "turned": false,
+     "corner": [
+      25.0,
+      50.0,
+      25.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 15.0,
+     "leg2": 10.0,
+     "angle": 33.69,
+     "at": [
+      7.5,
+      6.0,
+      20.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      6.0,
+      25.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      25.0,
+      48.5,
+      23.5
+     ],
+     "turned": false,
+     "corner": [
+      25.0,
+      50.0,
+      25.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 15.0,
+     "leg2": 10.0,
+     "angle": 33.69,
+     "at": [
+      7.5,
+      6.0,
+      20.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      6.0,
+      25.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "ce30ea612029f8ba.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "63eb54cc99e74641.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "860dce2a651ab4e7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      -88.5,
+      -13.5,
+      -0.0
+     ],
+     "turned": false,
+     "corner": [
+      -90.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      -88.5,
+      13.5,
+      -0.0
+     ],
+     "turned": false,
+     "corner": [
+      -90.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      -51.5,
+      -13.5,
+      -0.0
+     ],
+     "turned": false,
+     "corner": [
+      -50.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      -51.5,
+      13.5,
+      -0.0
+     ],
+     "turned": false,
+     "corner": [
+      -50.0,
+      15.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      -88.5,
+      -13.5,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -90.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      -88.5,
+      13.5,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -90.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      -51.5,
+      -13.5,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -50.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      -51.5,
+      13.5,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -50.0,
+      15.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "3aa3fee8a5ce2624.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "c7ee6c53ea0011e7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "236ea4cc9bd6bfe4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "04aec2096ae6ebfa.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "c31caa7ecbb2d309.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "108759c5561ee63f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "9683f6213a4aa5bd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "aa80434054958f86.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "7802ff06fec22161.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "ecafad7c9184d591.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "dab41ec2d752f628.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "4a7f6a6171b284a7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "7edb959cec898e4b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "1e4303b9497adbaf.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "c7a10a9aba34edb1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "786005dcbc3b0bea.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "ba02182884c56d73.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "644f8fd20345b417.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "016c60d49a52fa18.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "4ee8cff9e649797a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "6da54be7d9818148.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "8adc57b328863b43.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "a6e940ff37afef35.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "2a3cdf2b10d85c62.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_chamfers",
+   "file": "0a3141da4c6d054d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_every_recogniser_taking_face_edges_actually_consults_it",
+   "function": "recognise_chamfers",
+   "file": "972bb25c9e7481aa.step.gz",
+   "options": {},
+   "hints": [
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "leg1": 1.5,
+     "leg2": 1.5,
+     "angle": 45.0,
+     "at": [
+      -29.25,
+      -19.25,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -30.0,
+      -20.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 1.5,
+     "leg2": 1.5,
+     "angle": 45.0,
+     "at": [
+      -29.25,
+      19.25,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -30.0,
+      20.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "leg1": 1.5,
+     "leg2": 1.5,
+     "angle": 45.0,
+     "at": [
+      -29.25,
+      -19.25,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -30.0,
+      -20.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 1.5,
+     "leg2": 1.5,
+     "angle": 45.0,
+     "at": [
+      -29.25,
+      19.25,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -30.0,
+      20.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_large_part_small_features.py::test_a_small_chamfer_on_a_large_part_is_still_a_chamfer",
+   "function": "recognise_chamfers",
+   "file": "ad6bc5f05b2a7de7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      -99.501,
+      -29.499
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -100.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      0.0,
+      99.501,
+      -29.499
+     ],
+     "turned": false,
+     "corner": [
+      -0.0,
+      100.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -99.501,
+      -0.0,
+      -29.499
+     ],
+     "turned": false,
+     "corner": [
+      -100.0,
+      0.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      99.501,
+      0.0,
+      -29.499
+     ],
+     "turned": false,
+     "corner": [
+      100.0,
+      -0.0,
+      -30.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      0.0,
+      -99.501,
+      -29.499
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -100.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      0.0,
+      99.501,
+      -29.499
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      100.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -99.501,
+      0.0,
+      -29.499
+     ],
+     "turned": false,
+     "corner": [
+      -100.0,
+      0.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      99.501,
+      0.0,
+      -29.499
+     ],
+     "turned": false,
+     "corner": [
+      100.0,
+      0.0,
+      -30.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_large_part_small_features.py::test_the_same_feature_is_recognised_whatever_the_part_around_it[80.0]",
+   "function": "recognise_chamfers",
+   "file": "e458fbb5794a4f78.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      -39.502,
+      -29.498
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -40.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      39.502,
+      -29.498
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      40.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -39.502,
+      -0.0,
+      -29.498
+     ],
+     "turned": false,
+     "corner": [
+      -40.0,
+      0.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      39.502,
+      -0.0,
+      -29.498
+     ],
+     "turned": false,
+     "corner": [
+      40.0,
+      0.0,
+      -30.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      0.0,
+      -39.502,
+      -29.498
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -40.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      0.0,
+      39.502,
+      -29.498
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      40.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -39.502,
+      0.0,
+      -29.498
+     ],
+     "turned": false,
+     "corner": [
+      -40.0,
+      0.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      39.502,
+      0.0,
+      -29.498
+     ],
+     "turned": false,
+     "corner": [
+      40.0,
+      0.0,
+      -30.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_large_part_small_features.py::test_the_same_feature_is_recognised_whatever_the_part_around_it[200.0]",
+   "function": "recognise_chamfers",
+   "file": "ad6bc5f05b2a7de7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      -99.501,
+      -29.499
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -100.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      0.0,
+      99.501,
+      -29.499
+     ],
+     "turned": false,
+     "corner": [
+      -0.0,
+      100.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -99.501,
+      -0.0,
+      -29.499
+     ],
+     "turned": false,
+     "corner": [
+      -100.0,
+      0.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      99.501,
+      0.0,
+      -29.499
+     ],
+     "turned": false,
+     "corner": [
+      100.0,
+      -0.0,
+      -30.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      0.0,
+      -99.501,
+      -29.499
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -100.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      0.0,
+      99.501,
+      -29.499
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      100.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -99.501,
+      0.0,
+      -29.499
+     ],
+     "turned": false,
+     "corner": [
+      -100.0,
+      0.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      99.501,
+      0.0,
+      -29.499
+     ],
+     "turned": false,
+     "corner": [
+      100.0,
+      0.0,
+      -30.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_large_part_small_features.py::test_the_same_feature_is_recognised_whatever_the_part_around_it[600.0]",
+   "function": "recognise_chamfers",
+   "file": "7d2c1f0449af59e0.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      -299.5,
+      -29.5
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -300.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      299.5,
+      -29.5
+     ],
+     "turned": false,
+     "corner": [
+      -0.0,
+      300.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -299.5,
+      -0.0,
+      -29.5
+     ],
+     "turned": false,
+     "corner": [
+      -300.0,
+      0.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      299.5,
+      -0.0,
+      -29.5
+     ],
+     "turned": false,
+     "corner": [
+      300.0,
+      -0.0,
+      -30.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      0.0,
+      -299.5,
+      -29.5
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -300.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      0.0,
+      299.5,
+      -29.5
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      300.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -299.5,
+      0.0,
+      -29.5
+     ],
+     "turned": false,
+     "corner": [
+      -300.0,
+      0.0,
+      -30.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      299.5,
+      0.0,
+      -29.5
+     ],
+     "turned": false,
+     "corner": [
+      300.0,
+      0.0,
+      -30.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_turned_chamfers.py::test_direct_reader_recognises_conical_turned_chamfers",
+   "function": "recognise_chamfers",
+   "file": "98be6b713d241f01.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "leg1": 0.8,
+     "leg2": 0.8,
+     "angle": 45.0,
+     "at": [
+      -14.6,
+      0.0,
+      0.4
+     ],
+     "turned": true,
+     "corner": null
+    },
+    {
+     "axis": "z",
+     "leg1": 0.8,
+     "leg2": 0.8,
+     "angle": 45.0,
+     "at": [
+      -14.6,
+      0.0,
+      39.6
+     ],
+     "turned": true,
+     "corner": null
+    },
+    {
+     "axis": "z",
+     "leg1": 0.8,
+     "leg2": 0.8,
+     "angle": 45.0,
+     "at": [
+      -8.4,
+      0.0,
+      40.4
+     ],
+     "turned": true,
+     "corner": null
+    },
+    {
+     "axis": "z",
+     "leg1": 0.8,
+     "leg2": 0.8,
+     "angle": 45.0,
+     "at": [
+      -7.6,
+      0.0,
+      69.6
+     ],
+     "turned": true,
+     "corner": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "leg1": 0.8,
+     "leg2": 0.8,
+     "angle": 45.0,
+     "at": [
+      -14.6,
+      0.0,
+      0.4
+     ],
+     "turned": true,
+     "corner": null
+    },
+    {
+     "axis": "z",
+     "leg1": 0.8,
+     "leg2": 0.8,
+     "angle": 45.0,
+     "at": [
+      -14.6,
+      -0.0,
+      39.6
+     ],
+     "turned": true,
+     "corner": null
+    },
+    {
+     "axis": "z",
+     "leg1": 0.8,
+     "leg2": 0.8,
+     "angle": 45.0,
+     "at": [
+      -8.4,
+      -0.0,
+      40.4
+     ],
+     "turned": true,
+     "corner": null
+    },
+    {
+     "axis": "z",
+     "leg1": 0.8,
+     "leg2": 0.8,
+     "angle": 45.0,
+     "at": [
+      -7.6,
+      -0.0,
+      69.6
+     ],
+     "turned": true,
+     "corner": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_turned_chamfers.py::test_two_tenths_turned_edge_break_is_geometry_by_default_but_obeys_a_caller_floor",
+   "function": "recognise_chamfers",
+   "file": "d1265e2b979af77f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "leg1": 0.2,
+     "leg2": 0.2,
+     "angle": 45.0,
+     "at": [
+      -14.9,
+      0.0,
+      0.1
+     ],
+     "turned": true,
+     "corner": null
+    },
+    {
+     "axis": "z",
+     "leg1": 0.2,
+     "leg2": 0.2,
+     "angle": 45.0,
+     "at": [
+      -14.9,
+      0.0,
+      39.9
+     ],
+     "turned": true,
+     "corner": null
+    },
+    {
+     "axis": "z",
+     "leg1": 0.2,
+     "leg2": 0.2,
+     "angle": 45.0,
+     "at": [
+      -8.1,
+      0.0,
+      40.1
+     ],
+     "turned": true,
+     "corner": null
+    },
+    {
+     "axis": "z",
+     "leg1": 0.2,
+     "leg2": 0.2,
+     "angle": 45.0,
+     "at": [
+      -7.9,
+      0.0,
+      69.9
+     ],
+     "turned": true,
+     "corner": null
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "leg1": 0.2,
+     "leg2": 0.2,
+     "angle": 45.0,
+     "at": [
+      -14.9,
+      0.0,
+      0.1
+     ],
+     "turned": true,
+     "corner": null
+    },
+    {
+     "axis": "z",
+     "leg1": 0.2,
+     "leg2": 0.2,
+     "angle": 45.0,
+     "at": [
+      -14.9,
+      -0.0,
+      39.9
+     ],
+     "turned": true,
+     "corner": null
+    },
+    {
+     "axis": "z",
+     "leg1": 0.2,
+     "leg2": 0.2,
+     "angle": 45.0,
+     "at": [
+      -8.1,
+      -0.0,
+      40.1
+     ],
+     "turned": true,
+     "corner": null
+    },
+    {
+     "axis": "z",
+     "leg1": 0.2,
+     "leg2": 0.2,
+     "angle": 45.0,
+     "at": [
+      -7.9,
+      -0.0,
+      69.9
+     ],
+     "turned": true,
+     "corner": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_turned_chamfers.py::test_prismatic_edge_treatments_and_legacy_constructors_default_to_not_turned",
+   "function": "recognise_chamfers",
+   "file": "927bd126b3eb8c2a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -19.5,
+      -14.5,
+      -0.0
+     ],
+     "turned": false,
+     "corner": [
+      -20.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -19.5,
+      14.5,
+      -0.0
+     ],
+     "turned": false,
+     "corner": [
+      -20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      19.5,
+      -14.5,
+      -0.0
+     ],
+     "turned": false,
+     "corner": [
+      20.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      19.5,
+      14.5,
+      -0.0
+     ],
+     "turned": false,
+     "corner": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -19.5,
+      -14.5,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -20.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -19.5,
+      14.5,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -20.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      19.5,
+      -14.5,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      20.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      19.5,
+      14.5,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      20.0,
+      15.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_turned_chamfers.py::test_internal_countersink_is_not_a_turned_chamfer",
+   "function": "recognise_chamfers",
+   "file": "c6e78a70d1095dc3.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_turned_chamfers.py::test_non_principal_turned_surfaces_are_out_of_scope",
+   "function": "recognise_chamfers",
+   "file": "40574cca69345a01.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_turned_chamfers.py::test_a_taper_into_a_rounded_nose_is_not_a_turned_chamfer",
+   "function": "recognise_chamfers",
+   "file": "9808e56042d8be45.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_angled_steps.py::test_the_same_wedge_run_through_is_a_chamfer_and_not_a_step",
+   "function": "recognise_chamfers",
+   "file": "6655ad5efe1ab54d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      20.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      0.0,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      20.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_angled_steps.py::test_the_chamfer_family_proposes_a_slant_and_the_reconciler_takes_it_back",
+   "function": "recognise_chamfers",
+   "file": "58c22af7ad2b517b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_angled_steps.py::test_the_chamfer_family_proposes_a_slant_and_the_reconciler_takes_it_back",
+   "function": "recognise_chamfers",
+   "file": "6655ad5efe1ab54d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      20.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      0.0,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      20.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_angled_steps.py::test_length_alone_does_not_decide_which_family_claims_a_slant",
+   "function": "recognise_chamfers",
+   "file": "2db994ba714cc27f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      -19.5,
+      5.5
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -20.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 1.0,
+     "leg2": 1.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      -19.5,
+      5.5
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -20.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_angled_steps.py::test_a_gusset_filling_a_concave_corner_is_not_an_angled_step",
+   "function": "recognise_chamfers",
+   "file": "0385ca33802d6604.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_bevel_claims.py::test_a_chamfer_claims_the_bevel_and_not_the_two_walls_it_bridges",
+   "function": "recognise_chamfers",
+   "file": "6655ad5efe1ab54d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      20.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      0.0,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      20.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_bevel_claims.py::test_an_angled_step_claims_the_slant_and_not_the_flat_that_closes_it",
+   "function": "recognise_chamfers",
+   "file": "58c22af7ad2b517b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_bevel_claims.py::test_the_chamfer_family_and_the_step_family_claim_the_same_face",
+   "function": "recognise_chamfers",
+   "file": "58c22af7ad2b517b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_bevel_claims.py::test_the_rule_drops_the_chamfer_a_step_already_has_and_nothing_else",
+   "function": "recognise_chamfers",
+   "file": "58c22af7ad2b517b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_bevel_claims.py::test_the_rule_drops_the_chamfer_a_step_already_has_and_nothing_else",
+   "function": "recognise_chamfers",
+   "file": "6655ad5efe1ab54d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      20.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      0.0,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      20.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_bevel_claims.py::test_the_rule_drops_the_chamfer_a_step_already_has_and_nothing_else",
+   "function": "recognise_chamfers",
+   "file": "3dc82189f609f0f1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    },
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      -18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -20.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    },
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      -18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -20.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_bevel_claims.py::test_the_rule_pairs_each_chamfer_with_its_own_claim_and_not_the_next_ones",
+   "function": "recognise_chamfers",
+   "file": "f9a8967b3160db90.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    },
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      -18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -20.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    },
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      -18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -20.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_bevel_claims.py::test_the_rule_does_not_care_what_order_or_how_many_records_it_is_given",
+   "function": "recognise_chamfers",
+   "file": "3dc82189f609f0f1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    },
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      -18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -20.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    },
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      -18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -20.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_bevel_claims.py::test_a_ledger_built_from_another_block_is_refused_rather_than_left_empty",
+   "function": "recognise_chamfers",
+   "file": "58c22af7ad2b517b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_bevel_claims.py::test_a_ledger_built_from_another_block_is_refused_rather_than_left_empty",
+   "function": "recognise_chamfers",
+   "file": "58c22af7ad2b517b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_bevel_claims.py::test_a_shared_face_edge_memo_does_not_change_what_is_claimed",
+   "function": "recognise_chamfers",
+   "file": "3dc82189f609f0f1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    },
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      -18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -20.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -17.5,
+      18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -17.5,
+      20.0,
+      6.0
+     ]
+    },
+    {
+     "axis": "x",
+     "leg1": 4.0,
+     "leg2": 4.0,
+     "angle": 45.0,
+     "at": [
+      -0.0,
+      -18.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      -20.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_adjacency.py::test_sharing_one_memo_across_recognisers_leaves_every_result_unchanged",
+   "function": "recognise_chamfers",
+   "file": "972bb25c9e7481aa.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "leg1": 1.5,
+     "leg2": 1.5,
+     "angle": 45.0,
+     "at": [
+      -29.25,
+      -19.25,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -30.0,
+      -20.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 1.5,
+     "leg2": 1.5,
+     "angle": 45.0,
+     "at": [
+      -29.25,
+      19.25,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -30.0,
+      20.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "leg1": 1.5,
+     "leg2": 1.5,
+     "angle": 45.0,
+     "at": [
+      -29.25,
+      -19.25,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -30.0,
+      -20.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 1.5,
+     "leg2": 1.5,
+     "angle": 45.0,
+     "at": [
+      -29.25,
+      19.25,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -30.0,
+      20.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_adjacency.py::test_sharing_one_memo_across_recognisers_leaves_every_result_unchanged",
+   "function": "recognise_chamfers",
+   "file": "972bb25c9e7481aa.step.gz",
+   "options": {},
+   "hints": [
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "leg1": 1.5,
+     "leg2": 1.5,
+     "angle": 45.0,
+     "at": [
+      -29.25,
+      -19.25,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -30.0,
+      -20.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 1.5,
+     "leg2": 1.5,
+     "angle": 45.0,
+     "at": [
+      -29.25,
+      19.25,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -30.0,
+      20.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "leg1": 1.5,
+     "leg2": 1.5,
+     "angle": 45.0,
+     "at": [
+      -29.25,
+      -19.25,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -30.0,
+      -20.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 1.5,
+     "leg2": 1.5,
+     "angle": 45.0,
+     "at": [
+      -29.25,
+      19.25,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -30.0,
+      20.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_tolerance_boundaries.py::test_a_face_just_inside_the_draft_boundary_is_a_wall_and_just_outside_is_a_chamfer",
+   "function": "recognise_chamfers",
+   "file": "49878f87ab58da0d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_tolerance_boundaries.py::test_a_face_just_inside_the_draft_boundary_is_a_wall_and_just_outside_is_a_chamfer",
+   "function": "recognise_chamfers",
+   "file": "e7c21549f8e22c1e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "leg1": 4.0,
+     "leg2": 0.581,
+     "angle": 8.26,
+     "at": [
+      -29.71,
+      -0.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -30.0,
+      0.0,
+      6.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "leg1": 4.0,
+     "leg2": 0.581,
+     "angle": 8.26,
+     "at": [
+      -29.71,
+      -0.0,
+      4.0
+     ],
+     "turned": false,
+     "corner": [
+      -30.0,
+      0.0,
+      6.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_tolerance_boundaries.py::test_the_draft_boundary_does_not_move_with_the_size_of_the_part",
+   "function": "recognise_chamfers",
+   "file": "3d9534ee00ca5713.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_tolerance_boundaries.py::test_the_draft_boundary_does_not_move_with_the_size_of_the_part",
+   "function": "recognise_chamfers",
+   "file": "d088eacbf676741d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "leg1": 400.0,
+     "leg2": 58.066,
+     "angle": 8.26,
+     "at": [
+      -2970.967,
+      -0.0,
+      400.0
+     ],
+     "turned": false,
+     "corner": [
+      -3000.0,
+      0.0,
+      600.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "leg1": 400.0,
+     "leg2": 58.066,
+     "angle": 8.26,
+     "at": [
+      -2970.967,
+      -0.0,
+      400.0
+     ],
+     "turned": false,
+     "corner": [
+      -3000.0,
+      0.0,
+      600.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_tolerance_boundaries.py::test_small_chamfers_follow_geometry_unless_the_caller_sets_a_size_floor",
+   "function": "recognise_chamfers",
+   "file": "92898e8c954deddd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_tolerance_boundaries.py::test_small_chamfers_follow_geometry_unless_the_caller_sets_a_size_floor",
+   "function": "recognise_chamfers",
+   "file": "27d20eebb46b631d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "leg1": 0.2,
+     "leg2": 0.029,
+     "angle": 8.26,
+     "at": [
+      -1.485,
+      0.0,
+      0.2
+     ],
+     "turned": false,
+     "corner": [
+      -1.5,
+      0.0,
+      0.3
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "leg1": 0.2,
+     "leg2": 0.029,
+     "angle": 8.26,
+     "at": [
+      -1.485,
+      0.0,
+      0.2
+     ],
+     "turned": false,
+     "corner": [
+      -1.5,
+      0.0,
+      0.3
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_tolerance_boundaries.py::test_small_chamfers_follow_geometry_unless_the_caller_sets_a_size_floor",
+   "function": "recognise_chamfers",
+   "file": "27d20eebb46b631d.step.gz",
+   "options": {
+    "tol": 0.3
+   },
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[angled_blind_step]",
+   "function": "recognise_chamfers",
+   "file": "6b0ce256f4c70482.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "x",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      25.0,
+      48.5,
+      23.5
+     ],
+     "turned": false,
+     "corner": [
+      25.0,
+      50.0,
+      25.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 15.0,
+     "leg2": 10.0,
+     "angle": 33.69,
+     "at": [
+      7.5,
+      6.0,
+      20.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      6.0,
+      25.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "x",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      25.0,
+      48.5,
+      23.5
+     ],
+     "turned": false,
+     "corner": [
+      25.0,
+      50.0,
+      25.0
+     ]
+    },
+    {
+     "axis": "y",
+     "leg1": 15.0,
+     "leg2": 10.0,
+     "angle": 33.69,
+     "at": [
+      7.5,
+      6.0,
+      20.0
+     ],
+     "turned": false,
+     "corner": [
+      0.0,
+      6.0,
+      25.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[blind_pockets_and_pocket_patterns]",
+   "function": "recognise_chamfers",
+   "file": "ce30ea612029f8ba.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[bolt_circle_and_rectangular_grid]",
+   "function": "recognise_chamfers",
+   "file": "63eb54cc99e74641.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[chamfers_fillets_and_flats]",
+   "function": "recognise_chamfers",
+   "file": "5f7afd86a58f04e6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      -88.5,
+      -13.5,
+      -0.0
+     ],
+     "turned": false,
+     "corner": [
+      -90.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      -88.5,
+      13.5,
+      -0.0
+     ],
+     "turned": false,
+     "corner": [
+      -90.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      -51.5,
+      -13.5,
+      -0.0
+     ],
+     "turned": false,
+     "corner": [
+      -50.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      -51.5,
+      13.5,
+      -0.0
+     ],
+     "turned": false,
+     "corner": [
+      -50.0,
+      15.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      -88.5,
+      -13.5,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -90.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      -88.5,
+      13.5,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -90.0,
+      15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      -51.5,
+      -13.5,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -50.0,
+      -15.0,
+      0.0
+     ]
+    },
+    {
+     "axis": "z",
+     "leg1": 3.0,
+     "leg2": 3.0,
+     "angle": 45.0,
+     "at": [
+      -51.5,
+      13.5,
+      0.0
+     ],
+     "turned": false,
+     "corner": [
+      -50.0,
+      15.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[circular_blind_step]",
+   "function": "recognise_chamfers",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[counterbored_and_countersunk_holes]",
+   "function": "recognise_chamfers",
+   "file": "3aa3fee8a5ce2624.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[double_d_bore]",
+   "function": "recognise_chamfers",
+   "file": "c7ee6c53ea0011e7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[gusset_rib_patterns]",
+   "function": "recognise_chamfers",
+   "file": "36181d1f9f68bd14.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[gusset_ribs]",
+   "function": "recognise_chamfers",
+   "file": "04aec2096ae6ebfa.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[hexagonal_passage]",
+   "function": "recognise_chamfers",
+   "file": "c31caa7ecbb2d309.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[interrupted_and_cross_bores]",
+   "function": "recognise_chamfers",
+   "file": "108759c5561ee63f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[oblique_through_step]",
+   "function": "recognise_chamfers",
+   "file": "9683f6213a4aa5bd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[open_channels]",
+   "function": "recognise_chamfers",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[oriented_chamfer]",
+   "function": "recognise_chamfers",
+   "file": "aa80434054958f86.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[paired_ramp_step]",
+   "function": "recognise_chamfers",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[plates_pads_levels_and_slanted_steps]",
+   "function": "recognise_chamfers",
+   "file": "ecafad7c9184d591.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[polygonal_boss]",
+   "function": "recognise_chamfers",
+   "file": "dab41ec2d752f628.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[polygonal_stock]",
+   "function": "recognise_chamfers",
+   "file": "06f1805ef5362cfc.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[rectangular_blind_slot]",
+   "function": "recognise_chamfers",
+   "file": "7edb959cec898e4b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[rectangular_through_step]",
+   "function": "recognise_chamfers",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[repeating_radial_profile]",
+   "function": "recognise_chamfers",
+   "file": "1e4303b9497adbaf.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[round_bottom_blind_slot]",
+   "function": "recognise_chamfers",
+   "file": "c7a10a9aba34edb1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[simple_through_hole]",
+   "function": "recognise_chamfers",
+   "file": "786005dcbc3b0bea.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[slanted_counterbore]",
+   "function": "recognise_chamfers",
+   "file": "ba02182884c56d73.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[slanted_steps]",
+   "function": "recognise_chamfers",
+   "file": "644f8fd20345b417.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[small_convex_blends]",
+   "function": "recognise_chamfers",
+   "file": "016c60d49a52fa18.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[straight_and_obround_slots]",
+   "function": "recognise_chamfers",
+   "file": "4ee8cff9e649797a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[toroidal_blend_compound]",
+   "function": "recognise_chamfers",
+   "file": "5566a03e2fd78ad0.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[toroidal_blend_internal]",
+   "function": "recognise_chamfers",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[toroidal_blends_turned]",
+   "function": "recognise_chamfers",
+   "file": "ce5fd7b3efab1454.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[traversal_order]",
+   "function": "recognise_chamfers",
+   "file": "07fdc679583013a1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[triangular_and_hex_pockets]",
+   "function": "recognise_chamfers",
+   "file": "a9c4851eeab83e94.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[turned_steps_and_grooves]",
+   "function": "recognise_chamfers",
+   "file": "0a3141da4c6d054d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_equivalent_topology_traversals_produce_the_same_snapshot[traversal_order]",
+   "function": "recognise_chamfers",
+   "file": "74ac62bb85c9afba.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_equivalent_topology_traversals_produce_the_same_snapshot[traversal_order]",
+   "function": "recognise_chamfers",
+   "file": "9efb0543a17520bd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
   }
  ],
  "skipped": {
-  "recognise_fillets: capture failed: RuntimeError": 2,
-  "recognise_holes: capture failed: RuntimeError": 1
+  "recognise_chamfers: capture failed: RuntimeError": 1
  }
 }

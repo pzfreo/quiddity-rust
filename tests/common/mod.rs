@@ -4,6 +4,7 @@
 #![allow(dead_code)]
 
 use quiddity::Part;
+use quiddity::features::chamfers::{ChamferOptions, recognise_chamfers};
 use quiddity::features::countersinks::recognise_countersinks;
 use quiddity::features::fillets::{FilletOptions, recognise_fillets};
 use quiddity::features::hole_patterns::recognise_hole_patterns;
@@ -56,6 +57,19 @@ pub fn recognise(function: &str, part: &Part, options: &Value) -> Value {
     match function {
         "recognise_fillets" => json(recognise_fillets(part, &fillet_options(options))),
         "recognise_countersinks" => json(recognise_countersinks(part)),
+        "recognise_chamfers" => {
+            let mut opts = ChamferOptions::default();
+            if let Some(t) = options.get("tol").and_then(Value::as_f64) {
+                opts.tol = Some(t);
+            }
+            if let Some(f) = options.get("max_leg_frac").and_then(Value::as_f64) {
+                opts.max_leg_frac = f;
+            }
+            if let Some(p) = options.get("include_planar").and_then(Value::as_bool) {
+                opts.include_planar = p;
+            }
+            json(recognise_chamfers(part, &opts))
+        }
         "recognise_holes" => json(recognise_holes(part, &hole_options(options))),
         "recognise_hole_patterns" => {
             let holes = recognise_holes(

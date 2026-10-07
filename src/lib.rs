@@ -6,6 +6,7 @@
 pub mod features;
 pub mod kernel;
 
+pub use features::chamfers::{Chamfer, ChamferOptions, recognise_chamfers};
 pub use features::countersinks::{CounterSink, recognise_countersinks};
 pub use features::fillets::{Fillet, FilletOptions, recognise_fillets};
 pub use features::hole_patterns::{HolePattern, recognise_hole_patterns};

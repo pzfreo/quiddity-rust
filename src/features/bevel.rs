@@ -3,8 +3,62 @@
 use std::collections::BTreeMap;
 
 use super::Context;
+use crate::kernel::brep::Part;
 use crate::kernel::classify::State;
-use crate::kernel::geom::{INTERIOR_PROBE_FRAC, V3};
+use crate::kernel::geom::{AXIS_ALIGNED_COS, Bounds, INTERIOR_PROBE_FRAC, Surface, V3};
+
+/// The in-plane component below which a normal runs along that axis, so the face is a
+/// single-axis bevel rather than a compound corner.
+const RUN_AXIS_COS: f64 = 0.05;
+
+/// Why a face is not a single-axis oblique planar bevel (`BevelReject`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum BevelReject {
+    Nonplanar,
+    /// Axis-aligned, or a shallow draft: a real face, not a bevel.
+    Aligned,
+    /// Oblique on all three axes: a corner bevel.
+    Compound,
+}
+
+/// A single-axis oblique planar bevel (`classify_bevel`).
+#[derive(Clone, Copy, Debug)]
+pub struct Bevel {
+    /// The axis the bevelled edge runs along.
+    pub edge_axis: usize,
+    pub normal: V3,
+    pub bounds: Bounds,
+    /// The two in-plane leg lengths, longer first.
+    pub leg_hi: f64,
+    pub leg_lo: f64,
+}
+
+pub fn classify_bevel(part: &Part, face: usize) -> Result<Bevel, BevelReject> {
+    let Surface::Plane { .. } = part.faces[face].surface else {
+        return Err(BevelReject::Nonplanar);
+    };
+    let normal = part
+        .face_normal(face, 0.0, 0.0)
+        .ok_or(BevelReject::Nonplanar)?;
+    if normal.iter().any(|c| c.abs() > AXIS_ALIGNED_COS) {
+        return Err(BevelReject::Aligned);
+    }
+    let edge_axis = (0..3)
+        .find(|&i| normal[i].abs() < RUN_AXIS_COS)
+        .ok_or(BevelReject::Compound)?;
+    let bounds = part.face_bounds(face);
+    let legs: Vec<f64> = (0..3)
+        .filter(|&j| j != edge_axis)
+        .map(|j| bounds.max[j] - bounds.min[j])
+        .collect();
+    Ok(Bevel {
+        edge_axis,
+        normal,
+        bounds,
+        leg_hi: legs[0].max(legs[1]),
+        leg_lo: legs[0].min(legs[1]),
+    })
+}
 
 /// The point just off the virtual sharp corner a bevel replaces: the corner sits where the two
 /// neighbour planes cross, at the bevel's own position along its edge; *toward* 1 nudges it to

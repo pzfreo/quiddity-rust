@@ -25,6 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from export_fixtures import _inventory, _run  # noqa: E402
 
 from quiddity import (  # noqa: E402
+    recognise_chamfers,
     import_step_geometry,
     recognise_countersinks,
     recognise_hole_patterns,
@@ -80,6 +81,10 @@ def main() -> None:
                 "inventory": _inventory(part),
                 "results": {
                     "recognise_fillets": fillets,
+                    "recognise_chamfers": [
+                        {"options": opts, "result": _plain(recognise_chamfers(part, **opts))}
+                        for opts in ({}, {"include_planar": False})
+                    ],
                     "recognise_countersinks": [
                         {"options": {}, "result": _plain(recognise_countersinks(part))}
                     ],

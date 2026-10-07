@@ -89,3 +89,8 @@ fn holes_match_python() {
 fn hole_patterns_match_python() {
     replay("recognise_hole_patterns");
 }
+
+#[test]
+fn chamfers_match_python() {
+    replay("recognise_chamfers");
+}

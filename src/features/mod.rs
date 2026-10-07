@@ -8,6 +8,7 @@
 //! once however many families ask.
 
 pub mod bevel;
+pub mod chamfers;
 pub mod context;
 pub mod countersinks;
 pub mod cylinders;
@@ -30,6 +31,7 @@ use crate::kernel::brep::Part;
 #[derive(Clone, Debug, Serialize)]
 pub struct Features {
     pub fillets: Vec<fillets::Fillet>,
+    pub chamfers: Vec<chamfers::Chamfer>,
     pub holes: Vec<holes::HoleRecord>,
     pub countersinks: Vec<countersinks::CounterSink>,
     pub hole_patterns: Vec<hole_patterns::HolePattern>,
@@ -39,21 +41,18 @@ pub struct Features {
 /// countersinks, and patterns are found among those holes.
 pub fn recognise(part: &Part) -> Features {
     let ctx = Context::new(part);
-    let countersinks: Vec<_> = countersinks::discover(&ctx)
-        .into_iter()
-        .map(|o| o.record)
-        .collect();
-    let holes: Vec<_> = holes::discover(&ctx, &countersinks)
-        .into_iter()
-        .map(|o| o.record)
-        .collect();
+    let countersinks = records(countersinks::discover(&ctx));
+    let holes = records(holes::discover(&ctx, &countersinks));
     Features {
-        fillets: fillets::discover(&ctx, &fillets::FilletOptions::default())
-            .into_iter()
-            .map(|o| o.record)
-            .collect(),
+        fillets: records(fillets::discover(&ctx, &Default::default())),
+        chamfers: records(chamfers::discover(&ctx, &Default::default())),
         hole_patterns: hole_patterns::recognise_hole_patterns(&holes),
         holes,
         countersinks,
     }
+}
+
+/// The records of a family's occurrences, in order.
+pub fn records<R>(found: Vec<Occurrence<R>>) -> Vec<R> {
+    found.into_iter().map(|o| o.record).collect()
 }

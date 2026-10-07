@@ -133,6 +133,39 @@ pub struct UvLoop {
 }
 
 impl Part {
+    /// build123d's `Face.center()`: the area centroid of a planar face, otherwise the surface
+    /// point at the middle of the face's parameter range.
+    pub fn face_centre(&self, face: usize) -> Option<V3> {
+        let f = &self.faces[face];
+        let Surface::Plane { frame } = f.surface else {
+            let (u0, u1, v0, v1) = self.uv_bounds(face)?;
+            return Some(f.surface.value(0.5 * (u0 + u1), 0.5 * (v0 + v1)));
+        };
+        // Shoelace over each loop in plane coordinates; the largest loop is the outer
+        // boundary and the rest are holes in it (loop orientation is not relied on).
+        let mut loops: Vec<(f64, f64, f64)> = self
+            .uv_loops(face)?
+            .iter()
+            .map(|lp| {
+                let (mut a, mut cx, mut cy) = (0.0, 0.0, 0.0);
+                for w in lp.points.windows(2) {
+                    let ((x0, y0), (x1, y1)) = (w[0], w[1]);
+                    let k = x0 * y1 - x1 * y0;
+                    a += k;
+                    cx += (x0 + x1) * k;
+                    cy += (y0 + y1) * k;
+                }
+                (a.abs() / 2.0, cx / (3.0 * a), cy / (3.0 * a))
+            })
+            .collect();
+        loops.sort_by(|a, b| b.0.total_cmp(&a.0));
+        let (outer, holes) = loops.split_first()?;
+        let area = outer.0 - holes.iter().map(|h| h.0).sum::<f64>();
+        let cx = (outer.0 * outer.1 - holes.iter().map(|h| h.0 * h.1).sum::<f64>()) / area;
+        let cy = (outer.0 * outer.2 - holes.iter().map(|h| h.0 * h.2).sum::<f64>()) / area;
+        Some(frame.to_world([cx, cy, 0.0]))
+    }
+
     /// The face's trimmed region in parameter space.
     pub fn domain(&self, face: usize) -> Option<&FaceDomain> {
         self.cache[face]

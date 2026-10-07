@@ -675,6 +675,16 @@ pub fn quantise_to(value: f64, figures: usize) -> f64 {
         .expect("formatted float parses")
 }
 
+/// Python's ordering of float tuples: lexicographic, with -0.0 equal to 0.0 (so `total_cmp`,
+/// which separates them, would reorder ties).
+pub fn python_order(a: &[f64], b: &[f64]) -> std::cmp::Ordering {
+    a.iter()
+        .zip(b)
+        .map(|(x, y)| x.partial_cmp(y).unwrap_or(std::cmp::Ordering::Equal))
+        .find(|o| o.is_ne())
+        .unwrap_or_else(|| a.len().cmp(&b.len()))
+}
+
 /// `without_negative_zero`: -0.0 becomes 0.0, so records compare and print as Python's do.
 pub fn without_negative_zero(value: f64) -> f64 {
     if value == 0.0 { 0.0 } else { value }
