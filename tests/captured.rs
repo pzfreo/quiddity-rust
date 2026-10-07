@@ -182,6 +182,11 @@ fn round_bottom_blind_slots_match_python() {
 }
 
 #[test]
+fn rectangular_blind_slots_match_python() {
+    replay("recognise_rectangular_blind_slots");
+}
+
+#[test]
 fn gusset_ribs_match_python() {
     replay("recognise_gusset_ribs");
 }

@@ -58,5 +58,17 @@
     "function": "recognise_round_bottom_blind_slots",
     "verdict": "not-applicable",
     "reason": "Both calls run with _same_span or _region_face monkeypatched to refuse, so Python's empty answer reflects the patch; the part is the plain slot the other tests on the same file (4e090fe361c883ac) find, and the port finds it."
+  },
+  {
+    "test": "tests/test_rectangular_blind_slots.py::test_failed_material_proof_refuses_the_candidate[_common_convex_context]",
+    "function": "recognise_rectangular_blind_slots",
+    "verdict": "not-applicable",
+    "reason": "The call runs with _common_convex_context monkeypatched to refuse, so Python's empty answer reflects the patch; the part is the plain slot the other tests on the same file (7edb959cec898e4b) find, and the port finds it."
+  },
+  {
+    "test": "tests/test_rectangular_blind_slots.py::test_failed_material_proof_refuses_the_candidate[_empty_sweep]",
+    "function": "recognise_rectangular_blind_slots",
+    "verdict": "not-applicable",
+    "reason": "The call runs with _empty_sweep monkeypatched to refuse, so Python's empty answer reflects the patch; the part is the plain slot the other tests on the same file (7edb959cec898e4b) find, and the port finds it."
   }
 ]

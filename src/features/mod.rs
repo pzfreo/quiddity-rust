@@ -30,6 +30,7 @@ pub mod oriented_chamfers;
 pub mod paired_ramp_steps;
 pub mod planes;
 pub mod probes;
+pub mod rectangular_blind_slots;
 pub mod regions;
 pub mod round_bottom_slots;
 pub mod stacks;
@@ -72,6 +73,7 @@ pub struct Features {
     pub through_steps: Vec<through_steps::ThroughStep>,
     pub turned_steps: Vec<turned_steps::TurnedStep>,
     pub round_bottom_blind_slots: Vec<round_bottom_slots::RoundBottomBlindSlot>,
+    pub rectangular_blind_slots: Vec<rectangular_blind_slots::RectangularBlindSlot>,
 }
 
 /// Recognise every ported family on *part* with default options; holes carry their
@@ -103,6 +105,7 @@ pub fn recognise(part: &Part) -> Features {
         through_steps: records(through_steps::discover(&ctx)),
         turned_steps: turned_steps::sorted(records(turned_steps::discover(&ctx))),
         round_bottom_blind_slots: records(round_bottom_slots::discover(&ctx)),
+        rectangular_blind_slots: records(rectangular_blind_slots::discover(&ctx)),
     }
 }
 
