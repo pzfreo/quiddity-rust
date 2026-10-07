@@ -13,8 +13,8 @@ use quiddity::features::{
     Context, Occurrence, angled_steps, bosses, chamfers, circular_blind_steps,
     circular_face_patterns, countersinks, edge_open_circular, edge_open_prismatic, fillets, flats,
     grooves, gussets, holes, interior_voids, oblique_through_steps, oriented_chamfers,
-    paired_ramp_steps, plates, profiled_bores, rectangular_blind_slots,
-    round_bottom_slots, thin_walls, through_steps, turned_steps,
+    paired_ramp_steps, plates, profiled_bores, rectangular_blind_slots, round_bottom_slots,
+    thin_walls, through_steps, turned_steps,
 };
 use quiddity::kernel::step::{IDENTITY, Placement, read_step_file_placed};
 
