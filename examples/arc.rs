@@ -27,7 +27,11 @@ fn main() {
         let p = s[s.len() / 2];
         for x in [f, g] {
             let (u, v) = part.faces[x].surface.parameters(p, None).unwrap();
-            println!("face {x} normal {:?} at {:?}", part.face_normal(x, u, v), part.faces[x].surface.value(u, v));
+            println!(
+                "face {x} normal {:?} at {:?}",
+                part.face_normal(x, u, v),
+                part.faces[x].surface.value(u, v)
+            );
         }
     }
 }

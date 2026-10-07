@@ -141,7 +141,23 @@ impl NurbsCurve {
     }
 }
 
+/// The distinct knots across a B-spline's domain, where its polynomial pieces meet.
+pub fn breaks(knots: &[f64], degree: usize) -> Vec<f64> {
+    let (lo, hi) = (knots[degree], knots[knots.len() - degree - 1]);
+    let mut out: Vec<f64> = knots
+        .iter()
+        .copied()
+        .filter(|k| (lo..=hi).contains(k))
+        .collect();
+    out.dedup();
+    out
+}
+
 impl NurbsCurve {
+    pub fn breaks(&self) -> Vec<f64> {
+        breaks(&self.knots, self.degree)
+    }
+
     /// Whether the curve ends where it starts, so that it can be run round as a periodic curve.
     pub fn is_closed(&self) -> bool {
         let (lo, hi) = self.domain();
@@ -213,14 +229,8 @@ const GRID_PER_SPAN: usize = 6;
 
 fn grid_params(knots: &[f64], degree: usize) -> Vec<f64> {
     let (lo, hi) = (knots[degree], knots[knots.len() - degree - 1]);
-    let mut breaks: Vec<f64> = knots
-        .iter()
-        .copied()
-        .filter(|k| *k >= lo && *k <= hi)
-        .collect();
-    breaks.dedup();
     let mut out = Vec::new();
-    for w in breaks.windows(2) {
+    for w in breaks(knots, degree).windows(2) {
         for i in 0..GRID_PER_SPAN {
             out.push(w[0] + (w[1] - w[0]) * i as f64 / GRID_PER_SPAN as f64);
         }

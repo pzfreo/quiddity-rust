@@ -105,3 +105,53 @@ fn arcs_at_closed_edges_ignore_their_recorded_direction() {
     }
     assert!(rims >= 4, "both rims, both ways round");
 }
+
+#[test]
+fn areas_and_volumes_are_exact() {
+    use std::f64::consts::PI;
+    let close = |got: Option<f64>, want: f64, what: &str| {
+        let got = got.unwrap_or_else(|| panic!("{what}: none"));
+        assert!(
+            (got - want).abs() <= 1e-12 * want.abs(),
+            "{what}: {got} vs {want} ({:e})",
+            (got - want) / want
+        );
+    };
+    // Box(30, 30, 20) - Cylinder(5, 20).
+    let part = fixture("rejected_bored_box.step");
+    close(
+        part.solid_mass(0).map(|m| m.0),
+        30.0 * 30.0 * 20.0 - PI * 25.0 * 20.0,
+        "bored box volume",
+    );
+    close(
+        part.solid_mass(0).map(|m| m.1),
+        2.0 * (900.0 - 25.0 * PI) + 4.0 * 600.0 + 2.0 * PI * 5.0 * 20.0,
+        "bored box area",
+    );
+    // Faces that test the boundary walk: a hemisphere bounded by a seam running up to its pole
+    // and back (r = 8), a cap closed through a pole (r = 3: 2πr² of the cap), and a cylinder
+    // stored as a closed B-spline surface (r = 4, h = 10) with its disc ends.
+    let face = |name: &str, f: usize| fixture(name).face_mass(f).map(|m| m[0]);
+    close(face("captured/9808e56042d8be45.step.gz", 3), 128.0 * PI, "hemisphere");
+    close(face("turned_with_sphere.step", 9), 18.0 * PI, "spherical cap");
+    let bspline = |got: Option<f64>, want: f64, what: &str| {
+        let got = got.unwrap_or_else(|| panic!("{what}: none"));
+        assert!((got - want).abs() <= 1e-9 * want, "{what}: {got} vs {want}");
+    };
+    let cylinder = "captured/14a917f282ad82d6.step.gz";
+    bspline(face(cylinder, 0), 80.0 * PI, "B-spline cylinder");
+    bspline(face(cylinder, 1), 16.0 * PI, "B-spline disc");
+    // Torus(10, 2).
+    let part = fixture("full_torus.step");
+    close(
+        part.solid_mass(0).map(|m| m.0),
+        2.0 * PI * PI * 10.0 * 4.0,
+        "torus volume",
+    );
+    close(
+        part.solid_mass(0).map(|m| m.1),
+        4.0 * PI * PI * 10.0 * 2.0,
+        "torus area",
+    );
+}

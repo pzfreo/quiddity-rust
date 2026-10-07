@@ -131,6 +131,12 @@ fn crossing_parity(
 #[derive(Clone, Debug)]
 pub struct UvLoop {
     pub points: Vec<(f64, f64)>,
+    /// Per edge of the loop, where each run of its regular samples (not at a pole or apex)
+    /// starts in `points`: the turn the edge is on there, which continuity alone cannot carry
+    /// across a singular point.
+    pub anchors: Vec<Vec<(f64, f64)>>,
+    /// Whether the boundary itself runs round u (before any closing along a pole).
+    pub winds_u: bool,
 }
 
 impl Part {
@@ -338,11 +344,18 @@ impl Part {
                 } else {
                     vec![(u, v)]
                 };
-                loops.push(UvLoop { points });
+                loops.push(UvLoop {
+                    points,
+                    anchors: Vec::new(),
+                    winds_u: false,
+                });
                 continue;
             }
             let mut raw: Vec<(f64, f64)> = Vec::new();
+            let mut points: Vec<V3> = Vec::new();
+            let mut firsts = Vec::with_capacity(lp.edges.len());
             for &(e, forward) in &lp.edges {
+                firsts.push(raw.len());
                 let samples = &self.edges[e].samples;
                 let ordered: Box<dyn Iterator<Item = &V3>> = if forward {
                     Box::new(samples.iter())
@@ -352,9 +365,25 @@ impl Part {
                 for p in ordered {
                     let hint = raw.last().copied();
                     raw.push(f.surface.parameters(*p, hint)?);
+                    points.push(*p);
                 }
             }
-            let raw = route_singular_points(&f.surface, raw, f.reversed);
+            // The loop's first samples are inverted with nothing to follow; on a closed B-spline
+            // surface (not marked periodic) a seam point has two parameter values. Walk the start
+            // again following on from the loop's end, until it agrees with the first pass.
+            if !pu && !pv && raw.len() > 2 {
+                let mut hint = raw[raw.len() - 1];
+                for k in 0..raw.len() - 1 {
+                    let again = f.surface.parameters(points[k], Some(hint))?;
+                    let same = (again.0 - raw[k].0).abs() + (again.1 - raw[k].1).abs() < 1e-9;
+                    raw[k] = again;
+                    hint = again;
+                    if same {
+                        break;
+                    }
+                }
+            }
+            let (raw, placed) = route_singular_points(&f.surface, raw, f.reversed);
             for (mut u, mut v) in raw {
                 if let Some(&(lu, lv)) = pts.last() {
                     if pu {
@@ -366,8 +395,32 @@ impl Part {
                 }
                 pts.push((u, v));
             }
+            let winds_u = match (pts.first(), pts.last()) {
+                (Some(a), Some(b)) => pu && (b.0 - a.0).abs() > 1.0,
+                _ => false,
+            };
             close_through_pole(&f.surface, &mut pts, f.reversed);
-            loops.push(UvLoop { points: pts });
+            let ends: Vec<usize> = firsts
+                .iter()
+                .skip(1)
+                .copied()
+                .chain([placed.len()])
+                .collect();
+            let anchors = firsts
+                .iter()
+                .zip(&ends)
+                .map(|(&a, &b)| {
+                    (a..b)
+                        .filter(|&k| placed[k].is_some() && (k == a || placed[k - 1].is_none()))
+                        .map(|k| pts[placed[k].expect("regular")])
+                        .collect()
+                })
+                .collect();
+            loops.push(UvLoop {
+                points: pts,
+                anchors,
+                winds_u,
+            });
         }
         Some(loops)
     }
@@ -593,19 +646,22 @@ impl Part {
 /// meridian circle arrives and leaves half a turn apart — so the face's side decides it: STEP
 /// keeps the face on a loop's left, which in parameter space is the -u side of a boundary
 /// rising to the top line (+u for a reversed face), mirrored at the bottom.
+///
+/// Also returns where each regular input sample lands in the output (`None` for a singular one).
 fn route_singular_points(
     surface: &Surface,
     raw: Vec<(f64, f64)>,
     reversed: bool,
-) -> Vec<(f64, f64)> {
+) -> (Vec<(f64, f64)>, Vec<Option<usize>>) {
     let n = raw.len();
     let singular: Vec<bool> = raw
         .iter()
         .map(|&(_, v)| surface.singular_v(v).is_some())
         .collect();
     if !singular.iter().any(|s| *s) || singular.iter().all(|s| *s) {
-        return raw;
+        return (raw, (0..n).map(Some).collect());
     }
+    let mut placed = vec![None; n];
     // Start on a regular sample so that no singular run straddles the loop's ends.
     let first_regular = singular.iter().position(|s| !s).expect("a regular sample");
     let raw: Vec<(f64, f64)> = raw[first_regular..]
@@ -635,6 +691,7 @@ fn route_singular_points(
     let mut i = 0;
     while i < n {
         if !singular[i] {
+            placed[(i + first_regular) % n] = Some(out.len());
             out.push(raw[i]);
             i += 1;
             continue;
@@ -678,7 +735,7 @@ fn route_singular_points(
     if out.last() != out.first() {
         out.push(out[0]);
     }
-    out
+    (out, placed)
 }
 
 /// Whether the face reaches the singular point (pole or apex) at *v*: the point is a whole
@@ -741,7 +798,14 @@ mod tests {
     use super::*;
 
     fn domain(loops: Vec<Vec<(f64, f64)>>, periodic: (bool, bool)) -> FaceDomain {
-        let loops: Vec<UvLoop> = loops.into_iter().map(|points| UvLoop { points }).collect();
+        let loops: Vec<UvLoop> = loops
+            .into_iter()
+            .map(|points| UvLoop {
+                points,
+                anchors: Vec::new(),
+                winds_u: false,
+            })
+            .collect();
         FaceDomain::new(&loops, periodic)
     }
 
