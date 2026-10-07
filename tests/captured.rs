@@ -131,6 +131,11 @@ fn oriented_chamfers_match_python() {
 }
 
 #[test]
+fn circular_face_patterns_match_python() {
+    replay("recognise_circular_face_patterns");
+}
+
+#[test]
 fn face_levels_match_python() {
     replay("recognise_face_levels");
 }

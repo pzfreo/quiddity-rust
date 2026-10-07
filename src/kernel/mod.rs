@@ -4,6 +4,7 @@
 
 pub mod brep;
 pub mod classify;
+pub mod cloud;
 pub mod geom;
 pub mod mass;
 pub mod nurbs;

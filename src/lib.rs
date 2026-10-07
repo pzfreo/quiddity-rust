@@ -9,6 +9,7 @@ pub mod kernel;
 pub use features::angled_steps::{AngledStep, recognise_angled_steps};
 pub use features::bosses::{BossRecord, recognise_bosses};
 pub use features::chamfers::{Chamfer, ChamferOptions, recognise_chamfers};
+pub use features::circular_face_patterns::{CircularFacePattern, recognise_circular_face_patterns};
 pub use features::countersinks::{CounterSink, recognise_countersinks};
 pub use features::fillets::{Fillet, FilletOptions, recognise_fillets};
 pub use features::flats::{Flat, recognise_flats};

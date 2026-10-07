@@ -168954,6 +168954,192 @@
      ]
     }
    ]
+  },
+  {
+   "test": "tests/test_circular_face_patterns.py::test_swept_fins_publish_one_complete_circular_face_pattern[5]",
+   "function": "recognise_circular_face_patterns",
+   "file": "e82469e92f2d26ba.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis_origin": [
+      0.0,
+      0.0,
+      9.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "count": 5,
+     "pitch_degrees": 72.0,
+     "seed_index": 0,
+     "fit_error": 0.0
+    }
+   ],
+   "result": [
+    {
+     "axis_origin": [
+      0.0,
+      0.0,
+      9.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "count": 5,
+     "pitch_degrees": 72.0,
+     "seed_index": 0,
+     "fit_error": 0.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_face_patterns.py::test_swept_fins_publish_one_complete_circular_face_pattern[7]",
+   "function": "recognise_circular_face_patterns",
+   "file": "5fa400892914fd7d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis_origin": [
+      0.0,
+      0.0,
+      9.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "count": 7,
+     "pitch_degrees": 51.428571429,
+     "seed_index": 0,
+     "fit_error": 0.0
+    }
+   ],
+   "result": [
+    {
+     "axis_origin": [
+      0.0,
+      0.0,
+      9.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "count": 7,
+     "pitch_degrees": 51.428571429,
+     "seed_index": 0,
+     "fit_error": 0.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_face_patterns.py::test_swept_fins_publish_one_complete_circular_face_pattern[9]",
+   "function": "recognise_circular_face_patterns",
+   "file": "4d8a51714604e0b8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis_origin": [
+      0.0,
+      0.0,
+      9.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "count": 9,
+     "pitch_degrees": 40.0,
+     "seed_index": 0,
+     "fit_error": 0.0
+    }
+   ],
+   "result": [
+    {
+     "axis_origin": [
+      0.0,
+      0.0,
+      9.0
+     ],
+     "axis_direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "count": 9,
+     "pitch_degrees": 40.0,
+     "seed_index": 0,
+     "fit_error": 0.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_circular_face_patterns.py::test_incomplete_swept_fin_cycle_is_not_a_pattern",
+   "function": "recognise_circular_face_patterns",
+   "file": "d113cca4a9c09b9c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_circular_face_patterns.py::test_rotated_fins_retain_the_physical_axis_and_count",
+   "function": "recognise_circular_face_patterns",
+   "file": "f610976491c79f62.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis_origin": [
+      1.573153,
+      -1.083563,
+      3.544176
+     ],
+     "axis_direction": [
+      0.390731128,
+      -0.269129573,
+      0.880283169
+     ],
+     "count": 7,
+     "pitch_degrees": 51.428571429,
+     "seed_index": 0,
+     "fit_error": 0.0
+    }
+   ],
+   "result": [
+    {
+     "axis_origin": [
+      1.573153,
+      -1.083563,
+      3.544176
+     ],
+     "axis_direction": [
+      0.390731128,
+      -0.269129573,
+      0.880283169
+     ],
+     "count": 7,
+     "pitch_degrees": 51.428571429,
+     "seed_index": 0,
+     "fit_error": 0.0
+    }
+   ]
   }
  ],
  "skipped": {

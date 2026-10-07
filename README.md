@@ -21,6 +21,7 @@ OpenCascade is reimplemented in `src/kernel`.
 | Oriented chamfers | `recognise_oriented_chamfers` | 15/15 | see below |
 | Face levels | `recognise_face_levels` | 36/36 | — |
 | Risers | `recognise_risers` | 66/66 | — |
+| Circular face patterns | `recognise_circular_face_patterns` | 5/5 | see below |
 
 Known divergences are listed, with reasons, in `tests/fixtures/captured/known_divergences.json`
 (captured calls) and `tests/fixtures/known_divergences.json` (corpus). The main gap is
@@ -42,6 +43,8 @@ src/
     sampling.rs      edges as polylines (adaptive, 0.2 µm chord tolerance)
     uv.rs            faces in parameter space: unwrapped loops, singular points, OpenCascade-
                      compatible UV ranges (BRepTools::UVBounds), point containment
+    cloud.rs         faces as point clouds (mesh-like density on the exact geometry), k-d tree
+                     nearest neighbours, exact point-to-face distance
     classify.rs      point-in-solid (whole part or one solid) by ray parity, with
                      on-boundary detection (BRepClass3d)
     mass.rs          exact solid volume and area: Green's theorem along the exact edges,
@@ -59,7 +62,7 @@ src/
     turned.rs        what turned-stock treatments share: coaxial external cylinders, cone rims
     stacks.rs        coaxial segments read at their ends (open / flat / drill point)
     fillets.rs  chamfers.rs  holes.rs  countersinks.rs  hole_patterns.rs  bosses.rs  angled_steps.rs  flats.rs
-    paired_ramp_steps.rs  oriented_chamfers.rs  levels.rs
+    paired_ramp_steps.rs  oriented_chamfers.rs  levels.rs  circular_face_patterns.rs
   bin/quiddity.rs    `quiddity part.step` → JSON
 tests/
   captured.rs        replays every recogniser call the Python test suite makes
@@ -118,6 +121,13 @@ it approximates (pcurves it builds on import, a fixed Gauss order on B-spline fa
 file, or decides a degenerate case by round-off, the port computes the true geometry and the
 difference is recorded with its reason. Some older emulation remains where removing it would
 cost many records (face ranges boxed by B-spline pcurve poles, which hole depths follow).
+
+Circular face patterns compare sampled surfaces, as Python compares OpenCascade meshes. The port
+samples the exact geometry as densely as such a mesh, so congruent copies sample congruently and
+an exact repeat measures 0, as in Python; on parts whose copies are parameterised differently
+`fit_error` is each side's own sampling noise. Whether a face near the axis turns onto itself
+(and so is not part of the pattern) is decided exactly: Python's mesh test answers by whether
+its point counts happen to divide by the pattern count.
 
 The corpus test also checks kernel answers directly against OpenCascade: every face's
 `BRepTools::UVBounds`, the arc between every pair of neighbours, and every solid's volume and

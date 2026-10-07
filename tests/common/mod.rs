@@ -64,6 +64,9 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
             part,
             &options(kwargs),
         )),
+        "recognise_circular_face_patterns" => {
+            json(quiddity::recognise_circular_face_patterns(part))
+        }
         "recognise_face_levels" => json(quiddity::recognise_face_levels(part, &options(kwargs))),
         "recognise_risers" => json(quiddity::recognise_risers(part, &options(kwargs))),
         "recognise_holes" => json(recognise_holes(part, &options(kwargs))),
@@ -106,6 +109,9 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
         "recognise_oriented_chamfers" => {
             quiddity::features::oriented_chamfers::discover_verified(&ctx, &options(kwargs))
                 .map(faces)
+        }
+        "recognise_circular_face_patterns" => {
+            quiddity::features::circular_face_patterns::discover_verified(&ctx).map(faces)
         }
         "recognise_holes" => {
             let opts: quiddity::HoleOptions = options(kwargs);

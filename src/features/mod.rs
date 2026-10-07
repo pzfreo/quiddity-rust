@@ -12,6 +12,7 @@ pub mod bevel;
 pub mod body;
 pub mod bosses;
 pub mod chamfers;
+pub mod circular_face_patterns;
 pub mod context;
 pub mod countersinks;
 pub mod cylinders;
@@ -47,6 +48,7 @@ pub struct Features {
     pub flats: Vec<flats::Flat>,
     pub paired_ramp_steps: Vec<paired_ramp_steps::PairedRampStep>,
     pub oriented_chamfers: Vec<oriented_chamfers::OrientedChamfer>,
+    pub circular_face_patterns: Vec<circular_face_patterns::CircularFacePattern>,
     pub holes: Vec<holes::HoleRecord>,
     pub countersinks: Vec<countersinks::CounterSink>,
     pub hole_patterns: Vec<hole_patterns::HolePattern>,
@@ -67,6 +69,7 @@ pub fn recognise(part: &Part) -> Features {
         flats: records(flats::discover(&ctx)),
         paired_ramp_steps: records(paired_ramp_steps::discover(&ctx)),
         oriented_chamfers: records(oriented_chamfers::discover(&ctx, &Default::default())),
+        circular_face_patterns: records(circular_face_patterns::discover(&ctx)),
         hole_patterns: hole_patterns::recognise_hole_patterns(&holes),
         holes,
         countersinks,
