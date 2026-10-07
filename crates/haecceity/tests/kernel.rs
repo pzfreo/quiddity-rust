@@ -238,6 +238,7 @@ fn swept_faces_are_closed_prisms_of_the_face() {
     for name in [
         "golden_circular_blind_step.step",
         "golden_oblique_through_step.step",
+        "edge_open_pocket_floor_hole.step",
     ] {
         let part = fixture(name);
         let mut swept = 0;
@@ -265,6 +266,20 @@ fn swept_faces_are_closed_prisms_of_the_face() {
             }
         }
         assert!(swept > 0, "{name}: no face swept");
+        if name == "edge_open_pocket_floor_hole.step" {
+            // The pocket floor and the plate's bottom, each holed by a closed circle.
+            let holed = (0..part.faces.len())
+                .filter(|&f| {
+                    part.faces[f].loops.len() > 1
+                        && part
+                            .face_edges(f)
+                            .iter()
+                            .any(|&e| part.edges[e].is_closed())
+                        && extrude_face(&part, f, [0.0; 3], [0.0, 0.0, 1.0]).is_some()
+                })
+                .count();
+            assert!(holed >= 2, "{name}: {holed} holed faces swept");
+        }
     }
 }
 

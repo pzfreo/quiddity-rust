@@ -208,3 +208,61 @@ fn double_d_bore_evidence_claims_the_lateral_walls() {
         }
     }
 }
+
+/// Edge-open recess evidence on the Python suite's parts (`tests/test_edge_open_*`): the circular
+/// pocket claims its four walls and the hexagonal recess its six, each with its floor consulted
+/// (Python's constituent of five and seven); the two recesses of a two-solid compound are claimed
+/// each within its own solid.
+#[test]
+fn edge_open_recess_evidence_claims_walls_and_consults_the_floor() {
+    use quiddity::features::evidence::common_valid_solid;
+    use quiddity::features::{edge_open_circular, edge_open_prismatic};
+    let captured = fixtures().join("captured");
+    let read = |file: &str| read_step_file(&captured.join(file)).unwrap();
+    let circular = read("fa0600fbcc4940d4.step.gz");
+    let found = edge_open_circular::discover_verified(&Context::new(&circular)).unwrap();
+    let [pocket] = found.as_slice() else {
+        panic!("{} circular pockets", found.len())
+    };
+    assert_eq!((pocket.defining.len(), pocket.context.len()), (4, 1));
+    let hexagon = read("10031362cc38ab85.step.gz");
+    let found = edge_open_prismatic::discover_verified(&Context::new(&hexagon)).unwrap();
+    let [recess] = found.as_slice() else {
+        panic!("{} prismatic recesses", found.len())
+    };
+    assert_eq!((recess.defining.len(), recess.context.len()), (6, 1));
+    let compound = read("da68caa0e2caaa0d.step.gz");
+    let found = edge_open_prismatic::discover_verified(&Context::new(&compound)).unwrap();
+    let solids: Vec<Option<usize>> = found
+        .iter()
+        .map(|o| {
+            let faces: Vec<usize> = o.defining.iter().chain(&o.context).copied().collect();
+            common_valid_solid(&compound, &faces)
+        })
+        .collect();
+    assert_eq!(solids.len(), 2);
+    assert!(solids.iter().all(Option::is_some) && solids[0] != solids[1]);
+}
+
+/// A floor with a hole through it still proves the pocket (Python's `Solid.extrude` sweeps the
+/// hole's closed rim to a cylinder band). Built with build123d: a 12-high plate (pentagon
+/// (-30,-20), (30,-20), (30,10), (20,20), (-30,20)) less a 30 x 10 `SlotOverall` at (16, 10)
+/// from z = 4 up, less a 3 mm hole through the floor at (12, 10). Python gives this one record.
+#[test]
+fn edge_open_pocket_with_a_hole_through_its_floor() {
+    use quiddity::features::edge_open_circular::recognise_edge_open_circular_pockets;
+    let part = read_step_file(&fixtures().join("edge_open_pocket_floor_hole.step")).unwrap();
+    let found = recognise_edge_open_circular_pockets(&part);
+    let [pocket] = found.as_slice() else {
+        panic!("{} circular pockets", found.len())
+    };
+    let got = serde_json::to_value(pocket).unwrap();
+    assert_eq!(got["axis"], "z");
+    assert_eq!(got["run_interval"], serde_json::json!([4.0, 12.0]));
+    assert_eq!(got["open_sign"], 1);
+    assert_eq!(
+        got["section"]["opening"],
+        serde_json::json!([[25.0, 15.0], [30.0, 7.0]])
+    );
+    assert_eq!(got["section"]["segments"].as_array().unwrap().len(), 4);
+}

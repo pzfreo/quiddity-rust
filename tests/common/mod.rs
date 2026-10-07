@@ -90,6 +90,12 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
         "recognise_double_d_bores" => {
             json(quiddity::recognise_double_d_bores(part, &options(kwargs)))
         }
+        "recognise_edge_open_circular_pockets" => {
+            json(quiddity::recognise_edge_open_circular_pockets(part))
+        }
+        "recognise_edge_open_prismatic_recesses" => {
+            json(quiddity::recognise_edge_open_prismatic_recesses(part))
+        }
         // Over a part: the patterns among the part's gusset ribs.
         "recognise_gusset_rib_patterns" => json(quiddity::recognise_gusset_rib_patterns(
             &quiddity::recognise_gusset_ribs(part),
@@ -177,6 +183,12 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
         }
         "recognise_double_d_bores" => {
             quiddity::features::profiled_bores::discover_verified(&ctx).map(faces)
+        }
+        "recognise_edge_open_circular_pockets" => {
+            quiddity::features::edge_open_circular::discover_verified(&ctx).map(faces)
+        }
+        "recognise_edge_open_prismatic_recesses" => {
+            quiddity::features::edge_open_prismatic::discover_verified(&ctx).map(faces)
         }
         other => panic!("{other} has no evidence path"),
     };

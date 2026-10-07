@@ -35,6 +35,8 @@ OpenCascade is reimplemented in `src/kernel`.
 | Grooves | `recognise_grooves` | 71/72 (1 known divergence) | see below |
 | Plates | `recognise_plates` | 175/178 (3 known divergences) | see below |
 | Double-D bores | `recognise_double_d_bores` | 71/78 (7 known divergences) | see below |
+| Edge-open circular pockets | `recognise_edge_open_circular_pockets` | 9/9 | see below |
+| Edge-open prismatic recesses | `recognise_edge_open_prismatic_recesses` | 23/23 | see below |
 
 Known divergences are listed, with reasons, in `tests/fixtures/captured/known_divergences.json`
 (captured calls) and `tests/fixtures/known_divergences.json` (corpus).
@@ -115,6 +117,10 @@ src/
     oblique_through_steps.rs  circular_blind_steps.rs
     turned_steps.rs  round_bottom_slots.rs  rectangular_blind_slots.rs  gussets.rs
     grooves.rs  plates.rs  profiled_bores.rs
+    edge_open.rs     what the two edge-open recess families share: `_rings.SPAN_EPS`, principal
+                     planes, the mouth capping a wall chain, paired shared-edge occurrences, and
+                     the floor proof by swept-face probes
+    edge_open_circular.rs  edge_open_prismatic.rs
     volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over kernel/volume.rs
   correspondence/    revision matching (docs/correspondence.md): fingerprint.rs (features and
                      faces), align.rs (rigid alignment), assign.rs (Hungarian with an
@@ -243,7 +249,10 @@ reader reproduces:
 
 Known kernel limitations: OpenCascade's healing adds missing seam edges to periodic faces (and splits closed edges they cross), which the reader does not; sphere patches that pass through a pole have approximate interior
 bounding boxes; closed surfaces of revolution/extrusion in NURBS form are treated as
-non-periodic.
+non-periodic. A face swept into a probe solid (`kernel/sweep.rs`, Python's
+`Solid.extrude`) may be bounded only by lines and by circles and arcs about the sweep: the
+edge-open recess floor proof declines a floor with any other edge (rust-wrong; no captured call
+or corpus part has one).
 
 Rays meet a face where they cross it inside its trim, or within the band by which one of its
 edges strays from its surface: B-spline faces exported as approximations of their neighbours

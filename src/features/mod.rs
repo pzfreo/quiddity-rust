@@ -17,6 +17,9 @@ pub mod circular_face_patterns;
 pub mod context;
 pub mod countersinks;
 pub mod cylinders;
+pub mod edge_open;
+pub mod edge_open_circular;
+pub mod edge_open_prismatic;
 pub mod evidence;
 pub mod fillets;
 pub mod flats;
@@ -82,6 +85,8 @@ pub struct Features {
     pub round_bottom_blind_slots: Vec<round_bottom_slots::RoundBottomBlindSlot>,
     pub rectangular_blind_slots: Vec<rectangular_blind_slots::RectangularBlindSlot>,
     pub double_d_bores: Vec<profiled_bores::DoubleDBore>,
+    pub edge_open_circular_pockets: Vec<edge_open_circular::EdgeOpenCircularPocket>,
+    pub edge_open_prismatic_recesses: Vec<edge_open_prismatic::EdgeOpenPrismaticRecess>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole and gusset rib patterns) have none of their own: their members' faces are
     /// theirs ([`crate::correspondence`]).
@@ -185,6 +190,16 @@ pub fn recognise(part: &Part) -> Features {
             &mut defining,
             "double_d_bores",
             profiled_bores::discover(&ctx),
+        ),
+        edge_open_circular_pockets: kept(
+            &mut defining,
+            "edge_open_circular_pockets",
+            edge_open_circular::discover(&ctx),
+        ),
+        edge_open_prismatic_recesses: kept(
+            &mut defining,
+            "edge_open_prismatic_recesses",
+            edge_open_prismatic::discover(&ctx),
         ),
         defining,
     }

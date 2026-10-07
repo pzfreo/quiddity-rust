@@ -210,3 +210,13 @@ fn grooves_match_python() {
 fn plates_match_python() {
     replay("recognise_plates");
 }
+
+#[test]
+fn edge_open_circular_pockets_match_python() {
+    replay("recognise_edge_open_circular_pockets");
+}
+
+#[test]
+fn edge_open_prismatic_recesses_match_python() {
+    replay("recognise_edge_open_prismatic_recesses");
+}

@@ -14,7 +14,7 @@ use crate::kernel::classify::Classifier;
 use crate::kernel::geom::{Bounds, V3};
 use crate::kernel::rays::RayCaster;
 use crate::kernel::sweep::extrude_face;
-use crate::kernel::volume::{Probe, common_volume};
+use crate::kernel::volume::{Probe, common_volume, probe_volume};
 
 pub struct Context<'a> {
     pub part: &'a Part,
@@ -85,5 +85,21 @@ impl<'a> Context<'a> {
         let prism = extrude_face(self.part, face, offset, sweep)?;
         let probe = Probe::Solid(RayCaster::for_solid(&prism, 0));
         Some(common_volume(self.solid_classifier(solid), &probe))
+    }
+
+    /// The fraction of that swept face's own volume one solid's material fills
+    /// (`material_fraction` of a `Solid.extrude` of the face), or `None` when the face cannot be
+    /// swept exactly or sweeps to no volume (Python divides by zero there and refuses).
+    pub fn swept_face_fraction(
+        &self,
+        solid: usize,
+        face: usize,
+        offset: V3,
+        sweep: V3,
+    ) -> Option<f64> {
+        let prism = extrude_face(self.part, face, offset, sweep)?;
+        let probe = Probe::Solid(RayCaster::for_solid(&prism, 0));
+        let whole = probe_volume(&probe);
+        (whole > 0.0).then(|| common_volume(self.solid_classifier(solid), &probe) / whole)
     }
 }
