@@ -14,3 +14,4 @@ pub mod rays;
 pub mod sampling;
 pub mod step;
 pub mod uv;
+pub mod volume;

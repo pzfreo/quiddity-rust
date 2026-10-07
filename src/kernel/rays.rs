@@ -7,7 +7,7 @@
 //! the logarithm of the face count plus the faces it actually passes near.
 
 use super::brep::Part;
-use super::geom::{self, Bounds, Surface, V3};
+use super::geom::{self, Bounds, COORD_FLOOR, Surface, V3};
 use super::sampling::CHORD_TOLERANCE;
 
 /// One meeting of a ray with a face, `t` along the (unit) direction.
@@ -23,7 +23,10 @@ pub struct Hit {
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Contact {
     Interior,
-    Edge,
+    /// Within the tolerance of an edge; *inside* says whether the trim itself contains it.
+    Edge {
+        inside: bool,
+    },
     Band(usize, f64),
 }
 
@@ -96,12 +99,40 @@ impl<'a> RayCaster<'a> {
         }
     }
 
+    /// The box of the faces rays meet.
+    pub fn bounds(&self) -> Bounds {
+        self.root_box
+    }
+
+    /// Whether any face's box shares volume with *b* (boxes that only touch do not).
+    pub fn any_face_box_meets(&self, b: &Bounds) -> bool {
+        self.faces.iter().any(|&f| {
+            let fb = &self.face_boxes[f];
+            (0..3).all(|i| fb.min[i] < b.max[i] && b.min[i] < fb.max[i])
+        })
+    }
+
     /// Every hit with `0 < t <= t_max` along the unit direction *dir*, nearest first (equal
     /// distances in face order). `None` when a face the ray reaches has a surface the kernel
     /// cannot intersect.
     pub fn hits(&self, origin: V3, dir: V3, t_max: f64) -> Option<Vec<Hit>> {
         let (crossings, _) = self.crossings(origin, dir, t_max)?;
         Some(crossings.into_iter().map(|c| c.hit).collect())
+    }
+
+    /// The hits that lie on their faces' trimmed regions themselves, not merely within the
+    /// tolerance of an edge: the crossings that bound material along a line. A line passing an
+    /// edge at a distance sees one face or the other there, never both and never neither.
+    pub fn trimmed_hits(&self, origin: V3, dir: V3, t_max: f64) -> Option<Vec<Hit>> {
+        let (crossings, _) = self.crossings(origin, dir, t_max)?;
+        let on_trim = |c: &Crossing| !matches!(c.contact, Contact::Edge { inside: false });
+        Some(
+            crossings
+                .into_iter()
+                .filter(on_trim)
+                .map(|c| c.hit)
+                .collect(),
+        )
     }
 
     /// How many times the ray crosses the faces, for parity; `None` when that cannot be
@@ -112,7 +143,7 @@ impl<'a> RayCaster<'a> {
         let clean = !in_surface
             && crossings
                 .iter()
-                .all(|c| !c.tangent && c.contact != Contact::Edge);
+                .all(|c| !c.tangent && !matches!(c.contact, Contact::Edge { .. }));
         clean.then_some(crossings.len())
     }
 
@@ -184,26 +215,30 @@ impl<'a> RayCaster<'a> {
     /// OpenCascade covers with the edge tolerance it sets on import.
     fn contact(&self, i: usize, q: V3) -> Option<Contact> {
         let part = self.part;
-        let mut in_band = None;
-        for &(e, deviation) in part.edge_deviation(i) {
-            let band = self.edge_tol + deviation;
-            if !self.edge_boxes[e].contains(q, band) {
-                continue;
-            }
-            let d = polyline_distance(q, &part.edges[e].samples);
-            if d <= self.edge_tol {
-                return Some(Contact::Edge);
-            }
-            if d <= band && in_band.is_none() {
-                in_band = Some(Contact::Band(e, band));
-            }
-        }
         let inside = part.domain(i).is_some_and(|domain| {
             part.faces[i]
                 .surface
                 .parameters(q, None)
                 .is_some_and(|(u, v)| domain.contains(u, v))
         });
+        let mut in_band = None;
+        for &(e, deviation) in part.edge_deviation(i) {
+            let reach = self.edge_tol + deviation;
+            let edge = &part.edges[e];
+            if !self.edge_boxes[e].contains(q, reach) || polyline_distance(q, &edge.samples) > reach
+            {
+                continue;
+            }
+            // The polyline only finds the edges near; the distance that decides is the curve's,
+            // at the tolerance OpenCascade's intersector is loaded with.
+            let d = geom::dist(edge.curve.value(edge.curve.parameter(q)), q);
+            if d <= COORD_FLOOR {
+                return Some(Contact::Edge { inside });
+            }
+            if d <= COORD_FLOOR + deviation && in_band.is_none() {
+                in_band = Some(Contact::Band(e, COORD_FLOOR + deviation));
+            }
+        }
         if inside {
             Some(Contact::Interior)
         } else {

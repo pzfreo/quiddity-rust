@@ -364,11 +364,5 @@
     "contains": "recognise_interior_voids",
     "verdict": "undetermined",
     "reason": "Same void faces and openings; the sample counts differ by about 1%: the void grid is a sampling instrument anchored at the solid's box, and OpenCascade's box is padded (by 1e-7 on this part's faces) where the port's is exact, so the two grids sit a fraction of a micron apart and cells whose centres fall on a face flip, and the body key follows this file's mass difference."
-  },
-  {
-    "file": "mfcadpp_regressions/11512.step",
-    "contains": "recognise_interior_voids",
-    "verdict": "undetermined",
-    "reason": "Python reports a second, 24-cell void (faces 13 and 14) that the port rejects as not widening behind its throat (core clearance 2 cells, throat 2). the void grid is a sampling instrument anchored at the solid's box, and OpenCascade's box is padded (by 1e-7 on this part's faces) where the port's is exact, so the two grids sit a fraction of a micron apart and cells whose centres fall on a face flip: four material cells differ (101906 vs 101910), which is enough to move a two-cell clearance. Neither grid is the geometry; the decision rests on the grid's phase."
   }
 ]

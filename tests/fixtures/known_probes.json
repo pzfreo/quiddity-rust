@@ -1,0 +1,140 @@
+[
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "contains": "\"through_steps\"",
+    "verdict": "undetermined",
+    "reason": "A deliberately malformed corpus part (non-orientable shell) that OpenCascade heals on import."
+  },
+  {
+    "file": "mfcadpp/10155.step",
+    "contains": "\"_cylindrical_passages\"",
+    "verdict": "undetermined",
+    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
+  },
+  {
+    "file": "mfcadpp/10167.step",
+    "contains": "\"_section_passages\"",
+    "verdict": "undetermined",
+    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
+  },
+  {
+    "file": "mfcadpp/10255.step",
+    "contains": "\"edge_open_prismatic_recesses\"",
+    "verdict": "undetermined",
+    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
+  },
+  {
+    "file": "mfcadpp_holdout/520.step",
+    "contains": "\"_recess_reduce\"",
+    "verdict": "undetermined",
+    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
+  },
+  {
+    "file": "nist/nist_ctc_01_asme1_rd.stp",
+    "contains": "\"_open_channel_section\"",
+    "verdict": "rust-correct",
+    "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
+  },
+  {
+    "file": "nist/nist_ctc_01_asme1_rd.stp",
+    "contains": "\"_open_channel_section\"",
+    "verdict": "undetermined",
+    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "contains": "\"_recess_reduce\"",
+    "verdict": "undetermined",
+    "reason": "B-spline-heavy part: curved faces take the adaptive rule, and differences are up to 1e-6 relative; on the two _recess_reduce boxes where Python measures 0.216 the port's 7.06 agrees with classifying a 40³ grid of points (6.82)."
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "contains": "\"_section_recess_geometry\"",
+    "verdict": "undetermined",
+    "reason": "B-spline-heavy part: curved faces take the adaptive rule, and differences are up to 1e-6 relative; on the two _recess_reduce boxes where Python measures 0.216 the port's 7.06 agrees with classifying a 40³ grid of points (6.82)."
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "contains": "\"_recess_reduce\"",
+    "verdict": "undetermined",
+    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "contains": "\"_open_channel_section\"",
+    "verdict": "rust-correct",
+    "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "contains": "\"_open_channel_section\"",
+    "verdict": "undetermined",
+    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "contains": "\"_open_channel_section\"",
+    "verdict": "rust-correct",
+    "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "contains": "\"_open_channel_section\"",
+    "verdict": "undetermined",
+    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
+  },
+  {
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "contains": "\"_open_channel_section\"",
+    "verdict": "undetermined",
+    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
+  },
+  {
+    "file": "nist/nist_ftc_06_asme1_rd.stp",
+    "contains": "\"_open_channel_section\"",
+    "verdict": "rust-correct",
+    "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
+  },
+  {
+    "file": "nist/nist_ftc_06_asme1_rd.stp",
+    "contains": "\"_open_channel_section\"",
+    "verdict": "undetermined",
+    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
+  },
+  {
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "contains": "\"_open_channel_section\"",
+    "verdict": "rust-correct",
+    "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
+  },
+  {
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "contains": "\"_open_channel_section\"",
+    "verdict": "undetermined",
+    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
+  },
+  {
+    "file": "nist/nist_ftc_09_asme1_rd.stp",
+    "contains": "\"_open_channel_section\"",
+    "verdict": "undetermined",
+    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
+  },
+  {
+    "file": "nist/nist_ftc_09_asme1_rd.stp",
+    "contains": "\"_open_channel_section\"",
+    "verdict": "rust-correct",
+    "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "contains": "\"_recess_reduce\"",
+    "verdict": "undetermined",
+    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "contains": "\"_open_channel_section\"",
+    "verdict": "undetermined",
+    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
+  }
+]

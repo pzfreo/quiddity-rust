@@ -88,11 +88,5 @@
     "function": "recognise_thin_wall_bodies",
     "verdict": "rust-correct",
     "reason": "As the corpus entry for cgb241: same pairs and thicknesses; the body key and paired area fraction follow OpenCascade's planar face area, 1% off its own B-spline edges (traced)."
-  },
-  {
-    "test": "tests/test_interior_voids.py::test_polyhedral_core_with_small_port_survives_rigid_rotation",
-    "function": "recognise_interior_voids",
-    "verdict": "undetermined",
-    "reason": "Same void, faces, openings and enclosed samples; air_samples differs by 64 of 172642, cells of a sampling grid whose centres fall on the rotated part's oblique faces."
   }
 ]

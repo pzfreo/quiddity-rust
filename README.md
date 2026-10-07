@@ -52,6 +52,8 @@ src/
     rays.rs          every hit of a ray on a solid's trimmed faces, through a box hierarchy
                      (IntCurvesFace_ShapeIntersector); cracks the file leaves between faces
     poly.rs          real polynomial roots by isolation (exact ray-torus hits)
+    volume.rs        the volume a probe shares with a solid, without a boolean: exact ray
+                     lengths integrated between the corners of the solid ∩ probe arrangement
     mass.rs          exact solid volume and area: Green's theorem along the exact edges,
                      Gauss-Legendre quadrature (BRepGProp)
     py.rs            Python's numeric semantics: fsum, compensated sum, hypot, %, rounding,
@@ -76,6 +78,8 @@ tests/
   corpus.rs          every ported recogniser over the shared 100-file STEP corpus
   evidence.rs        fillet defining faces and evidence refusals on hand-built cases
   invariance.rs      every corpus part moved and turned: each family must find the same faces
+  probes.rs          every volume probe Python's recognisers ask over the corpus, answered by
+                     kernel/volume.rs (tools/capture_probes.py records them)
   kernel.rs          kernel behaviour on real parts
 tools/
   capture_plugin.py  pytest plugin that records the Python suite's recogniser calls
