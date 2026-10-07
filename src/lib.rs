@@ -13,6 +13,12 @@ pub use features::chamfers::{Chamfer, ChamferOptions, recognise_chamfers};
 pub use features::circular_blind_steps::{CircularBlindStep, recognise_circular_blind_steps};
 pub use features::circular_face_patterns::{CircularFacePattern, recognise_circular_face_patterns};
 pub use features::countersinks::{CounterSink, recognise_countersinks};
+pub use features::edge_open_circular::{
+    EdgeOpenCircularPocket, recognise_edge_open_circular_pockets,
+};
+pub use features::edge_open_prismatic::{
+    EdgeOpenPrismaticRecess, recognise_edge_open_prismatic_recesses,
+};
 pub use features::fillets::{Fillet, FilletOptions, recognise_fillets};
 pub use features::flats::{Flat, recognise_flats};
 pub use features::gussets::{

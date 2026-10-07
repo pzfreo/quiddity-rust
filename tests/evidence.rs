@@ -142,3 +142,38 @@ fn gusset_rib_evidence_claims_caps_slant_and_blends() {
         assert_eq!(got, want, "{file}");
     }
 }
+
+/// Edge-open recess evidence on the Python suite's parts (`tests/test_edge_open_*`): the circular
+/// pocket claims its four walls and the hexagonal recess its six, each with its floor consulted
+/// (Python's constituent of five and seven); the two recesses of a two-solid compound are claimed
+/// each within its own solid.
+#[test]
+fn edge_open_recess_evidence_claims_walls_and_consults_the_floor() {
+    use quiddity::features::evidence::common_valid_solid;
+    use quiddity::features::{edge_open_circular, edge_open_prismatic};
+    let captured = fixtures().join("captured");
+    let read = |file: &str| read_step_file(&captured.join(file)).unwrap();
+    let circular = read("fa0600fbcc4940d4.step.gz");
+    let found = edge_open_circular::discover_verified(&Context::new(&circular)).unwrap();
+    let [pocket] = found.as_slice() else {
+        panic!("{} circular pockets", found.len())
+    };
+    assert_eq!((pocket.defining.len(), pocket.context.len()), (4, 1));
+    let hexagon = read("10031362cc38ab85.step.gz");
+    let found = edge_open_prismatic::discover_verified(&Context::new(&hexagon)).unwrap();
+    let [recess] = found.as_slice() else {
+        panic!("{} prismatic recesses", found.len())
+    };
+    assert_eq!((recess.defining.len(), recess.context.len()), (6, 1));
+    let compound = read("da68caa0e2caaa0d.step.gz");
+    let found = edge_open_prismatic::discover_verified(&Context::new(&compound)).unwrap();
+    let solids: Vec<Option<usize>> = found
+        .iter()
+        .map(|o| {
+            let faces: Vec<usize> = o.defining.iter().chain(&o.context).copied().collect();
+            common_valid_solid(&compound, &faces)
+        })
+        .collect();
+    assert_eq!(solids.len(), 2);
+    assert!(solids.iter().all(Option::is_some) && solids[0] != solids[1]);
+}

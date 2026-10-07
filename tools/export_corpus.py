@@ -37,6 +37,14 @@ from quiddity._effective_surfaces import effective_faces_for_graph  # noqa: E402
 from quiddity.circular_blind_steps import _discover_circular_blind_steps  # noqa: E402
 from quiddity.circular_face_patterns import _discover_circular_face_patterns  # noqa: E402
 from quiddity.countersinks import _discover_countersinks  # noqa: E402
+from quiddity.edge_open_circular_recesses import (  # noqa: E402
+    _discover_edge_open_circular_pockets,
+    recognise_edge_open_circular_pockets,
+)
+from quiddity.edge_open_prismatic_recesses import (  # noqa: E402
+    _discover_edge_open_prismatic_recesses,
+    recognise_edge_open_prismatic_recesses,
+)
 from quiddity.fillets import _discover_fillets  # noqa: E402
 from quiddity.flats import _discover_flats  # noqa: E402
 from quiddity.gussets import _discover_gusset_ribs  # noqa: E402
@@ -195,6 +203,14 @@ def main() -> None:
         round_bottom = (FamilyId.ROUND_BOTTOM_BLIND_SLOTS, lambda p, o: recognise_round_bottom_blind_slots(p),
                         lambda p, ledger, o: _discover_round_bottom_blind_slots(p, graph=ledger.graph,
                                                                                 sink=ledger.writer.sink))
+        open_circular = (FamilyId.EDGE_OPEN_CIRCULAR_POCKETS,
+                         lambda p, o: recognise_edge_open_circular_pockets(p),
+                         lambda p, ledger, o: _discover_edge_open_circular_pockets(p, graph=ledger.graph,
+                                                                                   ledger=ledger.writer))
+        open_prismatic = (FamilyId.EDGE_OPEN_PRISMATIC_RECESSES,
+                          lambda p, o: recognise_edge_open_prismatic_recesses(p),
+                          lambda p, ledger, o: _discover_edge_open_prismatic_recesses(p, graph=ledger.graph,
+                                                                                      ledger=ledger.writer))
         hole = (FamilyId.HOLES, lambda p, o: recognise_holes(p, **hole_kwargs(o)),
                 lambda p, ledger, o: _discover_holes(p, writer=ledger.writer, **hole_kwargs(o)))
         walls = (FamilyId.THIN_WALL_BODIES, lambda p, o: recognise_thin_wall_bodies(p),
@@ -249,6 +265,12 @@ def main() -> None:
                         _run(part, "recognise_round_bottom_blind_slots", *round_bottom, {})
                     ],
                     "recognise_gusset_ribs": [_run(part, "recognise_gusset_ribs", *gusset, {})],
+                    "recognise_edge_open_circular_pockets": [
+                        _run(part, "recognise_edge_open_circular_pockets", *open_circular, {})
+                    ],
+                    "recognise_edge_open_prismatic_recesses": [
+                        _run(part, "recognise_edge_open_prismatic_recesses", *open_prismatic, {})
+                    ],
                     "recognise_gusset_rib_patterns": [
                         {"options": {}, "result": _plain(recognise_gusset_rib_patterns(recognise_gusset_ribs(part)))}
                     ],

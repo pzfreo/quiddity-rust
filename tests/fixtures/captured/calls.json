@@ -209336,6 +209336,3308 @@
      ]
     }
    ]
+  },
+  {
+   "test": "tests/test_edge_open_circular_recesses.py::test_recognises_an_authored_partial_arc_without_fabricating_its_closure",
+   "function": "recognise_edge_open_circular_pockets",
+   "file": "fa0600fbcc4940d4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      4.0,
+      12.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "segments": [
+       {
+        "kind": "arc",
+        "start": [
+         30.0,
+         7.0
+        ],
+        "end": [
+         26.0,
+         5.0
+        ],
+        "center": [
+         26.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -0.9272952
+       },
+       {
+        "kind": "line",
+        "start": [
+         26.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         5.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       },
+       {
+        "kind": "arc",
+        "start": [
+         6.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         15.0
+        ],
+        "center": [
+         6.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -3.1415927
+       },
+       {
+        "kind": "line",
+        "start": [
+         6.0,
+         15.0
+        ],
+        "end": [
+         25.0,
+         15.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       }
+      ],
+      "opening": [
+       [
+        25.0,
+        15.0
+       ],
+       [
+        30.0,
+        7.0
+       ]
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      4.0,
+      12.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "segments": [
+       {
+        "kind": "arc",
+        "start": [
+         30.0,
+         7.0
+        ],
+        "end": [
+         26.0,
+         5.0
+        ],
+        "center": [
+         26.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -0.9272952
+       },
+       {
+        "kind": "line",
+        "start": [
+         26.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         5.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       },
+       {
+        "kind": "arc",
+        "start": [
+         6.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         15.0
+        ],
+        "center": [
+         6.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -3.1415927
+       },
+       {
+        "kind": "line",
+        "start": [
+         6.0,
+         15.0
+        ],
+        "end": [
+         25.0,
+         15.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       }
+      ],
+      "opening": [
+       [
+        25.0,
+        15.0
+       ],
+       [
+        30.0,
+        7.0
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_circular_recesses.py::test_authored_open_circular_payload_matches_independent_golden",
+   "function": "recognise_edge_open_circular_pockets",
+   "file": "fa0600fbcc4940d4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      4.0,
+      12.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "segments": [
+       {
+        "kind": "arc",
+        "start": [
+         30.0,
+         7.0
+        ],
+        "end": [
+         26.0,
+         5.0
+        ],
+        "center": [
+         26.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -0.9272952
+       },
+       {
+        "kind": "line",
+        "start": [
+         26.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         5.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       },
+       {
+        "kind": "arc",
+        "start": [
+         6.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         15.0
+        ],
+        "center": [
+         6.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -3.1415927
+       },
+       {
+        "kind": "line",
+        "start": [
+         6.0,
+         15.0
+        ],
+        "end": [
+         25.0,
+         15.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       }
+      ],
+      "opening": [
+       [
+        25.0,
+        15.0
+       ],
+       [
+        30.0,
+        7.0
+       ]
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      4.0,
+      12.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "segments": [
+       {
+        "kind": "arc",
+        "start": [
+         30.0,
+         7.0
+        ],
+        "end": [
+         26.0,
+         5.0
+        ],
+        "center": [
+         26.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -0.9272952
+       },
+       {
+        "kind": "line",
+        "start": [
+         26.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         5.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       },
+       {
+        "kind": "arc",
+        "start": [
+         6.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         15.0
+        ],
+        "center": [
+         6.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -3.1415927
+       },
+       {
+        "kind": "line",
+        "start": [
+         6.0,
+         15.0
+        ],
+        "end": [
+         25.0,
+         15.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       }
+      ],
+      "opening": [
+       [
+        25.0,
+        15.0
+       ],
+       [
+        30.0,
+        7.0
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_circular_recesses.py::test_several_authored_interruption_shapes_are_supported[14-12]",
+   "function": "recognise_edge_open_circular_pockets",
+   "file": "124d3361087eccdb.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      4.0,
+      12.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "segments": [
+       {
+        "kind": "arc",
+        "start": [
+         28.9155,
+         11.0845
+        ],
+        "end": [
+         24.0,
+         7.0
+        ],
+        "center": [
+         24.0,
+         12.0
+        ],
+        "radius": 5.0,
+        "sweep": -1.3866585
+       },
+       {
+        "kind": "line",
+        "start": [
+         24.0,
+         7.0
+        ],
+        "end": [
+         4.0,
+         7.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       },
+       {
+        "kind": "arc",
+        "start": [
+         4.0,
+         7.0
+        ],
+        "end": [
+         4.0,
+         17.0
+        ],
+        "center": [
+         4.0,
+         12.0
+        ],
+        "radius": 5.0,
+        "sweep": -3.1415927
+       },
+       {
+        "kind": "line",
+        "start": [
+         4.0,
+         17.0
+        ],
+        "end": [
+         23.0,
+         17.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       }
+      ],
+      "opening": [
+       [
+        23.0,
+        17.0
+       ],
+       [
+        28.9155,
+        11.0845
+       ]
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      4.0,
+      12.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "segments": [
+       {
+        "kind": "arc",
+        "start": [
+         28.9155,
+         11.0845
+        ],
+        "end": [
+         24.0,
+         7.0
+        ],
+        "center": [
+         24.0,
+         12.0
+        ],
+        "radius": 5.0,
+        "sweep": -1.3866585
+       },
+       {
+        "kind": "line",
+        "start": [
+         24.0,
+         7.0
+        ],
+        "end": [
+         4.0,
+         7.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       },
+       {
+        "kind": "arc",
+        "start": [
+         4.0,
+         7.0
+        ],
+        "end": [
+         4.0,
+         17.0
+        ],
+        "center": [
+         4.0,
+         12.0
+        ],
+        "radius": 5.0,
+        "sweep": -3.1415927
+       },
+       {
+        "kind": "line",
+        "start": [
+         4.0,
+         17.0
+        ],
+        "end": [
+         23.0,
+         17.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       }
+      ],
+      "opening": [
+       [
+        23.0,
+        17.0
+       ],
+       [
+        28.9155,
+        11.0845
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_circular_recesses.py::test_several_authored_interruption_shapes_are_supported[16-10]",
+   "function": "recognise_edge_open_circular_pockets",
+   "file": "fa0600fbcc4940d4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      4.0,
+      12.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "segments": [
+       {
+        "kind": "arc",
+        "start": [
+         30.0,
+         7.0
+        ],
+        "end": [
+         26.0,
+         5.0
+        ],
+        "center": [
+         26.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -0.9272952
+       },
+       {
+        "kind": "line",
+        "start": [
+         26.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         5.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       },
+       {
+        "kind": "arc",
+        "start": [
+         6.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         15.0
+        ],
+        "center": [
+         6.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -3.1415927
+       },
+       {
+        "kind": "line",
+        "start": [
+         6.0,
+         15.0
+        ],
+        "end": [
+         25.0,
+         15.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       }
+      ],
+      "opening": [
+       [
+        25.0,
+        15.0
+       ],
+       [
+        30.0,
+        7.0
+       ]
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      4.0,
+      12.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "segments": [
+       {
+        "kind": "arc",
+        "start": [
+         30.0,
+         7.0
+        ],
+        "end": [
+         26.0,
+         5.0
+        ],
+        "center": [
+         26.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -0.9272952
+       },
+       {
+        "kind": "line",
+        "start": [
+         26.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         5.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       },
+       {
+        "kind": "arc",
+        "start": [
+         6.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         15.0
+        ],
+        "center": [
+         6.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -3.1415927
+       },
+       {
+        "kind": "line",
+        "start": [
+         6.0,
+         15.0
+        ],
+        "end": [
+         25.0,
+         15.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       }
+      ],
+      "opening": [
+       [
+        25.0,
+        15.0
+       ],
+       [
+        30.0,
+        7.0
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_circular_recesses.py::test_several_authored_interruption_shapes_are_supported[18-8]",
+   "function": "recognise_edge_open_circular_pockets",
+   "file": "b12d84ab458e63f7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      4.0,
+      12.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "segments": [
+       {
+        "kind": "arc",
+        "start": [
+         30.0,
+         3.4174
+        ],
+        "end": [
+         28.0,
+         3.0
+        ],
+        "center": [
+         28.0,
+         8.0
+        ],
+        "radius": 5.0,
+        "sweep": -0.4115149
+       },
+       {
+        "kind": "line",
+        "start": [
+         28.0,
+         3.0
+        ],
+        "end": [
+         8.0,
+         3.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       },
+       {
+        "kind": "arc",
+        "start": [
+         8.0,
+         3.0
+        ],
+        "end": [
+         8.0,
+         13.0
+        ],
+        "center": [
+         8.0,
+         8.0
+        ],
+        "radius": 5.0,
+        "sweep": -3.1415927
+       },
+       {
+        "kind": "line",
+        "start": [
+         8.0,
+         13.0
+        ],
+        "end": [
+         27.0,
+         13.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       }
+      ],
+      "opening": [
+       [
+        27.0,
+        13.0
+       ],
+       [
+        30.0,
+        3.4174
+       ]
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      4.0,
+      12.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "segments": [
+       {
+        "kind": "arc",
+        "start": [
+         30.0,
+         3.4174
+        ],
+        "end": [
+         28.0,
+         3.0
+        ],
+        "center": [
+         28.0,
+         8.0
+        ],
+        "radius": 5.0,
+        "sweep": -0.4115149
+       },
+       {
+        "kind": "line",
+        "start": [
+         28.0,
+         3.0
+        ],
+        "end": [
+         8.0,
+         3.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       },
+       {
+        "kind": "arc",
+        "start": [
+         8.0,
+         3.0
+        ],
+        "end": [
+         8.0,
+         13.0
+        ],
+        "center": [
+         8.0,
+         8.0
+        ],
+        "radius": 5.0,
+        "sweep": -3.1415927
+       },
+       {
+        "kind": "line",
+        "start": [
+         8.0,
+         13.0
+        ],
+        "end": [
+         27.0,
+         13.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       }
+      ],
+      "opening": [
+       [
+        27.0,
+        13.0
+       ],
+       [
+        30.0,
+        3.4174
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_circular_recesses.py::test_closed_through_and_wholly_erased_end_shapes_are_not_this_family",
+   "function": "recognise_edge_open_circular_pockets",
+   "file": "c2b19a21c41bd4da.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_edge_open_circular_recesses.py::test_closed_through_and_wholly_erased_end_shapes_are_not_this_family",
+   "function": "recognise_edge_open_circular_pockets",
+   "file": "c5505380a60a6e7d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_edge_open_circular_recesses.py::test_axis_and_rigid_motion_covariance_preserve_the_physical_profile",
+   "function": "recognise_edge_open_circular_pockets",
+   "file": "fa0600fbcc4940d4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      4.0,
+      12.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "segments": [
+       {
+        "kind": "arc",
+        "start": [
+         30.0,
+         7.0
+        ],
+        "end": [
+         26.0,
+         5.0
+        ],
+        "center": [
+         26.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -0.9272952
+       },
+       {
+        "kind": "line",
+        "start": [
+         26.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         5.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       },
+       {
+        "kind": "arc",
+        "start": [
+         6.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         15.0
+        ],
+        "center": [
+         6.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -3.1415927
+       },
+       {
+        "kind": "line",
+        "start": [
+         6.0,
+         15.0
+        ],
+        "end": [
+         25.0,
+         15.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       }
+      ],
+      "opening": [
+       [
+        25.0,
+        15.0
+       ],
+       [
+        30.0,
+        7.0
+       ]
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      4.0,
+      12.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "segments": [
+       {
+        "kind": "arc",
+        "start": [
+         30.0,
+         7.0
+        ],
+        "end": [
+         26.0,
+         5.0
+        ],
+        "center": [
+         26.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -0.9272952
+       },
+       {
+        "kind": "line",
+        "start": [
+         26.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         5.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       },
+       {
+        "kind": "arc",
+        "start": [
+         6.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         15.0
+        ],
+        "center": [
+         6.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -3.1415927
+       },
+       {
+        "kind": "line",
+        "start": [
+         6.0,
+         15.0
+        ],
+        "end": [
+         25.0,
+         15.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       }
+      ],
+      "opening": [
+       [
+        25.0,
+        15.0
+       ],
+       [
+        30.0,
+        7.0
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_circular_recesses.py::test_axis_and_rigid_motion_covariance_preserve_the_physical_profile",
+   "function": "recognise_edge_open_circular_pockets",
+   "file": "a6ce0a5ca6265587.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "run_interval": [
+      -12.0,
+      -4.0
+     ],
+     "open_sign": -1,
+     "section": {
+      "segments": [
+       {
+        "kind": "arc",
+        "start": [
+         30.0,
+         7.0
+        ],
+        "end": [
+         26.0,
+         5.0
+        ],
+        "center": [
+         26.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -0.9272952
+       },
+       {
+        "kind": "line",
+        "start": [
+         26.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         5.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       },
+       {
+        "kind": "arc",
+        "start": [
+         6.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         15.0
+        ],
+        "center": [
+         6.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -3.1415927
+       },
+       {
+        "kind": "line",
+        "start": [
+         6.0,
+         15.0
+        ],
+        "end": [
+         25.0,
+         15.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       }
+      ],
+      "opening": [
+       [
+        25.0,
+        15.0
+       ],
+       [
+        30.0,
+        7.0
+       ]
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "run_interval": [
+      -12.0,
+      -4.0
+     ],
+     "open_sign": -1,
+     "section": {
+      "segments": [
+       {
+        "kind": "arc",
+        "start": [
+         30.0,
+         7.0
+        ],
+        "end": [
+         26.0,
+         5.0
+        ],
+        "center": [
+         26.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -0.9272952
+       },
+       {
+        "kind": "line",
+        "start": [
+         26.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         5.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       },
+       {
+        "kind": "arc",
+        "start": [
+         6.0,
+         5.0
+        ],
+        "end": [
+         6.0,
+         15.0
+        ],
+        "center": [
+         6.0,
+         10.0
+        ],
+        "radius": 5.0,
+        "sweep": -3.1415927
+       },
+       {
+        "kind": "line",
+        "start": [
+         6.0,
+         15.0
+        ],
+        "end": [
+         25.0,
+         15.0
+        ],
+        "center": null,
+        "radius": null,
+        "sweep": null
+       }
+      ],
+      "opening": [
+       [
+        25.0,
+        15.0
+       ],
+       [
+        30.0,
+        7.0
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_recognises_six_physical_walls_without_inventing_a_closing_wall",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "10031362cc38ab85.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -4.0366,
+        20.0
+       ],
+       [
+        -7.2078,
+        17.4711
+       ],
+       [
+        -7.2078,
+        10.5289
+       ],
+       [
+        -1.7802,
+        6.2006
+       ],
+       [
+        4.9879,
+        7.7453
+       ],
+       [
+        8.0,
+        14.0
+       ],
+       [
+        5.1106,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        5.1106,
+        20.0
+       ],
+       "end": [
+        -4.0366,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -4.0366,
+        20.0
+       ],
+       [
+        -7.2078,
+        17.4711
+       ],
+       [
+        -7.2078,
+        10.5289
+       ],
+       [
+        -1.7802,
+        6.2006
+       ],
+       [
+        4.9879,
+        7.7453
+       ],
+       [
+        8.0,
+        14.0
+       ],
+       [
+        5.1106,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        5.1106,
+        20.0
+       ],
+       "end": [
+        -4.0366,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_edge_open_payload_matches_dedicated_golden",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "10031362cc38ab85.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -4.0366,
+        20.0
+       ],
+       [
+        -7.2078,
+        17.4711
+       ],
+       [
+        -7.2078,
+        10.5289
+       ],
+       [
+        -1.7802,
+        6.2006
+       ],
+       [
+        4.9879,
+        7.7453
+       ],
+       [
+        8.0,
+        14.0
+       ],
+       [
+        5.1106,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        5.1106,
+        20.0
+       ],
+       "end": [
+        -4.0366,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -4.0366,
+        20.0
+       ],
+       [
+        -7.2078,
+        17.4711
+       ],
+       [
+        -7.2078,
+        10.5289
+       ],
+       [
+        -1.7802,
+        6.2006
+       ],
+       [
+        4.9879,
+        7.7453
+       ],
+       [
+        8.0,
+        14.0
+       ],
+       [
+        5.1106,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        5.1106,
+        20.0
+       ],
+       "end": [
+        -4.0366,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_closed_polygonal_pocket_is_not_edge_open",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "c1f5e2808c78dd43.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_polygonal_edge_open_profiles_retain_every_physical_wall[chain0]",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "c8c9f6938ce4f6de.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -6.0,
+        12.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -6.0,
+        12.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_polygonal_edge_open_profiles_retain_every_physical_wall[chain1]",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "19a7ca074c7713b6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -7.0,
+        12.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        12.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -7.0,
+        12.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        12.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_polygonal_edge_open_profiles_retain_every_physical_wall[chain2]",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "8cec7c07b9da8929.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -8.0,
+        15.0
+       ],
+       [
+        -4.0,
+        8.0
+       ],
+       [
+        4.0,
+        8.0
+       ],
+       [
+        8.0,
+        15.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -8.0,
+        15.0
+       ],
+       [
+        -4.0,
+        8.0
+       ],
+       [
+        4.0,
+        8.0
+       ],
+       [
+        8.0,
+        15.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_polygonal_edge_open_profiles_retain_every_physical_wall[chain3]",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "b2340c4e7e6629ec.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -8.0,
+        15.0
+       ],
+       [
+        -6.0,
+        10.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        10.0
+       ],
+       [
+        8.0,
+        15.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -8.0,
+        15.0
+       ],
+       [
+        -6.0,
+        10.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        10.0
+       ],
+       [
+        8.0,
+        15.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_two_wall_open_profile_is_refused",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "4e98c2f561cbc894.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_every_supported_wall_count_is_axis_covariant[chain0]",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "c8c9f6938ce4f6de.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -6.0,
+        12.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -6.0,
+        12.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_every_supported_wall_count_is_axis_covariant[chain0]",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "125d88c0188f3d05.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "run_interval": [
+      -20.0,
+      -10.0
+     ],
+     "open_sign": -1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -6.0,
+        12.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "run_interval": [
+      -20.0,
+      -10.0
+     ],
+     "open_sign": -1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -6.0,
+        12.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_every_supported_wall_count_is_axis_covariant[chain1]",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "19a7ca074c7713b6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -7.0,
+        12.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        12.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -7.0,
+        12.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        12.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_every_supported_wall_count_is_axis_covariant[chain1]",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "3c5f19b0c9c15aa9.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "run_interval": [
+      -20.0,
+      -10.0
+     ],
+     "open_sign": -1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -7.0,
+        12.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        12.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "run_interval": [
+      -20.0,
+      -10.0
+     ],
+     "open_sign": -1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -7.0,
+        12.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        12.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_every_supported_wall_count_is_axis_covariant[chain2]",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "8cec7c07b9da8929.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -8.0,
+        15.0
+       ],
+       [
+        -4.0,
+        8.0
+       ],
+       [
+        4.0,
+        8.0
+       ],
+       [
+        8.0,
+        15.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -8.0,
+        15.0
+       ],
+       [
+        -4.0,
+        8.0
+       ],
+       [
+        4.0,
+        8.0
+       ],
+       [
+        8.0,
+        15.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_every_supported_wall_count_is_axis_covariant[chain2]",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "4c451dfa3720b805.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "run_interval": [
+      -20.0,
+      -10.0
+     ],
+     "open_sign": -1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -8.0,
+        15.0
+       ],
+       [
+        -4.0,
+        8.0
+       ],
+       [
+        4.0,
+        8.0
+       ],
+       [
+        8.0,
+        15.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "run_interval": [
+      -20.0,
+      -10.0
+     ],
+     "open_sign": -1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -8.0,
+        15.0
+       ],
+       [
+        -4.0,
+        8.0
+       ],
+       [
+        4.0,
+        8.0
+       ],
+       [
+        8.0,
+        15.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_every_supported_wall_count_is_axis_covariant[chain3]",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "b2340c4e7e6629ec.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -8.0,
+        15.0
+       ],
+       [
+        -6.0,
+        10.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        10.0
+       ],
+       [
+        8.0,
+        15.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -8.0,
+        15.0
+       ],
+       [
+        -6.0,
+        10.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        10.0
+       ],
+       [
+        8.0,
+        15.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_every_supported_wall_count_is_axis_covariant[chain3]",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "6bf482348deb177b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "run_interval": [
+      -20.0,
+      -10.0
+     ],
+     "open_sign": -1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -8.0,
+        15.0
+       ],
+       [
+        -6.0,
+        10.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        10.0
+       ],
+       [
+        8.0,
+        15.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "run_interval": [
+      -20.0,
+      -10.0
+     ],
+     "open_sign": -1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -8.0,
+        15.0
+       ],
+       [
+        -6.0,
+        10.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        6.0,
+        10.0
+       ],
+       [
+        8.0,
+        15.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_floorless_edge_open_passage_is_refused",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "79b937ff866ca7f5.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_a_cross_bore_interrupting_a_wall_is_refused",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "cdf3d2784d7581ee.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_parallel_endpoint_wall_supports_are_refused",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "f6cb65912146c0d1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_shallow_nonparallel_endpoint_wall_supports_are_retained",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "ae4bfea1f58b4417.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -5.56,
+        15.0
+       ],
+       [
+        -8.0,
+        12.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        8.0,
+        12.0
+       ],
+       [
+        6.0,
+        15.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -6.0,
+        20.0
+       ],
+       [
+        -5.56,
+        15.0
+       ],
+       [
+        -8.0,
+        12.0
+       ],
+       [
+        0.0,
+        6.0
+       ],
+       [
+        8.0,
+        12.0
+       ],
+       [
+        6.0,
+        15.0
+       ],
+       [
+        6.0,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        6.0,
+        20.0
+       ],
+       "end": [
+        -6.0,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_edge_open_recognition_is_axis_covariant_and_body_local",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "060214476d90a740.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "y",
+     "run_interval": [
+      -20.0,
+      -10.0
+     ],
+     "open_sign": -1,
+     "section": {
+      "wall_chain": [
+       [
+        -4.0366,
+        20.0
+       ],
+       [
+        -7.2078,
+        17.4711
+       ],
+       [
+        -7.2078,
+        10.5289
+       ],
+       [
+        -1.7802,
+        6.2006
+       ],
+       [
+        4.9879,
+        7.7453
+       ],
+       [
+        8.0,
+        14.0
+       ],
+       [
+        5.1106,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        5.1106,
+        20.0
+       ],
+       "end": [
+        -4.0366,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "y",
+     "run_interval": [
+      -20.0,
+      -10.0
+     ],
+     "open_sign": -1,
+     "section": {
+      "wall_chain": [
+       [
+        -4.0366,
+        20.0
+       ],
+       [
+        -7.2078,
+        17.4711
+       ],
+       [
+        -7.2078,
+        10.5289
+       ],
+       [
+        -1.7802,
+        6.2006
+       ],
+       [
+        4.9879,
+        7.7453
+       ],
+       [
+        8.0,
+        14.0
+       ],
+       [
+        5.1106,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        5.1106,
+        20.0
+       ],
+       "end": [
+        -4.0366,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_edge_open_recognition_is_axis_covariant_and_body_local",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "da68caa0e2caaa0d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -4.0366,
+        20.0
+       ],
+       [
+        -7.2078,
+        17.4711
+       ],
+       [
+        -7.2078,
+        10.5289
+       ],
+       [
+        -1.7802,
+        6.2006
+       ],
+       [
+        4.9879,
+        7.7453
+       ],
+       [
+        8.0,
+        14.0
+       ],
+       [
+        5.1106,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        5.1106,
+        20.0
+       ],
+       "end": [
+        -4.0366,
+        20.0
+       ]
+      }
+     }
+    },
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        75.9634,
+        20.0
+       ],
+       [
+        72.7922,
+        17.4711
+       ],
+       [
+        72.7922,
+        10.5289
+       ],
+       [
+        78.2198,
+        6.2006
+       ],
+       [
+        84.9879,
+        7.7453
+       ],
+       [
+        88.0,
+        14.0
+       ],
+       [
+        85.1106,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        85.1106,
+        20.0
+       ],
+       "end": [
+        75.9634,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -4.0366,
+        20.0
+       ],
+       [
+        -7.2078,
+        17.4711
+       ],
+       [
+        -7.2078,
+        10.5289
+       ],
+       [
+        -1.7802,
+        6.2006
+       ],
+       [
+        4.9879,
+        7.7453
+       ],
+       [
+        8.0,
+        14.0
+       ],
+       [
+        5.1106,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        5.1106,
+        20.0
+       ],
+       "end": [
+        -4.0366,
+        20.0
+       ]
+      }
+     }
+    },
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        75.9634,
+        20.0
+       ],
+       [
+        72.7922,
+        17.4711
+       ],
+       [
+        72.7922,
+        10.5289
+       ],
+       [
+        78.2198,
+        6.2006
+       ],
+       [
+        84.9879,
+        7.7453
+       ],
+       [
+        88.0,
+        14.0
+       ],
+       [
+        85.1106,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        85.1106,
+        20.0
+       ],
+       "end": [
+        75.9634,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_edge_open_prismatic_recesses.py::test_edge_open_recess_survives_step_round_trip",
+   "function": "recognise_edge_open_prismatic_recesses",
+   "file": "10031362cc38ab85.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -4.0366,
+        20.0
+       ],
+       [
+        -7.2078,
+        17.4711
+       ],
+       [
+        -7.2078,
+        10.5289
+       ],
+       [
+        -1.7802,
+        6.2006
+       ],
+       [
+        4.9879,
+        7.7453
+       ],
+       [
+        8.0,
+        14.0
+       ],
+       [
+        5.1106,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        5.1106,
+        20.0
+       ],
+       "end": [
+        -4.0366,
+        20.0
+       ]
+      }
+     }
+    }
+   ],
+   "result": [
+    {
+     "axis": "z",
+     "run_interval": [
+      10.0,
+      20.0
+     ],
+     "open_sign": 1,
+     "section": {
+      "wall_chain": [
+       [
+        -4.0366,
+        20.0
+       ],
+       [
+        -7.2078,
+        17.4711
+       ],
+       [
+        -7.2078,
+        10.5289
+       ],
+       [
+        -1.7802,
+        6.2006
+       ],
+       [
+        4.9879,
+        7.7453
+       ],
+       [
+        8.0,
+        14.0
+       ],
+       [
+        5.1106,
+        20.0
+       ]
+      ],
+      "opening": {
+       "start": [
+        5.1106,
+        20.0
+       ],
+       "end": [
+        -4.0366,
+        20.0
+       ]
+      }
+     }
+    }
+   ]
   }
  ],
  "skipped": {
@@ -209344,6 +212646,7 @@
   "recognise_oblique_through_steps: capture failed: RuntimeError": 1,
   "recognise_circular_blind_steps: capture failed: RuntimeError": 2,
   "recognise_turned_steps: capture failed: RuntimeError": 18,
-  "recognise_round_bottom_blind_slots: capture failed: RuntimeError": 1
+  "recognise_round_bottom_blind_slots: capture failed: RuntimeError": 1,
+  "recognise_edge_open_prismatic_recesses: capture failed: RuntimeError": 2
  }
 }

@@ -17,6 +17,9 @@ pub mod circular_face_patterns;
 pub mod context;
 pub mod countersinks;
 pub mod cylinders;
+pub mod edge_open;
+pub mod edge_open_circular;
+pub mod edge_open_prismatic;
 pub mod evidence;
 pub mod fillets;
 pub mod flats;
@@ -72,6 +75,8 @@ pub struct Features {
     pub through_steps: Vec<through_steps::ThroughStep>,
     pub turned_steps: Vec<turned_steps::TurnedStep>,
     pub round_bottom_blind_slots: Vec<round_bottom_slots::RoundBottomBlindSlot>,
+    pub edge_open_circular_pockets: Vec<edge_open_circular::EdgeOpenCircularPocket>,
+    pub edge_open_prismatic_recesses: Vec<edge_open_prismatic::EdgeOpenPrismaticRecess>,
 }
 
 /// Recognise every ported family on *part* with default options; holes carry their
@@ -103,6 +108,8 @@ pub fn recognise(part: &Part) -> Features {
         through_steps: records(through_steps::discover(&ctx)),
         turned_steps: turned_steps::sorted(records(turned_steps::discover(&ctx))),
         round_bottom_blind_slots: records(round_bottom_slots::discover(&ctx)),
+        edge_open_circular_pockets: records(edge_open_circular::discover(&ctx)),
+        edge_open_prismatic_recesses: records(edge_open_prismatic::discover(&ctx)),
     }
 }
 

@@ -190,3 +190,13 @@ fn gusset_ribs_match_python() {
 fn gusset_rib_patterns_match_python() {
     replay("recognise_gusset_rib_patterns");
 }
+
+#[test]
+fn edge_open_circular_pockets_match_python() {
+    replay("recognise_edge_open_circular_pockets");
+}
+
+#[test]
+fn edge_open_prismatic_recesses_match_python() {
+    replay("recognise_edge_open_prismatic_recesses");
+}
