@@ -59,7 +59,7 @@ impl Prism {
     }
 
     /// The region's area: the largest loop less the others (its holes).
-    fn area(&self) -> f64 {
+    pub fn area(&self) -> f64 {
         let (u, v) = self.across();
         let mut areas: Vec<f64> = self
             .loops

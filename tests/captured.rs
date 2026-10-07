@@ -187,6 +187,11 @@ fn gusset_ribs_match_python() {
 }
 
 #[test]
+fn double_d_bores_match_python() {
+    replay("recognise_double_d_bores");
+}
+
+#[test]
 fn gusset_rib_patterns_match_python() {
     replay("recognise_gusset_rib_patterns");
 }

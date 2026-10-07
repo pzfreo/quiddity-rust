@@ -37,6 +37,7 @@ from quiddity._effective_surfaces import effective_faces_for_graph  # noqa: E402
 from quiddity.circular_blind_steps import _discover_circular_blind_steps  # noqa: E402
 from quiddity.circular_face_patterns import _discover_circular_face_patterns  # noqa: E402
 from quiddity.countersinks import _discover_countersinks  # noqa: E402
+from quiddity.profiled_bores import _discover_double_d_bores, recognise_double_d_bores  # noqa: E402
 from quiddity.fillets import _discover_fillets  # noqa: E402
 from quiddity.flats import _discover_flats  # noqa: E402
 from quiddity.gussets import _discover_gusset_ribs  # noqa: E402
@@ -195,6 +196,8 @@ def main() -> None:
         round_bottom = (FamilyId.ROUND_BOTTOM_BLIND_SLOTS, lambda p, o: recognise_round_bottom_blind_slots(p),
                         lambda p, ledger, o: _discover_round_bottom_blind_slots(p, graph=ledger.graph,
                                                                                 sink=ledger.writer.sink))
+        double_d = (FamilyId.DOUBLE_D_BORES, lambda p, o: recognise_double_d_bores(p),
+                    lambda p, ledger, o: _discover_double_d_bores(p, writer=ledger.writer))
         hole = (FamilyId.HOLES, lambda p, o: recognise_holes(p, **hole_kwargs(o)),
                 lambda p, ledger, o: _discover_holes(p, writer=ledger.writer, **hole_kwargs(o)))
         walls = (FamilyId.THIN_WALL_BODIES, lambda p, o: recognise_thin_wall_bodies(p),
@@ -248,6 +251,7 @@ def main() -> None:
                     "recognise_round_bottom_blind_slots": [
                         _run(part, "recognise_round_bottom_blind_slots", *round_bottom, {})
                     ],
+                    "recognise_double_d_bores": [_run(part, "recognise_double_d_bores", *double_d, {})],
                     "recognise_gusset_ribs": [_run(part, "recognise_gusset_ribs", *gusset, {})],
                     "recognise_gusset_rib_patterns": [
                         {"options": {}, "result": _plain(recognise_gusset_rib_patterns(recognise_gusset_ribs(part)))}

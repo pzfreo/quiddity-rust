@@ -58,5 +58,47 @@
     "function": "recognise_round_bottom_blind_slots",
     "verdict": "not-applicable",
     "reason": "Both calls run with _same_span or _region_face monkeypatched to refuse, so Python's empty answer reflects the patch; the part is the plain slot the other tests on the same file (4e090fe361c883ac) find, and the port finds it."
+  },
+  {
+    "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[ValueError]",
+    "function": "recognise_double_d_bores",
+    "verdict": "not-applicable",
+    "reason": "Solid.extrude is monkeypatched to raise, so Python cannot build the void-proof prism and drops the bore; the empty answer reflects the patch. Unpatched, the same part's one bore matches (the test's first call)."
+  },
+  {
+    "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[Standard_Failure]",
+    "function": "recognise_double_d_bores",
+    "verdict": "not-applicable",
+    "reason": "Solid.extrude is monkeypatched to raise, so Python cannot build the void-proof prism and drops the bore; the empty answer reflects the patch. Unpatched, the same part's one bore matches (the test's first call)."
+  },
+  {
+    "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[Standard_ConstructionError]",
+    "function": "recognise_double_d_bores",
+    "verdict": "not-applicable",
+    "reason": "Solid.extrude is monkeypatched to raise, so Python cannot build the void-proof prism and drops the bore; the empty answer reflects the patch. Unpatched, the same part's one bore matches (the test's first call)."
+  },
+  {
+    "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[Standard_DomainError]",
+    "function": "recognise_double_d_bores",
+    "verdict": "not-applicable",
+    "reason": "Solid.extrude is monkeypatched to raise, so Python cannot build the void-proof prism and drops the bore; the empty answer reflects the patch. Unpatched, the same part's one bore matches (the test's first call)."
+  },
+  {
+    "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[RuntimeError]",
+    "function": "recognise_double_d_bores",
+    "verdict": "not-applicable",
+    "reason": "Solid.extrude is monkeypatched to raise, so Python cannot build the void-proof prism and drops the bore; the empty answer reflects the patch. Unpatched, the same part's one bore matches (the test's first call)."
+  },
+  {
+    "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[StdFail_NotDone]",
+    "function": "recognise_double_d_bores",
+    "verdict": "not-applicable",
+    "reason": "Solid.extrude is monkeypatched to raise, so Python cannot build the void-proof prism and drops the bore; the empty answer reflects the patch. Unpatched, the same part's one bore matches (the test's first call)."
+  },
+  {
+    "test": "tests/test_geometry_failure_boundaries.py::test_double_d_boolean_fragments_are_measured_not_hidden_as_attribute_errors[volumes2-False]",
+    "function": "recognise_double_d_bores",
+    "verdict": "not-applicable",
+    "reason": "Solid.__and__ is monkeypatched to return fragments of volume 1 and 2, fabricating material inside the prism, so Python rejects the bore; the part itself is a true through double-D, which the port finds (as Python does in the unpatched variants of the test)."
   }
 ]

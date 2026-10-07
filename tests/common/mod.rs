@@ -82,6 +82,9 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
             json(quiddity::recognise_round_bottom_blind_slots(part))
         }
         "recognise_gusset_ribs" => json(quiddity::recognise_gusset_ribs(part)),
+        "recognise_double_d_bores" => {
+            json(quiddity::recognise_double_d_bores(part, &options(kwargs)))
+        }
         // Over a part: the patterns among the part's gusset ribs.
         "recognise_gusset_rib_patterns" => json(quiddity::recognise_gusset_rib_patterns(
             &quiddity::recognise_gusset_ribs(part),
@@ -160,6 +163,9 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
             quiddity::features::round_bottom_slots::discover_verified(&ctx).map(faces)
         }
         "recognise_gusset_ribs" => quiddity::features::gussets::discover_verified(&ctx).map(faces),
+        "recognise_double_d_bores" => {
+            quiddity::features::profiled_bores::discover_verified(&ctx).map(faces)
+        }
         other => panic!("{other} has no evidence path"),
     };
     result.map_err(|e| e.to_string())

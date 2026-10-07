@@ -31,6 +31,7 @@ OpenCascade is reimplemented in `src/kernel`.
 | Round-bottom blind slots | `recognise_round_bottom_blind_slots` | 25/27 (2 known divergences) | see below |
 | Gusset ribs | `recognise_gusset_ribs` | 26/26 | see below |
 | Gusset rib patterns | `recognise_gusset_rib_patterns` | 18/18 | see below |
+| Double-D bores | `recognise_double_d_bores` | 71/78 (7 known divergences) | see below |
 
 Known divergences are listed, with reasons, in `tests/fixtures/captured/known_divergences.json`
 (captured calls) and `tests/fixtures/known_divergences.json` (corpus).
@@ -109,7 +110,7 @@ src/
     paired_ramp_steps.rs  oriented_chamfers.rs  levels.rs  circular_face_patterns.rs
     thin_walls.rs  interior_voids.rs  through_steps.rs
     oblique_through_steps.rs  circular_blind_steps.rs
-    turned_steps.rs  round_bottom_slots.rs  gussets.rs
+    turned_steps.rs  round_bottom_slots.rs  gussets.rs  profiled_bores.rs
     volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over kernel/volume.rs
   bin/quiddity.rs    `quiddity part.step` → JSON
 tests/

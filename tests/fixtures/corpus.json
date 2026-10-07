@@ -6330,6 +6330,13 @@
        }
       ]
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -21298,6 +21305,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -118761,6 +118775,13 @@
        }
       ]
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -126199,6 +126220,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -140949,6 +140977,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -158179,6 +158214,13 @@
        }
       ]
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -161389,6 +161431,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -203314,6 +203363,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -232678,6 +232734,13 @@
        }
       ]
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -256576,6 +256639,13 @@
        }
       ]
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -257526,6 +257596,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -258195,6 +258272,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -259624,6 +259708,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -260568,6 +260659,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -261899,6 +261997,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -264548,6 +264653,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -266094,6 +266206,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -267974,6 +268093,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -270874,6 +271000,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -272243,6 +272376,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -275049,6 +275189,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -276578,6 +276725,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -278391,6 +278545,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -280146,6 +280307,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -281963,6 +282131,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -283736,6 +283911,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -285902,6 +286084,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -287491,6 +287680,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -288981,6 +289177,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -289959,6 +290162,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -291860,6 +292070,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -293939,6 +294156,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -295865,6 +296089,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -297683,6 +297914,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -300053,6 +300291,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -301835,6 +302080,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -303536,6 +303788,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -305676,6 +305935,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -306782,6 +307048,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -308599,6 +308872,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -310306,6 +310586,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -312313,6 +312600,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -314117,6 +314411,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -316205,6 +316506,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -318478,6 +318786,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -319725,6 +320040,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -321112,6 +321434,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -323122,6 +323451,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -324773,6 +325109,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -326446,6 +326789,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -328096,6 +328446,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -329925,6 +330282,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -331342,6 +331706,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -333612,6 +333983,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -334946,6 +335324,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -337347,6 +337732,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -338777,6 +339169,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -340850,6 +341249,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -342703,6 +343109,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -343741,6 +344154,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -345324,6 +345744,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -346365,6 +346792,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -348053,6 +348487,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -350344,6 +350785,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -351518,6 +351966,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -353168,6 +353623,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -354614,6 +355076,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -355554,6 +356023,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -356946,6 +357422,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -358197,6 +358680,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -359394,6 +359884,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -361022,6 +361519,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -362983,6 +363487,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -364567,6 +365078,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -366765,6 +367283,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -368556,6 +369081,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -369807,6 +370339,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -371473,6 +372012,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -373610,6 +374156,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -375264,6 +375817,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -377074,6 +377634,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -379345,6 +379912,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -382058,6 +382632,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -383629,6 +384210,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -385488,6 +386076,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -387236,6 +387831,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -389323,6 +389925,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -391749,6 +392358,13 @@
       },
       "result": []
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -393757,6 +394373,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -401406,6 +402029,13 @@
         "angle": 0.0
        }
       ]
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -433040,6 +433670,13 @@
        }
       ]
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -441984,6 +442621,13 @@
         "angle": 90.0
        }
       ]
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -468470,6 +469114,13 @@
        }
       ]
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -479269,6 +479920,13 @@
        }
       ]
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -486729,6 +487387,13 @@
         "angle": 90.0
        }
       ]
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -499762,6 +500427,13 @@
         "angle": 90.0
        }
       ]
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -513748,6 +514420,13 @@
        }
       ]
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -523076,6 +523755,13 @@
         ]
        }
       ]
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -534706,6 +535392,13 @@
        }
       ]
      }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -540602,6 +541295,13 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_double_d_bores": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
