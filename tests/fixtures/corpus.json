@@ -4255,6 +4255,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -20732,6 +20746,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -116909,6 +116937,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -125541,6 +125583,20 @@
         155
        ]
       ]
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ],
     "recognise_holes": [
@@ -138591,6 +138647,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -156334,6 +156404,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -159989,6 +160073,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -201796,6 +201894,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -228929,6 +229041,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -252304,6 +252430,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -256204,6 +256344,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -256759,6 +256913,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -257914,6 +258082,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -258855,6 +259037,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -260102,6 +260298,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -262782,6 +262992,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -264154,6 +264378,57 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "radius": 8.4643,
+        "length": 23.7641,
+        "centreline": [
+         [
+          5.91691,
+          13.7228,
+          48.7173
+         ],
+         [
+          29.681,
+          13.7228,
+          48.7173
+         ]
+        ],
+        "section": [
+         [
+          5.25856,
+          48.7173
+         ],
+         [
+          13.7228,
+          48.7173
+         ],
+         [
+          13.7228,
+          40.253
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        9,
+        10
+       ]
+      ]
      }
     ],
     "recognise_holes": [
@@ -265986,6 +266261,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -268797,6 +269086,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -270159,6 +270462,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -272879,6 +273196,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -274267,6 +274598,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -276125,6 +276470,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -277783,6 +278142,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -279557,6 +279930,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -281231,6 +281618,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -283275,6 +283676,57 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "radius": 2.76451,
+        "length": 5.03955,
+        "centreline": [
+         [
+          32.6941,
+          16.545,
+          32.5404
+         ],
+         [
+          32.6941,
+          16.545,
+          37.58
+         ]
+        ],
+        "section": [
+         [
+          29.9296,
+          16.545
+         ],
+         [
+          32.6941,
+          16.545
+         ],
+         [
+          32.6941,
+          13.7805
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        11,
+        36
+       ]
+      ]
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -284759,6 +285211,115 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "run": [
+         0.852936,
+         0.0,
+         0.522015
+        ],
+        "length": 14.069,
+        "at": [
+         6.0,
+         16.485,
+         7.202
+        ],
+        "depth_direction": [
+         0.0,
+         1.0,
+         0.0
+        ],
+        "depth": 21.345,
+        "across_direction": [
+         -0.522015,
+         0.0,
+         0.852936
+        ],
+        "wall_outline": [
+         [
+          0.0,
+          0.0
+         ],
+         [
+          8.675,
+          14.174
+         ],
+         [
+          18.91,
+          7.91
+         ],
+         [
+          14.069,
+          0.0
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         11.999845,
+         37.829959,
+         20.147884,
+         5672.85285361,
+         2527.96466244
+        ]
+       }
+      ],
+      "defining": [
+       [
+        11,
+        13
+       ]
+      ]
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "radius": 2.74659,
+        "length": 9.01672,
+        "centreline": [
+         [
+          2.98312,
+          0.0,
+          20.1479
+         ],
+         [
+          11.9998,
+          0.0,
+          20.1479
+         ]
+        ],
+        "section": [
+         [
+          -1.6818e-16,
+          17.4013
+         ],
+         [
+          0.0,
+          20.1479
+         ],
+         [
+          2.74659,
+          20.1479
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        23,
+        24
+       ]
+      ]
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -286161,6 +286722,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -287130,6 +287705,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -289029,6 +289618,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -290973,6 +291576,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -292855,6 +293472,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -294535,6 +295166,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -296903,6 +297548,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -298637,6 +299296,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -300196,6 +300869,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -302339,6 +303026,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -303395,6 +304096,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -305033,6 +305748,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -306719,6 +307448,78 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "run": [
+         0.913639,
+         0.0,
+         0.406526
+        ],
+        "length": 10.952,
+        "at": [
+         5.003,
+         9.395,
+         5.526
+        ],
+        "depth_direction": [
+         0.0,
+         -1.0,
+         0.0
+        ],
+        "depth": 9.395,
+        "across_direction": [
+         0.406526,
+         0.0,
+         -0.913639
+        ],
+        "wall_outline": [
+         [
+          -1.341,
+          3.015
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          10.952,
+          0.0
+         ],
+         [
+          7.801,
+          7.083
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         10.006575,
+         24.222639,
+         10.426929,
+         1836.93162451,
+         1305.28565787
+        ]
+       }
+      ],
+      "defining": [
+       [
+        6,
+        7
+       ]
+      ]
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -308625,6 +309426,78 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "run": [
+         0.94919,
+         0.0,
+         0.314704
+        ],
+        "length": 48.757,
+        "at": [
+         23.14,
+         19.903,
+         9.376
+        ],
+        "depth_direction": [
+         0.0,
+         -1.0,
+         0.0
+        ],
+        "depth": 19.903,
+        "across_direction": [
+         -0.314704,
+         0.0,
+         0.94919
+        ],
+        "wall_outline": [
+         [
+          0.0,
+          0.0
+         ],
+         [
+          13.013,
+          39.249
+         ],
+         [
+          56.941,
+          24.685
+         ],
+         [
+          48.757,
+          0.0
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         46.279401,
+         30.190578,
+         43.054606,
+         21984.0725081,
+         9319.41953875
+        ]
+       }
+      ],
+      "defining": [
+       [
+        3,
+        5
+       ]
+      ]
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -310343,6 +311216,57 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "radius": 7.1243,
+        "length": 13.2461,
+        "centreline": [
+         [
+          0.0,
+          26.1066,
+          0.0
+         ],
+         [
+          0.0,
+          39.3527,
+          0.0
+         ]
+        ],
+        "section": [
+         [
+          0.0,
+          7.1243
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          7.1243,
+          2.18119e-16
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        5,
+        7
+       ]
+      ]
      }
     ],
     "recognise_holes": [
@@ -312337,6 +313261,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -314609,6 +315547,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -315849,6 +316801,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -317142,6 +318108,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -319067,6 +320047,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -320634,6 +321628,57 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "radius": 3.42171,
+        "length": 11.3822,
+        "centreline": [
+         [
+          12.0773,
+          36.9383,
+          16.5988
+         ],
+         [
+          12.0773,
+          48.3204,
+          16.5988
+         ]
+        ],
+        "section": [
+         [
+          8.65554,
+          16.5988
+         ],
+         [
+          12.0773,
+          16.5988
+         ],
+         [
+          12.0773,
+          13.1771
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        14,
+        15
+       ]
+      ]
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -322173,6 +323218,57 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "radius": 3.5849,
+        "length": 3.90298,
+        "centreline": [
+         [
+          14.6997,
+          0.0,
+          14.2652
+         ],
+         [
+          14.6997,
+          0.0,
+          18.1682
+         ]
+        ],
+        "section": [
+         [
+          14.6997,
+          3.5849
+         ],
+         [
+          14.6997,
+          0.0
+         ],
+         [
+          18.2846,
+          0.0
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        13,
+        14
+       ]
+      ]
      }
     ],
     "recognise_holes": [
@@ -323860,6 +324956,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -325608,6 +326718,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -326851,6 +327975,57 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "radius": 4.12122,
+        "length": 2.91375,
+        "centreline": [
+         [
+          0.0,
+          14.9312,
+          7.16581
+         ],
+         [
+          0.0,
+          17.845,
+          7.16581
+         ]
+        ],
+        "section": [
+         [
+          0.0,
+          11.287
+         ],
+         [
+          0.0,
+          7.16581
+         ],
+         [
+          4.12123,
+          7.16581
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        10,
+        11
+       ]
+      ]
      }
     ],
     "recognise_holes": [
@@ -329032,6 +330207,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -330313,6 +331502,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -332713,6 +333916,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -334048,6 +335265,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -336120,6 +337351,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -337924,6 +339169,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -338922,6 +340181,57 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "radius": 2.12516,
+        "length": 2.68015,
+        "centreline": [
+         [
+          2.68015,
+          5.37344,
+          42.9728
+         ],
+         [
+          0.0,
+          5.37344,
+          42.9728
+         ]
+        ],
+        "section": [
+         [
+          3.24828,
+          42.9728
+         ],
+         [
+          5.37344,
+          42.9728
+         ],
+         [
+          5.37344,
+          40.8476
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        3,
+        5
+       ]
+      ]
      }
     ],
     "recognise_holes": [
@@ -340378,6 +341688,57 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "radius": 3.49954,
+        "length": 7.789,
+        "centreline": [
+         [
+          0.0,
+          0.0,
+          7.789
+         ],
+         [
+          0.0,
+          0.0,
+          0.0
+         ]
+        ],
+        "section": [
+         [
+          -1.07142e-16,
+          3.49954
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          3.49954,
+          2.14285e-16
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        5,
+        6
+       ]
+      ]
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -341366,6 +342727,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -342960,6 +344335,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -345123,6 +346512,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -346289,6 +347692,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -347859,6 +349276,57 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "radius": 3.45601,
+        "length": 26.285,
+        "centreline": [
+         [
+          24.1167,
+          0.0,
+          23.3409
+         ],
+         [
+          24.1167,
+          0.0,
+          49.6258
+         ]
+        ],
+        "section": [
+         [
+          20.6607,
+          2.1162e-16
+         ],
+         [
+          24.1167,
+          0.0
+         ],
+         [
+          24.1167,
+          3.45601
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        12,
+        20
+       ]
+      ]
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -349169,6 +350637,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -350055,6 +351537,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -351404,6 +352900,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -352564,6 +354074,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -353708,6 +355232,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -355288,6 +356826,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -357194,6 +358746,78 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "run": [
+         0.0,
+         0.513568,
+         0.858049
+        ],
+        "length": 15.5,
+        "at": [
+         5.621,
+         12.007,
+         6.65
+        ],
+        "depth_direction": [
+         1.0,
+         0.0,
+         0.0
+        ],
+        "depth": 22.864,
+        "across_direction": [
+         0.0,
+         -0.858049,
+         0.513568
+        ],
+        "wall_outline": [
+         [
+          -4.122,
+          6.887
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          15.5,
+          0.0
+         ],
+         [
+          7.29,
+          13.718
+         ]
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         28.48582,
+         44.597706,
+         13.300107,
+         12619.8507485,
+         4671.59505632
+        ]
+       }
+      ],
+      "defining": [
+       [
+        9,
+        11
+       ]
+      ]
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -358682,6 +360306,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -360748,6 +362386,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -362407,6 +364059,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -363656,6 +365322,57 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "radius": 10.7636,
+        "length": 20.5378,
+        "centreline": [
+         [
+          15.603,
+          0.0,
+          0.0
+         ],
+         [
+          36.1408,
+          0.0,
+          0.0
+         ]
+        ],
+        "section": [
+         [
+          1.31815e-15,
+          10.7635
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          10.7635,
+          -9.88616e-16
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        15,
+        16
+       ]
+      ]
      }
     ],
     "recognise_holes": [
@@ -365237,6 +366954,57 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "radius": 8.604,
+        "length": 7.45087,
+        "centreline": [
+         [
+          14.9084,
+          25.8833,
+          0.0
+         ],
+         [
+          14.9084,
+          33.3342,
+          0.0
+         ]
+        ],
+        "section": [
+         [
+          14.9084,
+          8.60402
+         ],
+         [
+          14.9084,
+          0.0
+         ],
+         [
+          23.5125,
+          2.63422e-16
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        10,
+        27
+       ]
+      ]
      }
     ],
     "recognise_holes": [
@@ -367204,6 +368972,57 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "radius": 11.4478,
+        "length": 4.78588,
+        "centreline": [
+         [
+          4.78588,
+          32.3844,
+          23.4787
+         ],
+         [
+          0.0,
+          32.3844,
+          23.4787
+         ]
+        ],
+        "section": [
+         [
+          20.9366,
+          23.4787
+         ],
+         [
+          32.3844,
+          23.4787
+         ],
+         [
+          32.3844,
+          12.0309
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        2,
+        10
+       ]
+      ]
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -368876,6 +370695,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -370476,6 +372309,92 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "radius": 6.63295,
+        "length": 10.1618,
+        "centreline": [
+         [
+          38.0341,
+          0.0,
+          33.9929
+         ],
+         [
+          48.1959,
+          0.0,
+          33.9929
+         ]
+        ],
+        "section": [
+         [
+          8.123e-16,
+          40.6258
+         ],
+         [
+          0.0,
+          33.9929
+         ],
+         [
+          6.63293,
+          33.9929
+         ]
+        ]
+       },
+       {
+        "axis": "y",
+        "radius": 2.0,
+        "length": 12.4403,
+        "centreline": [
+         [
+          4.28616,
+          22.1408,
+          0.0
+         ],
+         [
+          4.28616,
+          34.5811,
+          0.0
+         ]
+        ],
+        "section": [
+         [
+          4.28616,
+          2.0
+         ],
+         [
+          4.28616,
+          0.0
+         ],
+         [
+          6.28616,
+          6.12323e-17
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        24,
+        25
+       ],
+       [
+        16,
+        18
+       ]
+      ]
      }
     ],
     "recognise_holes": [
@@ -372704,6 +374623,57 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "radius": 6.1217,
+        "length": 12.7833,
+        "centreline": [
+         [
+          12.7833,
+          13.2924,
+          28.8454
+         ],
+         [
+          0.0,
+          13.2924,
+          28.8454
+         ]
+        ],
+        "section": [
+         [
+          7.1707,
+          28.8454
+         ],
+         [
+          13.2924,
+          28.8454
+         ],
+         [
+          13.2924,
+          22.7237
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        3,
+        16
+       ]
+      ]
      }
     ],
     "recognise_holes": [
@@ -375416,6 +377386,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -376855,6 +378839,57 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "radius": 4.01278,
+        "length": 2.99059,
+        "centreline": [
+         [
+          0.0,
+          26.9938,
+          0.0
+         ],
+         [
+          0.0,
+          29.9844,
+          0.0
+         ]
+        ],
+        "section": [
+         [
+          0.0,
+          4.01278
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          4.01278,
+          1.22856e-16
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        3,
+        4
+       ]
+      ]
      }
     ],
     "recognise_holes": [
@@ -378641,6 +380676,92 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "radius": 3.03621,
+        "length": 3.19757,
+        "centreline": [
+         [
+          10.1374,
+          3.19757,
+          0.0
+         ],
+         [
+          10.1374,
+          0.0,
+          0.0
+         ]
+        ],
+        "section": [
+         [
+          7.1012,
+          2.78872e-16
+         ],
+         [
+          10.1374,
+          0.0
+         ],
+         [
+          10.1374,
+          3.03622
+         ]
+        ]
+       },
+       {
+        "axis": "z",
+        "radius": 2.0,
+        "length": 18.2431,
+        "centreline": [
+         [
+          0.0,
+          0.0,
+          6.49539
+         ],
+         [
+          0.0,
+          0.0,
+          24.7385
+         ]
+        ],
+        "section": [
+         [
+          6.12323e-17,
+          2.0
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          2.0,
+          0.0
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        21,
+        22
+       ],
+       [
+        10,
+        11
+       ]
+      ]
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -380187,6 +382308,127 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "radius": 5.8289,
+        "length": 25.7716,
+        "centreline": [
+         [
+          25.7716,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          0.0
+         ]
+        ],
+        "section": [
+         [
+          -3.56916e-16,
+          5.82888
+         ],
+         [
+          0.0,
+          0.0
+         ],
+         [
+          5.82888,
+          5.16225e-16
+         ]
+        ]
+       },
+       {
+        "axis": "x",
+        "radius": 6.54995,
+        "length": 34.602,
+        "centreline": [
+         [
+          34.602,
+          37.0711,
+          0.0
+         ],
+         [
+          0.0,
+          37.0711,
+          0.0
+         ]
+        ],
+        "section": [
+         [
+          30.5211,
+          -2.00534e-16
+         ],
+         [
+          37.0711,
+          0.0
+         ],
+         [
+          37.0711,
+          6.54994
+         ]
+        ]
+       },
+       {
+        "axis": "y",
+        "radius": 2.0,
+        "length": 19.5796,
+        "centreline": [
+         [
+          37.6956,
+          17.4915,
+          19.6139
+         ],
+         [
+          37.6956,
+          37.0711,
+          19.6139
+         ]
+        ],
+        "section": [
+         [
+          35.6956,
+          19.6139
+         ],
+         [
+          37.6956,
+          19.6139
+         ],
+         [
+          37.6956,
+          17.6139
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        4,
+        15
+       ],
+       [
+        1,
+        13
+       ],
+       [
+        16,
+        28
+       ]
+      ]
      }
     ],
     "recognise_holes": [
@@ -382177,6 +384419,92 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "radius": 2.08692,
+        "length": 25.0342,
+        "centreline": [
+         [
+          41.1409,
+          0.0,
+          23.6446
+         ],
+         [
+          41.1409,
+          0.0,
+          48.6788
+         ]
+        ],
+        "section": [
+         [
+          39.054,
+          1.27787e-16
+         ],
+         [
+          41.1409,
+          0.0
+         ],
+         [
+          41.1409,
+          2.08692
+         ]
+        ]
+       },
+       {
+        "axis": "z",
+        "radius": 2.08902,
+        "length": 17.7734,
+        "centreline": [
+         [
+          0.0,
+          3.14,
+          17.7734
+         ],
+         [
+          0.0,
+          3.14,
+          0.0
+         ]
+        ],
+        "section": [
+         [
+          1.91873e-16,
+          1.05098
+         ],
+         [
+          0.0,
+          3.14
+         ],
+         [
+          2.08902,
+          3.14
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        10,
+        35
+       ],
+       [
+        3,
+        4
+       ]
+      ]
      }
     ],
     "recognise_holes": [
@@ -384533,6 +386861,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -386375,6 +388717,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -393496,6 +395852,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -420825,6 +423195,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -432850,6 +435234,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -457613,6 +460011,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -470498,6 +472910,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -478283,6 +480709,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -490632,6 +493072,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -504847,6 +507301,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -513666,6 +516134,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],
@@ -524919,6 +527401,20 @@
       "defining": []
      }
     ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_holes": [
      {
       "options": {},
@@ -531986,6 +534482,20 @@
      }
     ],
     "recognise_circular_face_patterns": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oblique_through_steps": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_circular_blind_steps": [
      {
       "options": {},
       "result": [],

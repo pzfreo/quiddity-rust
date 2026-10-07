@@ -334,6 +334,11 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<ObliqueThroughStep>> {
     let part = ctx.part;
     let mut found = Vec::new();
     for (s, solid) in part.solids.iter().enumerate() {
+        // Python refuses (raises) a step whose walls do not belong to one valid solid; the
+        // port publishes none from such a solid.
+        if !part.solid_is_valid(s) {
+            continue;
+        }
         let bounds = part.solid_bounds(s);
         let mut faces = solid.faces.clone();
         faces.sort_unstable();
