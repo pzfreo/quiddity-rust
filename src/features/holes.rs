@@ -158,10 +158,10 @@ fn merge_stacks(part: &Part, stacks: Vec<Vec<Segment>>) -> Vec<Vec<Segment>> {
         for &face in &seg.faces {
             let own = owner_of(seg.solid, face);
             for other in part.neighbours(face) {
-                if let Some(index) = owner_of(seg.solid, other) {
-                    if Some(index) != own {
-                        found.insert(index);
-                    }
+                if let Some(index) = owner_of(seg.solid, other)
+                    && Some(index) != own
+                {
+                    found.insert(index);
                 }
             }
         }

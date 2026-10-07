@@ -156,11 +156,11 @@ fn level_proposals(
     let mut zs = Vec::new();
     let mut faces = Vec::new();
     for &f in &scope.faces {
-        if let Surface::Plane { frame } = part.faces[f].surface {
-            if frame.z[2].abs() > AXIS_ALIGNED_COS {
-                zs.push(frame.origin[2]);
-                faces.push(f);
-            }
+        if let Surface::Plane { frame } = part.faces[f].surface
+            && frame.z[2].abs() > AXIS_ALIGNED_COS
+        {
+            zs.push(frame.origin[2]);
+            faces.push(f);
         }
     }
     let b = &scope.bounds;

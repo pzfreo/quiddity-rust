@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [prototype/rust-port]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TERM_COLOR: always
+      QUIDDITY_CORPUS: ${{ github.workspace }}/quiddity/tests/corpus
+      QUIDDITY_CORPUS_REQUIRED: "1"
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      # The corpus lives in the Python repository; the toolchain comes from rust-toolchain.toml.
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: pzfreo/quiddity
+          path: quiddity
+          sparse-checkout: tests/corpus
+      - run: rustup toolchain install
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets --release -- -D warnings
+      - run: cargo test --release

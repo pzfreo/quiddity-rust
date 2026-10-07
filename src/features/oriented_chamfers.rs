@@ -332,11 +332,18 @@ pub fn discover(
         }
     }
     // Body keys need every solid's exact mass, so they are only computed for parts with records.
-    let keys = if found.is_empty() { vec![] } else { ctx.body_keys(true) };
+    let keys = if found.is_empty() {
+        vec![]
+    } else {
+        ctx.body_keys(true)
+    };
     let mut out: Vec<_> = found
         .into_iter()
         .map(|(s, record, bevel)| Occurrence {
-            record: OrientedChamfer { body_key: keys[s].clone(), ..record },
+            record: OrientedChamfer {
+                body_key: keys[s].clone(),
+                ..record
+            },
             defining: vec![bevel],
             context: vec![],
         })

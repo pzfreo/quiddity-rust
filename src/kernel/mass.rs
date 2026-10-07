@@ -316,11 +316,12 @@ impl Part {
                             crossed = true;
                         }
                     } else {
-                        if in_band && !crossed {
-                            if let Some(p) = anchors.get(next_anchor) {
-                                last = placed(p);
-                                next_anchor += 1;
-                            }
+                        if in_band
+                            && !crossed
+                            && let Some(p) = anchors.get(next_anchor)
+                        {
+                            last = placed(p);
+                            next_anchor += 1;
                         }
                         (regular_seen, in_band, crossed) = (true, false, false);
                     }

@@ -503,11 +503,11 @@ pub fn recognise_hole_patterns(holes: &[HoleRecord]) -> Vec<HolePattern> {
             })
             .collect();
         let planes = opening_plane_clusters(&members, spec.axis);
-        if planes.len() == 1 {
-            if let Some(grid) = rect_grid(&members, &pts) {
-                patterns.push(grid);
-                continue;
-            }
+        if planes.len() == 1
+            && let Some(grid) = rect_grid(&members, &pts)
+        {
+            patterns.push(grid);
+            continue;
         }
         let mut candidates: Vec<Candidate> = Vec::new();
         for indices in &planes {

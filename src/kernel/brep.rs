@@ -209,12 +209,12 @@ impl Part {
             }
             _ => Vec::new(),
         };
-        if !candidates.is_empty() {
-            if let Some(domain) = self.domain(face) {
-                for (u, v) in candidates {
-                    if domain.contains(u, v) || touches_singular_point(&f.surface, domain, v) {
-                        b.add(f.surface.value(u, v));
-                    }
+        if !candidates.is_empty()
+            && let Some(domain) = self.domain(face)
+        {
+            for (u, v) in candidates {
+                if domain.contains(u, v) || touches_singular_point(&f.surface, domain, v) {
+                    b.add(f.surface.value(u, v));
                 }
             }
         }

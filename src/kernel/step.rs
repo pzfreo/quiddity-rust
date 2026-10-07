@@ -682,7 +682,7 @@ pub fn read_step(bytes: &[u8]) -> Result<Part, StepError> {
 
     // Shells in the order OpenCascade's explorer meets them: placed solid instances, then open
     // shells.
-    let mut shells: Vec<(bool, Placement, Vec<(StepFace<'_>, bool)>)> = Vec::new();
+    let mut shells = Vec::new();
     let (mut instances, mut placed) = (Vec::new(), Vec::new());
     for root in scene.root_definitions() {
         collect_instances(root, IDENTITY, reader.to_mm, &mut instances, &mut placed, 0);

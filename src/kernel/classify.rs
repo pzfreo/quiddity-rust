@@ -12,6 +12,8 @@ use super::sampling::CHORD_TOLERANCE;
 
 /// Fixed, deliberately irrational-looking directions: none is parallel to a principal axis or a
 /// principal diagonal, which is where modelled geometry concentrates.
+// 0.7071 is a ray component, not an approximation of 1/√2; changing it would move the rays.
+#[allow(clippy::approx_constant)]
 const DIRECTIONS: [V3; 7] = [
     [0.5773, 0.6123, 0.5401],
     [-0.4364, 0.8018, 0.4082],

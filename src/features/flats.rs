@@ -52,7 +52,7 @@ fn chord_ends_reach_od(vertices: &[V3], ax: V3, d: V3, n: V3, r: f64) -> bool {
         return false;
     }
     let c = c.map(|x| x / cm);
-    let (mut lo, mut hi): (Option<(f64, f64)>, Option<(f64, f64)>) = (None, None);
+    let (mut lo, mut hi) = (None::<(f64, f64)>, None::<(f64, f64)>);
     for &v in vertices {
         let rel = geom::sub(v, ax);
         let t = rel[0] * c[0] + rel[1] * c[1] + rel[2] * c[2];

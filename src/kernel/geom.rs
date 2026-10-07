@@ -55,9 +55,9 @@ impl Bounds {
         }
     }
     pub fn add(&mut self, p: V3) {
-        for i in 0..3 {
-            self.min[i] = self.min[i].min(p[i]);
-            self.max[i] = self.max[i].max(p[i]);
+        for (i, x) in p.into_iter().enumerate() {
+            self.min[i] = self.min[i].min(x);
+            self.max[i] = self.max[i].max(x);
         }
     }
     pub fn merge(&mut self, other: &Bounds) {

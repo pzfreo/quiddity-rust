@@ -69,9 +69,12 @@ fn circle(part: &Part, edge: usize) -> Option<(f64, V3)> {
     }
 }
 
+/// A circular rim: its radius and centre.
+pub type Rim = (f64, V3);
+
 /// `(minor, major, included angle°)` of a cone face: its smallest and largest circular rims and
 /// the full cone angle to 2 dp (`cone_rims`).
-pub fn cone_rims(part: &Part, face: usize) -> Option<((f64, V3), (f64, V3), f64)> {
+pub fn cone_rims(part: &Part, face: usize) -> Option<(Rim, Rim, f64)> {
     let Surface::Cone { semi_angle, .. } = part.faces[face].surface else {
         return None;
     };
