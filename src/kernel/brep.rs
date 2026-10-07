@@ -4,8 +4,8 @@
 
 use std::sync::OnceLock;
 
-use super::geom::{Bounds, Curve, Surface, V3};
-use super::sampling::arc_extremes;
+use super::geom::{self, Bounds, Curve, Surface, V3};
+use super::sampling::{arc_extremes, edge_interval};
 use super::uv::{FaceDomain, UvLoop, touches_singular_point};
 
 #[derive(Clone, Debug)]
@@ -60,6 +60,50 @@ impl Edge {
     /// Whether the edge starts and ends at the same vertex (a full circle, a closed spline).
     pub fn is_closed(&self) -> bool {
         self.vertices.0 == self.vertices.1
+    }
+
+    /// The point halfway along the edge by arc length (build123d `Edge.center()`): exact for
+    /// lines and circular arcs, measured along the samples otherwise.
+    pub fn midpoint(&self) -> V3 {
+        match &self.curve {
+            Curve::Line { .. } => geom::scale(geom::add(self.start, self.end), 0.5),
+            Curve::Circle { .. } => {
+                let (a, b) = edge_interval(
+                    &self.curve,
+                    self.start,
+                    self.end,
+                    self.same_sense,
+                    self.is_closed(),
+                );
+                self.curve.value(0.5 * (a + b))
+            }
+            _ => {
+                let lengths: Vec<f64> = self
+                    .samples
+                    .windows(2)
+                    .map(|w| geom::dist(w[0], w[1]))
+                    .collect();
+                let half = 0.5 * lengths.iter().sum::<f64>();
+                let mut run = 0.0;
+                for (w, len) in self.samples.windows(2).zip(&lengths) {
+                    if run + len >= half && *len > 0.0 {
+                        let t = (half - run) / len;
+                        return geom::add(w[0], geom::scale(geom::sub(w[1], w[0]), t));
+                    }
+                    run += len;
+                }
+                self.end
+            }
+        }
+    }
+
+    /// The vertex points (one for a closed edge), as build123d's `edge.vertices()` gives them.
+    pub fn vertex_points(&self) -> Vec<V3> {
+        if self.is_closed() {
+            vec![self.start]
+        } else {
+            vec![self.start, self.end]
+        }
     }
 }
 
@@ -176,6 +220,26 @@ impl Part {
             }
             out
         })
+    }
+
+    /// The face's distinct edges in loop order (build123d `face.edges()`): a seam once.
+    pub fn face_edges(&self, face: usize) -> Vec<usize> {
+        let mut out = Vec::new();
+        for lp in &self.faces[face].loops {
+            for &(e, _) in &lp.edges {
+                if !out.contains(&e) {
+                    out.push(e);
+                }
+            }
+        }
+        out
+    }
+
+    /// The face's outward normal at (u, v): the surface normal, flipped for a reversed face.
+    pub fn face_normal(&self, face: usize, u: f64, v: f64) -> Option<V3> {
+        let f = &self.faces[face];
+        let n = f.surface.normal(u, v)?;
+        Some(if f.reversed { geom::scale(n, -1.0) } else { n })
     }
 
     /// The distinct faces sharing an edge with *face*, in the face's own edge order

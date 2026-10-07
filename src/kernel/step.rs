@@ -202,6 +202,14 @@ impl Reader<'_> {
         let mut out = Vec::new();
         for bound in face.bounds() {
             for edge in bound.edges() {
+                let vertex = |v: Option<step_io::scene::geometry::Vertex<'_>>| {
+                    v.and_then(|v| v.point())
+                        .map(|p| self.place_point(geom::scale(p.xyz(), self.to_mm)))
+                };
+                let (Some(a), Some(b)) = (vertex(edge.start()), vertex(edge.end())) else {
+                    continue;
+                };
+                let ends = (a, b);
                 let associated = match &raw_edge_curve(self.model, &edge) {
                     m::CurveRef::SurfaceCurve(i) => {
                         &self.model.surface_curve_arena.get(i.0).associated_geometry
@@ -225,8 +233,17 @@ impl Reader<'_> {
                         continue;
                     };
                     for item in &self.model.definitional_representation_arena.get(d.0).items {
-                        if let Some(points) = self.bspline_poles_2d(item) {
-                            out.push(points.into_iter().map(|(u, v)| (u * su, v * sv)).collect());
+                        let Some(points) = self.bspline_poles_2d(item) else {
+                            continue;
+                        };
+                        let points: Vec<(f64, f64)> =
+                            points.into_iter().map(|(u, v)| (u * su, v * sv)).collect();
+                        // OpenCascade boxes the pcurve trimmed to the edge. A clamped curve's
+                        // end poles are its end points, so the polygon stands for the edge only
+                        // when they land on the edge's vertices; a longer curve (a line's pcurve
+                        // running past the edge) is left to the sampled loops.
+                        if spans_edge(surface, &points, ends) {
+                            out.push(points);
                         }
                     }
                 }
@@ -391,6 +408,20 @@ impl Reader<'_> {
             samples,
         })
     }
+}
+
+/// Whether a pcurve's end poles map onto the edge's two vertices (in either order).
+fn spans_edge(surface: &Surface, poles: &[(f64, f64)], (a, b): (V3, V3)) -> bool {
+    let (Some(&first), Some(&last)) = (poles.first(), poles.last()) else {
+        return false;
+    };
+    let (p, q) = (
+        surface.value(first.0, first.1),
+        surface.value(last.0, last.1),
+    );
+    let tol = 1e-6 * (1.0 + geom::norm(a).max(geom::norm(b)));
+    let near = |x: V3, y: V3| geom::dist(x, y) <= tol;
+    (near(p, a) && near(q, b)) || (near(p, b) && near(q, a))
 }
 
 /// Whether each void shell of a solid is used reversed (`ORIENTED_CLOSED_SHELL` `.F.`).

@@ -14,6 +14,7 @@ recorded by name only, so the port's coverage of them can be reported honestly.
 from __future__ import annotations
 
 import dataclasses
+import gzip
 import hashlib
 import json
 import math
@@ -45,6 +46,18 @@ def _plain(value):
     if value is None or isinstance(value, (bool, int, str)):
         return value
     return {"__type__": type(value).__name__}
+
+
+#: Keyword arguments that hand a recogniser an inventory it would otherwise compute from the
+#: same part; the port always computes its own.
+HINTS = {"cyls", "face_edges"}
+
+
+def _real(module, name):
+    """The unwrapped function, so a capture's own helper calls are not recorded."""
+
+    function = getattr(module, name)
+    return getattr(function, "__wrapped__", function)
 
 
 def _is_part(value) -> bool:
@@ -79,7 +92,15 @@ def _record(name, real, args, kwargs, result):
     from quiddity import import_step_geometry
 
     simple = {k: v for k, v in kwargs.items() if v is None or isinstance(v, (bool, int, float, str))}
-    rich = sorted(set(kwargs) - set(simple))
+    # Precomputed inventories the port derives itself from the same part.
+    hints = sorted(k for k in kwargs if k in HINTS and k not in simple)
+    rich = sorted(set(kwargs) - set(simple) - set(hints))
+    if "csinks" in rich and args and _is_part(args[0]):
+        import quiddity
+
+        if _plain(kwargs["csinks"]) == _plain(_real(quiddity, "recognise_countersinks")(args[0])):
+            rich.remove("csinks")
+            simple["csinks"] = "auto"
     test = os.environ.get("PYTEST_CURRENT_TEST", "?").split(" ")[0]
     if args and _is_part(args[0]) and len(args) == 1:
         part = args[0]
@@ -91,20 +112,26 @@ def _record(name, real, args, kwargs, result):
             # The header carries a timestamp; key the file on its geometry only.
             body = data[data.index(b"DATA;") :]
             digest = hashlib.sha256(body).hexdigest()[:16]
-            target = OUT / f"{digest}.step"
+            target = OUT / f"{digest}.step.gz"
             if not target.exists():
-                target.write_bytes(data)
-            reread = import_step_geometry(str(target))
+                target.write_bytes(gzip.compress(data, mtime=0))
+            reread = import_step_geometry(str(path))
         entry = {
             "test": test,
             "function": name,
             "file": target.name,
             "options": simple,
+            "hints": hints,
             "rich_arguments": rich,
             "in_memory": _plain(result),
         }
         if not rich:
-            entry["result"] = _plain(real(reread, **simple))
+            call = dict(simple)
+            if call.get("csinks") == "auto":
+                import quiddity
+
+                call["csinks"] = _real(quiddity, "recognise_countersinks")(reread)
+            entry["result"] = _plain(real(reread, **call))
         _calls.append(entry)
     elif not any(_is_part(a) for a in args):
         _calls.append(

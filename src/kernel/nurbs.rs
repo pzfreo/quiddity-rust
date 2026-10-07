@@ -330,7 +330,7 @@ impl NurbsSurface {
     }
 
     /// The point and its exact first partial derivatives (quotient rule on the homogeneous form).
-    fn value_and_partials(&self, u: f64, v: f64) -> (V3, V3, V3) {
+    pub fn value_and_partials(&self, u: f64, v: f64) -> (V3, V3, V3) {
         let (u0, u1, v0, v1) = self.domain();
         let (u, v) = (u.clamp(u0, u1), v.clamp(v0, v1));
         let nu = self.control_points.len();

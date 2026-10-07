@@ -13,7 +13,13 @@ const INITIAL_SEGMENTS: usize = 16;
 const MAX_REFINE_DEPTH: usize = 14;
 
 /// The curve parameter interval an edge covers, in its own start → end direction.
-fn edge_interval(curve: &Curve, start: V3, end: V3, same_sense: bool, closed: bool) -> (f64, f64) {
+pub fn edge_interval(
+    curve: &Curve,
+    start: V3,
+    end: V3,
+    same_sense: bool,
+    closed: bool,
+) -> (f64, f64) {
     let (a, b) = (curve.parameter(start), curve.parameter(end));
     let Some(period) = curve.period() else {
         return (a, b);

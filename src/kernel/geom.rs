@@ -138,6 +138,12 @@ impl Frame {
         let d = sub(p, self.origin);
         [dot(d, self.x), dot(d, self.y), dot(d, self.z)]
     }
+    pub fn dir_to_world(&self, l: V3) -> V3 {
+        add(
+            scale(self.x, l[0]),
+            add(scale(self.y, l[1]), scale(self.z, l[2])),
+        )
+    }
     pub fn dir_to_local(&self, d: V3) -> V3 {
         [dot(d, self.x), dot(d, self.y), dot(d, self.z)]
     }
@@ -227,6 +233,84 @@ impl Surface {
             }
             Surface::Torus { .. } => (true, true),
         }
+    }
+
+    /// The first partial derivatives (Su, Sv) at (u, v). Their cross product is the surface's
+    /// natural normal (outward for the closed analytic kinds).
+    pub fn partials(&self, u: f64, v: f64) -> (V3, V3) {
+        let (cu, su) = (u.cos(), u.sin());
+        match *self {
+            Surface::Plane { frame } => (frame.x, frame.y),
+            Surface::Cylinder { frame, radius } => (
+                frame.dir_to_world([-radius * su, radius * cu, 0.0]),
+                frame.z,
+            ),
+            Surface::Cone {
+                frame,
+                radius,
+                semi_angle,
+            } => {
+                let rho = radius + v * semi_angle.sin();
+                (
+                    frame.dir_to_world([-rho * su, rho * cu, 0.0]),
+                    frame.dir_to_world([
+                        semi_angle.sin() * cu,
+                        semi_angle.sin() * su,
+                        semi_angle.cos(),
+                    ]),
+                )
+            }
+            Surface::Sphere { frame, radius } => (
+                frame.dir_to_world([-radius * v.cos() * su, radius * v.cos() * cu, 0.0]),
+                frame.dir_to_world([
+                    -radius * v.sin() * cu,
+                    -radius * v.sin() * su,
+                    radius * v.cos(),
+                ]),
+            ),
+            Surface::Torus {
+                frame,
+                major,
+                minor,
+            } => {
+                let rho = major + minor * v.cos();
+                (
+                    frame.dir_to_world([-rho * su, rho * cu, 0.0]),
+                    frame.dir_to_world([
+                        -minor * v.sin() * cu,
+                        -minor * v.sin() * su,
+                        minor * v.cos(),
+                    ]),
+                )
+            }
+            Surface::Freeform { ref surface, .. } => {
+                let (_, du, dv) = surface.value_and_partials(u, v);
+                (du, dv)
+            }
+            Surface::Other { .. } => ([f64::NAN; 3], [f64::NAN; 3]),
+        }
+    }
+
+    /// The unit natural normal at (u, v), `None` at a singular point.
+    pub fn normal(&self, u: f64, v: f64) -> Option<V3> {
+        let (du, dv) = self.partials(u, v);
+        unit(cross(du, dv))
+    }
+
+    /// A cone's apex (`gp_Cone::Apex`).
+    pub fn cone_apex(&self) -> Option<V3> {
+        let Surface::Cone {
+            frame,
+            radius,
+            semi_angle,
+        } = *self
+        else {
+            return None;
+        };
+        Some(add(
+            frame.origin,
+            scale(frame.z, -radius / semi_angle.tan()),
+        ))
     }
 
     pub fn value(&self, u: f64, v: f64) -> V3 {
@@ -576,6 +660,26 @@ pub fn nearest_turn(a: f64, reference: f64) -> f64 {
 }
 
 /// Python's `round(value, 3)`: correctly rounded on the exact binary value.
+/// Python's `round(value, digits)`: correctly rounded on the exact binary value.
+pub fn round_to(value: f64, digits: usize) -> f64 {
+    format!("{value:.digits$}")
+        .parse()
+        .expect("formatted float parses")
+}
+
+/// `quiddity._geometry.quantise`: *value* to *figures* significant figures.
+pub fn quantise_to(value: f64, figures: usize) -> f64 {
+    let precision = figures.saturating_sub(1);
+    format!("{value:.precision$e}")
+        .parse()
+        .expect("formatted float parses")
+}
+
+/// `without_negative_zero`: -0.0 becomes 0.0, so records compare and print as Python's do.
+pub fn without_negative_zero(value: f64) -> f64 {
+    if value == 0.0 { 0.0 } else { value }
+}
+
 pub fn round3(value: f64) -> f64 {
     format!("{value:.3}")
         .parse()

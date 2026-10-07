@@ -9,9 +9,11 @@
 
 pub mod bevel;
 pub mod context;
+pub mod countersinks;
 pub mod cylinders;
 pub mod evidence;
 pub mod fillets;
+pub mod holes;
 pub mod planes;
 
 pub use context::Context;
