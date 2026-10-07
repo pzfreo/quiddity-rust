@@ -117,3 +117,28 @@ fn built_fixtures_match_python() {
         problems.join("\n")
     );
 }
+
+/// Gusset-rib evidence on the Python suite's ribs (`tests/test_gussets.py`): a sharp rib claims
+/// its two caps and slant; rounding one or both hypotenuse edges adds each blend; a hollow rib
+/// fails the material probe after its caps match.
+#[test]
+fn gusset_rib_evidence_claims_caps_slant_and_blends() {
+    use quiddity::features::gussets;
+    let captured = fixtures().join("captured");
+    for (file, want) in [
+        ("05eb6351f4106b7e.step.gz", Some(3)),
+        ("a96691391681646d.step.gz", Some(4)),
+        ("9d0b60cef180d03e.step.gz", Some(5)),
+        ("6783fb0ec976fa04.step.gz", None),
+    ] {
+        let part = read_step_file(&captured.join(file)).unwrap();
+        let found = gussets::discover_verified(&Context::new(&part)).unwrap();
+        let got = match found.as_slice() {
+            [] => None,
+            [one] => Some(one.defining.len()),
+            more => panic!("{file}: {} ribs", more.len()),
+        };
+        eprintln!("{file}: {got:?}");
+        assert_eq!(got, want, "{file}");
+    }
+}

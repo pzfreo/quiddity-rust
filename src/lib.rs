@@ -14,6 +14,9 @@ pub use features::circular_face_patterns::{CircularFacePattern, recognise_circul
 pub use features::countersinks::{CounterSink, recognise_countersinks};
 pub use features::fillets::{Fillet, FilletOptions, recognise_fillets};
 pub use features::flats::{Flat, recognise_flats};
+pub use features::gussets::{
+    GussetRib, GussetRibPattern, recognise_gusset_rib_patterns, recognise_gusset_ribs,
+};
 pub use features::hole_patterns::{HolePattern, recognise_hole_patterns};
 pub use features::holes::{HoleOptions, HoleRecord, recognise_holes};
 pub use features::interior_voids::{InteriorVoid, recognise_interior_voids};

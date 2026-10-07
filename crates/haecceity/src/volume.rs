@@ -18,10 +18,93 @@ use super::classify::{Classifier, State};
 use super::geom::{self, Bounds, COORD_FLOOR, Curve, Frame, Surface, V3};
 use super::rays::RayCaster;
 
-/// A probe region: an axis-aligned box, or a solid (its part's first solid).
+/// A probe region: an axis-aligned box, a convex prism, or a solid (its part's first solid).
 pub enum Probe<'a> {
     Box(Bounds),
+    Prism(Prism),
     Solid(RayCaster<'a>),
+}
+
+/// A convex polygon in a plane normal to a coordinate axis, swept between two levels along
+/// that axis (a planar face extruded straight through, as `extrude(face, amount, dir)`).
+#[derive(Clone, Debug)]
+pub struct Prism {
+    /// Outward normals and offsets: inside is `n · p <= d` for each.
+    planes: Vec<(V3, f64)>,
+    edges: Vec<[V3; 2]>,
+    bounds: Bounds,
+    volume: f64,
+}
+
+impl Prism {
+    /// The convex polygon through *corners* (in order round it; their coordinate along *axis*
+    /// is ignored) swept from *lo* to *hi* along *axis*. `None` when it encloses no area.
+    pub fn new(axis: usize, corners: &[V3], lo: f64, hi: f64) -> Option<Self> {
+        let (a, b) = ((axis + 1) % 3, (axis + 2) % 3);
+        let n = corners.len();
+        let level = |p: V3, h: f64| {
+            let mut q = p;
+            q[axis] = h;
+            q
+        };
+        let twice_area: f64 = (0..n)
+            .map(|i| {
+                let (p, q) = (corners[i], corners[(i + 1) % n]);
+                p[a] * q[b] - q[a] * p[b]
+            })
+            .sum();
+        if n < 3 || hi <= lo || twice_area == 0.0 {
+            return None;
+        }
+        // Counter-clockwise in (a, b), the outward side of each edge is its right.
+        let sense = twice_area.signum();
+        let mut planes = Vec::new();
+        let mut edges = Vec::new();
+        let mut bounds = Bounds::empty();
+        for i in 0..n {
+            let (p, q) = (corners[i], corners[(i + 1) % n]);
+            let mut normal = [0.0; 3];
+            normal[a] = sense * (q[b] - p[b]);
+            normal[b] = -sense * (q[a] - p[a]);
+            let normal = geom::unit(normal)?;
+            planes.push((normal, geom::dot(normal, p)));
+            edges.push([level(p, lo), level(q, lo)]);
+            edges.push([level(p, hi), level(q, hi)]);
+            edges.push([level(p, lo), level(p, hi)]);
+            bounds.add(level(p, lo));
+            bounds.add(level(p, hi));
+        }
+        let unit = [0, 1, 2].map(|k| if k == axis { 1.0 } else { 0.0 });
+        planes.push((unit, hi));
+        planes.push((geom::scale(unit, -1.0), -lo));
+        Some(Prism {
+            planes,
+            edges,
+            bounds,
+            volume: twice_area.abs() / 2.0 * (hi - lo),
+        })
+    }
+
+    /// The parameter range of a line inside every half-space.
+    fn interval(&self, origin: V3, dir: V3, reach: f64) -> Vec<(f64, f64)> {
+        let (mut lo, mut hi) = (0.0f64, reach);
+        for &(n, d) in &self.planes {
+            let (at, rate) = (geom::dot(n, origin), geom::dot(n, dir));
+            if rate.abs() < 1e-300 {
+                if at > d {
+                    return Vec::new();
+                }
+                continue;
+            }
+            let t = (d - at) / rate;
+            if rate > 0.0 {
+                hi = hi.min(t);
+            } else {
+                lo = lo.max(t);
+            }
+        }
+        if lo < hi { vec![(lo, hi)] } else { Vec::new() }
+    }
 }
 
 /// Halvings allowed within one interval between breaks, where curved faces bend the length.
@@ -52,6 +135,7 @@ pub fn probe_volume(probe: &Probe<'_>) -> f64 {
             let s = geom::sub(b.max, b.min);
             s[0] * s[1] * s[2]
         }
+        Probe::Prism(p) => p.volume,
         Probe::Solid(rays) => rays.part.solid_mass(0).map_or(0.0, |m| m.0),
     }
 }
@@ -60,6 +144,7 @@ impl Probe<'_> {
     fn bounds(&self) -> Bounds {
         match self {
             Probe::Box(b) => *b,
+            Probe::Prism(p) => p.bounds,
             Probe::Solid(rays) => rays.bounds(),
         }
     }
@@ -85,6 +170,7 @@ impl Probe<'_> {
                 }
                 if lo < hi { vec![(lo, hi)] } else { Vec::new() }
             }
+            Probe::Prism(p) => p.interval(origin, dir, reach),
             Probe::Solid(rays) => intervals(rays, origin, dir, reach),
         }
     }
@@ -96,7 +182,7 @@ impl Probe<'_> {
         };
         let span = geom::dist(p, q);
         let ts: Vec<f64> = match self {
-            Probe::Box(_) => self
+            Probe::Box(_) | Probe::Prism(_) => self
                 .intervals(p, dir, span)
                 .into_iter()
                 .flat_map(|(a, b)| [a, b])
@@ -186,6 +272,24 @@ impl<'a> Side<'a> {
     }
 }
 
+impl Side<'_> {
+    fn of_prism(p: &Prism) -> Self {
+        Side {
+            edges: p
+                .edges
+                .iter()
+                .map(|e| Polyline {
+                    points: e.to_vec().into(),
+                    curve: None,
+                    straight: true,
+                })
+                .collect(),
+            planes: p.planes.clone(),
+            curved: false,
+        }
+    }
+}
+
 impl<'a> Polyline<'a> {
     fn of(edge: &'a Edge) -> Self {
         // Conics invert in closed form; other curves keep their samples' crossing, within the
@@ -219,6 +323,7 @@ fn shared(solid: &Classifier<'_>, probe: &Probe<'_>, inset: f64) -> Pair {
     let mine = Side::of_solid(rays, &region);
     let theirs = match probe {
         Probe::Box(b) => Side::of_box(b),
+        Probe::Prism(p) => Side::of_prism(p),
         Probe::Solid(p) => Side::of_solid(p, &region),
     };
     // Slices across the probe's longest side, lines along the next.

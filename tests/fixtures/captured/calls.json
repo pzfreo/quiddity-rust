@@ -176908,9 +176908,5265 @@
      ]
     }
    ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_issue_fixture_reports_both_ribs_and_retains_other_features",
+   "function": "recognise_gusset_ribs",
+   "file": "04aec2096ae6ebfa.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      60872.7432785,
+      19623.5193024
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      20.0,
+      26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      60872.7432785,
+      19623.5193024
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      60872.7432785,
+      19623.5193024
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      20.0,
+      26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      60872.7432785,
+      19623.5193024
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_issue_fixture_reports_both_ribs_and_retains_other_features",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -38.0,
+       -32.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       60872.7432785,
+       19623.5193024
+      ]
+     },
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       20.0,
+       26.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       60872.7432785,
+       19623.5193024
+      ]
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_gussets.py::test_issue_fixture_reports_both_ribs_and_retains_other_features",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -38.0,
+       -32.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       60872.7432785,
+       19623.5193024
+      ]
+     },
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       20.0,
+       26.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       60872.7432785,
+       19623.5193024
+      ]
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_gussets.py::test_issue_fixture_reports_both_ribs_and_retains_other_features",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "z",
+      "thickness_bounds": [
+       -37.662,
+       -31.662
+      ],
+      "supports": [
+       [
+        "x",
+        -6.557
+       ],
+       [
+        "y",
+        -7.879
+       ]
+      ],
+      "legs": [
+       26.0,
+       22.0
+      ],
+      "directions": [
+       1,
+       1
+      ],
+      "body_key": [
+       -14.556956,
+       -15.879465,
+       -39.661721,
+       33.443044,
+       34.120535,
+       40.338279,
+       60872.7432785,
+       19623.5193024
+      ]
+     },
+     {
+      "thickness_axis": "z",
+      "thickness_bounds": [
+       20.338,
+       26.338
+      ],
+      "supports": [
+       [
+        "x",
+        -6.557
+       ],
+       [
+        "y",
+        -7.879
+       ]
+      ],
+      "legs": [
+       26.0,
+       22.0
+      ],
+      "directions": [
+       1,
+       1
+      ],
+      "body_key": [
+       -14.556956,
+       -15.879465,
+       -39.661721,
+       33.443044,
+       34.120535,
+       40.338279,
+       60872.7432785,
+       19623.5193024
+      ]
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_gussets.py::test_issue_fixture_reports_both_ribs_and_retains_other_features",
+   "function": "recognise_gusset_ribs",
+   "file": "7830fc9d01b8fb00.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      60872.7432785,
+      19623.5193024
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      20.0,
+      26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      60872.7432785,
+      19623.5193024
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      60872.7432785,
+      19623.5193024
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      20.0,
+      26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      60872.7432785,
+      19623.5193024
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_issue_fixture_reports_both_ribs_and_retains_other_features",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "z",
+      "thickness_bounds": [
+       -37.662,
+       -31.662
+      ],
+      "supports": [
+       [
+        "x",
+        -6.557
+       ],
+       [
+        "y",
+        -7.879
+       ]
+      ],
+      "legs": [
+       26.0,
+       22.0
+      ],
+      "directions": [
+       1,
+       1
+      ],
+      "body_key": [
+       -14.556956,
+       -15.879465,
+       -39.661721,
+       33.443044,
+       34.120535,
+       40.338279,
+       60872.7432785,
+       19623.5193024
+      ]
+     },
+     {
+      "thickness_axis": "z",
+      "thickness_bounds": [
+       20.338,
+       26.338
+      ],
+      "supports": [
+       [
+        "x",
+        -6.557
+       ],
+       [
+        "y",
+        -7.879
+       ]
+      ],
+      "legs": [
+       26.0,
+       22.0
+      ],
+      "directions": [
+       1,
+       1
+      ],
+      "body_key": [
+       -14.556956,
+       -15.879465,
+       -39.661721,
+       33.443044,
+       34.120535,
+       40.338279,
+       60872.7432785,
+       19623.5193024
+      ]
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_gussets.py::test_one_rib_and_a_symmetric_pair_are_independent_occurrences",
+   "function": "recognise_gusset_ribs",
+   "file": "4e31915fbc76062a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_one_rib_and_a_symmetric_pair_are_independent_occurrences",
+   "function": "recognise_gusset_ribs",
+   "file": "4e31915fbc76062a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_one_rib_and_a_symmetric_pair_are_independent_occurrences",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -32.0,
+       -26.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       59316.0,
+       17608.3526364
+      ]
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_gussets.py::test_one_rib_and_a_symmetric_pair_are_independent_occurrences",
+   "function": "recognise_gusset_ribs",
+   "file": "36181d1f9f68bd14.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      61032.0,
+      18096.7052728
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      26.0,
+      32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      61032.0,
+      18096.7052728
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      61032.0,
+      18096.7052728
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      26.0,
+      32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      61032.0,
+      18096.7052728
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_one_rib_and_a_symmetric_pair_are_independent_occurrences",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -32.0,
+       -26.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       61032.0,
+       18096.7052728
+      ]
+     },
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       26.0,
+       32.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       61032.0,
+       18096.7052728
+      ]
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": [
+    {
+     "ribs": [
+      {
+       "thickness_axis": "x",
+       "thickness_bounds": [
+        -32.0,
+        -26.0
+       ],
+       "supports": [
+        [
+         "y",
+         17.0
+        ],
+        [
+         "z",
+         8.0
+        ]
+       ],
+       "legs": [
+        22.0,
+        26.0
+       ],
+       "directions": [
+        -1,
+        1
+       ],
+       "body_key": [
+        -40.0,
+        -25.0,
+        0.0,
+        40.0,
+        25.0,
+        48.0,
+        61032.0,
+        18096.7052728
+       ]
+      },
+      {
+       "thickness_axis": "x",
+       "thickness_bounds": [
+        26.0,
+        32.0
+       ],
+       "supports": [
+        [
+         "y",
+         17.0
+        ],
+        [
+         "z",
+         8.0
+        ]
+       ],
+       "legs": [
+        22.0,
+        26.0
+       ],
+       "directions": [
+        -1,
+        1
+       ],
+       "body_key": [
+        -40.0,
+        -25.0,
+        0.0,
+        40.0,
+        25.0,
+        48.0,
+        61032.0,
+        18096.7052728
+       ]
+      }
+     ],
+     "mirror_plane": [
+      "x",
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_one_rib_and_a_symmetric_pair_are_independent_occurrences",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -32.0,
+       -26.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       61032.0,
+       18096.7052728
+      ]
+     },
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       26.0,
+       32.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       61032.0,
+       18096.7052728
+      ]
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": [
+    {
+     "ribs": [
+      {
+       "thickness_axis": "x",
+       "thickness_bounds": [
+        -32.0,
+        -26.0
+       ],
+       "supports": [
+        [
+         "y",
+         17.0
+        ],
+        [
+         "z",
+         8.0
+        ]
+       ],
+       "legs": [
+        22.0,
+        26.0
+       ],
+       "directions": [
+        -1,
+        1
+       ],
+       "body_key": [
+        -40.0,
+        -25.0,
+        0.0,
+        40.0,
+        25.0,
+        48.0,
+        61032.0,
+        18096.7052728
+       ]
+      },
+      {
+       "thickness_axis": "x",
+       "thickness_bounds": [
+        26.0,
+        32.0
+       ],
+       "supports": [
+        [
+         "y",
+         17.0
+        ],
+        [
+         "z",
+         8.0
+        ]
+       ],
+       "legs": [
+        22.0,
+        26.0
+       ],
+       "directions": [
+        -1,
+        1
+       ],
+       "body_key": [
+        -40.0,
+        -25.0,
+        0.0,
+        40.0,
+        25.0,
+        48.0,
+        61032.0,
+        18096.7052728
+       ]
+      }
+     ],
+     "mirror_plane": [
+      "x",
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_three_matching_ribs_form_one_constant_pitch_array",
+   "function": "recognise_gusset_ribs",
+   "file": "3cd242964a4ff64a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -26.0,
+      -20.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -6.0,
+      0.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      14.0,
+      20.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -26.0,
+      -20.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -6.0,
+      0.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      14.0,
+      20.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_three_matching_ribs_form_one_constant_pitch_array",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -26.0,
+       -20.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       62748.0,
+       18585.0579092
+      ]
+     },
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -6.0,
+       0.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       62748.0,
+       18585.0579092
+      ]
+     },
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       14.0,
+       20.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       62748.0,
+       18585.0579092
+      ]
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": [
+    {
+     "ribs": [
+      {
+       "thickness_axis": "x",
+       "thickness_bounds": [
+        -26.0,
+        -20.0
+       ],
+       "supports": [
+        [
+         "y",
+         17.0
+        ],
+        [
+         "z",
+         8.0
+        ]
+       ],
+       "legs": [
+        22.0,
+        26.0
+       ],
+       "directions": [
+        -1,
+        1
+       ],
+       "body_key": [
+        -40.0,
+        -25.0,
+        0.0,
+        40.0,
+        25.0,
+        48.0,
+        62748.0,
+        18585.0579092
+       ]
+      },
+      {
+       "thickness_axis": "x",
+       "thickness_bounds": [
+        -6.0,
+        0.0
+       ],
+       "supports": [
+        [
+         "y",
+         17.0
+        ],
+        [
+         "z",
+         8.0
+        ]
+       ],
+       "legs": [
+        22.0,
+        26.0
+       ],
+       "directions": [
+        -1,
+        1
+       ],
+       "body_key": [
+        -40.0,
+        -25.0,
+        0.0,
+        40.0,
+        25.0,
+        48.0,
+        62748.0,
+        18585.0579092
+       ]
+      },
+      {
+       "thickness_axis": "x",
+       "thickness_bounds": [
+        14.0,
+        20.0
+       ],
+       "supports": [
+        [
+         "y",
+         17.0
+        ],
+        [
+         "z",
+         8.0
+        ]
+       ],
+       "legs": [
+        22.0,
+        26.0
+       ],
+       "directions": [
+        -1,
+        1
+       ],
+       "body_key": [
+        -40.0,
+        -25.0,
+        0.0,
+        40.0,
+        25.0,
+        48.0,
+        62748.0,
+        18585.0579092
+       ]
+      }
+     ],
+     "axis": "x",
+     "pitch": 20.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_three_matching_ribs_form_one_constant_pitch_array",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -26.0,
+       -20.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       62748.0,
+       18585.0579092
+      ]
+     },
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -6.0,
+       0.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       62748.0,
+       18585.0579092
+      ]
+     },
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       14.0,
+       20.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       62748.0,
+       18585.0579092
+      ]
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": [
+    {
+     "ribs": [
+      {
+       "thickness_axis": "x",
+       "thickness_bounds": [
+        -26.0,
+        -20.0
+       ],
+       "supports": [
+        [
+         "y",
+         17.0
+        ],
+        [
+         "z",
+         8.0
+        ]
+       ],
+       "legs": [
+        22.0,
+        26.0
+       ],
+       "directions": [
+        -1,
+        1
+       ],
+       "body_key": [
+        -40.0,
+        -25.0,
+        0.0,
+        40.0,
+        25.0,
+        48.0,
+        62748.0,
+        18585.0579092
+       ]
+      },
+      {
+       "thickness_axis": "x",
+       "thickness_bounds": [
+        -6.0,
+        0.0
+       ],
+       "supports": [
+        [
+         "y",
+         17.0
+        ],
+        [
+         "z",
+         8.0
+        ]
+       ],
+       "legs": [
+        22.0,
+        26.0
+       ],
+       "directions": [
+        -1,
+        1
+       ],
+       "body_key": [
+        -40.0,
+        -25.0,
+        0.0,
+        40.0,
+        25.0,
+        48.0,
+        62748.0,
+        18585.0579092
+       ]
+      },
+      {
+       "thickness_axis": "x",
+       "thickness_bounds": [
+        14.0,
+        20.0
+       ],
+       "supports": [
+        [
+         "y",
+         17.0
+        ],
+        [
+         "z",
+         8.0
+        ]
+       ],
+       "legs": [
+        22.0,
+        26.0
+       ],
+       "directions": [
+        -1,
+        1
+       ],
+       "body_key": [
+        -40.0,
+        -25.0,
+        0.0,
+        40.0,
+        25.0,
+        48.0,
+        62748.0,
+        18585.0579092
+       ]
+      }
+     ],
+     "axis": "x",
+     "pitch": 20.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_three_matching_ribs_form_one_constant_pitch_array",
+   "function": "recognise_gusset_ribs",
+   "file": "a12d655fb41e5dc6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -26.0,
+      -20.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -6.0,
+      0.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      14.02,
+      20.02
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -26.0,
+      -20.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -6.0,
+      0.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      14.02,
+      20.02
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_three_matching_ribs_form_one_constant_pitch_array",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -26.0,
+       -20.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       62748.0,
+       18585.0579092
+      ]
+     },
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -6.0,
+       0.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       62748.0,
+       18585.0579092
+      ]
+     },
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       14.02,
+       20.02
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       62748.0,
+       18585.0579092
+      ]
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": [
+    {
+     "ribs": [
+      {
+       "thickness_axis": "x",
+       "thickness_bounds": [
+        -26.0,
+        -20.0
+       ],
+       "supports": [
+        [
+         "y",
+         17.0
+        ],
+        [
+         "z",
+         8.0
+        ]
+       ],
+       "legs": [
+        22.0,
+        26.0
+       ],
+       "directions": [
+        -1,
+        1
+       ],
+       "body_key": [
+        -40.0,
+        -25.0,
+        0.0,
+        40.0,
+        25.0,
+        48.0,
+        62748.0,
+        18585.0579092
+       ]
+      },
+      {
+       "thickness_axis": "x",
+       "thickness_bounds": [
+        -6.0,
+        0.0
+       ],
+       "supports": [
+        [
+         "y",
+         17.0
+        ],
+        [
+         "z",
+         8.0
+        ]
+       ],
+       "legs": [
+        22.0,
+        26.0
+       ],
+       "directions": [
+        -1,
+        1
+       ],
+       "body_key": [
+        -40.0,
+        -25.0,
+        0.0,
+        40.0,
+        25.0,
+        48.0,
+        62748.0,
+        18585.0579092
+       ]
+      },
+      {
+       "thickness_axis": "x",
+       "thickness_bounds": [
+        14.02,
+        20.02
+       ],
+       "supports": [
+        [
+         "y",
+         17.0
+        ],
+        [
+         "z",
+         8.0
+        ]
+       ],
+       "legs": [
+        22.0,
+        26.0
+       ],
+       "directions": [
+        -1,
+        1
+       ],
+       "body_key": [
+        -40.0,
+        -25.0,
+        0.0,
+        40.0,
+        25.0,
+        48.0,
+        62748.0,
+        18585.0579092
+       ]
+      }
+     ],
+     "axis": "x",
+     "pitch": 20.01
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_mirror_pair_survives_framed_motion_and_step_round_trip",
+   "function": "recognise_gusset_ribs",
+   "file": "b9b085119521ca83.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      61003.1525698,
+      18040.1118066
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      26.0,
+      32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      61003.1525698,
+      18040.1118066
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      61003.1525698,
+      18040.1118066
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      26.0,
+      32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      61003.1525698,
+      18040.1118066
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_mirror_pair_survives_framed_motion_and_step_round_trip",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -32.0,
+       -26.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       61003.1525698,
+       18040.1118066
+      ]
+     },
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       26.0,
+       32.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       61003.1525698,
+       18040.1118066
+      ]
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": [
+    {
+     "ribs": [
+      {
+       "thickness_axis": "x",
+       "thickness_bounds": [
+        -32.0,
+        -26.0
+       ],
+       "supports": [
+        [
+         "y",
+         17.0
+        ],
+        [
+         "z",
+         8.0
+        ]
+       ],
+       "legs": [
+        22.0,
+        26.0
+       ],
+       "directions": [
+        -1,
+        1
+       ],
+       "body_key": [
+        -40.0,
+        -25.0,
+        0.0,
+        40.0,
+        25.0,
+        48.0,
+        61003.1525698,
+        18040.1118066
+       ]
+      },
+      {
+       "thickness_axis": "x",
+       "thickness_bounds": [
+        26.0,
+        32.0
+       ],
+       "supports": [
+        [
+         "y",
+         17.0
+        ],
+        [
+         "z",
+         8.0
+        ]
+       ],
+       "legs": [
+        22.0,
+        26.0
+       ],
+       "directions": [
+        -1,
+        1
+       ],
+       "body_key": [
+        -40.0,
+        -25.0,
+        0.0,
+        40.0,
+        25.0,
+        48.0,
+        61003.1525698,
+        18040.1118066
+       ]
+      }
+     ],
+     "mirror_plane": [
+      "x",
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_mirror_pair_survives_framed_motion_and_step_round_trip",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "z",
+      "thickness_bounds": [
+       -32.0,
+       -26.0
+      ],
+      "supports": [
+       [
+        "x",
+        -6.779
+       ],
+       [
+        "y",
+        -7.648
+       ]
+      ],
+      "legs": [
+       26.0,
+       22.0
+      ],
+      "directions": [
+       1,
+       1
+      ],
+      "body_key": [
+       -14.779132,
+       -15.647922,
+       -40.0,
+       33.220868,
+       34.352078,
+       40.0,
+       61032.0,
+       18096.7052728
+      ]
+     },
+     {
+      "thickness_axis": "z",
+      "thickness_bounds": [
+       26.0,
+       32.0
+      ],
+      "supports": [
+       [
+        "x",
+        -6.779
+       ],
+       [
+        "y",
+        -7.648
+       ]
+      ],
+      "legs": [
+       26.0,
+       22.0
+      ],
+      "directions": [
+       1,
+       1
+      ],
+      "body_key": [
+       -14.779132,
+       -15.647922,
+       -40.0,
+       33.220868,
+       34.352078,
+       40.0,
+       61032.0,
+       18096.7052728
+      ]
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": [
+    {
+     "ribs": [
+      {
+       "thickness_axis": "z",
+       "thickness_bounds": [
+        -32.0,
+        -26.0
+       ],
+       "supports": [
+        [
+         "x",
+         -6.779
+        ],
+        [
+         "y",
+         -7.648
+        ]
+       ],
+       "legs": [
+        26.0,
+        22.0
+       ],
+       "directions": [
+        1,
+        1
+       ],
+       "body_key": [
+        -14.779132,
+        -15.647922,
+        -40.0,
+        33.220868,
+        34.352078,
+        40.0,
+        61032.0,
+        18096.7052728
+       ]
+      },
+      {
+       "thickness_axis": "z",
+       "thickness_bounds": [
+        26.0,
+        32.0
+       ],
+       "supports": [
+        [
+         "x",
+         -6.779
+        ],
+        [
+         "y",
+         -7.648
+        ]
+       ],
+       "legs": [
+        26.0,
+        22.0
+       ],
+       "directions": [
+        1,
+        1
+       ],
+       "body_key": [
+        -14.779132,
+        -15.647922,
+        -40.0,
+        33.220868,
+        34.352078,
+        40.0,
+        61032.0,
+        18096.7052728
+       ]
+      }
+     ],
+     "mirror_plane": [
+      "z",
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_mirror_pair_survives_framed_motion_and_step_round_trip",
+   "function": "recognise_gusset_ribs",
+   "file": "24736ae410837bb2.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      61032.0,
+      18096.7052728
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      26.0,
+      32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      61032.0,
+      18096.7052728
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      61032.0,
+      18096.7052728
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      26.0,
+      32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      61032.0,
+      18096.7052728
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_mirror_pair_survives_framed_motion_and_step_round_trip",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -32.0,
+       -26.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       61032.0,
+       18096.7052728
+      ]
+     },
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       26.0,
+       32.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       61032.0,
+       18096.7052728
+      ]
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": [
+    {
+     "ribs": [
+      {
+       "thickness_axis": "x",
+       "thickness_bounds": [
+        -32.0,
+        -26.0
+       ],
+       "supports": [
+        [
+         "y",
+         17.0
+        ],
+        [
+         "z",
+         8.0
+        ]
+       ],
+       "legs": [
+        22.0,
+        26.0
+       ],
+       "directions": [
+        -1,
+        1
+       ],
+       "body_key": [
+        -40.0,
+        -25.0,
+        0.0,
+        40.0,
+        25.0,
+        48.0,
+        61032.0,
+        18096.7052728
+       ]
+      },
+      {
+       "thickness_axis": "x",
+       "thickness_bounds": [
+        26.0,
+        32.0
+       ],
+       "supports": [
+        [
+         "y",
+         17.0
+        ],
+        [
+         "z",
+         8.0
+        ]
+       ],
+       "legs": [
+        22.0,
+        26.0
+       ],
+       "directions": [
+        -1,
+        1
+       ],
+       "body_key": [
+        -40.0,
+        -25.0,
+        0.0,
+        40.0,
+        25.0,
+        48.0,
+        61032.0,
+        18096.7052728
+       ]
+      }
+     ],
+     "mirror_plane": [
+      "x",
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_mirror_pair_survives_framed_motion_and_step_round_trip",
+   "function": "recognise_gusset_ribs",
+   "file": "24736ae410837bb2.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      61032.0,
+      18096.7052728
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      26.0,
+      32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      61032.0,
+      18096.7052728
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      61032.0,
+      18096.7052728
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      26.0,
+      32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      61032.0,
+      18096.7052728
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_uneven_or_cross_body_ribs_do_not_form_a_pattern",
+   "function": "recognise_gusset_ribs",
+   "file": "ae57848365b4aa5d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -26.0,
+      -20.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -6.0,
+      0.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      17.0,
+      23.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -26.0,
+      -20.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -6.0,
+      0.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      17.0,
+      23.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      62748.0,
+      18585.0579092
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_uneven_or_cross_body_ribs_do_not_form_a_pattern",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -26.0,
+       -20.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       62748.0,
+       18585.0579092
+      ]
+     },
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -6.0,
+       0.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       62748.0,
+       18585.0579092
+      ]
+     },
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       17.0,
+       23.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       62748.0,
+       18585.0579092
+      ]
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_gussets.py::test_uneven_or_cross_body_ribs_do_not_form_a_pattern",
+   "function": "recognise_gusset_ribs",
+   "file": "e40cce3d8f714572.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      68.0,
+      74.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      60.0,
+      -25.0,
+      0.0,
+      140.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      68.0,
+      74.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      60.0,
+      -25.0,
+      0.0,
+      140.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_uneven_or_cross_body_ribs_do_not_form_a_pattern",
+   "function": "recognise_gusset_ribs",
+   "file": "e40cce3d8f714572.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      68.0,
+      74.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      60.0,
+      -25.0,
+      0.0,
+      140.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      68.0,
+      74.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      60.0,
+      -25.0,
+      0.0,
+      140.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_uneven_or_cross_body_ribs_do_not_form_a_pattern",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -32.0,
+       -26.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       -40.0,
+       -25.0,
+       0.0,
+       40.0,
+       25.0,
+       48.0,
+       59316.0,
+       17608.3526364
+      ]
+     },
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       68.0,
+       74.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": [
+       60.0,
+       -25.0,
+       0.0,
+       140.0,
+       25.0,
+       48.0,
+       59316.0,
+       17608.3526364
+      ]
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_gussets.py::test_uneven_or_cross_body_ribs_do_not_form_a_pattern",
+   "function": "recognise_gusset_ribs",
+   "file": "e40cce3d8f714572.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      68.0,
+      74.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      60.0,
+      -25.0,
+      0.0,
+      140.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      68.0,
+      74.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      60.0,
+      -25.0,
+      0.0,
+      140.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_uneven_or_cross_body_ribs_do_not_form_a_pattern",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -32.0,
+       -26.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": null
+     },
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       68.0,
+       74.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": null
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_gussets.py::test_uneven_or_cross_body_ribs_do_not_form_a_pattern",
+   "function": "recognise_gusset_ribs",
+   "file": "e3a67e57c5495880.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": null
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": null
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": null
+    },
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_uneven_or_cross_body_ribs_do_not_form_a_pattern",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -32.0,
+       -26.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": null
+     },
+     {
+      "thickness_axis": "x",
+      "thickness_bounds": [
+       -32.0,
+       -26.0
+      ],
+      "supports": [
+       [
+        "y",
+        17.0
+       ],
+       [
+        "z",
+        8.0
+       ]
+      ],
+      "legs": [
+       22.0,
+       26.0
+      ],
+      "directions": [
+       -1,
+       1
+      ],
+      "body_key": null
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_gussets.py::test_framed_rigid_motion_preserves_both_occurrences",
+   "function": "recognise_gusset_rib_patterns",
+   "arguments": [
+    [
+     {
+      "thickness_axis": "z",
+      "thickness_bounds": [
+       -37.662,
+       -31.662
+      ],
+      "supports": [
+       [
+        "x",
+        -6.557
+       ],
+       [
+        "y",
+        -7.879
+       ]
+      ],
+      "legs": [
+       26.0,
+       22.0
+      ],
+      "directions": [
+       1,
+       1
+      ],
+      "body_key": [
+       -14.556956,
+       -15.879465,
+       -39.661721,
+       33.443044,
+       34.120535,
+       40.338279,
+       60872.7432785,
+       19623.5193024
+      ]
+     },
+     {
+      "thickness_axis": "z",
+      "thickness_bounds": [
+       20.338,
+       26.338
+      ],
+      "supports": [
+       [
+        "x",
+        -6.557
+       ],
+       [
+        "y",
+        -7.879
+       ]
+      ],
+      "legs": [
+       26.0,
+       22.0
+      ],
+      "directions": [
+       1,
+       1
+      ],
+      "body_key": [
+       -14.556956,
+       -15.879465,
+       -39.661721,
+       33.443044,
+       34.120535,
+       40.338279,
+       60872.7432785,
+       19623.5193024
+      ]
+     }
+    ]
+   ],
+   "options": {},
+   "rich_arguments": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_gussets.py::test_a_triangular_void_is_not_a_material_rib",
+   "function": "recognise_gusset_ribs",
+   "file": "37d08168e3da5059.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_gussets.py::test_a_hollow_rib_fails_the_material_proof_after_its_caps_match",
+   "function": "recognise_gusset_ribs",
+   "file": "6783fb0ec976fa04.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_gussets.py::test_touching_but_unfused_solids_do_not_form_a_rib",
+   "function": "recognise_gusset_ribs",
+   "file": "86bbade9e0c8a6d5.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_gussets.py::test_signed_legs_locate_a_rib_on_the_other_side_of_a_flange",
+   "function": "recognise_gusset_ribs",
+   "file": "663bdc4a935444fc.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       -17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -32.0,
+      -26.0
+     ],
+     "supports": [
+      [
+       "y",
+       -17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_a_rounded_hypotenuse_keeps_the_virtual_leg_dimensions",
+   "function": "recognise_gusset_ribs",
+   "file": "a96691391681646d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59308.7881564,
+      17594.2042699
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59308.7881353,
+      17594.204262
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_a_rounded_hypotenuse_keeps_the_virtual_leg_dimensions",
+   "function": "recognise_gusset_ribs",
+   "file": "780c19f1ed88aa8f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_a_rounded_hypotenuse_keeps_the_virtual_leg_dimensions",
+   "function": "recognise_gusset_ribs",
+   "file": "9d0b60cef180d03e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59301.5762837,
+      17580.0559033
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59301.5762716,
+      17580.0558876
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_a_rounded_hypotenuse_keeps_the_virtual_leg_dimensions",
+   "function": "recognise_gusset_ribs",
+   "file": "780c19f1ed88aa8f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_a_rounded_hypotenuse_keeps_the_virtual_leg_dimensions",
+   "function": "recognise_gusset_ribs",
+   "file": "76434c8233b191c6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59301.5762716,
+      17580.0558876
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59301.5762716,
+      17580.0558876
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_a_rounded_hypotenuse_keeps_the_virtual_leg_dimensions",
+   "function": "recognise_gusset_ribs",
+   "file": "780c19f1ed88aa8f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_gussets.py::test_evidence_owns_original_rib_faces_and_step_round_trip",
+   "function": "recognise_gusset_ribs",
+   "file": "05eb6351f4106b7e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ],
+   "result": [
+    {
+     "thickness_axis": "x",
+     "thickness_bounds": [
+      -38.0,
+      -32.0
+     ],
+     "supports": [
+      [
+       "y",
+       17.0
+      ],
+      [
+       "z",
+       8.0
+      ]
+     ],
+     "legs": [
+      22.0,
+      26.0
+     ],
+     "directions": [
+      -1,
+      1
+     ],
+     "body_key": [
+      -40.0,
+      -25.0,
+      0.0,
+      40.0,
+      25.0,
+      48.0,
+      59316.0,
+      17608.3526364
+     ]
+    }
+   ]
   }
  ],
- "skipped": {
-  "recognise_interior_voids: capture failed: RuntimeError": 2
- }
+ "skipped": {}
 }

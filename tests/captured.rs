@@ -155,3 +155,13 @@ fn thin_wall_bodies_match_python() {
 fn interior_voids_match_python() {
     replay("recognise_interior_voids");
 }
+
+#[test]
+fn gusset_ribs_match_python() {
+    replay("recognise_gusset_ribs");
+}
+
+#[test]
+fn gusset_rib_patterns_match_python() {
+    replay("recognise_gusset_rib_patterns");
+}

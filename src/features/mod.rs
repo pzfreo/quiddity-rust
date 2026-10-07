@@ -19,6 +19,7 @@ pub mod cylinders;
 pub mod evidence;
 pub mod fillets;
 pub mod flats;
+pub mod gussets;
 pub mod hole_patterns;
 pub mod holes;
 pub mod interior_voids;
@@ -55,6 +56,8 @@ pub struct Features {
     pub holes: Vec<holes::HoleRecord>,
     pub countersinks: Vec<countersinks::CounterSink>,
     pub hole_patterns: Vec<hole_patterns::HolePattern>,
+    pub gusset_ribs: Vec<gussets::GussetRib>,
+    pub gusset_rib_patterns: Vec<gussets::GussetRibPattern>,
     pub thin_wall_bodies: Vec<thin_walls::ThinWallBody>,
     pub interior_voids: Vec<interior_voids::InteriorVoid>,
 }
@@ -66,6 +69,7 @@ pub fn recognise(part: &Part) -> Features {
     let seats = countersinks::discover(&ctx);
     let holes = records(holes::discover(&ctx, &seats));
     let countersinks = records(seats);
+    let gusset_ribs = records(gussets::discover(&ctx));
     Features {
         fillets: records(fillets::discover(&ctx, &Default::default())),
         chamfers: records(chamfers::discover(&ctx, &Default::default())),
@@ -77,6 +81,8 @@ pub fn recognise(part: &Part) -> Features {
         circular_face_patterns: records(circular_face_patterns::discover(&ctx)),
         hole_patterns: hole_patterns::recognise_hole_patterns(&holes),
         holes,
+        gusset_rib_patterns: gussets::recognise_gusset_rib_patterns(&gusset_ribs),
+        gusset_ribs,
         countersinks,
         thin_wall_bodies: records(thin_walls::discover(&ctx)),
         interior_voids: records(interior_voids::discover(&ctx)),
