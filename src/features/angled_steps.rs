@@ -11,9 +11,6 @@ use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, Curve, V3};
 use crate::kernel::py;
 
-/// Two edge directions this close to parallel are one side (`SMOOTH_ARC_GAP`).
-const SMOOTH_ARC_GAP: f64 = 1e-9;
-
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct AngledStep {
     pub axis: char,
@@ -54,7 +51,9 @@ fn effective_linear_sides(part: &Part, face: usize) -> Option<usize> {
     let n = directions.len();
     Some(
         (0..n)
-            .filter(|&i| 1.0 - geom::dot(directions[i], directions[(i + 1) % n]) > SMOOTH_ARC_GAP)
+            .filter(|&i| {
+                1.0 - geom::dot(directions[i], directions[(i + 1) % n]) > geom::SMOOTH_ARC_GAP
+            })
             .count(),
     )
 }

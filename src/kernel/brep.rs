@@ -317,7 +317,7 @@ impl Part {
         let (Some(na), Some(nb)) = (normal(a), normal(b)) else {
             return Arc::Unknown;
         };
-        if 1.0 - geom::dot(na, nb) <= 1e-9 {
+        if 1.0 - geom::dot(na, nb) <= geom::SMOOTH_ARC_GAP {
             return Arc::Smooth;
         }
         // A closed edge's recorded direction is not evidence (see `solid_is_valid`): step to

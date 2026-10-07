@@ -121,17 +121,18 @@ impl<'a> Classifier<'a> {
                     .any(|w| point_segment_distance(p, w[0], w[1]) <= self.edge_tol)
                 && geom::dist(edge.curve.value(edge.curve.parameter(p)), p) <= ON_TOLERANCE
         });
-        on_edge || (0..self.part.faces.len()).any(|i| {
-            if !self.face_boxes[i].contains(p, ON_TOLERANCE) {
-                return false;
-            }
-            let face = &self.part.faces[i];
-            let Some((u, v)) = face.surface.parameters(p, None) else {
-                return false;
-            };
-            geom::dist(face.surface.value(u, v), p) <= ON_TOLERANCE
-                && self.part.domain(i).is_some_and(|d| d.contains(u, v))
-        })
+        on_edge
+            || (0..self.part.faces.len()).any(|i| {
+                if !self.face_boxes[i].contains(p, ON_TOLERANCE) {
+                    return false;
+                }
+                let face = &self.part.faces[i];
+                let Some((u, v)) = face.surface.parameters(p, None) else {
+                    return false;
+                };
+                geom::dist(face.surface.value(u, v), p) <= ON_TOLERANCE
+                    && self.part.domain(i).is_some_and(|d| d.contains(u, v))
+            })
     }
 
     /// Each probe ray's crossing count (`None` when ambiguous), for diagnosing a classification.

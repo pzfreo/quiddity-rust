@@ -7,11 +7,9 @@ use serde::Serialize;
 use super::Context;
 use super::evidence::{self, EvidenceError, Occurrence};
 use crate::kernel::brep::{Arc, Part};
-use crate::kernel::geom::{AXIS_ALIGNED_COS, Curve, Surface, V3};
+use crate::kernel::geom::{AXIS_ALIGNED_COS, Curve, SMOOTH_ARC_GAP, Surface, V3};
 use crate::kernel::py;
 
-/// Normal components at or below this are zero (`SMOOTH_ARC_GAP`).
-const SMOOTH_ARC_GAP: f64 = 1e-9;
 /// The shared valley edge must run along the ramps' axis this closely.
 const RUN_DIRECTION_COS: f64 = 1.0 - SMOOTH_ARC_GAP;
 

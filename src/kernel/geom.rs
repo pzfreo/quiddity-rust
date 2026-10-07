@@ -667,6 +667,8 @@ pub fn length_tol(nominal: f64, rel: f64) -> f64 {
 pub const COORD_FLOOR: f64 = 1e-6;
 pub const AXIS_ALIGNED_COS: f64 = 0.99;
 pub const INTERIOR_PROBE_FRAC: f64 = 0.05;
+/// Unit normals or directions within this of parallel are one (`SMOOTH_ARC_GAP`).
+pub const SMOOTH_ARC_GAP: f64 = 1e-9;
 
 #[cfg(test)]
 mod tests {
