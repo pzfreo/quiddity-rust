@@ -27,12 +27,14 @@ from export_fixtures import _face_index, _inventory  # noqa: E402
 from quiddity._adjacency import FaceGraph  # noqa: E402
 from quiddity._candidates import FamilyId  # noqa: E402
 from quiddity._claims import ClaimLedger  # noqa: E402
+from quiddity.bosses import _discover_bosses  # noqa: E402
 from quiddity.chamfers import _discover_chamfers  # noqa: E402
 from quiddity.countersinks import _discover_countersinks  # noqa: E402
 from quiddity.fillets import _discover_fillets  # noqa: E402
 from quiddity.holes import _discover_holes  # noqa: E402
 
 from quiddity import (  # noqa: E402
+    recognise_bosses,
     recognise_fillets,
     recognise_chamfers,
     import_step_geometry,
@@ -115,6 +117,8 @@ def main() -> None:
                    lambda p, ledger, o: _discover_chamfers(p, ledger=ledger.writer, **o))
         countersink = (FamilyId.COUNTERSINKS, lambda p, o: recognise_countersinks(p),
                        lambda p, ledger, o: _discover_countersinks(p, writer=ledger.writer))
+        boss = (FamilyId.BOSSES, lambda p, o: recognise_bosses(p),
+                lambda p, ledger, o: _discover_bosses(p, writer=ledger.writer))
         hole = (FamilyId.HOLES, lambda p, o: recognise_holes(p, **hole_kwargs(o)),
                 lambda p, ledger, o: _discover_holes(p, writer=ledger.writer, **hole_kwargs(o)))
         entries.append(
@@ -130,6 +134,7 @@ def main() -> None:
                         _run(part, "recognise_chamfers", *chamfer, o) for o in ({}, {"include_planar": False})
                     ],
                     "recognise_countersinks": [_run(part, "recognise_countersinks", *countersink, {})],
+                    "recognise_bosses": [_run(part, "recognise_bosses", *boss, {})],
                     "recognise_holes": [
                         _run(part, "recognise_holes", *hole, o) for o in ({}, {"csinks": "auto"})
                     ],

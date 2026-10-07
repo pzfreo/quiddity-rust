@@ -144019,9 +144019,3896 @@
    "rich_arguments": [],
    "in_memory": [],
    "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_records_are_frozen_and_json_serializable",
+   "function": "recognise_bosses",
+   "file": "eea1b44e77612c35.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      10.0
+     ],
+     "diameter": 20.0,
+     "height": 20.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      10.0
+     ],
+     "diameter": 20.0,
+     "height": 20.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_every_record_type_is_actually_exercised",
+   "function": "recognise_bosses",
+   "file": "eea1b44e77612c35.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      10.0
+     ],
+     "diameter": 20.0,
+     "height": 20.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      10.0
+     ],
+     "diameter": 20.0,
+     "height": 20.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "6b0ce256f4c70482.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "ce30ea612029f8ba.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "63eb54cc99e74641.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "860dce2a651ab4e7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      70.0,
+      0.0,
+      20.0
+     ],
+     "diameter": 30.0,
+     "height": 40.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      70.0,
+      0.0,
+      20.0
+     ],
+     "diameter": 30.0,
+     "height": 40.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "3aa3fee8a5ce2624.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "c7ee6c53ea0011e7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "236ea4cc9bd6bfe4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "04aec2096ae6ebfa.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      3.0,
+      20.0
+     ],
+     "diameter": 20.0,
+     "height": 12.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      3.0,
+      20.0
+     ],
+     "diameter": 20.0,
+     "height": 12.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "c31caa7ecbb2d309.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "108759c5561ee63f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "9683f6213a4aa5bd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "aa80434054958f86.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "7802ff06fec22161.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "ecafad7c9184d591.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "dab41ec2d752f628.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "4a7f6a6171b284a7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "7edb959cec898e4b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "1e4303b9497adbaf.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "c7a10a9aba34edb1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "786005dcbc3b0bea.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      15.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 16.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      15.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 16.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "ba02182884c56d73.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "644f8fd20345b417.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "016c60d49a52fa18.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "4ee8cff9e649797a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "6da54be7d9818148.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "8adc57b328863b43.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.390731128489,
+      0.0,
+      0.920504853452
+     ],
+     "location": [
+      15.551098913862198,
+      0.0,
+      36.636093167389596
+     ],
+     "diameter": 30.0,
+     "height": 39.6
+    },
+    {
+     "axis": [
+      0.390731128489,
+      0.0,
+      0.920504853452
+     ],
+     "location": [
+      27.273032768574915,
+      0.0,
+      64.25123877097599
+     ],
+     "diameter": 16.0,
+     "height": 29.6
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.390731128489,
+      0.0,
+      0.920504853452
+     ],
+     "location": [
+      15.551098913862198,
+      0.0,
+      36.636093167389596
+     ],
+     "diameter": 30.0,
+     "height": 39.6
+    },
+    {
+     "axis": [
+      0.390731128489,
+      0.0,
+      0.920504853452
+     ],
+     "location": [
+      27.273032768574915,
+      0.0,
+      64.25123877097599
+     ],
+     "diameter": 16.0,
+     "height": 29.6
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "a6e940ff37afef35.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "2a3cdf2b10d85c62.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_bosses",
+   "file": "0a3141da4c6d054d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      15.5
+     ],
+     "diameter": 30.0,
+     "height": 50.5
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      35.0
+     ],
+     "diameter": 30.0,
+     "height": 14.5
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      20.5
+     ],
+     "diameter": 24.0,
+     "height": 5.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      15.5
+     ],
+     "diameter": 30.0,
+     "height": 50.5
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      35.0
+     ],
+     "diameter": 30.0,
+     "height": 14.5
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      20.5
+     ],
+     "diameter": 24.0,
+     "height": 5.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_every_recogniser_taking_face_edges_actually_consults_it",
+   "function": "recognise_bosses",
+   "file": "c82913f9ec0ce2d4.step.gz",
+   "options": {},
+   "hints": [
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      15.0
+     ],
+     "diameter": 12.0,
+     "height": 10.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      15.0
+     ],
+     "diameter": 12.0,
+     "height": 10.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_recovered_boss_candidate_retains_original_cylinder_dependency",
+   "function": "recognise_bosses",
+   "file": "14a917f282ad82d6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "diameter": 8.0,
+     "height": 10.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "diameter": 8.0,
+     "height": 10.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_boss_writer_preserves_public_output_and_complete_segment_role",
+   "function": "recognise_bosses",
+   "file": "d42f524fa6bb7b60.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_plate_boss_orientation_is_rederived_for_both_sides_and_xyz[part0-axis0-location0]",
+   "function": "recognise_bosses",
+   "file": "d42f524fa6bb7b60.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_plate_boss_orientation_is_rederived_for_both_sides_and_xyz[part1-axis1-location1]",
+   "function": "recognise_bosses",
+   "file": "326b609e814e0311.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      -13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      -13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_plate_boss_orientation_is_rederived_for_both_sides_and_xyz[part2-axis2-location2]",
+   "function": "recognise_bosses",
+   "file": "9fd3ea881347c017.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "location": [
+      13.0,
+      0.0,
+      0.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "location": [
+      13.0,
+      0.0,
+      0.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_plate_boss_orientation_is_rederived_for_both_sides_and_xyz[part3-axis3-location3]",
+   "function": "recognise_bosses",
+   "file": "dc7af3a9beb0e898.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ],
+     "location": [
+      0.0,
+      -13.0,
+      0.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ],
+     "location": [
+      0.0,
+      -13.0,
+      0.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_chamfered_and_filleted_free_ends_keep_owner_and_orientation",
+   "function": "recognise_bosses",
+   "file": "3f8e80f01da2ab70.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      -12.0
+     ],
+     "diameter": 24.0,
+     "height": 7.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      -12.0
+     ],
+     "diameter": 24.0,
+     "height": 7.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_chamfered_and_filleted_free_ends_keep_owner_and_orientation",
+   "function": "recognise_bosses",
+   "file": "5eaff3054e879395.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      12.0
+     ],
+     "diameter": 24.0,
+     "height": 7.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      12.0
+     ],
+     "diameter": 24.0,
+     "height": 7.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_radial_pipe_boss_and_turned_od_keep_current_roles",
+   "function": "recognise_bosses",
+   "file": "3f6a83f6c6b6860e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      30.0
+     ],
+     "diameter": 40.0,
+     "height": 60.0
+    },
+    {
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "location": [
+      -30.0,
+      0.0,
+      0.0
+     ],
+     "diameter": 10.0,
+     "height": 10.64
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      30.0
+     ],
+     "diameter": 40.0,
+     "height": 60.0
+    },
+    {
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "location": [
+      -30.0,
+      0.0,
+      0.0
+     ],
+     "diameter": 10.0,
+     "height": 10.64
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_radial_pipe_boss_and_turned_od_keep_current_roles",
+   "function": "recognise_bosses",
+   "file": "e7e55b939aebc230.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      20.0
+     ],
+     "diameter": 60.0,
+     "height": 40.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      20.0
+     ],
+     "diameter": 60.0,
+     "height": 40.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_opposite_radial_pipe_boss_points_outward",
+   "function": "recognise_bosses",
+   "file": "fd804c4807fb1d41.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      30.0
+     ],
+     "diameter": 40.0,
+     "height": 60.0
+    },
+    {
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "location": [
+      30.0,
+      0.0,
+      0.0
+     ],
+     "diameter": 10.0,
+     "height": 10.64
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      30.0
+     ],
+     "diameter": 40.0,
+     "height": 60.0
+    },
+    {
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "location": [
+      30.0,
+      0.0,
+      0.0
+     ],
+     "diameter": 10.0,
+     "height": 10.64
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_stepped_external_shaft_and_distinct_equal_radius_occurrences",
+   "function": "recognise_bosses",
+   "file": "e2f5c1981d76f9a1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "diameter": 16.0,
+     "height": 10.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      14.0
+     ],
+     "diameter": 10.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "diameter": 16.0,
+     "height": 10.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      14.0
+     ],
+     "diameter": 10.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_stepped_external_shaft_and_distinct_equal_radius_occurrences",
+   "function": "recognise_bosses",
+   "file": "a6a6d0ca1d0d10bd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      36.0,
+      0.0,
+      4.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -18.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      36.0,
+      0.0,
+      4.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -18.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_mixed_axis_emission_keeps_z_before_cross_and_occurrence_binding",
+   "function": "recognise_bosses",
+   "file": "e4f0e01256e9a828.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      80.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    },
+    {
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "location": [
+      113.0,
+      -80.0,
+      0.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      80.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    },
+    {
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "location": [
+      113.0,
+      -80.0,
+      0.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_translation_scale_mirror_and_nonprincipal_rotation_keep_writer_parity",
+   "function": "recognise_bosses",
+   "file": "6c1542d1379fc750.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      17.0,
+      -9.0,
+      17.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      17.0,
+      -9.0,
+      17.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_translation_scale_mirror_and_nonprincipal_rotation_keep_writer_parity",
+   "function": "recognise_bosses",
+   "file": "5f9c2646d9eca9b6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      39.0
+     ],
+     "diameter": 72.0,
+     "height": 24.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      39.0
+     ],
+     "diameter": 72.0,
+     "height": 24.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_translation_scale_mirror_and_nonprincipal_rotation_keep_writer_parity",
+   "function": "recognise_bosses",
+   "file": "20766d5506010982.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      0.65
+     ],
+     "diameter": 1.2,
+     "height": 0.4
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      0.65
+     ],
+     "diameter": 1.2,
+     "height": 0.4
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_translation_scale_mirror_and_nonprincipal_rotation_keep_writer_parity",
+   "function": "recognise_bosses",
+   "file": "0b1a9698fa9f42f6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      260.0
+     ],
+     "diameter": 480.0,
+     "height": 160.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      260.0
+     ],
+     "diameter": 480.0,
+     "height": 160.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_translation_scale_mirror_and_nonprincipal_rotation_keep_writer_parity",
+   "function": "recognise_bosses",
+   "file": "a5f40890504befaa.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      -13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      -13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_translation_scale_mirror_and_nonprincipal_rotation_keep_writer_parity",
+   "function": "recognise_bosses",
+   "file": "bbd457b8924a305c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.292371704723,
+      -0.492533360539,
+      0.819713166317
+     ],
+     "location": [
+      3.800832161394073,
+      -6.402933687002122,
+      10.656271162126204
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.292371704723,
+      -0.492533360539,
+      0.819713166317
+     ],
+     "location": [
+      3.800832161401778,
+      -6.4029336870082565,
+      10.65627116211977
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_step_round_trip_preserves_segment_role_correspondence",
+   "function": "recognise_bosses",
+   "file": "d42f524fa6bb7b60.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_keyway_split_segment_claims_every_original_face",
+   "function": "recognise_bosses",
+   "file": "ba397cd7c663d5b4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      10.0
+     ],
+     "diameter": 40.0,
+     "height": 20.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      10.0
+     ],
+     "diameter": 40.0,
+     "height": 20.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_equal_full_records_remain_distinct_per_body_occurrences",
+   "function": "recognise_bosses",
+   "file": "29f46e9cf595932a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_local_degradation_returns_only_bosses_with_staged_evidence",
+   "function": "recognise_bosses",
+   "file": "2733401823bf7439.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -80.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      80.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -80.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      80.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_repeated_supplied_cylinder_face_collapses_to_one_defining_node",
+   "function": "recognise_bosses",
+   "file": "d42f524fa6bb7b60.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_supplied_cylinders_and_face_edges_preserve_full_lifecycle",
+   "function": "recognise_bosses",
+   "file": "d42f524fa6bb7b60.step.gz",
+   "options": {},
+   "hints": [
+    "cyls",
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_supplied_cylinders_and_face_edges_preserve_full_lifecycle",
+   "function": "recognise_bosses",
+   "file": "d42f524fa6bb7b60.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_supplied_face_edge_memo_reads_each_face_once",
+   "function": "recognise_bosses",
+   "file": "d42f524fa6bb7b60.step.gz",
+   "options": {},
+   "hints": [
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_internal_partial_and_non_cylindrical_shapes_issue_no_boss[part0]",
+   "function": "recognise_bosses",
+   "file": "f2bf9901c0b5b39c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_internal_partial_and_non_cylindrical_shapes_issue_no_boss[part1]",
+   "function": "recognise_bosses",
+   "file": "76f7ee6e878a956a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_internal_partial_and_non_cylindrical_shapes_issue_no_boss[part2]",
+   "function": "recognise_bosses",
+   "file": "9b56901f786aa251.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_foreign_supplied_cylinder_refuses_before_publication",
+   "function": "recognise_bosses",
+   "file": "d42f524fa6bb7b60.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      200.0,
+      0.0,
+      5.0
+     ],
+     "diameter": 10.0,
+     "height": 10.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_cloned_supplied_segment_face_refuses_without_publication[False]",
+   "function": "recognise_bosses",
+   "file": "d42f524fa6bb7b60.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_cloned_supplied_segment_face_refuses_without_publication[True]",
+   "function": "recognise_bosses",
+   "file": "d42f524fa6bb7b60.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_mixed_body_supplied_segment_refuses_before_publication",
+   "function": "recognise_bosses",
+   "file": "99cf8ffe0f5bce83.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      150.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_real_face_axial_union_substitution_measures_span_then_refuses_mixed_body",
+   "function": "recognise_bosses",
+   "file": "2c8ff38cf754d67e.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      15.0
+     ],
+     "diameter": 10.0,
+     "height": 20.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "diameter": 10.0,
+     "height": 10.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      15.0
+     ],
+     "diameter": 10.0,
+     "height": 10.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_open_shell_keeps_geometry_result_but_refuses_aggregate_publication",
+   "function": "recognise_bosses",
+   "file": "0475f5b179f15b0a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_reversed_edge_face_traversal_preserves_occurrence_roles",
+   "function": "recognise_bosses",
+   "file": "2733401823bf7439.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -80.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      80.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -80.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      80.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_reversed_edge_face_traversal_preserves_occurrence_roles",
+   "function": "recognise_bosses",
+   "file": "2733401823bf7439.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -80.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      80.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -80.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      80.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_supplied_cylinder_permutation_preserves_occurrence_correspondence",
+   "function": "recognise_bosses",
+   "file": "dac73da9ba85ba08.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -80.0,
+      0.0,
+      4.0
+     ],
+     "diameter": 10.0,
+     "height": 8.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      6.0
+     ],
+     "diameter": 14.0,
+     "height": 12.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      80.0,
+      0.0,
+      8.0
+     ],
+     "diameter": 18.0,
+     "height": 16.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -80.0,
+      0.0,
+      4.0
+     ],
+     "diameter": 10.0,
+     "height": 8.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      6.0
+     ],
+     "diameter": 14.0,
+     "height": 12.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      80.0,
+      0.0,
+      8.0
+     ],
+     "diameter": 18.0,
+     "height": 16.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_boss_attribution.py::test_supplied_cylinder_permutation_preserves_occurrence_correspondence",
+   "function": "recognise_bosses",
+   "file": "dac73da9ba85ba08.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      80.0,
+      0.0,
+      8.0
+     ],
+     "diameter": 18.0,
+     "height": 16.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      6.0
+     ],
+     "diameter": 14.0,
+     "height": 12.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -80.0,
+      0.0,
+      4.0
+     ],
+     "diameter": 10.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -80.0,
+      0.0,
+      4.0
+     ],
+     "diameter": 10.0,
+     "height": 8.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      6.0
+     ],
+     "diameter": 14.0,
+     "height": 12.0
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      80.0,
+      0.0,
+      8.0
+     ],
+     "diameter": 18.0,
+     "height": 16.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recognition.py::test_native_hole_and_boss_calls_do_not_build_the_lazy_recovery_graph",
+   "function": "recognise_bosses",
+   "file": "f3e0d1bbcf335b03.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "diameter": 8.0,
+     "height": 10.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "diameter": 8.0,
+     "height": 10.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recognition.py::test_exact_converted_external_cylinder_reaches_the_existing_boss_consumer",
+   "function": "recognise_bosses",
+   "file": "14a917f282ad82d6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "diameter": 8.0,
+     "height": 10.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "diameter": 8.0,
+     "height": 10.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recognition.py::test_exact_converted_external_cylinder_reaches_the_existing_boss_consumer",
+   "function": "recognise_bosses",
+   "file": "f3e0d1bbcf335b03.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "diameter": 8.0,
+     "height": 10.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "diameter": 8.0,
+     "height": 10.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recognition.py::TestFindHoles::test_corner_fillets_are_not_holes",
+   "function": "recognise_bosses",
+   "file": "ed9ea479fb0c5524.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recognition.py::TestFindHoles::test_plain_box_has_no_features",
+   "function": "recognise_bosses",
+   "file": "2b79567655e0cefc.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recognition.py::TestFindBosses::test_boss_on_plate",
+   "function": "recognise_bosses",
+   "file": "d42f524fa6bb7b60.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recognition.py::TestFindBosses::test_chamfered_free_end_keeps_orientation",
+   "function": "recognise_bosses",
+   "file": "3f8e80f01da2ab70.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      -12.0
+     ],
+     "diameter": 24.0,
+     "height": 7.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      -12.0
+     ],
+     "diameter": 24.0,
+     "height": 7.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recognition.py::TestFindBosses::test_filleted_free_end_keeps_orientation",
+   "function": "recognise_bosses",
+   "file": "5eaff3054e879395.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      12.0
+     ],
+     "diameter": 24.0,
+     "height": 7.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      12.0
+     ],
+     "diameter": 24.0,
+     "height": 7.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recognition.py::TestFindBosses::test_radial_boss_on_a_pipe_points_outward",
+   "function": "recognise_bosses",
+   "file": "3f6a83f6c6b6860e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      30.0
+     ],
+     "diameter": 40.0,
+     "height": 60.0
+    },
+    {
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "location": [
+      -30.0,
+      0.0,
+      0.0
+     ],
+     "diameter": 10.0,
+     "height": 10.64
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      30.0
+     ],
+     "diameter": 40.0,
+     "height": 60.0
+    },
+    {
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "location": [
+      -30.0,
+      0.0,
+      0.0
+     ],
+     "diameter": 10.0,
+     "height": 10.64
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recognition.py::TestFindBosses::test_turned_part_od_is_a_boss",
+   "function": "recognise_bosses",
+   "file": "e7e55b939aebc230.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      20.0
+     ],
+     "diameter": 60.0,
+     "height": 40.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      20.0
+     ],
+     "diameter": 60.0,
+     "height": 40.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recognition.py::TestFindBosses::test_bore_is_not_a_boss",
+   "function": "recognise_bosses",
+   "file": "f2bf9901c0b5b39c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recognition.py::TestFindBosses::test_precomputed_cyls_matches_self_scan",
+   "function": "recognise_bosses",
+   "file": "d42f524fa6bb7b60.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recognition.py::TestFindBosses::test_precomputed_cyls_matches_self_scan",
+   "function": "recognise_bosses",
+   "file": "d42f524fa6bb7b60.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recognition.py::TestFeatureDiameters::test_counterbored_hole_lists_bore_and_step",
+   "function": "recognise_bosses",
+   "file": "512640da8d8ab18e.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recognition.py::TestFeatureDiameters::test_spotface_stack_lists_all_three_diameters",
+   "function": "recognise_bosses",
+   "file": "4a24b09b858adf6c.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recognition.py::TestFeatureDiameters::test_boss_diameter_included",
+   "function": "recognise_bosses",
+   "file": "d42f524fa6bb7b60.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 24.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recognition.py::TestFeatureDiameters::test_obround_slot_is_excluded",
+   "function": "recognise_bosses",
+   "file": "db026f44f9a65b7f.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recognition.py::TestFeatureDiameters::test_slot_alongside_hole_lists_only_the_hole",
+   "function": "recognise_bosses",
+   "file": "dae7db8bb9388d01.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recognition.py::TestFeatureDiameters::test_cyls_argument_matches_self_scan",
+   "function": "recognise_bosses",
+   "file": "512640da8d8ab18e.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recognition.py::TestFeatureDiameters::test_cyls_argument_matches_self_scan",
+   "function": "recognise_bosses",
+   "file": "512640da8d8ab18e.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[angled_blind_step]",
+   "function": "recognise_bosses",
+   "file": "6b0ce256f4c70482.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[blind_pockets_and_pocket_patterns]",
+   "function": "recognise_bosses",
+   "file": "ce30ea612029f8ba.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[bolt_circle_and_rectangular_grid]",
+   "function": "recognise_bosses",
+   "file": "63eb54cc99e74641.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[chamfers_fillets_and_flats]",
+   "function": "recognise_bosses",
+   "file": "95b934c617ca88af.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      70.0,
+      0.0,
+      20.0
+     ],
+     "diameter": 30.0,
+     "height": 40.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      70.0,
+      0.0,
+      20.0
+     ],
+     "diameter": 30.0,
+     "height": 40.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[circular_blind_step]",
+   "function": "recognise_bosses",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[counterbored_and_countersunk_holes]",
+   "function": "recognise_bosses",
+   "file": "3aa3fee8a5ce2624.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[double_d_bore]",
+   "function": "recognise_bosses",
+   "file": "c7ee6c53ea0011e7.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[gusset_rib_patterns]",
+   "function": "recognise_bosses",
+   "file": "36181d1f9f68bd14.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[gusset_ribs]",
+   "function": "recognise_bosses",
+   "file": "04aec2096ae6ebfa.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      3.0,
+      20.0
+     ],
+     "diameter": 20.0,
+     "height": 12.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      3.0,
+      20.0
+     ],
+     "diameter": 20.0,
+     "height": 12.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[hexagonal_passage]",
+   "function": "recognise_bosses",
+   "file": "c31caa7ecbb2d309.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[interrupted_and_cross_bores]",
+   "function": "recognise_bosses",
+   "file": "108759c5561ee63f.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[oblique_through_step]",
+   "function": "recognise_bosses",
+   "file": "9683f6213a4aa5bd.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[open_channels]",
+   "function": "recognise_bosses",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[oriented_chamfer]",
+   "function": "recognise_bosses",
+   "file": "aa80434054958f86.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[paired_ramp_step]",
+   "function": "recognise_bosses",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[plates_pads_levels_and_slanted_steps]",
+   "function": "recognise_bosses",
+   "file": "ecafad7c9184d591.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[polygonal_boss]",
+   "function": "recognise_bosses",
+   "file": "dab41ec2d752f628.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[polygonal_stock]",
+   "function": "recognise_bosses",
+   "file": "4e72fdb64234aa60.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[rectangular_blind_slot]",
+   "function": "recognise_bosses",
+   "file": "7edb959cec898e4b.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[rectangular_through_step]",
+   "function": "recognise_bosses",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[repeating_radial_profile]",
+   "function": "recognise_bosses",
+   "file": "1e4303b9497adbaf.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[round_bottom_blind_slot]",
+   "function": "recognise_bosses",
+   "file": "c7a10a9aba34edb1.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[simple_through_hole]",
+   "function": "recognise_bosses",
+   "file": "786005dcbc3b0bea.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      15.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 16.0,
+     "height": 8.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      15.0,
+      0.0,
+      13.0
+     ],
+     "diameter": 16.0,
+     "height": 8.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[slanted_counterbore]",
+   "function": "recognise_bosses",
+   "file": "ba02182884c56d73.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[slanted_steps]",
+   "function": "recognise_bosses",
+   "file": "644f8fd20345b417.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[small_convex_blends]",
+   "function": "recognise_bosses",
+   "file": "016c60d49a52fa18.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[straight_and_obround_slots]",
+   "function": "recognise_bosses",
+   "file": "4ee8cff9e649797a.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[toroidal_blend_compound]",
+   "function": "recognise_bosses",
+   "file": "5eaa13f92130e12e.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[toroidal_blend_internal]",
+   "function": "recognise_bosses",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[toroidal_blends_turned]",
+   "function": "recognise_bosses",
+   "file": "f2bd461093efbb24.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.390731128489,
+      0.0,
+      0.920504853452
+     ],
+     "location": [
+      15.551098913862198,
+      0.0,
+      36.636093167389596
+     ],
+     "diameter": 30.0,
+     "height": 39.6
+    },
+    {
+     "axis": [
+      0.390731128489,
+      0.0,
+      0.920504853452
+     ],
+     "location": [
+      27.273032768574915,
+      0.0,
+      64.25123877097599
+     ],
+     "diameter": 16.0,
+     "height": 29.6
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.390731128489,
+      0.0,
+      0.920504853452
+     ],
+     "location": [
+      15.551098913862198,
+      0.0,
+      36.636093167389596
+     ],
+     "diameter": 30.0,
+     "height": 39.6
+    },
+    {
+     "axis": [
+      0.390731128489,
+      0.0,
+      0.920504853452
+     ],
+     "location": [
+      27.273032768574915,
+      0.0,
+      64.25123877097599
+     ],
+     "diameter": 16.0,
+     "height": 29.6
+    }
+   ]
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[traversal_order]",
+   "function": "recognise_bosses",
+   "file": "6fcd408087103ae2.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[triangular_and_hex_pockets]",
+   "function": "recognise_bosses",
+   "file": "a9c4851eeab83e94.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[turned_steps_and_grooves]",
+   "function": "recognise_bosses",
+   "file": "0a3141da4c6d054d.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      15.5
+     ],
+     "diameter": 30.0,
+     "height": 50.5
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      35.0
+     ],
+     "diameter": 30.0,
+     "height": 14.5
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      20.5
+     ],
+     "diameter": 24.0,
+     "height": 5.0
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      15.5
+     ],
+     "diameter": 30.0,
+     "height": 50.5
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      35.0
+     ],
+     "diameter": 30.0,
+     "height": 14.5
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      20.5
+     ],
+     "diameter": 24.0,
+     "height": 5.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_equivalent_topology_traversals_produce_the_same_snapshot[traversal_order]",
+   "function": "recognise_bosses",
+   "file": "c21919e2fc787939.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_equivalent_topology_traversals_produce_the_same_snapshot[traversal_order]",
+   "function": "recognise_bosses",
+   "file": "7069362b89435f36.step.gz",
+   "options": {},
+   "hints": [
+    "cyls"
+   ],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
   }
  ],
  "skipped": {
-  "recognise_chamfers: capture failed: RuntimeError": 1
+  "recognise_bosses: capture failed: RuntimeError": 1
  }
 }

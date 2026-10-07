@@ -8,6 +8,7 @@
 //! once however many families ask.
 
 pub mod bevel;
+pub mod bosses;
 pub mod chamfers;
 pub mod context;
 pub mod countersinks;
@@ -17,6 +18,7 @@ pub mod fillets;
 pub mod hole_patterns;
 pub mod holes;
 pub mod planes;
+pub mod stacks;
 pub mod turned;
 
 pub use context::Context;
@@ -33,6 +35,7 @@ use crate::kernel::brep::Part;
 pub struct Features {
     pub fillets: Vec<fillets::Fillet>,
     pub chamfers: Vec<chamfers::Chamfer>,
+    pub bosses: Vec<bosses::BossRecord>,
     pub holes: Vec<holes::HoleRecord>,
     pub countersinks: Vec<countersinks::CounterSink>,
     pub hole_patterns: Vec<hole_patterns::HolePattern>,
@@ -48,6 +51,7 @@ pub fn recognise(part: &Part) -> Features {
     Features {
         fillets: records(fillets::discover(&ctx, &Default::default())),
         chamfers: records(chamfers::discover(&ctx, &Default::default())),
+        bosses: records(bosses::discover(&ctx)),
         hole_patterns: hole_patterns::recognise_hole_patterns(&holes),
         holes,
         countersinks,

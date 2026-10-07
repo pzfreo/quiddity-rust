@@ -104,3 +104,8 @@ fn hole_patterns_match_python() {
 fn chamfers_match_python() {
     replay("recognise_chamfers");
 }
+
+#[test]
+fn bosses_match_python() {
+    replay("recognise_bosses");
+}

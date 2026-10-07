@@ -13,6 +13,7 @@ OpenCascade is reimplemented in `src/kernel`.
 | Holes | `recognise_holes` | 205/214 match (9 known divergences) | see below |
 | Chamfers | `recognise_chamfers` | 107/107 | see below |
 | Countersinks | `recognise_countersinks` | 77/77 | see below |
+| Bosses | `recognise_bosses` | 131/133 (2 known divergences) | see below |
 | Hole patterns | `recognise_hole_patterns` | 470/470 | see below |
 
 Known divergences are listed, with reasons, in `tests/fixtures/captured/known_divergences.json`
@@ -46,7 +47,8 @@ src/
     planes.rs        nearest axis-aligned neighbour planes
     bevel.rs         the single-face bevel read and the convex-corner probe
     turned.rs        what turned-stock treatments share: coaxial external cylinders, cone rims
-    fillets.rs  chamfers.rs  holes.rs  countersinks.rs  hole_patterns.rs
+    stacks.rs        coaxial segments read at their ends (open / flat / drill point)
+    fillets.rs  chamfers.rs  holes.rs  countersinks.rs  hole_patterns.rs  bosses.rs
   bin/quiddity.rs    `quiddity part.step` → JSON
 tests/
   captured.rs        replays every recogniser call the Python test suite makes

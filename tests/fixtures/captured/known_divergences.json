@@ -43,5 +43,15 @@
     "function": "recognise_holes",
     "test": "tests/test_separated_coaxial_bores.py::test_oblique_cross_drilling_preserves_the_complete_bore[1-False-45-2]",
     "reason": "A 45-degree \u00d88 bore through a cube corner: its exit edges lie exactly at the end-partner margin (min(0.45\u00b7length, d/2) = 4.000 mm). Python's arithmetic lands a few ulps outside and finds no partner ('unknown'); the port's lands inside and reads the exit planes ('through')."
+  },
+  {
+    "function": "recognise_bosses",
+    "test": "tests/test_boss_attribution.py::test_recovered_boss_candidate_retains_original_cylinder_dependency",
+    "reason": "Python recovers a boss from cylinders stored as B-spline surfaces through its effective-surface recovery (_effective_surfaces.py); the port reads native analytic cylinders only and finds no boss."
+  },
+  {
+    "function": "recognise_bosses",
+    "test": "tests/test_recognition.py::test_exact_converted_external_cylinder_reaches_the_existing_boss_consumer",
+    "reason": "Python recovers a boss from cylinders stored as B-spline surfaces through its effective-surface recovery (_effective_surfaces.py); the port reads native analytic cylinders only and finds no boss."
   }
 ]
