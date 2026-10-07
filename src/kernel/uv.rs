@@ -6,7 +6,6 @@ use std::f64::consts::TAU;
 
 use super::brep::{Part, Pcurve};
 use super::geom::{self, Surface, V3};
-use super::py;
 
 /// The face's boundary as (u, v) polylines.
 ///
@@ -134,19 +133,61 @@ pub struct UvLoop {
 }
 
 impl Part {
-    /// The face's outer loop (`BRepTools::OuterWire`): the only loop, or the one whose
-    /// parameter-space box is largest.
+    /// The face's outer loop (`BRepTools::OuterWire`): the first loop, replaced by any later loop
+    /// whose parameter-space box contains the current one's (a later tie wins).
     pub fn outer_loop(&self, face: usize) -> Option<usize> {
+        self.loop_placement(face).map(|(outer, _)| outer)
+    }
+
+    /// The outer loop and, per loop, the shift (a whole number of periods) that places it in one
+    /// parameter period with the others. Loops are first centred in `[0, 2π)` — where
+    /// OpenCascade's pcurves sit — to choose the outer loop; every other loop is then moved to
+    /// the period nearest the outer loop's centre, so a hole far round a partial face from the
+    /// face's first sample still lands inside it.
+    fn loop_placement(&self, face: usize) -> Option<(usize, Vec<(f64, f64)>)> {
         let loops = self.uv_loops(face)?;
-        let area = |lp: &UvLoop| {
-            let (mut lo, mut hi) = ([f64::INFINITY; 2], [f64::NEG_INFINITY; 2]);
-            for &(u, v) in &lp.points {
-                (lo[0], lo[1], hi[0], hi[1]) =
-                    (lo[0].min(u), lo[1].min(v), hi[0].max(u), hi[1].max(v));
-            }
-            (hi[0] - lo[0]) * (hi[1] - lo[1])
+        let (pu, pv) = self.faces[face].surface.periodic();
+        let boxes: Vec<[f64; 4]> = loops
+            .iter()
+            .map(|lp| {
+                lp.points.iter().fold([f64::INFINITY, f64::NEG_INFINITY, f64::INFINITY, f64::NEG_INFINITY], |b, &(u, v)| {
+                    [b[0].min(u), b[1].max(u), b[2].min(v), b[3].max(v)]
+                })
+            })
+            .collect();
+        let centre = |b: &[f64; 4]| (0.5 * (b[0] + b[1]), 0.5 * (b[2] + b[3]));
+        let into_period = |c: f64, periodic: bool| if periodic { c.rem_euclid(TAU) - c } else { 0.0 };
+        let first: Vec<(f64, f64)> = boxes
+            .iter()
+            .map(|b| {
+                let c = centre(b);
+                (into_period(c.0, pu), into_period(c.1, pv))
+            })
+            .collect();
+        let placed = |i: usize| {
+            let b = boxes[i];
+            [b[0] + first[i].0, b[1] + first[i].0, b[2] + first[i].1, b[3] + first[i].1]
         };
-        (!loops.is_empty()).then(|| py::first_max(loops, area))
+        let mut outer = 0;
+        for i in 1..loops.len() {
+            let (o, c) = (placed(outer), placed(i));
+            if c[0] <= o[0] && c[1] >= o[1] && c[2] <= o[2] && c[3] >= o[3] {
+                outer = i;
+            }
+        }
+        let anchor = centre(&placed(outer));
+        let shifts = (0..loops.len())
+            .map(|i| {
+                if i == outer {
+                    return first[i];
+                }
+                let c = centre(&boxes[i]);
+                let su = if pu { geom::nearest_turn(c.0, anchor.0) - c.0 } else { 0.0 };
+                let sv = if pv { geom::nearest_turn(c.1, anchor.1) - c.1 } else { 0.0 };
+                (su, sv)
+            })
+            .collect();
+        (!loops.is_empty()).then_some((outer, shifts))
     }
 
     /// ∮ (x dy − y dx)/2, ∮ x² dy/2 and −∮ y² dx/2 along one edge in the plane of *frame*, by
@@ -268,13 +309,11 @@ impl Part {
         for lp in &f.loops {
             let mut pts: Vec<(f64, f64)> = Vec::new();
             if let Some(apex) = lp.vertex {
-                // A degenerate loop: the whole periodic u line at the apex's v.
-                let (_, v) = f.surface.parameters(apex, None)?;
-                if pu {
-                    loops.push(UvLoop {
-                        points: periodic_line(0.0, TAU, v),
-                    });
-                }
+                // A degenerate loop: the whole periodic u line at the apex's v (one entry per
+                // face loop either way, so loop indices agree with the face's).
+                let (u, v) = f.surface.parameters(apex, None)?;
+                let points = if pu { periodic_line(0.0, TAU, v) } else { vec![(u, v)] };
+                loops.push(UvLoop { points });
                 continue;
             }
             let mut raw: Vec<(f64, f64)> = Vec::new();
@@ -330,9 +369,8 @@ impl Part {
                 range[3].max(v),
             ];
         };
-        // Every loop is unwrapped next to the first one's start so separate loops share one
-        // period; whether a loop winds round a periodic direction is read from its ends.
-        let reference = loops.first().and_then(|l| l.points.first()).copied()?;
+        // Loops are placed in one period by `loop_placement`; whether a loop winds round a
+        // periodic direction is read from its ends.
         let near = |(u, v): (f64, f64), (ru, rv): (f64, f64)| {
             (
                 if pu { geom::nearest_turn(u, ru) } else { u },
@@ -347,28 +385,21 @@ impl Part {
             winds.0 |= pu && (last.0 - first.0).abs() > 1.0;
             winds.1 |= pv && (last.1 - first.1).abs() > 1.0;
         }
+        let (_, shifts) = self.loop_placement(face)?;
         if matches!(f.surface, Surface::Sphere { .. }) || f.pcurves.is_empty() {
-            for lp in loops {
-                let Some(&first) = lp.points.first() else {
-                    continue;
-                };
-                let shifted = near(first, reference);
-                let shift = (shifted.0 - first.0, shifted.1 - first.1);
-                lp.points
-                    .iter()
-                    .for_each(|&(u, v)| add((u + shift.0, v + shift.1)));
+            for (lp, shift) in loops.iter().zip(&shifts) {
+                lp.points.iter().for_each(|&(u, v)| add((u + shift.0, v + shift.1)));
             }
         } else {
             // Edge by edge: where the file gives an edge's pcurve, it sizes the range in place of
             // the 3D edge (aligned to the edge's own samples to pick the period).
-            for lp in &f.loops {
-                if let Some(apex) = lp.vertex {
-                    if let Some(p) = f.surface.parameters(apex, None) {
-                        add((near(p, reference).0, p.1));
-                    }
-                    continue;
+            for ((lp, uv), shift) in f.loops.iter().zip(loops).zip(&shifts) {
+                if lp.vertex.is_some() {
+                    continue; // an apex bounds v through its edges; its u is meaningless
                 }
-                let mut last = reference;
+                // Start this loop where its own unwrapped samples sit, in its placed period.
+                let Some(&start) = uv.points.first() else { continue };
+                let mut last = (start.0 + shift.0, start.1 + shift.1);
                 for &(e, forward) in &lp.edges {
                     let samples = &self.edges[e].samples;
                     let ordered: Box<dyn Iterator<Item = &V3>> = if forward {
