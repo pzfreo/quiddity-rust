@@ -47,6 +47,7 @@ src/
                      compatible UV ranges (BRepTools::UVBounds), point containment
     cloud.rs         faces as point clouds (mesh-like density on the exact geometry), k-d tree
                      nearest neighbours, exact point-to-face distance
+    cover.rs         whether faces cover a face (covered_patch), in the face's parameter space
     classify.rs      point-in-solid (whole part or one solid) by the parity of rays.rs
                      crossings, with on-boundary detection (BRepClass3d)
     rays.rs          every hit of a ray on a solid's trimmed faces, through a box hierarchy
@@ -78,6 +79,8 @@ tests/
   corpus.rs          every ported recogniser over the shared 100-file STEP corpus
   evidence.rs        fillet defining faces and evidence refusals on hand-built cases
   invariance.rs      every corpus part moved and turned: each family must find the same faces
+  patches.rs         every covered_patch question Python asks over the corpus, answered by
+                     kernel/cover.rs (tools/capture_patches.py records them)
   probes.rs          every volume probe Python's recognisers ask over the corpus, answered by
                      kernel/volume.rs (tools/capture_probes.py records them)
   kernel.rs          kernel behaviour on real parts
