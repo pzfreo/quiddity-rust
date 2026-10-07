@@ -13,7 +13,8 @@ mod drawing;
 use std::path::Path;
 
 use drawing::{
-    Seg, compare_cut, compare_views, covered, even_odd_area, ink_covered, load_gz, segments,
+    Seg, compare_cut, compare_views, covered, distance, even_odd_area, ink_covered, load_gz,
+    segments,
 };
 
 fn main() {
@@ -29,6 +30,17 @@ fn main() {
             .sum()
     };
     let wanted = |var: &str, name: &str| std::env::var(var).is_ok_and(|m| m == name);
+    // How far *segs* stray from *to*: the largest distance from one of their points to it.
+    let stray = |segs: &[Seg], to: &[Seg]| -> f64 {
+        segs.iter()
+            .flat_map(|s| [s.0, s.1])
+            .map(|p| {
+                to.iter()
+                    .map(|t| distance(p, *t))
+                    .fold(f64::INFINITY, f64::min)
+            })
+            .fold(0.0, f64::max)
+    };
     for record in all["parts"].as_array().unwrap() {
         let file = record["file"].as_str().unwrap();
         if only.is_some_and(|o| !file.contains(o.as_str())) {
@@ -78,10 +90,11 @@ fn main() {
                     if share < 0.99 && !segs.is_empty() {
                         let other = covered(&segs, &c.mine[1 - vis]);
                         println!(
-                            "  miss {} vis={} len={:.3} covered {share:.2} (other visibility {other:.2}) from {:?} to {:?}",
+                            "  miss {} vis={} len={:.3} covered {share:.2} (other visibility {other:.2}) strays {:.4} from {:?} to {:?}",
                             e["kind"],
                             vis == 1,
                             length(&segs),
+                            stray(&segs, &c.mine[vis]),
                             segs[0].0,
                             segs[segs.len() - 1].1
                         );
@@ -105,9 +118,11 @@ fn main() {
                     let share = ink_covered(&[segs.clone(), c.theirs[1].clone()], &c.mine);
                     if share < 0.99 && !segs.is_empty() {
                         println!(
-                            "  ink miss {} len={:.3} matched {share:.2} from {:?} to {:?}",
+                            "  ink miss {} len={:.3} matched {share:.2} strays {:.4} from hidden, {:.4} from visible; from {:?} to {:?}",
                             e["kind"],
                             length(&segs),
+                            stray(&segs, &c.mine[0]),
+                            stray(&segs, &c.mine[1]),
                             segs[0].0,
                             segs[segs.len() - 1].1
                         );

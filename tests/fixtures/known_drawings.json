@@ -1,11 +1,5 @@
 [
   {
-    "file": "cadgenbench_inputs/cgb245.step",
-    "view": "plan",
-    "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
-  },
-  {
     "file": "inventory_refusal/13975.step.gz",
     "view": "plan",
     "verdict": "undetermined",
@@ -68,8 +62,8 @@
   {
     "file": "mfcadpp/10119.step",
     "view": "front",
-    "verdict": "undetermined",
-    "reason": "Not examined yet: differs beyond 0.03 mm (visible 1.0000 1.0000, hidden ink 0.9256 1.0000)."
+    "verdict": "rust-correct",
+    "reason": "A through hole's far rim, seen along its axis, lies under its near rim: OpenCascade's hidden copy dips to radius 2.736 against the true 2.806 (haecceity's lies exactly under the visible rim)."
   },
   {
     "file": "mfcadpp/10119.step",
@@ -176,8 +170,8 @@
   {
     "file": "mfcadpp_holdout/183.step",
     "view": "front",
-    "verdict": "undetermined",
-    "reason": "Not examined yet: differs beyond 0.03 mm (visible 0.9652 0.9661, hidden ink 0.9368 1.0000)."
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's curves for a hole's rims stray up to 0.033 mm (visible) and 0.008 mm (hidden) from haecceity's, whose edges lie on their faces within 1.1e-11."
   },
   {
     "file": "mfcadpp_holdout/183.step",
@@ -272,32 +266,14 @@
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
     "view": "plan",
-    "verdict": "undetermined",
-    "reason": "Not examined yet: differs beyond 0.03 mm (visible 0.9540 0.9558, hidden ink 0.9653 0.9724)."
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's hidden rims of a cylinder seen along its axis dip to radius 7.352 against the true 7.541; haecceity's lie on their faces within 1e-13."
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
     "view": "side",
-    "verdict": "undetermined",
-    "reason": "Not examined yet: differs beyond 0.03 mm (visible 0.9951 0.9980, hidden ink 0.9247 0.9324)."
-  },
-  {
-    "file": "nist/nist_ftc_09_asme1_rd.stp",
-    "view": "side",
-    "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
-  },
-  {
-    "file": "ttt_inputs/sm-hanger.step",
-    "view": "iso",
-    "verdict": "undetermined",
-    "reason": "Not examined yet: differs beyond 0.03 mm (visible 1.0000 0.9998, hidden ink 0.9998 0.9763)."
-  },
-  {
-    "file": "ttt_inputs/sm-hanger.step",
-    "view": "plan",
-    "verdict": "undetermined",
-    "reason": "Not examined yet: differs beyond 0.03 mm (visible 1.0000 1.0000, hidden ink 1.0000 0.9499)."
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's hidden rims of a cylinder seen along its axis dip to radius 10.834 against the true 11.1125; haecceity's lie on their faces within 6e-14."
   },
   {
     "file": "cadgenbench/threaded_connector_109.step",
@@ -314,26 +290,14 @@
   {
     "file": "cadgenbench_inputs/cgb203.step",
     "view": "section",
-    "verdict": "undetermined",
-    "reason": "Not examined yet: differs beyond 0.03 mm (visible 0.8228 0.9982, hidden ink 0.9945 0.9143)."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb207.step",
-    "view": "section",
-    "verdict": "undetermined",
-    "reason": "Not examined yet: differs beyond 0.03 mm (visible 0.9837 0.9999, hidden ink 0.9993 0.9726)."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb241.step",
-    "view": "section",
-    "verdict": "undetermined",
-    "reason": "Not examined yet: differs beyond 0.03 mm (visible 0.9343 0.9976, hidden ink 0.9984 0.9567)."
+    "verdict": "rust-correct",
+    "reason": "OpenCascade draws a 76 mm outline where no face of the kept half has a silhouette (the faces there face the viewer, |n·y| about 0.92); the rest agrees within 0.03 mm."
   },
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "view": "section",
     "verdict": "undetermined",
-    "reason": "Not examined yet: differs beyond 0.03 mm (visible 0.9785 0.9957, hidden ink 0.9942 0.9702)."
+    "reason": "Hidden tangent edges haecceity draws are partly missing from OpenCascade's section (as in nist_ctc_02's), and one 12 mm edge differs in visibility; not diagnosed further."
   },
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
@@ -416,25 +380,13 @@
   {
     "file": "nist/nist_ctc_02_asme1_rc.stp",
     "view": "section",
-    "verdict": "undetermined",
-    "reason": "Not examined yet: differs beyond 0.03 mm (visible 0.9812 0.9998, hidden ink 0.9991 0.9787)."
-  },
-  {
-    "file": "nist/nist_ctc_04_asme1_rd.stp",
-    "view": "section",
-    "verdict": "undetermined",
-    "reason": "Not examined yet: differs beyond 0.03 mm (visible 1.0000 1.0000, hidden ink 1.0000 0.9682)."
-  },
-  {
-    "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "view": "cut",
     "verdict": "rust-correct",
-    "reason": "OpenCascade's cut face closes two drilled holes with straight lines across them at the cylinders' ends (its boolean failed to cut the holes), so it would hatch over them: its outline encloses 301 mm² more."
+    "reason": "Plane–cylinder tangent edges in the kept half, which OpenCascade draws in its plain views, are missing from its section view; haecceity draws them in both."
   },
   {
     "file": "ttt_inputs/sm-hanger.step",
     "view": "section",
-    "verdict": "undetermined",
-    "reason": "Not examined yet: differs beyond 0.03 mm (visible 0.9900 1.0000, hidden ink 1.0000 0.9158)."
+    "verdict": "rust-correct",
+    "reason": "An edge at the top of a slot's far wall lies behind material at the cut (OpenCascade's own cut face covers the point in front of it), so it is hidden; OpenCascade draws it visible."
   }
 ]

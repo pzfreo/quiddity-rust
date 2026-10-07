@@ -157,7 +157,7 @@ fn drawn_faces(part: &Part) -> Vec<usize> {
 /// What a drawn curve lies on, which decides where its pieces are judged.
 #[derive(Clone, Copy)]
 enum On<'p> {
-    Edge(&'p Curve),
+    Edge(&'p Curve, usize),
     /// A face's silhouette.
     Silhouette(usize),
     /// A section's outline, its chords in the cutting plane.
@@ -183,7 +183,7 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Vec<Projected> {
             .into_iter()
             .flat_map(|(class, c, on)| {
                 let curve = match on {
-                    On::Edge(curve) => Some(curve),
+                    On::Edge(curve, _) => Some(curve),
                     _ => None,
                 };
                 kept(&c, plane, 1e-9 * scale, curve)
@@ -213,9 +213,10 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Vec<Projected> {
         .collect();
     let cuts = crossings(&flat, scale / 64.0, 1e-9 * scale);
     let reach = 2.0 * scale + 1.0;
-    let hidden = |p: V3| {
+    // Hidden from *p*, the ray to the viewer starting *start* along.
+    let hidden = |p: V3, start: f64| {
         let Some((plane, classifier)) = plane.zip(classifier.as_ref()) else {
-            return rays.any_hit(p, view.toward, 1e-6 * scale, reach);
+            return rays.any_hit(p, view.toward, start, reach);
         };
         // Cut away: the ray runs only to the plane, and is stopped there by the cut face when
         // it reaches the plane within the material.
@@ -228,18 +229,33 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Vec<Projected> {
         if to_plane <= 1e-6 * scale {
             return false;
         }
-        rays.any_hit(p, view.toward, 1e-6 * scale, to_plane.min(reach))
+        rays.any_hit(p, view.toward, start, to_plane.min(reach))
             || (to_plane < reach
                 && classifier.classify(geom::add(p, geom::scale(view.toward, to_plane)))
                     == State::In)
     };
     let mut out = Vec::new();
     for (i, (class, points, on)) in curves.iter().enumerate() {
+        // An edge standing off its faces (within the file's tolerance) can start its ray just
+        // inside them: the ray starts clear of that stand-off, so the edge does not hide itself.
+        let start = 1e-6 * scale
+            + match on {
+                On::Edge(_, e) => {
+                    let stand_off = part.edge_faces()[*e]
+                        .iter()
+                        .flat_map(|&f| part.edge_deviation(f).iter())
+                        .filter(|(x, _)| x == e)
+                        .map(|&(_, d)| d)
+                        .fold(0.0, f64::max);
+                    4.0 * stand_off
+                }
+                _ => 0.0,
+            };
         let judge = |p: V3| {
-            hidden(match on {
+            let at = match on {
                 // On the curve itself: a chord's middle can lie exactly on another face's
                 // boundary drawn by the same samples.
-                On::Edge(c) => c.value(c.parameter(p)),
+                On::Edge(c, _) => c.value(c.parameter(p)),
                 // On the face, a hair outside it: the ray to the viewer runs along the face
                 // there, and from a chord's middle (inside a curved face) would strike it.
                 On::Silhouette(face) => {
@@ -256,7 +272,8 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Vec<Projected> {
                         .unwrap_or(p)
                 }
                 On::Section => p,
-            })
+            };
+            hidden(at, start)
         };
         for (visible, run) in pieces(points, &cuts[i], &judge) {
             out.push(Projected {
@@ -352,15 +369,61 @@ fn edges<'p>(part: &'p Part, view: &View, drawn: &[usize]) -> Vec<(Class, Vec<V3
                 Class::Outline
             }
             [a, b] => match part.arc(*a, *b) {
+                // A tangent join whose curvature across it is continuous too (a corner blend
+                // meeting the edge blend of its radius) is as smooth as a join within one
+                // surface, and left out alike (OpenCascade's `RgN`, against `Rg1` drawn).
+                Some(Arc::Smooth) if curvature_continuous(part, e, *a, *b) => {
+                    if !on_outline(e, *a) {
+                        continue;
+                    }
+                    Class::Outline
+                }
                 Some(Arc::Smooth) => Class::Smooth,
                 _ => Class::Sharp,
             },
             _ => Class::Sharp,
         };
         let edge = &part.edges[e];
-        out.push((class, edge.samples.clone(), On::Edge(&edge.curve)));
+        out.push((class, edge.samples.clone(), On::Edge(&edge.curve, e)));
     }
     out
+}
+
+/// Whether faces *a* and *b* bend alike across edge *e*, at its middle: their normal
+/// curvatures across it, measured on each untrimmed surface against one normal, agree.
+fn curvature_continuous(part: &Part, e: usize, a: usize, b: usize) -> bool {
+    let edge = &part.edges[e];
+    let s = &edge.samples;
+    let k = (s.len() / 2).max(1);
+    let p = edge.curve.value(
+        edge.curve
+            .parameter(geom::scale(geom::add(s[k - 1], s[k]), 0.5)),
+    );
+    let surface = |f: usize| &part.faces[f].surface;
+    let Some(n) = surface(a)
+        .parameters(p, None)
+        .and_then(|(u, v)| surface(a).normal(u, v))
+    else {
+        return false;
+    };
+    let Some(across) = geom::unit(geom::cross(n, geom::sub(s[k], s[k - 1]))) else {
+        return false;
+    };
+    // The surface's rise along *n* a step either side, against the tangent plane.
+    const H: f64 = 1e-2;
+    let bend = |f: usize| -> Option<f64> {
+        let mut rise = 0.0;
+        for side in [-1.0, 1.0] {
+            let x = geom::add(p, geom::scale(across, side * H));
+            let (u, v) = surface(f).parameters(x, None)?;
+            rise += geom::dot(geom::sub(surface(f).value(u, v), p), n);
+        }
+        Some(rise / (H * H))
+    };
+    match (bend(a), bend(b)) {
+        (Some(ka), Some(kb)) => (ka - kb).abs() <= 1e-3 * ka.abs().max(kb.abs()) + 1e-6,
+        _ => false,
+    }
 }
 
 /// Whether two faces lie on one surface (a join OpenCascade does not draw).
@@ -373,11 +436,9 @@ fn same_surface(a: &Surface, b: &Surface) -> bool {
         geom::norm(geom::sub(d, geom::scale(z, geom::dot(d, z)))) <= TOL * (1.0 + geom::norm(o))
     };
     match (a, b) {
-        (Surface::Plane { frame: f }, Surface::Plane { frame: g }) => {
-            parallel(f.z, g.z)
-                && geom::dot(geom::sub(g.origin, f.origin), f.z).abs()
-                    <= TOL * (1.0 + geom::norm(f.origin))
-        }
+        // Two planes meeting along an edge are one plane when they are parallel (a sheet's
+        // faces can differ by a few nanoradians, which over their width is more than TOL).
+        (Surface::Plane { frame: f }, Surface::Plane { frame: g }) => parallel(f.z, g.z),
         (
             Surface::Cylinder {
                 frame: f,
@@ -398,6 +459,24 @@ fn same_surface(a: &Surface, b: &Surface) -> bool {
                 radius: s,
             },
         ) => near(f.origin, g.origin) && (r - s).abs() <= TOL * r,
+        (
+            Surface::Cone {
+                frame: f,
+                semi_angle: x,
+                ..
+            },
+            Surface::Cone {
+                frame: g,
+                semi_angle: y,
+                ..
+            },
+        ) => {
+            a.cone_apex()
+                .zip(b.cone_apex())
+                .is_some_and(|(p, q)| near(p, q))
+                && parallel(f.z, g.z)
+                && (x - y).abs() <= TOL
+        }
         (
             Surface::Torus {
                 frame: f,
@@ -438,9 +517,22 @@ fn silhouette(part: &Part, face: usize, view: &View) -> Vec<Vec<V3>> {
 /// where it lies on the face and off its boundary (those edges are drawn already).
 fn contour(part: &Part, face: usize, g: &dyn Fn((f64, f64)) -> f64) -> Vec<Vec<V3>> {
     let surface = &part.faces[face].surface;
-    let (Some((u0, u1, v0, v1)), Some(domain)) = (part.uv_bounds(face), part.domain(face)) else {
+    let (Some((u0, u1, mut v0, mut v1)), Some(domain)) = (part.uv_bounds(face), part.domain(face))
+    else {
         return Vec::new();
     };
+    // A cone closed at its apex by no edge (a drill point bounded by its rim alone) has a range
+    // from its edges that stops at the rim, though the face runs on to the apex.
+    if let Surface::Cone {
+        radius, semi_angle, ..
+    } = *surface
+    {
+        let apex = -radius / semi_angle.sin();
+        let near = if apex < v0 { v0 } else { v1 };
+        if !(v0..=v1).contains(&apex) && domain.contains(0.5 * (u0 + u1), 0.5 * (apex + near)) {
+            (v0, v1) = (v0.min(apex), v1.max(apex));
+        }
+    }
     // The grid is set off its range by an irrational fraction of a cell, and one cell wider:
     // a contour at a symmetric place (a silhouette at u = 0, π on an axis-aligned cylinder)
     // would otherwise lie along a grid line, where the sign of g is rounding.
