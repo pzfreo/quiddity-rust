@@ -35,14 +35,17 @@ src/
     sampling.rs      edges as polylines (adaptive, 0.2 µm chord tolerance)
     uv.rs            faces in parameter space: unwrapped loops, singular points, OpenCascade-
                      compatible UV ranges (BRepTools::UVBounds), point containment
-    classify.rs      point-in-solid by ray parity (BRepClass3d)
+    classify.rs      point-in-solid by ray parity, with on-boundary detection (BRepClass3d)
+    py.rs            Python's numeric semantics: fsum, compensated sum, hypot, %, rounding,
+                     tuple ordering — wherever results must agree to the bit
   features/          the recognisers, one module per family, plus what they share
     context.rs       Context: one run over one part; box, classifier, cylinder inventory
                      computed once, on first use
     evidence.rs      Occurrence<R> (record + defining faces) and the valid-solid check
     cylinders.rs     the cylinder inventory, runs, segments, coaxial keys
     planes.rs        nearest axis-aligned neighbour planes
-    bevel.rs         the convex-corner probe
+    bevel.rs         the single-face bevel read and the convex-corner probe
+    turned.rs        what turned-stock treatments share: coaxial external cylinders, cone rims
     fillets.rs  chamfers.rs  holes.rs  countersinks.rs  hole_patterns.rs
   bin/quiddity.rs    `quiddity part.step` → JSON
 tests/

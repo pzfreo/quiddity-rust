@@ -3,9 +3,10 @@
 use serde::{Deserialize, Serialize};
 
 use super::Context;
-use super::evidence::Occurrence;
+use super::evidence::{self, EvidenceError, Occurrence};
+use super::turned::cone_rims;
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{self, Curve, Surface, V3};
+use crate::kernel::geom::{self, Surface, V3};
 use crate::kernel::py;
 
 /// Does this cone sit on that bore? A fraction of the drill radius.
@@ -41,6 +42,12 @@ pub struct HoleMouth {
     pub through: bool,
 }
 
+/// The evidence path: each countersink with its cone face, published only if every one is
+/// owned by a valid solid.
+pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<CounterSink>>, EvidenceError> {
+    evidence::verified(ctx.part, discover(ctx))
+}
+
 /// `recognise_countersinks`.
 pub fn recognise_countersinks(part: &Part) -> Vec<CounterSink> {
     discover(&Context::new(part))
@@ -64,33 +71,6 @@ pub fn countersink_matches_hole(cs: &CounterSink, hole: &HoleMouth) -> bool {
     }
     let mouth = geom::length_tol(hole.diameter, HOLE_MOUTH_FRAC);
     axial.abs() <= mouth || (hole.through && (axial - hole.depth).abs() <= mouth)
-}
-
-/// A circular edge's radius and centre.
-fn circle(part: &Part, edge: usize) -> Option<(f64, V3)> {
-    match part.edges[edge].curve {
-        Curve::Circle { frame, radius } => Some((radius, frame.origin)),
-        _ => None,
-    }
-}
-
-/// `(minor, major, included angle°)` of a cone face: its smallest and largest circular rims and
-/// the full cone angle to 2 dp (`cone_rims`).
-pub fn cone_rims(part: &Part, face: usize) -> Option<((f64, V3), (f64, V3), f64)> {
-    let Surface::Cone { semi_angle, .. } = part.faces[face].surface else {
-        return None;
-    };
-    let mut circles: Vec<(f64, V3)> = part
-        .face_edges(face)
-        .into_iter()
-        .filter_map(|e| circle(part, e))
-        .collect();
-    if circles.len() < 2 {
-        return None;
-    }
-    circles.sort_by(|a, b| py::order(a.0, b.0));
-    let included = py::round_to(2.0 * semi_angle.to_degrees().abs(), 2);
-    Some((circles[0], circles[circles.len() - 1], included))
 }
 
 /// Whether the cone's material-side normal points into its axis: a seat bounds a void, an

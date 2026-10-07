@@ -6,8 +6,6 @@ mod common;
 
 use std::path::{Path, PathBuf};
 
-use quiddity::features::Context;
-use quiddity::features::fillets::discover_verified;
 use quiddity::read_step_file;
 use serde_json::Value;
 
@@ -67,8 +65,8 @@ fn corpus_matches_python() {
                     continue;
                 }
                 tally.0 += 1;
-                if function == "recognise_fillets" {
-                    check_fillet_evidence(name, &part, run, &mut problems);
+                if run.get("defining").is_some() || run.get("evidence_error").is_some() {
+                    check_evidence(name, function, &part, run, &mut problems);
                 }
             }
         }
@@ -110,35 +108,27 @@ fn corpus_matches_python() {
 }
 
 /// The defining faces (or the refusal) of the evidence path agree with Python's.
-fn check_fillet_evidence(
+fn check_evidence(
     name: &str,
+    function: &str,
     part: &quiddity::Part,
     run: &Value,
     problems: &mut Vec<String>,
 ) {
-    let opts: quiddity::FilletOptions = common::options(&run["options"]);
-    match (
-        discover_verified(&Context::new(part), &opts),
-        run.get("evidence_error"),
-    ) {
-        (Err(_), Some(_)) => {}
-        (Ok(found), None) => {
-            let faces: Vec<u64> = found.iter().map(|o| o.defining[0] as u64).collect();
-            let want: Vec<u64> = run["defining"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .map(|d| d["face"].as_u64().unwrap())
-                .collect();
+    let ours = common::defining(function, part, &run["options"]);
+    match (ours, run.get("evidence_error"), run.get("defining")) {
+        (Err(_), Some(_), _) => {}
+        (Ok(faces), None, Some(want)) => {
+            let want: Vec<Vec<usize>> = serde_json::from_value(want.clone()).unwrap();
             if faces != want {
                 problems.push(format!(
-                    "{name} recognise_fillets {}: evidence faces {faces:?}, Python {want:?}",
+                    "{name} {function} {}: evidence faces {faces:?}, Python {want:?}",
                     run["options"]
                 ));
             }
         }
-        (got, want) => problems.push(format!(
-            "{name} recognise_fillets {}: evidence {got:?}, Python {want:?}",
+        (got, want, _) => problems.push(format!(
+            "{name} {function} {}: evidence {got:?}, Python {want:?}",
             run["options"]
         )),
     }

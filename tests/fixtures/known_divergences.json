@@ -88,5 +88,13 @@
     "file": "nist/nist_ftc_10_asme1_rb.stp",
     "contains": "edges, Python has",
     "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "contains": [
+      "recognise_holes",
+      "evidence"
+    ],
+    "reason": "A deliberately malformed corpus part: OpenCascade's BRepCheck finds geometric faults the port's topological validity check (closed, orientable) does not look for, so Python refuses hole evidence and the port publishes it."
   }
 ]

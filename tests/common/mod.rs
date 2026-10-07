@@ -66,6 +66,39 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
     }
 }
 
+/// The defining faces (sorted) of each occurrence the port's evidence path publishes, or `Err`
+/// when it refuses, for a Python recogniser called on a part with these options.
+pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<usize>>, String> {
+    use quiddity::features::{Context, Occurrence, chamfers, countersinks, fillets, holes};
+    fn faces<R>(found: Vec<Occurrence<R>>) -> Vec<Vec<usize>> {
+        found
+            .into_iter()
+            .map(|o| {
+                let mut d = o.defining;
+                d.sort_unstable();
+                d
+            })
+            .collect()
+    }
+    let ctx = Context::new(part);
+    let result = match function {
+        "recognise_fillets" => fillets::discover_verified(&ctx, &options(kwargs)).map(faces),
+        "recognise_chamfers" => chamfers::discover_verified(&ctx, &options(kwargs)).map(faces),
+        "recognise_countersinks" => countersinks::discover_verified(&ctx).map(faces),
+        "recognise_holes" => {
+            let opts: quiddity::HoleOptions = options(kwargs);
+            let seats = if opts.with_countersinks {
+                countersinks::discover(&ctx)
+            } else {
+                vec![]
+            };
+            holes::discover_verified(&ctx, &seats).map(faces)
+        }
+        other => panic!("{other} has no evidence path"),
+    };
+    result.map_err(|e| e.to_string())
+}
+
 fn json<T: serde::Serialize>(value: T) -> Value {
     serde_json::to_value(value).unwrap()
 }

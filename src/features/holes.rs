@@ -524,6 +524,9 @@ pub fn discover(
         let (cbore, spotface, step_faces) = near_side_steps(&ordered[..bore_i]);
         let (depth, mut defining) = bore_depth(&stack, bore, bottom == Bottom::Through, from_hi);
         defining.extend(step_faces);
+        // A face counts once however many selections name it (Python resolves them to a set).
+        let mut seen = std::collections::BTreeSet::new();
+        defining.retain(|f| seen.insert(*f));
         let axis = if from_hi { geom::scale(d, -1.0) } else { d }.map(py::without_negative_zero);
         let location = axis_point_at(&stack[opening], opening_s).map(|c| py::quantise(c, 11));
         let mut record = HoleRecord {

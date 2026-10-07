@@ -10,11 +10,12 @@ use serde::{Deserialize, Serialize};
 
 use super::Context;
 use super::bevel::convex_bevel;
-use super::cylinders::{CylinderEvidence, coaxial_axis_lines};
+use super::cylinders::CylinderEvidence;
 use super::evidence::{self, EvidenceError, Occurrence};
 use super::planes::nearest_axis_aligned_planes;
+use super::turned;
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{self, AXIS_ALIGNED_COS, Surface, V3, dominant_axis};
+use crate::kernel::geom::{AXIS_ALIGNED_COS, Surface, V3, dominant_axis};
 use crate::kernel::py;
 
 /// A minimum-evidence threshold, deliberately absolute (ADR 0008).
@@ -23,8 +24,6 @@ const MIN_RADIUS: f64 = 0.6;
 const FILLET_MAX_EXTENT: f64 = PI * 1.05;
 /// A turned edge fillet is a quarter circle in section; a bead is a half or full one.
 const TURNED_FILLET_MAX_EXTENT: f64 = PI / 2.0 * 1.05;
-/// Coaxial analytic axes may differ by modelling noise only (a fraction of the diameter).
-const COAXIAL_FRAC: f64 = 1e-4;
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct Fillet {
@@ -121,12 +120,7 @@ pub fn discover(ctx: &Context<'_>, opts: &FilletOptions) -> Vec<Occurrence<Fille
             }
         }
     }
-    let external: BTreeMap<usize, &CylinderEvidence> = ctx
-        .cylinders()
-        .iter()
-        .filter(|c| c.external)
-        .map(|c| (c.face, c))
-        .collect();
+    let external = turned::external_cylinders(ctx);
     for face in 0..part.faces.len() {
         if let Some(found) = turned(part, face, min_radius, max_radius, &external) {
             out.push(found);
@@ -204,41 +198,19 @@ pub fn turned_context(
     let Surface::Torus { frame, .. } = part.faces[torus].surface else {
         return None;
     };
-    let coaxial: Vec<&CylinderEvidence> = neighbours
-        .iter()
-        .filter_map(|n| external.get(n).copied())
-        .filter(|c| {
-            coaxial_axis_lines(
-                frame.origin,
-                frame.z,
-                c.axis_point,
-                c.direction,
-                geom::length_tol(c.diameter, COAXIAL_FRAC),
-            )
-        })
-        .collect();
+    let coaxial = turned::coaxial_cylinders(neighbours, external, frame.origin, frame.z);
     if coaxial.is_empty() {
         return None;
     }
-    let mut transverse = Vec::new();
-    let mut continuations = Vec::new();
-    for &n in neighbours {
-        match &part.faces[n].surface {
-            Surface::Sphere { .. } => continuations.push(n),
-            Surface::Plane { frame: plane }
-                if geom::dot(plane.z, frame.z).abs() > AXIS_ALIGNED_COS =>
-            {
-                transverse.push(n)
-            }
-            _ => {}
-        }
-    }
-    let mut diameters: Vec<f64> = coaxial.iter().map(|c| c.diameter).collect();
-    diameters.sort_by(f64::total_cmp);
-    diameters.dedup();
-    let bridges_two_bands = diameters.len() >= 2;
-    if transverse.is_empty() && !bridges_two_bands && continuations.is_empty() {
-        return None;
+    let transverse = turned::transverse_planes(part, neighbours, frame.z);
+    // A compound turned fillet can continue into its spherical corner cap.
+    let continuations: Vec<usize> = neighbours
+        .iter()
+        .copied()
+        .filter(|&n| matches!(part.faces[n].surface, Surface::Sphere { .. }))
+        .collect();
+    if transverse.is_empty() && !turned::bridges_two_bands(&coaxial) && continuations.is_empty() {
+        return None; // a toroidal bead meeting one band, not a rounded edge
     }
     let mut context: Vec<usize> = Vec::new();
     for f in coaxial

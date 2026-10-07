@@ -1,5 +1,9 @@
 //! One recognition run over one part: the part plus the analysis several families share,
 //! each computed on first use (`FaceGraph` and `SolidProperties` in the Python implementation).
+//!
+//! The rule for where a cache lives: facts about the topology (neighbours, validity, face
+//! bounds, parameter-space domains) belong to [`Part`]; recognition analysis that more than one
+//! family reads (the classifier, the cylinder inventory) belongs here.
 
 use std::sync::OnceLock;
 

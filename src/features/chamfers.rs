@@ -9,16 +9,13 @@ use serde::{Deserialize, Serialize};
 
 use super::Context;
 use super::bevel::{classify_bevel, convex_bevel};
-use super::countersinks::cone_rims;
-use super::cylinders::{CylinderEvidence, coaxial_axis_lines};
-use super::evidence::Occurrence;
+use super::cylinders::CylinderEvidence;
+use super::evidence::{self, EvidenceError, Occurrence};
 use super::planes::nearest_axis_aligned_planes;
+use super::turned::{self, cone_rims};
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, AXIS_ALIGNED_COS, COORD_FLOOR, Surface, V3, dominant_axis};
 use crate::kernel::py;
-
-/// Coaxial analytic axes may differ by modelling noise only (a fraction of the diameter).
-const COAXIAL_FRAC: f64 = 1e-4;
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct Chamfer {
@@ -51,6 +48,15 @@ impl Default for ChamferOptions {
             include_planar: true,
         }
     }
+}
+
+/// The evidence path: each chamfer with its defining face, published only if every one is
+/// owned by a valid solid.
+pub fn discover_verified(
+    ctx: &Context<'_>,
+    opts: &ChamferOptions,
+) -> Result<Vec<Occurrence<Chamfer>>, EvidenceError> {
+    evidence::verified(ctx.part, discover(ctx, opts))
 }
 
 /// `recognise_chamfers`.
@@ -93,12 +99,7 @@ pub fn discover(ctx: &Context<'_>, opts: &ChamferOptions) -> Vec<Occurrence<Cham
     if opts.include_planar {
         out.extend((0..part.faces.len()).filter_map(|f| planar(ctx, f, tol, max_leg)));
     }
-    let external: BTreeMap<usize, &CylinderEvidence> = ctx
-        .cylinders()
-        .iter()
-        .filter(|c| c.external)
-        .map(|c| (c.face, c))
-        .collect();
+    let external = turned::external_cylinders(ctx);
     out.extend((0..part.faces.len()).filter_map(|f| turned(part, f, tol, max_leg, &external)));
     out.sort_by(|a, b| {
         a.record
@@ -171,30 +172,12 @@ fn turned(
         return None;
     }
     let neighbours = part.neighbours(face);
-    let coaxial: Vec<&CylinderEvidence> = neighbours
-        .iter()
-        .filter_map(|n| external.get(n).copied())
-        .filter(|c| {
-            coaxial_axis_lines(
-                frame.origin,
-                d,
-                c.axis_point,
-                c.direction,
-                geom::length_tol(c.diameter, COAXIAL_FRAC),
-            )
-        })
-        .collect();
+    let coaxial = turned::coaxial_cylinders(&neighbours, external, frame.origin, d);
     if coaxial.is_empty() {
         return None;
     }
-    let transverse = neighbours.iter().any(|&n| match part.faces[n].surface {
-        Surface::Plane { frame: plane } => geom::dot(plane.z, d).abs() > AXIS_ALIGNED_COS,
-        _ => false,
-    });
-    let mut diameters: Vec<f64> = coaxial.iter().map(|c| c.diameter).collect();
-    diameters.sort_by(f64::total_cmp);
-    diameters.dedup();
-    if !transverse && diameters.len() < 2 {
+    let transverse = !turned::transverse_planes(part, &neighbours, d).is_empty();
+    if !transverse && !turned::bridges_two_bands(&coaxial) {
         return None; // a taper meeting one band, not a bevelled edge
     }
     let at = part.face_centre(face)?;

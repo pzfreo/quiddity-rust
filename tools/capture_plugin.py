@@ -67,10 +67,14 @@ def _is_part(value) -> bool:
 def _wrap(name, real):
     def recorded(*args, **kwargs):
         global _active
-        result = real(*args, **kwargs)
         if _active:  # a recogniser calling another: record only the outermost call
-            return result
+            return real(*args, **kwargs)
         _active = True
+        try:
+            result = real(*args, **kwargs)
+        except BaseException:
+            _active = False
+            raise
         try:
             _record(name, real, args, kwargs, result)
         except Exception as error:  # noqa: BLE001 -- capture must never break the suite
@@ -159,8 +163,13 @@ def pytest_configure(config):
     OUT.mkdir(parents=True, exist_ok=True)
 
 
+_rerun_files: set[str] = set()
+
+
 def pytest_collection_modifyitems(session, config, items):
     """Rebind the targets wherever a test module or quiddity module imported them by name."""
+
+    _rerun_files.update(item.nodeid.split("::")[0] for item in items)
 
     import quiddity
 
@@ -183,7 +192,14 @@ def pytest_sessionfinish(session, exitstatus):
         return
     manifest = OUT / "calls.json"
     previous = json.loads(manifest.read_text()) if manifest.exists() else {"calls": []}
-    seen = {json.dumps(c, sort_keys=True) for c in previous["calls"]}
-    merged = previous["calls"] + [c for c in _calls if json.dumps(c, sort_keys=True) not in seen]
-    manifest.write_text(json.dumps({"calls": merged, "skipped": _skipped}, indent=1) + "\n")
+    # A re-run replaces what the same test files recorded for the same functions before.
+    kept = [
+        c
+        for c in previous["calls"]
+        if not (c["function"] in TARGETS and c["test"].split("::")[0] in _rerun_files)
+    ]
+    merged = kept + _calls
+    manifest.write_text(
+        json.dumps({"calls": merged, "skipped": _skipped}, indent=1, allow_nan=False) + "\n"
+    )
     print(f"\ncaptured {len(_calls)} calls ({len(merged)} total) into {manifest}", file=sys.stderr)
