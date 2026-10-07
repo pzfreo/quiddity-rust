@@ -17,6 +17,8 @@ pub enum EvidenceError {
     NoValidSolid,
     /// Two occurrences claim one defining face, or one face both defines and is consulted.
     SharedEvidence,
+    /// One turned profile key would identify two valid solids.
+    AmbiguousProfile,
 }
 
 impl std::fmt::Display for EvidenceError {
@@ -27,6 +29,9 @@ impl std::fmt::Display for EvidenceError {
             }
             EvidenceError::SharedEvidence => {
                 write!(f, "evidence faces are shared between occurrences")
+            }
+            EvidenceError::AmbiguousProfile => {
+                write!(f, "turned profile key identifies multiple valid solids")
             }
         }
     }

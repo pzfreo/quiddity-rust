@@ -31,6 +31,8 @@ OpenCascade is reimplemented in `src/kernel`.
 | Round-bottom blind slots | `recognise_round_bottom_blind_slots` | 25/27 (2 known divergences) | see below |
 | Gusset ribs | `recognise_gusset_ribs` | 26/26 | see below |
 | Gusset rib patterns | `recognise_gusset_rib_patterns` | 18/18 | see below |
+| Grooves | `recognise_grooves` | 71/72 (1 known divergence) | see below |
+| Plates | `recognise_plates` | 175/178 (3 known divergences) | see below |
 
 Known divergences are listed, with reasons, in `tests/fixtures/captured/known_divergences.json`
 (captured calls) and `tests/fixtures/known_divergences.json` (corpus).
@@ -59,7 +61,7 @@ crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code
     step.rs          STEP → Part: assemblies flattened with placements, units, voids,
                      reachable surface models, vertex loops, pcurve control polygons
     brep.rs          Part: faces, loops, edges, solids in OpenCascade's traversal order;
-                     cached neighbours, validity, face bounds
+                     cached neighbours, validity, face bounds, extents along any direction
     geom.rs          vectors, frames, Bounds, analytic surfaces and curves, Python rounding
     nurbs.rs         rational B-spline curves/surfaces: evaluation, derivatives, inversion,
                      ray intersection
@@ -109,7 +111,7 @@ src/
     paired_ramp_steps.rs  oriented_chamfers.rs  levels.rs  circular_face_patterns.rs
     thin_walls.rs  interior_voids.rs  through_steps.rs
     oblique_through_steps.rs  circular_blind_steps.rs
-    turned_steps.rs  round_bottom_slots.rs  gussets.rs
+    turned_steps.rs  round_bottom_slots.rs  gussets.rs  grooves.rs  plates.rs
     volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over kernel/volume.rs
   bin/quiddity.rs    `quiddity part.step` → JSON
 tests/

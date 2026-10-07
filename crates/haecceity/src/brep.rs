@@ -8,6 +8,8 @@ use super::geom::{self, Bounds, Curve, Surface, V3};
 use super::sampling::{arc_extremes, edge_interval};
 use super::uv::{FaceDomain, UvLoop, touches_singular_point};
 
+const AXES: [V3; 3] = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
+
 #[derive(Clone, Debug)]
 pub struct Edge {
     pub curve: Curve,
@@ -163,32 +165,43 @@ impl Part {
     }
 
     fn compute_face_bounds(&self, face: usize) -> Bounds {
-        let f = &self.faces[face];
         let mut b = Bounds::empty();
+        for p in self.face_extreme_points(face, &AXES) {
+            b.add(p);
+        }
+        b
+    }
+
+    /// The face's boundary samples plus every point where it may be extreme along one of the
+    /// unit directions *dirs* (both senses): circle arcs' exact extremes and the interior
+    /// extremes of doubly-curved faces (exact for spheres and tori, sampled for freeform
+    /// surfaces) that lie on the face. Their extent along each direction is the face's.
+    fn face_extreme_points(&self, face: usize, dirs: &[V3]) -> Vec<V3> {
+        let f = &self.faces[face];
+        let mut out = Vec::new();
         for lp in &f.loops {
             if let Some(p) = lp.vertex {
-                b.add(p);
+                out.push(p);
             }
             for &(e, _) in &lp.edges {
                 let edge = &self.edges[e];
-                for p in &edge.samples {
-                    b.add(*p);
-                }
-                for p in arc_extremes(
+                out.extend(&edge.samples);
+                out.extend(arc_extremes(
                     &edge.curve,
                     edge.start,
                     edge.end,
                     edge.same_sense,
                     edge.is_closed(),
-                ) {
-                    b.add(p);
-                }
+                    dirs,
+                ));
             }
         }
-        // Doubly-curved faces can bulge past their boundary: add their interior axis extremes
-        // (exact for spheres and tori, sampled for freeform surfaces) that lie on the face.
+        // Doubly-curved faces can bulge past their boundary: add their interior extremes that
+        // lie on the face.
         let candidates: Vec<(f64, f64)> = match &f.surface {
-            Surface::Sphere { .. } | Surface::Torus { .. } => f.surface.axis_extreme_parameters(),
+            Surface::Sphere { .. } | Surface::Torus { .. } => {
+                f.surface.extreme_parameters_along(dirs)
+            }
             // A cone face can run to its apex without a vertex there to bound it.
             Surface::Cone {
                 radius, semi_angle, ..
@@ -217,11 +230,26 @@ impl Part {
         {
             for (u, v) in candidates {
                 if domain.contains(u, v) || touches_singular_point(&f.surface, domain, v) {
-                    b.add(f.surface.value(u, v));
+                    out.push(f.surface.value(u, v));
                 }
             }
         }
-        b
+        out
+    }
+
+    /// The least and greatest coordinate of *faces* along the unit direction *d*: the extent
+    /// along *d* of the box OpenCascade gives the shape turned so that *d* is a coordinate axis.
+    pub fn extent_along(&self, faces: &[usize], d: V3) -> (f64, f64) {
+        let mut lo = f64::INFINITY;
+        let mut hi = f64::NEG_INFINITY;
+        for &face in faces {
+            for p in self.face_extreme_points(face, &[d]) {
+                let s = geom::dot(p, d);
+                lo = lo.min(s);
+                hi = hi.max(s);
+            }
+        }
+        (lo, hi)
     }
 
     pub fn bounds(&self) -> Bounds {

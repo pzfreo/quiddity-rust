@@ -6330,6 +6330,20 @@
        }
       ]
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -21298,6 +21312,139 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "width": 10.0,
+        "diameter": 122.0,
+        "at": [
+         0.0,
+         0.0,
+         62.42
+        ],
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -65.47,
+          65.47,
+          -65.47,
+          65.47,
+          0.0,
+          420.0000001
+         ],
+         "body_key": [
+          -65.47,
+          -65.47,
+          0.0,
+          65.47,
+          65.47,
+          420.0,
+          2008493.17813,
+          319596.096198
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "width": 6.0,
+        "diameter": 122.0,
+        "at": [
+         0.0,
+         0.0,
+         90.42
+        ],
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -65.47,
+          65.47,
+          -65.47,
+          65.47,
+          0.0,
+          420.0000001
+         ],
+         "body_key": [
+          -65.47,
+          -65.47,
+          0.0,
+          65.47,
+          65.47,
+          420.0,
+          2008493.17813,
+          319596.096198
+         ]
+        }
+       },
+       {
+        "axis": "z",
+        "width": 6.0,
+        "diameter": 122.0,
+        "at": [
+         0.0,
+         0.0,
+         116.42
+        ],
+        "profile": {
+         "axis": "z",
+         "axis_origin": [
+          0.0,
+          0.0,
+          0.0
+         ],
+         "body_bounds": [
+          -65.47,
+          65.47,
+          -65.47,
+          65.47,
+          0.0,
+          420.0000001
+         ],
+         "body_key": [
+          -65.47,
+          -65.47,
+          0.0,
+          65.47,
+          65.47,
+          420.0,
+          2008493.17813,
+          319596.096198
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        214
+       ],
+       [
+        316
+       ],
+       [
+        217
+       ]
+      ]
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -118761,6 +118908,48 @@
        }
       ]
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "width": 54.0,
+        "diameter": 180.0,
+        "at": [
+         145.793,
+         -137.5,
+         -4.777
+        ],
+        "profile": {
+         "axis": "y",
+         "axis_origin": [
+          98.48550853,
+          0.0,
+          -4.77735108
+         ],
+         "body_bounds": [
+          -225.26830263,
+          224.23840013,
+          -177.5000001,
+          177.5000001,
+          -131.97204621,
+          123.80105588
+         ],
+         "body_key": null
+        }
+       }
+      ],
+      "evidence_error": "groove evidence has no common valid solid"
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -126199,6 +126388,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -140949,6 +141152,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -158179,6 +158396,20 @@
        }
       ]
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -161389,6 +161620,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -203314,6 +203559,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -232678,6 +232937,20 @@
        }
       ]
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -256576,6 +256849,20 @@
        }
       ]
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -257526,6 +257813,44 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": 0.0,
+        "hi": 2.5,
+        "u": 5.908662022748623e-16,
+        "v": -1.3361976225577124e-16,
+        "body_key": [
+         0.0,
+         -5.0,
+         -5.0,
+         23.5,
+         5.0,
+         5.0,
+         345.897728741,
+         450.845217554
+        ]
+       }
+      ],
+      "defining": [
+       [
+        0,
+        7,
+        11
+       ]
+      ]
+     }
     ]
    }
   },
@@ -258195,6 +258520,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -259624,6 +259963,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -260568,6 +260921,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -261899,6 +262266,29 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": 20.717,
+        "hi": 22.111,
+        "u": 4.925192363815297,
+        "v": 9.167421842773576,
+        "body_key": null
+       }
+      ],
+      "evidence_error": "Plate role face has no unambiguous valid solid"
      }
     ]
    }
@@ -264548,6 +264938,43 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": 0.0,
+        "hi": 4.219,
+        "u": 6.587998058009582,
+        "v": 14.759709025604888,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         48.413353,
+         12.593335,
+         29.138443,
+         13698.7647068,
+         5971.81016912
+        ]
+       }
+      ],
+      "defining": [
+       [
+        0,
+        27
+       ]
+      ]
+     }
     ]
    }
   },
@@ -266094,6 +266521,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -267974,6 +268415,64 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": 27.974,
+        "hi": 31.864,
+        "u": 17.50057580180439,
+        "v": 22.803442054107244,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         31.863756,
+         34.473419,
+         35.87759,
+         15543.1009861,
+         6458.7035297
+        ]
+       },
+       {
+        "axis": "z",
+        "lo": 2.348,
+        "hi": 14.031,
+        "u": 8.754575445823146,
+        "v": 17.68118052927759,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         31.863756,
+         34.473419,
+         35.87759,
+         15543.1009861,
+         6458.7035297
+        ]
+       }
+      ],
+      "defining": [
+       [
+        7,
+        12
+       ],
+       [
+        4,
+        6
+       ]
+      ]
      }
     ]
    }
@@ -270874,6 +271373,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -272243,6 +272756,43 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "lo": 0.0,
+        "hi": 8.338,
+        "u": 25.354236693415896,
+        "v": 18.76602495381289,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         43.576832,
+         34.363464,
+         39.435683,
+         35455.8759771,
+         8792.64349017
+        ]
+       }
+      ],
+      "defining": [
+       [
+        0,
+        13
+       ]
+      ]
      }
     ]
    }
@@ -275049,6 +275599,64 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "lo": 0.0,
+        "hi": 10.091,
+        "u": 23.974212505384504,
+        "v": 4.959420939316511,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         47.948425,
+         29.660011,
+         11.616298,
+         9435.42236746,
+         5329.0429027
+        ]
+       },
+       {
+        "axis": "z",
+        "lo": 7.168,
+        "hi": 11.616,
+        "u": 23.98556291467008,
+        "v": 16.85178043041838,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         47.948425,
+         29.660011,
+         11.616298,
+         9435.42236746,
+         5329.0429027
+        ]
+       }
+      ],
+      "defining": [
+       [
+        3,
+        6
+       ],
+       [
+        1,
+        4
+       ]
+      ]
+     }
     ]
    }
   },
@@ -276578,6 +277186,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -278391,6 +279013,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -280146,6 +280782,43 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "lo": 23.144,
+        "hi": 31.8,
+        "u": 6.765874482331,
+        "v": 13.238558281371862,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         13.531749,
+         31.799887,
+         24.214757,
+         8867.16394117,
+         3767.22526453
+        ]
+       }
+      ],
+      "defining": [
+       [
+        7,
+        9
+       ]
+      ]
      }
     ]
    }
@@ -281963,6 +282636,45 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": 3.67,
+        "hi": 8.189,
+        "u": 15.526229852371369,
+        "v": 29.151795757160823,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         11.53478,
+         32.841367,
+         44.013139,
+         10056.3388622,
+         5184.91626905
+        ]
+       }
+      ],
+      "defining": [
+       [
+        9,
+        11,
+        14,
+        19
+       ]
+      ]
+     }
     ]
    }
   },
@@ -283736,6 +284448,43 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "lo": 19.256,
+        "hi": 33.571,
+        "u": 6.278980671809884,
+        "v": 18.141767361525897,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         11.886465,
+         33.571466,
+         33.245171,
+         7880.691646,
+         3851.72778277
+        ]
+       }
+      ],
+      "defining": [
+       [
+        5,
+        8
+       ]
+      ]
      }
     ]
    }
@@ -285902,6 +286651,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -287491,6 +288254,43 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "lo": 0.0,
+        "hi": 16.485,
+        "u": 5.664039972387134,
+        "v": 10.925227090495449,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         11.999845,
+         37.829959,
+         20.147884,
+         5672.85285361,
+         2527.96466244
+        ]
+       }
+      ],
+      "defining": [
+       [
+        10,
+        11
+       ]
+      ]
+     }
     ]
    }
   },
@@ -288981,6 +289781,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -289959,6 +290773,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -291860,6 +292688,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -293939,6 +294781,43 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "lo": 0.0,
+        "hi": 6.961,
+        "u": 25.656482319383624,
+        "v": 22.46073966193087,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         47.997021,
+         44.448156,
+         14.346233,
+         17939.1396219,
+         6800.80820511
+        ]
+       }
+      ],
+      "defining": [
+       [
+        5,
+        17
+       ]
+      ]
+     }
     ]
    }
   },
@@ -295865,6 +296744,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -297683,6 +298576,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -300053,6 +300960,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -301835,6 +302756,43 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": 0.0,
+        "hi": 12.57,
+        "u": 9.153950369733503,
+        "v": 7.150191856870943,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         25.996632,
+         18.003541,
+         15.100734,
+         4072.55816661,
+         2381.8962556
+        ]
+       }
+      ],
+      "defining": [
+       [
+        0,
+        12
+       ]
+      ]
+     }
     ]
    }
   },
@@ -303536,6 +304494,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -305676,6 +306648,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -306782,6 +307768,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -308599,6 +309599,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -310306,6 +311320,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -312313,6 +313341,43 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "lo": 19.903,
+        "hi": 30.191,
+        "u": 21.509209602446138,
+        "v": 24.615201579171934,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         46.279401,
+         30.190578,
+         43.054606,
+         21984.0725081,
+         9319.41953875
+        ]
+       }
+      ],
+      "defining": [
+       [
+        4,
+        5
+       ]
+      ]
+     }
     ]
    }
   },
@@ -314117,6 +315182,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -316205,6 +317284,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -318478,6 +319571,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -319725,6 +320832,65 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": 0.0,
+        "hi": 10.894,
+        "u": 19.81058022078024,
+        "v": 16.212487262681936,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         42.500318,
+         43.423686,
+         29.361033,
+         28495.8668856,
+         8141.40364994
+        ]
+       },
+       {
+        "axis": "z",
+        "lo": 0.0,
+        "hi": 12.889,
+        "u": 21.64890445090814,
+        "v": 21.408623802318424,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         42.500318,
+         43.423686,
+         29.361033,
+         28495.8668856,
+         8141.40364994
+        ]
+       }
+      ],
+      "defining": [
+       [
+        5,
+        9,
+        19
+       ],
+       [
+        3,
+        7
+       ]
+      ]
      }
     ]
    }
@@ -321112,6 +322278,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -323122,6 +324302,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -324773,6 +325967,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -326446,6 +327654,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -328096,6 +329318,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -329925,6 +331161,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -331342,6 +332592,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -333612,6 +334876,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -334946,6 +336224,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -337347,6 +338639,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -338777,6 +340083,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -340850,6 +342170,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -342703,6 +344037,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -343741,6 +345089,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -345324,6 +346686,43 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": 30.446,
+        "hi": 35.505,
+        "u": 15.142698318541575,
+        "v": 9.851677319951191,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         35.504757,
+         31.203467,
+         17.717572,
+         7528.10575422,
+         3366.46561355
+        ]
+       }
+      ],
+      "defining": [
+       [
+        8,
+        9
+       ]
+      ]
+     }
     ]
    }
   },
@@ -346365,6 +347764,86 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": 0.0,
+        "hi": 1.066,
+        "u": 22.8281151703995,
+        "v": 9.843361022180408,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         19.012234,
+         45.65623,
+         19.976157,
+         4090.20571118,
+         5021.16470467
+        ]
+       },
+       {
+        "axis": "z",
+        "lo": 0.0,
+        "hi": 1.869,
+        "u": 8.031982329482847,
+        "v": 27.51095930362613,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         19.012234,
+         45.65623,
+         19.976157,
+         4090.20571118,
+         5021.16470467
+        ]
+       },
+       {
+        "axis": "z",
+        "lo": 17.447,
+        "hi": 19.976,
+        "u": 7.99997047630633,
+        "v": 27.549594562280987,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         19.012234,
+         45.65623,
+         19.976157,
+         4090.20571118,
+         5021.16470467
+        ]
+       }
+      ],
+      "defining": [
+       [
+        0,
+        7,
+        9
+       ],
+       [
+        4,
+        6
+       ],
+       [
+        2,
+        11
+       ]
+      ]
      }
     ]
    }
@@ -348053,6 +349532,43 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": 37.271,
+        "hi": 43.619,
+        "u": 9.101327374006392,
+        "v": 11.295386660992886,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         43.618638,
+         23.281169,
+         23.4531,
+         12459.8930448,
+         5104.89496847
+        ]
+       }
+      ],
+      "defining": [
+       [
+        6,
+        22
+       ]
+      ]
      }
     ]
    }
@@ -350344,6 +351860,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -351518,6 +353048,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -353168,6 +354712,43 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": 13.085,
+        "hi": 24.117,
+        "u": 17.56109819781038,
+        "v": 22.9834948690216,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         24.116732,
+         34.216647,
+         49.625844,
+         21239.2614543,
+         6612.50311576
+        ]
+       }
+      ],
+      "defining": [
+       [
+        11,
+        21
+       ]
+      ]
+     }
     ]
    }
   },
@@ -354614,6 +356195,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -355554,6 +357149,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -356946,6 +358555,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -358197,6 +359820,43 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "lo": 19.147,
+        "hi": 20.327,
+        "u": 12.2245191492405,
+        "v": 24.31230755332049,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         24.449038,
+         46.881286,
+         20.326525,
+         2128.85941571,
+         3136.36596597
+        ]
+       }
+      ],
+      "defining": [
+       [
+        2,
+        6
+       ]
+      ]
+     }
     ]
    }
   },
@@ -359394,6 +361054,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -361022,6 +362696,64 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": 0.0,
+        "hi": 3.831,
+        "u": 6.937633652182576,
+        "v": 20.55548740796018,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         39.74068,
+         13.875267,
+         42.252217,
+         4918.59299009,
+         3410.50345976
+        ]
+       },
+       {
+        "axis": "z",
+        "lo": 0.0,
+        "hi": 2.76,
+        "u": 22.839188149656014,
+        "v": 6.898044460950164,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         39.74068,
+         13.875267,
+         42.252217,
+         4918.59299009,
+         3410.50345976
+        ]
+       }
+      ],
+      "defining": [
+       [
+        0,
+        10
+       ],
+       [
+        4,
+        6
+       ]
+      ]
      }
     ]
    }
@@ -362983,6 +364715,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -364567,6 +366313,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -366765,6 +368525,64 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": 0.0,
+        "hi": 4.045,
+        "u": 19.321380260373964,
+        "v": 23.48298530488714,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         13.398243,
+         34.05974,
+         46.977415,
+         10579.9378862,
+         5518.47382268
+        ]
+       },
+       {
+        "axis": "y",
+        "lo": 0.0,
+        "hi": 11.345,
+        "u": 7.383484731938839,
+        "v": 22.126887586326074,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         13.398243,
+         34.05974,
+         46.977415,
+         10579.9378862,
+         5518.47382268
+        ]
+       }
+      ],
+      "defining": [
+       [
+        0,
+        17
+       ],
+       [
+        1,
+        18
+       ]
+      ]
+     }
     ]
    }
   },
@@ -368556,6 +370374,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -369807,6 +371639,44 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "lo": 0.0,
+        "hi": 1.252,
+        "u": 14.387943195717039,
+        "v": 16.855857316020373,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         36.140804,
+         21.995768,
+         28.599739,
+         11801.9029177,
+         5331.60644955
+        ]
+       }
+      ],
+      "defining": [
+       [
+        2,
+        4,
+        8
+       ]
+      ]
      }
     ]
    }
@@ -371473,6 +373343,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -373610,6 +375494,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -375264,6 +377162,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -377074,6 +378986,64 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": 9.008,
+        "hi": 22.32,
+        "u": 19.6488009620167,
+        "v": 23.858521516580694,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         48.19591,
+         34.581051,
+         46.440674,
+         32421.329106,
+         9504.1259517
+        ]
+       },
+       {
+        "axis": "z",
+        "lo": 33.993,
+        "hi": 46.441,
+        "u": 27.518617168734693,
+        "v": 18.149982619161825,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         48.19591,
+         34.581051,
+         46.440674,
+         32421.329106,
+         9504.1259517
+        ]
+       }
+      ],
+      "defining": [
+       [
+        11,
+        13
+       ],
+       [
+        8,
+        14
+       ]
+      ]
      }
     ]
    }
@@ -379345,6 +381315,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -382058,6 +384042,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -383629,6 +385627,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -385488,6 +387500,20 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -387236,6 +389262,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -389323,6 +391363,20 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -391749,6 +393803,44 @@
       },
       "result": []
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "lo": 0.0,
+        "hi": 3.0,
+        "u": 21.93011060935286,
+        "v": 8.48086753247724,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         42.646939,
+         24.898216,
+         19.19152,
+         17173.0391661,
+         6591.87497979
+        ]
+       }
+      ],
+      "defining": [
+       [
+        5,
+        7,
+        9
+       ]
+      ]
+     }
     ]
    }
   },
@@ -393757,6 +395849,44 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "lo": 0.0,
+        "hi": 7.153,
+        "u": 10.712336087615551,
+        "v": 7.657107063874312,
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         25.468401,
+         27.992631,
+         14.863339,
+         8591.24819543,
+         4156.3392774
+        ]
+       }
+      ],
+      "defining": [
+       [
+        1,
+        4,
+        10
+       ]
+      ]
      }
     ]
    }
@@ -401405,6 +403535,43 @@
         "height": 90.0,
         "angle": 0.0
        }
+      ]
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "lo": -50.0,
+        "hi": 0.0,
+        "u": -1.3336864520883474,
+        "v": -1.2085531605485111,
+        "body_key": [
+         -400.0,
+         -225.0,
+         -100.0,
+         400.0,
+         225.0,
+         50.0,
+         14642823.5574,
+         807968.557755
+        ]
+       }
+      ],
+      "defining": [
+       [
+        3,
+        68
+       ]
       ]
      }
     ]
@@ -433040,6 +435207,20 @@
        }
       ]
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -441983,6 +444164,43 @@
         "height": 31.75,
         "angle": 90.0
        }
+      ]
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "lo": 76.2,
+        "hi": 78.108,
+        "u": -119.64675637806975,
+        "v": 242.6193151260392,
+        "body_key": [
+         -249.561087,
+         0.0,
+         0.0,
+         53.402246,
+         485.4448,
+         162.68015,
+         331938.272118,
+         354978.605402
+        ]
+       }
+      ],
+      "defining": [
+       [
+        7,
+        8
+       ]
       ]
      }
     ]
@@ -468470,6 +470688,20 @@
        }
       ]
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -479269,6 +481501,20 @@
        }
       ]
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -486728,6 +488974,65 @@
         "height": 127.0,
         "angle": 90.0
        }
+      ]
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "lo": 0.0,
+        "hi": 31.75,
+        "u": -6.175271626488092e-13,
+        "v": -119.05733950665609,
+        "body_key": [
+         -152.4,
+         0.0,
+         -247.65,
+         152.4,
+         97.79,
+         0.0,
+         3323546.07078,
+         283415.422871
+        ]
+       },
+       {
+        "axis": "z",
+        "lo": -31.75,
+        "hi": 0.0,
+        "u": 2.5489582468002987e-15,
+        "v": 52.048907246778526,
+        "body_key": [
+         -152.4,
+         0.0,
+         -247.65,
+         152.4,
+         97.79,
+         0.0,
+         3323546.07078,
+         283415.422871
+        ]
+       }
+      ],
+      "defining": [
+       [
+        10,
+        12
+       ],
+       [
+        5,
+        7,
+        14
+       ]
       ]
      }
     ]
@@ -499761,6 +502066,127 @@
         "height": 162.56,
         "angle": 90.0
        }
+      ]
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": -152.4,
+        "hi": -143.103,
+        "u": -53.99391400731381,
+        "v": 1.716267936449237e-14,
+        "body_key": [
+         -155.802955,
+         -123.19,
+         -111.352955,
+         155.802955,
+         12.7,
+         111.352955,
+         1726247.57917,
+         391371.347278
+        ]
+       },
+       {
+        "axis": "x",
+        "lo": 143.103,
+        "hi": 152.4,
+        "u": -55.179922130374045,
+        "v": -3.0525925286983456e-14,
+        "body_key": [
+         -155.802955,
+         -123.19,
+         -111.352955,
+         155.802955,
+         12.7,
+         111.352955,
+         1726247.57917,
+         391371.347278
+        ]
+       },
+       {
+        "axis": "y",
+        "lo": -120.65,
+        "hi": -115.57,
+        "u": 5.358576659633585e-15,
+        "v": -3.1085512381830113e-15,
+        "body_key": [
+         -155.802955,
+         -123.19,
+         -111.352955,
+         155.802955,
+         12.7,
+         111.352955,
+         1726247.57917,
+         391371.347278
+        ]
+       },
+       {
+        "axis": "z",
+        "lo": -107.95,
+        "hi": -98.653,
+        "u": -0.2816631341686929,
+        "v": -54.438308274452254,
+        "body_key": [
+         -155.802955,
+         -123.19,
+         -111.352955,
+         155.802955,
+         12.7,
+         111.352955,
+         1726247.57917,
+         391371.347278
+        ]
+       },
+       {
+        "axis": "z",
+        "lo": 98.653,
+        "hi": 107.95,
+        "u": -0.6973213866035274,
+        "v": -54.38474525088378,
+        "body_key": [
+         -155.802955,
+         -123.19,
+         -111.352955,
+         155.802955,
+         12.7,
+         111.352955,
+         1726247.57917,
+         391371.347278
+        ]
+       }
+      ],
+      "defining": [
+       [
+        83,
+        171
+       ],
+       [
+        85,
+        243
+       ],
+       [
+        86,
+        177
+       ],
+       [
+        84,
+        173
+       ],
+       [
+        87,
+        184
+       ]
       ]
      }
     ]
@@ -513748,6 +516174,127 @@
        }
       ]
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "lo": -146.018,
+        "hi": -139.668,
+        "u": -6.209746146856137e-15,
+        "v": 24.319466838980226,
+        "body_key": [
+         -155.79725,
+         -111.34725,
+         0.0,
+         155.79725,
+         111.34725,
+         48.26,
+         503592.175353,
+         191687.872944
+        ]
+       },
+       {
+        "axis": "x",
+        "lo": 139.668,
+        "hi": 146.018,
+        "u": -0.009929015432236,
+        "v": 23.9601764801447,
+        "body_key": [
+         -155.79725,
+         -111.34725,
+         0.0,
+         155.79725,
+         111.34725,
+         48.26,
+         503592.175353,
+         191687.872944
+        ]
+       },
+       {
+        "axis": "y",
+        "lo": -102.457,
+        "hi": -96.107,
+        "u": -7.643756400315494e-15,
+        "v": 24.296369527269526,
+        "body_key": [
+         -155.79725,
+         -111.34725,
+         0.0,
+         155.79725,
+         111.34725,
+         48.26,
+         503592.175353,
+         191687.872944
+        ]
+       },
+       {
+        "axis": "y",
+        "lo": 96.107,
+        "hi": 102.457,
+        "u": 7.552260951217742e-15,
+        "v": 24.296369527269526,
+        "body_key": [
+         -155.79725,
+         -111.34725,
+         0.0,
+         155.79725,
+         111.34725,
+         48.26,
+         503592.175353,
+         191687.872944
+        ]
+       },
+       {
+        "axis": "z",
+        "lo": 44.831,
+        "hi": 48.26,
+        "u": 13.185776282721273,
+        "v": -0.2503974397598691,
+        "body_key": [
+         -155.79725,
+         -111.34725,
+         0.0,
+         155.79725,
+         111.34725,
+         48.26,
+         503592.175353,
+         191687.872944
+        ]
+       }
+      ],
+      "defining": [
+       [
+        48,
+        119
+       ],
+       [
+        123,
+        235
+       ],
+       [
+        52,
+        121
+       ],
+       [
+        59,
+        117
+       ],
+       [
+        1,
+        2
+       ]
+      ]
+     }
     ]
    }
   },
@@ -523076,6 +525623,20 @@
         ]
        }
       ]
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -534706,6 +537267,20 @@
        }
       ]
      }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -540602,6 +543177,48 @@
        "csinks": "auto"
       },
       "result": []
+     }
+    ],
+    "recognise_grooves": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_plates": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "lo": 61.0,
+        "hi": 65.0,
+        "u": 7.497255448680978e-09,
+        "v": 1.8683310378153812e-09,
+        "body_key": [
+         -117.403412,
+         -56.26,
+         0.0,
+         117.403412,
+         56.26,
+         88.0,
+         138083.755723,
+         75717.1422537
+        ]
+       }
+      ],
+      "defining": [
+       [
+        4,
+        5,
+        64,
+        93,
+        94,
+        95,
+        96
+       ]
+      ]
      }
     ]
    }

@@ -408,11 +408,16 @@ impl Surface {
     /// Parameters of the points where a doubly-curved surface is extreme along a world axis —
     /// the only interior points a face's bounding box can reach beyond its boundary.
     pub fn axis_extreme_parameters(&self) -> Vec<(f64, f64)> {
+        self.extreme_parameters_along(&[[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
+    }
+
+    /// Parameters of the points where a doubly-curved surface is extreme along each of the
+    /// unit directions *dirs* (both senses).
+    pub fn extreme_parameters_along(&self, dirs: &[V3]) -> Vec<(f64, f64)> {
         let mut out = Vec::new();
-        let axes = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
         match *self {
             Surface::Sphere { frame, .. } => {
-                for a in axes {
+                for &a in dirs {
                     for sign in [1.0, -1.0] {
                         let w = frame.dir_to_local(scale(a, sign));
                         out.push((
@@ -423,7 +428,7 @@ impl Surface {
                 }
             }
             Surface::Torus { frame, .. } => {
-                for a in axes {
+                for &a in dirs {
                     let w = frame.dir_to_local(a);
                     if w[0].hypot(w[1]) < 1e-12 {
                         // Along the axis the extremes are whole circles at the tube's top and bottom.

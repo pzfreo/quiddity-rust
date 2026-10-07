@@ -190,3 +190,13 @@ fn gusset_ribs_match_python() {
 fn gusset_rib_patterns_match_python() {
     replay("recognise_gusset_rib_patterns");
 }
+
+#[test]
+fn grooves_match_python() {
+    replay("recognise_grooves");
+}
+
+#[test]
+fn plates_match_python() {
+    replay("recognise_plates");
+}

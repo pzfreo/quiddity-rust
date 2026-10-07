@@ -15,6 +15,7 @@ pub use features::circular_face_patterns::{CircularFacePattern, recognise_circul
 pub use features::countersinks::{CounterSink, recognise_countersinks};
 pub use features::fillets::{Fillet, FilletOptions, recognise_fillets};
 pub use features::flats::{Flat, recognise_flats};
+pub use features::grooves::{Groove, recognise_grooves};
 pub use features::gussets::{
     GussetRib, GussetRibPattern, recognise_gusset_rib_patterns, recognise_gusset_ribs,
 };
@@ -30,6 +31,7 @@ pub use features::oriented_chamfers::{
     OrientedChamfer, OrientedChamferOptions, recognise_oriented_chamfers,
 };
 pub use features::paired_ramp_steps::{PairedRampStep, recognise_paired_ramp_steps};
+pub use features::plates::{Plate, PlateOptions, recognise_plates};
 pub use features::round_bottom_slots::{RoundBottomBlindSlot, recognise_round_bottom_blind_slots};
 pub use features::thin_walls::{ThinWallBody, recognise_thin_wall_bodies};
 pub use features::through_steps::{ThroughStep, recognise_through_steps};

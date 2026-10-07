@@ -20,6 +20,7 @@ pub mod cylinders;
 pub mod evidence;
 pub mod fillets;
 pub mod flats;
+pub mod grooves;
 pub mod gussets;
 pub mod hole_patterns;
 pub mod holes;
@@ -29,6 +30,7 @@ pub mod oblique_through_steps;
 pub mod oriented_chamfers;
 pub mod paired_ramp_steps;
 pub mod planes;
+pub mod plates;
 pub mod probes;
 pub mod regions;
 pub mod round_bottom_slots;
@@ -71,6 +73,8 @@ pub struct Features {
     pub interior_voids: Vec<interior_voids::InteriorVoid>,
     pub through_steps: Vec<through_steps::ThroughStep>,
     pub turned_steps: Vec<turned_steps::TurnedStep>,
+    pub grooves: Vec<grooves::Groove>,
+    pub plates: Vec<plates::Plate>,
     pub round_bottom_blind_slots: Vec<round_bottom_slots::RoundBottomBlindSlot>,
 }
 
@@ -102,6 +106,8 @@ pub fn recognise(part: &Part) -> Features {
         interior_voids: records(interior_voids::discover(&ctx)),
         through_steps: records(through_steps::discover(&ctx)),
         turned_steps: turned_steps::sorted(records(turned_steps::discover(&ctx))),
+        grooves: records(grooves::discover(&ctx)),
+        plates: records(plates::discover(&ctx, &Default::default())),
         round_bottom_blind_slots: records(round_bottom_slots::discover(&ctx)),
     }
 }

@@ -39,6 +39,7 @@ from quiddity.circular_face_patterns import _discover_circular_face_patterns  # 
 from quiddity.countersinks import _discover_countersinks  # noqa: E402
 from quiddity.fillets import _discover_fillets  # noqa: E402
 from quiddity.flats import _discover_flats  # noqa: E402
+from quiddity.grooves import _discover_grooves  # noqa: E402
 from quiddity.gussets import _discover_gusset_ribs  # noqa: E402
 from quiddity.holes import _discover_holes  # noqa: E402
 from quiddity.oblique_through_steps import _discover_oblique_through_steps  # noqa: E402
@@ -46,6 +47,7 @@ from quiddity.interior_voids import _claim_records as _claim_voids  # noqa: E402
 from quiddity.interior_voids import _discover_interior_voids  # noqa: E402
 from quiddity.oriented_chamfers import _discover_oriented_chamfers  # noqa: E402
 from quiddity.paired_ramp_steps import _discover_paired_ramp_steps  # noqa: E402
+from quiddity.plates import _discover_plates  # noqa: E402
 from quiddity.round_bottom_slots import (  # noqa: E402
     _discover_round_bottom_blind_slots,
     recognise_round_bottom_blind_slots,
@@ -65,6 +67,7 @@ from quiddity import (  # noqa: E402
     recognise_circular_face_patterns,
     import_step_geometry,
     recognise_countersinks,
+    recognise_grooves,
     recognise_gusset_rib_patterns,
     recognise_gusset_ribs,
     recognise_hole_patterns,
@@ -73,6 +76,7 @@ from quiddity import (  # noqa: E402
     recognise_oblique_through_steps,
     recognise_oriented_chamfers,
     recognise_paired_ramp_steps,
+    recognise_plates,
     recognise_thin_wall_bodies,
     recognise_through_steps,
     recognise_turned_steps,
@@ -210,6 +214,10 @@ def main() -> None:
         gusset = (FamilyId.GUSSET_RIBS, lambda p, o: recognise_gusset_ribs(p),
                   lambda p, ledger, o: _discover_gusset_ribs(p, graph=ledger.graph, face_edges=None,
                                                              sink=ledger.writer.sink))
+        grooves = (FamilyId.GROOVES, lambda p, o: recognise_grooves(p),
+                   lambda p, ledger, o: _discover_grooves(p, ledger=ledger.writer))
+        plates = (FamilyId.PLATES, lambda p, o: recognise_plates(p, **o),
+                  lambda p, ledger, o: _discover_plates(p, writer=ledger.writer, **o))
         entries.append(
             {
                 "file": str(path.relative_to(CORPUS)),
@@ -249,6 +257,8 @@ def main() -> None:
                         _run(part, "recognise_round_bottom_blind_slots", *round_bottom, {})
                     ],
                     "recognise_gusset_ribs": [_run(part, "recognise_gusset_ribs", *gusset, {})],
+                    "recognise_grooves": [_run(part, "recognise_grooves", *grooves, {})],
+                    "recognise_plates": [_run(part, "recognise_plates", *plates, {})],
                     "recognise_gusset_rib_patterns": [
                         {"options": {}, "result": _plain(recognise_gusset_rib_patterns(recognise_gusset_ribs(part)))}
                     ],
