@@ -13,6 +13,7 @@ pub mod countersinks;
 pub mod cylinders;
 pub mod evidence;
 pub mod fillets;
+pub mod hole_patterns;
 pub mod holes;
 pub mod planes;
 

@@ -7,7 +7,8 @@ use std::path::{Path, PathBuf};
 
 use quiddity::features::countersinks::recognise_countersinks;
 use quiddity::features::fillets::{FilletOptions, recognise_fillets};
-use quiddity::features::holes::{HoleOptions, recognise_holes};
+use quiddity::features::hole_patterns::recognise_hole_patterns;
+use quiddity::features::holes::{HoleOptions, HoleRecord, recognise_holes};
 use quiddity::{Part, read_step_file};
 use serde_json::Value;
 
@@ -29,8 +30,7 @@ fn calls(function: &str) -> Vec<Value> {
 
 /// Known, explained differences: `{"function", "test", "reason"}` entries.
 fn known(function: &str) -> Vec<String> {
-    let raw = std::fs::read_to_string(dir().join("known_divergences.json"))
-        .unwrap_or_else(|_| "[]".into());
+    let raw = std::fs::read_to_string(dir().join("known_divergences.json")).unwrap();
     let list: Vec<Value> = serde_json::from_str(&raw).unwrap();
     list.iter()
         .filter(|d| d["function"] == function)
@@ -57,33 +57,43 @@ fn same(a: &Value, b: &Value) -> bool {
     }
 }
 
-/// Run every call of *function*; `recognise` maps (part, options) to the port's JSON answer.
-fn replay(function: &str, recognise: impl Fn(&Part, &Value) -> Value) {
+/// How a recogniser is called: on a part with options, or on records (a derived recogniser).
+enum Call<'f> {
+    Part(&'f dyn Fn(&Part, &Value) -> Value),
+    Records(&'f dyn Fn(&Value) -> Value),
+}
+
+fn replay(function: &str, call: Call<'_>) {
     let known = known(function);
     let mut parts: BTreeMap<String, Part> = BTreeMap::new();
-    let (mut passed, mut failures, mut expected_failures) = (0, Vec::new(), 0);
+    let (mut passed, mut failures, mut expected) = (0, Vec::new(), 0);
     let all = calls(function);
     assert!(!all.is_empty(), "no captured calls for {function}");
-    for call in &all {
-        let file = call["file"].as_str().unwrap();
-        let part = parts
-            .entry(file.to_owned())
-            .or_insert_with(|| read_step_file(&dir().join(file)).unwrap());
-        let got = recognise(part, &call["options"]);
-        let test = call["test"].as_str().unwrap();
-        if same(&got, &call["result"]) {
+    for c in &all {
+        let got = match &call {
+            Call::Part(recognise) => {
+                let file = c["file"].as_str().unwrap();
+                let part = parts
+                    .entry(file.to_owned())
+                    .or_insert_with(|| read_step_file(&dir().join(file)).unwrap());
+                recognise(part, &c["options"])
+            }
+            Call::Records(recognise) => recognise(&c["arguments"]),
+        };
+        let test = c["test"].as_str().unwrap();
+        if same(&got, &c["result"]) {
             passed += 1;
         } else if known.iter().any(|k| k == test) {
-            expected_failures += 1;
+            expected += 1;
         } else {
             failures.push(format!(
-                "{test} [{file}] {}\n  rust   {got}\n  python {}",
-                call["options"], call["result"]
+                "{test} [{}] {}\n  rust   {got}\n  python {}",
+                c["file"], c["options"], c["result"]
             ));
         }
     }
     eprintln!(
-        "{function}: {passed} match, {expected_failures} known divergences, {} unexpected",
+        "{function}: {passed} match, {expected} known divergences, {} unexpected",
         failures.len()
     );
     assert!(
@@ -97,34 +107,52 @@ fn replay(function: &str, recognise: impl Fn(&Part, &Value) -> Value) {
 
 #[test]
 fn fillets_match_python() {
-    replay("recognise_fillets", |part, o| {
-        let mut opts = FilletOptions::default();
-        if let Some(m) = o.get("min_radius").and_then(Value::as_f64) {
-            opts.min_radius = Some(m);
-        }
-        if let Some(f) = o.get("max_radius_frac").and_then(Value::as_f64) {
-            opts.max_radius_frac = f;
-        }
-        if let Some(c) = o.get("include_cylindrical").and_then(Value::as_bool) {
-            opts.include_cylindrical = c;
-        }
-        serde_json::to_value(recognise_fillets(part, &opts)).unwrap()
-    });
+    replay(
+        "recognise_fillets",
+        Call::Part(&|part, o| {
+            let mut opts = FilletOptions::default();
+            if let Some(m) = o.get("min_radius").and_then(Value::as_f64) {
+                opts.min_radius = Some(m);
+            }
+            if let Some(f) = o.get("max_radius_frac").and_then(Value::as_f64) {
+                opts.max_radius_frac = f;
+            }
+            if let Some(c) = o.get("include_cylindrical").and_then(Value::as_bool) {
+                opts.include_cylindrical = c;
+            }
+            serde_json::to_value(recognise_fillets(part, &opts)).unwrap()
+        }),
+    );
 }
 
 #[test]
 fn countersinks_match_python() {
-    replay("recognise_countersinks", |part, _| {
-        serde_json::to_value(recognise_countersinks(part)).unwrap()
-    });
+    replay(
+        "recognise_countersinks",
+        Call::Part(&|part, _| serde_json::to_value(recognise_countersinks(part)).unwrap()),
+    );
 }
 
 #[test]
 fn holes_match_python() {
-    replay("recognise_holes", |part, o| {
-        let opts = HoleOptions {
-            with_countersinks: o.get("csinks").is_some_and(|c| c == "auto"),
-        };
-        serde_json::to_value(recognise_holes(part, &opts)).unwrap()
-    });
+    replay(
+        "recognise_holes",
+        Call::Part(&|part, o| {
+            let opts = HoleOptions {
+                with_countersinks: o.get("csinks").is_some_and(|c| c == "auto"),
+            };
+            serde_json::to_value(recognise_holes(part, &opts)).unwrap()
+        }),
+    );
+}
+
+#[test]
+fn hole_patterns_match_python() {
+    replay(
+        "recognise_hole_patterns",
+        Call::Records(&|arguments| {
+            let holes: Vec<HoleRecord> = serde_json::from_value(arguments[0].clone()).unwrap();
+            serde_json::to_value(recognise_hole_patterns(&holes)).unwrap()
+        }),
+    );
 }
