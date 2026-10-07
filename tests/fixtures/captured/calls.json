@@ -222093,6 +222093,2318 @@
      ]
     }
    ]
+  },
+  {
+   "test": "tests/test_double_d_attribution.py::test_each_principal_axis_issues_the_complete_wall_set[rotation0]",
+   "function": "recognise_double_d_bores",
+   "file": "ecfc67b700d16cd1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_double_d_attribution.py::test_each_principal_axis_issues_the_complete_wall_set[rotation1]",
+   "function": "recognise_double_d_bores",
+   "file": "1a56fe5ea5c63237.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "location": [
+      5.0000000000000036,
+      0.0,
+      1.1102230246251565e-15
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "location": [
+      5.0000000000000036,
+      0.0,
+      1.110223024625e-15
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_double_d_attribution.py::test_each_principal_axis_issues_the_complete_wall_set[rotation2]",
+   "function": "recognise_double_d_bores",
+   "file": "d76302e36734c006.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "location": [
+      0.0,
+      5.0000000000000036,
+      -1.1102230246251565e-15
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "location": [
+      0.0,
+      5.0000000000000036,
+      -1.110223024625e-15
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_double_d_attribution.py::test_multiple_occurrences_keep_sorted_record_identity_and_wall_ownership",
+   "function": "recognise_double_d_bores",
+   "file": "8a7e4f9e215b62d4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -30.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      30.0,
+      0.0,
+      6.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 6.4,
+     "depth": 12.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -30.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      30.0,
+      0.0,
+      6.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 6.4,
+     "depth": 12.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_double_d_attribution.py::test_equal_full_records_from_distinct_solids_remain_identity_distinct",
+   "function": "recognise_double_d_bores",
+   "file": "b7372b070eb84b7f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_double_d_attribution.py::test_transform_and_scale_routes_keep_exact_wall_roles[part0]",
+   "function": "recognise_double_d_bores",
+   "file": "8f54543dec08d720.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      17.0,
+      -9.0,
+      9.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      17.0,
+      -9.0,
+      9.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_double_d_attribution.py::test_transform_and_scale_routes_keep_exact_wall_roles[part1]",
+   "function": "recognise_double_d_bores",
+   "file": "0d84b2b05e79d24b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_double_d_attribution.py::test_transform_and_scale_routes_keep_exact_wall_roles[part2]",
+   "function": "recognise_double_d_bores",
+   "file": "6bfbd534bb77b12c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "major_diameter": 1.0,
+     "across_flats": 0.72,
+     "depth": 1.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "major_diameter": 1.0,
+     "across_flats": 0.72,
+     "depth": 1.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_double_d_attribution.py::test_transform_and_scale_routes_keep_exact_wall_roles[part3]",
+   "function": "recognise_double_d_bores",
+   "file": "cf995c7697933eb2.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      50.0
+     ],
+     "major_diameter": 100.0,
+     "across_flats": 72.0,
+     "depth": 100.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      50.0
+     ],
+     "major_diameter": 100.0,
+     "across_flats": 72.0,
+     "depth": 100.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_double_d_attribution.py::test_reversed_face_traversal_preserves_occurrence_and_complete_roles",
+   "function": "recognise_double_d_bores",
+   "file": "3f53e72fd9b3e1bc.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -25.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      25.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -25.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      25.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_double_d_attribution.py::test_reversed_face_traversal_preserves_occurrence_and_complete_roles",
+   "function": "recognise_double_d_bores",
+   "file": "3f53e72fd9b3e1bc.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -25.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      25.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -25.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      25.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_double_d_attribution.py::test_opposite_extremal_orientation_keeps_canonical_flat_sign",
+   "function": "recognise_double_d_bores",
+   "file": "596778d0ee391065.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      6.123233995736766e-16,
+      5.000000000000002
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      6.123233995735e-16,
+      5.000000000000002
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_double_d_attribution.py::test_custom_tolerance_route_preserves_public_and_writer_roles",
+   "function": "recognise_double_d_bores",
+   "file": "6bfbd534bb77b12c.step.gz",
+   "options": {
+    "tol": 0.0001
+   },
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "major_diameter": 1.0,
+     "across_flats": 0.72,
+     "depth": 1.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "major_diameter": 1.0,
+     "across_flats": 0.72,
+     "depth": 1.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_double_d_attribution.py::test_profile_throughness_and_constant_wall_negatives_issue_no_candidate",
+   "function": "recognise_double_d_bores",
+   "file": "38fe395610592446.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_double_d_attribution.py::test_profile_throughness_and_constant_wall_negatives_issue_no_candidate",
+   "function": "recognise_double_d_bores",
+   "file": "fc79f88c661d8614.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_double_d_attribution.py::test_profile_throughness_and_constant_wall_negatives_issue_no_candidate",
+   "function": "recognise_double_d_bores",
+   "file": "03322142c89a6a9e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_double_d_attribution.py::test_open_shell_keeps_public_compatibility_but_refuses_aggregate",
+   "function": "recognise_double_d_bores",
+   "file": "c20163878470d13f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[RuntimeError]",
+   "function": "recognise_double_d_bores",
+   "file": "571fd1c6434b6881.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[RuntimeError]",
+   "function": "recognise_double_d_bores",
+   "file": "571fd1c6434b6881.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[ValueError]",
+   "function": "recognise_double_d_bores",
+   "file": "571fd1c6434b6881.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[ValueError]",
+   "function": "recognise_double_d_bores",
+   "file": "571fd1c6434b6881.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[Standard_Failure]",
+   "function": "recognise_double_d_bores",
+   "file": "571fd1c6434b6881.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[Standard_Failure]",
+   "function": "recognise_double_d_bores",
+   "file": "571fd1c6434b6881.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[Standard_ConstructionError]",
+   "function": "recognise_double_d_bores",
+   "file": "571fd1c6434b6881.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[Standard_ConstructionError]",
+   "function": "recognise_double_d_bores",
+   "file": "571fd1c6434b6881.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[Standard_DomainError]",
+   "function": "recognise_double_d_bores",
+   "file": "571fd1c6434b6881.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[Standard_DomainError]",
+   "function": "recognise_double_d_bores",
+   "file": "571fd1c6434b6881.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[StdFail_NotDone]",
+   "function": "recognise_double_d_bores",
+   "file": "571fd1c6434b6881.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[StdFail_NotDone]",
+   "function": "recognise_double_d_bores",
+   "file": "571fd1c6434b6881.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[AssertionError]",
+   "function": "recognise_double_d_bores",
+   "file": "571fd1c6434b6881.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_geometry_failure_boundaries.py::test_double_d_boolean_fragments_are_measured_not_hidden_as_attribute_errors[volumes0-True]",
+   "function": "recognise_double_d_bores",
+   "file": "571fd1c6434b6881.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_geometry_failure_boundaries.py::test_double_d_boolean_fragments_are_measured_not_hidden_as_attribute_errors[volumes1-True]",
+   "function": "recognise_double_d_bores",
+   "file": "571fd1c6434b6881.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_geometry_failure_boundaries.py::test_double_d_boolean_fragments_are_measured_not_hidden_as_attribute_errors[volumes2-False]",
+   "function": "recognise_double_d_bores",
+   "file": "571fd1c6434b6881.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_records_are_frozen_and_json_serializable",
+   "function": "recognise_double_d_bores",
+   "file": "c7ee6c53ea0011e7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_every_record_type_is_actually_exercised",
+   "function": "recognise_double_d_bores",
+   "file": "c7ee6c53ea0011e7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "78cad3d7476afb70.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "ce30ea612029f8ba.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "63eb54cc99e74641.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "3ac32509efef893e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "3aa3fee8a5ce2624.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "c7ee6c53ea0011e7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "236ea4cc9bd6bfe4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "04aec2096ae6ebfa.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "c31caa7ecbb2d309.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "97c1f9960ddab64f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "9683f6213a4aa5bd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "ee52f5590e82077a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "7802ff06fec22161.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "ecafad7c9184d591.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "54fe727555b63158.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "d0216f43b93410d1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "7edb959cec898e4b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "b4955f88525ea716.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "4e090fe361c883ac.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "786005dcbc3b0bea.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "12a159d1bdde516d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "644f8fd20345b417.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "016c60d49a52fa18.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "4ee8cff9e649797a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "a1f2f69240c7602c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "c206ed1b01003498.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "28a8ba817d30cd37.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "52c28c694ef89625.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_double_d_bores",
+   "file": "0a3141da4c6d054d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_capability_claims.py::test_profiled_bore_supports_each_principal_axis[rotation0-expected_axis0]",
+   "function": "recognise_double_d_bores",
+   "file": "fdd884eb448f88e9.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      0.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_capability_claims.py::test_profiled_bore_supports_each_principal_axis[rotation1-expected_axis1]",
+   "function": "recognise_double_d_bores",
+   "file": "fddbb89b8c56156c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "location": [
+      5.0000000000000036,
+      0.0,
+      1.1102230246251565e-15
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "location": [
+      5.0000000000000036,
+      0.0,
+      1.110223024625e-15
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_capability_claims.py::test_profiled_bore_supports_each_principal_axis[rotation2-expected_axis2]",
+   "function": "recognise_double_d_bores",
+   "file": "489db46ea4efc3dd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "location": [
+      0.0,
+      5.0000000000000036,
+      -1.1102230246251565e-15
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "location": [
+      0.0,
+      5.0000000000000036,
+      -1.110223024625e-15
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_capability_claims.py::test_profiled_bores_are_owned_independently_per_solid",
+   "function": "recognise_double_d_bores",
+   "file": "3f53e72fd9b3e1bc.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -25.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      25.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      -25.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "location": [
+      25.0,
+      0.0,
+      5.0
+     ],
+     "major_diameter": 10.0,
+     "across_flats": 7.2,
+     "depth": 10.0,
+     "through": true,
+     "flat_direction": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_capability_claims.py::test_profiled_bore_rejects_blind_double_d_and_through_obround",
+   "function": "recognise_double_d_bores",
+   "file": "25d01da5c809ee75.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_capability_claims.py::test_profiled_bore_rejects_blind_double_d_and_through_obround",
+   "function": "recognise_double_d_bores",
+   "file": "38fe395610592446.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_capability_claims.py::test_profiled_bore_rejects_blind_double_d_and_through_obround",
+   "function": "recognise_double_d_bores",
+   "file": "fc79f88c661d8614.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_capability_claims.py::test_profiled_bore_rejects_tapered_and_non_principal_profiles",
+   "function": "recognise_double_d_bores",
+   "file": "03322142c89a6a9e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_capability_claims.py::test_profiled_bore_rejects_tapered_and_non_principal_profiles",
+   "function": "recognise_double_d_bores",
+   "file": "2f50563a790519fc.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
   }
  ],
  "skipped": {
@@ -222104,6 +224416,7 @@
   "recognise_round_bottom_blind_slots: capture failed: RuntimeError": 1,
   "recognise_plates: capture failed: RuntimeError": 4,
   "recognise_grooves: capture failed: RuntimeError": 3,
-  "recognise_rectangular_blind_slots: capture failed: RuntimeError": 1
+  "recognise_rectangular_blind_slots: capture failed: RuntimeError": 1,
+  "recognise_double_d_bores: capture failed: RuntimeError": 1
  }
 }

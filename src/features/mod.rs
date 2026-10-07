@@ -32,6 +32,7 @@ pub mod paired_ramp_steps;
 pub mod planes;
 pub mod plates;
 pub mod probes;
+pub mod profiled_bores;
 pub mod rectangular_blind_slots;
 pub mod regions;
 pub mod round_bottom_slots;
@@ -80,6 +81,7 @@ pub struct Features {
     pub plates: Vec<plates::Plate>,
     pub round_bottom_blind_slots: Vec<round_bottom_slots::RoundBottomBlindSlot>,
     pub rectangular_blind_slots: Vec<rectangular_blind_slots::RectangularBlindSlot>,
+    pub double_d_bores: Vec<profiled_bores::DoubleDBore>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole and gusset rib patterns) have none of their own: their members' faces are
     /// theirs ([`crate::correspondence`]).
@@ -178,6 +180,11 @@ pub fn recognise(part: &Part) -> Features {
             &mut defining,
             "rectangular_blind_slots",
             rectangular_blind_slots::discover(&ctx),
+        ),
+        double_d_bores: kept(
+            &mut defining,
+            "double_d_bores",
+            profiled_bores::discover(&ctx),
         ),
         defining,
     }

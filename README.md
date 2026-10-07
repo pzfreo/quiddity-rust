@@ -34,6 +34,7 @@ OpenCascade is reimplemented in `src/kernel`.
 | Gusset rib patterns | `recognise_gusset_rib_patterns` | 18/18 | see below |
 | Grooves | `recognise_grooves` | 71/72 (1 known divergence) | see below |
 | Plates | `recognise_plates` | 175/178 (3 known divergences) | see below |
+| Double-D bores | `recognise_double_d_bores` | 71/78 (7 known divergences) | see below |
 
 Known divergences are listed, with reasons, in `tests/fixtures/captured/known_divergences.json`
 (captured calls) and `tests/fixtures/known_divergences.json` (corpus).
@@ -113,7 +114,7 @@ src/
     thin_walls.rs  interior_voids.rs  through_steps.rs
     oblique_through_steps.rs  circular_blind_steps.rs
     turned_steps.rs  round_bottom_slots.rs  rectangular_blind_slots.rs  gussets.rs
-    grooves.rs  plates.rs
+    grooves.rs  plates.rs  profiled_bores.rs
     volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over kernel/volume.rs
   correspondence/    revision matching (docs/correspondence.md): fingerprint.rs (features and
                      faces), align.rs (rigid alignment), assign.rs (Hungarian with an

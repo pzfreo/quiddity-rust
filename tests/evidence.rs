@@ -8,6 +8,7 @@ use std::path::{Path, PathBuf};
 
 use quiddity::features::Context;
 use quiddity::features::fillets::{FilletOptions, discover_verified, recognise_fillets};
+use quiddity::kernel::step::{IDENTITY, read_step_file_placed};
 use quiddity::{Part, read_step_file};
 use serde_json::Value;
 
@@ -140,5 +141,70 @@ fn gusset_rib_evidence_claims_caps_slant_and_blends() {
         };
         eprintln!("{file}: {got:?}");
         assert_eq!(got, want, "{file}");
+    }
+}
+
+/// Double-D bore evidence on every part the Python suite finds bores in: each bore claims its
+/// four lateral wall faces (two flats, two arcs), as Python's ledger records them
+/// (`_discover_double_d_bores(part, writer=...)` on the re-read STEP). Python refuses
+/// c20163878470d13f: its bore's walls have no one valid owner solid.
+#[test]
+fn double_d_bore_evidence_claims_the_lateral_walls() {
+    use quiddity::features::profiled_bores;
+    let captured = fixtures().join("captured");
+    let one: &[&[usize]] = &[&[6, 7, 8, 9]];
+    let two: &[&[usize]] = &[&[6, 7, 8, 9], &[16, 17, 18, 19]];
+    for (file, want) in [
+        ("0d84b2b05e79d24b.step.gz", Some(one)),
+        ("1a56fe5ea5c63237.step.gz", Some(one)),
+        ("3f53e72fd9b3e1bc.step.gz", Some(two)),
+        ("489db46ea4efc3dd.step.gz", Some(one)),
+        ("571fd1c6434b6881.step.gz", Some(one)),
+        ("596778d0ee391065.step.gz", Some(one)),
+        ("6bfbd534bb77b12c.step.gz", Some(one)),
+        ("8a7e4f9e215b62d4.step.gz", Some(two)),
+        ("8f54543dec08d720.step.gz", Some(one)),
+        ("b7372b070eb84b7f.step.gz", Some(two)),
+        ("c20163878470d13f.step.gz", None),
+        ("c7ee6c53ea0011e7.step.gz", Some(one)),
+        ("cf995c7697933eb2.step.gz", Some(one)),
+        ("d76302e36734c006.step.gz", Some(one)),
+        ("ecfc67b700d16cd1.step.gz", Some(one)),
+        ("fdd884eb448f88e9.step.gz", Some(one)),
+        ("fddbb89b8c56156c.step.gz", Some(one)),
+    ] {
+        let want: Option<Vec<Vec<usize>>> = want.map(|w| w.iter().map(|d| d.to_vec()).collect());
+        // The corpus has no double-D bores, so the invariance test cannot exercise them: the
+        // same walls must also be found with the part moved and its axes cycled.
+        for (motion, placement) in [
+            ("unmoved", IDENTITY),
+            (
+                "cycled and moved",
+                [
+                    [0.0, 0.0, 1.0, 123.456],
+                    [1.0, 0.0, 0.0, -78.9],
+                    [0.0, 1.0, 0.0, 41.3],
+                ],
+            ),
+        ] {
+            let part = read_step_file_placed(&captured.join(file), &placement).unwrap();
+            let mut got: Option<Vec<Vec<usize>>> =
+                profiled_bores::discover_verified(&Context::new(&part))
+                    .ok()
+                    .map(|found| {
+                        found
+                            .into_iter()
+                            .map(|o| {
+                                let mut d = o.defining;
+                                d.sort_unstable();
+                                d
+                            })
+                            .collect()
+                    });
+            if let Some(g) = got.as_mut() {
+                g.sort();
+            }
+            assert_eq!(got, want, "{file} {motion}");
+        }
     }
 }

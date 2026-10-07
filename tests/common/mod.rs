@@ -87,6 +87,9 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
         "recognise_gusset_ribs" => json(quiddity::recognise_gusset_ribs(part)),
         "recognise_grooves" => json(quiddity::recognise_grooves(part)),
         "recognise_plates" => json(quiddity::recognise_plates(part, &options(kwargs))),
+        "recognise_double_d_bores" => {
+            json(quiddity::recognise_double_d_bores(part, &options(kwargs)))
+        }
         // Over a part: the patterns among the part's gusset ribs.
         "recognise_gusset_rib_patterns" => json(quiddity::recognise_gusset_rib_patterns(
             &quiddity::recognise_gusset_ribs(part),
@@ -171,6 +174,9 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
         "recognise_grooves" => quiddity::features::grooves::discover_verified(&ctx).map(faces),
         "recognise_plates" => {
             quiddity::features::plates::discover_verified(&ctx, &options(kwargs)).map(faces)
+        }
+        "recognise_double_d_bores" => {
+            quiddity::features::profiled_bores::discover_verified(&ctx).map(faces)
         }
         other => panic!("{other} has no evidence path"),
     };
