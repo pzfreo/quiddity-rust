@@ -60,7 +60,7 @@ fn arcs_read_convex_box_edges_and_concave_bore_rims() {
         .find(|&f| matches!(part.faces[f].surface, Surface::Cylinder { .. }))
         .unwrap();
     for &a in &planes {
-        for &b in &planes {
+        for &b in planes.iter().filter(|&&b| b != a) {
             if let Some(arc) = part.arc(a, b) {
                 assert_eq!(arc, Arc::Convex, "box faces {a} and {b}");
             }
