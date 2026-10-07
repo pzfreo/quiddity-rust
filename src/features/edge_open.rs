@@ -8,7 +8,7 @@
 //! neither family calls it; they import only [`SPAN_EPS`].
 
 use super::Context;
-use super::planes::normalized;
+use super::planes::{normalized, plane_normal};
 use crate::kernel::brep::{Arc, Part};
 use crate::kernel::geom::{AXIS_ZERO_COS, Surface, V3};
 
@@ -18,14 +18,13 @@ pub const SPAN_EPS: f64 = 1e-6;
 /// The face's unit normal as `FaceGraph.normal` reads it (`face.normal_at()`): at the centre of
 /// its parameter range, flipped on a reversed face. `None` for a face without one there.
 pub fn normal(part: &Part, face: usize) -> Option<V3> {
-    let (u, v) = match part.faces[face].surface {
-        Surface::Plane { .. } => (0.0, 0.0),
-        _ => {
-            let (u0, u1, v0, v1) = part.uv_bounds(face)?;
-            (u0 + 0.5 * (u1 - u0), v0 + 0.5 * (v1 - v0))
-        }
+    let n = if is_planar(part, face) {
+        plane_normal(part, face)?
+    } else {
+        let (u0, u1, v0, v1) = part.uv_bounds(face)?;
+        let (u, v) = (u0 + 0.5 * (u1 - u0), v0 + 0.5 * (v1 - v0));
+        normalized(part.face_normal(face, u, v)?)
     };
-    let n = normalized(part.face_normal(face, u, v)?);
     n.iter().all(|c| c.is_finite()).then_some(n)
 }
 
@@ -122,6 +121,12 @@ pub fn shared_occurrences(part: &Part, a: usize, b: usize) -> Vec<usize> {
 
 /// Whether the floor is a real floor (`_floor_proof` / `_exact_floor_proof`): the floor face
 /// swept to the mouth holds no material of *solid*, and a thin slab behind it is all material.
+///
+/// The sweep is exact for floors bounded by lines and by circles and arcs about the run axis,
+/// holes through the floor included. A floor edge of any other curve (an ellipse where a hole
+/// meets the floor obliquely, a B-spline) cannot be swept, the floor is not proved and the
+/// recess is declined, where Python's `Solid.extrude` would sweep it: a port limitation
+/// (rust-wrong), reached by no captured call or corpus part.
 pub fn floor_proof(
     ctx: &Context<'_>,
     solid: usize,

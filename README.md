@@ -236,7 +236,10 @@ reader reproduces:
 
 Known kernel limitations: OpenCascade's healing adds missing seam edges to periodic faces (and splits closed edges they cross), which the reader does not; sphere patches that pass through a pole have approximate interior
 bounding boxes; closed surfaces of revolution/extrusion in NURBS form are treated as
-non-periodic.
+non-periodic. A face swept into a probe solid (`kernel/sweep.rs`, Python's
+`Solid.extrude`) may be bounded only by lines and by circles and arcs about the sweep: the
+edge-open recess floor proof declines a floor with any other edge (rust-wrong; no captured call
+or corpus part has one).
 
 Rays meet a face where they cross it inside its trim, or within the band by which one of its
 edges strays from its surface: B-spline faces exported as approximations of their neighbours

@@ -4,8 +4,9 @@
 //!
 //! The prism is built exactly: the face itself at both ends and one side face per edge, a plane
 //! along each straight edge and a cylinder along each circular arc whose axis runs with the
-//! sweep. Other edges (closed circles, which would need a seam, and free-form curves) are not
-//! swept; the caller is told so and must not treat the region as proved either way.
+//! sweep. A closed circle (a hole's whole rim) sweeps to a seamless cylinder band bounded by its
+//! two copies. Other edges (free-form curves, arcs about an axis across the sweep) are not swept;
+//! the caller is told so and must not treat the region as proved either way.
 
 use super::brep::{Edge, Face, Loop, Part, Solid};
 use super::geom::{self, Curve, Frame, Surface, V3};
@@ -13,7 +14,7 @@ use super::sampling::sample_edge;
 
 /// *face* of *part* moved by *offset* and swept along *sweep*, as a one-solid part, or `None`
 /// when the face is not planar, the sweep runs in its plane, or an edge is not a straight line
-/// or an open circular arc about an axis along the sweep.
+/// or a circle or circular arc about an axis along the sweep.
 pub fn extrude_face(part: &Part, face: usize, offset: V3, sweep: V3) -> Option<Part> {
     let f = &part.faces[face];
     let Surface::Plane { frame } = f.surface else {
@@ -30,11 +31,8 @@ pub fn extrude_face(part: &Part, face: usize, offset: V3, sweep: V3) -> Option<P
     let mut vertex_ids: Vec<usize> = Vec::new();
     for &e in &source {
         let edge = &part.edges[e];
-        if edge.is_closed() {
-            return None;
-        }
         match &edge.curve {
-            Curve::Line { .. } => {}
+            Curve::Line { .. } if !edge.is_closed() => {}
             Curve::Circle { frame: c, .. } if 1.0 - geom::dot(c.z, up).abs() <= 1e-9 => {}
             _ => return None,
         }
@@ -82,8 +80,18 @@ pub fn extrude_face(part: &Part, face: usize, offset: V3, sweep: V3) -> Option<P
         corner[vid(edge.vertices.0)] = Some(edge.start);
         corner[vid(edge.vertices.1)] = Some(edge.end);
     }
-    let rising0 = edges.len();
+    // A rising edge for each vertex an open edge ends at; a closed circle's vertex has none.
+    let mut riser: Vec<Option<usize>> = vec![None; n_vertices];
+    for &e in source.iter().filter(|&&e| !part.edges[e].is_closed()) {
+        let edge = &part.edges[e];
+        riser[vid(edge.vertices.0)] = Some(0);
+        riser[vid(edge.vertices.1)] = Some(0);
+    }
     for (i, p) in corner.iter().enumerate() {
+        if riser[i].is_none() {
+            continue;
+        }
+        riser[i] = Some(edges.len());
         let start = moved(p.expect("every vertex is an edge end"), offset);
         let end = moved(start, sweep);
         let curve = Curve::Line {
@@ -154,12 +162,18 @@ pub fn extrude_face(part: &Part, face: usize, offset: V3, sweep: V3) -> Option<P
                 (edge.vertices.1, edge.vertices.0)
             };
             let (p, q) = (p - n_vertices, q - n_vertices);
-            let side_loop = vec![
-                (t, !forward),
-                (rising0 + p, false),
-                (t - n, forward),
-                (rising0 + q, true),
-            ];
+            // A closed circle's band is bounded by its two copies as separate loops.
+            let side_loops = match (riser[p], riser[q]) {
+                (Some(down), Some(up)) if !edge.is_closed() => {
+                    vec![vec![
+                        (t, !forward),
+                        (down, false),
+                        (t - n, forward),
+                        (up, true),
+                    ]]
+                }
+                _ => vec![vec![(t, !forward)], vec![(t - n, forward)]],
+            };
             // The side's outward normal: the walk's tangent across the sweep.
             let samples = &edge.samples;
             let k = samples.len() / 2;
@@ -198,10 +212,13 @@ pub fn extrude_face(part: &Part, face: usize, offset: V3, sweep: V3) -> Option<P
             faces.push(Face {
                 surface,
                 reversed: geom::dot(natural, out_normal) < 0.0,
-                loops: vec![Loop {
-                    edges: side_loop,
-                    vertex: None,
-                }],
+                loops: side_loops
+                    .into_iter()
+                    .map(|edges| Loop {
+                        edges,
+                        vertex: None,
+                    })
+                    .collect(),
                 solid: Some(0),
                 pcurves: Vec::new(),
             });

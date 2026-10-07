@@ -177,3 +177,26 @@ fn edge_open_recess_evidence_claims_walls_and_consults_the_floor() {
     assert_eq!(solids.len(), 2);
     assert!(solids.iter().all(Option::is_some) && solids[0] != solids[1]);
 }
+
+/// A floor with a hole through it still proves the pocket (Python's `Solid.extrude` sweeps the
+/// hole's closed rim to a cylinder band). Built with build123d: a 12-high plate (pentagon
+/// (-30,-20), (30,-20), (30,10), (20,20), (-30,20)) less a 30 x 10 `SlotOverall` at (16, 10)
+/// from z = 4 up, less a 3 mm hole through the floor at (12, 10). Python gives this one record.
+#[test]
+fn edge_open_pocket_with_a_hole_through_its_floor() {
+    use quiddity::features::edge_open_circular::recognise_edge_open_circular_pockets;
+    let part = read_step_file(&fixtures().join("edge_open_pocket_floor_hole.step")).unwrap();
+    let found = recognise_edge_open_circular_pockets(&part);
+    let [pocket] = found.as_slice() else {
+        panic!("{} circular pockets", found.len())
+    };
+    let got = serde_json::to_value(pocket).unwrap();
+    assert_eq!(got["axis"], "z");
+    assert_eq!(got["run_interval"], serde_json::json!([4.0, 12.0]));
+    assert_eq!(got["open_sign"], 1);
+    assert_eq!(
+        got["section"]["opening"],
+        serde_json::json!([[25.0, 15.0], [30.0, 7.0]])
+    );
+    assert_eq!(got["section"]["segments"].as_array().unwrap().len(), 4);
+}
