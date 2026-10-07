@@ -47,27 +47,30 @@ fn reading_is_deterministic_and_topology_is_closed() {
 }
 
 #[test]
-fn arcs_read_convex_box_edges_and_concave_bore_rims() {
+fn arcs_read_convex_rims_and_concave_pocket_corners() {
     use quiddity::kernel::brep::Arc;
-    use quiddity::kernel::geom::Surface;
-    // Box(30, 30, 20) - Cylinder(5, 20): plane-plane box edges are convex; the bore wall meets
-    // the top and bottom faces in concave rims.
+    // Box(30, 30, 20) - Cylinder(5, 20): every edge, the bore rims included, is a convex wedge.
     let part = fixture("rejected_bored_box.step");
-    let planes: Vec<usize> = (0..part.faces.len())
-        .filter(|&f| matches!(part.faces[f].surface, Surface::Plane { .. }))
-        .collect();
-    let bore = (0..part.faces.len())
-        .find(|&f| matches!(part.faces[f].surface, Surface::Cylinder { .. }))
-        .unwrap();
-    for &a in &planes {
-        for &b in planes.iter().filter(|&&b| b != a) {
+    for a in 0..part.faces.len() {
+        for b in (0..part.faces.len()).filter(|&b| b != a) {
             if let Some(arc) = part.arc(a, b) {
-                assert_eq!(arc, Arc::Convex, "box faces {a} and {b}");
+                assert_eq!(arc, Arc::Convex, "faces {a} and {b}");
             }
         }
-        if let Some(arc) = part.arc(a, bore) {
-            assert_eq!(arc, Arc::Concave);
-            assert_eq!(part.arc(bore, a), Some(Arc::Concave), "symmetric");
+    }
+    // A blind pocket: its floor meets its walls in concave edges, read the same from either side.
+    let part = fixture("rejected_internal_pocket.step");
+    let mut concave = 0;
+    for a in 0..part.faces.len() {
+        for b in (0..part.faces.len()).filter(|&b| b != a) {
+            if let Some(arc) = part.arc(a, b) {
+                assert_eq!(part.arc(b, a), Some(arc), "symmetric for faces {a} and {b}");
+                concave += usize::from(arc == Arc::Concave);
+            }
         }
     }
+    assert!(
+        concave >= 8,
+        "the pocket floor and its four walls, both ways round"
+    );
 }
