@@ -2,155 +2,310 @@
   {
     "test": "invariance",
     "file": "cadgenbench/flanged_spool_132.step",
-    "motion": "translate",
-    "verdict": "rust-correct",
-    "reason": "The spool is turned and its flanges carry a six-fold bolt circle. Every anchor distinctive enough to align by lies on the axis, so the alignment is axisymmetric: its turn about the axis is free. The bolt circle's chamfers (and their faces) are alike in everything the turn leaves fixed, so each is reported ambiguous among its six candidates instead of being guessed. Which instance is which is genuinely undetermined by the geometry."
-  },
-  {
-    "test": "invariance",
-    "file": "cadgenbench/flanged_spool_132.step",
     "motion": "rot_z90",
     "verdict": "rust-correct",
-    "reason": "The spool is turned and its flanges carry a six-fold bolt circle. Every anchor distinctive enough to align by lies on the axis, so the alignment is axisymmetric: its turn about the axis is free. The bolt circle's chamfers (and their faces) are alike in everything the turn leaves fixed, so each is reported ambiguous among its six candidates instead of being guessed. Which instance is which is genuinely undetermined by the geometry."
-  },
-  {
-    "test": "invariance",
-    "file": "cadgenbench/flanged_spool_132.step",
-    "motion": "rot_x90",
-    "verdict": "rust-correct",
-    "reason": "The spool is turned and its flanges carry a six-fold bolt circle. Every anchor distinctive enough to align by lies on the axis, so the alignment is axisymmetric: its turn about the axis is free. The bolt circle's chamfers (and their faces) are alike in everything the turn leaves fixed, so each is reported ambiguous among its six candidates instead of being guessed. Which instance is which is genuinely undetermined by the geometry."
-  },
-  {
-    "test": "invariance",
-    "file": "cadgenbench/flanged_spool_132.step",
-    "motion": "rot_y180",
-    "verdict": "rust-correct",
-    "reason": "The spool is turned and its flanges carry a six-fold bolt circle. Every anchor distinctive enough to align by lies on the axis, so the alignment is axisymmetric: its turn about the axis is free. The bolt circle's chamfers (and their faces) are alike in everything the turn leaves fixed, so each is reported ambiguous among its six candidates instead of being guessed. Which instance is which is genuinely undetermined by the geometry."
+    "reason": "The spool is turned and six-fold symmetric about its axis (a six-hole circle at 60° pitch on one end, twelve-hole circles at 30° on both flanges). The anchors distinctive enough to align by all lie on the axis; the off-axis repeats (holes, chamfers and their faces) then vote for the turn about it, and six turns fit them equally (alignment.fold 6, symmetric set). Which copy is which is undetermined by the geometry, so, as for any symmetric part, the turn giving the motion nearest the identity is taken and every off-axis feature and face is carried, consistently, onto its image under that turn: here a 30° turn rather than the motion's own, so the 42 off-axis features and 72 faces land on their symmetric copies. Under translate, rot_x90 and rot_y180 the identity-nearest turn is the motion's own and everything is carried to itself.",
+    "features": [
+      "chamfers/10",
+      "chamfers/11",
+      "chamfers/12",
+      "chamfers/13",
+      "chamfers/14",
+      "chamfers/15",
+      "chamfers/4",
+      "chamfers/5",
+      "chamfers/6",
+      "chamfers/7",
+      "chamfers/8",
+      "chamfers/9",
+      "holes/0",
+      "holes/1",
+      "holes/10",
+      "holes/11",
+      "holes/12",
+      "holes/13",
+      "holes/14",
+      "holes/15",
+      "holes/16",
+      "holes/17",
+      "holes/18",
+      "holes/19",
+      "holes/2",
+      "holes/20",
+      "holes/21",
+      "holes/22",
+      "holes/23",
+      "holes/24",
+      "holes/25",
+      "holes/26",
+      "holes/27",
+      "holes/28",
+      "holes/29",
+      "holes/3",
+      "holes/30",
+      "holes/4",
+      "holes/5",
+      "holes/7",
+      "holes/8",
+      "holes/9"
+    ],
+    "faces": 72
   },
   {
     "test": "invariance",
     "file": "cadgenbench/flanged_spool_132.step",
     "motion": "cycle_xyz",
     "verdict": "rust-correct",
-    "reason": "The spool is turned and its flanges carry a six-fold bolt circle. Every anchor distinctive enough to align by lies on the axis, so the alignment is axisymmetric: its turn about the axis is free. The bolt circle's chamfers (and their faces) are alike in everything the turn leaves fixed, so each is reported ambiguous among its six candidates instead of being guessed. Which instance is which is genuinely undetermined by the geometry."
+    "reason": "The spool is turned and six-fold symmetric about its axis (a six-hole circle at 60° pitch on one end, twelve-hole circles at 30° on both flanges). The anchors distinctive enough to align by all lie on the axis; the off-axis repeats (holes, chamfers and their faces) then vote for the turn about it, and six turns fit them equally (alignment.fold 6, symmetric set). Which copy is which is undetermined by the geometry, so, as for any symmetric part, the turn giving the motion nearest the identity is taken and every off-axis feature and face is carried, consistently, onto its image under that turn: here a 30° turn rather than the motion's own, so the 42 off-axis features and 72 faces land on their symmetric copies. Under translate, rot_x90 and rot_y180 the identity-nearest turn is the motion's own and everything is carried to itself.",
+    "features": [
+      "chamfers/10",
+      "chamfers/11",
+      "chamfers/12",
+      "chamfers/13",
+      "chamfers/14",
+      "chamfers/15",
+      "chamfers/4",
+      "chamfers/5",
+      "chamfers/6",
+      "chamfers/7",
+      "chamfers/8",
+      "chamfers/9",
+      "holes/0",
+      "holes/1",
+      "holes/10",
+      "holes/11",
+      "holes/12",
+      "holes/13",
+      "holes/14",
+      "holes/15",
+      "holes/16",
+      "holes/17",
+      "holes/18",
+      "holes/19",
+      "holes/2",
+      "holes/20",
+      "holes/21",
+      "holes/22",
+      "holes/23",
+      "holes/24",
+      "holes/25",
+      "holes/26",
+      "holes/27",
+      "holes/28",
+      "holes/29",
+      "holes/3",
+      "holes/30",
+      "holes/4",
+      "holes/5",
+      "holes/7",
+      "holes/8",
+      "holes/9"
+    ],
+    "faces": 72
   },
   {
     "test": "invariance",
     "file": "cadgenbench/flanged_spool_132.step",
     "motion": "rot_zx_moved",
     "verdict": "rust-correct",
-    "reason": "The spool is turned and its flanges carry a six-fold bolt circle. Every anchor distinctive enough to align by lies on the axis, so the alignment is axisymmetric: its turn about the axis is free. The bolt circle's chamfers (and their faces) are alike in everything the turn leaves fixed, so each is reported ambiguous among its six candidates instead of being guessed. Which instance is which is genuinely undetermined by the geometry."
+    "reason": "The spool is turned and six-fold symmetric about its axis (a six-hole circle at 60° pitch on one end, twelve-hole circles at 30° on both flanges). The anchors distinctive enough to align by all lie on the axis; the off-axis repeats (holes, chamfers and their faces) then vote for the turn about it, and six turns fit them equally (alignment.fold 6, symmetric set). Which copy is which is undetermined by the geometry, so, as for any symmetric part, the turn giving the motion nearest the identity is taken and every off-axis feature and face is carried, consistently, onto its image under that turn: here a 30° turn rather than the motion's own, so the 42 off-axis features and 72 faces land on their symmetric copies. Under translate, rot_x90 and rot_y180 the identity-nearest turn is the motion's own and everything is carried to itself.",
+    "features": [
+      "chamfers/10",
+      "chamfers/11",
+      "chamfers/12",
+      "chamfers/13",
+      "chamfers/14",
+      "chamfers/15",
+      "chamfers/4",
+      "chamfers/5",
+      "chamfers/6",
+      "chamfers/7",
+      "chamfers/8",
+      "chamfers/9",
+      "holes/0",
+      "holes/1",
+      "holes/10",
+      "holes/11",
+      "holes/12",
+      "holes/13",
+      "holes/14",
+      "holes/15",
+      "holes/16",
+      "holes/17",
+      "holes/18",
+      "holes/19",
+      "holes/2",
+      "holes/20",
+      "holes/21",
+      "holes/22",
+      "holes/23",
+      "holes/24",
+      "holes/25",
+      "holes/26",
+      "holes/27",
+      "holes/28",
+      "holes/29",
+      "holes/3",
+      "holes/30",
+      "holes/4",
+      "holes/5",
+      "holes/7",
+      "holes/8",
+      "holes/9"
+    ],
+    "faces": 72
   },
   {
     "test": "invariance",
     "file": "cadgenbench/threaded_connector_109.step",
     "motion": "rot_zx_moved",
     "verdict": "rust-wrong",
-    "reason": "Kernel surface recovery (recover.rs) is not motion invariant here: a B-spline face next to the boss and a turned step is recovered as a plane in the unmoved part and not in this placement, so its type in the two features' neighbourhoods (and in its neighbours' adjacency) changes from plane to bspline. The features are still matched to themselves, as adapted. The fix belongs in recover.rs (a placement-independent fit tolerance)."
+    "reason": "Kernel surface recovery (recover.rs) is not motion invariant here: a B-spline face next to the boss and a turned step is recovered as a plane in the unmoved part and not in this placement, so its type in the two features' neighbourhoods (and in its neighbours' adjacency) changes from plane to bspline. The features are still matched to themselves, as adapted. The fix belongs in recover.rs (a placement-independent fit tolerance).",
+    "features": [
+      "bosses/0",
+      "turned_steps/6"
+    ],
+    "faces": 4
   },
   {
     "test": "invariance",
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "motion": "translate",
     "verdict": "rust-wrong",
-    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The faces are matched to themselves but reported adapted; on cgb202 rot_zx_moved a few small faces swap with look-alikes as a result. Related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces); faces whose quadrature gives no area are already fingerprinted as of unknown area."
+    "reason": "Two kernel defects. (1) Sphere faces: cgb202's corner patches are spherical triangles (radius 3) one of whose edges is a great circle through the sphere's poles (face 240: edge 673; face 268: edge 741), and the kernel's area for them (mass.rs face_integral, through face_mass and face_moments) depends on placement, by several times: face 240 is 9.034 mm2 unmoved (OpenCascade: 9.034) but 61.75 translated, faces 268 and 276 7.43 (OpenCascade 7.43) but 26.12 translated; faces 183 and 284 are already 26.12 unmoved where OpenCascade gives no sphere face of that area. The pole handling in boundary_nodes/curve_cuts is the likely place (not yet confirmed). (2) B-spline quadrature as for cgb207: B-spline faces matched to themselves but reported adapted (area, normal). Here: sphere faces 240, 268 and 276 come out orphaned (their areas no longer match anything), and B-spline faces 37 and 762 adapted.",
+    "features": [],
+    "faces": 5
   },
   {
     "test": "invariance",
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "motion": "rot_x90",
     "verdict": "rust-wrong",
-    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The faces are matched to themselves but reported adapted; on cgb202 rot_zx_moved a few small faces swap with look-alikes as a result. Related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces); faces whose quadrature gives no area are already fingerprinted as of unknown area."
+    "reason": "The kernel's B-spline area quadrature changes with placement, as for cgb207: B-spline face 762 is matched to itself but reported adapted (area 2.9109 vs 2.9004 mm2, normal). The sphere faces of the translate and rot_zx_moved entries are correct in this placement.",
+    "features": [],
+    "faces": 1
   },
   {
     "test": "invariance",
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "motion": "cycle_xyz",
     "verdict": "rust-wrong",
-    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The faces are matched to themselves but reported adapted; on cgb202 rot_zx_moved a few small faces swap with look-alikes as a result. Related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces); faces whose quadrature gives no area are already fingerprinted as of unknown area."
+    "reason": "The kernel's B-spline area quadrature changes with placement, as for cgb207: B-spline face 762 is matched to itself but reported adapted (area 2.9109 vs 2.9004 mm2, normal). The sphere faces of the translate and rot_zx_moved entries are correct in this placement.",
+    "features": [],
+    "faces": 1
   },
   {
     "test": "invariance",
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "motion": "rot_zx_moved",
     "verdict": "rust-wrong",
-    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The faces are matched to themselves but reported adapted; on cgb202 rot_zx_moved a few small faces swap with look-alikes as a result. Related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces); faces whose quadrature gives no area are already fingerprinted as of unknown area."
+    "reason": "Two kernel defects. (1) Sphere faces: cgb202's corner patches are spherical triangles (radius 3) one of whose edges is a great circle through the sphere's poles (face 240: edge 673; face 268: edge 741), and the kernel's area for them (mass.rs face_integral, through face_mass and face_moments) depends on placement, by several times: face 240 is 9.034 mm2 unmoved (OpenCascade: 9.034) but 61.75 translated, faces 268 and 276 7.43 (OpenCascade 7.43) but 26.12 translated; faces 183 and 284 are already 26.12 unmoved where OpenCascade gives no sphere face of that area. The pole handling in boundary_nodes/curve_cuts is the likely place (not yet confirmed). (2) B-spline quadrature as for cgb207: B-spline faces matched to themselves but reported adapted (area, normal). Here the sphere areas swap: old faces 183 and 284 (wrong, 26.12) match new faces 268 and 276, whose areas are wrong the same way in this placement, and are reported adapted (centroid and normal moved by over 100 mm): a wrong face accepted, flagged only by its changes. Face 240 is orphaned, 268 and 276 ambiguous, and B-spline faces 762 and 1465 adapted.",
+    "features": [],
+    "faces": 7
   },
   {
     "test": "invariance",
     "file": "cadgenbench_inputs/cgb207.step",
     "motion": "translate",
     "verdict": "rust-wrong",
-    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The faces are matched to themselves but reported adapted; on cgb202 rot_zx_moved a few small faces swap with look-alikes as a result. Related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces); faces whose quadrature gives no area are already fingerprinted as of unknown area."
+    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The listed faces are B-spline faces matched to themselves but reported adapted (area, normal). Possibly related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces).",
+    "features": [],
+    "faces": 4
   },
   {
     "test": "invariance",
     "file": "cadgenbench_inputs/cgb207.step",
     "motion": "rot_x90",
     "verdict": "rust-wrong",
-    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The faces are matched to themselves but reported adapted; on cgb202 rot_zx_moved a few small faces swap with look-alikes as a result. Related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces); faces whose quadrature gives no area are already fingerprinted as of unknown area."
+    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The listed faces are B-spline faces matched to themselves but reported adapted (area, normal). Possibly related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces).",
+    "features": [],
+    "faces": 1
   },
   {
     "test": "invariance",
     "file": "cadgenbench_inputs/cgb207.step",
     "motion": "cycle_xyz",
     "verdict": "rust-wrong",
-    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The faces are matched to themselves but reported adapted; on cgb202 rot_zx_moved a few small faces swap with look-alikes as a result. Related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces); faces whose quadrature gives no area are already fingerprinted as of unknown area."
+    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The listed faces are B-spline faces matched to themselves but reported adapted (area, normal). Possibly related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces).",
+    "features": [],
+    "faces": 1
   },
   {
     "test": "invariance",
     "file": "cadgenbench_inputs/cgb207.step",
     "motion": "rot_zx_moved",
     "verdict": "rust-wrong",
-    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The faces are matched to themselves but reported adapted; on cgb202 rot_zx_moved a few small faces swap with look-alikes as a result. Related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces); faces whose quadrature gives no area are already fingerprinted as of unknown area."
+    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The listed faces are B-spline faces matched to themselves but reported adapted (area, normal). Possibly related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces).",
+    "features": [],
+    "faces": 2
   },
   {
     "test": "invariance",
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "motion": "translate",
     "verdict": "rust-wrong",
-    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The faces are matched to themselves but reported adapted; on cgb202 rot_zx_moved a few small faces swap with look-alikes as a result. Related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces); faces whose quadrature gives no area are already fingerprinted as of unknown area."
+    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The listed faces are B-spline faces matched to themselves but reported adapted (area, normal). Possibly related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces).",
+    "features": [],
+    "faces": 13
   },
   {
     "test": "invariance",
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "motion": "rot_x90",
     "verdict": "rust-wrong",
-    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The faces are matched to themselves but reported adapted; on cgb202 rot_zx_moved a few small faces swap with look-alikes as a result. Related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces); faces whose quadrature gives no area are already fingerprinted as of unknown area."
+    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The listed faces are B-spline faces matched to themselves but reported adapted (area, normal). Possibly related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces).",
+    "features": [],
+    "faces": 15
   },
   {
     "test": "invariance",
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "motion": "cycle_xyz",
     "verdict": "rust-wrong",
-    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The faces are matched to themselves but reported adapted; on cgb202 rot_zx_moved a few small faces swap with look-alikes as a result. Related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces); faces whose quadrature gives no area are already fingerprinted as of unknown area."
+    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The listed faces are B-spline faces matched to themselves but reported adapted (area, normal). Possibly related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces).",
+    "features": [],
+    "faces": 15
   },
   {
     "test": "invariance",
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "motion": "rot_zx_moved",
     "verdict": "rust-wrong",
-    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The faces are matched to themselves but reported adapted; on cgb202 rot_zx_moved a few small faces swap with look-alikes as a result. Related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces); faces whose quadrature gives no area are already fingerprinted as of unknown area."
+    "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The listed faces are B-spline faces matched to themselves but reported adapted (area, normal). Possibly related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces).",
+    "features": [],
+    "faces": 11
   },
   {
     "test": "invariance",
     "file": "nist/nist_ctc_05_asme1_rd.stp",
     "motion": "translate",
     "verdict": "rust-wrong",
-    "reason": "A hole's depth, rounded to 0.01 mm as Python rounds it, lies on a half-way point of that grid (92.075, 59.075), so round-off from the placement decides which way it rounds: the record itself changes, and the correspondence honestly reports the hole adapted (to itself). The recogniser's rounding, not correspondence, is at fault; Python behaves the same."
+    "reason": "A hole's depth, rounded to 0.01 mm as Python rounds it, lies on a half-way point of that grid (92.075, 59.075), so round-off from the placement decides which way it rounds: the record itself changes, and the correspondence honestly reports the hole adapted (to itself). The recogniser's rounding, not correspondence, is at fault; Python behaves the same.",
+    "features": [
+      "holes/14"
+    ],
+    "faces": 0
   },
   {
     "test": "invariance",
     "file": "nist/nist_ctc_05_asme1_rd.stp",
     "motion": "rot_zx_moved",
     "verdict": "rust-wrong",
-    "reason": "A hole's depth, rounded to 0.01 mm as Python rounds it, lies on a half-way point of that grid (92.075, 59.075), so round-off from the placement decides which way it rounds: the record itself changes, and the correspondence honestly reports the hole adapted (to itself). The recogniser's rounding, not correspondence, is at fault; Python behaves the same."
+    "reason": "A hole's depth, rounded to 0.01 mm as Python rounds it, lies on a half-way point of that grid (92.075, 59.075), so round-off from the placement decides which way it rounds: the record itself changes, and the correspondence honestly reports the hole adapted (to itself). The recogniser's rounding, not correspondence, is at fault; Python behaves the same.",
+    "features": [
+      "holes/14"
+    ],
+    "faces": 0
   },
   {
     "test": "invariance",
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "motion": "rot_zx_moved",
     "verdict": "rust-wrong",
-    "reason": "A hole's depth, rounded to 0.01 mm as Python rounds it, lies on a half-way point of that grid (92.075, 59.075), so round-off from the placement decides which way it rounds: the record itself changes, and the correspondence honestly reports the hole adapted (to itself). The recogniser's rounding, not correspondence, is at fault; Python behaves the same."
+    "reason": "A hole's depth, rounded to 0.01 mm as Python rounds it, lies on a half-way point of that grid (92.075, 59.075), so round-off from the placement decides which way it rounds: the record itself changes, and the correspondence honestly reports the hole adapted (to itself). The recogniser's rounding, not correspondence, is at fault; Python behaves the same.",
+    "features": [
+      "holes/18"
+    ],
+    "faces": 0
   }
 ]

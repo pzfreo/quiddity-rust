@@ -318,6 +318,7 @@ pub fn align(old: &Fingerprints, new: &Fingerprints, th: &Thresholds) -> (Motion
                 symmetric,
                 axisymmetric: false,
                 axis: None,
+                fold: None,
                 rms: 0.0,
             },
         )
@@ -372,6 +373,26 @@ pub fn align(old: &Fingerprints, new: &Fingerprints, th: &Thresholds) -> (Motion
     } else {
         None
     };
+    // On a turned part, fix the turn about the axis from the off-axis repeats.
+    if let Some([o, d]) = axis
+        && let Some((turned, support, fold)) = resolve_turn(old, new, th, &m, o, d, scale)
+    {
+        return (
+            turned,
+            Alignment {
+                found: true,
+                rotation: turned.r,
+                translation: turned.t,
+                anchors,
+                inliers: count + support,
+                symmetric: fold > 1,
+                axisymmetric: false,
+                axis: None,
+                fold: Some(fold),
+                rms,
+            },
+        );
+    }
     // Symmetric: another motion, distinctly different, that as many anchors agree with.
     let symmetric = axisymmetric
         || rivals
@@ -388,9 +409,160 @@ pub fn align(old: &Fingerprints, new: &Fingerprints, th: &Thresholds) -> (Motion
             symmetric,
             axisymmetric,
             axis,
+            fold: None,
             rms,
         },
     )
+}
+
+/// The rotation by *angle* about unit direction *d*.
+fn rotation_about(d: V3, angle: f64) -> [[f64; 3]; 3] {
+    let (s, c) = angle.sin_cos();
+    let k = [[0.0, -d[2], d[1]], [d[2], 0.0, -d[0]], [-d[1], d[0], 0.0]];
+    let mut r = [[0.0; 3]; 3];
+    for i in 0..3 {
+        for j in 0..3 {
+            r[i][j] = (1.0 - c) * d[i] * d[j] + s * k[i][j] + if i == j { c } else { 0.0 };
+        }
+    }
+    r
+}
+
+/// The turn about an axisymmetric alignment's line (through *o* along *d*, in the new frame)
+/// that the off-axis repeats agree on. Every pair of alike features (or faces) off the line votes
+/// for the turn taking the old one, moved, onto the new one; the turns most old items vote for
+/// win. A part with k-fold symmetry about the line has k winning turns, as alike as each other:
+/// the one giving the motion nearest the identity is taken, as for any symmetric part, and k is
+/// reported (`fold`). Returns the turned motion, how many old items agree with it, and k; `None`
+/// when fewer than two off-axis items agree on any turn.
+fn resolve_turn(
+    old: &Fingerprints,
+    new: &Fingerprints,
+    th: &Thresholds,
+    m: &Motion,
+    o: V3,
+    d: V3,
+    scale: f64,
+) -> Option<(Motion, usize, usize)> {
+    let tol = th.position_tol * scale;
+    let cos_tol = th.angle_tol.cos();
+    // (old key, old anchor, new anchor); old keys: features, then faces offset past them.
+    let mut items: Vec<(usize, Anchor, Anchor)> = Vec::new();
+    let feature_pairs = candidates(
+        &old.features,
+        &new.features,
+        |a, b| same_feature(a, b, th.same_rel),
+        th.turn_candidates,
+    );
+    for (i, j, _) in feature_pairs {
+        if let (Some(a), Some(b)) = (
+            feature_anchor(&old.features[i]),
+            feature_anchor(&new.features[j]),
+        ) {
+            items.push((i, a, b));
+        }
+    }
+    let face_pairs = candidates(
+        &old.faces,
+        &new.faces,
+        |a, b| same_face(a, b, th.same_rel),
+        th.turn_candidates,
+    );
+    for (i, j, _) in face_pairs {
+        items.push((
+            old.features.len() + i,
+            face_anchor(&old.faces[i]),
+            face_anchor(&new.faces[j]),
+        ));
+    }
+    let split = |x: V3| {
+        let v = geom::sub(x, o);
+        let along = geom::dot(v, d);
+        (along, geom::sub(v, geom::scale(d, along)))
+    };
+    // Votes: (turn, its tolerance, item).
+    let mut votes: Vec<(f64, f64, usize)> = Vec::new();
+    for (k, (_, a, b)) in items.iter().enumerate() {
+        let (a1, ra) = split(m.point(a.point));
+        let (a2, rb) = split(b.point);
+        let r = geom::norm(rb);
+        if r <= 10.0 * tol || (a1 - a2).abs() > tol || (geom::norm(ra) - r).abs() > tol {
+            continue;
+        }
+        let angle = geom::dot(d, geom::cross(ra, rb)).atan2(geom::dot(ra, rb));
+        votes.push((angle, tol / r + th.angle_tol, k));
+    }
+    votes.sort_by(|x, y| x.0.total_cmp(&y.0));
+    // Clusters of agreeing turns, the one across ±π joined.
+    let mut clusters: Vec<Vec<usize>> = Vec::new();
+    for v in 0..votes.len() {
+        match clusters.last_mut() {
+            Some(c) if votes[v].0 - votes[v - 1].0 <= votes[v].1 + votes[v - 1].1 => c.push(v),
+            _ => clusters.push(vec![v]),
+        }
+    }
+    if clusters.len() > 1 {
+        let (first, last) = (votes[0], votes[votes.len() - 1]);
+        if first.0 + 2.0 * std::f64::consts::PI - last.0 <= first.1 + last.1 {
+            let mut joined = clusters.pop().unwrap();
+            joined.append(&mut clusters[0]);
+            clusters[0] = joined;
+        }
+    }
+    // Each cluster's turn (the vote furthest from the line, the most exact) and how many old
+    // items agree with it, directions included.
+    let turned = |angle: f64| {
+        let rt = rotation_about(d, angle);
+        let turn = Motion { r: rt, t: [0.0; 3] };
+        let mut r = [[0.0; 3]; 3];
+        for i in 0..3 {
+            for j in 0..3 {
+                r[i][j] = (0..3).map(|k| rt[i][k] * m.r[k][j]).sum();
+            }
+        }
+        Motion {
+            r,
+            t: geom::add(o, turn.dir(geom::sub(m.t, o))),
+        }
+    };
+    let mut scored: Vec<(Motion, usize)> = Vec::new();
+    for c in &clusters {
+        let Some(&best) = c
+            .iter()
+            .min_by(|x, y| votes[**x].1.total_cmp(&votes[**y].1))
+        else {
+            continue;
+        };
+        let motion = turned(votes[best].0);
+        let mut keys: Vec<usize> = c
+            .iter()
+            .map(|&v| votes[v].2)
+            .filter(|&k| {
+                let (_, a, b) = &items[k];
+                geom::dist(motion.point(a.point), b.point) <= tol
+                    && match (a.dir, b.dir) {
+                        (Some(da), Some(db)) => {
+                            let c = geom::dot(motion.dir(da), db);
+                            (if a.line { c.abs() } else { c }) >= cos_tol
+                        }
+                        _ => true,
+                    }
+            })
+            .map(|k| items[k].0)
+            .collect();
+        keys.sort_unstable();
+        keys.dedup();
+        scored.push((motion, keys.len()));
+    }
+    let most = scored.iter().map(|s| s.1).max()?;
+    if most < 2 {
+        return None;
+    }
+    let tied: Vec<&(Motion, usize)> = scored.iter().filter(|s| s.1 == most).collect();
+    let chosen = tied.iter().min_by(|x, y| {
+        distance_from_identity(&x.0, scale).total_cmp(&distance_from_identity(&y.0, scale))
+    })?;
+    Some((chosen.0, most, tied.len()))
 }
 
 fn distance_from_identity(m: &Motion, scale: f64) -> f64 {

@@ -57,7 +57,10 @@ pub fn recognise(part: &Part) -> Recognition {
 ///
 /// - The *tolerances* (`same_rel`, `position_tol`, `angle_tol`) only have to absorb round-off:
 ///   a corpus part read moved and turned gives analytic fingerprints equal to ~1e-9 relative,
-///   and so do a build123d revision's unchanged faces. They sit three or four orders above that
+///   and so do a build123d revision's unchanged faces. The exception is a kernel defect, not
+///   round-off: a sphere face whose boundary runs through the sphere's pole (cgb202's corner
+///   patches) gets an area from the kernel that changes several-fold with the placement, listed
+///   in `known_correspondence.json`; no tolerance would absorb it. They sit three or four orders above that
 ///   and well below any design change (a micron on a 100 mm part). `freeform_rel` is looser
 ///   because the kernel's B-spline quadrature moves with the placement (up to 2e-4 on most
 ///   faces, more on a few listed in `known_correspondence.json`).
@@ -88,6 +91,10 @@ pub struct Thresholds {
     pub angle_tol: f64,
     /// An anchor with more candidates than this in the other revision is not used to align.
     pub anchor_candidates: usize,
+    /// On a turned part, items off the axis with up to this many candidates vote for the turn
+    /// about it (repeats round a bolt circle have as many candidates as the circle has holes,
+    /// or twice that with two alike flanges).
+    pub turn_candidates: usize,
     /// At most this many candidate anchor pairs, the most distinctive first.
     pub anchor_pairs: usize,
     /// Hypotheses tried, of each size (two pairs, three pairs), when there are more.
@@ -122,6 +129,7 @@ impl Default for Thresholds {
             position_tol: 1e-5,
             angle_tol: 1e-5,
             anchor_candidates: 4,
+            turn_candidates: 64,
             anchor_pairs: 400,
             hypotheses: 3000,
             min_inliers: 3,
@@ -143,9 +151,11 @@ impl Default for Thresholds {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Class {
-    /// The same, unchanged.
+    /// The same, unchanged. In an unaligned result (`Alignment::found` false) placement is not
+    /// compared, since there is no frame to compare it in: carried then means unchanged in
+    /// semantics and neighbourhood (a face: parameters, area and adjacency), wherever it is.
     Carried,
-    /// The same, with changed parameters (in `changes`).
+    /// The same, with changed parameters (in `changes`; placement only when aligned).
     Adapted,
     /// Two or more candidates within the margin: none is guessed.
     Ambiguous,
@@ -170,13 +180,19 @@ pub struct Alignment {
     /// set when every anchor lies on one line (an axisymmetric part), whose turn about that line
     /// the anchors leave free (`axisymmetric`).
     pub symmetric: bool,
-    /// Every anchor lies on one line, so the motion's turn about that line is arbitrary: positions
-    /// are compared by their distance along and from the line, and directions by their angle to
-    /// it.
+    /// Every anchor lies on one line and no off-axis repeats fix the turn about it (see `fold`),
+    /// so that turn is arbitrary: positions are compared by their distance along and from the
+    /// line, and directions by their angle to it.
     pub axisymmetric: bool,
     /// That line in the new revision: a point on it and its direction.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub axis: Option<[V3; 2]>,
+    /// When the anchors lay on one line but repeats off it then fixed the turn about it: how many
+    /// turns fit them equally, the part's rotational symmetry about the line (1 when the turn is
+    /// unique). The turn giving the motion nearest the identity is taken, and `symmetric` is set
+    /// when there are several.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fold: Option<usize>,
     /// Root mean square distance of the inlier anchors after alignment, mm.
     pub rms: f64,
 }

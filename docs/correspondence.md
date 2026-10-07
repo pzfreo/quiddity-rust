@@ -144,13 +144,16 @@ two STEP files) and writes the `Correspondence`. In the library: `correspondence
     the frame (a ramp's half-widths) is sorted;
   - *placement*: the first axis-like field (a vector or an axis letter) as a line, and the
     area-weighted centroid of the defining faces. Derived patterns take their members' faces.
-  - *neighbourhood*: as draftwright's bridge writes it.
+  - *neighbourhood*: in draftwright's bridge format, with the arc labels below (which depart
+    from the bridge's on nearly tangent edges).
 - **Faces:** the effective surface type (a B-spline exactly a plane, cylinder… counts as one),
   its intrinsic parameters, axis or outward normal and support point, area, centroid and mean
   outward normal (`Part::face_moments`, the boundary quadrature of `face_mass`), neighbours with
   their arcs, and the sorted adjacency signature. Two departures from the kernel, both for
-  invariance: an edge whose normals are within 1e-3 of parallel is recorded `smooth` (and within
-  1e-3 of opposite `unknown`), because the kernel's convex/concave call there follows round-off
+  invariance: a pair of faces whose shared edges all have normals within 1e-3 (1 − cos, about
+  2.6°) of parallel is recorded `smooth` (all within 1e-3 of opposite, `unknown`), a departure
+  from the kernel's labels and so from the bridge's (a genuine crease shallower than 2.6° reads
+  as smooth), because the kernel's convex/concave call there follows round-off
   and changed with a mere translation on nist_ftc_07, mfcadpp 11512 and sm-hanger; and a face
   whose quadrature gives no area (nist_ftc_10 face 174, stream F's defect) has an unknown area
   and its edge samples' mean as centroid.
@@ -164,8 +167,12 @@ two STEP files) and writes the `Correspondence`. In the library: `correspondence
   without reflections); the most inliers win, then the smallest residual, then the motion nearest
   the identity. When every agreeing anchor lies on one line (a turned part), the alignment is
   *axisymmetric*: positions are compared by their distance along and from that line and
-  directions by their angle to it, since the turn about it is free. `symmetric` records that
-  another motion fits as well.
+  directions by their angle to it. The turn about the line is then fixed from the off-axis
+  repeats (features and faces alike with up to 64 candidates): each pair votes for the turn
+  taking the old item onto the new one, and the turn most old items agree with wins. A part with
+  k-fold symmetry about its axis has k such turns (`fold`); the one giving the motion nearest the
+  identity is taken. Only a part with no off-axis repeats stays axisymmetric. `symmetric` records
+  that another motion fits as well.
 - **Features** (`mod.rs`, `assign.rs`): per family, cost = semantics (trait mismatch and mean
   relative size difference) + neighbourhood (multiset distance) + placement (half axis, half
   position). Aligned, a displacement costs its logarithm in tolerances (so millimetres separate
@@ -173,7 +180,9 @@ two STEP files) and writes the `Correspondence`. In the library: `correspondence
   square with an unmatched option at half the cut-off. A match is ambiguous when forcing another
   candidate (or none) costs less than the margin more; the duals' reduced costs bound that, and
   only the candidates under the bound are solved again. Matches are carried when nothing changed
-  within the tolerances, adapted otherwise with the changes field by field.
+  within the tolerances, adapted otherwise with the changes field by field. Unaligned, there is
+  no common frame, so placement is left out of the changes: carried then means unchanged in
+  everything but placement (the thickened plate's top face, 5 mm higher, is carried).
 - **Faces** (`faces.rs`): seeds are faces on one surface after alignment that overlap (estimated:
   areas within 80% and centroids within 20% of the smaller face's size; the fingerprints carry no
   boundary to intersect), then the faces of carried and adapted features assigned within each
@@ -189,10 +198,11 @@ two STEP files) and writes the `Correspondence`. In the library: `correspondence
 
 | Threshold | Value | Basis |
 |---|---|---|
-| `same_rel` | 1e-6 | round-off: moved analytic fingerprints agree to ~1e-9 |
+| `same_rel` | 1e-6 | round-off: moved analytic fingerprints agree to ~1e-9 (except the kernel's sphere-pole areas, below) |
 | `freeform_rel` | 1e-3 | B-spline quadrature moves with placement by up to ~2e-4 |
 | `position_tol`, `angle_tol` | 1e-5 × scale, 1e-5 rad | round-off, far below a design change |
 | `anchor_candidates` | 4 | keeps two- and four-fold symmetric faces as anchors |
+| `turn_candidates` | 64 | a turned part's off-axis repeats (24 alike holes on the spool's two flanges) vote for the turn |
 | `min_inliers`, `min_inlier_fraction` | 3, 0.5 | aligned revision pairs keep ≥ 70% |
 | `placement_reach`, `unaligned_placement` | 0.25 × scale, 0.1 | a whole-reach move costs 1 |
 | `cutoff` | 1.0 | matched revision costs are 0.06–0.5 |
@@ -201,22 +211,32 @@ two STEP files) and writes the `Correspondence`. In the library: `correspondence
 ### Results
 
 - **Invariance** (`tests/correspondence.rs`): 100 corpus parts × 6 motions, 10 716 features and
-  64 014 faces. Every feature and face is carried to itself except in 22 listed (file, motion)
-  cases in `tests/fixtures/known_correspondence.json`, each with a verdict: the six-fold bolt
-  circle of `flanged_spool_132` under an axisymmetric alignment (rust-correct: ambiguous, not
-  guessed); B-spline face areas that change with placement by up to 0.7% on cgb202, cgb207 and
-  cgb242 (rust-wrong, kernel quadrature); a surface recovered as a plane in one placement only on
-  threaded_connector_109 (rust-wrong, recover.rs); hole depths on a rounding half-way point on
-  nist_ctc_05 and cgb217 (rust-wrong, the recogniser's rounding). Families listed in
-  `known_invariance.json` are left out where listed.
+  64 014 faces. Every feature and face is carried to itself except in 19 listed (file, motion)
+  cases in `tests/fixtures/known_correspondence.json`, each with a verdict and the exact features
+  and face count that differ (any other difference in a listed case still fails):
+  - `flanged_spool_132` under three of the turns (rust-correct): the part is six-fold symmetric
+    about its axis, the turn is fixed from the off-axis repeats with six turns fitting equally
+    (`fold` 6), and the identity-nearest one is a 30° turn rather than the motion's own, so the
+    42 off-axis features and 72 faces are carried consistently onto their symmetric copies;
+  - cgb202 (rust-wrong): sphere corner patches with a great-circle edge through the sphere's
+    pole get a kernel area that changes several-fold with placement (face 240: 9.03 mm² unmoved,
+    as OpenCascade, 61.75 translated), so they are orphaned, ambiguous or, under rot_zx_moved,
+    matched to the wrong face and reported adapted; and B-spline quadrature as below;
+  - cgb207, cgb242 (rust-wrong): B-spline face areas that change with placement by up to 0.7%;
+  - threaded_connector_109 (rust-wrong): a surface recovered as a plane in one placement only
+    (recover.rs);
+  - nist_ctc_05 and cgb217 (rust-wrong): hole depths on a rounding half-way point.
+
+  Families listed in `known_invariance.json` are left out where listed.
 - **Revision pairs** (`tools/capture_revisions.py`, `tests/fixtures/revisions/`, 10 pairs): a hole
   moved (adapted, `position`), the boss resized (adapted, `sizes.diameter`), a hole added (new)
   and removed (orphaned), the boss removed (orphaned), the whole part turned and moved (all
   carried), the part moved with a hole moved (adapted), a row of holes grown from four to six (the
   pattern adapted with `sizes.count`, two holes new), a fillet radius changed (adapted), and the
   plate thickened (unaligned; distinct holes and a 20 mm row adapted with `sizes.depth`, a 5 mm
-  row ambiguous). Every other feature is checked carried. All checks pass, with no listed
-  differences.
+  row ambiguous). Every other feature is checked carried, each carried feature's faces (patterns
+  aside) carried onto its partner's, and every face of the whole-part motion carried. All checks
+  pass, with no listed differences.
 
 ### Not done
 

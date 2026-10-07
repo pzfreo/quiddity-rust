@@ -48,7 +48,8 @@ pub struct FeatureFingerprint {
     pub faces: Vec<usize>,
     /// Neighbourhood: for each of its faces and each face that one meets,
     /// `type>in|out:type:convex|concave|smooth|unknown` (`in` when the neighbour is its own),
-    /// sorted: its subgraph of the attributed adjacency graph, as draftwright's bridge writes it.
+    /// sorted: its subgraph of the attributed adjacency graph, in draftwright's bridge format (with
+    /// the arc labels of [`arc_label`], which differ from the bridge's on nearly tangent edges).
     pub neighbourhood: Vec<String>,
 }
 
@@ -346,27 +347,39 @@ fn neighbourhood(faces: &[FaceFingerprint], own: &[usize]) -> Vec<String> {
 const NEAR_TANGENT: f64 = 1e-3;
 
 /// How the solid turns where faces *a* and *b* meet, as the fingerprint records it: the kernel's
-/// [`Part::arc`], except that a nearly tangent edge is `smooth` and a nearly folded one
-/// `unknown`, since which way such an edge turns can change when the part is merely moved.
+/// [`Part::arc`], except that where every shared edge is nearly tangent the pair is `smooth`,
+/// and where every one is nearly folded `unknown`, since which way such an edge turns can change
+/// when the part is merely moved. This departs from the kernel's labels, and so from
+/// draftwright's bridge, on those edges only: a genuine crease shallower than about 2.6 degrees
+/// is recorded `smooth`.
 fn arc_label(part: &Part, a: usize, b: usize) -> &'static str {
     let arc = part.arc(a, b);
+    let (mut tangent, mut folded, mut other) = (0, 0, 0);
     for e in part.shared_edges(a, b) {
         let p = part.edges[e].midpoint();
         let normal = |f: usize| {
             let (u, v) = part.faces[f].surface.parameters(p, None)?;
             part.face_normal(f, u, v)
         };
-        if let (Some(x), Some(y)) = (normal(a), normal(b)) {
-            let c = geom::dot(x, y);
-            if 1.0 - c < NEAR_TANGENT {
-                return "smooth";
+        match (normal(a), normal(b)) {
+            (Some(x), Some(y)) => {
+                let c = geom::dot(x, y);
+                if 1.0 - c < NEAR_TANGENT {
+                    tangent += 1;
+                } else if 1.0 + c < NEAR_TANGENT {
+                    folded += 1;
+                } else {
+                    other += 1;
+                }
             }
-            if 1.0 + c < NEAR_TANGENT {
-                return "unknown";
-            }
+            _ => other += 1,
         }
     }
-    arc_name(arc)
+    match (tangent, folded, other) {
+        (t, 0, 0) if t > 0 => "smooth",
+        (0, f, 0) if f > 0 => "unknown",
+        _ => arc_name(arc),
+    }
 }
 
 fn arc_name(arc: Option<Arc>) -> &'static str {

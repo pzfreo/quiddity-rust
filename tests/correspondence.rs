@@ -4,7 +4,9 @@
 //!   corresponds with its unmoved self with every feature and every face carried, each to the
 //!   very feature (same defining faces) and face (same index) it is.
 //! - Revision pairs: build123d parts revised as a designer would (`tools/capture_revisions.py`,
-//!   `tests/fixtures/revisions/`), each feature's class checked against the expected one.
+//!   `tests/fixtures/revisions/`), each feature's class checked against the expected one, each
+//!   carried feature's faces (patterns aside) checked carried onto its partner's, and every face of a whole-part
+//!   motion checked carried.
 //!
 //! Differences are listed with verdicts in `tests/fixtures/known_correspondence.json`; the test
 //! fails on an unlisted one and on a listed one that has gone.
@@ -62,21 +64,32 @@ fn faces_of<'a>(f: &'a Fingerprints, id: &str) -> &'a [usize] {
     &f.features.iter().find(|x| x.id == id).unwrap().faces
 }
 
-/// The problems with a correspondence of a part with itself moved: anything not carried to
-/// itself. Families whose recognition is listed as not invariant (`known_invariance.json`) are
-/// left out, with the patterns made of them.
+/// What a correspondence of a part with itself moved gets wrong: the old features not carried
+/// to themselves (and new features, as `new:<id>`), the faces not carried to themselves, and a
+/// description. Families whose recognition is listed as not invariant (`known_invariance.json`)
+/// are left out, with the patterns made of them.
+struct Problems {
+    features: Vec<String>,
+    faces: usize,
+    text: Vec<String>,
+}
+
 fn invariance_problems(
     old: &Fingerprints,
     new: &Fingerprints,
     c: &Correspondence,
     skip: &[String],
-) -> Vec<String> {
+) -> Problems {
     let skipped = |id: &str| {
         let family = id.split('/').next().unwrap();
         skip.iter()
             .any(|s| family == s || (s == "holes" && family == "hole_patterns"))
     };
-    let mut out = Vec::new();
+    let mut out = Problems {
+        features: Vec::new(),
+        faces: 0,
+        text: Vec::new(),
+    };
     for e in &c.features {
         if skipped(&e.old) {
             continue;
@@ -86,7 +99,8 @@ fn invariance_problems(
                 .as_deref()
                 .is_some_and(|n| faces_of(new, n) == faces_of(old, &e.old));
         if !ok {
-            out.push(format!(
+            out.features.push(e.old.clone());
+            out.text.push(format!(
                 "feature {} {:?} → {:?} {:?} {:?}",
                 e.old, e.class, e.new, e.candidates, e.changes
             ));
@@ -94,7 +108,8 @@ fn invariance_problems(
     }
     for id in &c.new_features {
         if !skipped(id) {
-            out.push(format!("feature {id} new"));
+            out.features.push(format!("new:{id}"));
+            out.text.push(format!("feature {id} new"));
         }
     }
     let faces: Vec<String> = c
@@ -103,8 +118,9 @@ fn invariance_problems(
         .filter(|e| !(e.class == Class::Carried && e.new == Some(e.old)))
         .map(|e| format!("face {} {:?} → {:?} {:?}", e.old, e.class, e.new, e.changes))
         .collect();
+    out.faces = faces.len();
     if !faces.is_empty() {
-        out.push(format!(
+        out.text.push(format!(
             "{} faces not carried to themselves, e.g. {}",
             faces.len(),
             faces[0]
@@ -112,6 +128,10 @@ fn invariance_problems(
     }
     out
 }
+
+/// A listed invariance case: (file, motion), and the features and face count that differ.
+type Case = (String, String);
+type Listed = (Vec<String>, usize);
 
 fn known() -> Vec<Value> {
     let known = common::load("known_correspondence.json");
@@ -130,13 +150,28 @@ fn corpus_parts_correspond_with_themselves_moved() {
         eprintln!("corpus not found; set QUIDDITY_CORPUS");
         return;
     };
-    let known: Vec<(String, String)> = known()
+    // Each listed case pins exactly which features and how many faces differ, so any other
+    // difference in it still fails.
+    let known: Vec<(Case, Listed)> = known()
         .iter()
         .filter(|k| k["test"] == "invariance")
         .map(|k| {
+            let mut features: Vec<String> = k["features"]
+                .as_array()
+                .expect("an invariance entry lists its features")
+                .iter()
+                .map(|x| x.as_str().unwrap().to_string())
+                .collect();
+            features.sort();
             (
-                k["file"].as_str().unwrap().to_string(),
-                k["motion"].as_str().unwrap().to_string(),
+                (
+                    k["file"].as_str().unwrap().to_string(),
+                    k["motion"].as_str().unwrap().to_string(),
+                ),
+                (
+                    features,
+                    k["faces"].as_u64().expect("and its face count") as usize,
+                ),
             )
         })
         .collect();
@@ -167,24 +202,36 @@ fn corpus_parts_correspond_with_themselves_moved() {
             features += old.features.len();
             faces += old.faces.len();
             let key = (name.to_string(), motion.to_string());
-            if known.contains(&key) {
-                if found.is_empty() {
+            let mut got = found.features.clone();
+            got.sort();
+            if let Some((_, listed)) = known.iter().find(|k| k.0 == key) {
+                if found.text.is_empty() {
                     problems.push(format!("{key:?} is listed but now carried: remove it"));
+                } else if (got.clone(), found.faces) != *listed {
+                    problems.push(format!(
+                        "{key:?} is listed with features {:?} and {} faces, but now {got:?} and {} faces: {}",
+                        listed.0,
+                        listed.1,
+                        found.faces,
+                        found.text.join("; ")
+                    ));
                 }
                 seen.push(key);
                 continue;
             }
-            if !found.is_empty() {
+            if !found.text.is_empty() {
                 problems.push(format!(
-                    "{name} {motion} (aligned {}, symmetric {}): {}",
+                    "{name} {motion} (aligned {}, symmetric {}, fold {:?}): {} | features {got:?}, faces {}",
                     c.alignment.found,
                     c.alignment.symmetric,
-                    found.join("; ")
+                    c.alignment.fold,
+                    found.text.join("; "),
+                    found.faces
                 ));
             }
         }
     }
-    for key in &known {
+    for (key, _) in &known {
         if !seen.contains(key) {
             problems.push(format!("{key:?} is listed but was not checked"));
         }
@@ -254,6 +301,37 @@ fn revision_pairs_have_their_expected_classes() {
             if !expected_ids.contains(id) {
                 results.push((format!("other new {id}"), false, "unexpectedly new".into()));
             }
+        }
+        // Faces: each carried feature's faces carried onto its partner's faces, and with nothing
+        // expected to change (a whole-part motion), every face carried and none new.
+        // (A pattern's faces are its members', which are checked as features in their own right.)
+        for e in &c.features {
+            if e.class != Class::Carried || e.old.split('/').next().unwrap().ends_with("_patterns")
+            {
+                continue;
+            }
+            let theirs = faces_of(&new, e.new.as_deref().unwrap());
+            for &f in faces_of(&old, &e.old) {
+                let fe = &c.faces[f];
+                results.push((
+                    format!("faces of {}: face {f} carried", e.old),
+                    fe.class == Class::Carried && fe.new.is_some_and(|n| theirs.contains(&n)),
+                    format!("{:?} → {:?} {:?}", fe.class, fe.new, fe.changes),
+                ));
+            }
+        }
+        if case["expect"].as_array().unwrap().is_empty() {
+            let moved: Vec<String> = c
+                .faces
+                .iter()
+                .filter(|e| e.class != Class::Carried)
+                .map(|e| format!("{} {:?}", e.old, e.class))
+                .collect();
+            results.push((
+                "every face carried".into(),
+                moved.is_empty() && c.new_faces.is_empty(),
+                format!("{moved:?}, new {:?}", c.new_faces),
+            ));
         }
         for (check, ok, got) in results {
             checked += 1;
