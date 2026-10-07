@@ -81,6 +81,11 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
         "recognise_round_bottom_blind_slots" => {
             json(quiddity::recognise_round_bottom_blind_slots(part))
         }
+        "recognise_gusset_ribs" => json(quiddity::recognise_gusset_ribs(part)),
+        // Over a part: the patterns among the part's gusset ribs.
+        "recognise_gusset_rib_patterns" => json(quiddity::recognise_gusset_rib_patterns(
+            &quiddity::recognise_gusset_ribs(part),
+        )),
         // Over a part: the patterns among the part's holes found with these hole options.
         "recognise_hole_patterns" => json(recognise_hole_patterns(&recognise_holes(
             part,
@@ -154,6 +159,7 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
         "recognise_round_bottom_blind_slots" => {
             quiddity::features::round_bottom_slots::discover_verified(&ctx).map(faces)
         }
+        "recognise_gusset_ribs" => quiddity::features::gussets::discover_verified(&ctx).map(faces),
         other => panic!("{other} has no evidence path"),
     };
     result.map_err(|e| e.to_string())
@@ -169,6 +175,11 @@ pub fn recognise_records(function: &str, arguments: &Value) -> Value {
         "recognise_hole_patterns" => {
             let holes: Vec<HoleRecord> = serde_json::from_value(arguments[0].clone()).unwrap();
             json(recognise_hole_patterns(&holes))
+        }
+        "recognise_gusset_rib_patterns" => {
+            let ribs: Vec<quiddity::GussetRib> =
+                serde_json::from_value(arguments[0].clone()).unwrap();
+            json(quiddity::recognise_gusset_rib_patterns(&ribs))
         }
         other => panic!("{other} takes a part"),
     }

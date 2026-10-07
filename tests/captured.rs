@@ -180,3 +180,13 @@ fn turned_steps_match_python() {
 fn round_bottom_blind_slots_match_python() {
     replay("recognise_round_bottom_blind_slots");
 }
+
+#[test]
+fn gusset_ribs_match_python() {
+    replay("recognise_gusset_ribs");
+}
+
+#[test]
+fn gusset_rib_patterns_match_python() {
+    replay("recognise_gusset_rib_patterns");
+}

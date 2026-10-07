@@ -52,7 +52,8 @@ pub enum HolePattern {
     },
 }
 
-fn pattern_tol(nominal: f64) -> f64 {
+/// `_pattern_geometry._pattern_tol`: what two pattern members' spacings may differ by.
+pub(crate) fn pattern_tol(nominal: f64) -> f64 {
     PATTERN_REL_TOL * nominal + PATTERN_ABS_TOL
 }
 

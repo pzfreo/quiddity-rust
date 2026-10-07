@@ -39,6 +39,7 @@ from quiddity.circular_face_patterns import _discover_circular_face_patterns  # 
 from quiddity.countersinks import _discover_countersinks  # noqa: E402
 from quiddity.fillets import _discover_fillets  # noqa: E402
 from quiddity.flats import _discover_flats  # noqa: E402
+from quiddity.gussets import _discover_gusset_ribs  # noqa: E402
 from quiddity.holes import _discover_holes  # noqa: E402
 from quiddity.oblique_through_steps import _discover_oblique_through_steps  # noqa: E402
 from quiddity.interior_voids import _claim_records as _claim_voids  # noqa: E402
@@ -64,6 +65,8 @@ from quiddity import (  # noqa: E402
     recognise_circular_face_patterns,
     import_step_geometry,
     recognise_countersinks,
+    recognise_gusset_rib_patterns,
+    recognise_gusset_ribs,
     recognise_hole_patterns,
     recognise_holes,
     recognise_interior_voids,
@@ -204,6 +207,9 @@ def main() -> None:
                    lambda p, ledger, o: _discover_through_steps(p, graph=ledger.graph, sink=ledger.writer.sink))
         turned_steps = (FamilyId.TURNED_STEPS, lambda p, o: recognise_turned_steps(p),
                         lambda p, ledger, o: _discover_turned_steps(p, ledger=ledger.writer))
+        gusset = (FamilyId.GUSSET_RIBS, lambda p, o: recognise_gusset_ribs(p),
+                  lambda p, ledger, o: _discover_gusset_ribs(p, graph=ledger.graph, face_edges=None,
+                                                             sink=ledger.writer.sink))
         entries.append(
             {
                 "file": str(path.relative_to(CORPUS)),
@@ -241,6 +247,10 @@ def main() -> None:
                     "recognise_turned_steps": [_run(part, "recognise_turned_steps", *turned_steps, {})],
                     "recognise_round_bottom_blind_slots": [
                         _run(part, "recognise_round_bottom_blind_slots", *round_bottom, {})
+                    ],
+                    "recognise_gusset_ribs": [_run(part, "recognise_gusset_ribs", *gusset, {})],
+                    "recognise_gusset_rib_patterns": [
+                        {"options": {}, "result": _plain(recognise_gusset_rib_patterns(recognise_gusset_ribs(part)))}
                     ],
                     "recognise_hole_patterns": [
                         {"options": {"csinks": "auto"}, "result": _plain(recognise_hole_patterns(holes))}

@@ -34,6 +34,13 @@ impl std::fmt::Display for EvidenceError {
 
 impl std::error::Error for EvidenceError {}
 
+/// The one valid solid every face belongs to (`FaceGraph.common_valid_solid`).
+pub fn common_valid_solid(part: &Part, faces: &[usize]) -> Option<usize> {
+    let owner = part.faces[*faces.first()?].solid?;
+    (part.solid_is_valid(owner) && faces.iter().all(|&f| part.faces[f].solid == Some(owner)))
+        .then_some(owner)
+}
+
 /// All occurrences, or none: each one's faces must share one valid solid.
 pub fn verified<R>(
     part: &Part,
@@ -46,11 +53,4 @@ pub fn verified<R>(
         }
     }
     Ok(found)
-}
-
-/// The one valid solid every face belongs to (`FaceGraph.common_valid_solid`).
-pub fn common_valid_solid(part: &Part, faces: &[usize]) -> Option<usize> {
-    let owner = part.faces[*faces.first()?].solid?;
-    (part.solid_is_valid(owner) && faces.iter().all(|&f| part.faces[f].solid == Some(owner)))
-        .then_some(owner)
 }
