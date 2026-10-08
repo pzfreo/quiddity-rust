@@ -91,17 +91,27 @@ fn cuts(a: f64, b: f64, panels: usize, breaks: &[f64]) -> Vec<f64> {
 
 /// How an integral along one surface parameter is cut: in one piece where the integrands are
 /// polynomial in it (planes, and the straight direction of cylinders and cones), at the knots
-/// of a B-spline surface, else every radian.
-fn surface_cuts(surface: &Surface, along_v: bool, a: f64, b: f64) -> Vec<f64> {
+/// of a B-spline surface (repeated each `span` round, where the surface closes in that
+/// parameter), else every radian.
+fn surface_cuts(surface: &Surface, span: f64, along_v: bool, a: f64, b: f64) -> Vec<f64> {
     match surface {
         Surface::Plane { .. } => vec![a, b],
         Surface::Cylinder { .. } | Surface::Cone { .. } if along_v => vec![a, b],
         Surface::Freeform { surface, .. } => {
-            let knots = if along_v {
+            let mut knots = if along_v {
                 breaks(&surface.knots_v, surface.degree_v)
             } else {
                 breaks(&surface.knots_u, surface.degree_u)
             };
+            if span.is_finite() && !knots.is_empty() {
+                let lo = knots[0];
+                let turns = |x: f64| ((x - lo) / span).floor() as i64;
+                let (first, last) = (turns(a.min(b)), turns(a.max(b)));
+                let one = knots.clone();
+                knots = (first..=last)
+                    .flat_map(|n| one.iter().map(move |k| k + n as f64 * span))
+                    .collect();
+            }
             cuts(a, b, 1, &knots)
         }
         _ => cuts(a, b, (b - a).abs().ceil() as usize, &[]),
@@ -190,6 +200,23 @@ fn closed_spans(surface: &Surface) -> (f64, f64) {
         if u_closed { u1 - u0 } else { f64::INFINITY },
         if v_closed { v1 - v0 } else { f64::INFINITY },
     )
+}
+
+/// Parameters a whole number of `spans` round a closed B-spline surface, brought back into its
+/// domain (the lower side of each closed direction, where the domain starts).
+fn wrap_closed(surface: &Surface, spans: (f64, f64), (u, v): (f64, f64)) -> (f64, f64) {
+    let Surface::Freeform { surface: s, .. } = surface else {
+        return (u, v);
+    };
+    let (u0, u1, v0, v1) = s.domain();
+    let wrap = |x: f64, lo: f64, hi: f64, span: f64| {
+        if span.is_finite() && (x < lo || x > hi) {
+            lo + (x - lo).rem_euclid(span)
+        } else {
+            x
+        }
+    };
+    (wrap(u, u0, u1, spans.0), wrap(v, v0, v1, spans.1))
 }
 
 /// A boundary node met on the walk: its curve parameter, its surface parameters and their
@@ -341,18 +368,36 @@ fn adaptive<S: Copy, const N: usize>(
 const MAX_DEPTH: usize = 12;
 const MAX_KINKS: usize = 64;
 
-/// The foot point of `p` on a B-spline surface, given the inversion's answer `(u, v)`: where
-/// that is held on the domain's boundary in one parameter, the nearest point along that side.
-/// The inversion clamps its two-parameter steps, so the free parameter it settles at is not
-/// the side's nearest point, and the boundary integrals need the point whose motion
-/// [`uv_velocity`] gives.
-fn held_foot(surface: &Surface, p: V3, (mut u, mut v): (f64, f64)) -> (f64, f64) {
+/// The foot point of `p` on the surface, inverted from `seed` (within the domain): where a
+/// B-spline surface's inversion is held on the domain's boundary in one parameter, the nearest
+/// point along that side. The inversion clamps its two-parameter steps, so the free parameter
+/// it settles at is not the side's nearest point, and the boundary integrals need the point
+/// whose motion [`uv_velocity`] gives. A side where the surface closes (`spans`) is its seam,
+/// not a boundary: an inversion stopped there from one side is tried again from the other.
+fn foot(surface: &Surface, spans: (f64, f64), p: V3, seed: (f64, f64)) -> Option<(f64, f64)> {
+    let (mut u, mut v) = surface.parameters(p, Some(seed))?;
     let Surface::Freeform { surface: s, .. } = surface else {
-        return (u, v);
+        return Some((u, v));
     };
     let (u0, u1, v0, v1) = s.domain();
+    let across = |x: f64, lo: f64, hi: f64, span: f64| {
+        (span.is_finite() && (x == lo || x == hi)).then_some(if x == lo { hi } else { lo })
+    };
+    let other = match (across(u, u0, u1, spans.0), across(v, v0, v1, spans.1)) {
+        (Some(u), _) => Some((u, v)),
+        (None, Some(v)) => Some((u, v)),
+        (None, None) => None,
+    };
+    if let Some(retry) = other.and_then(|q| surface.parameters(p, Some(q)))
+        && geom::dist(s.value(retry.0, retry.1), p) < geom::dist(s.value(u, v), p)
+    {
+        (u, v) = retry;
+    }
     // Within round-off of a side is on it (the inversion may stop a hair inside).
-    let snap = |x: &mut f64, lo: f64, hi: f64| {
+    let snap = |x: &mut f64, lo: f64, hi: f64, span: f64| {
+        if span.is_finite() {
+            return false;
+        }
         let near = 1e-12 * (hi - lo);
         if *x <= lo + near {
             *x = lo;
@@ -361,9 +406,9 @@ fn held_foot(surface: &Surface, p: V3, (mut u, mut v): (f64, f64)) -> (f64, f64)
         }
         *x == lo || *x == hi
     };
-    let (on_u, on_v) = (snap(&mut u, u0, u1), snap(&mut v, v0, v1));
+    let (on_u, on_v) = (snap(&mut u, u0, u1, spans.0), snap(&mut v, v0, v1, spans.1));
     if on_u == on_v {
-        return (u, v);
+        return Some((u, v));
     }
     for _ in 0..50 {
         let (q, su, sv) = s.value_and_partials(u, v);
@@ -379,7 +424,7 @@ fn held_foot(surface: &Surface, p: V3, (mut u, mut v): (f64, f64)) -> (f64, f64)
             break;
         }
     }
-    (u, v)
+    Some((u, v))
 }
 
 /// The surface's point and first partials at (u, v).
@@ -401,25 +446,49 @@ fn point_and_partials(surface: &Surface, u: f64, v: f64) -> (V3, V3, V3) {
 /// curvature, and the boundary integrals must follow the nodes they are evaluated at. The
 /// second partials, needed only in that small correction, are central differences. A foot
 /// point held on a B-spline surface's boundary (the edge runs just outside it) moves only
-/// along it: the held parameter's row drops out.
-fn uv_velocity(surface: &Surface, u: f64, v: f64, p: V3, c: V3) -> (f64, f64) {
+/// along it: the held parameter's row drops out. Sides where the surface closes (`spans`)
+/// hold nothing.
+fn uv_velocity(surface: &Surface, spans: (f64, f64), u: f64, v: f64, p: V3, c: V3) -> (f64, f64) {
     let (s, su, sv) = point_and_partials(surface, u, v);
     let r = geom::sub(p, s);
     let (mut a, mut b, mut d) = (geom::dot(su, su), geom::dot(su, sv), geom::dot(sv, sv));
     let (p, q) = (geom::dot(su, c), geom::dot(sv, c));
     // Undisturbed, the first fundamental form: at a degenerate point it decides alone.
     let scale = a.max(d);
-    let (hu, hv, (u0, u1, v0, v1)) = match surface {
+    let (hu, hv, (u0, u1, v0, v1), piece) = match surface {
         Surface::Freeform { surface, .. } => {
             let (u0, u1, v0, v1) = surface.domain();
-            (1e-5 * (u1 - u0), 1e-5 * (v1 - v0), (u0, u1, v0, v1))
+            // The polynomial piece the point is in (a knot belongs to the piece above it, as
+            // the walk's kinks are found): the second partials jump across a knot line, and a
+            // difference straddling it would smear that jump over the stencil's width, where
+            // no panel is split.
+            let span = |x: f64, knots: &[f64], degree: usize| {
+                let b = breaks(knots, degree);
+                let i = b.partition_point(|&k| k <= x).clamp(1, b.len() - 1);
+                (b[i - 1], b[i])
+            };
+            let (pu, pv) = (
+                span(u, &surface.knots_u, surface.degree_u),
+                span(v, &surface.knots_v, surface.degree_v),
+            );
+            (
+                1e-5 * (u1 - u0),
+                1e-5 * (v1 - v0),
+                (u0, u1, v0, v1),
+                (pu.0, pu.1, pv.0, pv.1),
+            )
         }
-        _ => (1e-5, 1e-5, (f64::MIN, f64::MAX, f64::MIN, f64::MAX)),
+        _ => {
+            let all = (f64::MIN, f64::MAX, f64::MIN, f64::MAX);
+            (1e-5, 1e-5, all, all)
+        }
     };
     if geom::norm(r) > 0.0 {
-        // Differences inside the domain, one-sided at its edges.
-        let (ua, ub) = ((u - hu).max(u0), (u + hu).min(u1));
-        let (va, vb) = ((v - hv).max(v0), (v + hv).min(v1));
+        // Differences inside the point's piece, one-sided at its edges; a stencil point that
+        // would reach the piece's upper knot stops just short of it, where a partial that is
+        // discontinuous there (a knot of full multiplicity) is still this piece's.
+        let (ua, ub) = ((u - hu).max(piece.0), (u + hu).min(piece.1 - 1e-3 * hu));
+        let (va, vb) = ((v - hv).max(piece.2), (v + hv).min(piece.3 - 1e-3 * hv));
         let (_, su_a, _) = point_and_partials(surface, ua, v);
         let (_, su_b, _) = point_and_partials(surface, ub, v);
         let (_, su_c, sv_c) = point_and_partials(surface, u, va);
@@ -436,7 +505,10 @@ fn uv_velocity(surface: &Surface, u: f64, v: f64, p: V3, c: V3) -> (f64, f64) {
             num / den
         }
     };
-    match (u <= u0 || u >= u1, v <= v0 || v >= v1) {
+    match (
+        !spans.0.is_finite() && (u <= u0 || u >= u1),
+        !spans.1.is_finite() && (v <= v0 || v >= v1),
+    ) {
         (true, true) => return (0.0, 0.0),
         (true, false) => return (0.0, one(q, d)),
         (false, true) => return (one(p, a), 0.0),
@@ -453,11 +525,35 @@ fn uv_velocity(surface: &Surface, u: f64, v: f64, p: V3, c: V3) -> (f64, f64) {
 
 impl Part {
     /// The solid's volume and area (`solid.volume`, `solid.area`). The volume is a third of the
-    /// flux of the position vector out through its faces (a void's faces subtract).
+    /// flux of the position vector out through its faces (a void's faces subtract), measured
+    /// from the mean of the solid's vertex uses (OpenCascade's `roughBaryCenter`). A file's
+    /// faces rarely close exactly (edges stray from their surfaces within tolerance, so the
+    /// outward area vectors leave a residue: −0.0225 mm² along z on nist_ctc_01), and the flux
+    /// through such a shell depends on the point it is measured from; one that moves with the
+    /// part keeps the volume unchanged by a placement, as OpenCascade's is.
     pub fn solid_mass(&self, solid: usize) -> Option<(f64, f64)> {
+        let mut centre = [0.0; 3];
+        let mut uses = 0usize;
+        for &face in &self.solids[solid].faces {
+            for lp in &self.faces[face].loops {
+                // TopExp_Explorer meets each edge's two vertices at each use, and a vertex loop
+                // as the two ends of the degenerate edge OpenCascade makes of it.
+                let points = lp
+                    .edges
+                    .iter()
+                    .flat_map(|&(e, _)| [self.edges[e].start, self.edges[e].end])
+                    .chain(lp.vertex.into_iter().flat_map(|p| [p, p]));
+                for p in points {
+                    centre = geom::add(centre, p);
+                    uses += 1;
+                }
+            }
+        }
+        let centre = geom::scale(centre, 1.0 / uses.max(1) as f64);
         let (mut flux, mut area) = (0.0, 0.0);
         for &face in &self.solids[solid].faces {
-            let [a, f] = self.face_mass(face)?;
+            let [a, f, nx, ny, nz] = self.face_terms(face)?;
+            let f = f - geom::dot(centre, [nx, ny, nz]);
             area += a;
             flux += if self.faces[face].reversed { -f } else { f };
         }
@@ -467,14 +563,21 @@ impl Part {
     /// The face's area and the flux of the position vector through it along the surface's
     /// natural normal.
     pub fn face_mass(&self, face: usize) -> Option<[f64; 2]> {
+        self.face_terms(face).map(|m| [m[0], m[1]])
+    }
+
+    /// The face's area, the flux of the position vector through it and its area vector ∬ n dA,
+    /// along the surface's natural normal.
+    fn face_terms(&self, face: usize) -> Option<[f64; 5]> {
         *self.cache[face]
             .mass
             .get_or_init(|| self.compute_face_mass(face))
     }
 
-    fn compute_face_mass(&self, face: usize) -> Option<[f64; 2]> {
+    fn compute_face_mass(&self, face: usize) -> Option<[f64; 5]> {
         let surface = &self.faces[face].surface;
-        // A whole sphere has no boundary to integrate along; its area and flux (3V) are exact.
+        // A whole sphere has no boundary to integrate along; its area and flux (3V) are exact,
+        // and its area vector vanishes.
         if let Surface::Sphere { frame, radius } = surface
             && self.whole_sphere(face)
         {
@@ -482,12 +585,15 @@ impl Part {
             return Some([
                 4.0 * std::f64::consts::PI * radius * radius,
                 sense * 4.0 * std::f64::consts::PI * radius.powi(3),
+                0.0,
+                0.0,
+                0.0,
             ]);
         }
         self.face_integral(face, |u, v| {
             let (p, su, sv) = point_and_partials(surface, u, v);
             let n = geom::cross(su, sv);
-            [geom::norm(n), geom::dot(p, n)]
+            [geom::norm(n), geom::dot(p, n), n[0], n[1], n[2]]
         })
     }
 
@@ -524,33 +630,14 @@ impl Part {
         if along_v && uv.iter().any(|lp| open(lp, |p| p.1, far_v)) {
             return None;
         }
-        // A face on a closed B-spline surface whose own seam (an edge its loop uses twice) does
-        // not lie on the surface's seam crosses the surface's seam somewhere inside its
-        // boundary, which the walk does not unwrap: it is not integrated.
-        if let Surface::Freeform { surface: s, .. } = surface {
-            let spans = closed_spans(surface);
-            let (u0, _, v0, _) = s.domain();
-            let on_seam = |x: f64, lo: f64, span: f64| {
-                let k = ((x - lo) / span).round();
-                (x - lo - k * span).abs() <= 1e-6 * span
-            };
-            for lp in &fc.loops {
-                for &(e, _) in &lp.edges {
-                    if lp.edges.iter().filter(|x| x.0 == e).count() < 2 {
-                        continue;
-                    }
-                    let ed = &self.edges[e];
-                    let (t0, t1) =
-                        edge_interval(&ed.curve, ed.start, ed.end, ed.same_sense, ed.is_closed());
-                    let (u, v) = surface.parameters(ed.curve.value(0.5 * (t0 + t1)), None)?;
-                    let seam_u = spans.0.is_finite() && on_seam(u, u0, spans.0);
-                    let seam_v = spans.1.is_finite() && on_seam(v, v0, spans.1);
-                    if (spans.0.is_finite() || spans.1.is_finite()) && !seam_u && !seam_v {
-                        return None;
-                    }
-                }
-            }
-        }
+        // On a closed B-spline surface the walk unwraps its parameters across the surface's
+        // seam (a face's own seam need not lie on it), so the integrands read the surface a
+        // whole span round.
+        let spans = closed_spans(surface);
+        let f = |u: f64, v: f64| {
+            let (u, v) = wrap_closed(surface, spans, (u, v));
+            f(u, v)
+        };
         let first = (0..fc.loops.len()).find(|&i| fc.loops[i].vertex.is_none())?;
         let start = uv[first].points.first().copied()?;
         let start = (start.0 + shifts[first].0, start.1 + shifts[first].1);
@@ -570,10 +657,10 @@ impl Part {
         };
         let term = |u: f64, v: f64, du: f64, dv: f64| {
             let (weight, y) = if along_v {
-                let cuts = surface_cuts(surface, true, reference, v);
+                let cuts = surface_cuts(surface, spans.1, true, reference, v);
                 (-du, integrate(&cuts, |s| f(u, s)))
             } else {
-                let cuts = surface_cuts(surface, false, reference, u);
+                let cuts = surface_cuts(surface, spans.0, false, reference, u);
                 (dv, integrate(&cuts, |s| f(s, v)))
             };
             y.map(|y| weight * y)
@@ -624,14 +711,31 @@ impl Part {
         let surface = &fc.surface;
         let (pu, pv) = surface.periodic();
         let lp = &self.uv_loops(face)?[i];
+        let spans = closed_spans(surface);
+        // The turn (or, round a closed B-spline surface, the whole span) nearest `near`.
         let unwrap = |(u, v): (f64, f64), near: (f64, f64)| {
+            let span = |x: f64, near: f64, span: f64| {
+                if span.is_finite() {
+                    x - span * ((x - near) / span).round()
+                } else {
+                    x
+                }
+            };
             (
-                if pu { geom::nearest_turn(u, near.0) } else { u },
-                if pv { geom::nearest_turn(v, near.1) } else { v },
+                if pu {
+                    geom::nearest_turn(u, near.0)
+                } else {
+                    span(u, near.0, spans.0)
+                },
+                if pv {
+                    geom::nearest_turn(v, near.1)
+                } else {
+                    span(v, near.1, spans.1)
+                },
             )
         };
+        let wrap = |p: (f64, f64)| wrap_closed(surface, spans, p);
         let placed = |p: &(f64, f64)| (p.0 + shift.0, p.1 + shift.1);
-        let spans = closed_spans(surface);
         let mut total: Panel<f64, N> = ([0.0; N], 0.0, 0.0, 0.0);
         let mut add = |(sum, excess, size, swept): Panel<f64, N>| {
             for (t, s) in total.0.iter_mut().zip(sum) {
@@ -669,7 +773,7 @@ impl Part {
                 let seed = match surface {
                     Surface::Freeform { surface: s, .. } => {
                         let (u0, u1, v0, v1) = s.domain();
-                        let (u, v) = walk.last;
+                        let (u, v) = wrap(walk.last);
                         let (_, su, sv) = point_and_partials(surface, u, v);
                         let (a, b) = (geom::norm(su), geom::norm(sv));
                         let inward = |x: f64, lo: f64, hi: f64| {
@@ -685,33 +789,10 @@ impl Part {
                     }
                     _ => walk.last,
                 };
-                let (mut u, mut v) =
-                    held_foot(surface, point, surface.parameters(point, Some(seed))?);
-                // On a closed B-spline surface's own seam a point has both parameter values: it
-                // takes the one beside the walk. A boundary that crosses that seam away from
-                // the face's (a rotated seam) jumps by the span there, which the walk does not
-                // unwrap: such a face is not integrated.
-                if let Surface::Freeform { surface: s, .. } = surface {
-                    let (u0, u1, v0, v1) = s.domain();
-                    let side = |x: &mut f64, lo: f64, hi: f64, near: f64, span: f64| {
-                        if !span.is_finite() || near == lo || near == hi {
-                            return true;
-                        }
-                        if *x == lo || *x == hi {
-                            *x = if (near - lo).abs() <= (near - hi).abs() {
-                                lo
-                            } else {
-                                hi
-                            };
-                        }
-                        (*x - near).abs() <= 0.5 * span
-                    };
-                    if !side(&mut u, u0, u1, walk.last.0, spans.0)
-                        || !side(&mut v, v0, v1, walk.last.1, spans.1)
-                    {
-                        return None;
-                    }
-                }
+                let (mut u, v) = foot(surface, spans, point, seed)?;
+                // Round a closed B-spline surface the point takes the parameters a whole span
+                // round that lie beside the walk (on the surface's seam it has both, and a
+                // boundary may cross that seam anywhere: a face's own seam need not lie on it).
                 let (su, sv) = surface.partials(u, v);
                 if surface.singular_v(v).is_some() && geom::norm(su) <= 1e-6 * geom::norm(sv) {
                     // At the singular point itself u is round-off: it stays where the walk is,
@@ -739,9 +820,9 @@ impl Part {
                     }
                     (walk.regular_seen, walk.in_band, walk.crossed) = (true, false, false);
                 }
+                let velocity = uv_velocity(surface, spans, u, v, point, ed.curve.derivative(t));
                 let (u, v) = unwrap((u, v), walk.last);
                 walk.last = (u, v);
-                let velocity = uv_velocity(surface, u, v, point, ed.curve.derivative(t));
                 walk.first.get_or_insert((t, (u, v), velocity));
                 walk.latest = Some((t, (u, v), velocity));
                 Some(((u, v), velocity))
@@ -749,7 +830,11 @@ impl Part {
             // Where a foot point starts or stops being held on a B-spline surface's boundary
             // its path turns a corner, and where it crosses a knot line the integrand's
             // derivatives jump; a panel is split there, located by bisection on which piece of
-            // the surface the foot point is in.
+            // the surface the foot point is in. The bisection reads the foot point as the nodes
+            // do ([`foot`]): along a held side the inversion's own parameter is not the
+            // foot point, and a split where it crosses the knot line misses the real crossing
+            // by enough to leave the jump inside a panel (1e-8 of cgb242 face 546's area, and a
+            // different answer with each placement).
             let knots = match surface {
                 Surface::Freeform { surface, .. } => (
                     breaks(&surface.knots_u, surface.degree_u),
@@ -757,14 +842,25 @@ impl Part {
                 ),
                 _ => (Vec::new(), Vec::new()),
             };
+            // (A closed direction's sides are its seam, which the foot point crosses freely:
+            // they hold nothing, and its pieces count on round the turns.)
             let held = |(u, v): (f64, f64)| match surface {
-                Surface::Freeform { surface, .. } => {
-                    let (u0, u1, v0, v1) = surface.domain();
+                Surface::Freeform { surface: s, .. } => {
+                    let (u0, u1, v0, v1) = s.domain();
+                    let (wu, wv) = wrap((u, v));
+                    let piece = |x: f64, w: f64, span: f64, knots: &[f64]| {
+                        let turns = if span.is_finite() {
+                            ((x - w) / span).round() as i64
+                        } else {
+                            0
+                        };
+                        turns * knots.len() as i64 + knots.partition_point(|&k| k <= w) as i64
+                    };
                     (
-                        u <= u0 || u >= u1,
-                        v <= v0 || v >= v1,
-                        knots.0.partition_point(|&k| k <= u),
-                        knots.1.partition_point(|&k| k <= v),
+                        !spans.0.is_finite() && (u <= u0 || u >= u1),
+                        !spans.1.is_finite() && (v <= v0 || v >= v1),
+                        piece(u, wu, spans.0, &knots.0),
+                        piece(v, wv, spans.1, &knots.1),
                     )
                 }
                 _ => (false, false, 0, 0),
@@ -773,7 +869,8 @@ impl Part {
                 let (mut lo, mut hi) = (ta, tb);
                 for _ in 0..60 {
                     let mid = 0.5 * (lo + hi);
-                    match surface.parameters(ed.curve.value(mid), Some(pa)) {
+                    let point = ed.curve.value(mid);
+                    match foot(surface, spans, point, wrap(pa)).map(|q| unwrap(q, pa)) {
                         Some(q) if held(q) == held(pa) => lo = mid,
                         _ => hi = mid,
                     }
@@ -821,9 +918,7 @@ impl Part {
             let end = |t: f64, from_t: f64, p: (f64, f64), vel: (f64, f64)| {
                 let guess = (p.0 + (t - from_t) * vel.0, p.1 + (t - from_t) * vel.1);
                 let step = (guess.0 - p.0).hypot(guess.1 - p.1);
-                let exact = surface
-                    .parameters(ed.curve.value(t), Some(p))
-                    .map(|q| unwrap(q, p));
+                let exact = foot(surface, spans, ed.curve.value(t), wrap(p)).map(|q| unwrap(q, p));
                 match exact {
                     Some(q) if (q.0 - guess.0).hypot(q.1 - guess.1) <= 10.0 * step + 1e-9 => q,
                     _ => guess,
@@ -884,6 +979,7 @@ impl Part {
         }
         let fc = &self.faces[face];
         let surface = &fc.surface;
+        let spans = closed_spans(surface);
         let domain = self.domain(face)?;
         let uses = |e: usize| {
             fc.loops
@@ -915,8 +1011,14 @@ impl Part {
             let Some((u, v)) = surface.parameters(ed.curve.value(t), None) else {
                 continue;
             };
-            let (mut du, mut dv) =
-                uv_velocity(surface, u, v, ed.curve.value(t), ed.curve.derivative(t));
+            let (mut du, mut dv) = uv_velocity(
+                surface,
+                spans,
+                u,
+                v,
+                ed.curve.value(t),
+                ed.curve.derivative(t),
+            );
             if (t1 >= t0) != forward {
                 (du, dv) = (-du, -dv);
             }

@@ -26,10 +26,8 @@ use serde_json::Value;
 const RELATIVE: f64 = 1e-6;
 const FLOOR: f64 = 1e-9;
 /// A placement must leave every area unchanged: each boundary panel is resolved to 1e-9 of its
-/// own terms, and all but 16 corpus faces agree to 1e-12 moved. Four B-spline faces change by
-/// 1.6e-9 to 2.2e-8 and are listed; tightening the panels a hundredfold leaves them, so the
-/// cause is in the walk, not the quadrature (not traced). Whether this threshold holds across
-/// platforms is open (see the list's entries).
+/// own terms, and all but one corpus face agree to 1e-12 moved (cgb203 face 51, 4.9e-12).
+/// Whether this threshold holds across platforms is open (docs/review-2026-10-08.md).
 const PLACED: f64 = 1e-9;
 /// A listed difference's pinned area has changed.
 const PINNED: f64 = 1e-7;
@@ -46,6 +44,91 @@ fn motion() -> Placement {
         [y * x * k + z * s, c + y * y * k, y * z * k - x * s, t[1]],
         [z * x * k - y * s, z * y * k + x * s, c + z * z * k, t[2]],
     ]
+}
+
+/// A solid whose faces do not quite close (as most files' do not: edges stray from their
+/// surfaces within tolerance) has the same volume wherever it is placed. The cylinder's top cap
+/// is tilted by 0.01 rad off its rim circle, so the cap's area is the rim's foot points' ellipse
+/// and the outward area vectors leave a residue of about 3 mm²: measured from the origin, a
+/// translation by 1000 would move the volume by about a thousand.
+#[test]
+fn volume_ignores_placement_when_faces_do_not_close() {
+    let text = std::fs::read_to_string(common::fixtures().join("rejected_cylinder.step")).unwrap();
+    let tilted = "#46 = DIRECTION('',(0.0099998333,0.,0.99995));";
+    let text = text.replace("#46 = DIRECTION('',(0.,0.,1.));", tilted);
+    assert!(text.contains(tilted));
+    let volume = |placement: &Placement| {
+        let part = haecceity::step::read_step_placed(text.as_bytes(), placement).unwrap();
+        part.solid_mass(0).unwrap().0
+    };
+    let mut shifted = IDENTITY;
+    shifted[0][3] = 1000.0;
+    shifted[1][3] = -700.0;
+    let unmoved = volume(&IDENTITY);
+    // πr²h, to within what the residue makes of a reference point about 10 from the axis.
+    assert!(
+        (unmoved - std::f64::consts::PI * 2000.0).abs() < 20.0,
+        "{unmoved}"
+    );
+    for placement in [shifted, motion()] {
+        let moved = volume(&placement);
+        assert!(
+            (moved - unmoved).abs() <= 1e-12 * unmoved,
+            "{unmoved} moved {moved}"
+        );
+    }
+}
+
+/// A face whose edge runs just outside its B-spline surface's side u = 0 and crosses a knot
+/// line there: the foot points are held on the side, where the second partials jump at the
+/// knot. `held_side_knot.step`: S(u, v) = (10u, Y(v) + 5u, Z(v)), (Y, Z) quadratic with a knot
+/// at v = 1/2, the face's region [0, 1/2] × [0.2, 0.8] with its u = 0 side drawn 0.01 outside
+/// (and 0.05 along y, so the knot crossing is not at a knot of the edge's own curve). Its area
+/// is ½ ∫ |(10, 5, 0) × (0, Y', Z')| dv, here by Simpson's rule on each polynomial piece. A
+/// split placed where the inversion's own parameter (not the foot point's) crosses the knot, or
+/// a difference straddling it, left 8e-10 of the area out (1e-8 on cgb242 face 546).
+#[test]
+fn held_side_crossing_a_knot_line() {
+    // C'(v): linear from (12, 16) to (8, −6) on [0, ½], back to (12, 16) on [½, 1].
+    let (q0, q1) = ([12.0, 16.0], [8.0, -6.0]);
+    let speed = |v: f64| {
+        let s = if v < 0.5 { 2.0 * v } else { 2.0 - 2.0 * v };
+        let (y, z) = (q0[0] + (q1[0] - q0[0]) * s, q0[1] + (q1[1] - q0[1]) * s);
+        0.5 * (100.0 * y * y + 125.0 * z * z).sqrt()
+    };
+    let simpson = |a: f64, b: f64| {
+        let n = 20_000;
+        let h = (b - a) / n as f64;
+        let inner: f64 = (1..n)
+            .map(|k| speed(a + k as f64 * h) * if k % 2 == 1 { 4.0 } else { 2.0 })
+            .sum();
+        h / 3.0 * (speed(a) + inner + speed(b))
+    };
+    let want = simpson(0.2, 0.5) + simpson(0.5, 0.8);
+    let text = std::fs::read(common::fixtures().join("held_side_knot.step")).unwrap();
+    for placement in [IDENTITY, motion()] {
+        let part = haecceity::step::read_step_placed(&text, &placement).unwrap();
+        let got = part.face_mass(0).unwrap()[0];
+        assert!((got - want).abs() <= 1e-12 * want, "{got} vs {want}");
+    }
+}
+
+/// A face whose own seam is not its closed B-spline surface's seam (cgb217 face 29): in
+/// `rotated_seam_band.step` a rational B-spline cylinder (r 4, closed at u = 0 on +x) carries
+/// the band z ∈ [−3, 3] with its seam edge at 45°, so both circles cross the surface's seam
+/// mid-edge. The walk unwraps across it: area 2π·4·6, flux of the position vector r × area.
+#[test]
+fn rotated_seam_on_a_closed_bspline_surface() {
+    let want = 48.0 * std::f64::consts::PI;
+    let text = std::fs::read(common::fixtures().join("rotated_seam_band.step")).unwrap();
+    for placement in [IDENTITY, motion()] {
+        let part = haecceity::step::read_step_placed(&text, &placement).unwrap();
+        let [area, flux] = part.face_mass(0).expect("integrated");
+        assert!((area - want).abs() <= 1e-12 * want, "{area} vs {want}");
+        if placement == IDENTITY {
+            assert!((flux - 4.0 * want).abs() <= 1e-12 * want, "{flux}");
+        }
+    }
 }
 
 fn captured() -> Value {
