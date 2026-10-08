@@ -743,6 +743,20 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("ends.high_gradient", Placement),
         ],
     },
+    FamilyFingerprint {
+        family: "prismatic_pockets",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("sides", Trait),
+            ("depth", Size),
+            ("open_sign", Placement),
+            ("at", Placement),
+            // Corners in part coordinates across the axis: their chords are the sizes.
+            ("section", Derived),
+        ],
+    },
 ];
 
 /// The fingerprint table of the family with this serde key.
@@ -1014,6 +1028,21 @@ fn derived_sizes(family: &str, r: &Value, sizes: &mut BTreeMap<String, f64>) {
             let mut points: Vec<Vec<f64>> = at(r, "section.boundary[].point")
                 .iter()
                 .filter_map(|v| point(v))
+                .collect();
+            if let Some(first) = points.first().cloned() {
+                points.push(first);
+            }
+            let sides = points.windows(2).map(|w| distance(&w[0], &w[1])).collect();
+            insert_sorted(sizes, "section.sides", sides);
+        }
+        "prismatic_pockets" => {
+            // The closed polygon's sides, whatever corner it starts at.
+            let mut points: Vec<Vec<f64>> = at(r, "section")
+                .first()
+                .and_then(|s| s.as_array())
+                .into_iter()
+                .flatten()
+                .filter_map(point)
                 .collect();
             if let Some(first) = points.first().cloned() {
                 points.push(first);

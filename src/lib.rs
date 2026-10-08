@@ -58,6 +58,7 @@ pub use features::polygonal_bosses::{
     PolygonalBoss, PolygonalOptions, PolygonalPrism, PolygonalStock, recognise_polygonal_bosses,
     recognise_polygonal_stock,
 };
+pub use features::prismatic_pockets::{PrismaticPocket, recognise_prismatic_pockets};
 pub use features::profiled_bores::{DoubleDBore, DoubleDBoreOptions, recognise_double_d_bores};
 pub use features::recess_patterns::{
     PocketPattern, SlotPattern, recognise_pocket_patterns, recognise_slot_patterns,

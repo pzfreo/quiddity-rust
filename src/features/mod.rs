@@ -52,6 +52,7 @@ pub mod plates;
 pub mod pockets;
 pub mod policy;
 pub mod polygonal_bosses;
+pub mod prismatic_pockets;
 pub mod probes;
 pub mod profiled_bores;
 pub mod recess_core;
@@ -136,6 +137,7 @@ pub struct Features {
     /// section passage, through slots included (Python's aggregate reconciles them; this does
     /// not).
     pub section_passages: Vec<passages::SectionPassage>,
+    pub prismatic_pockets: Vec<prismatic_pockets::PrismaticPocket>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole, gusset rib, slot and pocket patterns) have none of their own: their
     /// members' faces are theirs ([`crate::correspondence`]).
@@ -291,6 +293,11 @@ pub fn recognise(part: &Part) -> Features {
             &mut defining,
             "section_passages",
             passages::discover(&ctx).unwrap_or_else(|e| panic!("section passages refused: {e}")),
+        ),
+        prismatic_pockets: kept(
+            &mut defining,
+            "prismatic_pockets",
+            prismatic_pockets::discover(&ctx),
         ),
         defining,
     }

@@ -50,6 +50,7 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 | Polygonal stock | `recognise_polygonal_stock` | 70/70 | 1 | 100/100 |
 | Section passages | `recognise_section_passages` | 83/83 | 3 | 100/100 |
 | Passages (legacy roster) | `recognise_passages` | 60/60 | 2 | 100/100 |
+| Prismatic pockets | `recognise_prismatic_pockets` | 82/82 | 6 | 100/100 |
 
 *Captured test calls*: the Python suite's calls replayed by `tests/captured.rs`. *Not captured*:
 calls the suite makes that the capture could not record, outside the replay and pinned by it
@@ -67,7 +68,7 @@ its verdict and reason in a verdict file:
 
 | Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
 |---|---|---|---|---|---|---|---|
-| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 139 (907 problems) | 77 | 17 | 18 | 27 | 0 |
+| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 140 (908 problems) | 77 | 18 | 18 | 27 | 0 |
 | `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 34 (35 calls) | 4 | 1 | 3 | 3 | 23 |
 | `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 23 | 0 | 23 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
@@ -253,12 +254,14 @@ src/
     section_passages.rs constant-section planar-wall rings on any run (`section_ring_proposals`),
                      the proposals passages and oriented slots will publish from
     rings.rs         closed principal-axis rings of planar walls, their sections, spans and
-                     caps (`_rings`), for passages and later prismatic pockets
+                     caps (`_rings`), for passages and prismatic pockets
     passage_compat.rs the legacy `Passage` view of a section passage (`_passage_compat`)
     passages.rs      section passages and the frozen legacy roster they must reproduce
     cylindrical_seats.rs  open at-most-semicircular cylindrical troughs proved on original faces
     cylindrical_end_surface.rs  a cylinder branch as a section end's height over the section
     plane_envelope_passages.rs  polygonal passages through a convex two-plane roof
+    prismatic_pockets.rs  rings capped at one end, and rings a mouth treatment interrupted,
+                     recovered from their mouth or their floor and proved by swept-section probes
   frames.rs          part-relative recognition (`quiddity.frames`): the frame inferred from the
                      part's plane normals and cylinder axes, the part re-read into it, recognised
   correspondence/    revision matching (docs/correspondence.md): fingerprint.rs (features and
@@ -289,6 +292,8 @@ tests/
                      on test parts, fixtures and the corpus
   section_recess_helpers.rs  seat and envelope-passage proofs and cylindrical end values against
                      Python's captured calls, and the proofs under the invariance motions
+  prismatic_pockets.rs  prismatic pocket walls and consulted floors on Python's evidence-test
+                     parts
   corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity
                      revision, every file and its sha256)
   determinism.rs     every corpus part's recognition and correspondence JSON byte for byte the

@@ -114,6 +114,7 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
     ("polygonal_bosses", &["PolygonalBoss"]),
     ("polygonal_stock", &["PolygonalStock"]),
     ("section_passages", &["SectionPassage"]),
+    ("prismatic_pockets", &["PrismaticPocket"]),
 ];
 
 /// The record class names a family's records can have.

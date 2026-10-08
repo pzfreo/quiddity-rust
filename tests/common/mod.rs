@@ -129,6 +129,7 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
             Ok(found) => json(found),
             Err(e) => serde_json::json!({ "refused": e.to_string() }),
         },
+        "recognise_prismatic_pockets" => json(quiddity::recognise_prismatic_pockets(part)),
         // Over a part: the patterns among the part's gusset ribs.
         "recognise_gusset_rib_patterns" => json(quiddity::recognise_gusset_rib_patterns(
             &quiddity::recognise_gusset_ribs(part),
@@ -244,6 +245,9 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
         "recognise_polygonal_stock" => {
             quiddity::features::polygonal_bosses::discover_stock_verified(&ctx, &options(kwargs))
                 .map(faces)
+        }
+        "recognise_prismatic_pockets" => {
+            quiddity::features::prismatic_pockets::discover_verified(&ctx).map(faces)
         }
         // Refused for its own reasons as well as evidence ones, so its error is already text.
         "recognise_section_passages" => {
