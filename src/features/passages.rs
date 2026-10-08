@@ -329,6 +329,15 @@ pub fn discover(ctx: &Context<'_>) -> Checked<Vec<Occurrence<SectionPassage>>> {
         .collect())
 }
 
+/// Each section passage's frozen compatibility view (Python's `passage_compatibility`), in
+/// [`discover`]'s order: the slot grouping reconciliation reads ([`super::reconcile`]).
+pub fn compatibility_views(ctx: &Context<'_>) -> Checked<Vec<PassageCompatibilityView>> {
+    Ok(discover_section_passages(ctx)?
+        .into_iter()
+        .map(|found| found.compatibility)
+        .collect())
+}
+
 /// Like [`discover`], every occurrence's faces checked to share one valid solid; for the
 /// evidence comparison.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<SectionPassage>>, String> {
