@@ -39,13 +39,14 @@ fn probes_match_python() {
     let known: Vec<Value> = serde_json::from_value(common::load("known_probes.json")).unwrap();
     common::check_verdicts("known_probes.json", &known);
     // A problem is keyed exactly: its file, its caller, and its index among that file's probes
-    // in `probes.json.gz` order.
-    let mut problems: Vec<Problem> = Vec::new();
-    for (file, asked) in by_file {
-        let part = read_step_file(&dir.join(&file)).unwrap();
+    // in `probes.json.gz` order. Files are checked in parallel, the problems kept in file order.
+    let by_file: Vec<(String, Vec<Value>)> = by_file.into_iter().collect();
+    let problems: Vec<Problem> = common::parallel::map(&by_file, |(file, asked)| {
+        let part = read_step_file(&dir.join(file)).unwrap();
         let solids: Vec<Classifier<'_>> = (0..part.solids.len())
             .map(|s| Classifier::for_solid(&part, s))
             .collect();
+        let mut problems = Vec::new();
         for (index, p) in asked.iter().enumerate() {
             let (ok, report) = check(p, &solids);
             if !ok {
@@ -53,7 +54,11 @@ fn probes_match_python() {
                 problems.push((file.clone(), caller, index, report));
             }
         }
-    }
+        problems
+    })
+    .into_iter()
+    .flatten()
+    .collect();
     // An entry names the probes it covers; each must still be a problem, and each problem must
     // be covered by exactly one entry.
     let listed = |(file, caller, index, _): &Problem, k: &Value| {
