@@ -595,6 +595,7 @@ impl Part {
                     }
                 }
             }
+            route_collapsed_sides(&f.surface, &points, &mut raw);
             let (raw, placed) = route_singular_points(&f.surface, raw, f.reversed);
             for (mut u, mut v) in raw {
                 if let Some(&(lu, lv)) = pts.last() {
@@ -1127,6 +1128,56 @@ fn route_singular_points(
         out.push(out[0]);
     }
     (out, placed)
+}
+
+/// Route a closed loop along a B-spline side that collapses to a point (`collapsed_sides`).
+/// A sample at that point fixes only the parameter across the side; the other is arbitrary, and
+/// inversion leaves it wherever its seed was, so the loop would cut straight across the face to
+/// the next sample (cgb242 face 715 lost half its domain so). Each run of such samples (the
+/// shared vertex of two edges, at least) instead runs along the side from where the boundary
+/// arrives to where it leaves: its first sample takes the arriving sample's other parameter, the
+/// rest the leaving one's. *points* are the samples, *raw* their parameters, in loop order.
+fn route_collapsed_sides(surface: &Surface, points: &[V3], raw: &mut [(f64, f64)]) {
+    let collapsed = crate::mass::collapsed_sides(surface);
+    let n = raw.len();
+    for (side, c) in [(0, collapsed.0), (1, collapsed.1)] {
+        let Some(c) = c else { continue };
+        let pick = |q: (f64, f64)| if side == 0 { q.0 } else { q.1 };
+        let on: Vec<bool> = (0..n)
+            .map(|k| {
+                let q = raw[k];
+                let at = if side == 0 { (c, q.1) } else { (q.0, c) };
+                (pick(q) - c).abs() <= 1e-9
+                    && geom::dist(points[k], surface.value(at.0, at.1)) <= 1e-6
+            })
+            .collect();
+        let Some(start) = on.iter().position(|o| !o) else {
+            continue; // the whole loop on the side: nothing to route from
+        };
+        let mut k = 0;
+        while k < n {
+            let i = (start + k) % n;
+            if !on[i] {
+                k += 1;
+                continue;
+            }
+            let run: Vec<usize> = (k..n)
+                .map(|j| (start + j) % n)
+                .take_while(|&j| on[j])
+                .collect();
+            k += run.len();
+            let before = raw[(run[0] + n - 1) % n];
+            let after = raw[(run[run.len() - 1] + 1) % n];
+            for (m, &j) in run.iter().enumerate() {
+                let other = if m == 0 { before } else { after };
+                raw[j] = if side == 0 {
+                    (c, other.1)
+                } else {
+                    (other.0, c)
+                };
+            }
+        }
+    }
 }
 
 /// Whether the face reaches the singular point (pole or apex) at *v*: the point is a whole
