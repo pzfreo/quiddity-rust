@@ -1,6 +1,7 @@
 # AP242 and semantic PMI in haecceity
 
-**Status:** design (2026-10-08, revised after review), not yet implemented. Branch `ap242`.
+**Status:** stage 1 (foundations) integrated on branch `ap242`; no PMI is read or written yet.
+See [Status](#status).
 
 haecceity reads STEP geometry today (`crates/haecceity/src/step.rs`, through step-io's typed
 model). This document adds what specify-core and draftwright still need OpenCascade for: reading
@@ -494,6 +495,45 @@ reference); the removal plan with both presentation policies on NIST files; the 
 validation, by read-back, by `read → replace → read` over every NIST and specify file, by
 value text preservation on inch files, by the anti-requirement cases, and by OpenCascade's
 reading of the result with verdicts; determinism (same input, same bytes, fresh hash seeds).
+
+## Status
+
+**Stage 1 (2026-10-08): foundations.** Delivered and tested; the semantic model, `pmi::read`
+and `pmi::write` are the next stages.
+
+- **`p21`** (`crates/haecceity/src/p21.rs`, `tests/p21.rs`): the lossless Part 21 document of
+  [Architecture](#architecture) step 1. Every instance's id, record and byte range, checked
+  against step-io; edits (add with provisional ids, replace, remove) with removal and dangling
+  references refused, literal ids of additions refused, anchored (edition 3 ANCHOR) instances
+  protected; byte-exact write of untouched text, including CRLF and Latin-1 files and ANCHOR and
+  REFERENCE sections; complex records sorted, unsorted ones refused; `file_schema()` refuses a
+  malformed FILE_SCHEMA. Checked over the fixtures, the corpus and the NIST files. Still refused:
+  several DATA sections (step-io reads one), SIGNATURE sections, and the `\PB\`..`\PI\` code page
+  switches in strings.
+- **`express`** (`crates/haecceity/src/express.rs`, generated `express_table.rs` from
+  `tools/express_table.py`, `tests/express.rs`): the AP242 EXPRESS schema as data for editions 1
+  and 4, and an instance and document validator (attribute count, types, typed SELECT values
+  including narrowing redeclarations, entity references, aggregates and their bounds, complex
+  instance combinations against SUPERTYPE expressions), plus entity families. Each NIST file's
+  violations are pinned (`tests/fixtures/ap242/express/`). Not yet: WHERE and UNIQUE rules, string
+  widths, bounds written as expressions, and tables for editions 2 and 3 (no long form found;
+  their files are checked as an upgrade to edition 4).
+- **Face provenance** (`step.rs`, `brep.rs`, `tests/face_sources.rs`): each part's faces and
+  edges carry their `ADVANCED_FACE`/`EDGE_CURVE` `#N`, with per-part numbering, so PMI binds to
+  faces by `#N`. Compared with OpenCascade by instance, with one verdict per cause in
+  `tests/fixtures/known_face_sources.json` (93 rust-correct, 43 undetermined, 1 not-applicable);
+  the undetermined ones are OpenCascade's edge order within loops, which follows its ShapeFix
+  healing. Edge indices are haecceity's own: anchor edges by `#N`. Includes a two-part assembly
+  fixture (`tests/fixtures/ap242/assembly/`). Reading now parses each file twice (+28 to 37%,
+  measured); wireframe `TRIMMED_CURVE`s that PMI can reference are not part edges yet.
+- **Oracles** (`tests/fixtures/ap242/`, README there): NIST's expected PMI extracted from the
+  STEP File Analyzer's own spreadsheets (`tools/nist_expected.py`), 7 gzipped NIST models,
+  OpenCascade XCAF captures of all 17 NIST AP242 files and the specify-core inputs
+  (`tools/capture_pmi_occt.py`), draftwright captures (`tools/capture_pmi_draftwright.py`),
+  seven specify-core-written reader inputs (`tools/make_specify_inputs.py`), and the CAx-IF
+  material practice (Release 2.1). The expected PMI is SFA's display notation, which the reader
+  stage must parse to compare. The OpenCascade captures do not yet record angular units, which
+  part a material is set on, or OpenCascade's own reader errors.
 
 ## Out of scope for now
 
