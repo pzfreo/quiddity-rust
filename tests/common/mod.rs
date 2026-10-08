@@ -123,6 +123,12 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
         "recognise_polygonal_stock" => {
             json(quiddity::recognise_polygonal_stock(part, &options(kwargs)))
         }
+        "recognise_passages" => json(quiddity::recognise_passages(part)),
+        // A refusal is an answer Python never gives, so it shows as a difference.
+        "recognise_section_passages" => match quiddity::recognise_section_passages(part) {
+            Ok(found) => json(found),
+            Err(e) => serde_json::json!({ "refused": e.to_string() }),
+        },
         // Over a part: the patterns among the part's gusset ribs.
         "recognise_gusset_rib_patterns" => json(quiddity::recognise_gusset_rib_patterns(
             &quiddity::recognise_gusset_ribs(part),
@@ -238,6 +244,10 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
         "recognise_polygonal_stock" => {
             quiddity::features::polygonal_bosses::discover_stock_verified(&ctx, &options(kwargs))
                 .map(faces)
+        }
+        // Refused for its own reasons as well as evidence ones, so its error is already text.
+        "recognise_section_passages" => {
+            return quiddity::features::passages::discover_verified(&ctx).map(faces);
         }
         other => panic!("{other} has no evidence path"),
     };

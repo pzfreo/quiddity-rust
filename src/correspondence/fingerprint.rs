@@ -724,6 +724,25 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("flat_centres", Placement),
         ],
     },
+    FamilyFingerprint {
+        family: "section_passages",
+        members: None,
+        variants: false,
+        fields: &[
+            ("frame.run", Axis),
+            ("frame.origin", Placement),
+            ("frame.u", Placement),
+            ("frame.v", Placement),
+            ("run_interval", Derived),
+            ("section.boundary[].point", Derived),
+            ("section.boundary[].bulge", Size),
+            ("ends.low_capped", Trait),
+            ("ends.high_capped", Trait),
+            // Across the section in the frame's u and v, which turn with the part.
+            ("ends.low_gradient", Placement),
+            ("ends.high_gradient", Placement),
+        ],
+    },
 ];
 
 /// The fingerprint table of the family with this serde key.
@@ -988,6 +1007,19 @@ fn derived_sizes(family: &str, r: &Value, sizes: &mut BTreeMap<String, f64>) {
                 .first()
                 .map(|s| chain_lengths(s));
             insert_sorted(sizes, "section.walls", walls.unwrap_or_default());
+        }
+        "section_passages" => {
+            put("run_length", interval("run_interval"));
+            // The closed boundary's chords (an arc's too), whatever vertex it starts at.
+            let mut points: Vec<Vec<f64>> = at(r, "section.boundary[].point")
+                .iter()
+                .filter_map(|v| point(v))
+                .collect();
+            if let Some(first) = points.first().cloned() {
+                points.push(first);
+            }
+            let sides = points.windows(2).map(|w| distance(&w[0], &w[1])).collect();
+            insert_sorted(sizes, "section.sides", sides);
         }
         _ => {}
     }

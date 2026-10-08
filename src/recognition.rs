@@ -113,6 +113,7 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
     ("freeform_surfaces", &["FreeformSurface"]),
     ("polygonal_bosses", &["PolygonalBoss"]),
     ("polygonal_stock", &["PolygonalStock"]),
+    ("section_passages", &["SectionPassage"]),
 ];
 
 /// The record class names a family's records can have.

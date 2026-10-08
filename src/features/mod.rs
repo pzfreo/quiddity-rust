@@ -41,6 +41,8 @@ pub mod levels;
 pub mod oblique_through_steps;
 pub mod oriented_chamfers;
 pub mod paired_ramp_steps;
+pub mod passage_compat;
+pub mod passages;
 pub(crate) mod pattern_geometry;
 pub mod planes;
 pub mod plates;
@@ -59,6 +61,7 @@ pub mod recess_reduce;
 pub mod rectangular_blind_slots;
 pub mod regions;
 pub mod repeating_profiles;
+pub mod rings;
 pub mod round_bottom_slots;
 pub mod section_passages;
 pub mod sections;
@@ -126,6 +129,9 @@ pub struct Features {
     pub freeform_surfaces: Vec<freeform_surfaces::FreeformSurface>,
     pub polygonal_bosses: Vec<polygonal_bosses::PolygonalBoss>,
     pub polygonal_stock: Vec<polygonal_bosses::PolygonalStock>,
+    /// Python's `RecognitionResult.section_passages`: every section passage, through slots
+    /// included (Python's aggregate reconciles them; this does not).
+    pub section_passages: Vec<passages::SectionPassage>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole, gusset rib, slot and pocket patterns) have none of their own: their
     /// members' faces are theirs ([`crate::correspondence`]).
@@ -274,6 +280,13 @@ pub fn recognise(part: &Part) -> Features {
             &mut defining,
             "polygonal_stock",
             polygonal_bosses::discover_stock(&ctx, &Default::default()),
+        ),
+        // Python's aggregate raises on the same internal inconsistencies, refusing the whole
+        // recognition; `recognise` has no refusal to return, so it panics with the message.
+        section_passages: kept(
+            &mut defining,
+            "section_passages",
+            passages::discover(&ctx).unwrap_or_else(|e| panic!("section passages refused: {e}")),
         ),
         defining,
     }

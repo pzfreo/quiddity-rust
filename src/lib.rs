@@ -49,6 +49,9 @@ pub use features::oriented_chamfers::{
     OrientedChamfer, OrientedChamferOptions, recognise_oriented_chamfers,
 };
 pub use features::paired_ramp_steps::{PairedRampStep, recognise_paired_ramp_steps};
+pub use features::passages::{
+    Passage, PassageError, SectionPassage, recognise_passages, recognise_section_passages,
+};
 pub use features::plates::{Plate, PlateOptions, recognise_plates};
 pub use features::pockets::{Pocket, recognise_pockets};
 pub use features::polygonal_bosses::{
