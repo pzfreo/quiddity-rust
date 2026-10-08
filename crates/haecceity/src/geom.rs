@@ -643,8 +643,11 @@ impl Curve {
                 major,
                 minor,
             } => {
+                // The eccentric angle atan2(y/b, x/a) is exact only on the ellipse; a vertex
+                // within tolerance off it takes the parameter of its foot instead.
                 let l = frame.to_local(p);
-                (l[1] / minor).atan2(l[0] / major).rem_euclid(TAU)
+                let (x, y) = ellipse_foot(*major, *minor, l[0], l[1]);
+                (y / minor).atan2(x / major).rem_euclid(TAU)
             }
             Curve::Nurbs(n) => n.invert(p),
         }
@@ -661,6 +664,64 @@ impl Curve {
             _ => None,
         }
     }
+}
+
+/// The point of the ellipse x²/a² + y²/b² = 1 nearest (x, y). Eberly's reduction ("Distance
+/// from a point to an ellipse"): in the first quadrant, with a ≥ b, the foot is
+/// (r x / (s + r), y / (s + 1)) for r = (a/b)² and s the one root of a decreasing function on a
+/// known bracket, found by bisection to the last bit (so it cannot fail to converge, and the
+/// answer does not depend on a seed). A point on an axis inside the evolute has two feet; the
+/// one with the non-negative other coordinate is taken.
+fn ellipse_foot(a: f64, b: f64, x: f64, y: f64) -> (f64, f64) {
+    if a < b {
+        let (fy, fx) = ellipse_foot(b, a, y, x);
+        return (fx, fy);
+    }
+    let (ax, ay) = (x.abs(), y.abs());
+    let (fx, fy) = if ay > 0.0 {
+        if ax > 0.0 {
+            let (z0, z1) = (ax / a, ay / b);
+            let g = z0 * z0 + z1 * z1 - 1.0;
+            if g == 0.0 {
+                (ax, ay)
+            } else {
+                let r = (a / b) * (a / b);
+                let (n0, n1) = (r * z0, z1);
+                let mut lo = z1 - 1.0;
+                let mut hi = if g < 0.0 { 0.0 } else { n0.hypot(n1) - 1.0 };
+                let mut s = lo;
+                // Each step halves the bracket; it stops when the midpoint is an end, well
+                // within the cap (an f64 bracket cannot be halved more than ~2100 times).
+                for _ in 0..2200 {
+                    s = 0.5 * (lo + hi);
+                    if s == lo || s == hi {
+                        break;
+                    }
+                    let (q0, q1) = (n0 / (s + r), n1 / (s + 1.0));
+                    let gs = q0 * q0 + q1 * q1 - 1.0;
+                    if gs > 0.0 {
+                        lo = s;
+                    } else if gs < 0.0 {
+                        hi = s;
+                    } else {
+                        break;
+                    }
+                }
+                (r * ax / (s + r), ay / (s + 1.0))
+            }
+        } else {
+            (0.0, b)
+        }
+    } else {
+        let (numer, denom) = (a * ax, a * a - b * b);
+        if numer < denom {
+            let c = numer / denom;
+            (a * c, b * (1.0 - c * c).sqrt())
+        } else {
+            (a, 0.0)
+        }
+    };
+    (fx.copysign(x), if y < 0.0 { -fy } else { fy })
 }
 
 /// Wrap `a` into `[reference - π, reference + π)`.
@@ -729,6 +790,47 @@ mod tests {
                 assert!(dist(back, p) < 1e-9, "{s:?} at ({u}, {v})");
             }
         }
+    }
+
+    /// A point off an ellipse along its normal takes its foot's parameter (cgb207 edge 360's
+    /// vertex lies 0.012 mm off its ellipse; its eccentric angle is 7.5e-4 rad from the foot's).
+    #[test]
+    fn ellipse_parameter_is_the_foot_point() {
+        let frame = tilted_frame();
+        for (major, minor) in [(5.0, 2.0), (2.0, 5.0), (3.0, 3.0)] {
+            let curve = Curve::Ellipse {
+                frame,
+                major,
+                minor,
+            };
+            for t in [0.0, 0.4, 1.3, PI / 2.0, 2.5, PI, 3.988586, 5.9] {
+                let tangent = curve.derivative(t);
+                let normal = unit(cross(frame.z, tangent)).unwrap();
+                for off in [0.0, 0.012, -0.012, 0.5] {
+                    let p = add(add(curve.value(t), scale(normal, off)), scale(frame.z, 0.3));
+                    let got = curve.parameter(p);
+                    let gap = (nearest_turn(got, t) - t).abs();
+                    assert!(gap < 1e-12, "{major} x {minor} at {t} off {off}: {got}");
+                }
+            }
+        }
+        // On an axis inside the evolute the foot is off the axis (two of them; y >= 0 is taken).
+        let curve = Curve::Ellipse {
+            frame: Frame {
+                origin: [0.0; 3],
+                x: [1.0, 0.0, 0.0],
+                y: [0.0, 1.0, 0.0],
+                z: [0.0, 0.0, 1.0],
+            },
+            major: 5.0,
+            minor: 2.0,
+        };
+        let t = curve.parameter([1.0, 0.0, 0.0]);
+        let foot = curve.value(t);
+        assert!(
+            (foot[0] - 25.0 / 21.0).abs() < 1e-12 && foot[1] > 0.0,
+            "{foot:?}"
+        );
     }
 
     #[test]

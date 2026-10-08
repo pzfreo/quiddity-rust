@@ -3862,23 +3862,5 @@
     ],
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's adaptive rule (relative error 1e-9) agrees with the port's area."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb242.step.gz",
-    "field": "rot_zx_moved:fact",
-    "faces": [
-      726
-    ],
-    "verdict": "rust-wrong",
-    "reason": "mass.rs integrates this B-spline face's area with the opposite sign when the part is moved by rot_zx_moved: -18.22923018 against 18.22923018 unmoved (rust-correct in known_face_areas.json), so recovery_nominal's positive-area check refuses, the nominal and recovery tolerance are undefined, and the port refuses the fact as invalid-input instead of not-recovered. The rotation alone (axes permuted, no translation), the translation alone and rot_y180 all give +18.22923018 and the unmoved answers. Not recover.rs: surface recovery is placement-invariant since w3/q-kernel-boxes (0c6de9b), which cleared this file's threaded_connector_109 face 125 entries."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb242.step.gz",
-    "field": "rot_zx_moved:nominal",
-    "faces": [
-      726
-    ],
-    "verdict": "rust-wrong",
-    "reason": "Follows this face's rot_zx_moved fact entry: mass.rs integrates this B-spline face's area with the opposite sign when the part is moved by rot_zx_moved: -18.22923018 against 18.22923018 unmoved (rust-correct in known_face_areas.json), so recovery_nominal's positive-area check refuses, the nominal and recovery tolerance are undefined, and the port refuses the fact as invalid-input instead of not-recovered. The rotation alone (axes permuted, no translation), the translation alone and rot_y180 all give +18.22923018 and the unmoved answers. Not recover.rs: surface recovery is placement-invariant since w3/q-kernel-boxes (0c6de9b), which cleared this file's threaded_connector_109 face 125 entries."
   }
 ]
