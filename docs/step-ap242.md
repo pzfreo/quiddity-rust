@@ -1,7 +1,8 @@
 # AP242 and semantic PMI in haecceity
 
-**Status:** implemented (2026-10-08): stages 1–3 (foundations; model, reader, removal plan,
-rule checks; writer; the `quiddity` command line `parts`, `pmi read`, `pmi check` and `pmi write`).
+**Status:** implemented (2026-10-08): stages 1–4 (foundations; model, reader, removal plan,
+rule checks; writer; the `quiddity` command line `parts`, `pmi read`, `pmi check` and, stage 4,
+`pmi write` verified by reading back).
 Still refused by the writer, by name: datum targets, tolerance relations, notes, general tolerance
 tables and decimal places, and material density (the material name is written). See
 [Status](#status).
@@ -695,22 +696,6 @@ and `ap242-cli-read`.
   an `{"other": …}` naming a standard term is refused), duplicate keys, and violated model
   invariants. `READER` is pinned to the sha256 of `pmi read`'s output over the committed
   fixtures, so a reader change fails until the version is bumped.
-- **Command line, write side** (`src/bin/quiddity.rs`, `tests/pmi_cli.rs`): `quiddity pmi write
-  file.step pmi.json -o out.step [--mode add|replace|remove] [--presentation refuse|remove]`
-  (add by default; presentation removed by default, decision 7) writes every part of the
-  document in one `pmi::write`, refusing a document bound to another file or reader. The output
-  goes to a temporary file beside the destination, is read back with `pmi::read` and compared by
-  meaning, values as stated (add: the part's PMI before plus exactly the items written, a feature
-  or datum equal to one the part has being that one, and a standard it already states not
-  written again; replace and remove: exactly the items
-  written, and no instance the reader consumed for the part survives, supplemental geometry
-  excepted; other parts and every finding as before), and renamed only then; a refusal creates
-  nothing. The report is JSON (`quiddity-pmi-write`). Through the CLI, read → replace → read
-  over the fixtures and NIST's set matches the writer's round-trip pins: the files with refused
-  items are refused naming exactly the pinned refusals; where those are leaves (notes, tolerance
-  relations, attribute sets) the JSON without them is written (13 files with NIST's set), reads
-  back equal, and a second round trip is a byte-identical fixed point (the first merges features
-  of equal items); add then remove on a corpus part returns it to its PMI.
 
 Settled by the implementation (where the design was open or silent):
 
@@ -769,10 +754,38 @@ pinning the four NIST files of the reference set not obtainable here (above); kn
 specify-core intents (the intent lacks parameters `turned_knurl` requires; undetermined). The
 stage 1 and 2 suites `p21.rs`, `express_rules.rs` and `removal.rs` still fall back to a
 hard-coded scratch directory for the NIST files when `HAECCEITY_NIST_PMI` is unset; the stage 3
-suites use the variable only. Writer behaviour the command line's read-back catches (in
-`pmi/write.rs`, not changed here): add of a material to a part that has one is written, and
-refused only because the output reads back with two material names; add of a feature equal to
-one the part has writes a second shape aspect for it.
+suites use the variable only. 
+**Stage 4 (2026-10-08): the command line's write side.** Delivered and tested; integrated on
+`ap242` from stream `ap242-cli-write`.
+
+- **Command line, write side** (`src/bin/quiddity.rs`, `tests/pmi_cli.rs`): `quiddity pmi write
+  file.step pmi.json -o out.step [--mode add|replace|remove] [--presentation refuse|remove]`
+  (add by default; presentation removed by default, decision 7) writes every part of the
+  document in one `pmi::write`, refusing a document bound to another file or reader. The output
+  goes to a temporary file beside the destination, is read back with `pmi::read` and compared by
+  meaning, values as stated (add: the part's PMI before plus exactly the items written, a feature
+  or datum equal to one the part has being that one, and a standard it already states not
+  written again; replace and remove: exactly the items written, and no instance the reader
+  consumed for the part survives, supplemental geometry excepted; other parts and every finding
+  as before), and renamed only then; a refusal creates nothing. The report is JSON
+  (`quiddity-pmi-write`). Through the CLI, read → replace → read
+  over the fixtures and NIST's set matches the writer's round-trip pins: the files with refused
+  items are refused naming exactly the pinned refusals; where those are leaves (notes, tolerance
+  relations, attribute sets) the JSON without them is written (13 files with NIST's set), reads
+  back equal, and a second round trip is a byte-identical fixed point (the first merges features
+  of equal items); add then remove on a corpus part returns it to its PMI.
+  Tested on FTC-07: adding the part's own stated standard writes nothing (0 instances added,
+  output byte-identical to the input). An existing destination, including the input itself, is
+  replaced only once the check passes; a symbolic link at `-o` stays a link, the file it names
+  is replaced in place and keeps its permissions (unix test).
+
+Not done in this stage (writer behaviour the command line's read-back catches, in
+`pmi/write.rs`, not changed here): add of a material to a part that has one is written by
+`pmi::write`, and the command refuses it only because the output reads back with two material
+names (tested); add of a feature equal to one the part has writes a second shape aspect for it,
+which reads back as the same feature (leaving it out means renumbering every item that refers to
+features by index). The refuse-policy test counts presentation blockers by parsing the writer's
+refusal message on stderr, the only place a refused write reports them.
 
 ## Out of scope for now
 
