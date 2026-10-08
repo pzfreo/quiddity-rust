@@ -10,6 +10,7 @@ use std::f64::consts::TAU;
 use serde::{Deserialize, Serialize};
 
 use super::holes::{Bottom, CounterBore, HoleRecord};
+use super::policy;
 use crate::kernel::geom::{self, V3, dominant_axis_preferring_z};
 use crate::kernel::py;
 
@@ -117,20 +118,6 @@ fn plane_uv(axis: V3) -> (V3, V3) {
     (u, project_out(v0, &[a, u]))
 }
 
-/// Bounded clusters of coordinates, as index lists in ascending order (`cluster_coordinates`).
-fn cluster_coordinates(coordinates: &[f64], tol: f64) -> Vec<Vec<usize>> {
-    let mut order: Vec<usize> = (0..coordinates.len()).collect();
-    order.sort_by(|&a, &b| py::order(coordinates[a], coordinates[b]).then(a.cmp(&b)));
-    let mut clusters: Vec<Vec<usize>> = Vec::new();
-    for index in order {
-        match clusters.last_mut() {
-            Some(c) if coordinates[index] - coordinates[c[0]] <= tol => c.push(index),
-            _ => clusters.push(vec![index]),
-        }
-    }
-    clusters
-}
-
 /// Holes whose openings share one plane perpendicular to *axis* (`_opening_plane_clusters`).
 fn opening_plane_clusters(members: &[&HoleRecord], axis: V3) -> Vec<Vec<usize>> {
     let direction = py::unit(axis).expect("unit axis");
@@ -143,7 +130,7 @@ fn opening_plane_clusters(members: &[&HoleRecord], axis: V3) -> Vec<Vec<usize>> 
         .iter()
         .map(|m| py::dist(&origin, &m.location))
         .fold(members[0].diameter, f64::max);
-    cluster_coordinates(&offsets, geom::length_tol(scale, OPENING_PLANE_REL_TOL))
+    policy::cluster_coordinates(&offsets, policy::length_tol(scale, OPENING_PLANE_REL_TOL))
 }
 
 fn mean_location(holes: &[&HoleRecord]) -> V3 {
@@ -563,7 +550,7 @@ mod tests {
 
     #[test]
     fn clusters_are_bounded_not_chained() {
-        let c = cluster_coordinates(&[0.0, 0.4, 0.8, 1.2], 0.5);
+        let c = policy::cluster_coordinates(&[0.0, 0.4, 0.8, 1.2], 0.5);
         assert_eq!(c, vec![vec![0, 1], vec![2, 3]]);
     }
 }

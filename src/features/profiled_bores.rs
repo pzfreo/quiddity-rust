@@ -16,7 +16,7 @@ use super::evidence::{EvidenceError, Occurrence, common_valid_solid};
 use super::regions::edge_length;
 use crate::kernel::brep::Part;
 use crate::kernel::classify::Classifier;
-use crate::kernel::geom::{Bounds, Curve, Surface, V3};
+use crate::kernel::geom::{self, Bounds, Curve, Surface, V3};
 use crate::kernel::py;
 use crate::kernel::sampling::arc_extremes;
 use crate::kernel::volume::{Prism, PrismEdge, Probe, common_volume};
@@ -276,10 +276,6 @@ fn plane_axes(axis: usize) -> [usize; 2] {
     }
 }
 
-fn dist(a: V3, b: V3) -> f64 {
-    ((a[0] - b[0]).powi(2) + (a[1] - b[1]).powi(2) + (a[2] - b[2]).powi(2)).sqrt()
-}
-
 /// Read a double-D wire in the plane normal to *axis*, rejecting merely topology-similar loops
 /// (`double_d_profile`).
 fn double_d_profile(part: &Part, wire: &[(usize, bool)], axis: usize, tol: f64) -> Option<Profile> {
@@ -331,7 +327,7 @@ fn double_d_profile(part: &Part, wire: &[(usize, bool)], axis: usize, tol: f64) 
         midpoints.push([0, 1, 2].map(|i| (a[i] + b[i]) / 2.0));
         if [a, b]
             .iter()
-            .any(|&end| (dist(end, centre) - radius).abs() > metric_tol)
+            .any(|&end| (geom::dist(end, centre) - radius).abs() > metric_tol)
         {
             return None;
         }

@@ -8,10 +8,12 @@ use serde::Serialize;
 use super::Context;
 use super::body::BodyKey;
 use super::evidence::{self, EvidenceError, Occurrence};
-use super::planes::{axis_aligned_axis, coordinates, linear_quad, normalized, plane_normal};
+use super::graph::face_vertices;
+use super::planes::{axis_aligned_axis, coordinates, linear_quad, normalized, unit_plane_normal};
+use super::policy::length_tol;
 use crate::kernel::brep::{Arc, Part};
 use crate::kernel::geom::{
-    Bounds, COORD_FLOOR, Curve, SMOOTH_ARC_GAP, Surface, V3, add, dot, length_tol, norm, scale, sub,
+    Bounds, COORD_FLOOR, Curve, SMOOTH_ARC_GAP, Surface, V3, add, dot, norm, scale, sub,
 };
 use crate::kernel::py;
 
@@ -55,22 +57,6 @@ pub fn discover_verified(
     ctx: &Context<'_>,
 ) -> Result<Vec<Occurrence<ObliqueThroughStep>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
-}
-
-/// The face's distinct vertex points (`face.vertices()`).
-fn face_vertices(part: &Part, face: usize) -> Vec<V3> {
-    let mut seen = Vec::new();
-    let mut out = Vec::new();
-    for e in part.face_edges(face) {
-        let edge = &part.edges[e];
-        for (v, p) in [(edge.vertices.0, edge.start), (edge.vertices.1, edge.end)] {
-            if !seen.contains(&v) {
-                seen.push(v);
-                out.push(p);
-            }
-        }
-    }
-    out
 }
 
 /// The outer loop's vertices in boundary order (`outer_wire().vertices()`).
@@ -183,8 +169,8 @@ fn one_pair(
     if !linear_quad(part, principal) || !linear_quad(part, oblique) {
         return None;
     }
-    let principal_normal = plane_normal(part, principal)?;
-    let oblique_normal = plane_normal(part, oblique)?;
+    let principal_normal = unit_plane_normal(part, principal)?;
+    let oblique_normal = unit_plane_normal(part, oblique)?;
     if dot(principal_normal, oblique_normal).abs() > SMOOTH_ARC_GAP {
         return None;
     }

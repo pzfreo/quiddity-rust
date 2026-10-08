@@ -3,8 +3,9 @@
 
 use std::collections::BTreeMap;
 
+use super::policy::{self, AXIS_ALIGNED_COS};
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{self, AXIS_ALIGNED_COS, Curve, Surface, V3, dominant_axis, norm};
+use crate::kernel::geom::{Curve, Surface, V3, dominant_axis, norm};
 use crate::kernel::py;
 
 /// A planar face's plane as `validated_parameters(PLANE, …)` gives it: the unit normal with its
@@ -86,7 +87,8 @@ pub fn nearest_axis_aligned_planes(
             .iter()
             .copied()
             .filter(|c| {
-                (distance(*c) - nearest).abs() <= geom::length_tol(distance(*c).max(nearest), 1e-9)
+                (distance(*c) - nearest).abs()
+                    <= policy::length_tol(distance(*c).max(nearest), 1e-9)
             })
             .collect();
         let far = tied
@@ -98,7 +100,7 @@ pub fn nearest_axis_aligned_planes(
             .fold((f64::INFINITY, f64::NEG_INFINITY), |(l, h), c| {
                 (l.min(*c), h.max(*c))
             });
-        if hi - lo > geom::length_tol(far, 1e-9) {
+        if hi - lo > policy::length_tol(far, 1e-9) {
             continue;
         }
         selected.insert(axis, 0.5 * (lo + hi));
@@ -138,7 +140,9 @@ pub fn linear_quad(part: &Part, face: usize) -> bool {
         && vertices.len() == 4
 }
 
-/// The planar plane's outward normal (`face.normal_at()`).
-pub fn plane_normal(part: &Part, face: usize) -> Option<V3> {
+/// A plane's unit outward normal (`face.normal_at()`, which `gp_Vec::Normalized` returns): read
+/// at parameter `(0, 0)` and divided by its length. The surface type is not checked: the caller
+/// passes a plane (on any other face this is the normal at that one parameter point).
+pub fn unit_plane_normal(part: &Part, face: usize) -> Option<V3> {
     part.face_normal(face, 0.0, 0.0).and_then(normalized)
 }

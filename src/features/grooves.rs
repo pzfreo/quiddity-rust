@@ -15,6 +15,7 @@ use serde::{Deserialize, Serialize};
 use super::Context;
 use super::cylinders::{CylinderEvidence, z_then_cross};
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::policy;
 use super::turned::{TurnedProfileKey, axis_letter, profile_key_from_bands};
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, Curve, Surface, V3};
@@ -250,7 +251,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Groove>> {
         let profile = profile_key_from_bands(axis, &bands, &bounds, key);
         for i in 1..bands.len().saturating_sub(1) {
             let (prev, cur, next) = (bands[i - 1], bands[i], bands[i + 1]);
-            let adj_tol = geom::length_tol(cur.diameter, ADJ_FRAC);
+            let adj_tol = policy::length_tol(cur.diameter, ADJ_FRAC);
             if !joined(part, prev, cur, adj_tol, &cones, has_tori)
                 || !joined(part, cur, next, adj_tol, &cones, has_tori)
             {
@@ -264,7 +265,8 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Groove>> {
             }
             // Cut into uniform stock: both walls step back to (nearly) the same OD.
             let wider_dia = prev.diameter.max(next.diameter);
-            if (prev.diameter - next.diameter).abs() > geom::length_tol(wider_dia, WALL_DIA_FRAC) {
+            if (prev.diameter - next.diameter).abs() > policy::length_tol(wider_dia, WALL_DIA_FRAC)
+            {
                 continue;
             }
             // A narrow channel: narrower than the wider of its two walls.

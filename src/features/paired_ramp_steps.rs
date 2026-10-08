@@ -6,8 +6,9 @@ use serde::Serialize;
 
 use super::Context;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::policy::{self, AXIS_ALIGNED_COS};
 use crate::kernel::brep::{Arc, Part};
-use crate::kernel::geom::{AXIS_ALIGNED_COS, Curve, SMOOTH_ARC_GAP, Surface, V3};
+use crate::kernel::geom::{Curve, SMOOTH_ARC_GAP, Surface, V3};
 use crate::kernel::py;
 
 /// The shared valley edge must run along the ramps' axis this closely.
@@ -166,7 +167,7 @@ fn candidate(
     }
     let bounds = part.solid_bounds(solid);
     let extents = [0, 1, 2].map(|i| bounds.max[i] - bounds.min[i]);
-    let tolerance = crate::kernel::geom::length_tol(bounds.max_extent(), 1e-9);
+    let tolerance = policy::length_tol(bounds.max_extent(), 1e-9);
     if extents[axis]
         < cross
             .iter()
@@ -207,7 +208,7 @@ fn candidate(
         ed.samples.iter().for_each(|p| b.add(*p));
         [0, 1, 2].map(|i| (b.min[i], b.max[i]))
     };
-    let run_tolerance = crate::kernel::geom::length_tol(
+    let run_tolerance = policy::length_tol(
         (l.spans[axis].1 - l.spans[axis].0).max(r.spans[axis].1 - r.spans[axis].0),
         1e-9,
     );

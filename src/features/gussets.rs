@@ -11,10 +11,12 @@ use serde::{Deserialize, Serialize};
 
 use super::Context;
 use super::evidence::{self, EvidenceError, Occurrence, common_valid_solid};
+use super::graph::{face_vertices_along_loops, is_planar};
 use super::hole_patterns::pattern_tol;
 use super::planes::axis_aligned_axis;
+use super::policy::length_tol;
 use crate::kernel::brep::{Arc, Part};
-use crate::kernel::geom::{self, Curve, Surface, V3, length_tol};
+use crate::kernel::geom::{self, Curve, Surface, V3};
 use crate::kernel::py;
 use crate::kernel::volume::{Prism, PrismEdge, Probe, common_volume, probe_volume};
 
@@ -81,32 +83,8 @@ fn others(axis: usize) -> [usize; 2] {
     }
 }
 
-fn is_plane(part: &Part, face: usize) -> bool {
-    matches!(part.faces[face].surface, Surface::Plane { .. })
-}
-
-/// The face's distinct vertices in boundary order (`face.vertices()`).
-fn face_vertices(part: &Part, face: usize) -> Vec<V3> {
-    let mut ids = Vec::new();
-    let mut points = Vec::new();
-    for lp in &part.faces[face].loops {
-        for &(e, forward) in &lp.edges {
-            let edge = &part.edges[e];
-            let ends = [(edge.vertices.0, edge.start), (edge.vertices.1, edge.end)];
-            let ends = if forward { ends } else { [ends[1], ends[0]] };
-            for (id, p) in ends {
-                if !ids.contains(&id) {
-                    ids.push(id);
-                    points.push(p);
-                }
-            }
-        }
-    }
-    points
-}
-
 fn cap(part: &Part, face: usize) -> Option<Cap> {
-    if !is_plane(part, face) {
+    if !is_planar(part, face) {
         return None;
     }
     let (axis, _) = axis_aligned_axis(part, face)?;
@@ -118,7 +96,7 @@ fn cap(part: &Part, face: usize) -> Option<Cap> {
     {
         return None;
     }
-    let vertices = face_vertices(part, face);
+    let vertices = face_vertices_along_loops(part, face);
     if vertices.len() != 3 {
         return None;
     }
@@ -184,7 +162,7 @@ fn cap(part: &Part, face: usize) -> Option<Cap> {
                 .into_iter()
                 .filter(|&other| {
                     other != face
-                        && is_plane(part, other)
+                        && is_planar(part, other)
                         && axis_aligned_axis(part, other).is_none()
                         && part.arc(transition, other) == Some(Arc::Smooth)
                 })

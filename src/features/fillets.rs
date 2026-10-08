@@ -13,9 +13,10 @@ use super::bevel::convex_bevel;
 use super::cylinders::CylinderEvidence;
 use super::evidence::{self, EvidenceError, Occurrence};
 use super::planes::nearest_axis_aligned_planes;
+use super::policy::AXIS_ALIGNED_COS;
 use super::turned;
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{AXIS_ALIGNED_COS, Surface, V3, dominant_axis};
+use crate::kernel::geom::{Surface, V3, dominant_axis};
 use crate::kernel::py;
 
 /// A minimum-evidence threshold, deliberately absolute (ADR 0008).

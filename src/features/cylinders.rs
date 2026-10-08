@@ -3,6 +3,7 @@
 
 use std::f64::consts::TAU;
 
+use super::policy;
 use super::probes::probe_samples;
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, COORD_FLOOR, Frame, Surface, V3, dominant_axis_preferring_z};
@@ -286,7 +287,7 @@ pub fn merge_runs<T: Coaxial + Clone>(items: &[T], key: impl Fn(&T) -> Vec<f64>)
         let mut run = vec![group[0].clone()];
         let mut hi = group[0].span().1;
         for c in &group[1..] {
-            if c.span().0 <= hi + geom::length_tol(c.diameter(), STACK_GAP_FRAC) {
+            if c.span().0 <= hi + policy::length_tol(c.diameter(), STACK_GAP_FRAC) {
                 run.push(c.clone());
                 hi = hi.max(c.span().1);
             } else {

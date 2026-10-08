@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use super::Context;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::policy;
 use super::turned::cone_rims;
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, Surface, V3};
@@ -63,13 +64,13 @@ pub fn countersink_matches_hole(cs: &CounterSink, hole: &HoleMouth) -> bool {
     let offset = geom::sub(minor, hole.location);
     let axial = py::sum((0..3).map(|i| offset[i] * hole.axis[i]));
     let perpendicular = py::hypot(&[0, 1, 2].map(|i| offset[i] - axial * hole.axis[i]));
-    if perpendicular > geom::length_tol(hole.diameter, HOLE_AXIS_FRAC)
+    if perpendicular > policy::length_tol(hole.diameter, HOLE_AXIS_FRAC)
         || (cs.drill_diameter - hole.diameter).abs()
-            > geom::length_tol(hole.diameter, HOLE_DIA_FRAC)
+            > policy::length_tol(hole.diameter, HOLE_DIA_FRAC)
     {
         return false;
     }
-    let mouth = geom::length_tol(hole.diameter, HOLE_MOUTH_FRAC);
+    let mouth = policy::length_tol(hole.diameter, HOLE_MOUTH_FRAC);
     axial.abs() <= mouth || (hole.through && (axial - hole.depth).abs() <= mouth)
 }
 
@@ -132,9 +133,9 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<CounterSink>> {
         };
         let axis = along.map(|c| c / length);
         let seated = cylinders.iter().any(|&(r, lp, ld)| {
-            (r - minor_r).abs() <= geom::length_tol(minor_r, MINOR_MATCH_FRAC)
+            (r - minor_r).abs() <= policy::length_tol(minor_r, MINOR_MATCH_FRAC)
                 && geom::dot(axis, ld).abs() > 1.0 - 1e-3
-                && dist_to_line(opening, lp, ld) <= geom::length_tol(2.0 * minor_r, COAXIAL_FRAC)
+                && dist_to_line(opening, lp, ld) <= policy::length_tol(2.0 * minor_r, COAXIAL_FRAC)
         });
         if !seated {
             continue;

@@ -6,6 +6,7 @@
 
 use std::collections::BTreeSet;
 
+use super::policy;
 use crate::kernel::brep::{Arc, Part};
 use crate::kernel::classify::Classifier;
 use crate::kernel::geom::{self, Bounds, COORD_FLOOR, Curve, SMOOTH_ARC_GAP, V3};
@@ -22,7 +23,7 @@ const LENGTH_REL: f64 = 1e-7;
 /// Kernel-coordinate equality scaled to the largest of the relevant local lengths
 /// (`_length_tolerance`).
 pub fn length_tolerance(values: &[f64]) -> f64 {
-    geom::length_tol(values.iter().fold(0.0, |m, v| m.max(v.abs())), LENGTH_REL)
+    policy::length_tol(values.iter().fold(0.0, |m, v| m.max(v.abs())), LENGTH_REL)
 }
 
 /// The extents of a face's box across a plane normal to *axis*.

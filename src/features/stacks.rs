@@ -3,6 +3,7 @@
 //! holes (internal segments) and bosses (external ones).
 
 use super::cylinders::{STACK_GAP_FRAC, Segment};
+use super::policy;
 use super::probes::probe_samples;
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, Surface, V3};
@@ -22,7 +23,7 @@ pub enum End {
 /// (`_end_partners`).
 pub fn end_partners(part: &Part, seg: &Segment, s_end: f64) -> Vec<usize> {
     let d = seg.direction;
-    let margin = geom::length_tol(seg.diameter, STACK_GAP_FRAC)
+    let margin = policy::length_tol(seg.diameter, STACK_GAP_FRAC)
         .max((0.45 * (seg.s_hi - seg.s_lo)).min(0.5 * seg.diameter));
     let edge_faces = part.edge_faces();
     // (distance, first-seen order, face)
@@ -82,7 +83,7 @@ pub fn classify_end(part: &Part, seg: &Segment, s_end: f64, hi_end: bool) -> (En
                         if n == partner || seg.faces.contains(&n) {
                             continue;
                         }
-                        if plane_normal(part, n)
+                        if native_plane_normal(part, n)
                             .is_some_and(|normal| geom::dot(normal, d).abs() > 0.9)
                         {
                             return (End::Flat, vec![n]);
@@ -101,7 +102,7 @@ pub fn classify_end(part: &Part, seg: &Segment, s_end: f64, hi_end: bool) -> (En
                 return (state, vec![]);
             }
             Surface::Plane { .. } => {
-                let normal = plane_normal(part, partner).expect("a plane");
+                let normal = native_plane_normal(part, partner).expect("a plane");
                 let alignment = py::dot(&normal, &d) * e_sign;
                 if alignment < -0.5 {
                     return (End::Flat, vec![partner]);
@@ -147,8 +148,10 @@ pub fn classify_end(part: &Part, seg: &Segment, s_end: f64, hi_end: bool) -> (En
     weak.unwrap_or((End::Unknown, vec![]))
 }
 
-/// A planar face's outward normal.
-fn plane_normal(part: &Part, face: usize) -> Option<V3> {
+/// A native plane's outward normal as the face reports it, not renormalised
+/// (`partner.normal_at(partner.center())` on the planes `_cylinder_stacks` reads); `None` for
+/// any other surface.
+fn native_plane_normal(part: &Part, face: usize) -> Option<V3> {
     match part.faces[face].surface {
         Surface::Plane { .. } => part.face_normal(face, 0.0, 0.0),
         _ => None,
