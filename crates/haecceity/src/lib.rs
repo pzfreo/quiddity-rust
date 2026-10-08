@@ -10,6 +10,7 @@ pub mod brep;
 pub mod classify;
 pub mod cloud;
 pub mod cover;
+pub mod express;
 pub mod geom;
 pub mod hlr;
 pub mod mass;
