@@ -8,10 +8,20 @@
 //! so a listed difference that gets worse still fails. A part some of whose curved edge
 //! stretches are not drawn with exact curves would be listed there too (its view `exact`), with
 //! the share that are (`min_exact_share`), so that a part drawing fewer fails; none is.
+//!
+//! A view listed as OpenCascade approximating projected curves carries the evidence as
+//! `approximation`, checked on every run: every stretch either side draws unlike the other
+//! (`drawing::Differences`) is OpenCascade's line off every projected edge of the part, or its
+//! hidden line on an edge left inked where its own visible line misses it, or haecceity's line
+//! on a projected edge, the two sides at most `stray` apart; haecceity's edges there lie on
+//! their faces within `edges_on_faces`; and at most `other` mm of the stretches are of none of
+//! these kinds (each explained in the entry's reason).
 
 mod common;
 
-use common::drawing::{compare_cut, compare_views, covered, even_odd_area, load_gz};
+use common::drawing::{
+    classified_area, compare_cut, compare_views, covered, differences, even_odd_area, load_gz,
+};
 use haecceity::read_step_file;
 use serde_json::Value;
 
@@ -45,11 +55,13 @@ fn drawings_match_opencascade() {
         .iter()
         .flat_map(|all| all["parts"].as_array().unwrap())
         .collect();
-    // Every record spread over every core; the problems come back in fixture order.
-    let problems: Vec<Problem> = common::parallel::map(&records, |record| {
+    // Every record spread over every core; the problems come back in fixture order, with any
+    // listed approximation the evidence does not bear out.
+    let found: Vec<(Vec<Problem>, Vec<String>)> = common::parallel::map(&records, |record| {
         let file = record["file"].as_str().unwrap();
         let part = read_step_file(&dir.join(file)).unwrap();
         let mut out = Vec::new();
+        let mut unexplained = Vec::new();
         if let Some((theirs, mine)) = compare_cut(record, &part) {
             let outline = (covered(&theirs, &mine), covered(&mine, &theirs));
             let (area, occ_area) = (even_odd_area(&mine), even_odd_area(&theirs));
@@ -68,6 +80,24 @@ fn drawings_match_opencascade() {
             }
         }
         for view in compare_views(record, &part) {
+            let listed = known
+                .iter()
+                .find(|k| k["file"] == file && k["view"] == view.name.as_str());
+            if let Some(a) = listed.and_then(|k| k.get("approximation")) {
+                let d = differences(record, &part, &view);
+                let e = d.explained();
+                let bound = |key: &str| a[key].as_f64().unwrap_or(0.0);
+                if e.stray > bound("stray")
+                    || e.other > bound("other")
+                    || d.edges_from_faces > bound("edges_on_faces")
+                {
+                    unexplained.push(format!(
+                        "{file} {}: stray {:.2e}, other {:.3} mm, edges on faces {:.1e} \
+                         (OpenCascade off the edges by up to {:.2e}), against {a}",
+                        view.name, e.stray, e.other, d.edges_from_faces, e.off_edges
+                    ));
+                }
+            }
             let s = view.scores();
             let scores = [s.visible.0, s.visible.1, s.ink.0, s.ink.1];
             if scores.iter().any(|v| *v < AGREE) {
@@ -83,15 +113,20 @@ fn drawings_match_opencascade() {
                 });
             }
         }
-        out
-    })
-    .into_iter()
-    .flatten()
-    .collect();
+        (out, unexplained)
+    });
+    let mut problems: Vec<Problem> = Vec::new();
+    let mut failures = Vec::new();
+    for (p, u) in found {
+        problems.extend(p);
+        failures.extend(
+            u.into_iter()
+                .map(|u| format!("approximation not borne out: {u}")),
+        );
+    }
     // The exact-curve floors are `exact_curves_follow_their_points`' own.
     let known: Vec<&Value> = known.iter().filter(|k| k["view"] != "exact").collect();
     let listed = |p: &Problem, k: &Value| k["file"] == p.file.as_str() && k["view"] == p.view;
-    let mut failures = Vec::new();
     for p in &problems {
         let line = format!("{} {}: {}", p.file, p.view, p.text);
         let Some(k) = known.iter().find(|k| listed(p, k)) else {
@@ -126,6 +161,59 @@ fn drawings_match_opencascade() {
         failures.len(),
         failures.join("\n")
     );
+}
+
+/// A cut OpenCascade's boolean did not make (its `max_area_error` null) is checked against
+/// another reference, listed as its `reference_area`: what OpenCascade's own sections of the
+/// part by planes 1e-4 to either side have in common, the material on both sides of the plane
+/// (`tools/drawing_evidence.py cut`). haecceity's traced cut must lie within
+/// `max_reference_error` of it (relative), and the part classified on a grid across the plane
+/// must bear the reference out, within the cells the outline crosses or the classifier cannot
+/// call (`drawing::classified_area`).
+#[test]
+fn failed_cuts_match_their_reference() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let known: Vec<Value> = serde_json::from_value(common::load("known_drawings.json")).unwrap();
+    let failed: Vec<&Value> = known
+        .iter()
+        .filter(|k| k["view"] == "cut" && k.get("max_area_error") == Some(&Value::Null))
+        .collect();
+    let all = load_gz(&common::fixtures().join("section.json.gz"));
+    let mut problems = Vec::new();
+    for k in &failed {
+        let record = all["parts"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|r| r["file"] == k["file"])
+            .unwrap_or_else(|| panic!("no section record for {k}"));
+        let reference = k["reference_area"]
+            .as_f64()
+            .unwrap_or_else(|| panic!("known_drawings.json: no reference_area in {k}"));
+        let allowed = k["max_reference_error"]
+            .as_f64()
+            .unwrap_or_else(|| panic!("known_drawings.json: no max_reference_error in {k}"));
+        let part = read_step_file(&dir.join(k["file"].as_str().unwrap())).unwrap();
+        let (_, mine) = compare_cut(record, &part).unwrap();
+        let area = even_odd_area(&mine);
+        let error = (area - reference).abs() / reference;
+        let (classified, doubt) = classified_area(&part, record, &mine, 100);
+        println!(
+            "{}: traced {area:.4} against {reference:.4} ({error:.1e}); classified {classified:.2} ± {doubt:.2}",
+            k["file"]
+        );
+        if error > allowed || (classified - reference).abs() > doubt {
+            problems.push(format!(
+                "{}: traced {area:.4}, classified {classified:.2} ± {doubt:.2}, against {reference:.4} \
+                 (error {error:.2e}, at most {allowed:.2e})",
+                k["file"]
+            ));
+        }
+    }
+    assert!(!failed.is_empty() && problems.is_empty(), "{problems:#?}");
 }
 
 /// Every stretch drawn with an exact curve is that curve: its ends meet the stretch's (cut on a

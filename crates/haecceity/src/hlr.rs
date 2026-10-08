@@ -500,6 +500,11 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected
     // drawing does not depend on how): the costliest first, so that none is left to the end.
     let mut order: Vec<usize> = (0..curves.len()).collect();
     order.sort_by_key(|&i| std::cmp::Reverse(curves[i].1.len() + cuts[i].len()));
+    let crack_free = |face: usize| {
+        part.edge_deviation(face)
+            .iter()
+            .all(|&(_, d)| d <= 1e-6 * scale)
+    };
     let judged = parallel(&order, |i| {
         let (_, points, on) = &curves[i];
         // An edge standing off its faces (within the file's tolerance) can start its ray just
@@ -539,7 +544,40 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected
                 }
                 On::Section => p,
             };
-            hidden(at, start).ok_or(at)
+            let verdict = hidden(at, start).ok_or(at)?;
+            match on {
+                On::Edge(_, e) if verdict && start > 1e-6 * scale => {
+                    let start =
+                        clear_of_own_faces(part, &rays, *e, at, (view, reach, 1e-6 * scale), start);
+                    Ok(hidden(at, start).ok_or(at)?)
+                }
+                // A hair off a hole's wall the ray can leave through the hole's mouth, where from
+                // the wall itself it runs into the material: from the face, any other face it
+                // meets (before the plane, in a section) stands in the way. Only on a face its
+                // edges lie on (within 1e-6 of the part's size): along the cracks a file leaves
+                // between faces, a neighbour's band would stop a ray that only passes it.
+                On::Silhouette(face) if !verdict && crack_free(*face) => {
+                    let surface = &part.faces[*face].surface;
+                    let Some(on_face) = surface
+                        .parameters(p, None)
+                        .map(|(u, v)| surface.value(u, v))
+                    else {
+                        return Ok(false);
+                    };
+                    let end = plane.map_or(reach, |plane| {
+                        let rate = -geom::dot(view.toward, plane.normal);
+                        if rate > 0.0 {
+                            (plane.distance(on_face) / rate).min(reach)
+                        } else {
+                            reach
+                        }
+                    });
+                    Ok(rays
+                        .hits(on_face, view.toward, end)
+                        .is_some_and(|hits| hits.iter().any(|h| h.face != *face && h.t > start)))
+                }
+                _ => Ok(verdict),
+            }
         };
         pieces(points, &cuts[i], (view, 1e-9 * scale), &judge)
     });
@@ -577,6 +615,57 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected
         }
     }
     Ok(out)
+}
+
+/// Where the ray from *p*, on edge *e* standing off its faces, may start so that it does not
+/// meet one of those faces merely by crossing the stand-off. At a shallow slant (a rim seen
+/// past its own face at a grazing angle) the ray runs on through the band the stand-off leaves
+/// for far longer than the 4 d *start* allows for. So each of the edge's faces the ray meets is
+/// asked again from *p* moved onto it (where the edge would lie were it exact): when the face
+/// does not stand in the way of that ray (beyond `base`, the start of an exact edge's ray), the
+/// ray may start past its meetings with it, unless another face is met first.
+fn clear_of_own_faces(
+    part: &Part,
+    rays: &RayCaster,
+    e: usize,
+    p: V3,
+    (view, reach, base): (&View, f64, f64),
+    start: f64,
+) -> f64 {
+    let Some(hits) = rays.hits(p, view.toward, reach) else {
+        return start;
+    };
+    let mut clear = start;
+    for &face in &part.edge_faces()[e] {
+        let Some(last) = hits
+            .iter()
+            .filter(|h| h.face == face && h.t > start)
+            .map(|h| h.t)
+            .reduce(f64::max)
+        else {
+            continue;
+        };
+        let surface = &part.faces[face].surface;
+        let Some(on) = surface
+            .parameters(p, None)
+            .map(|(u, v)| surface.value(u, v))
+        else {
+            continue;
+        };
+        let again = rays.hits(on, view.toward, reach);
+        if again.is_some_and(|hits| !hits.iter().any(|h| h.face == face && h.t > base)) {
+            clear = clear.max(last * (1.0 + 1e-9) + 1e-12);
+        }
+    }
+    // Any other face met before that hides the edge itself.
+    let own = &part.edge_faces()[e];
+    if hits
+        .iter()
+        .any(|h| !own.contains(&h.face) && h.t > start && h.t <= clear)
+    {
+        return start;
+    }
+    clear
 }
 
 /// `f` of each of *items* (a permutation of `0..items.len()`), on every core, each thread taking
@@ -643,8 +732,15 @@ fn kept(c: &[V3], plane: &Plane, tol: f64, curve: Option<&Curve>) -> Vec<Vec<V3>
 /// join that runs along the surface's silhouette is drawn, as the outline it is there.
 fn edges<'p>(part: &'p Part, view: &View, drawn: &[usize]) -> Vec<(Class, Vec<V3>, On<'p>)> {
     let on_outline = |e: usize, face: usize| {
-        let s = &part.edges[e].samples;
-        let mid = s[s.len() / 2];
+        // On the curve halfway along a middle chord (a line's samples are its two vertices,
+        // which a file may leave off the curve: cgb242's edge 83, 2e-4 at one end), and within
+        // 1e-6 rad of the view (the curve itself may stray off its face by 1e-8, ftc_09's).
+        let (edge, s) = (&part.edges[e], &part.edges[e].samples);
+        let k = (s.len() / 2).max(1);
+        let mid = edge.curve.value(
+            edge.curve
+                .parameter(geom::scale(geom::add(s[k - 1], s[k]), 0.5)),
+        );
         part.faces[face]
             .surface
             .parameters(mid, None)
@@ -652,7 +748,7 @@ fn edges<'p>(part: &'p Part, view: &View, drawn: &[usize]) -> Vec<(Class, Vec<V3
                 part.faces[face]
                     .surface
                     .normal(u, v)
-                    .is_some_and(|n| geom::dot(n, view.toward).abs() <= 1e-9)
+                    .is_some_and(|n| geom::dot(n, view.toward).abs() <= 1e-6)
             })
     };
     // A seam: an edge one face's loops use twice (listed once among its faces).
