@@ -70,6 +70,7 @@ pub mod repeating_profiles;
 pub mod rings;
 pub mod round_bottom_slots;
 pub mod section_passages;
+pub mod section_recess;
 pub mod sections;
 pub mod sheet_metal;
 pub mod slots;

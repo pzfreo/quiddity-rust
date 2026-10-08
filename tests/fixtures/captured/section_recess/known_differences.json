@@ -1,0 +1,486 @@
+[
+  {
+    "case": "invariance",
+    "class": "SectionRecessGeometry",
+    "motion": "translate",
+    "given": {
+      "record": "SectionRecessGeometry",
+      "type": "section_recess",
+      "frame": {
+        "record": "PassageFrame",
+        "origin": [
+          136.537,
+          -57.123,
+          0.0
+        ],
+        "run": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "u": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "v": [
+          0.0,
+          1.0,
+          0.0
+        ]
+      },
+      "run_interval": [
+        91.234,
+        153.234
+      ],
+      "profile": {
+        "record": "OpenSectionProfile",
+        "closure": "open",
+        "boundary": [
+          {
+            "record": "PassageSectionVertex",
+            "point": [
+              0.47,
+              -1.0
+            ],
+            "bulge": 0.0
+          },
+          {
+            "record": "PassageSectionVertex",
+            "point": [
+              -0.47,
+              -1.0
+            ],
+            "bulge": 0.0
+          },
+          {
+            "record": "PassageSectionVertex",
+            "point": [
+              -0.47,
+              1.0
+            ],
+            "bulge": 0.0
+          },
+          {
+            "record": "PassageSectionVertex",
+            "point": [
+              0.47,
+              1.0
+            ],
+            "bulge": 0.0
+          }
+        ],
+        "opening": [
+          [
+            0.47,
+            1.0
+          ],
+          [
+            0.47,
+            -1.0
+          ]
+        ],
+        "material_side": "left"
+      },
+      "ends": {
+        "record": "SectionRecessEnds",
+        "low": {
+          "record": "SectionEnd",
+          "condition": "open",
+          "surface": {
+            "record": "PlanarEndSurface",
+            "type": "plane",
+            "gradient": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "high": {
+          "record": "SectionEnd",
+          "condition": "open",
+          "surface": {
+            "record": "CylindricalEndSurface",
+            "type": "cylinder",
+            "axis_point": [
+              0.0,
+              0.0,
+              157.2345
+            ],
+            "axis_direction": [
+              1.0,
+              0.0
+            ],
+            "radius": 4.0,
+            "branch": "negative"
+          }
+        }
+      }
+    },
+    "verdict": "not-applicable",
+    "reason": "A rounding tie, not a placement dependence of the port: the cylinder end's centroid height (axis height 157.2345 minus or plus the radius) ends in 5 at the fourth decimal, so the published interval end is its round to three decimals, and that round falls the other way once the height is shifted by the translation's 41.3 along the run (the binary value of x.xxx5 changes side). The test moves the interval by shifting and rounding it, not by re-deriving it from the moved height as a publisher does, so the moved input disagrees with its own centroid. Python refuses the same moved inputs with the same message (checked with quiddity 6d544e0 by building them in Python); a record published from the moved part would carry the re-rounded interval end and be accepted."
+  },
+  {
+    "case": "invariance",
+    "class": "SectionRecessGeometry",
+    "motion": "translate",
+    "given": {
+      "record": "SectionRecessGeometry",
+      "type": "section_recess",
+      "frame": {
+        "record": "PassageFrame",
+        "origin": [
+          254.257,
+          -57.123,
+          0.0
+        ],
+        "run": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "u": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "v": [
+          0.0,
+          1.0,
+          0.0
+        ]
+      },
+      "run_interval": [
+        91.234,
+        711.235
+      ],
+      "profile": {
+        "record": "OpenSectionProfile",
+        "closure": "open",
+        "boundary": [
+          {
+            "record": "PassageSectionVertex",
+            "point": [
+              4.7,
+              -10.0
+            ],
+            "bulge": 0.0
+          },
+          {
+            "record": "PassageSectionVertex",
+            "point": [
+              -4.7,
+              -10.0
+            ],
+            "bulge": 0.0
+          },
+          {
+            "record": "PassageSectionVertex",
+            "point": [
+              -4.7,
+              10.0
+            ],
+            "bulge": 0.0
+          },
+          {
+            "record": "PassageSectionVertex",
+            "point": [
+              4.7,
+              10.0
+            ],
+            "bulge": 0.0
+          }
+        ],
+        "opening": [
+          [
+            4.7,
+            10.0
+          ],
+          [
+            4.7,
+            -10.0
+          ]
+        ],
+        "material_side": "left"
+      },
+      "ends": {
+        "record": "SectionRecessEnds",
+        "low": {
+          "record": "SectionEnd",
+          "condition": "open",
+          "surface": {
+            "record": "PlanarEndSurface",
+            "type": "plane",
+            "gradient": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "high": {
+          "record": "SectionEnd",
+          "condition": "open",
+          "surface": {
+            "record": "CylindricalEndSurface",
+            "type": "cylinder",
+            "axis_point": [
+              0.0,
+              0.0,
+              751.2345
+            ],
+            "axis_direction": [
+              1.0,
+              0.0
+            ],
+            "radius": 40.0,
+            "branch": "negative"
+          }
+        }
+      }
+    },
+    "verdict": "not-applicable",
+    "reason": "A rounding tie, not a placement dependence of the port: the cylinder end's centroid height (axis height 751.2345 minus or plus the radius) ends in 5 at the fourth decimal, so the published interval end is its round to three decimals, and that round falls the other way once the height is shifted by the translation's 41.3 along the run (the binary value of x.xxx5 changes side). The test moves the interval by shifting and rounding it, not by re-deriving it from the moved height as a publisher does, so the moved input disagrees with its own centroid. Python refuses the same moved inputs with the same message (checked with quiddity 6d544e0 by building them in Python); a record published from the moved part would carry the re-rounded interval end and be accepted."
+  },
+  {
+    "case": "invariance",
+    "class": "SectionRecessGeometry",
+    "motion": "translate",
+    "given": {
+      "record": "SectionRecessGeometry",
+      "type": "section_recess",
+      "frame": {
+        "record": "PassageFrame",
+        "origin": [
+          254.257,
+          -57.123,
+          0.0
+        ],
+        "run": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "u": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "v": [
+          0.0,
+          1.0,
+          0.0
+        ]
+      },
+      "run_interval": [
+        -528.765,
+        91.234
+      ],
+      "profile": {
+        "record": "OpenSectionProfile",
+        "closure": "open",
+        "boundary": [
+          {
+            "record": "PassageSectionVertex",
+            "point": [
+              4.7,
+              -10.0
+            ],
+            "bulge": 0.0
+          },
+          {
+            "record": "PassageSectionVertex",
+            "point": [
+              -4.7,
+              -10.0
+            ],
+            "bulge": 0.0
+          },
+          {
+            "record": "PassageSectionVertex",
+            "point": [
+              -4.7,
+              10.0
+            ],
+            "bulge": 0.0
+          },
+          {
+            "record": "PassageSectionVertex",
+            "point": [
+              4.7,
+              10.0
+            ],
+            "bulge": 0.0
+          }
+        ],
+        "opening": [
+          [
+            4.7,
+            10.0
+          ],
+          [
+            4.7,
+            -10.0
+          ]
+        ],
+        "material_side": "left"
+      },
+      "ends": {
+        "record": "SectionRecessEnds",
+        "low": {
+          "record": "SectionEnd",
+          "condition": "open",
+          "surface": {
+            "record": "CylindricalEndSurface",
+            "type": "cylinder",
+            "axis_point": [
+              0.0,
+              -0.0,
+              -568.7655
+            ],
+            "axis_direction": [
+              1.0,
+              -0.0
+            ],
+            "radius": 40.0,
+            "branch": "positive"
+          }
+        },
+        "high": {
+          "record": "SectionEnd",
+          "condition": "open",
+          "surface": {
+            "record": "PlanarEndSurface",
+            "type": "plane",
+            "gradient": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      }
+    },
+    "verdict": "not-applicable",
+    "reason": "A rounding tie, not a placement dependence of the port: the cylinder end's centroid height (axis height -568.7655 minus or plus the radius) ends in 5 at the fourth decimal, so the published interval end is its round to three decimals, and that round falls the other way once the height is shifted by the translation's 41.3 along the run (the binary value of x.xxx5 changes side). The test moves the interval by shifting and rounding it, not by re-deriving it from the moved height as a publisher does, so the moved input disagrees with its own centroid. Python refuses the same moved inputs with the same message (checked with quiddity 6d544e0 by building them in Python); a record published from the moved part would carry the re-rounded interval end and be accepted."
+  },
+  {
+    "case": "invariance",
+    "class": "SectionRecessGeometry",
+    "motion": "translate",
+    "given": {
+      "record": "SectionRecessGeometry",
+      "type": "section_recess",
+      "frame": {
+        "record": "PassageFrame",
+        "origin": [
+          136.537,
+          -57.123,
+          0.0
+        ],
+        "run": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "u": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "v": [
+          0.0,
+          1.0,
+          0.0
+        ]
+      },
+      "run_interval": [
+        29.235,
+        91.234
+      ],
+      "profile": {
+        "record": "OpenSectionProfile",
+        "closure": "open",
+        "boundary": [
+          {
+            "record": "PassageSectionVertex",
+            "point": [
+              0.47,
+              -1.0
+            ],
+            "bulge": 0.0
+          },
+          {
+            "record": "PassageSectionVertex",
+            "point": [
+              -0.47,
+              -1.0
+            ],
+            "bulge": 0.0
+          },
+          {
+            "record": "PassageSectionVertex",
+            "point": [
+              -0.47,
+              1.0
+            ],
+            "bulge": 0.0
+          },
+          {
+            "record": "PassageSectionVertex",
+            "point": [
+              0.47,
+              1.0
+            ],
+            "bulge": 0.0
+          }
+        ],
+        "opening": [
+          [
+            0.47,
+            1.0
+          ],
+          [
+            0.47,
+            -1.0
+          ]
+        ],
+        "material_side": "left"
+      },
+      "ends": {
+        "record": "SectionRecessEnds",
+        "low": {
+          "record": "SectionEnd",
+          "condition": "open",
+          "surface": {
+            "record": "CylindricalEndSurface",
+            "type": "cylinder",
+            "axis_point": [
+              0.0,
+              -0.0,
+              25.2345
+            ],
+            "axis_direction": [
+              1.0,
+              -0.0
+            ],
+            "radius": 4.0,
+            "branch": "positive"
+          }
+        },
+        "high": {
+          "record": "SectionEnd",
+          "condition": "open",
+          "surface": {
+            "record": "PlanarEndSurface",
+            "type": "plane",
+            "gradient": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      }
+    },
+    "verdict": "not-applicable",
+    "reason": "A rounding tie, not a placement dependence of the port: the cylinder end's centroid height (axis height 25.2345 minus or plus the radius) ends in 5 at the fourth decimal, so the published interval end is its round to three decimals, and that round falls the other way once the height is shifted by the translation's 41.3 along the run (the binary value of x.xxx5 changes side). The test moves the interval by shifting and rounding it, not by re-deriving it from the moved height as a publisher does, so the moved input disagrees with its own centroid. Python refuses the same moved inputs with the same message (checked with quiddity 6d544e0 by building them in Python); a record published from the moved part would carry the re-rounded interval end and be accepted."
+  }
+]
