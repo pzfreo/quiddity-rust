@@ -1,0 +1,19 @@
+{
+ "case": "nist_ctc_01_merge",
+ "command": "specify-core analyse [--part N]; specify-core write --accept-defaults --intent",
+ "input": "nist:nist_ctc_01_asme1_ap242-e1.stp",
+ "input_sha256": "036683e8358ac27d51a92c35362e175c91bc44d3b600a5c605fb496865edcd37",
+ "not_byte_for_byte": "the STEP header FILE_NAME time stamp",
+ "specify_core": "cc341dd6eaea84428d9bcf34915a7bffd78fecdb",
+ "write_report": {
+  "not_written": [],
+  "warnings": [],
+  "written": [
+   "perpendicularity 0.05 on datum B",
+   "material Aluminium 6082-T6",
+   "general tolerance ISO 2768-m",
+   "surface finish Ra 3.2",
+   "edges Break sharp edges 0.2 max"
+  ]
+ }
+}

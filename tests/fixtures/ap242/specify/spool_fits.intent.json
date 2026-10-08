@@ -1,0 +1,297 @@
+{
+ "schema": 1,
+ "rules_version": 1,
+ "binding": {
+  "source_sha256": "58dfe8a594a5afe64652ea127807ad6141812e2e1d2556d429f6a42e4ec46747",
+  "face_count": 92,
+  "loader_version": 2,
+  "part": 0
+ },
+ "part": {
+  "material": "Aluminium 6082-T6",
+  "general_tolerance": "ISO 2768-m",
+  "surface_finish": "Ra 3.2",
+  "edges": "Break sharp edges 0.2 max"
+ },
+ "datums": [
+  {
+   "letter": "A",
+   "faces": [
+    69
+   ],
+   "question": "datum.A"
+  },
+  {
+   "letter": "B",
+   "faces": [
+    55
+   ],
+   "question": "datum.B"
+  }
+ ],
+ "requirements": [
+  {
+   "kind": "size",
+   "feature": "holes:34.55",
+   "faces": [
+    55
+   ],
+   "nominal": 62.0,
+   "fit": "H7",
+   "upper": 0.03,
+   "lower": 0.0,
+   "question": "hole.function:holes:34.55"
+  },
+  {
+   "kind": "size",
+   "feature": "hole_patterns.bolt_circle:0.16.17.18.20.21",
+   "faces": [
+    0,
+    16,
+    17,
+    18,
+    20,
+    21
+   ],
+   "nominal": 10.0,
+   "fit": "H11",
+   "upper": 0.09,
+   "lower": 0.0,
+   "clearance_for": "M8",
+   "question": "hole.function:hole_patterns.bolt_circle:0.16.17.18.20.21"
+  },
+  {
+   "kind": "position",
+   "feature": "hole_patterns.bolt_circle:0.16.17.18.20.21",
+   "faces": [
+    0,
+    16,
+    17,
+    18,
+    20,
+    21
+   ],
+   "tolerance": 0.2,
+   "diametral": true,
+   "datums": [
+    "A",
+    "B"
+   ],
+   "mmc": true,
+   "question": "hole.position:hole_patterns.bolt_circle:0.16.17.18.20.21"
+  },
+  {
+   "kind": "size",
+   "feature": "turned_steps:87",
+   "faces": [
+    87
+   ],
+   "nominal": 130.0,
+   "fit": "g6",
+   "upper": -0.014,
+   "lower": -0.039,
+   "question": "diameter.fit:turned_steps:87"
+  },
+  {
+   "kind": "size",
+   "feature": "turned_steps:70",
+   "faces": [
+    70
+   ],
+   "nominal": 130.0,
+   "fit": "g6",
+   "upper": -0.014,
+   "lower": -0.039,
+   "question": "diameter.fit:turned_steps:87"
+  },
+  {
+   "kind": "runout",
+   "feature": "turned_steps:87",
+   "faces": [
+    87
+   ],
+   "tolerance": 0.02,
+   "datums": [
+    "A",
+    "B"
+   ],
+   "question": "diameter.runout:turned_steps:87"
+  },
+  {
+   "kind": "runout",
+   "feature": "turned_steps:70",
+   "faces": [
+    70
+   ],
+   "tolerance": 0.02,
+   "datums": [
+    "A",
+    "B"
+   ],
+   "question": "diameter.runout:turned_steps:87"
+  },
+  {
+   "kind": "size",
+   "feature": "turned_steps:89",
+   "faces": [
+    89
+   ],
+   "nominal": 70.0,
+   "fit": "f7",
+   "upper": -0.03,
+   "lower": -0.06,
+   "question": "diameter.fit:turned_steps:89"
+  },
+  {
+   "kind": "flatness",
+   "faces": [
+    69
+   ],
+   "tolerance": 0.02,
+   "question": "datum.A.flatness"
+  },
+  {
+   "kind": "perpendicularity",
+   "feature": "datum B",
+   "faces": [
+    55
+   ],
+   "tolerance": 0.05,
+   "diametral": true,
+   "datums": [
+    "A"
+   ],
+   "question": "datum.B.control"
+  }
+ ],
+ "general": [
+  {
+   "kind": "size",
+   "feature": "hole_patterns.bolt_circle:57.58.59.60.61.62.63.64.65.66.67.68",
+   "faces": [
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68
+   ],
+   "nominal": 8.0,
+   "upper": 0.2,
+   "lower": -0.2,
+   "general": true
+  },
+  {
+   "kind": "size",
+   "feature": "hole_patterns.bolt_circle:73.74.75.76.77.78.79.80.81.82.83.84",
+   "faces": [
+    76,
+    75,
+    77,
+    73,
+    74,
+    81,
+    82,
+    84,
+    78,
+    79,
+    83,
+    80
+   ],
+   "nominal": 8.0,
+   "upper": 0.2,
+   "lower": -0.2,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    3
+   ],
+   "reference": [
+    69
+   ],
+   "distance": 140.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    53
+   ],
+   "reference": [
+    69
+   ],
+   "distance": 130.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    2
+   ],
+   "reference": [
+    69
+   ],
+   "distance": 128.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    54
+   ],
+   "reference": [
+    69
+   ],
+   "distance": 113.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    71
+   ],
+   "reference": [
+    69
+   ],
+   "distance": 108.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    88
+   ],
+   "reference": [
+    69
+   ],
+   "distance": 5.0,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  }
+ ]
+}
