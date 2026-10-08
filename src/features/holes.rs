@@ -4,6 +4,13 @@
 //! optional spotface become one hole, and a bore interrupted by a crossing hole is recombined.
 //! Each stack's ends are classified from the faces beyond them, which decides the opening, the
 //! bottom and the depth.
+//!
+//! Python's default inventory retries with `local_degradation` set when this family's strict
+//! evidence refuses on a part whose solids are not all valid; three corpus parts take it
+//! (`tests/local_degradation.rs`). [`discover_locally_degraded`] is that run's evidence path: a
+//! hole proving no one valid solid is skipped, not refused. Not ported: the retry itself (the
+//! port's `recognise` checks no evidence, so has no refusal to retry on) and the degraded run's
+//! admission of an invalid solid with a small bad-face region (the kernel finds no bad faces).
 
 use std::collections::BTreeSet;
 
@@ -92,6 +99,36 @@ pub fn discover_verified(
     csinks: &[Occurrence<CounterSink>],
 ) -> Result<Vec<Occurrence<HoleRecord>>, EvidenceError> {
     let found = discover(ctx, csinks);
+    seats_once(csinks, &found)?;
+    evidence::verified(ctx.part, found)
+}
+
+/// The evidence path as Python's locally degraded run takes it (`_discover_holes` on a graph
+/// with `local_degradation` set): a hole whose cylinder and closing faces prove no one valid
+/// solid is skipped instead of refusing every hole, and the countersink check is made over the
+/// holes kept. Python's degraded run also admits an invalid solid with at most three bad faces,
+/// skipping only what touches them; the kernel's validity is topological and whole-solid, with
+/// no bad-face region, so here a hole on an invalid solid is always skipped. The seat face of a
+/// composed countersink is proved with the hole, so a hole whose seat lies on another solid is
+/// skipped, where Python refuses it (no captured call or corpus part has one).
+pub fn discover_locally_degraded(
+    ctx: &Context<'_>,
+    csinks: &[Occurrence<CounterSink>],
+) -> Result<Vec<Occurrence<HoleRecord>>, EvidenceError> {
+    let mut found = discover(ctx, csinks);
+    found.retain(|h| {
+        let faces: Vec<usize> = h.defining.iter().chain(&h.context).copied().collect();
+        !h.defining.is_empty() && evidence::common_valid_solid(ctx.part, &faces).is_some()
+    });
+    seats_once(csinks, &found)?;
+    Ok(found)
+}
+
+/// No countersink may seat two holes.
+fn seats_once(
+    csinks: &[Occurrence<CounterSink>],
+    found: &[Occurrence<HoleRecord>],
+) -> Result<(), EvidenceError> {
     for cs in csinks {
         let seats = found
             .iter()
@@ -101,7 +138,7 @@ pub fn discover_verified(
             return Err(EvidenceError::SharedEvidence);
         }
     }
-    evidence::verified(ctx.part, found)
+    Ok(())
 }
 
 /// `recognise_holes`.

@@ -83,9 +83,32 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/passages/known_divergences.json` | `tests/passages.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_section_recess_helpers.json` | `tests/section_recess_helpers.rs` | 4 | 0 | 4 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 120 (2922 answers) | 98 | 10 | 0 | 9 | 3 |
+| `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 11 | 3 | 5 | 0 | 0 | 3 |
 
 The undetermined entries are the backlog: differences not yet shown to be either side's error.
 The rust-wrong entries are known port defects.
+
+Python's default inventory runs strictly and, when that refuses an unproved hole on a part whose
+solids are not all valid under BRepCheck, runs again with `local_degradation` set, where a
+family skips a record that proves no one valid solid instead of refusing it.
+`tools/capture_local_degradation.py` records it over the whole corpus
+(`captured/local_degradation/capture.json`): 3 of 100 parts take the retry (cgb202, 13975,
+14052) and every retried inventory completes, skipping 11 records: 2 fillets (cgb202), 2 pockets,
+1 hole, 1 riser and 2 face levels (13975), 1 hole and 1 plate (14052). Countersinks, prismatic
+pockets, double-D bores, through steps, angled steps, circular blind steps and seven other
+families check the flag there and skip nothing; passages, oriented slots, repeating profiles,
+polygonal bosses, sheet metal, thin walls, pads and oblique through steps, among others, never
+reach their check. Ported: the holes' degraded evidence path
+(`holes::discover_locally_degraded`), which skips 13975's hole as Python does and publishes
+14052's on a solid it calls valid (rust-wrong). Not ported: the retry itself (the port's
+`recognise` checks no family's evidence, so there is no refusal to retry on; whether it should
+panic or carry a refusal is an open maintainer question), the degraded pockets path
+(`pockets.rs`, changed by unmerged w3/q-hygiene-r6), the fillet and plate skips (in
+`fillets.rs` and `plates.rs`), and Python's admission of an invalid solid with at most three
+bad faces, which needs a per-face geometric validity check the kernel does not have.
+`tests/local_degradation.rs` compares which parts retry and every skip against the port's
+evidence paths, with each difference's verdict in `captured/local_degradation/known.json`, and
+checks the degraded holes under two rigid motions.
 
 The kernel also answers the questions the unported families ask of OpenCascade's booleans,
 checked against every one Python asks over the corpus: the volume a probe shares with a solid
@@ -317,6 +340,8 @@ tests/
                      Python's captured calls, and the proofs under the invariance motions
   prismatic_pockets.rs  prismatic pocket walls and consulted floors on Python's evidence-test
                      parts
+  local_degradation.rs  which corpus parts take Python's local-degradation retry and what it
+                     skips there, against the port's evidence paths, and under rigid motion
   corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity
                      revision, every file and its sha256)
   determinism.rs     every corpus part's recognition and correspondence JSON byte for byte the
@@ -373,6 +398,8 @@ tools/
   capture_effective_surfaces.py records `_effective_surfaces`'s answers for every face of its
                      consumers' test parts, the golden fixtures and the corpus
                      (captured/effective_surfaces/)
+  capture_local_degradation.py records which corpus parts take Python's local-degradation retry
+                     and every record it skips there (captured/local_degradation/)
   capture_frames.py  records Python's part frames (captured/frames.json, the built parts as
                      STEP in captured/frames/); --compare runs a Python recogniser on a corpus
                      part's framed working part, as read and turned

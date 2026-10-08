@@ -12,8 +12,9 @@
 //!
 //! Patterns ([`recognise_oriented_slot_patterns`]) are derived from the slots as slot patterns
 //! are from slots ([`super::recess_patterns`]): grouped by directions, size, run, depth plane and
-//! body; a slot whose body is ambiguous joins none. Python's opt-in `local_degradation` graph
-//! mode is not ported, as for passages.
+//! body; a slot whose body is ambiguous joins none. Python's `local_degradation` graph mode is
+//! not ported, as for passages: the default inventory retries in it on three corpus parts, and
+//! this family's check of the flag is reached on none of them (`tests/local_degradation.rs`).
 
 use std::cmp::Ordering;
 
