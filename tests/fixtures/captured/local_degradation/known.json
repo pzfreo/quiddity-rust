@@ -43,34 +43,6 @@
   },
   {
     "faces": [
-      8,
-      9,
-      10
-    ],
-    "file": "inventory_refusal/13975.step.gz",
-    "function": "_discover_pockets",
-    "kind": "skip",
-    "module": "_recess_features",
-    "reason": "Python's degraded run skips the two pockets (OpenCascade's import of this non-orientable shell yields no solid, so no face is owned by exactly one solid) and the inventory completes; the port reads the file's one solid, finds it not orientable, and its strict pocket evidence path refuses every pocket, since pockets.rs has no locally degraded path. Neither side vouches for these pockets; the port refuses where Python skips. Porting the skip needs src/features/pockets.rs, which unmerged w3/q-hygiene-r6 changes.",
-    "rust": "refused",
-    "verdict": "rust-wrong"
-  },
-  {
-    "faces": [
-      11,
-      12,
-      13
-    ],
-    "file": "inventory_refusal/13975.step.gz",
-    "function": "_discover_pockets",
-    "kind": "skip",
-    "module": "_recess_features",
-    "reason": "Python's degraded run skips the two pockets (OpenCascade's import of this non-orientable shell yields no solid, so no face is owned by exactly one solid) and the inventory completes; the port reads the file's one solid, finds it not orientable, and its strict pocket evidence path refuses every pocket, since pockets.rs has no locally degraded path. Neither side vouches for these pockets; the port refuses where Python skips. Porting the skip needs src/features/pockets.rs, which unmerged w3/q-hygiene-r6 changes.",
-    "rust": "refused",
-    "verdict": "rust-wrong"
-  },
-  {
-    "faces": [
       2
     ],
     "file": "inventory_refusal/13975.step.gz",
