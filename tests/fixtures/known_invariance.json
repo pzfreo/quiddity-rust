@@ -40,27 +40,11 @@
     "max_differing": 1
   },
   {
-    "file": "cadgenbench_inputs/cgb241.step",
-    "motion": "generic_framed",
-    "family": "risers",
-    "verdict": "rust-wrong",
-    "reason": "Kernel, not the frame (the two frames agree to 1e-9): face 15's box differs between the two working parts. A B-spline face's box takes the 13x13 grid of its surface's parameter domain where the face's domain contains the point; on the domain edge u = u0, which the face's boundary runs along, containment is decided by round-off, so in one working part grid points (0,4)-(0,8) are in and in the other (0,0)-(0,3) and (0,9)-(0,11), including (0,0) at y = -582.6, 290 mm beyond every edge of the face (they reach -293.2; OpenCascade's tight box of the face, BRepBndLib::AddOptimal, is its edges' extent). The part's envelope then moves, and with it the riser test `bb.min + tol < position` for faces 26 and 46. Python's framed risers do not change (2 and 2: its part box, -583.0, is OpenCascade's loose one, padded by the surface's poles, so it finds 2 where the port's unmoved working part, with the tight box, finds 4).",
-    "max_differing": 2
-  },
-  {
     "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
     "motion": "generic_framed",
     "family": "risers",
     "verdict": "rust-wrong",
     "reason": "The translate entry's cause, in the part's frame: the wall (face 7) lies exactly the level tolerance (0.5 mm) inside the envelope, on the boundary of the riser test `bb.min + tol < position`, so round-off from the placement decides it. The recogniser's threshold is at fault; Python's framed recognition does the same (tools/capture_frames.py --compare recognise_risers: 2 risers unmoved, 1 moved, the one at -6.082 lost).",
-    "max_differing": 1
-  },
-  {
-    "file": "nist/nist_ftc_06_asme1_rd.stp",
-    "motion": "generic_framed",
-    "family": "plates",
-    "verdict": "rust-wrong",
-    "reason": "Kernel, not the frame (the two frames agree to 1e-9): in the moved working part the boxes of cone faces 40 and 45 reach their apex (x 113.23 against 56.08): a cone face's box takes the apex (u = 0, v = apex) when the face's domain contains it, and that point on the seam is judged inside in one placement only (OpenCascade's box of face 40, loose or tight, is its edges' extent: the face stops well short of the apex). The part's envelope grows and the plate on faces 5, 7, 14 is lost. Python's framed plates do not change (2 and 2), and the unmoved working part's answer is Python's.",
     "max_differing": 1
   },
   {

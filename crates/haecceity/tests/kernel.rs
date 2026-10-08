@@ -446,3 +446,141 @@ fn volume_probes_refuse_rather_than_read_unanswered_rays_as_air() {
         None
     );
 }
+
+/// Review M8's generic rotation (37° about (1, 2, 3)), then a non-round translation.
+fn generic_placement() -> haecceity::step::Placement {
+    let n = 14f64.sqrt();
+    let [x, y, z] = [1.0 / n, 2.0 / n, 3.0 / n];
+    let (s, c) = 37f64.to_radians().sin_cos();
+    let t = 1.0 - c;
+    [
+        [t * x * x + c, t * x * y - s * z, t * x * z + s * y, 123.456],
+        [t * x * y + s * z, t * y * y + c, t * y * z - s * x, -78.9],
+        [t * x * z - s * y, t * y * z + s * x, t * z * z + c, 41.3],
+    ]
+}
+
+/// A face's box is its trimmed face's, wherever the part sits: each coordinate range of the
+/// moved face is the unmoved face's extent along the matching turned axis, to 1e-9 of the part.
+/// cgb241 face 15 is a B-spline face whose surface runs far past it along its domain edge
+/// u = u0, which the face's boundary follows (grid points there were in or out by round-off);
+/// nist_ftc_06 faces 40 and 45 are cone frusta whose seam runs through the apex's parameter
+/// (the apex was taken in one placement); threaded_connector_109 has many B-spline faces.
+#[test]
+fn face_boxes_move_with_the_part() {
+    use haecceity::step::read_step_file_placed;
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let placement = generic_placement();
+    for file in [
+        "cadgenbench_inputs/cgb241.step",
+        "nist/nist_ftc_06_asme1_rd.stp",
+        "cadgenbench/threaded_connector_109.step",
+    ] {
+        let unmoved = read_step_file(&dir.join(file)).unwrap();
+        let moved = read_step_file_placed(&dir.join(file), &placement).unwrap();
+        let tol = 1e-9 * unmoved.bounds().diagonal();
+        for face in 0..unmoved.faces.len() {
+            let b = moved.face_bounds(face);
+            for (k, row) in placement.iter().enumerate() {
+                let (lo, hi) = unmoved.extent_along(&[face], [row[0], row[1], row[2]]);
+                let (mlo, mhi) = (b.min[k] - row[3], b.max[k] - row[3]);
+                assert!(
+                    (mlo - lo).abs() <= tol && (mhi - hi).abs() <= tol,
+                    "{file} face {face} axis {k}: moved {:?}, unmoved {:?}",
+                    (mlo, mhi),
+                    (lo, hi)
+                );
+            }
+        }
+    }
+}
+
+/// A face's box does not reach past the trimmed face: no further than a dense sample of the face
+/// (its edges' samples and the points of a 200 × 200 grid its domain contains) goes, in either
+/// placement. The cone frusta of nist_ftc_06 stop well short of their apex.
+#[test]
+fn face_boxes_stay_on_the_trimmed_face() {
+    use haecceity::step::{IDENTITY, read_step_file_placed};
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    for (file, faces) in [
+        ("cadgenbench_inputs/cgb241.step", &[15][..]),
+        ("nist/nist_ftc_06_asme1_rd.stp", &[40, 45][..]),
+    ] {
+        for placement in [IDENTITY, generic_placement()] {
+            let part = read_step_file_placed(&dir.join(file), &placement).unwrap();
+            let tol = 1e-6 * part.bounds().diagonal();
+            for &face in faces {
+                let mut sample = haecceity::geom::Bounds::empty();
+                for e in part.face_edges(face) {
+                    part.edges[e].samples.iter().for_each(|&p| sample.add(p));
+                }
+                let (u0, u1, v0, v1) = part.uv_bounds(face).unwrap();
+                let domain = part.domain(face).unwrap();
+                let n = 200;
+                for i in 0..=n {
+                    for j in 0..=n {
+                        let u = u0 + (u1 - u0) * i as f64 / n as f64;
+                        let v = v0 + (v1 - v0) * j as f64 / n as f64;
+                        if domain.contains(u, v) {
+                            sample.add(part.faces[face].surface.value(u, v));
+                        }
+                    }
+                }
+                let b = part.face_bounds(face);
+                for k in 0..3 {
+                    assert!(
+                        b.min[k] >= sample.min[k] - tol && b.max[k] <= sample.max[k] + tol,
+                        "{file} face {face} axis {k}: box {:?}, face sample {:?}",
+                        (b.min[k], b.max[k]),
+                        (sample.min[k], sample.max[k])
+                    );
+                }
+            }
+        }
+    }
+}
+
+/// Which analytic surface a B-spline face is recovered as does not depend on where the part
+/// sits. threaded_connector_109 face 125 (next to a boss and a turned step) was a plane unmoved
+/// only: the recovery grid's outer lines run along the face's boundary, where containment is
+/// round-off, and a cone fitted to the plane's near-identical normals came within tolerance in
+/// one placement.
+#[test]
+fn surface_recovery_moves_with_the_part() {
+    use haecceity::geom::{Surface, SurfaceType};
+    use haecceity::step::read_step_file_placed;
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let rot_zx_moved = [
+        [0.0, 0.0, 1.0, 123.456],
+        [1.0, 0.0, 0.0, -78.9],
+        [0.0, 1.0, 0.0, 41.3],
+    ];
+    let file = "cadgenbench/threaded_connector_109.step";
+    let unmoved = read_step_file(&dir.join(file)).unwrap();
+    assert_eq!(
+        unmoved.recovered(125).map(|s| s.kind()),
+        Some(SurfaceType::Plane)
+    );
+    for placement in [rot_zx_moved, generic_placement()] {
+        let moved = read_step_file_placed(&dir.join(file), &placement).unwrap();
+        for face in 0..unmoved.faces.len() {
+            if !matches!(unmoved.faces[face].surface, Surface::Freeform { .. }) {
+                continue;
+            }
+            assert_eq!(
+                unmoved.recovered(face).map(|s| s.kind()),
+                moved.recovered(face).map(|s| s.kind()),
+                "{file} face {face}"
+            );
+        }
+    }
+}

@@ -2,10 +2,11 @@
 //! traversal order OpenCascade gives a STEP import, so face indices mean the same thing on both
 //! sides of the port.
 
+use std::f64::consts::TAU;
 use std::sync::OnceLock;
 
 use super::geom::{self, Bounds, Curve, Surface, V3};
-use super::sampling::{arc_extremes, edge_interval};
+use super::sampling::{edge_interval, extremes_along};
 use super::uv::{FaceDomain, UvLoop, touches_singular_point};
 
 const AXES: [V3; 3] = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
@@ -134,6 +135,16 @@ impl Edge {
     }
 }
 
+/// Whether the face's domain holds a neighbourhood of (u, v): the points a step of *h* away
+/// in u and in v, each way, are all inside it (the point itself is never read). A point on the
+/// domain's boundary, a seam included, is inside or not by round-off, so the answer there would
+/// follow the part's placement; this one is "no" there, and placement-independent elsewhere.
+pub(super) fn holds(domain: &FaceDomain, u: f64, v: f64, (hu, hv): (f64, f64)) -> bool {
+    [(-hu, 0.0), (hu, 0.0), (0.0, -hv), (0.0, hv)]
+        .iter()
+        .all(|&(du, dv)| domain.contains(u + du, v + dv))
+}
+
 /// A part's boundary representation: faces, edges and solids in OpenCascade's traversal order.
 ///
 /// Immutable after construction. `faces`, `edges` and `solids` are public for reading only:
@@ -216,53 +227,68 @@ impl Part {
             for &(e, _) in &lp.edges {
                 let edge = &self.edges[e];
                 out.extend(&edge.samples);
-                out.extend(arc_extremes(
-                    &edge.curve,
-                    edge.start,
-                    edge.end,
-                    edge.same_sense,
-                    edge.is_closed(),
-                    dirs,
-                ));
+                // Conics' extremes in closed form: their samples are taken in the part's
+                // placement, so would put the box's sampling error there too.
+                if let Curve::Circle { .. } | Curve::Ellipse { .. } = edge.curve {
+                    let interval = edge_interval(
+                        &edge.curve,
+                        edge.start,
+                        edge.end,
+                        edge.same_sense,
+                        edge.is_closed(),
+                    );
+                    out.extend(extremes_along(&edge.curve, interval, dirs));
+                }
             }
         }
         // Doubly-curved faces can bulge past their boundary: add their interior extremes that
         // lie on the face.
-        let candidates: Vec<(f64, f64)> = match &f.surface {
+        let Some(domain) = self.domain(face) else {
+            return out;
+        };
+        // A candidate counts where the face holds a neighbourhood of it (`holds`): one on the
+        // face's boundary adds nothing the edges do not.
+        match &f.surface {
             Surface::Sphere { .. } | Surface::Torus { .. } => {
-                f.surface.extreme_parameters_along(dirs)
+                for (u, v) in f.surface.extreme_parameters_along(dirs) {
+                    if holds(domain, u, v, (1e-6 * TAU, 1e-6 * TAU))
+                        || touches_singular_point(&f.surface, domain, v)
+                    {
+                        out.push(f.surface.value(u, v));
+                    }
+                }
             }
-            // A cone face can run to its apex without a vertex there to bound it.
+            // A cone face can run to its apex without a vertex there to bound it. The apex is a
+            // whole parameter line (u is undefined there), so whether the face reaches it is read
+            // round that line, on both sides, between the u steps that a seam at u = 0 would
+            // put on the face's boundary.
             Surface::Cone {
                 radius, semi_angle, ..
             } => {
                 let apex = -radius / semi_angle.sin();
-                let nudge = 1e-9 * (1.0 + apex.abs());
-                [apex - nudge, apex + nudge].map(|v| (0.0, v)).to_vec()
+                let reaches = [apex - 1e-4, apex + 1e-4]
+                    .into_iter()
+                    .any(|v| (0..64).any(|k| domain.contains(TAU * (k as f64 + 0.5) / 64.0, v)));
+                if reaches {
+                    out.push(f.surface.value(0.0, apex));
+                }
             }
+            // Sampled: a grid over the surface's parameter domain.
             Surface::Freeform { surface, .. } => {
                 let (u0, u1, v0, v1) = surface.domain();
                 let n = 12;
-                (0..=n)
-                    .flat_map(|i| (0..=n).map(move |j| (i, j)))
-                    .map(|(i, j)| {
-                        (
-                            u0 + (u1 - u0) * i as f64 / n as f64,
-                            v0 + (v1 - v0) * j as f64 / n as f64,
-                        )
-                    })
-                    .collect()
-            }
-            _ => Vec::new(),
-        };
-        if !candidates.is_empty()
-            && let Some(domain) = self.domain(face)
-        {
-            for (u, v) in candidates {
-                if domain.contains(u, v) || touches_singular_point(&f.surface, domain, v) {
-                    out.push(f.surface.value(u, v));
+                let h = (1e-6 * (u1 - u0), 1e-6 * (v1 - v0));
+                for i in 0..=n {
+                    for j in 0..=n {
+                        let u = u0 + (u1 - u0) * i as f64 / n as f64;
+                        let v = v0 + (v1 - v0) * j as f64 / n as f64;
+                        if holds(domain, u, v, h) {
+                            out.push(f.surface.value(u, v));
+                        }
+                    }
                 }
             }
+            _ => {}
         }
         out
     }
