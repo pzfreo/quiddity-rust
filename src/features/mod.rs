@@ -68,6 +68,7 @@ pub mod recess_patterns;
 pub mod recess_radii;
 pub mod recess_records;
 pub mod recess_reduce;
+pub mod reconcile;
 pub mod rectangular_blind_slots;
 pub mod regions;
 pub mod repeating_profiles;
@@ -99,7 +100,8 @@ use crate::kernel::brep::Part;
 
 /// Every ported family's records for one part, computed in one run that shares its analysis.
 /// Families are independent here: the Python aggregate's cross-family reconciliation
-/// (`build_recognition_result`) is not ported. Face levels and risers are measurements with no
+/// (`build_recognition_result`) is ported as decisions ([`reconcile`]) but not yet applied, so
+/// records it would reject are still carried. Face levels and risers are measurements with no
 /// evidence path yet, so they are called on their own.
 #[derive(Clone, Debug, Serialize)]
 pub struct Features {
