@@ -61,7 +61,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 28 (53 probes) | 6 | 12 | 0 | 10 | 0 |
 | `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 64 | 13 | 0 | 0 | 51 | 0 |
 | `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 45 | 1 | 5 | 2 | 4 | 33 |
-| `tests/fixtures/known_face_areas.json` | `crates/haecceity/tests/face_areas.rs` | 1835 | 1789 | 33 | 0 | 12 | 1 |
+| `tests/fixtures/known_face_areas.json` | `crates/haecceity/tests/face_areas.rs` | 1831 | 1791 | 27 | 0 | 12 | 1 |
 
 The undetermined entries are the backlog: differences not yet shown to be either side's error.
 The rust-wrong entries are known port defects.
@@ -328,8 +328,8 @@ reader reproduces:
 
 Known kernel limitations: OpenCascade's healing adds missing seam edges to periodic faces (and splits closed edges they cross), which the reader does not; sphere patches that pass through a pole have approximate interior
 bounding boxes; closed surfaces of revolution/extrusion in NURBS form are treated as
-non-periodic, and a face on such a surface whose own seam is not the surface's (its boundary
-crosses the surface's seam mid-edge, cgb217 face 29) has no area, so its solid has no mass. A face swept into a probe solid (`crates/haecceity/src/sweep.rs`, Python's
+non-periodic (face areas unwrap across their seam, so a face whose own seam is not the
+surface's, cgb217 face 29, is integrated). A face swept into a probe solid (`crates/haecceity/src/sweep.rs`, Python's
 `Solid.extrude`) may be bounded only by lines and by circles and arcs about the sweep: the
 edge-open recess floor proof declines a floor with any other edge (rust-wrong; no captured call
 or corpus part has one).

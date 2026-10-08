@@ -39,11 +39,9 @@ OUT = FIXTURES / "known_face_areas.json"
 
 PLACEMENT = (
     "Under the test's motion (a translation and 37 degrees about (1, 2, 3)) this B-spline face's "
-    "area changes by {change:.1e} relative (pinned: {rust!r} unmoved, {moved!r} moved); all but 16 "
-    "corpus faces agree to 1e-12. Resolving every boundary panel a hundred times finer (1e-11) "
-    "leaves the change, so it comes from the boundary walk, not the quadrature; not traced. "
-    "Whether a pin at this scale holds on Linux is a maintainer question "
-    "(docs/review-2026-10-08.md)."
+    "area changes by {change:.1e} relative (pinned: {rust!r} unmoved, {moved!r} moved); all but one "
+    "corpus face agree to 1e-12. Not traced. Whether a pin at this scale holds on Linux is a "
+    "maintainer question (docs/review-2026-10-08.md)."
 )
 
 SPECIAL = {
@@ -61,14 +59,6 @@ SPECIAL = {
         "a degenerate edge (a triangulation of it has area 1e-21; face.area {occ}, adaptive {fine}). "
         "The port reads its two edges as the two sides of a closed v range and integrates the cap "
         "between them, {rust}; negligible, but not the face's area.",
-    ),
-    ("cadgenbench_inputs/cgb217.step.gz", 29, "occ"): (
-        "rust-wrong",
-        "Refused (no area). The face lies on a B-spline surface closed in u, and its own seam edge "
-        "(edge 71, at u = 0.018) is not the surface's seam (u = 0 = 1), so its boundary crosses the "
-        "surface's seam mid-edge, which the boundary walk does not unwrap (before the refusal it "
-        "returned -0.0049). OpenCascade gives {occ} (fixed rule), {fine} (adaptive) and {rebuilt} "
-        "(pcurves projected from the edges).",
     ),
 }
 

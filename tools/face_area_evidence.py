@@ -179,6 +179,8 @@ def _loops(face, samples: int, place):
 
 
 def _density(surf, u: float, v: float) -> float:
+    if not isinstance(surf, BRepAdaptor_Surface):
+        u, v, _ = _wrap(surf, u, v)
     p, du, dv = gp_Pnt(), gp_Vec(), gp_Vec()
     surf.D1(u, v, p, du, dv)
     return du.Crossed(dv).Magnitude()
@@ -225,6 +227,17 @@ def _bspline_loops(face, samples: int):
     if loops is None:
         return surf, None
     u0, u1, v0, v1 = surf.Bounds()
+    # Round a closed surface each point takes the parameters a whole span round that lie beside
+    # the one before (a face's own seam need not be the surface's).
+    spans = (u1 - u0 if surf.IsUClosed() else None, v1 - v0 if surf.IsVClosed() else None)
+    for pts in loops:
+        for k in range(1, len(pts)):
+            (pu, pv), (u, v) = pts[k - 1], pts[k]
+            if spans[0]:
+                u -= spans[0] * round((u - pu) / spans[0])
+            if spans[1]:
+                v -= spans[1] * round((v - pv) / spans[1])
+            pts[k] = (u, v)
     # A loop that ends far from where it began runs round a closed surface (elsewhere, its
     # closing side is a collapsed side of the domain, or a degenerate edge, which is skipped).
     for pts in loops:
@@ -233,6 +246,19 @@ def _bspline_loops(face, samples: int):
         ):
             return surf, None
     return surf, loops
+
+
+def _wrap(surf, u: float, v: float) -> tuple[float, float, int]:
+    """(u, v) brought into a closed surface's domain, and how many u spans that took."""
+
+    u0, u1, v0, v1 = surf.Bounds()
+    turns = 0
+    if surf.IsUClosed() and not u0 <= u <= u1:
+        turns = math.floor((u - u0) / (u1 - u0))
+        u -= turns * (u1 - u0)
+    if surf.IsVClosed() and not v0 <= v <= v1:
+        v -= math.floor((v - v0) / (v1 - v0)) * (v1 - v0)
+    return u, v, turns
 
 
 def _collapsed_u(surf):
@@ -266,8 +292,12 @@ def _green_bspline(face, samples: int, table=None):
         table = RectBivariateSpline(us, vs, g, kx=3, ky=3)
     ref = _collapsed_u(surf)
 
+    u_end = surf.Bounds()[1]
+
     def inner(u, v):
-        value = float(table(u, v)[0, 0])
+        # Each whole span round adds the integral across the domain.
+        u, v, turns = _wrap(surf, u, v)
+        value = float(table(u, v)[0, 0]) + turns * float(table(u_end, v)[0, 0])
         return value - float(table(ref, v)[0, 0]) if ref is not None else value
 
     total = 0.0
