@@ -19,13 +19,15 @@ shape is inherited (see [Anti-requirements](#anti-requirements)).
 
 These override anything below and any stream brief that says otherwise.
 
-1. **No schema conversion.** haecceity never rewrites an AP214 or AP203 file as AP242, and never
-   changes a file's `FILE_SCHEMA`. `pmi::write` accepts only a file that is already AP242 (any
-   AP242 edition the express table covers); an AP214 or AP203 input is refused with an error
-   saying the caller must supply an AP242 file. Converting a file is the caller's job, outside
-   haecceity. Reading PMI works on every file. The edition-upgrade path in [Architecture](#architecture)
-   item 2 (validating a whole AP214 file to claim AP242 conformance, pinning which corpus files
-   can be upgraded) is dropped; `validate_document` stays as a check of AP242 files.
+1. **The schema follows the PMI** (revised 2026-10-08). A file that gains no PMI keeps its
+   `FILE_SCHEMA` and its bytes: an AP214 or AP203 file is never rewritten as AP242 merely
+   because haecceity read or touched it. A file to which PMI is added is written as AP242, since
+   AP214 and AP203 cannot carry semantic PMI: its `FILE_SCHEMA` becomes the target AP242
+   edition's identifier, and that claim must be true, so every instance of the edited file must
+   pass `validate_document` against the target table; otherwise the edit is refused, naming the
+   violating instances (never repaired silently). An AP242 file stays AP242. Which corpus and
+   NIST AP214/AP203 files pass is pinned per file with the violations and reasons, and reported
+   to the maintainer if many fail.
 2. **Material as specify-core writes it.** The writer writes the material's name in the CAx-IF
    'material name' construct exactly as specify-core's files carry it (a `REPRESENTATION('material
    name', …)` whose `DESCRIPTIVE_REPRESENTATION_ITEM` holds the name, related to the part as
@@ -342,10 +344,11 @@ never a silent fix):
    WR1–WR5, `geometric_tolerance` WR1/WR5, `geometric_tolerance_relationship` WR1–WR2,
    `datum_system` UR1, `plus_minus_tolerance` UR1), each citing its label.
    **Editions.** The writer targets exactly the edition the express table represents (one table
-   per edition if other long forms are found). It writes only into a file that is already AP242
-   and never changes `FILE_SCHEMA` (decision 1); AP214 and AP203 inputs are refused for writing.
-   The edit is refused if the edited file has a violation the original did not have; violations
-   the original already had are reported, not repaired.
+   per edition if other long forms are found). The file's schema follows decision 1: unchanged
+   unless PMI is added; an AP214/AP203 file gaining PMI becomes AP242 only if every instance
+   validates against the target table, else the edit is refused naming the violations. For an
+   AP242 file, the edit is refused if it introduces a violation the original did not have;
+   violations the original already had are reported, not repaired.
 3. **Face provenance** in `step.rs`: each `Part` face and edge records its `advanced_face` /
    `edge_curve` id and its placed instance. step-io fills each arena in ascending id order over
    the instances it keeps; the reader rebuilds the map from the raw graph and the report's
@@ -501,7 +504,6 @@ reading of the result with verdicts; determinism (same input, same bytes, fresh 
   model; the writer refuses them by name.
 - **PMI on assembly occurrences** (`assembly_component_usage` paths); reported as findings.
 - **Writing material density** (read only).
-- **Converting AP214/AP203 files to AP242** (decision 1): the caller's job.
 - **A general EXPRESS rule engine**; named checks cover what the writer emits.
 - **ISO 286 limit computation** from a class.
 - **AP242 XML, external references, validation properties written.**
