@@ -19,7 +19,9 @@
 
 mod common;
 
-use common::drawing::{compare_cut, compare_views, covered, differences, even_odd_area, load_gz};
+use common::drawing::{
+    classified_area, compare_cut, compare_views, covered, differences, even_odd_area, load_gz,
+};
 use haecceity::read_step_file;
 use serde_json::Value;
 
@@ -159,6 +161,59 @@ fn drawings_match_opencascade() {
         failures.len(),
         failures.join("\n")
     );
+}
+
+/// A cut OpenCascade's boolean did not make (its `max_area_error` null) is checked against
+/// another reference, listed as its `reference_area`: what OpenCascade's own sections of the
+/// part by planes 1e-4 to either side have in common, the material on both sides of the plane
+/// (`tools/drawing_evidence.py cut`). haecceity's traced cut must lie within
+/// `max_reference_error` of it (relative), and the part classified on a grid across the plane
+/// must bear the reference out, within the cells the outline crosses or the classifier cannot
+/// call (`drawing::classified_area`).
+#[test]
+fn failed_cuts_match_their_reference() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let known: Vec<Value> = serde_json::from_value(common::load("known_drawings.json")).unwrap();
+    let failed: Vec<&Value> = known
+        .iter()
+        .filter(|k| k["view"] == "cut" && k.get("max_area_error") == Some(&Value::Null))
+        .collect();
+    let all = load_gz(&common::fixtures().join("section.json.gz"));
+    let mut problems = Vec::new();
+    for k in &failed {
+        let record = all["parts"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|r| r["file"] == k["file"])
+            .unwrap_or_else(|| panic!("no section record for {k}"));
+        let reference = k["reference_area"]
+            .as_f64()
+            .unwrap_or_else(|| panic!("known_drawings.json: no reference_area in {k}"));
+        let allowed = k["max_reference_error"]
+            .as_f64()
+            .unwrap_or_else(|| panic!("known_drawings.json: no max_reference_error in {k}"));
+        let part = read_step_file(&dir.join(k["file"].as_str().unwrap())).unwrap();
+        let (_, mine) = compare_cut(record, &part).unwrap();
+        let area = even_odd_area(&mine);
+        let error = (area - reference).abs() / reference;
+        let (classified, doubt) = classified_area(&part, record, &mine, 100);
+        println!(
+            "{}: traced {area:.4} against {reference:.4} ({error:.1e}); classified {classified:.2} ± {doubt:.2}",
+            k["file"]
+        );
+        if error > allowed || (classified - reference).abs() > doubt {
+            problems.push(format!(
+                "{}: traced {area:.4}, classified {classified:.2} ± {doubt:.2}, against {reference:.4} \
+                 (error {error:.2e}, at most {allowed:.2e})",
+                k["file"]
+            ));
+        }
+    }
+    assert!(!failed.is_empty() && problems.is_empty(), "{problems:#?}");
 }
 
 /// Every stretch drawn with an exact curve is that curve: its ends meet the stretch's (cut on a

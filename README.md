@@ -62,7 +62,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
 | `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 19 | 4 | 15 | 0 | 0 | 0 |
 | `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 13 (28 probes) | 6 | 4 | 0 | 3 | 0 |
-| `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 64 | 13 | 0 | 0 | 51 | 0 |
+| `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 63 | 56 | 2 | 0 | 1 | 4 |
 | `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 41 | 1 | 1 | 2 | 4 | 33 |
 | `tests/fixtures/known_face_areas.json` | `crates/haecceity/tests/face_areas.rs` | 1831 | 1815 | 3 | 0 | 12 | 1 |
 | `tests/fixtures/captured/known_sections.json` | `tests/sections.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
@@ -96,8 +96,10 @@ silhouette, and a section view's kept half and cut outline. `crates/haecceity/te
 against OpenCascade's drawings of the corpus: 85 parts in four views and 98 sections. The cut
 outlines agree on 95 of 99 parts, where the other four are OpenCascade boolean failures. The
 views that differ by more than 1e-3 mm are listed in `tests/fixtures/known_drawings.json`.
-Most of them agree within 0.03 mm, where OpenCascade's hidden-line output approximates
-projected curves.
+Most of them agree within 0.1 mm, where OpenCascade's hidden-line output approximates
+projected curves: each such entry carries that evidence (`approximation`), checked on every run
+against the part's own edges. `tools/drawing_evidence.py` asks OpenCascade independently of the
+boolean the section view relies on (plane sections, its classifier, its ray intersector).
 
 ## Layout
 
@@ -245,6 +247,8 @@ tools/
   known_face_areas.py writes known_face_areas.json from face_areas.rs's differences
   capture_hlr.py     records OpenCascade's hidden-line projection of every corpus part
   capture_section.py records draftwright's section view of every corpus part
+  drawing_evidence.py OpenCascade's plane sections, classifier and rays, the evidence for
+                     drawing verdicts its booleans or hidden-line output cannot give
   capture_plugin.py  pytest plugin that records the Python suite's recogniser calls
   export_corpus.py   records Python's answers over the corpus, with the quiddity revision and
                      each corpus file's sha256 (_provenance.py; the capture tools record the
