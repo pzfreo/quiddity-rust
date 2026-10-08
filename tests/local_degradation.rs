@@ -12,8 +12,8 @@
 //!   composed, as the aggregate composes them) refusing for want of a valid solid on a part whose
 //!   solids are not all valid;
 //! - on every part Python retried, each record Python skipped: what the port's evidence path for
-//!   that family does with it. Holes have the degraded path (`discover_locally_degraded`); the
-//!   other families' strict paths answer `refused` (the whole family), `published` (a record on
+//!   that family does with it. Holes and pockets have the degraded path
+//!   (`discover_locally_degraded`); the other families' strict paths answer `refused` (the whole family), `published` (a record on
 //!   those faces) or `skipped` (no record there). A face is found by its box, so a part the port
 //!   reads in another face order still compares.
 //!
@@ -30,7 +30,7 @@ use std::path::PathBuf;
 
 use quiddity::Part;
 use quiddity::features::evidence::EvidenceError;
-use quiddity::features::{Context, countersinks, holes};
+use quiddity::features::{Context, countersinks, holes, pockets};
 use quiddity::kernel::step::{Placement, read_step_file, read_step_file_placed};
 use serde_json::{Value, json};
 
@@ -150,6 +150,20 @@ fn hole_paths(part: &Part) -> (Result<usize, EvidenceError>, Vec<Vec<usize>>) {
     (strict, degraded)
 }
 
+/// The locally degraded pocket evidence path over one part: each pocket's defining faces.
+fn degraded_pockets(part: &Part) -> Result<Vec<Vec<usize>>, EvidenceError> {
+    pockets::discover_locally_degraded(&Context::new(part)).map(|found| {
+        found
+            .into_iter()
+            .map(|o| {
+                let mut faces = o.defining;
+                faces.sort_unstable();
+                faces
+            })
+            .collect()
+    })
+}
+
 /// Whether the port reaches the retry on a part: its strict hole evidence refused for want of a
 /// valid solid, and its solids not all valid.
 fn port_retries(part: &Part) -> bool {
@@ -213,6 +227,7 @@ fn port_outcome(part: &Part, function: Option<&str>, faces: &[usize]) -> &'stati
     let defining = match function {
         None => return "no evidence path",
         Some("recognise_holes") => Ok(hole_paths(part).1),
+        Some("recognise_pockets") => degraded_pockets(part).map_err(|e| e.to_string()),
         Some(f) => common::defining(f, part, &json!({})),
     };
     match defining {
@@ -299,10 +314,10 @@ const MOTIONS: [(&str, Placement); 2] = [
     ),
 ];
 
-/// On every part Python retries, the locally degraded holes (and whether the port retries) are
-/// the same faces however the part is placed.
+/// On every part Python retries, the locally degraded holes and pockets (and whether the port
+/// retries) are the same faces however the part is placed.
 #[test]
-fn locally_degraded_holes_are_placement_independent() {
+fn locally_degraded_paths_are_placement_independent() {
     let Some(dir) = corpus() else { return };
     let capture = common::load(CAPTURE);
     for p in parts(&capture)
@@ -311,10 +326,18 @@ fn locally_degraded_holes_are_placement_independent() {
     {
         let path = dir.join(p["file"].as_str().unwrap());
         let base = read_step_file(&path).unwrap();
-        let want = (port_retries(&base), hole_paths(&base).1);
+        let want = (
+            port_retries(&base),
+            hole_paths(&base).1,
+            degraded_pockets(&base),
+        );
         for (motion, placement) in &MOTIONS {
             let moved = read_step_file_placed(&path, placement).unwrap();
-            let got = (port_retries(&moved), hole_paths(&moved).1);
+            let got = (
+                port_retries(&moved),
+                hole_paths(&moved).1,
+                degraded_pockets(&moved),
+            );
             assert_eq!(got, want, "{} {motion}", p["file"]);
         }
     }

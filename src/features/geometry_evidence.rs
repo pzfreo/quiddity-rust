@@ -4,9 +4,12 @@
 //!
 //! Python writes through an aggregate evidence writer; here the bridge builds the
 //! [`Occurrence`] the family returns, its defining faces and the further constituent faces the
-//! claim covers. Python's `local_degradation` (an aggregate run that skips, rather than refuses,
-//! a candidate whose faces prove no solid) is not ported: no Rust run isolates invalid regions,
-//! and neither the captured calls nor the corpus export run with it.
+//! claim covers. Python's `local_degradation` (the aggregate's retry that skips, rather than
+//! refuses, a candidate whose faces prove no solid) is not ported here: three corpus parts reach
+//! that retry (`tests/fixtures/captured/local_degradation/capture.json`), but none of its skips
+//! is a polygonal boss, the one family issuing through this bridge, so no capture shows the
+//! bridge's degraded branch. Families whose skips the capture does show carry their own degraded
+//! path (holes and pockets, `discover_locally_degraded`).
 
 use super::evidence::{EvidenceError, Occurrence, common_valid_solid};
 use super::experimental_geometry::GeometryGraph;
