@@ -149,8 +149,11 @@ pub fn modulo(a: f64, b: f64) -> f64 {
 }
 
 /// Python's `<` on floats as an ordering: -0.0 equals 0.0 (`total_cmp` would separate them).
+/// Python has no order for NaN; here every NaN sorts after every number and equals every other
+/// NaN, so that this stays a total order and a sort stays deterministic.
 pub fn order(a: f64, b: f64) -> Ordering {
-    a.partial_cmp(&b).unwrap_or(Ordering::Equal)
+    a.partial_cmp(&b)
+        .unwrap_or_else(|| a.is_nan().cmp(&b.is_nan()))
 }
 
 /// Python's ordering of float tuples: lexicographic, then by length.
@@ -208,6 +211,23 @@ mod tests {
         assert!(modulo(-180.0, 180.0) == 0.0 && modulo(-180.0, 180.0).is_sign_positive());
         assert_eq!(modulo(-90.0, 180.0), 90.0);
         assert_eq!(modulo(270.0, 180.0), 90.0);
+    }
+
+    #[test]
+    fn order_is_total_with_nan_last() {
+        assert_eq!(order(-0.0, 0.0), Ordering::Equal);
+        assert_eq!(order(f64::NAN, f64::NAN), Ordering::Equal);
+        assert_eq!(order(f64::NAN, f64::INFINITY), Ordering::Greater);
+        assert_eq!(order(f64::NEG_INFINITY, f64::NAN), Ordering::Less);
+        let mut a = vec![3.0, f64::NAN, -1.0, 0.0, f64::NAN, -0.0, f64::INFINITY, 2.0];
+        let mut b = a.clone();
+        b.reverse();
+        a.sort_by(|x, y| order(*x, *y));
+        b.sort_by(|x, y| order(*x, *y));
+        let numbers = |v: &[f64]| v[..6].to_vec();
+        assert_eq!(numbers(&a), [-1.0, 0.0, -0.0, 2.0, 3.0, f64::INFINITY]);
+        assert_eq!(numbers(&a), numbers(&b));
+        assert!(a[6..].iter().chain(&b[6..]).all(|x| x.is_nan()));
     }
 
     #[test]

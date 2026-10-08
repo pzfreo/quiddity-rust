@@ -128,8 +128,10 @@ impl<'a> RayCaster<'a> {
     }
 
     /// Whether the ray meets any face beyond `t_min` (and within `t_max`): the question
-    /// visibility asks, answered at the first such face.
-    pub fn any_hit(&self, origin: V3, dir: V3, t_min: f64, t_max: f64) -> bool {
+    /// visibility asks, answered at the first such face. `None` when no face is met but one the
+    /// ray reaches has a surface the kernel cannot intersect (as [`Self::hits`]).
+    pub fn any_hit(&self, origin: V3, dir: V3, t_min: f64, t_max: f64) -> Option<bool> {
+        let mut unanswered = false;
         let mut stack = vec![(&self.root_box, &self.root)];
         while let Some((b, node)) = stack.pop() {
             if !ray_meets_box(origin, dir, t_max, b, self.edge_tol) {
@@ -147,6 +149,7 @@ impl<'a> RayCaster<'a> {
                         }
                         let Some((ts, _)) = self.part.faces[i].surface.ray_hits(origin, dir, t_max)
                         else {
+                            unanswered = true;
                             continue;
                         };
                         let met = ts.into_iter().filter(|&t| t > t_min).any(|t| {
@@ -154,13 +157,13 @@ impl<'a> RayCaster<'a> {
                                 .is_some()
                         });
                         if met {
-                            return true;
+                            return Some(true);
                         }
                     }
                 }
             }
         }
-        false
+        (!unanswered).then_some(false)
     }
 
     /// The hits that lie on their faces' trimmed regions themselves, not merely within the
@@ -179,14 +182,18 @@ impl<'a> RayCaster<'a> {
     }
 
     /// How many times the ray crosses the faces, for parity; `None` when that cannot be
-    /// trusted: the ray runs along a surface, touches one tangentially, or passes through an
-    /// edge (where its neighbours may both claim, or both miss, the crossing).
+    /// trusted: the ray runs along a surface, touches one tangentially, passes through an
+    /// edge (where its neighbours may both claim, or both miss, the crossing), or crosses two
+    /// faces at one point (faces lying on each other, as where two solids touch).
     pub fn crossing_count(&self, origin: V3, dir: V3, t_max: f64) -> Option<usize> {
         let (crossings, in_surface) = self.crossings(origin, dir, t_max)?;
         let clean = !in_surface
             && crossings
                 .iter()
-                .all(|c| !c.tangent && !matches!(c.contact, Contact::Edge { .. }));
+                .all(|c| !c.tangent && !matches!(c.contact, Contact::Edge { .. }))
+            && crossings
+                .windows(2)
+                .all(|w| w[1].hit.t - w[0].hit.t > self.edge_tol);
         clean.then_some(crossings.len())
     }
 
@@ -399,4 +406,34 @@ fn ray_meets_box(p: V3, dir: V3, t_max: f64, b: &Bounds, pad: f64) -> bool {
         }
     }
     true
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn any_hit_is_unknown_where_only_an_unintersectable_face_is_reached() {
+        // A 30 × 30 × 20 block about the origin, bored through along z.
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../tests/fixtures/rejected_bored_box.step");
+        let mut part = crate::read_step_file(&path).unwrap();
+        let (origin, dir) = ([20.0, 10.0, 0.0], [-1.0, 0.0, 0.0]);
+        let all: Vec<usize> = (0..part.faces.len()).collect();
+        let side = RayCaster::for_faces(&part, all.clone())
+            .hits(origin, dir, 100.0)
+            .unwrap()[0];
+        assert!((side.t - 5.0).abs() < 1e-9, "the x = 15 side first");
+        part.faces[side.face].surface = Surface::Other { kind: "TEST" };
+        let rays = RayCaster::for_faces(&part, all);
+        // Only the unanswerable side lies within reach; beyond it, the far side is met.
+        assert_eq!(rays.any_hit(origin, dir, 0.0, 10.0), None);
+        assert_eq!(rays.any_hit(origin, dir, 0.0, 100.0), Some(true));
+        assert_eq!(rays.hits(origin, dir, 10.0), None);
+        // A ray that reaches no face at all is a clean miss.
+        assert_eq!(
+            rays.any_hit(origin, [1.0, 0.0, 0.0], 0.0, 100.0),
+            Some(false)
+        );
+    }
 }

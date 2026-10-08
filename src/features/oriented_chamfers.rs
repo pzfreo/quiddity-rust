@@ -130,8 +130,8 @@ fn pair(
     if norm(span1).min(norm(span2)) <= COORD_FLOOR {
         return None;
     }
-    let run = normalized(span1);
-    if dot(run, normalized(span2)) < 1.0 - SMOOTH_ARC_GAP {
+    let run = normalized(span1)?;
+    if dot(run, normalized(span2)?) < 1.0 - SMOOTH_ARC_GAP {
         return None;
     }
     if run.iter().map(|c| c.abs()).fold(0.0, f64::max) >= AXIS_ALIGNED_COS {
@@ -199,7 +199,7 @@ fn pair(
     }) {
         return None;
     }
-    if dot(normalized(leg_vec1), normalized(leg_vec2)).abs() > SMOOTH_ARC_GAP {
+    if dot(normalized(leg_vec1)?, normalized(leg_vec2)?).abs() > SMOOTH_ARC_GAP {
         return None;
     }
     // The corner-to-face side is removed material, and so must the far side of the virtual
@@ -217,8 +217,8 @@ fn pair(
         return None;
     }
     let mut legs = [
-        (leg1, normalized(leg_vec1), first_span),
-        (leg2, normalized(leg_vec2), second_span),
+        (leg1, normalized(leg_vec1)?, first_span),
+        (leg2, normalized(leg_vec2)?, second_span),
     ];
     legs.sort_by(|a, b| {
         py::order(-py::round_to(a.0, 6), -py::round_to(b.0, 6))

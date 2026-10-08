@@ -203,7 +203,7 @@ fn one_pair(
     if run_length <= COORD_FLOOR {
         return None;
     }
-    let run = normalized(sub(end, start));
+    let run = normalized(sub(end, start))?;
     if dot(run, principal_normal).abs() > SMOOTH_ARC_GAP
         || dot(run, oblique_normal).abs() > SMOOTH_ARC_GAP
     {
@@ -275,7 +275,7 @@ fn one_pair(
     if norm(outer_edge) <= COORD_FLOOR
         || !(0..3)
             .filter(|&c| c != axis)
-            .any(|c| 1.0 - normalized(outer_edge)[c].abs() <= SMOOTH_ARC_GAP)
+            .any(|c| normalized(outer_edge).is_some_and(|n| 1.0 - n[c].abs() <= SMOOTH_ARC_GAP))
     {
         return None;
     }

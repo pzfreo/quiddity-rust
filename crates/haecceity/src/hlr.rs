@@ -436,10 +436,12 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected
         .collect();
     let cuts = crossings(&flat, scale / 64.0, 1e-9 * scale);
     let reach = 2.0 * scale + 1.0;
-    // Hidden from *p*, the ray to the viewer starting *start* along.
+    // Hidden from *p*, the ray to the viewer starting *start* along. A face the kernel cannot
+    // intersect (`any_hit` unknown) does not occlude, as before (refusing such parts is left to
+    // the reader).
     let hidden = |p: V3, start: f64| {
         let Some((plane, classifier)) = plane.zip(classifier.as_ref()) else {
-            return rays.any_hit(p, view.toward, start, reach);
+            return rays.any_hit(p, view.toward, start, reach).unwrap_or(false);
         };
         // Cut away: the ray runs only to the plane, and is stopped there by the cut face when
         // it reaches the plane within the material.
@@ -453,6 +455,7 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected
             return false;
         }
         rays.any_hit(p, view.toward, start, to_plane.min(reach))
+            .unwrap_or(false)
             || (to_plane < reach
                 && classifier.classify(geom::add(p, geom::scale(view.toward, to_plane)))
                     == State::In)

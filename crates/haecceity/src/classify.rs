@@ -41,7 +41,8 @@ pub enum State {
     Out,
     /// Within [`ON_TOLERANCE`] of a face (`TopAbs_ON`).
     On,
-    /// Every ray was ambiguous, or the part has a surface this classifier cannot intersect.
+    /// Every ray was ambiguous, the clean rays disagreed with no majority of two, or the part
+    /// has a surface this classifier cannot intersect.
     Unknown,
 }
 
@@ -91,7 +92,7 @@ impl<'a> Classifier<'a> {
                 Some(_) => votes.1 += 1,
                 None => continue,
             }
-            // Two agreeing clean rays settle it.
+            // Two agreeing clean rays settle it, while no clean ray has disagreed.
             if votes.0 >= 2 && votes.1 == 0 {
                 return State::In;
             }
@@ -99,10 +100,12 @@ impl<'a> Classifier<'a> {
                 return State::Out;
             }
         }
-        match votes.0.cmp(&votes.1) {
-            std::cmp::Ordering::Greater => State::In,
-            std::cmp::Ordering::Less => State::Out,
-            std::cmp::Ordering::Equal => State::Unknown,
+        // Once clean rays disagree, one side has missed or invented a crossing: every ray has
+        // been cast, and only a majority of two or more settles it.
+        match votes {
+            (i, o) if i >= o + 2 || (i > 0 && o == 0) => State::In,
+            (i, o) if o >= i + 2 || (o > 0 && i == 0) => State::Out,
+            _ => State::Unknown,
         }
     }
 

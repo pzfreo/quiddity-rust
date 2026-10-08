@@ -107,10 +107,10 @@ pub fn nearest_axis_aligned_planes(
 }
 
 /// `gp_Vec::Normalized` divides each component (multiplying by the reciprocal can differ in
-/// the last bit).
-pub fn normalized(a: V3) -> V3 {
+/// the last bit). `None` for a zero vector, where `gp_Vec::Normalized` raises.
+pub fn normalized(a: V3) -> Option<V3> {
     let l = norm(a);
-    a.map(|c| c / l)
+    (l > 0.0).then(|| a.map(|c| c / l))
 }
 
 /// `_coordinates`: each component rounded, without a negative zero.
@@ -140,5 +140,5 @@ pub fn linear_quad(part: &Part, face: usize) -> bool {
 
 /// The planar plane's outward normal (`face.normal_at()`).
 pub fn plane_normal(part: &Part, face: usize) -> Option<V3> {
-    part.face_normal(face, 0.0, 0.0).map(normalized)
+    part.face_normal(face, 0.0, 0.0).and_then(normalized)
 }

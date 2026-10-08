@@ -246,7 +246,7 @@
     "verdict": "rust-wrong",
     "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The listed faces are B-spline faces matched to themselves but reported adapted (area, normal). Possibly related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces).",
     "features": [],
-    "faces": 13
+    "faces": 12
   },
   {
     "test": "invariance",
@@ -255,7 +255,7 @@
     "verdict": "rust-wrong",
     "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The listed faces are B-spline faces matched to themselves but reported adapted (area, normal). Possibly related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces).",
     "features": [],
-    "faces": 15
+    "faces": 14
   },
   {
     "test": "invariance",
@@ -264,7 +264,7 @@
     "verdict": "rust-wrong",
     "reason": "The kernel's area quadrature (mass.rs, face_integral) on some B-spline faces changes with the part's placement by more than the freeform tolerance (1e-3): face 113 of cgb207 measures 6.2789 mm2 unmoved and 6.2341 mm2 merely translated (0.7%), and its centroid and mean normal move with it. The listed faces are B-spline faces matched to themselves but reported adapted (area, normal). Possibly related to stream F's face_mass defect (areas of 0 on nist_ftc_07/10 faces).",
     "features": [],
-    "faces": 15
+    "faces": 14
   },
   {
     "test": "invariance",
