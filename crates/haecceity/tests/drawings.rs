@@ -8,10 +8,18 @@
 //! so a listed difference that gets worse still fails. A part some of whose curved edge
 //! stretches are not drawn with exact curves would be listed there too (its view `exact`), with
 //! the share that are (`min_exact_share`), so that a part drawing fewer fails; none is.
+//!
+//! A view listed as OpenCascade approximating projected curves carries the evidence as
+//! `approximation`, checked on every run: every stretch either side draws unlike the other
+//! (`drawing::Differences`) is OpenCascade's line off every projected edge of the part, or its
+//! hidden line on an edge left inked where its own visible line misses it, or haecceity's line
+//! on a projected edge, the two sides at most `stray` apart; haecceity's edges there lie on
+//! their faces within `edges_on_faces`; and at most `other` mm of the stretches are of none of
+//! these kinds (each explained in the entry's reason).
 
 mod common;
 
-use common::drawing::{compare_cut, compare_views, covered, even_odd_area, load_gz};
+use common::drawing::{compare_cut, compare_views, covered, differences, even_odd_area, load_gz};
 use haecceity::read_step_file;
 use serde_json::Value;
 
@@ -45,11 +53,13 @@ fn drawings_match_opencascade() {
         .iter()
         .flat_map(|all| all["parts"].as_array().unwrap())
         .collect();
-    // Every record spread over every core; the problems come back in fixture order.
-    let problems: Vec<Problem> = common::parallel::map(&records, |record| {
+    // Every record spread over every core; the problems come back in fixture order, with any
+    // listed approximation the evidence does not bear out.
+    let found: Vec<(Vec<Problem>, Vec<String>)> = common::parallel::map(&records, |record| {
         let file = record["file"].as_str().unwrap();
         let part = read_step_file(&dir.join(file)).unwrap();
         let mut out = Vec::new();
+        let mut unexplained = Vec::new();
         if let Some((theirs, mine)) = compare_cut(record, &part) {
             let outline = (covered(&theirs, &mine), covered(&mine, &theirs));
             let (area, occ_area) = (even_odd_area(&mine), even_odd_area(&theirs));
@@ -68,6 +78,24 @@ fn drawings_match_opencascade() {
             }
         }
         for view in compare_views(record, &part) {
+            let listed = known
+                .iter()
+                .find(|k| k["file"] == file && k["view"] == view.name.as_str());
+            if let Some(a) = listed.and_then(|k| k.get("approximation")) {
+                let d = differences(record, &part, &view);
+                let e = d.explained();
+                let bound = |key: &str| a[key].as_f64().unwrap_or(0.0);
+                if e.stray > bound("stray")
+                    || e.other > bound("other")
+                    || d.edges_from_faces > bound("edges_on_faces")
+                {
+                    unexplained.push(format!(
+                        "{file} {}: stray {:.2e}, other {:.3} mm, edges on faces {:.1e} \
+                         (OpenCascade off the edges by up to {:.2e}), against {a}",
+                        view.name, e.stray, e.other, d.edges_from_faces, e.off_edges
+                    ));
+                }
+            }
             let s = view.scores();
             let scores = [s.visible.0, s.visible.1, s.ink.0, s.ink.1];
             if scores.iter().any(|v| *v < AGREE) {
@@ -83,15 +111,20 @@ fn drawings_match_opencascade() {
                 });
             }
         }
-        out
-    })
-    .into_iter()
-    .flatten()
-    .collect();
+        (out, unexplained)
+    });
+    let mut problems: Vec<Problem> = Vec::new();
+    let mut failures = Vec::new();
+    for (p, u) in found {
+        problems.extend(p);
+        failures.extend(
+            u.into_iter()
+                .map(|u| format!("approximation not borne out: {u}")),
+        );
+    }
     // The exact-curve floors are `exact_curves_follow_their_points`' own.
     let known: Vec<&Value> = known.iter().filter(|k| k["view"] != "exact").collect();
     let listed = |p: &Problem, k: &Value| k["file"] == p.file.as_str() && k["view"] == p.view;
-    let mut failures = Vec::new();
     for p in &problems {
         let line = format!("{} {}: {}", p.file, p.view, p.text);
         let Some(k) = known.iter().find(|k| listed(p, k)) else {
