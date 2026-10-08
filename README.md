@@ -130,7 +130,7 @@ build (60 of them parts where Python proves nothing, so the port must prove noth
 two golden passage fixtures and the corpus, with every private `_prove` question replayed on its
 own (2121 seat questions, 120 proved; 14459 envelope questions, 44 proved, none on the corpus).
 All agree; an envelope proof's two roof terms whose heights tie to round-off are compared in
-gradient order, and a seat's arc in one direction (Python's follows the string hash seed). Not
+gradient order, and a seat's arc in one direction (Python's follows OCCT's per-process shape hash). Not
 captured: 1 value with a boolean radius (refused by type), 16 test parts STEP export refuses,
 and 428 more test parts on which Python proves nothing outside the helpers' own tests (all 474
 would add about 4 MB of STEP; 4 per test are kept). Under the invariance motions 4 seats

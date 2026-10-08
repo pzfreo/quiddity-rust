@@ -14,8 +14,8 @@
 //!
 //! Floats agree to one part in a million (`common::same`), refusals exactly. Python orders
 //! envelope proofs by its unspecified component walk, so a part's proofs are compared sorted by
-//! their faces, and traces a seat's arc in a direction set by the hash seed, so seats are
-//! compared in one direction (`seat_direction`). Differences are listed in
+//! their faces, and traces a seat's arc in a direction that changes from run to run, so seats
+//! are compared in one direction (`seat_direction`). Differences are listed in
 //! `tests/fixtures/captured/known_section_recess_helpers.json`: per entry its `case` (`value`,
 //! `seats`, `envelopes`, `seat_call`, `envelope_call`), what identifies it (a value's `kind` and
 //! `given` input, a part's `file`, a call's `file` and `walls`, and an envelope call's `mouth`),
@@ -256,17 +256,28 @@ fn tied_terms(proof: &Value) -> Value {
 }
 
 /// A seat proof with its arc traced in the direction of positive bulge. Python takes the arc's
-/// first and last vertex from the order a dict of rim vertices was filled in, which follows the
-/// string hash seed: on `parts/bb776cefab5303f2.step.gz` `PYTHONHASHSEED` 0 to 2 give the
-/// boundary `[(2.070, -3.131, -0.282), (-1.317, 3.515, 0)]` and 3 to 5 the same arc reversed,
-/// `[(-1.317, 3.515, 0.282), (2.070, -3.131, 0)]`. The direction is not a property of the part,
-/// so both sides are compared in one direction; the vertices and the arc are still compared.
+/// first and last vertex from the order a dict of rim vertices was filled in from a `set[Edge]`,
+/// whose order follows OCCT's shape hash (`hash(edge.wrapped)`), which changes from process to
+/// process even with `PYTHONHASHSEED` fixed: on `parts/bb776cefab5303f2.step.gz` two captures
+/// with `PYTHONHASHSEED=0` gave the boundary `[(-1.317, 3.515, 0.282), (2.070, -3.131, 0)]` and
+/// the same arc reversed, `[(2.070, -3.131, -0.282), (-1.317, 3.515, 0)]`. The direction is not
+/// a property of the part, so both sides are compared in one direction; the vertices and the arc
+/// are still compared. A recapture therefore does not reproduce the fixture byte for byte (the
+/// order of `_prove` questions moves the same way), only its content up to this direction and
+/// order.
 fn seat_direction(proof: &Value) -> Value {
     let mut proof = proof.clone();
-    if let Some(boundary) = proof.get_mut("boundary").and_then(Value::as_array_mut)
-        && boundary.len() == 2
-        && float(&boundary[0][2]) < 0.0
-    {
+    let Some(bulge) = proof["boundary"]
+        .as_array()
+        .filter(|b| b.len() == 2)
+        .map(|b| float(&b[0][2]))
+    else {
+        return proof;
+    };
+    // A seat's arc has a non-zero bulge, so it has a direction to normalise.
+    assert_ne!(bulge, 0.0, "seat arc without a bulge: {proof}");
+    if bulge < 0.0 {
+        let boundary = proof["boundary"].as_array_mut().unwrap();
         let (first, last) = (floats::<3>(&boundary[1]), floats::<3>(&boundary[0]));
         *boundary = vec![
             json!([first[0], first[1], -last[2]]),
@@ -428,7 +439,18 @@ fn seat_and_envelope_proofs_agree_with_python() {
         captured["unselected"]
     );
     assert!(problems.is_empty(), "{}", problems.join("\n"));
+    assert_eq!(
+        (nothing, captured["unselected"].as_u64()),
+        (NO_PROOF_TEST_PARTS, Some(UNSELECTED_TEST_PARTS)),
+        "the capture's test parts on which Python proves nothing, and those it left out, changed: \
+         update the counts after checking the recapture"
+    );
 }
+
+/// Test parts on which Python proves nothing that the capture keeps (a fixed sample per test).
+const NO_PROOF_TEST_PARTS: usize = 60;
+/// Test parts on which Python proves nothing that the capture leaves out.
+const UNSELECTED_TEST_PARTS: u64 = 428;
 
 /// `tests/invariance.rs`'s motions: a non-round translation and right-angle rotations.
 const T: [f64; 3] = [123.456, -78.9, 41.3];
