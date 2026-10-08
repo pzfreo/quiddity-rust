@@ -539,7 +539,15 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected
                 }
                 On::Section => p,
             };
-            hidden(at, start).ok_or(at)
+            let verdict = hidden(at, start).ok_or(at)?;
+            match on {
+                On::Edge(_, e) if verdict && start > 1e-6 * scale => {
+                    let start =
+                        clear_of_own_faces(part, &rays, *e, at, (view, reach, 1e-6 * scale), start);
+                    Ok(hidden(at, start).ok_or(at)?)
+                }
+                _ => Ok(verdict),
+            }
         };
         pieces(points, &cuts[i], (view, 1e-9 * scale), &judge)
     });
@@ -577,6 +585,57 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected
         }
     }
     Ok(out)
+}
+
+/// Where the ray from *p*, on edge *e* standing off its faces, may start so that it does not
+/// meet one of those faces merely by crossing the stand-off. At a shallow slant (a rim seen
+/// past its own face at a grazing angle) the ray runs on through the band the stand-off leaves
+/// for far longer than the 4 d *start* allows for. So each of the edge's faces the ray meets is
+/// asked again from *p* moved onto it (where the edge would lie were it exact): when the face
+/// does not stand in the way of that ray (beyond `base`, the start of an exact edge's ray), the
+/// ray may start past its meetings with it, unless another face is met first.
+fn clear_of_own_faces(
+    part: &Part,
+    rays: &RayCaster,
+    e: usize,
+    p: V3,
+    (view, reach, base): (&View, f64, f64),
+    start: f64,
+) -> f64 {
+    let Some(hits) = rays.hits(p, view.toward, reach) else {
+        return start;
+    };
+    let mut clear = start;
+    for &face in &part.edge_faces()[e] {
+        let Some(last) = hits
+            .iter()
+            .filter(|h| h.face == face && h.t > start)
+            .map(|h| h.t)
+            .reduce(f64::max)
+        else {
+            continue;
+        };
+        let surface = &part.faces[face].surface;
+        let Some(on) = surface
+            .parameters(p, None)
+            .map(|(u, v)| surface.value(u, v))
+        else {
+            continue;
+        };
+        let again = rays.hits(on, view.toward, reach);
+        if again.is_some_and(|hits| !hits.iter().any(|h| h.face == face && h.t > base)) {
+            clear = clear.max(last * (1.0 + 1e-9) + 1e-12);
+        }
+    }
+    // Any other face met before that hides the edge itself.
+    let own = &part.edge_faces()[e];
+    if hits
+        .iter()
+        .any(|h| !own.contains(&h.face) && h.t > start && h.t <= clear)
+    {
+        return start;
+    }
+    clear
 }
 
 /// `f` of each of *items* (a permutation of `0..items.len()`), on every core, each thread taking

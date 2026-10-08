@@ -437,13 +437,6 @@
     "min_score": 0.988
   },
   {
-    "file": "nist/nist_ctc_02_asme1_rc.stp",
-    "view": "section",
-    "verdict": "rust-correct",
-    "reason": "Plane–cylinder tangent edges in the kept half, which OpenCascade draws in its plain views, are missing from its section view; haecceity draws them in both.",
-    "min_score": 0.985
-  },
-  {
     "file": "ttt_inputs/sm-hanger.step",
     "view": "section",
     "verdict": "rust-correct",
