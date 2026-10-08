@@ -936,7 +936,13 @@ impl Part {
                     }
                 }
                 cuts.extend(more);
-                cuts.sort_by(|a, b| if t1 < t0 { b.total_cmp(a) } else { a.total_cmp(b) });
+                cuts.sort_by(|a, b| {
+                    if t1 < t0 {
+                        b.total_cmp(a)
+                    } else {
+                        a.total_cmp(b)
+                    }
+                });
                 cuts.dedup();
             }
             let (sum, excess, size, walk) = adaptive(&cuts, walk, floor, &mut eval)?;
