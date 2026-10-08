@@ -1,7 +1,10 @@
 # AP242 and semantic PMI in haecceity
 
-**Status:** stages 1–2 (foundations; model, reader, removal plan, rule checks) integrated on
-branch `ap242`; stage 3's writer on branch `ap242-writer`. See [Status](#status).
+**Status:** implemented (2026-10-08): stages 1–3 (foundations; model, reader, removal plan,
+rule checks; writer; the `quiddity` command line `parts`, `pmi read`, `pmi check` and `pmi write`).
+Still refused by the writer, by name: datum targets, tolerance relations, notes, general tolerance
+tables and decimal places, and material density (the material name is written). See
+[Status](#status).
 
 haecceity reads STEP geometry today (`crates/haecceity/src/step.rs`, through step-io's typed
 model). This document adds what specify-core and draftwright still need OpenCascade for: reading
@@ -691,8 +694,22 @@ and `ap242-cli-read`.
   unknown or misspelt terms (a name outside the practice's table is written `{"other": …}`, and
   an `{"other": …}` naming a standard term is refused), duplicate keys, and violated model
   invariants. `READER` is pinned to the sha256 of `pmi read`'s output over the committed
-  fixtures, so a reader change fails until the version is bumped. The write side
-  (`quiddity pmi write`) is the next stage.
+  fixtures, so a reader change fails until the version is bumped.
+- **Command line, write side** (`src/bin/quiddity.rs`, `tests/pmi_cli.rs`): `quiddity pmi write
+  file.step pmi.json -o out.step [--mode add|replace|remove] [--presentation refuse|remove]`
+  (add by default; presentation removed by default, decision 7) writes every part of the
+  document in one `pmi::write`, refusing a document bound to another file or reader. The output
+  goes to a temporary file beside the destination, is read back with `pmi::read` and compared by
+  meaning, values as stated (add: the part's PMI before plus exactly the items written, a feature
+  or datum equal to one the part has being that one; replace and remove: exactly the items
+  written, and no instance the reader consumed for the part survives, supplemental geometry
+  excepted; other parts and every finding as before), and renamed only then; a refusal creates
+  nothing. The report is JSON (`quiddity-pmi-write`). Through the CLI, read → replace → read
+  over the fixtures and NIST's set matches the writer's round-trip pins: the files with refused
+  items are refused naming exactly the pinned refusals; where those are leaves (notes, tolerance
+  relations, attribute sets) the JSON without them is written (13 files with NIST's set), reads
+  back equal, and a second round trip is a byte-identical fixed point (the first merges features
+  of equal items); add then remove on a corpus part returns it to its PMI.
 
 Settled by the implementation (where the design was open or silent):
 
@@ -748,8 +765,7 @@ feature is read as that feature's composition.
 
 Not done in this stage: writing datum targets and tolerance relations (design: Out of scope);
 pinning the four NIST files of the reference set not obtainable here (above); knurls from
-specify-core intents (the intent lacks parameters `turned_knurl` requires; undetermined); the
-command line's write side. The stage 1 and 2 suites `p21.rs`, `express_rules.rs` and
+specify-core intents (the intent lacks parameters `turned_knurl` requires; undetermined). The stage 1 and 2 suites `p21.rs`, `express_rules.rs` and
 `removal.rs` still fall back to a hard-coded scratch directory for the NIST files when
 `HAECCEITY_NIST_PMI` is unset; the stage 3 suites use the variable only.
 

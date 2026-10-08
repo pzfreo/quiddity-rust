@@ -95,8 +95,8 @@ back the writer. The writer (`pmi::write`) maps every part's PMI to one edit of 
 datum feature symbol derived for each datum it adds; refusals, round trips and OpenCascade's
 reading of written files are pinned in `tests/fixtures/known_pmi_write.json`.
 specify-core and draftwright reach all of this through the `quiddity` command line, in a
-versioned JSON form of the model (`src/pmi_json.rs`): `quiddity parts`, `quiddity pmi read`
-and `quiddity pmi check` (see [Running](#running)).
+versioned JSON form of the model (`src/pmi_json.rs`): `quiddity parts`, `quiddity pmi read`,
+`quiddity pmi check` and `quiddity pmi write` (see [Running](#running)).
 
 The kernel also answers the questions the unported families ask of OpenCascade's booleans,
 checked against every one Python asks over the corpus: the volume a probe shares with a solid
@@ -211,10 +211,12 @@ src/
   pmi_json.rs        the versioned JSON form of haecceity's PartPmi, both directions: values
                      as stated decimal text with their units, anchors as face and edge numbers
                      bound to the file's sha256 and the reader version, enums as standard
-                     terms; refusals name the JSON path
+                     terms; refusals name the JSON path; a write's report
   bin/quiddity.rs    `quiddity part.step` → JSON with fingerprints;
                      `quiddity correspond old new` → the correspondence as JSON;
-                     `quiddity parts`, `quiddity pmi read`, `quiddity pmi check` → PMI JSON
+                     `quiddity parts`, `quiddity pmi read`, `quiddity pmi check` → PMI JSON;
+                     `quiddity pmi write` → AP242 PMI added, replaced or removed, verified by
+                     reading the output back, and the write's report
 tests/
   captured.rs        replays every recogniser call the Python test suite makes
   corpus.rs          every ported recogniser over the shared 100-file STEP corpus
@@ -230,10 +232,13 @@ tests/
                      in the fingerprint table, over the fixtures and the corpus
   cli.rs             the binary's usage, exit codes and refusal of broken STEP files
                      (fixtures/broken/), for every subcommand
-  pmi_cli.rs         `parts`, `pmi read` and `pmi check` on the AP242 fixtures (and every NIST
-                     AP242 file with HAECCEITY_NIST_PMI): the JSON equals the reader's model,
-                     every read part round trips through JSON with stable bytes, inch values
-                     keep their text, deterministic output, refusals with the JSON path
+  pmi_cli.rs         `parts`, `pmi read`, `pmi check` and `pmi write` on the AP242 fixtures (and
+                     every NIST AP242 file with HAECCEITY_NIST_PMI): the JSON equals the reader's
+                     model, every read part round trips through JSON with stable bytes, inch
+                     values keep their text, deterministic output, refusals with the JSON path;
+                     read → write replace → read through the CLI against the writer's pins
+                     (known_pmi_write.json "roundtrip"), add then remove on a corpus part,
+                     refusals that create nothing
   common/parallel.rs the corpus loops' per-file work on every core, results in corpus order
   fixtures/          STEP parts and Python's recorded answers, shared by both crates
 crates/haecceity/tests/
@@ -310,6 +315,8 @@ cargo build --release
 ./target/release/quiddity parts part.step                   # distinct parts and the binding
 ./target/release/quiddity pmi read part.step [--part N]     # semantic PMI and findings as JSON
 ./target/release/quiddity pmi check part.step pmi.json      # a PMI document checked against the file
+./target/release/quiddity pmi write part.step pmi.json -o out.step [--mode add|replace|remove] \
+  [--presentation refuse|remove]                            # AP242 PMI written, verified, reported
 QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release
 # corpus tests read ../quiddity/tests/corpus or $QUIDDITY_CORPUS; without
 # QUIDDITY_CORPUS_REQUIRED=1 they pass by skipping when the corpus is missing
@@ -322,8 +329,29 @@ HAECCEITY_NIST_PMI=<NIST-PMI-STEP-Files> HAECCEITY_NIST_PMI_REQUIRED=1 \
 ```
 
 `quiddity` exits 0 with the JSON on stdout; 1 with the error on stderr when a file cannot be
-read or a PMI document is refused; 2 with the usage on stderr for bad arguments (`-h`/`--help`
-prints it on stdout and exits 0).
+read, a PMI document is refused, or a write is refused or does not verify; 2 with the usage on
+stderr for bad arguments (`-h`/`--help` prints it on stdout and exits 0).
+
+`pmi write` writes every part the document lists in one edit: `add` (the default) beside the
+part's PMI, `replace` in place of it (afterwards `pmi read` gives the document's PMI), `remove`
+(each part's `pmi` must be `{}`). Every byte the edit does not concern is kept; an AP214/AP203
+file that gains PMI becomes AP242 only if all its instances are valid AP242 (else refused,
+naming them). Replace and remove take the replaced PMI's presentation with it
+(`--presentation remove`, the default, each instance listed in the report) or refuse naming it
+(`--presentation refuse`). The output goes to a temporary file beside `out.step` (gzipped for a
+`.gz` name), is read back and compared semantically with what was written (add: the part's PMI
+before plus exactly the new items; replace, remove: exactly the document's, and nothing the
+reader consumed for the part survives; other parts and findings as before), and is renamed to
+`out.step` only then. The report (`"format": "quiddity-pmi-write"`) gives the parts written,
+the input's and the output's bindings (so the output can be read and written again), instance
+counts (added, replaced, removed), the presentation removed by id and type, the `FILE_SCHEMA`
+kept or changed, the datum feature symbols written, the edition table used, the original's
+schema and rule violations (reported, not repaired) and the findings of reading the output.
+Exit 1, creating nothing, for: a document bound to another file or reader, items the writer
+does not write (datum targets, tolerance relations, notes, general tolerance tables, material
+density, …, each named by part and item), a value that is not a Part 21 REAL (`62.`, not `62`),
+presentation blockers under `--presentation refuse`, an edition upgrade refused, or a read-back
+that differs.
 
 The PMI JSON (`src/pmi_json.rs` describes the form) is a document `{"format": "quiddity-pmi",
 "version": 1, "binding": {"sha256", "reader"}, "parts": [{"part", "name", "pmi"}],
