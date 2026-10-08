@@ -289,7 +289,7 @@ fn expanded_components(grid: &Grid) -> BTreeSet<usize> {
 
 /// `_escapes`: from just outside the face, does some axis (or the face's own cylinder axis)
 /// reach open air? `Some(false)` when every probe was bounded on every direction, `None` when
-/// no probe could be made.
+/// no probe could be made (or the face's area, which sets the probe offset, is unknown).
 fn escapes(
     ctx: &Context<'_>,
     solid: usize,
@@ -302,7 +302,7 @@ fn escapes(
     if let Surface::Cylinder { frame, .. } = part.faces[face].surface {
         directions.extend([frame.z, geom::scale(frame.z, -1.0)]);
     }
-    let area = part.face_mass(face).map_or(0.0, |m| m[0]);
+    let area = part.face_mass(face)?[0];
     let offset = (COORD_FLOOR * 10.0).max(pitch.min(area.sqrt()) * 1e-3);
     let mut bounded_sample = false;
     for s in probe_samples(part, face) {

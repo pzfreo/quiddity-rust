@@ -165,13 +165,17 @@ fn level_proposals(
     }
     let b = &scope.bounds;
     let threshold = min_area_frac * (b.max[0] - b.min[0]) * (b.max[1] - b.min[1]);
-    let area = |f: usize| part.face_mass(f).map_or(0.0, |m| m[0]);
     let mut out = Vec::new();
     for cluster in cluster_coordinates(&zs, tol) {
-        if min_area_frac > 0.0
-            && !clears_threshold(py::sum(cluster.iter().map(|&i| area(faces[i]))), threshold)
-        {
-            continue;
+        // A level whose area cannot be integrated is not proposed (not read as area 0).
+        if min_area_frac > 0.0 {
+            let areas: Option<Vec<f64>> = cluster
+                .iter()
+                .map(|&i| part.face_mass(faces[i]).map(|m| m[0]))
+                .collect();
+            if !areas.is_some_and(|a| clears_threshold(py::sum(a), threshold)) {
+                continue;
+            }
         }
         let spans: Vec<Bounds> = cluster
             .iter()
