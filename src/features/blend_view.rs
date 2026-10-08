@@ -7,8 +7,9 @@
 //! A chain is a component of native cylinder faces joined by native continuations, sprung
 //! smoothly (convex or concave throughout) from exactly two support regions along one
 //! nonbranching edge path each, and closed by exactly two terminal edge paths at its ends.
-//! Anything else is refused. Only discovery is ported: the collapsed graph view
-//! (`CollapsedGraphView`) serves Python's experimental geometry, not a recogniser.
+//! Anything else is refused. Of the collapsed graph view (`CollapsedGraphView`) only the
+//! support bridges of selected chains are ported, in [`super::experimental_geometry`], which
+//! is all the recognisers read of it.
 
 use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet};
@@ -49,7 +50,7 @@ pub struct Shared {
 
 impl Shared {
     /// `_arc_key`: a stable order independent of traversal.
-    fn key(&self) -> (usize, usize, usize, usize, usize, usize) {
+    pub(crate) fn key(&self) -> (usize, usize, usize, usize, usize, usize) {
         let (l, r) = self.halves;
         (
             self.endpoints.0,
@@ -539,6 +540,10 @@ pub struct BlendChain {
     /// Each ascending, the two ordered by their least face.
     pub supports: [Vec<usize>; 2],
     pub spring_arcs: Vec<Shared>,
+    /// The occurrences joining the chain's own faces, in `_arc_key` order.
+    pub internal_arcs: Vec<Shared>,
+    /// The occurrences closing the chain's two ends, in `_arc_key` order.
+    pub terminal_arcs: Vec<Shared>,
     /// Convex or concave.
     pub side: SmoothSide,
     pub radius: f64,
@@ -665,6 +670,7 @@ impl BlendGraph<'_> {
         let mut spring_neighbours: BTreeMap<usize, BTreeMap<usize, Vec<Shared>>> =
             component.iter().map(|&n| (n, BTreeMap::new())).collect();
         let mut terminal_entries: Vec<(usize, Shared)> = Vec::new();
+        let mut internal: Vec<Shared> = Vec::new();
         let mut sides = BTreeSet::new();
         let mut solid: Option<usize> = None;
         let mut degree: BTreeMap<usize, usize> = component.iter().map(|&n| (n, 0)).collect();
@@ -690,6 +696,7 @@ impl BlendGraph<'_> {
                     if !self.native_neutral(node, n) || !one_nonbranching_edge_group(part, &refs) {
                         return None;
                     }
+                    internal.extend(refs);
                     *degree.get_mut(&node).unwrap() += 1;
                     *degree.get_mut(&n).unwrap() += 1;
                     continue;
@@ -849,11 +856,16 @@ impl BlendGraph<'_> {
         }
         let mut spring_arcs: Vec<Shared> = spring_groups.into_iter().flatten().collect();
         spring_arcs.sort_by_key(Shared::key);
+        internal.sort_by_key(Shared::key);
+        let mut terminal_arcs: Vec<Shared> = terminal_groups.into_iter().flatten().collect();
+        terminal_arcs.sort_by_key(Shared::key);
         let [a, b]: [Vec<usize>; 2] = supports.try_into().ok()?;
         Some(BlendChain {
             blend_nodes: component.to_vec(),
             supports: [a, b],
             spring_arcs,
+            internal_arcs: internal,
+            terminal_arcs,
             side: sides.pop_first().unwrap(),
             radius,
             solid,

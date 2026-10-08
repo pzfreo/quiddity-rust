@@ -24,8 +24,10 @@ pub mod edge_open;
 pub mod edge_open_circular;
 pub mod edge_open_prismatic;
 pub mod evidence;
+pub mod experimental_geometry;
 pub mod fillets;
 pub mod flats;
+pub mod geometry_evidence;
 pub mod graph;
 pub mod grooves;
 pub mod gussets;
@@ -39,6 +41,7 @@ pub mod paired_ramp_steps;
 pub mod planes;
 pub mod plates;
 pub mod policy;
+pub mod polygonal_bosses;
 pub mod probes;
 pub mod profiled_bores;
 pub mod rectangular_blind_slots;
@@ -93,6 +96,8 @@ pub struct Features {
     pub edge_open_circular_pockets: Vec<edge_open_circular::EdgeOpenCircularPocket>,
     pub edge_open_prismatic_recesses: Vec<edge_open_prismatic::EdgeOpenPrismaticRecess>,
     pub blends: Vec<blends::Blend>,
+    pub polygonal_bosses: Vec<polygonal_bosses::PolygonalBoss>,
+    pub polygonal_stock: Vec<polygonal_bosses::PolygonalStock>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole and gusset rib patterns) have none of their own: their members' faces are
     /// theirs ([`crate::correspondence`]).
@@ -208,6 +213,16 @@ pub fn recognise(part: &Part) -> Features {
             edge_open_prismatic::discover(&ctx),
         ),
         blends: kept(&mut defining, "blends", blends::discover(&ctx)),
+        polygonal_bosses: kept(
+            &mut defining,
+            "polygonal_bosses",
+            polygonal_bosses::discover(&ctx, &Default::default()),
+        ),
+        polygonal_stock: kept(
+            &mut defining,
+            "polygonal_stock",
+            polygonal_bosses::discover_stock(&ctx, &Default::default()),
+        ),
         defining,
     }
 }

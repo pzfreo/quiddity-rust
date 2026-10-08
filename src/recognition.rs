@@ -102,6 +102,8 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
     ("edge_open_circular_pockets", &["EdgeOpenCircularPocket"]),
     ("edge_open_prismatic_recesses", &["EdgeOpenPrismaticRecess"]),
     ("blends", &["Blend"]),
+    ("polygonal_bosses", &["PolygonalBoss"]),
+    ("polygonal_stock", &["PolygonalStock"]),
 ];
 
 /// The record class names a family's records can have.

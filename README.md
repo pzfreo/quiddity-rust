@@ -38,6 +38,8 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 | Edge-open circular pockets | `recognise_edge_open_circular_pockets` | 9/9 | 0 | 100/100 |
 | Edge-open prismatic recesses | `recognise_edge_open_prismatic_recesses` | 23/23 | 2 | 100/100 |
 | Blends | `recognise_blends` | 52/52 | 0 | 94/100 (6 known) |
+| Polygonal bosses | `recognise_polygonal_bosses` | 133/139 (6 known divergences) | 4 | 100/100 |
+| Polygonal stock | `recognise_polygonal_stock` | 70/70 | 1 | 100/100 |
 
 *Captured test calls*: the Python suite's calls replayed by `tests/captured.rs`. *Not captured*:
 calls the suite makes that the capture could not record, outside the replay and pinned by it
@@ -56,7 +58,7 @@ its verdict and reason in a verdict file:
 | Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
 |---|---|---|---|---|---|---|---|
 | `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 131 (899 problems) | 72 | 11 | 14 | 34 | 0 |
-| `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 23 (24 calls) | 4 | 0 | 1 | 2 | 16 |
+| `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 29 (30 calls) | 4 | 0 | 1 | 2 | 22 |
 | `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 9 | 0 | 9 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
 | `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 19 | 4 | 15 | 0 | 0 | 0 |
@@ -159,6 +161,11 @@ src/
     blend_view.rs    native cylindrical blend chains, with the face graph readings they need:
                      paired edge occurrences, their solid ownership, a smooth join's side
     blends.rs
+    experimental_geometry.rs  the read-only geometry facade (`GeometryGraph`): a solid's or the
+                     part's faces with their readings, effective analytic surfaces, blend facts
+                     and the support bridges selected blend chains collapse to
+    geometry_evidence.rs  occurrences issued from facade faces, published only on one valid solid
+    polygonal_bosses.rs  regular square/hexagonal bosses and hexagonal whole stock
     volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over haecceity's volume.rs
   frames.rs          part-relative recognition (`quiddity.frames`): the frame inferred from the
                      part's plane normals and cylinder axes, the part re-read into it, recognised

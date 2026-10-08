@@ -46,6 +46,10 @@ pub use features::oriented_chamfers::{
 };
 pub use features::paired_ramp_steps::{PairedRampStep, recognise_paired_ramp_steps};
 pub use features::plates::{Plate, PlateOptions, recognise_plates};
+pub use features::polygonal_bosses::{
+    PolygonalBoss, PolygonalOptions, PolygonalPrism, PolygonalStock, recognise_polygonal_bosses,
+    recognise_polygonal_stock,
+};
 pub use features::profiled_bores::{DoubleDBore, DoubleDBoreOptions, recognise_double_d_bores};
 pub use features::rectangular_blind_slots::{
     RectangularBlindSlot, recognise_rectangular_blind_slots,

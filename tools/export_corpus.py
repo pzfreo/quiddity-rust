@@ -61,6 +61,13 @@ from quiddity.interior_voids import _discover_interior_voids  # noqa: E402
 from quiddity.oriented_chamfers import _discover_oriented_chamfers  # noqa: E402
 from quiddity.paired_ramp_steps import _discover_paired_ramp_steps  # noqa: E402
 from quiddity.plates import _discover_plates  # noqa: E402
+from quiddity.experimental_geometry import GeometryGraph  # noqa: E402
+from quiddity.polygonal_bosses import (  # noqa: E402
+    _discover_polygonal_bosses,
+    _discover_polygonal_stock,
+    recognise_polygonal_bosses,
+    recognise_polygonal_stock,
+)
 from quiddity.rectangular_blind_slots import (  # noqa: E402
     _discover_rectangular_blind_slots,
     recognise_rectangular_blind_slots,
@@ -250,6 +257,12 @@ def main() -> None:
                   lambda p, ledger, o: _discover_plates(p, writer=ledger.writer, **o))
         blends = (FamilyId.BLENDS, lambda p, o: recognise_blends(p),
                   lambda p, ledger, o: _discover_blends(p, graph=ledger.graph, writer=ledger.writer))
+        polygonal_bosses = (FamilyId.POLYGONAL_BOSSES, lambda p, o: recognise_polygonal_bosses(p),
+                            lambda p, ledger, o: _discover_polygonal_bosses(
+                                p, graph=GeometryGraph._from_graph(ledger.graph), writer=ledger.writer))
+        polygonal_stock = (FamilyId.POLYGONAL_STOCK, lambda p, o: recognise_polygonal_stock(p),
+                           lambda p, ledger, o: _discover_polygonal_stock(
+                               p, graph=GeometryGraph._from_graph(ledger.graph), writer=ledger.writer))
         entries.append(
             {
                 "file": str(path.relative_to(CORPUS)),
@@ -303,6 +316,12 @@ def main() -> None:
                         _run(part, "recognise_edge_open_prismatic_recesses", *open_prismatic, {})
                     ],
                     "recognise_blends": [_run(part, "recognise_blends", *blends, {})],
+                    "recognise_polygonal_bosses": [
+                        _run(part, "recognise_polygonal_bosses", *polygonal_bosses, {})
+                    ],
+                    "recognise_polygonal_stock": [
+                        _run(part, "recognise_polygonal_stock", *polygonal_stock, {})
+                    ],
                     "recognise_gusset_rib_patterns": [
                         {"options": {}, "result": _plain(recognise_gusset_rib_patterns(recognise_gusset_ribs(part)))}
                     ],

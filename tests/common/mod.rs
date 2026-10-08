@@ -99,6 +99,12 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
             json(quiddity::recognise_edge_open_prismatic_recesses(part))
         }
         "recognise_blends" => json(quiddity::recognise_blends(part)),
+        "recognise_polygonal_bosses" => {
+            json(quiddity::recognise_polygonal_bosses(part, &options(kwargs)))
+        }
+        "recognise_polygonal_stock" => {
+            json(quiddity::recognise_polygonal_stock(part, &options(kwargs)))
+        }
         // Over a part: the patterns among the part's gusset ribs.
         "recognise_gusset_rib_patterns" => json(quiddity::recognise_gusset_rib_patterns(
             &quiddity::recognise_gusset_ribs(part),
@@ -194,6 +200,14 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
             quiddity::features::edge_open_prismatic::discover_verified(&ctx).map(faces)
         }
         "recognise_blends" => quiddity::features::blends::discover_verified(&ctx).map(faces),
+        "recognise_polygonal_bosses" => {
+            quiddity::features::polygonal_bosses::discover_verified(&ctx, &options(kwargs))
+                .map(faces)
+        }
+        "recognise_polygonal_stock" => {
+            quiddity::features::polygonal_bosses::discover_stock_verified(&ctx, &options(kwargs))
+                .map(faces)
+        }
         other => panic!("{other} has no evidence path"),
     };
     result.map_err(|e| e.to_string())

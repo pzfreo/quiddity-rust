@@ -210,5 +210,59 @@
     "count": 1,
     "verdict": "not-applicable",
     "reason": "Solid.__and__ is monkeypatched to return fragments of volume 1 and 2, fabricating material inside the prism, so Python rejects the bore; the part itself is a true through double-D, which the port finds (as Python does in the unpatched variants of the test)."
+  },
+  {
+    "function": "recognise_polygonal_bosses",
+    "test": "tests/test_polygonal_boss_attribution.py::test_consumer_refuses_ineligible_chain_without_candidate_prefix[concave]",
+    "file": "d099f35d94b357db.step.gz",
+    "options": {},
+    "count": 1,
+    "verdict": "not-applicable",
+    "reason": "The test monkeypatches BlendCollapseIndex.chains so that it relabels the first blend chain concave; the chain is then ineligible, the ring loses a bridge and Python's captured answer (none) reflects that patch, not the part. The port finds the part's one hexagonal boss (A/F 34.641, z 5-35), its corners rounded by six convex single-face cylinder chains, as Python does on the unpatched part in the test's own baseline (test_blend_interrupted_boss_survives_step_roundtrip and the other blend-cycle calls)."
+  },
+  {
+    "function": "recognise_polygonal_bosses",
+    "test": "tests/test_polygonal_boss_attribution.py::test_consumer_refuses_ineligible_chain_without_candidate_prefix[multi_node]",
+    "file": "d099f35d94b357db.step.gz",
+    "options": {},
+    "count": 1,
+    "verdict": "not-applicable",
+    "reason": "The test monkeypatches BlendCollapseIndex.chains so that it adds an unrelated face to the first blend chain's rolling faces; the chain is then ineligible, the ring loses a bridge and Python's captured answer (none) reflects that patch, not the part. The port finds the part's one hexagonal boss (A/F 34.641, z 5-35), its corners rounded by six convex single-face cylinder chains, as Python does on the unpatched part in the test's own baseline (test_blend_interrupted_boss_survives_step_roundtrip and the other blend-cycle calls)."
+  },
+  {
+    "function": "recognise_polygonal_bosses",
+    "test": "tests/test_polygonal_boss_attribution.py::test_consumer_refuses_ineligible_chain_without_candidate_prefix[multi_support]",
+    "file": "d099f35d94b357db.step.gz",
+    "options": {},
+    "count": 1,
+    "verdict": "not-applicable",
+    "reason": "The test monkeypatches BlendCollapseIndex.chains so that it adds an unrelated face to the first blend chain's first support; the chain is then ineligible, the ring loses a bridge and Python's captured answer (none) reflects that patch, not the part. The port finds the part's one hexagonal boss (A/F 34.641, z 5-35), its corners rounded by six convex single-face cylinder chains, as Python does on the unpatched part in the test's own baseline (test_blend_interrupted_boss_survives_step_roundtrip and the other blend-cycle calls)."
+  },
+  {
+    "function": "recognise_polygonal_bosses",
+    "test": "tests/test_polygonal_boss_attribution.py::test_non_cylinder_blend_fact_refuses_full_consumer_path",
+    "file": "d099f35d94b357db.step.gz",
+    "options": {},
+    "count": 1,
+    "verdict": "not-applicable",
+    "reason": "Python is handed a precomputed graph (a rich argument), so the capture records no answer on the re-read STEP; and the test monkeypatches EffectiveSurfaceIndex.fact to read the first blend face as a plane, so the in-memory answer (none) reflects that patch, not the part. The port finds the part's one hexagonal boss (A/F 34.641, z 5-35), its corners rounded by six convex single-face cylinder chains, as Python does on the unpatched part in the test's own baseline (test_blend_interrupted_boss_survives_step_roundtrip and the other blend-cycle calls)."
+  },
+  {
+    "function": "recognise_polygonal_bosses",
+    "test": "tests/test_polygonal_boss_attribution.py::test_unequal_support_span_refuses_after_chain_issuance",
+    "file": "d099f35d94b357db.step.gz",
+    "options": {},
+    "count": 1,
+    "verdict": "not-applicable",
+    "reason": "Python is handed a precomputed graph (a rich argument), so the capture records no answer on the re-read STEP; and the test monkeypatches FaceGraph.bounds to stretch one blend support's span by 1 mm, so the in-memory answer (none) reflects that patch, not the part. The port finds the part's one hexagonal boss (A/F 34.641, z 5-35), its corners rounded by six convex single-face cylinder chains, as Python does on the unpatched part in the test's own baseline (test_blend_interrupted_boss_survives_step_roundtrip and the other blend-cycle calls)."
+  },
+  {
+    "function": "recognise_polygonal_bosses",
+    "test": "tests/test_polygonal_boss_attribution.py::test_supplied_single_graph_and_multi_solid_local_graph_routes",
+    "file": "54fe727555b63158.step.gz",
+    "options": {},
+    "count": 1,
+    "verdict": "not-applicable",
+    "reason": "Python is handed a precomputed graph over the same part (a rich argument), so the capture records no answer on the re-read STEP to compare with. The port's answer equals the captured in-memory answer exactly: one hexagonal boss, A/F 34.641, centre (0, 0, 20), z 5-35."
   }
 ]

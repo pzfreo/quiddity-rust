@@ -528,6 +528,38 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("path.center", Placement),
         ],
     },
+    FamilyFingerprint {
+        family: "polygonal_bosses",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("side_count", Trait),
+            ("across_flats", Size),
+            // Their difference is the height.
+            ("base", Derived),
+            ("top", Derived),
+            ("center", Placement),
+            ("flat_directions", Placement),
+            ("flat_centres", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "polygonal_stock",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("side_count", Trait),
+            ("across_flats", Size),
+            // Their difference is the length.
+            ("base", Derived),
+            ("top", Derived),
+            ("center", Placement),
+            ("flat_directions", Placement),
+            ("flat_centres", Placement),
+        ],
+    },
 ];
 
 /// The fingerprint table of the family with this serde key.
@@ -731,6 +763,8 @@ fn derived_sizes(family: &str, r: &Value, sizes: &mut BTreeMap<String, f64>) {
     match family {
         "plates" => put("thickness", span("lo", "hi")),
         "turned_steps" => put("length", span("lo", "hi")),
+        "polygonal_bosses" => put("height", span("base", "top")),
+        "polygonal_stock" => put("length", span("base", "top")),
         "gusset_ribs" => put("thickness", interval("thickness_bounds")),
         "through_steps" => {
             let legs = at(r, "section").first().map(|s| chain_lengths(s));
