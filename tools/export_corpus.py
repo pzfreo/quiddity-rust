@@ -69,6 +69,10 @@ from quiddity.passages import (  # noqa: E402
     recognise_section_passages,
 )
 from quiddity.plates import _discover_plates  # noqa: E402
+from quiddity.prismatic_pockets import (  # noqa: E402
+    _discover_prismatic_pockets,
+    recognise_prismatic_pockets,
+)
 from quiddity.repeating_profiles import (  # noqa: E402
     _discover_repeating_radial_profiles,
     recognise_repeating_radial_profiles,
@@ -329,6 +333,9 @@ def main() -> None:
         section_passages = (FamilyId.PASSAGES, lambda p, o: recognise_section_passages(p),
                             lambda p, ledger, o: _discover_section_passages(p, ledger.graph,
                                                                             ledger.writer.sink))
+        prismatic_pockets = (FamilyId.PRISMATIC_POCKETS, lambda p, o: recognise_prismatic_pockets(p),
+                             lambda p, ledger, o: _discover_prismatic_pockets(p, graph=ledger.graph,
+                                                                              ledger=ledger))
         entries.append(
             {
                 "file": str(path.relative_to(CORPUS)),
@@ -402,6 +409,9 @@ def main() -> None:
                     ],
                     "recognise_section_passages": [
                         _run(part, "recognise_section_passages", *section_passages, {})
+                    ],
+                    "recognise_prismatic_pockets": [
+                        _run(part, "recognise_prismatic_pockets", *prismatic_pockets, {})
                     ],
                     # The legacy roster: Python refuses its evidence path (PassageCompatibilityError).
                     "recognise_passages": [{"options": {}, "result": _plain(recognise_passages(part))}],

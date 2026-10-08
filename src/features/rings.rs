@@ -14,7 +14,7 @@ use super::edge_open::SPAN_EPS;
 use super::graph::{is_planar, normal, span};
 use super::policy::AXIS_ZERO_COS;
 use super::sections::V2;
-use crate::kernel::classify::State;
+use crate::kernel::classify::{Classifier, State};
 use crate::kernel::geom::{Bounds, Curve};
 use crate::kernel::py;
 
@@ -91,7 +91,7 @@ pub fn rings(ctx: &Context<'_>) -> Vec<Ring> {
             let spans: Vec<(f64, f64)> = ring.iter().map(|&n| span(part, n, axis)).collect();
             let low = spans.iter().map(|s| s.0).fold(f64::INFINITY, f64::min);
             let high = spans.iter().map(|s| s.1).fold(f64::NEG_INFINITY, f64::max);
-            if !is_void(ctx, &section, axis, low, high) {
+            if !is_void(ctx.classifier(), &section, axis, low, high) {
                 continue;
             }
             let cap_nodes = capped_ends(ctx, &ring, &members, axis, low, high);
@@ -137,7 +137,7 @@ fn components(items: &[usize], joined: impl Fn(usize, usize) -> bool) -> Vec<Vec
 /// The ring's corners walked around it, canonical, or `None` when they are not a simple
 /// polygon (`_cross_section`). Each corner is the middle, across the run, of the box of the
 /// edges two consecutive walls share.
-fn cross_section(
+pub(crate) fn cross_section(
     ctx: &Context<'_>,
     ring: &[usize],
     members: &BTreeSet<usize>,
@@ -267,21 +267,28 @@ fn within(point: V2, a: V2, b: V2, c: V2) -> bool {
 
 /// Is the ring's interior empty rather than a prism of material (`_is_void`)? Only a clean
 /// `OUT` at a point proved inside the section, halfway along the span, counts: `ON` and
-/// `UNKNOWN` fail closed.
-fn is_void(ctx: &Context<'_>, section: &[V2], axis: usize, low: f64, high: f64) -> bool {
+/// `UNKNOWN` fail closed. *classifier* is the whole part's, or one solid's where the caller
+/// asks of that solid alone (prismatic pockets).
+pub(crate) fn is_void(
+    classifier: &Classifier<'_>,
+    section: &[V2],
+    axis: usize,
+    low: f64,
+    high: f64,
+) -> bool {
     let [a0, a1] = others(axis);
     let inside = interior_point(section);
     let mut point = [0.0; 3];
     point[axis] = 0.5 * (low + high);
     point[a0] = inside[0];
     point[a1] = inside[1];
-    ctx.classifier().classify(point) == State::Out
+    classifier.classify(point) == State::Out
 }
 
 /// The neighbouring faces that close each end of the ring (`_capped_ends`): any face, of any
 /// surface type, reaching an end of the span and lying within the ring's cross-section box. An
 /// end face the ring is punched through extends past it and does not cap it.
-fn capped_ends(
+pub(crate) fn capped_ends(
     ctx: &Context<'_>,
     ring: &[usize],
     members: &BTreeSet<usize>,

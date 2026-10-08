@@ -24,6 +24,7 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -214,6 +215,13 @@ def pytest_collection_modifyitems(session, config, items):
         for target, real in reals.items():
             if getattr(module, target, None) is real:
                 setattr(module, target, _wrap(target, real))
+        # A test module's frozen detector namespace (`r = namespace()` from
+        # tools/_legacy_recognition) holds the targets as attributes of its own.
+        for value in list(vars(module).values()):
+            if isinstance(value, SimpleNamespace):
+                for target, real in reals.items():
+                    if getattr(value, target, None) is real:
+                        setattr(value, target, _wrap(target, real))
 
 
 def pytest_sessionfinish(session, exitstatus):
