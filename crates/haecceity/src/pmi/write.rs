@@ -1438,6 +1438,9 @@ struct PartPlan<'a> {
     /// Feature → the feature written for it (features of equal content are one instance).
     canonical: Vec<usize>,
     roles: BTreeMap<usize, Role>,
+    /// Features that are also an applied area or a thread runout beside their own role: a
+    /// second instance of that type.
+    twins: BTreeSet<(usize, Role)>,
     /// Datums resolved to the part's existing datum (add): datum → (`#datum`, `#datum_feature`).
     existing_datums: BTreeMap<usize, (u64, Option<u64>)>,
     /// Geometry → an existing supplemental geometry item with the same value.
@@ -1490,6 +1493,7 @@ impl<'a> PartPlan<'a> {
             context,
             canonical: (0..pmi.features.len()).collect(),
             roles: BTreeMap::new(),
+            twins: BTreeSet::new(),
             existing_datums: BTreeMap::new(),
             existing_geometry: BTreeMap::new(),
             system_names: BTreeSet::new(),
@@ -1706,13 +1710,8 @@ impl<'a> PartPlan<'a> {
                 .or_default()
                 .insert(Role::AppliedArea);
         }
+        let twin_role = |r: &Role| matches!(r, Role::AppliedArea | Role::ThreadRunout);
         for (f, rs) in &roles {
-            if rs.len() > 1 {
-                self.refuse(
-                    ItemRef::Feature(*f),
-                    format!("the feature is used as {rs:?}: one shape aspect cannot be of all these types"),
-                );
-            }
             // A datum on a group whose members it applies to individually is the group and
             // the datum feature in one complex instance (§6.5.2); no other group or derived
             // feature takes a role.
@@ -1733,8 +1732,19 @@ impl<'a> PartPlan<'a> {
             }
         }
         for (f, rs) in roles {
-            if let Some(&r) = rs.iter().next() {
-                self.roles.insert(f, r);
+            // A thread's or knurl's area and a thread's runout are shape aspects of their own
+            // types (applied_area, thread_runout; thread WR12, WR16): where the same faces are
+            // also another feature (a datum feature), that type is a second instance of the
+            // same items, composed of a shared member (UR1).
+            let primary = rs.iter().find(|r| !twin_role(r)).copied();
+            let mut twins: Vec<Role> = rs.iter().filter(|r| twin_role(r)).copied().collect();
+            let primary = match primary {
+                Some(r) => r,
+                None => twins.remove(0),
+            };
+            self.roles.insert(f, primary);
+            for r in twins {
+                self.twins.insert((f, r));
             }
         }
         // A datum feature with exactly one size dimension on it, nothing else stated of it
@@ -2002,6 +2012,12 @@ impl<'a> PartPlan<'a> {
                     ),
                     AttributeValue::Measure(m) => real(m.decimal()).err(),
                     AttributeValue::Real(d) => real(d).err(),
+                    // The reader looks for the value of a boolean_representation_item as its
+                    // own attribute (it is boolean_literal's), so a written boolean would not
+                    // read back.
+                    AttributeValue::Boolean(_) => Some(
+                        "a boolean value is not written: the reader does not read boolean_representation_item.the_value back".to_string(),
+                    ),
                     AttributeValue::OtherMeasure { value, unit, .. } => {
                         real(value).err().or_else(|| {
                             (!unit.is_empty() && self.other_unit(unit).is_err())
@@ -2118,6 +2134,13 @@ impl<'a> PartPlan<'a> {
                 && done.insert(c)
                 && !reused.contains(&c)
             {
+                for k in self.usage_keys(em, &st, items)? {
+                    *keys.entry(k).or_insert(0) += 1;
+                }
+            }
+        }
+        for &(c, _) in &self.twins {
+            if let Feature::Items(items) = &p.features[c] {
                 for k in self.usage_keys(em, &st, items)? {
                     *keys.entry(k).or_insert(0) += 1;
                 }
@@ -2484,6 +2507,47 @@ impl<'a> PartPlan<'a> {
                 r
             }
         };
+        Ok(r)
+    }
+
+    /// The instance of feature `f` in `role`: the feature's own, or its second instance of
+    /// that type (an applied area or thread runout on faces that are also another feature).
+    fn role_instance(
+        &self,
+        em: &mut Emitter<'_>,
+        st: &mut Emitted,
+        pds: R,
+        f: FeatureId,
+        role: Role,
+    ) -> Result<R, WriteError> {
+        let c = self.canonical[f.0];
+        if !self.twins.contains(&(c, role)) {
+            return self.feature(em, st, pds, f.0);
+        }
+        if let Some(&r) = st.twins.get(&(c, role)) {
+            return Ok(r);
+        }
+        let Feature::Items(items) = &self.pmi.features[c] else {
+            return Err(WriteError::Internal(
+                "a twin of a feature that is not items".into(),
+            ));
+        };
+        let ty = if role == Role::AppliedArea {
+            "applied_area"
+        } else {
+            "thread_runout"
+        };
+        let r = em.simple(
+            ty,
+            &[
+                ("name", s("")),
+                ("description", s("")),
+                ("of_shape", pds.a()),
+                ("product_definitional", boolean(true)),
+            ],
+        )?;
+        st.twins.insert((c, role), r);
+        self.usages(em, st, pds, r, items)?;
         Ok(r)
     }
 
@@ -3277,7 +3341,7 @@ impl<'a> PartPlan<'a> {
         pds: R,
         shape: R,
         (description, usage): (&str, &str),
-        from: Option<FeatureId>,
+        from: Option<R>,
     ) -> Result<(), WriteError> {
         let occ = em.simple(
             "shape_aspect",
@@ -3288,8 +3352,8 @@ impl<'a> PartPlan<'a> {
                 ("product_definitional", boolean(false)),
             ],
         )?;
+        let _ = (st, pds);
         if let Some(f) = from {
-            let f = self.feature(em, st, pds, f.0)?;
             em.simple(
                 "shape_defining_relationship",
                 &[
@@ -3312,21 +3376,29 @@ impl<'a> PartPlan<'a> {
     ) -> Result<(), WriteError> {
         let def = em.simple("thread", &[("name", s("")), ("description", s(""))])?;
         let shape = self.applied(em, st, pds, def, t.feature)?;
+        let area = match t.partial_area {
+            Some(f) => Some(self.role_instance(em, st, pds, f, Role::AppliedArea)?),
+            None => None,
+        };
         self.definition_aspect(
             em,
             st,
             pds,
             shape,
             ("partial area occurrence", "applied area usage"),
-            t.partial_area,
+            area,
         )?;
+        let runout = match t.runout {
+            Some(f) => Some(self.role_instance(em, st, pds, f, Role::ThreadRunout)?),
+            None => None,
+        };
         self.definition_aspect(
             em,
             st,
             pds,
             shape,
             ("thread runout", "thread runout usage"),
-            t.runout,
+            runout,
         )?;
         let ctx = self.context;
         let hand = |h: Hand| match h {
@@ -3416,6 +3488,7 @@ impl<'a> PartPlan<'a> {
             &[("name", s("")), ("description", s(pattern))],
         )?;
         let shape = self.applied(em, st, pds, def, k.feature)?;
+        let area = self.role_instance(em, st, pds, k.feature, Role::AppliedArea)?;
         // turned_knurl WR11 (as thread WR12): exactly one 'partial area occurrence' with one
         // 'applied area usage' from an applied_area: the knurled faces themselves (the model
         // holds no other area for a knurl).
@@ -3425,7 +3498,7 @@ impl<'a> PartPlan<'a> {
             pds,
             shape,
             ("partial area occurrence", "applied area usage"),
-            Some(k.feature),
+            Some(area),
         )?;
         let ctx = self.context;
         let mut items = vec![
@@ -3611,6 +3684,7 @@ struct Emitted {
     /// Usage keys (representation, items) several features need: each one shape aspect.
     shared_keys: BTreeSet<(R, Vec<R>)>,
     shared: BTreeMap<(R, Vec<R>), R>,
+    twins: BTreeMap<(usize, Role), R>,
 }
 
 fn zone_form_name(f: &ZoneForm) -> &str {
@@ -3709,11 +3783,24 @@ fn geometry_item(
 /// resolved to what it names (a feature to its faces, edges and geometry; a datum to its label
 /// and feature), collections are compared as sets (features of equal content are one feature;
 /// modifiers in any order), and a one-datum compartment's own modifiers are the compartment's.
-/// Values are compared as stated (text and unit). Empty when they mean the same.
+/// Values are compared as quantities (millimetres or radians, to 1e-12 relative) with their
+/// decimal places; [`differences_as_stated`] compares their text and unit too. Empty when the
+/// two mean the same.
 #[must_use]
 pub fn differences(a: &PartPmi, b: &PartPmi) -> Vec<String> {
-    let ka = Canonical::of(a);
-    let kb = Canonical::of(b);
+    compare(a, b, false)
+}
+
+/// [`differences`], with every value compared as stated: its decimal text and its unit (a
+/// round trip writes each value's own digits in its own unit).
+#[must_use]
+pub fn differences_as_stated(a: &PartPmi, b: &PartPmi) -> Vec<String> {
+    compare(a, b, true)
+}
+
+fn compare(a: &PartPmi, b: &PartPmi, stated: bool) -> Vec<String> {
+    let ka = Canonical::of(a, stated);
+    let kb = Canonical::of(b, stated);
     let mut out = Vec::new();
     for (name, x, y) in [
         ("standard", &ka.standards, &kb.standards),
@@ -3766,14 +3853,15 @@ struct Canonical {
 }
 
 impl Canonical {
-    fn of(p: &PartPmi) -> Canonical {
-        let k = Keys { p };
+    fn of(p: &PartPmi, stated: bool) -> Canonical {
+        let k = Keys { p, stated };
         let sorted = |mut v: Vec<String>| {
             v.sort();
             v
         };
         let mut features = sorted(p.features.iter().map(|f| k.feature_content(f)).collect());
         features.dedup();
+        let ol = |l: &Option<Length>| l.as_ref().map(|l| k.length(l));
         Canonical {
             standards: sorted(p.standards.iter().map(|s| format!("{s:?}")).collect()),
             decimal_places: p.decimal_places.iter().map(|d| d.to_string()).collect(),
@@ -3795,17 +3883,25 @@ impl Canonical {
                     })
                     .collect(),
             ),
-            general: sorted(p.general.iter().map(|g| format!("{g:?}")).collect()),
+            general: sorted(p.general.iter().map(|g| k.general(g)).collect()),
             threads: sorted(
                 p.threads
                     .iter()
                     .map(|t| {
-                        let mut t2 = t.clone();
-                        t2.feature = FeatureId(0);
-                        t2.partial_area = None;
-                        t2.runout = None;
                         format!(
-                            "{t2:?} on {} area {:?} runout {:?}",
+                            "{:?} major {} minor {:?} pitch diameter {:?} threads {} form {:?} fit {:?} {:?} {:?} crest {:?} qualifier {:?} nominal {:?} on {} area {:?} runout {:?}",
+                            t.side,
+                            k.length(&t.major_diameter),
+                            ol(&t.minor_diameter),
+                            ol(&t.pitch_diameter),
+                            k.decimal(&t.number_of_threads.0),
+                            t.form,
+                            t.fit_class,
+                            t.fit_class_2,
+                            t.hand,
+                            ol(&t.crest),
+                            t.qualifier,
+                            ol(&t.nominal_size),
                             k.feature(t.feature),
                             t.partial_area.map(|f| k.feature(f)),
                             t.runout.map(|f| k.feature(f))
@@ -3817,9 +3913,19 @@ impl Canonical {
                 p.knurls
                     .iter()
                     .map(|x| {
-                        let mut x2 = x.clone();
-                        x2.feature = FeatureId(0);
-                        format!("{x2:?} on {}", k.feature(x.feature))
+                        format!(
+                            "{:?} major {} nominal {} pitch {} teeth {:?} depth {:?} fillet {:?} helix {:?} {:?} on {}",
+                            x.pattern,
+                            k.length(&x.major_diameter),
+                            k.length(&x.nominal_diameter),
+                            k.length(&x.diametral_pitch),
+                            x.number_of_teeth,
+                            ol(&x.tooth_depth),
+                            ol(&x.root_fillet),
+                            x.helix_angle.as_ref().map(|a| k.angle(a)),
+                            x.helix_hand,
+                            k.feature(x.feature)
+                        )
                     })
                     .collect(),
             ),
@@ -3833,7 +3939,26 @@ impl Canonical {
             attributes: sorted(
                 p.attributes
                     .iter()
-                    .map(|a| format!("{:?} {:?} on {}", a.name, a.items, k.owner(a.on)))
+                    .map(|a| {
+                        let items: Vec<String> = a
+                            .items
+                            .iter()
+                            .map(|(n, v)| {
+                                let v = match v {
+                                    AttributeValue::Measure(m) => k.value(m),
+                                    AttributeValue::Real(d) => k.decimal(d),
+                                    AttributeValue::OtherMeasure {
+                                        measure,
+                                        value,
+                                        unit,
+                                    } => format!("{measure} {} {unit:?}", k.decimal(value)),
+                                    v => format!("{v:?}"),
+                                };
+                                format!("{n:?}={v}")
+                            })
+                            .collect();
+                        format!("{:?} [{}] on {}", a.name, items.join(", "), k.owner(a.on))
+                    })
                     .collect(),
             ),
         }
@@ -3842,9 +3967,81 @@ impl Canonical {
 
 struct Keys<'p> {
     p: &'p PartPmi,
+    /// Values as stated (text and unit), else as quantities.
+    stated: bool,
 }
 
 impl Keys<'_> {
+    fn decimal(&self, d: &Decimal) -> String {
+        if self.stated {
+            d.to_string()
+        } else {
+            format!("{:.11e}", d.to_f64())
+        }
+    }
+
+    fn length(&self, l: &Length) -> String {
+        if self.stated {
+            format!("{}{:?}", l.value, l.unit)
+        } else {
+            format!("{:.11e} mm", l.mm())
+        }
+    }
+
+    fn angle(&self, a: &Angle) -> String {
+        if self.stated {
+            format!("{}{:?}", a.value, a.unit)
+        } else {
+            format!("{:.11e} rad", a.rad())
+        }
+    }
+
+    fn value(&self, v: &Value) -> String {
+        let q = match &v.quantity {
+            Quantity::Length(l) => self.length(l),
+            Quantity::Angle(a) => self.angle(a),
+        };
+        match v.decimal_places {
+            Some(p) => format!("{q}/{p}"),
+            None => q,
+        }
+    }
+
+    fn ov(&self, v: &Option<Value>) -> String {
+        v.as_ref()
+            .map_or_else(|| "-".to_string(), |v| self.value(v))
+    }
+
+    fn bounds(&self, b: &Bounds) -> String {
+        format!("{} {}", self.value(b.upper()), self.value(b.lower()))
+    }
+
+    fn general(&self, g: &GeneralTolerance) -> String {
+        match g {
+            GeneralTolerance::Class { text, standard } => format!("class {text:?} {standard:?}"),
+            GeneralTolerance::Table { name, cells } => {
+                let cells: Vec<String> = cells
+                    .iter()
+                    .map(|c| {
+                        c.items
+                            .iter()
+                            .map(|(n, v)| {
+                                let v = match v {
+                                    CellValue::Value(x) => self.value(x),
+                                    CellValue::Count(d) => self.decimal(d),
+                                    CellValue::Text(t) => format!("{t:?}"),
+                                };
+                                format!("{n:?}={v}")
+                            })
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    })
+                    .collect();
+                format!("table {name:?} [{}]", cells.join("; "))
+            }
+        }
+    }
+
     fn feature(&self, f: FeatureId) -> String {
         self.p.features.get(f.0).map_or_else(
             || format!("missing feature {}", f.0),
@@ -3885,12 +4082,29 @@ impl Keys<'_> {
         let shape = match t.shape() {
             TargetShape::Area(f) => format!("Area({})", self.feature(*f)),
             TargetShape::Curve(f) => format!("Curve({})", self.feature(*f)),
-            s => format!("{s:?}"),
+            TargetShape::Point => "Point".into(),
+            TargetShape::Line { length } => format!("Line {}", self.length(length)),
+            TargetShape::Rectangle { length, width } => {
+                format!("Rectangle {} {}", self.length(length), self.length(width))
+            }
+            TargetShape::Circle { diameter } => format!("Circle {}", self.length(diameter)),
+            TargetShape::CircularCurve { diameter } => {
+                format!("CircularCurve {}", self.length(diameter))
+            }
         };
+        let placement = t.placement().map(|pl| {
+            format!(
+                "at {} {} {} axis {:?} ref {:?}",
+                self.length(&pl.origin[0]),
+                self.length(&pl.origin[1]),
+                self.length(&pl.origin[2]),
+                pl.axis,
+                pl.ref_direction
+            )
+        });
         format!(
-            "{} {shape} {:?} {:?} on {:?}",
+            "{} {shape} {placement:?} {:?} on {:?}",
             t.number(),
-            t.placement(),
             t.movable(),
             t.on().map(|f| self.feature(f))
         )
@@ -3915,8 +4129,16 @@ impl Keys<'_> {
         )
     }
 
-    fn modifiers(ms: &[DatumModifier]) -> String {
-        let mut v: Vec<String> = ms.iter().map(|m| format!("{m:?}")).collect();
+    fn modifiers(&self, ms: &[DatumModifier]) -> String {
+        let mut v: Vec<String> = ms
+            .iter()
+            .map(|m| match m {
+                DatumModifier::Simple(s) => format!("{s:?}"),
+                DatumModifier::WithValue { kind, value } => {
+                    format!("{kind:?} {}", self.value(value))
+                }
+            })
+            .collect();
         v.sort();
         v.join(",")
     }
@@ -3928,17 +4150,17 @@ impl Keys<'_> {
                 [one] => {
                     let mut m = c.modifiers.clone();
                     m.extend(one.modifiers.iter().cloned());
-                    format!("{}[{}]", self.label(one.datum), Self::modifiers(&m))
+                    format!("{}[{}]", self.label(one.datum), self.modifiers(&m))
                 }
                 many => {
                     let mut v: Vec<String> = many
                         .iter()
                         .map(|r| {
-                            format!("{}[{}]", self.label(r.datum), Self::modifiers(&r.modifiers))
+                            format!("{}[{}]", self.label(r.datum), self.modifiers(&r.modifiers))
                         })
                         .collect();
                     v.sort();
-                    format!("({})[{}]", v.join("-"), Self::modifiers(&c.modifiers))
+                    format!("({})[{}]", v.join("-"), self.modifiers(&c.modifiers))
                 }
             })
             .collect::<Vec<_>>()
@@ -3972,11 +4194,23 @@ impl Keys<'_> {
                 path.map(|p| self.feature(p))
             ),
         };
+        let tolerance = match &d.tolerance {
+            DimTolerance::None => "none".to_string(),
+            DimTolerance::Basic => "basic".to_string(),
+            DimTolerance::Deviations(b) => format!("deviations {}", self.bounds(b)),
+            DimTolerance::Limits(b) => format!("limits {}", self.bounds(b)),
+            DimTolerance::Fit { class, limits } => format!(
+                "fit {class} {}",
+                limits.as_ref().map_or_else(String::new, |b| self.bounds(b))
+            ),
+        };
         let mut m: Vec<String> = d.modifiers.iter().map(|x| format!("{x:?}")).collect();
         m.sort();
         format!(
-            "{kind} nominal {:?} {:?} qualifier {:?} modifiers {m:?} principle {:?}",
-            d.nominal, d.tolerance, d.qualifier, d.principle
+            "{kind} nominal {} {tolerance} qualifier {:?} modifiers {m:?} principle {:?}",
+            self.ov(&d.nominal),
+            d.qualifier,
+            d.principle
         )
     }
 
@@ -4007,13 +4241,20 @@ impl Keys<'_> {
                 v.sort();
             }
             format!(
-                "{:?} projected {:?} non-uniform {nu:?} runout {:?} affected {:?}",
+                "{:?} projected {:?} non-uniform {nu:?} runout {} affected {:?}",
                 z.form,
                 z.projected
                     .as_ref()
-                    .map(|p| (p.end.map(|f| self.feature(f)), &p.length)),
-                z.runout_angle,
+                    .map(|p| (p.end.map(|f| self.feature(f)), self.value(&p.length))),
+                self.ov(&z.runout_angle),
                 z.affected_plane.map(|f| self.feature(f))
+            )
+        });
+        let unit = t.unit_basis.as_ref().map(|u| {
+            format!(
+                "{} {:?}",
+                self.value(&u.size),
+                u.area.as_ref().map(|a| (a.shape, self.ov(&a.second)))
             )
         });
         let mut mods: Vec<String> = t.modifiers.iter().map(|m| format!("{m:?}")).collect();
@@ -4021,12 +4262,11 @@ impl Keys<'_> {
         let mut aux: Vec<String> = t.auxiliary.iter().map(|m| format!("{m:?}")).collect();
         aux.sort();
         format!(
-            "{:?} on {target} magnitude {:?} zone {zone:?} modifiers {mods:?} unit {:?} maximum {:?} unequal {:?} datums {:?} auxiliary {aux:?} description {:?}",
+            "{:?} on {target} magnitude {} zone {zone:?} modifiers {mods:?} unit {unit:?} maximum {} unequal {} datums {:?} auxiliary {aux:?} description {:?}",
             t.kind,
-            t.magnitude,
-            t.unit_basis,
-            t.maximum,
-            t.unequal,
+            self.ov(&t.magnitude),
+            self.ov(&t.maximum),
+            self.ov(&t.unequal),
             t.datums.as_ref().map(|d| self.system(d)),
             t.description
         )

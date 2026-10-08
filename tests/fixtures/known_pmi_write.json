@@ -194,5 +194,201 @@
     "Note: notes are the non-standard 'manufacturing requirement' text route, which is not written (decision N)": 6
    }
   }
+ },
+ "corpus": {
+  "patterns": [
+   {
+    "key": "specify-core: ISO 286 fit written as its deviations",
+    "match": [
+     "dimension only in the first",
+     "deviations"
+    ],
+    "verdict": "rust-correct",
+    "reason": "specify-core writes each ISO 286 class as the class's deviations only (TOLERANCE_VALUE, no LIMITS_AND_FITS), because OpenCascade writes the grade wrongly (specify-core writer.py; anti-requirement 'ISO 286 grade written wrongly'). haecceity writes the class the intent states as LIMITS_AND_FITS (§5.2.5); the deviations specify-core states are the class's (checked by the reader stage), so the meaning is the class, and haecceity's form is the practice's."
+   },
+   {
+    "key": "haecceity: ISO 286 fit written as LIMITS_AND_FITS",
+    "match": [
+     "dimension only in the second",
+     "fit "
+    ],
+    "verdict": "rust-correct",
+    "reason": "The other side of the fit difference: the class written as PLUS_MINUS_TOLERANCE → LIMITS_AND_FITS(letter, 'hole'/'shaft', grade, '') (§5.2.5), read back as the same class."
+   },
+   {
+    "key": "haecceity: thread written as its THREAD entity",
+    "match": [
+     "thread only in the second"
+    ],
+    "verdict": "rust-correct",
+    "reason": "specify-core writes threads as 'manufacturing requirement' text and a 'pmi-assist' attribute set because OpenCascade has no thread class (anti-requirement 'threads, knurls … appended as raw text'); haecceity writes the schema's THREAD with its shape_representation_with_parameters (thread WR1–WR16 checked). number_of_threads is written '1.' (one start): what the ratio counts is not settled (design: Status, open); the pitch is kept in the attribute set beside it."
+   },
+   {
+    "key": "specify-core: 'manufacturing requirement' text note (decision 5: not written)",
+    "match": [
+     "note only in the first"
+    ],
+    "verdict": "rust-correct",
+    "reason": "specify-core's 'manufacturing requirement' properties (surface texture, edge condition, general tolerance and thread/knurl text) are not a standard AP242 form; maintainer decision 5: not written. The general tolerance is written in its standard 'default tolerances' form and compares equal."
+   },
+   {
+    "key": "specify-core: thread as a 'pmi-assist' attribute set",
+    "match": [
+     "attribute only in the first",
+     "thread side"
+    ],
+    "verdict": "rust-correct",
+    "reason": "specify-core's user defined attribute set restating the thread (side, designation, pitch, class, hand, drill) because it cannot write THREAD; haecceity writes the THREAD itself and only what is not thread semantics (pitch, tapping drill, depths) as an attribute set."
+   },
+   {
+    "key": "haecceity: pitch, tapping drill and depths as an attribute set",
+    "match": [
+     "attribute only in the second",
+     "\"thread manufacturing\""
+    ],
+    "verdict": "rust-correct",
+    "reason": "Tapping drill diameter and depth and full-thread depth are not thread semantics (design: Threads and knurls): a user defined attribute set on the thread's feature (UDA practice §5–7). The intent's pitch goes there too, since the schema's thread has no pitch item. 'through' is not written: a boolean_representation_item does not read back (reader gap reported)."
+   },
+   {
+    "key": "specify-core: knurl as a 'pmi-assist' attribute set",
+    "match": [
+     "attribute only in the first",
+     "\"pattern\""
+    ],
+    "verdict": "undetermined",
+    "reason": "The intent states a knurl's pattern, pitch and diameter only; turned_knurl needs 6 to 9 parameters (WR2) and a helix angle for a diamond knurl (WR9), which the intent does not state, so no TURNED_KNURL is written rather than guess them (the case's 'not written' says so). specify-core's attribute set is not reproduced: whether the knurl should be written with assumed standard parameters (DIN 82) is for the maintainer."
+   },
+   {
+    "key": "knurl feature not written (no knurl)",
+    "match": [
+     "feature only in the first"
+    ],
+    "verdict": "undetermined",
+    "reason": "The knurled faces are a feature in specify-core's file only because its knurl attribute set is on them; with no knurl written (previous entry) there is no feature on them."
+   },
+   {
+    "key": "specify-core: values stated in metres",
+    "match": [
+     "Metre"
+    ],
+    "verdict": "rust-correct",
+    "reason": "specify-core's file states tolerance magnitudes in metres (5.E-05 m), OpenCascade's unit of the last dimension written (anti-requirement 'tolerance length unit taken from the last dimension written'); haecceity writes each value in the unit the intent states (millimetres). Equal in meaning (compared by meaning above); different as stated."
+   }
+  ],
+  "cases": {
+   "assembly_plate_pin": {
+    "differences": {
+     "part 0: haecceity: ISO 286 fit written as LIMITS_AND_FITS": 1,
+     "part 0: haecceity: pitch, tapping drill and depths as an attribute set": 1,
+     "part 0: haecceity: thread written as its THREAD entity": 1,
+     "part 0: specify-core: 'manufacturing requirement' text note (decision 5: not written)": 4,
+     "part 0: specify-core: ISO 286 fit written as its deviations": 1,
+     "part 0: specify-core: thread as a 'pmi-assist' attribute set": 1,
+     "part 1: haecceity: ISO 286 fit written as LIMITS_AND_FITS": 1,
+     "part 1: haecceity: pitch, tapping drill and depths as an attribute set": 1,
+     "part 1: haecceity: thread written as its THREAD entity": 1,
+     "part 1: specify-core: 'manufacturing requirement' text note (decision 5: not written)": 4,
+     "part 1: specify-core: ISO 286 fit written as its deviations": 1,
+     "part 1: specify-core: thread as a 'pmi-assist' attribute set": 1
+    },
+    "not written": [
+     "part 0: thread on [11]: 'through' is a boolean, which the writer refuses (the reader cannot read it back)",
+     "part 0: surface_finish: no standard form in the model (decision 5)",
+     "part 0: edges: no standard form in the model (decision 5)",
+     "part 1: thread on [3]: 'through' is a boolean, which the writer refuses (the reader cannot read it back)",
+     "part 1: surface_finish: no standard form in the model (decision 5)",
+     "part 1: edges: no standard form in the model (decision 5)"
+    ],
+    "schema": "Upgraded { from: [\"AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }\"], to: \"AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }\" }"
+   },
+   "bolt_thread_knurl": {
+    "differences": {
+     "part 0: haecceity: ISO 286 fit written as LIMITS_AND_FITS": 1,
+     "part 0: haecceity: pitch, tapping drill and depths as an attribute set": 1,
+     "part 0: haecceity: thread written as its THREAD entity": 1,
+     "part 0: knurl feature not written (no knurl)": 1,
+     "part 0: specify-core: 'manufacturing requirement' text note (decision 5: not written)": 5,
+     "part 0: specify-core: ISO 286 fit written as its deviations": 1,
+     "part 0: specify-core: knurl as a 'pmi-assist' attribute set": 1,
+     "part 0: specify-core: thread as a 'pmi-assist' attribute set": 1
+    },
+    "not written": [
+     "part 0: knurl on [4]: the intent lacks parameters its standard entity requires",
+     "part 0: surface_finish: no standard form in the model (decision 5)",
+     "part 0: edges: no standard form in the model (decision 5)"
+    ],
+    "schema": "Upgraded { from: [\"AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }\"], to: \"AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }\" }"
+   },
+   "bracket_positions": {
+    "differences": {
+     "part 0: haecceity: ISO 286 fit written as LIMITS_AND_FITS": 2,
+     "part 0: specify-core: 'manufacturing requirement' text note (decision 5: not written)": 3,
+     "part 0: specify-core: ISO 286 fit written as its deviations": 2
+    },
+    "not written": [
+     "part 0: surface_finish: no standard form in the model (decision 5)",
+     "part 0: edges: no standard form in the model (decision 5)"
+    ],
+    "schema": "Upgraded { from: [\"AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }\"], to: \"AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }\" }"
+   },
+   "nist_ctc_01_merge": {
+    "differences": {
+     "part 0: specify-core: 'manufacturing requirement' text note (decision 5: not written)": 3,
+     "part 0: specify-core: values stated in metres": 1
+    },
+    "not written": [
+     "part 0: surface_finish: no standard form in the model (decision 5)",
+     "part 0: edges: no standard form in the model (decision 5)"
+    ],
+    "schema": "Kept([\"AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 1 1 4 }\"])"
+   },
+   "spool_fits": {
+    "differences": {
+     "part 0: haecceity: ISO 286 fit written as LIMITS_AND_FITS": 5,
+     "part 0: specify-core: 'manufacturing requirement' text note (decision 5: not written)": 3,
+     "part 0: specify-core: ISO 286 fit written as its deviations": 5
+    },
+    "not written": [
+     "part 0: surface_finish: no standard form in the model (decision 5)",
+     "part 0: edges: no standard form in the model (decision 5)"
+    ],
+    "schema": "Upgraded { from: [\"AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }\"], to: \"AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }\" }"
+   },
+   "string_post_tapped": {
+    "differences": {
+     "part 0: haecceity: ISO 286 fit written as LIMITS_AND_FITS": 1,
+     "part 0: haecceity: pitch, tapping drill and depths as an attribute set": 1,
+     "part 0: haecceity: thread written as its THREAD entity": 1,
+     "part 0: specify-core: 'manufacturing requirement' text note (decision 5: not written)": 4,
+     "part 0: specify-core: ISO 286 fit written as its deviations": 1,
+     "part 0: specify-core: thread as a 'pmi-assist' attribute set": 1
+    },
+    "not written": [
+     "part 0: thread on [17]: 'through' is a boolean, which the writer refuses (the reader cannot read it back)",
+     "part 0: surface_finish: no standard form in the model (decision 5)",
+     "part 0: edges: no standard form in the model (decision 5)"
+    ],
+    "schema": "Upgraded { from: [\"AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }\"], to: \"AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }\" }"
+   },
+   "thumbwheel_thread_knurl": {
+    "differences": {
+     "part 0: haecceity: ISO 286 fit written as LIMITS_AND_FITS": 1,
+     "part 0: haecceity: pitch, tapping drill and depths as an attribute set": 2,
+     "part 0: haecceity: thread written as its THREAD entity": 2,
+     "part 0: knurl feature not written (no knurl)": 1,
+     "part 0: specify-core: 'manufacturing requirement' text note (decision 5: not written)": 6,
+     "part 0: specify-core: ISO 286 fit written as its deviations": 1,
+     "part 0: specify-core: knurl as a 'pmi-assist' attribute set": 1,
+     "part 0: specify-core: thread as a 'pmi-assist' attribute set": 2
+    },
+    "not written": [
+     "part 0: thread on [12]: 'through' is a boolean, which the writer refuses (the reader cannot read it back)",
+     "part 0: knurl on [9]: the intent lacks parameters its standard entity requires",
+     "part 0: surface_finish: no standard form in the model (decision 5)",
+     "part 0: edges: no standard form in the model (decision 5)"
+    ],
+    "schema": "Upgraded { from: [\"AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }\"], to: \"AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }\" }"
+   }
+  }
  }
 }

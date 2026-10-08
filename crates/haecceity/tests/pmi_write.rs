@@ -11,6 +11,7 @@ use haecceity::express;
 use haecceity::p21::{Attribute, Document, RawEntity};
 use haecceity::pmi::write::{
     ItemRef, Mode, PresentationPolicy, SchemaChange, WriteError, WriteReport, differences,
+    differences_as_stated,
 };
 use haecceity::pmi::{self, *};
 use haecceity::step::{PartDefinition, read_part_definitions};
@@ -194,7 +195,7 @@ fn written(f: &File, p: &PartPmi) -> Written {
 }
 
 fn assert_reads_back(w: &Written, part: PartId, p: &PartPmi) {
-    let d = differences(p, &w.read.parts[part.0]);
+    let d = differences_as_stated(p, &w.read.parts[part.0]);
     assert!(
         d.is_empty(),
         "read back differs:\n{}\nfindings: {:#?}",
@@ -205,11 +206,19 @@ fn assert_reads_back(w: &Written, part: PartId, p: &PartPmi) {
             .filter(|f| f.ids.iter().any(|&id| id > w.max))
             .collect::<Vec<_>>()
     );
+    // thread WR16 requires the thread's 'thread runout' shape aspect even when no runout
+    // feature is stated; the reader consumes it only with its usage, so it reports the bare
+    // aspect as unconsumed (a reader gap, not a writer defect).
     let on_written: Vec<&Finding> = w
         .read
         .findings
         .iter()
         .filter(|f| f.ids.iter().any(|&id| id > w.max))
+        .filter(|f| {
+            !(f.kind == FindingKind::Unconsumed
+                && f.entity == "shape_aspect"
+                && w.text(f.ids[0]).contains("'thread runout'"))
+        })
         .collect();
     assert!(
         on_written.is_empty(),
@@ -782,7 +791,7 @@ fn datums_belong_to_their_part() {
     let w2 =
         write(&g, &[(PartId(0), p0b.clone())], Mode::Replace).unwrap_or_else(|e| panic!("{e}"));
     assert_reads_back(&w2, PartId(0), &p0b);
-    assert!(differences(&p1, &w2.read.parts[1]).is_empty());
+    assert!(differences_as_stated(&p1, &w2.read.parts[1]).is_empty());
     let r = pmi::read(&g.doc, &g.parts).unwrap();
     for id in r.provenance.parts[1].all() {
         assert_eq!(
@@ -993,7 +1002,7 @@ fn add_keeps_every_original_byte() {
             problems.push(format!("{name}: FILE_SCHEMA changed"));
         }
         for (i, p) in r0.parts.iter().enumerate() {
-            let d: Vec<String> = differences(p, &w.read.parts[i])
+            let d: Vec<String> = differences_as_stated(p, &w.read.parts[i])
                 .into_iter()
                 .filter(|d| d.contains("only in the first"))
                 .collect();
@@ -1007,7 +1016,7 @@ fn add_keeps_every_original_byte() {
         // What was added reads back: the original's items plus exactly these.
         let mut expect = r0.parts[0].clone();
         merge(&mut expect, &add);
-        let d = differences(&expect, &w.read.parts[0]);
+        let d = differences_as_stated(&expect, &w.read.parts[0]);
         if !d.is_empty() {
             problems.push(format!("{name}: added PMI differs: {}", d.join("; ")));
         }
@@ -1277,4 +1286,383 @@ fn nist_files() -> Vec<PathBuf> {
         .collect();
     out.sort();
     out
+}
+
+// ---------------------------------------------------------------------------------------------
+// Corpus: specify-core's intents written onto the original files, compared with what
+// specify-core wrote
+// ---------------------------------------------------------------------------------------------
+
+type Json = serde_json::Value;
+
+fn num(v: &Json) -> Decimal {
+    // JSON numbers as their shortest decimal, written with a point (a Part 21 REAL).
+    let t = v.to_string();
+    let t = if t.contains('.') || t.contains('e') || t.contains('E') {
+        t
+    } else {
+        format!("{t}.")
+    };
+    Decimal::parse(&t).unwrap()
+}
+
+/// specify-core's intent for one part as a [`PartPmi`] (millimetres, specify-core's face
+/// numbering), and what of it has no standard form (refused here, compared nowhere).
+fn intent_pmi(intent: &Json) -> (PartPmi, Vec<String>) {
+    let mut p = PartPmi::default();
+    let mut not_written = Vec::new();
+    let feature = |p: &mut PartPmi, faces_: &Json| -> FeatureId {
+        let f = faces(
+            &faces_
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|x| x.as_u64().unwrap() as usize)
+                .collect::<Vec<_>>(),
+        );
+        if let Some(i) = p.features.iter().position(|x| *x == f) {
+            return FeatureId(i);
+        }
+        p.features.push(f);
+        FeatureId(p.features.len() - 1)
+    };
+    let mut labels: Vec<String> = Vec::new();
+    for d in intent["datums"].as_array().unwrap() {
+        let f = feature(&mut p, &d["faces"]);
+        let l = d["letter"].as_str().unwrap();
+        labels.push(l.to_string());
+        p.datums
+            .push(Datum::new(label(l), Some(f), Vec::new()).unwrap());
+    }
+    let datums = |r: &Json| -> Option<DatumSystem> {
+        let ls = r["datums"].as_array()?;
+        Some(system(
+            &ls.iter()
+                .map(|l| {
+                    labels
+                        .iter()
+                        .position(|x| x == l.as_str().unwrap())
+                        .unwrap()
+                })
+                .collect::<Vec<_>>(),
+        ))
+    };
+    let mm_n = |v: &Json| Value::length(num(v), LengthUnit::Millimetre);
+    for r in intent["requirements"].as_array().unwrap() {
+        let kind = r["kind"].as_str().unwrap();
+        match kind {
+            "size" => {
+                let f = feature(&mut p, &r["faces"]);
+                let tolerance = match r["fit"].as_str() {
+                    Some(c) => DimTolerance::Fit {
+                        class: fit(c),
+                        limits: None,
+                    },
+                    None if r["upper"].is_number() => DimTolerance::Deviations(
+                        Bounds::new(mm_n(&r["upper"]), mm_n(&r["lower"])).unwrap(),
+                    ),
+                    None => DimTolerance::None,
+                };
+                p.dimensions.push(Dimension {
+                    nominal: Some(mm_n(&r["nominal"])),
+                    ..size(f.0, "1.", tolerance)
+                });
+            }
+            "location" => {
+                let to = feature(&mut p, &r["faces"]);
+                let from = feature(&mut p, &r["reference"]);
+                p.dimensions.push(Dimension {
+                    kind: DimensionKind::Location {
+                        from,
+                        to,
+                        kind: LocationKind::LinearDistance,
+                        path: None,
+                        directed: false,
+                        angle: None,
+                    },
+                    nominal: Some(mm_n(&r["distance"])),
+                    tolerance: if r["basic"].as_bool() == Some(true) {
+                        DimTolerance::Basic
+                    } else {
+                        DimTolerance::None
+                    },
+                    qualifier: None,
+                    modifiers: Vec::new(),
+                    principle: None,
+                });
+            }
+            "position" | "runout" | "flatness" | "perpendicularity" | "parallelism" | "profile" => {
+                let f = feature(&mut p, &r["faces"]);
+                let k = match kind {
+                    "position" => ToleranceKind::Position,
+                    "runout" => ToleranceKind::CircularRunout,
+                    "flatness" => ToleranceKind::Flatness,
+                    "perpendicularity" => ToleranceKind::Perpendicularity,
+                    "parallelism" => ToleranceKind::Parallelism,
+                    _ => ToleranceKind::SurfaceProfile,
+                };
+                let mut t = tolerance(k, ToleranceTarget::Feature(f), "1.");
+                t.magnitude = Some(mm_n(&r["tolerance"]));
+                t.datums = datums(r);
+                if r["diametral"].as_bool() == Some(true) {
+                    t.zone = Some(Zone {
+                        form: ZoneForm::CylindricalOrCircular,
+                        projected: None,
+                        non_uniform: None,
+                        runout_angle: None,
+                        affected_plane: None,
+                    });
+                }
+                if r["mmc"].as_bool() == Some(true) {
+                    t.modifiers
+                        .push(ToleranceModifier::MaximumMaterialRequirement);
+                }
+                p.tolerances.push(t);
+            }
+            "thread" => {
+                let f = feature(&mut p, &r["faces"]);
+                let designation = r["designation"].as_str().unwrap();
+                let major = num(&r.get("nominal").cloned().unwrap_or_else(|| {
+                    serde_json::from_str(designation.trim_start_matches('M')).unwrap()
+                }));
+                p.threads.push(Thread {
+                    feature: f,
+                    partial_area: Some(f),
+                    side: if r["side"] == "internal" {
+                        ThreadSide::Internal
+                    } else {
+                        ThreadSide::External
+                    },
+                    major_diameter: Length {
+                        value: major.clone(),
+                        unit: LengthUnit::Millimetre,
+                    },
+                    minor_diameter: None,
+                    pitch_diameter: None,
+                    number_of_threads: Ratio(dec("1.")),
+                    form: "M".into(),
+                    fit_class: r["class"].as_str().unwrap().into(),
+                    fit_class_2: None,
+                    hand: if r["hand"] == "LH" {
+                        Hand::Left
+                    } else {
+                        Hand::Right
+                    },
+                    crest: None,
+                    qualifier: Some(r["spec"].as_str().unwrap().into()),
+                    nominal_size: Some(Length {
+                        value: major,
+                        unit: LengthUnit::Millimetre,
+                    }),
+                    runout: None,
+                });
+                // Pitch, tapping drill and depths are not thread semantics (design: Threads
+                // and knurls): a user defined attribute set on the thread's feature.
+                let mut items = vec![(
+                    "pitch".to_string(),
+                    AttributeValue::Measure(mm_n(&r["pitch"])),
+                )];
+                for (k, n) in [
+                    ("drill_diameter", "tapping drill diameter"),
+                    ("drill_depth", "tapping drill depth"),
+                    ("full_thread", "full thread depth"),
+                    ("length", "thread length"),
+                ] {
+                    if r[k].is_number() {
+                        items.push((n.to_string(), AttributeValue::Measure(mm_n(&r[k]))));
+                    }
+                }
+                if r["through"].is_boolean() {
+                    not_written.push(format!(
+                        "thread on {}: 'through' is a boolean, which the writer refuses (the reader cannot read it back)",
+                        r["faces"]
+                    ));
+                }
+                p.attributes.push(AttributeSet {
+                    name: "thread manufacturing".into(),
+                    on: Some(NoteOwner::Feature(f)),
+                    items,
+                });
+            }
+            other => not_written.push(format!(
+                "{other} on {}: the intent lacks parameters its standard entity requires",
+                r["faces"]
+            )),
+        }
+    }
+    let part = &intent["part"];
+    if let Some(m) = part["material"].as_str() {
+        p.material = Some(Material {
+            id: m.into(),
+            name: None,
+            density: None,
+        });
+    }
+    if let Some(g) = part["general_tolerance"].as_str() {
+        p.general.push(GeneralTolerance::Class {
+            text: g.into(),
+            standard: pmi::standards::Iso2768::recognise(g),
+        });
+    }
+    for k in ["surface_finish", "edges"] {
+        if part[k].is_string() {
+            not_written.push(format!("{k}: no standard form in the model (decision 5)"));
+        }
+    }
+    (p, not_written)
+}
+
+/// The original file of a specify-core case.
+fn original(input: &str) -> Option<PathBuf> {
+    let (kind, rel) = input.split_once(':').unwrap();
+    match kind {
+        "corpus" => {
+            let dir = common::corpus_dir();
+            if dir.is_none() {
+                assert!(
+                    std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
+                    "QUIDDITY_CORPUS_REQUIRED is set but the corpus is missing"
+                );
+            }
+            dir.map(|d| d.join(rel))
+        }
+        "assembly" => Some(common::fixtures().join("ap242/assembly").join(rel)),
+        "nist" => Some(
+            common::fixtures()
+                .join("ap242/nist")
+                .join(format!("{rel}.gz")),
+        ),
+        _ => panic!("{input}"),
+    }
+}
+
+/// For every specify-core case: its intent written onto the ORIGINAL file (AP214 files become
+/// AP242, decision 1, each pinned upgradable in corpus_upgrade.json) reads back as written;
+/// compared with what specify-core wrote, every difference matches a pinned pattern with a
+/// verdict (`known_pmi_write.json` "corpus").
+#[test]
+fn specify_intents_written_onto_the_original_files() {
+    let pins = load_pins();
+    let patterns = pins["corpus"]["patterns"].as_array().unwrap();
+    common::check_verdicts("known_pmi_write.json corpus", patterns);
+    let mut problems = Vec::new();
+    let mut actual = serde_json::Map::new();
+    let dir = common::fixtures().join("ap242/specify");
+    let mut cases: Vec<String> = std::fs::read_dir(&dir)
+        .unwrap()
+        .map(|e| e.unwrap().file_name().to_string_lossy().to_string())
+        .filter_map(|n| n.strip_suffix(".meta.json").map(str::to_string))
+        .collect();
+    cases.sort();
+    for case in cases {
+        let meta: Json = serde_json::from_str(
+            &std::fs::read_to_string(dir.join(format!("{case}.meta.json"))).unwrap(),
+        )
+        .unwrap();
+        let Some(path) = original(meta["input"].as_str().unwrap()) else {
+            continue;
+        };
+        let intents: Json = serde_json::from_str(
+            &std::fs::read_to_string(dir.join(format!("{case}.intent.json"))).unwrap(),
+        )
+        .unwrap();
+        let intents: Vec<Json> = match intents {
+            Json::Array(a) => a,
+            one => vec![one],
+        };
+        let f = open(&path);
+        let spec = fixture(&format!("ap242/specify/{case}.step.gz"));
+        let spec_read = pmi::read(&spec.doc, &spec.parts).unwrap();
+        let mut pmi_ = Vec::new();
+        let mut entry = serde_json::Map::new();
+        for intent in &intents {
+            let part = intent["binding"]["part"].as_u64().unwrap() as usize;
+            let (p, not_written) = intent_pmi(intent);
+            for n in not_written {
+                entry
+                    .entry("not written")
+                    .or_insert(Json::Array(Vec::new()))
+                    .as_array_mut()
+                    .unwrap()
+                    .push(format!("part {part}: {n}").into());
+            }
+            pmi_.push((PartId(part), p));
+        }
+        let w = match write(&f, &pmi_, Mode::Add) {
+            Ok(w) => w,
+            Err(e) => {
+                problems.push(format!("{case}: {e}"));
+                continue;
+            }
+        };
+        entry.insert("schema".into(), format!("{:?}", w.report.schema).into());
+        let mut diffs: Vec<String> = Vec::new();
+        let before = pmi::read(&f.doc, &f.parts).unwrap();
+        for (part, p) in &pmi_ {
+            if before.parts[part.0] == PartPmi::default() {
+                assert_reads_back(&w, *part, p);
+            } else {
+                // Beside the file's own PMI (NIST CTC-01): what was written is all there.
+                let lost: Vec<String> = differences_as_stated(p, &w.read.parts[part.0])
+                    .into_iter()
+                    .filter(|d| d.contains("only in the first"))
+                    .collect();
+                assert!(lost.is_empty(), "{case}: {lost:?}");
+            }
+            // Compared by meaning; and as stated only for values in metres (specify-core's
+            // tolerance unit), which are equal in meaning.
+            let stated = differences_as_stated(&spec_read.parts[part.0], &w.read.parts[part.0])
+                .into_iter()
+                .filter(|d| d.contains("Metre"));
+            for d in differences(&spec_read.parts[part.0], &w.read.parts[part.0])
+                .into_iter()
+                .chain(stated)
+            {
+                let matched = patterns.iter().find(|pt| {
+                    pt["match"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .all(|m| d.contains(m.as_str().unwrap()))
+                });
+                match matched {
+                    Some(pt) => {
+                        diffs.push(format!("part {}: {}", part.0, pt["key"].as_str().unwrap()))
+                    }
+                    None => problems.push(format!(
+                        "{case} part {}: unexplained difference: {d}",
+                        part.0
+                    )),
+                }
+            }
+        }
+        let mut counts: std::collections::BTreeMap<String, usize> =
+            std::collections::BTreeMap::new();
+        for d in diffs {
+            *counts.entry(d).or_insert(0) += 1;
+        }
+        entry.insert("differences".into(), serde_json::to_value(counts).unwrap());
+        actual.insert(case, Json::Object(entry));
+    }
+    let pinned = pins["corpus"]["cases"].as_object().unwrap();
+    for (case, got) in &actual {
+        if pinned.get(case) != Some(got) {
+            problems.push(format!(
+                "corpus {case}:\n  pinned {:?}\n  actual {got}",
+                pinned.get(case)
+            ));
+        }
+    }
+    let _ = std::fs::write(
+        std::env::temp_dir().join("pmi_write_corpus.json"),
+        serde_json::to_string_pretty(&Json::Object(actual)).unwrap(),
+    );
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
+
+fn load_pins() -> Json {
+    serde_json::from_str(
+        &std::fs::read_to_string(common::fixtures().join("known_pmi_write.json")).unwrap(),
+    )
+    .unwrap()
 }
