@@ -38,21 +38,5 @@
     "verdict": "rust-wrong",
     "reason": "A wall (face 7, the plane x = 0.5) lies exactly the level tolerance (0.5 mm) inside the part's envelope (x from 0), on the boundary of the riser's interior test `bb.min + tol < position`, so round-off from the placement decides whether it is a riser: unmoved it is, translated it is not. The recogniser's threshold, not the kernel, is at fault; Python behaves the same (recognise_risers gives 2 risers unmoved, 1 translated by (123.456, -78.9, 41.3)).",
     "max_differing": 1
-  },
-  {
-    "file": "mfcadpp/10255.step",
-    "motion": "rot_z90",
-    "family": "edge_open_prismatic_recesses",
-    "verdict": "rust-wrong",
-    "reason": "Unmoved, the recess's open-end volume probe is refused (lines along x graze the tangent of its radius-1 wall and keep an odd crossing count; see the corpus entry for this file); moved, the integration lines fall differently against the wall, the probe answers and the recess is found, as Python finds it. The moved answer is the right one.",
-    "max_differing": 1
-  },
-  {
-    "file": "mfcadpp/10255.step",
-    "motion": "rot_x90",
-    "family": "edge_open_prismatic_recesses",
-    "verdict": "rust-wrong",
-    "reason": "Unmoved, the recess's open-end volume probe is refused (lines along x graze the tangent of its radius-1 wall and keep an odd crossing count; see the corpus entry for this file); moved, the integration lines fall differently against the wall, the probe answers and the recess is found, as Python finds it. The moved answer is the right one.",
-    "max_differing": 1
   }
 ]

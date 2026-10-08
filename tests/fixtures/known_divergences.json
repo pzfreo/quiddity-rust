@@ -653,14 +653,6 @@
     "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually."
   },
   {
-    "file": "mfcadpp/10255.step",
-    "family": "recognise_edge_open_prismatic_recesses",
-    "key": "{} records: 0 vs 1 records, fields {}",
-    "count": 1,
-    "verdict": "rust-wrong",
-    "reason": "The recess's open-end probe (swept_face_fraction of the floor) is refused: integration lines along x within 5e-6 of the tangent of the recess's radius-1 wall keep an odd crossing count, so the volume probe answers None and the opening cannot be shown clear (known_probes.json, mfcadpp/10255 edge_open_prismatic_recesses #0, #1). Python's boolean answers and finds the recess. When unresolved lines were read as air the port agreed, by luck; a limitation of the ray caster near a curved boundary."
-  },
-  {
     "file": "mfcadpp_regressions/11512.step",
     "family": "kernel",
     "key": "solid masses differ by up to 1e-8",

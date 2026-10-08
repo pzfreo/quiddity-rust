@@ -394,14 +394,5 @@
     "verdict": "not-applicable",
     "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
     "evidence": "OpenCascade answers OUT while its own rays count 5,3,3,1,3,3,1."
-  },
-  {
-    "file": "mfcadpp/10156.step",
-    "point": 296,
-    "check": "parity",
-    "observed": "1,2,1,3,3,3,1",
-    "verdict": "rust-wrong",
-    "reason": "Ray 1 meets plane face 3 2.5e-5 mm from its edge 27: beyond COORD_FLOOR, so the port counts it as an interior crossing, while the face across the edge does not claim the ray, so the ray counts a crossing OpenCascade does not. The vote still answers IN, as OpenCascade does.",
-    "evidence": "Port ray 1 meets face 18 at t 1.7461 and face 3 at 9.9020; OpenCascade's rays 1,1,1,3,3,3,1 (ray 1 only face 18)."
   }
 ]

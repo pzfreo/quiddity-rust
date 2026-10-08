@@ -7,55 +7,6 @@
     "reason": "A deliberately malformed corpus part (non-orientable shell) that OpenCascade heals on import."
   },
   {
-    "file": "mfcadpp/10020.step",
-    "caller": "prismatic_pockets",
-    "probes": [10],
-    "verdict": "rust-wrong",
-    "reason": "The port refuses where Python answers: lines through the probe that pass within a few microns of a solid face's boundary keep an odd crossing count after the nudges, so the rays cannot place them, and the probe is not answered (before, those lines were read as air). Observed on mfcadpp/10255 #0 (lines along x within 5e-6 of the tangent of the recess's radius-1 wall, each crossing the solid five times) and nist_ctc_03 _recess_reduce #5 (lines 2.6e-6 above the z = 76.2 face the probe is inset from). A limitation of the ray caster's boundary handling, not of the probe."
-  },
-  {
-    "file": "mfcadpp/10020.step",
-    "caller": "_section_passages",
-    "probes": [25],
-    "verdict": "rust-wrong",
-    "reason": "The port refuses where Python answers: lines through the probe that pass within a few microns of a solid face's boundary keep an odd crossing count after the nudges, so the rays cannot place them, and the probe is not answered (before, those lines were read as air). Observed on mfcadpp/10255 #0 (lines along x within 5e-6 of the tangent of the recess's radius-1 wall, each crossing the solid five times) and nist_ctc_03 _recess_reduce #5 (lines 2.6e-6 above the z = 76.2 face the probe is inset from). A limitation of the ray caster's boundary handling, not of the probe."
-  },
-  {
-    "file": "mfcadpp/10155.step",
-    "caller": "_cylindrical_passages",
-    "probes": [3, 5, 6, 7],
-    "verdict": "rust-wrong",
-    "reason": "The port refuses where Python answers: lines through the probe that pass within a few microns of a solid face's boundary keep an odd crossing count after the nudges, so the rays cannot place them, and the probe is not answered (before, those lines were read as air). Observed on mfcadpp/10255 #0 (lines along x within 5e-6 of the tangent of the recess's radius-1 wall, each crossing the solid five times) and nist_ctc_03 _recess_reduce #5 (lines 2.6e-6 above the z = 76.2 face the probe is inset from). A limitation of the ray caster's boundary handling, not of the probe."
-  },
-  {
-    "file": "mfcadpp/10163.step",
-    "caller": "_section_passages",
-    "probes": [6],
-    "verdict": "rust-wrong",
-    "reason": "The port refuses where Python answers: lines through the probe that pass within a few microns of a solid face's boundary keep an odd crossing count after the nudges, so the rays cannot place them, and the probe is not answered (before, those lines were read as air). Observed on mfcadpp/10255 #0 (lines along x within 5e-6 of the tangent of the recess's radius-1 wall, each crossing the solid five times) and nist_ctc_03 _recess_reduce #5 (lines 2.6e-6 above the z = 76.2 face the probe is inset from). A limitation of the ray caster's boundary handling, not of the probe."
-  },
-  {
-    "file": "mfcadpp/10167.step",
-    "caller": "_section_passages",
-    "probes": [15],
-    "verdict": "rust-wrong",
-    "reason": "The port refuses where Python answers: lines through the probe that pass within a few microns of a solid face's boundary keep an odd crossing count after the nudges, so the rays cannot place them, and the probe is not answered (before, those lines were read as air). Observed on mfcadpp/10255 #0 (lines along x within 5e-6 of the tangent of the recess's radius-1 wall, each crossing the solid five times) and nist_ctc_03 _recess_reduce #5 (lines 2.6e-6 above the z = 76.2 face the probe is inset from). A limitation of the ray caster's boundary handling, not of the probe."
-  },
-  {
-    "file": "mfcadpp/10255.step",
-    "caller": "edge_open_prismatic_recesses",
-    "probes": [0, 1],
-    "verdict": "rust-wrong",
-    "reason": "The port refuses where Python answers: lines through the probe that pass within a few microns of a solid face's boundary keep an odd crossing count after the nudges, so the rays cannot place them, and the probe is not answered (before, those lines were read as air). Observed on mfcadpp/10255 #0 (lines along x within 5e-6 of the tangent of the recess's radius-1 wall, each crossing the solid five times) and nist_ctc_03 _recess_reduce #5 (lines 2.6e-6 above the z = 76.2 face the probe is inset from). A limitation of the ray caster's boundary handling, not of the probe."
-  },
-  {
-    "file": "mfcadpp_holdout/183.step",
-    "caller": "_section_passages",
-    "probes": [3],
-    "verdict": "rust-wrong",
-    "reason": "The port refuses where Python answers: lines through the probe that pass within a few microns of a solid face's boundary keep an odd crossing count after the nudges, so the rays cannot place them, and the probe is not answered (before, those lines were read as air). Observed on mfcadpp/10255 #0 (lines along x within 5e-6 of the tangent of the recess's radius-1 wall, each crossing the solid five times) and nist_ctc_03 _recess_reduce #5 (lines 2.6e-6 above the z = 76.2 face the probe is inset from). A limitation of the ray caster's boundary handling, not of the probe."
-  },
-  {
     "file": "mfcadpp_holdout/520.step",
     "caller": "_recess_reduce",
     "probes": [0],
@@ -70,18 +21,11 @@
     "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
   },
   {
-    "file": "nist/nist_ctc_01_asme1_rd.stp",
-    "caller": "_open_channel_section",
-    "probes": [35],
-    "verdict": "undetermined",
-    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
-  },
-  {
     "file": "nist/nist_ctc_02_asme1_rc.stp",
     "caller": "_recess_reduce",
-    "probes": [2, 3],
+    "probes": [2],
     "verdict": "rust-wrong",
-    "reason": "The port refuses where Python answers: lines through the probe that pass within a few microns of a solid face's boundary keep an odd crossing count after the nudges, so the rays cannot place them, and the probe is not answered (before, those lines were read as air). Observed on mfcadpp/10255 #0 (lines along x within 5e-6 of the tangent of the recess's radius-1 wall, each crossing the solid five times) and nist_ctc_03 _recess_reduce #5 (lines 2.6e-6 above the z = 76.2 face the probe is inset from). A limitation of the ray caster's boundary handling, not of the probe."
+    "reason": "The port answers 118221.3 where Python's boolean answers 118859.2 (0.54% of the material, 4.8e-5 of the probe). Split into 5 x 5 x 5 boxes, Python's booleans sum to 118859.4 and agree with the port box by box except the two columns at the probe's high-y end (x near -130 to -78 and 78 to 130, y 676.7 to 715.0), where Python finds 100 to 200 mm3 more per box: material near x = -127.7, y 709 to 715, z -206 to -189, bounded by cylinder face 566. There the port's classifier agrees with OpenCascade's at all 27000 points of a 30 x 30 x 30 grid of box (0, 4, 1) (1017 in each), and lines along all six axis directions through such a point count odd crossings, so the rays are right and the integrator in volume.rs misses the material (its lengths along y, integrated across x, do not see it; the port's answer for that box equals the boxes before it). Before, this probe was refused for odd lines elsewhere in it."
   },
   {
     "file": "nist/nist_ctc_02_asme1_rc.stp",
@@ -91,18 +35,11 @@
     "reason": "B-spline-heavy part: curved faces take the adaptive rule, and differences are up to 1e-6 relative; on the two _recess_reduce boxes where Python measures 0.216 the port's 7.06 agrees with classifying a 40\u00b3 grid of points (6.82)."
   },
   {
-    "file": "nist/nist_ctc_02_asme1_rc.stp",
-    "caller": "_section_recess_geometry",
-    "probes": [23, 24, 25, 26, 27, 28],
-    "verdict": "rust-wrong",
-    "reason": "The port refuses where Python answers: lines through the probe that pass within a few microns of a solid face's boundary keep an odd crossing count after the nudges, so the rays cannot place them, and the probe is not answered (before, those lines were read as air). Observed on mfcadpp/10255 #0 (lines along x within 5e-6 of the tangent of the recess's radius-1 wall, each crossing the solid five times) and nist_ctc_03 _recess_reduce #5 (lines 2.6e-6 above the z = 76.2 face the probe is inset from). A limitation of the ray caster's boundary handling, not of the probe."
-  },
-  {
     "file": "nist/nist_ctc_03_asme1_rc.stp",
     "caller": "_recess_reduce",
     "probes": [5, 6, 7],
     "verdict": "rust-wrong",
-    "reason": "The port refuses where Python answers: lines through the probe that pass within a few microns of a solid face's boundary keep an odd crossing count after the nudges, so the rays cannot place them, and the probe is not answered (before, those lines were read as air). Observed on mfcadpp/10255 #0 (lines along x within 5e-6 of the tangent of the recess's radius-1 wall, each crossing the solid five times) and nist_ctc_03 _recess_reduce #5 (lines 2.6e-6 above the z = 76.2 face the probe is inset from). A limitation of the ray caster's boundary handling, not of the probe."
+    "reason": "The port refuses where Python answers: integration lines along x run 2.55e-6 to 4.1e-6 above the z = 76.2 face (face 8) the probe is inset from, inside the few microns where the file's faces there disagree: the fillet cylinder face 36 bottoms out at z 76.2000039 rather than on face 8, and its edge with face 8 (edge 88) lies 4.6e-6 above that face. Such a line meets the walls rising from face 8 (faces 63, 65, 67, 69) just above their edges with it and the fillet face 39 once, and fillet 36 twice or not at all, so its count stays odd (5 or 7) after the nudges and the probe is refused. Every crossing is exact (straight edges, no polyline sliver); OpenCascade closes the gap with the edges' tolerances. File precision, and the port's refusal is honest."
   },
   {
     "file": "nist/nist_ctc_03_asme1_rc.stp",
@@ -112,32 +49,11 @@
     "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
   },
   {
-    "file": "nist/nist_ctc_03_asme1_rc.stp",
-    "caller": "_open_channel_section",
-    "probes": [41],
-    "verdict": "undetermined",
-    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
-  },
-  {
     "file": "nist/nist_ctc_04_asme1_rd.stp",
     "caller": "_open_channel_section",
     "probes": [24, 38, 42],
     "verdict": "rust-correct",
     "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
-  },
-  {
-    "file": "nist/nist_ctc_04_asme1_rd.stp",
-    "caller": "_open_channel_section",
-    "probes": [48],
-    "verdict": "undetermined",
-    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
-  },
-  {
-    "file": "nist/nist_ctc_05_asme1_rd.stp",
-    "caller": "_open_channel_section",
-    "probes": [39],
-    "verdict": "undetermined",
-    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
   },
   {
     "file": "nist/nist_ftc_06_asme1_rd.stp",
@@ -147,32 +63,11 @@
     "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
   },
   {
-    "file": "nist/nist_ftc_06_asme1_rd.stp",
-    "caller": "_open_channel_section",
-    "probes": [39],
-    "verdict": "undetermined",
-    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
-  },
-  {
     "file": "nist/nist_ftc_08_asme1_rc.stp",
     "caller": "_open_channel_section",
     "probes": [28, 40, 47],
     "verdict": "rust-correct",
     "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
-  },
-  {
-    "file": "nist/nist_ftc_08_asme1_rc.stp",
-    "caller": "_open_channel_section",
-    "probes": [44],
-    "verdict": "undetermined",
-    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
-  },
-  {
-    "file": "nist/nist_ftc_09_asme1_rd.stp",
-    "caller": "_open_channel_section",
-    "probes": [54],
-    "verdict": "undetermined",
-    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
   },
   {
     "file": "nist/nist_ftc_09_asme1_rd.stp",
@@ -186,13 +81,13 @@
     "caller": "_recess_reduce",
     "probes": [5],
     "verdict": "rust-wrong",
-    "reason": "The port refuses where Python answers: lines through the probe that pass within a few microns of a solid face's boundary keep an odd crossing count after the nudges, so the rays cannot place them, and the probe is not answered (before, those lines were read as air). Observed on mfcadpp/10255 #0 (lines along x within 5e-6 of the tangent of the recess's radius-1 wall, each crossing the solid five times) and nist_ctc_03 _recess_reduce #5 (lines 2.6e-6 above the z = 76.2 face the probe is inset from). A limitation of the ray caster's boundary handling, not of the probe."
+    "reason": "The port refuses where Python answers: integration lines along y run parallel to the bore cylinder face 200 (radius 1.75, axis along y), 7e-5 inside its wall, and meet the cross bore's cylinder face 175 near their intersection, which the file gives as a B-spline edge (edge 402) straying 4.5e-4 from face 175. Within that stray the trim cannot place the crossing (the exact intersection puts it in bore 200, off face 175), and the face across the edge is parallel to the line and cannot claim it, so the count stays odd and the probe is refused. File precision (a band edge), not the polyline sliver of an exact edge."
   },
   {
     "file": "nist/nist_ftc_10_asme1_rb.stp",
     "caller": "_open_channel_section",
     "probes": [18, 22],
     "verdict": "rust-wrong",
-    "reason": "The port refuses where Python answers: lines through the probe that pass within a few microns of a solid face's boundary keep an odd crossing count after the nudges, so the rays cannot place them, and the probe is not answered (before, those lines were read as air). Observed on mfcadpp/10255 #0 (lines along x within 5e-6 of the tangent of the recess's radius-1 wall, each crossing the solid five times) and nist_ctc_03 _recess_reduce #5 (lines 2.6e-6 above the z = 76.2 face the probe is inset from). A limitation of the ray caster's boundary handling, not of the probe."
+    "reason": "The port refuses where Python answers: an integration line along x (y 22.9999987, z 36.5016417) runs exactly along the line where the channel's sphere and torus blends (faces 42, 45, 53, 58) touch a plane, tangent to each at their shared circle edges. Each touch is a double root on an edge, which the trims claim or not by their polylines; a touch never changes parity, but counting one of them leaves the count odd, and nudges of 1e-9 stay within the tangency. A measure-zero line the probe's Gauss points happen to land on."
   }
 ]
