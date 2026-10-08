@@ -1,0 +1,407 @@
+[
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "point": 230,
+    "check": "state",
+    "observed": "rust I occ N",
+    "verdict": "undetermined",
+    "reason": "The point lies within the tolerance OpenCascade gives a nearby edge (the file's faces do not meet there to better than that), so the model does not decide it: OpenCascade calls it ON by that tolerance; the port classifies by the faces' own geometry, at its 1e-6 ON tolerance.",
+    "evidence": "0.001 mm inside face 11 (material side); 0.0072 mm from an edge toleranced 0.024 mm; OpenCascade's own rays count 1,3,1,2,2,2,3."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "point": 234,
+    "check": "state",
+    "observed": "rust I occ N",
+    "verdict": "undetermined",
+    "reason": "The point lies within the tolerance OpenCascade gives a nearby edge (the file's faces do not meet there to better than that), so the model does not decide it: OpenCascade calls it ON by that tolerance; the port classifies by the faces' own geometry, at its 1e-6 ON tolerance.",
+    "evidence": "0.0048 mm inside face 20; 0.0048 mm from an edge toleranced 0.0066 mm; OpenCascade's rays count 1,3,1,1,1,1,5 (all odd)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "point": 238,
+    "check": "parity",
+    "observed": "4,4,2,3,0,0,4",
+    "verdict": "equivalent",
+    "reason": "OpenCascade's IntCurvesFace_ShapeIntersector counts the same crossings on every ray; ray 3 passes faces 45 and 46 within 0.75 mm of the point, where they do not close the shell exactly. Both classifiers answer OUT.",
+    "evidence": "OpenCascade rays 4,4,2,3,0,0,4; ray 3 meets face 45 at t 0.0793 and face 46 at 0.1043 and 0.7458; the point is 0.001 mm outside face 45."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "point": 241,
+    "check": "state",
+    "observed": "rust I occ O",
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's classifier answers OUT for a point inside the material: 0.01 mm on the material side of face 94 and of face 145, no toleranced edge within reach.",
+    "evidence": "OpenCascade's own IntCurvesFace rays count 1,3,3,1,1,1,5 crossings (all odd, the port's counts exactly); nearest edge 0.0257 mm away, toleranced 0.0018 mm."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "point": 270,
+    "check": "parity",
+    "observed": "5,5,4,2,1,2,4",
+    "verdict": "equivalent",
+    "reason": "OpenCascade's IntCurvesFace_ShapeIntersector counts the same crossings on every ray, near an edge OpenCascade tolerances at 0.018 mm (see the state entry).",
+    "evidence": "OpenCascade rays 5,5,4,2,1,2,4; three rays start through face 71 at t < 1e-4."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "point": 270,
+    "check": "state",
+    "observed": "rust I occ N",
+    "verdict": "undetermined",
+    "reason": "The point lies within the tolerance OpenCascade gives a nearby edge (the file's faces do not meet there to better than that), so the model does not decide it: OpenCascade calls it ON by that tolerance; the port classifies by the faces' own geometry, at its 1e-6 ON tolerance.",
+    "evidence": "0.001 mm inside face 44; 0.0123 mm from an edge toleranced 0.018 mm; OpenCascade's rays count 5,5,4,2,1,2,4, exactly as the port's do."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "point": 289,
+    "check": "state",
+    "observed": "rust O occ N",
+    "verdict": "undetermined",
+    "reason": "The point lies within the tolerance OpenCascade gives a nearby edge (the file's faces do not meet there to better than that), so the model does not decide it: OpenCascade calls it ON by that tolerance; the port classifies by the faces' own geometry, at its 1e-6 ON tolerance.",
+    "evidence": "0.01 mm outside face 94; 0.0100 mm from an edge toleranced 0.024 mm; OpenCascade's rays count 3,4,4,0,0,0,6."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "point": 85,
+    "check": "parity",
+    "observed": "0,0,0,4,3,0,0",
+    "verdict": "rust-wrong",
+    "reason": "The port's trimming domain (uv.rs FaceDomain) of a B-spline face whose edges stray from it excludes crossings well inside the face, so a ray loses crossings OpenCascade's IntCurvesFace_ShapeIntersector counts; the vote still answers as OpenCascade does.",
+    "evidence": "Ray 4 crosses B-spline face 29 at t 15.6592, uv (0.0036, 0.791), 0.312 mm from its nearest edge (72, which strays 0.166 mm from the surface), and the domain excludes it; OpenCascade rays 0,0,0,4,4,0,0."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "point": 178,
+    "check": "parity",
+    "observed": "0,3,0,2,2,2,0",
+    "verdict": "rust-wrong",
+    "reason": "The port's trimming domain (uv.rs FaceDomain) of a B-spline face whose edges stray from it excludes crossings well inside the face, so a ray loses crossings OpenCascade's IntCurvesFace_ShapeIntersector counts; the vote still answers as OpenCascade does.",
+    "evidence": "Ray 1 crosses face 29 at t 69.8473, uv (0.546, 0.762), 0.358 mm from edge 72, and the domain excludes it; OpenCascade rays 0,4,0,2,2,2,0."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "point": 236,
+    "check": "parity",
+    "observed": "0,2,1,4,0,0,3",
+    "verdict": "rust-wrong",
+    "reason": "The port's trimming domain (uv.rs FaceDomain) of a B-spline face whose edges stray from it excludes crossings well inside the face, so a ray loses crossings OpenCascade's IntCurvesFace_ShapeIntersector counts; the vote still answers as OpenCascade does.",
+    "evidence": "Rays 0, 2 and 6 lose face 29's crossings (ray 0 at t 0.4399, uv (0.219, 0.399), and 5.0782, each about 0.3 mm from edge 70, which strays 0.047 mm); OpenCascade rays 2,2,2,4,0,0,4."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "point": 299,
+    "check": "parity",
+    "observed": "1,1,3,1,1,3,4",
+    "verdict": "rust-wrong",
+    "reason": "The port's trimming domain (uv.rs FaceDomain) of a B-spline face whose edges stray from it excludes crossings well inside the face, so a ray loses crossings OpenCascade's IntCurvesFace_ShapeIntersector counts; the vote still answers as OpenCascade does.",
+    "evidence": "Ray 6 crosses B-spline face 715 at t 5.4819, uv (0.384, 0.052), 0.128 mm from edge 494, and the domain excludes it (edge 968 strays 0.176 mm); OpenCascade rays 1,1,3,1,1,3,5."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "point": 126,
+    "check": "parity",
+    "observed": "1,1,2,1,1,1,1",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable). OpenCascade's IntCurvesFace_ShapeIntersector counts the same crossings as the port on every ray, so the rays' disagreement is the model's; both classifiers answer alike.",
+    "evidence": "OpenCascade's rays count 1,1,2,1,1,1,1, as the port's do."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "point": 132,
+    "check": "parity",
+    "observed": "3,1,1,1,1,1,2",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable). OpenCascade's IntCurvesFace_ShapeIntersector counts the same crossings as the port on every ray, so the rays' disagreement is the model's; both classifiers answer alike.",
+    "evidence": "OpenCascade's rays count 3,1,1,1,1,1,2, as the port's do."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "point": 202,
+    "check": "parity",
+    "observed": "2,2,2,3,2,2,2",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable). OpenCascade's IntCurvesFace_ShapeIntersector counts the same crossings as the port on every ray, so the rays' disagreement is the model's; both classifiers answer alike.",
+    "evidence": "OpenCascade's rays count 2,2,2,3,2,2,2, as the port's do."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "point": 203,
+    "check": "parity",
+    "observed": "2,2,2,1,1,1,2",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable). OpenCascade's IntCurvesFace_ShapeIntersector counts the same crossings as the port on every ray, so the rays' disagreement is the model's; both classifiers answer alike.",
+    "evidence": "OpenCascade's rays count 2,2,2,1,1,1,2, as the port's do."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "point": 217,
+    "check": "parity",
+    "observed": "1,1,3,2,1,1,3",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable). OpenCascade's IntCurvesFace_ShapeIntersector counts the same crossings as the port on every ray, so the rays' disagreement is the model's; both classifiers answer alike.",
+    "evidence": "OpenCascade's rays count 1,1,3,2,1,1,3, as the port's do."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "point": 219,
+    "check": "parity",
+    "observed": "2,2,2,1,1,1,2",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable). OpenCascade's IntCurvesFace_ShapeIntersector counts the same crossings as the port on every ray, so the rays' disagreement is the model's; both classifiers answer alike.",
+    "evidence": "OpenCascade's rays count 2,2,2,1,1,1,2, as the port's do."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "point": 220,
+    "check": "parity",
+    "observed": "2,2,2,1,1,1,2",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable). OpenCascade's IntCurvesFace_ShapeIntersector counts the same crossings as the port on every ray, so the rays' disagreement is the model's; both classifiers answer alike.",
+    "evidence": "OpenCascade's rays count 2,2,2,1,1,1,2, as the port's do."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "point": 225,
+    "check": "parity",
+    "observed": "3,1,1,2,2,2,1",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable). OpenCascade's IntCurvesFace_ShapeIntersector counts the same crossings as the port on every ray, so the rays' disagreement is the model's; both classifiers answer alike.",
+    "evidence": "OpenCascade's rays count 3,1,1,2,2,2,1, as the port's do."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "point": 231,
+    "check": "parity",
+    "observed": "2,2,2,2,3,2,2",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable). OpenCascade's IntCurvesFace_ShapeIntersector counts the same crossings as the port on every ray, so the rays' disagreement is the model's; both classifiers answer alike.",
+    "evidence": "OpenCascade's rays count 2,2,2,2,3,2,2, as the port's do."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "point": 240,
+    "check": "parity",
+    "observed": "2,2,2,2,3,2,2",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable). OpenCascade's IntCurvesFace_ShapeIntersector counts the same crossings as the port on every ray, so the rays' disagreement is the model's; both classifiers answer alike.",
+    "evidence": "OpenCascade's rays count 2,2,2,2,3,2,2, as the port's do."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "point": 273,
+    "check": "parity",
+    "observed": "1,1,1,2,2,2,1",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable). OpenCascade's IntCurvesFace_ShapeIntersector counts the same crossings as the port on every ray, so the rays' disagreement is the model's; both classifiers answer alike.",
+    "evidence": "OpenCascade's rays count 1,1,1,2,2,2,1, as the port's do."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 31,
+    "check": "state",
+    "observed": "rust O occ I",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers IN while its own rays count 0,0,0,1,1,1,0."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 46,
+    "check": "state",
+    "observed": "rust O occ I",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers IN while its own rays count 1,2,1,0,2,2,0."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 93,
+    "check": "state",
+    "observed": "rust O occ I",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers IN while its own rays count 2,2,2,0,2,2,0."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 98,
+    "check": "state",
+    "observed": "rust O occ I",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers IN while its own rays count 0,0,0,3,0,1,0."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 102,
+    "check": "state",
+    "observed": "rust O occ I",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers IN while its own rays count 2,2,2,0,2,2,0."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 112,
+    "check": "state",
+    "observed": "rust O occ I",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers IN while its own rays count 0,0,0,1,1,3,0."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 146,
+    "check": "state",
+    "observed": "rust O occ I",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers IN while its own rays count 2,4,2,0,2,2,0."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 147,
+    "check": "state",
+    "observed": "rust O occ I",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers IN while its own rays count 0,0,0,3,1,1,0."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 149,
+    "check": "state",
+    "observed": "rust O occ I",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers IN while its own rays count 1,1,0,0,2,2,0."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 153,
+    "check": "state",
+    "observed": "rust I occ O",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers OUT while its own rays count 5,5,1,1,3,3,1."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 154,
+    "check": "state",
+    "observed": "rust O occ I",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers IN while its own rays count 2,2,2,0,2,2,0."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 156,
+    "check": "state",
+    "observed": "rust O occ I",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers IN while its own rays count 0,0,0,1,0,0,0."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 177,
+    "check": "state",
+    "observed": "rust O occ I",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers IN while its own rays count 4,6,1,0,6,2,0."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 183,
+    "check": "state",
+    "observed": "rust O occ I",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers IN while its own rays count 0,1,0,0,2,2,0."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 184,
+    "check": "state",
+    "observed": "rust O occ I",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers IN while its own rays count 0,0,0,1,1,3,0."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 211,
+    "check": "state",
+    "observed": "rust I occ O",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers OUT while its own rays count 5,5,1,1,3,3,1."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 233,
+    "check": "state",
+    "observed": "rust I occ O",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers OUT while its own rays count 5,3,3,1,3,3,1."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 256,
+    "check": "state",
+    "observed": "rust O occ I",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers IN while its own rays count 0,0,0,1,1,1,0."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 257,
+    "check": "state",
+    "observed": "rust I occ O",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers OUT while its own rays count 5,5,3,1,3,3,1."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 258,
+    "check": "state",
+    "observed": "rust O occ I",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers IN while its own rays count 8,4,4,0,2,2,2."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 259,
+    "check": "state",
+    "observed": "rust O occ I",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers IN while its own rays count 0,0,0,1,1,1,0."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "point": 277,
+    "check": "state",
+    "observed": "rust I occ O",
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (inventory_refusal: its shell is not orientable): inside and outside are not defined by ray parity, and OpenCascade's classifier answers against its own intersector's rays, which disagree with it or among themselves.",
+    "evidence": "OpenCascade answers OUT while its own rays count 5,3,3,1,3,3,1."
+  },
+  {
+    "file": "mfcadpp/10156.step",
+    "point": 296,
+    "check": "parity",
+    "observed": "1,2,1,3,3,3,1",
+    "verdict": "rust-wrong",
+    "reason": "Ray 1 meets plane face 3 2.5e-5 mm from its edge 27: beyond COORD_FLOOR, so the port counts it as an interior crossing, while the face across the edge does not claim the ray, so the ray counts a crossing OpenCascade does not. The vote still answers IN, as OpenCascade does.",
+    "evidence": "Port ray 1 meets face 18 at t 1.7461 and face 3 at 9.9020; OpenCascade's rays 1,1,1,3,3,3,1 (ray 1 only face 18)."
+  }
+]
