@@ -332,12 +332,15 @@ never a silent fix):
    `datum_system` UR1, `plus_minus_tolerance` UR1), each citing its label.
    **Editions.** The writer targets exactly the edition the express table represents (the
    stage that builds it determines which edition N11521 is, and builds one table per edition if
-   other long forms are found). A file whose `FILE_SCHEMA` is that edition keeps it. A file of
-   another AP242 edition, or AP214/AP203 (90 and 10 of the 100 corpus files), is written only
-   when `validate_document` passes every instance of the edited file against the target table
-   (exceptions pinned per file with reasons, as known validator-vs-file disagreements), and its
-   `FILE_SCHEMA` becomes the target edition's identifier; otherwise the edit is refused, naming
-   the violating instances. Entity names alone are not enough: attribute counts and types can
+   other long forms are found). A file whose `FILE_SCHEMA` is that edition keeps it; the edit
+   is refused if the edited file has a violation the original did not have, and violations the
+   original already had are reported, not repaired. A file of another AP242 edition, or
+   AP214/AP203 (90 and 10 of the 100 corpus files), is written only when `validate_document`
+   passes every instance of the edited file against the target table, and its `FILE_SCHEMA`
+   becomes the target edition's identifier (the new identifier claims conformance, so no
+   existing violation is tolerated); otherwise the edit is refused, naming the violating
+   instances. Which corpus and NIST files can be upgraded is pinned per file with the
+   violations and reasons. Entity names alone are not enough: attribute counts and types can
    differ between APs and editions.
 3. **Face provenance** in `step.rs`: each `Part` face and edge records its `advanced_face` /
    `edge_curve` id and its placed instance. step-io fills each arena in ascending id order over
@@ -389,11 +392,20 @@ never a silent fix):
      the report lists every removed and rewritten instance by id;
    - *anything else* (an unconsumed PMI instance found by the reader, an application's own
      data): refused, naming it.
+   The removal plan is a document-level operation (`removal.rs`: seeds, policy → removed and
+   rewritten instances, or a refusal naming the blockers), independent of the PMI model.
    UDAs and material on the part are in scope of replace exactly when the reader consumed them
    (UDAs: yes; material: not while its practice is undetermined, so it stays untouched).
    Unconsumed PMI of the part is kept byte for byte and reported again. `remove(part)` is
    `replace(part, empty)`. Verification is `pmi::read` of the output compared semantically
    with what was written, plus `express` over every instance the edit touched.
+
+7. **Process boundary.** specify-core and draftwright (Python) use the `quiddity` CLI:
+   `quiddity parts`, `quiddity pmi read`, `quiddity pmi write --mode add|replace|remove
+   [--presentation refuse|remove]`. The versioned JSON form of the model lives in the `quiddity`
+   crate (`src/pmi_json.rs`), so haecceity keeps no serde dependency. In JSON, anchors are face
+   numbers with the file's sha256 and the reader version as binding (a mismatch is refused), and
+   every value is its stated decimal text with its unit.
 
 **Mapping** (writer form; the reader also accepts the older forms the practice says must still
 be read, e.g. the pre-4.0.6 datum forms of §6.5.2):
