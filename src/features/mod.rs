@@ -75,6 +75,8 @@ pub mod rings;
 pub mod round_bottom_slots;
 pub mod section_passages;
 pub mod section_recess;
+pub mod section_recess_discovery;
+pub mod section_recess_geometry;
 pub mod sections;
 pub mod sheet_metal;
 pub mod slots;
