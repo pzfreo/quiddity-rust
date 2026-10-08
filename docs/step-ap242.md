@@ -46,6 +46,26 @@ These override anything below and any stream brief that says otherwise.
    geometric: Option<H|K|L> }> }` (the text kept as stated, the standard recognised from it), or
    `Table { … }` for a `default_tolerance_table` a file carries (read, not written).
 
+4. **Interface: the JSON CLI.** specify-core calls haecceity through the `quiddity` CLI with
+   versioned JSON (`quiddity parts`, `pmi read`, `pmi write`), as Architecture item 7 says; no
+   Python extension module.
+5. **Standard forms only.** Threads, knurls, finish and notes are written only in their standard
+   AP242 / CAx-IF forms. Python draftwright's non-standard 'manufacturing requirement' text route
+   is not written; draftwright (Python and Rust) will read the standard forms instead.
+6. **Datum feature symbols now.** The writer writes, for each datum it adds, a minimal datum
+   feature symbol (presentation) linked to the datum feature through
+   `draughting_model_item_association`, following the PMI practice's presentation sections, so a
+   presentation-only viewer shows the datum. This is the one piece of presentation written in
+   this run; it is derived from the semantic model (never a separate source of truth) and is
+   removed with its datum on replace. Other presentation stays out of scope.
+7. **Replace removes the replaced PMI's presentation by default.** The default presentation
+   policy for replace and remove is `RemovePresentation`: callouts, associations and their
+   exclusively owned geometry and styles that reference removed PMI are removed and every one is
+   listed in the report. `Refuse` remains available as an option.
+8. **Main-session decisions:** only the generated schema table is committed, with the long
+   form's source URL and sha256 (not the EXPRESS file itself); step-io's author is not contacted
+   (haecceity rebuilds and checks the id map itself).
+
 Schema references below are to the AP242 MIM long form `242_mim_lf.exp` (WG12 N11521, from
 stepcode); section numbers (§) are the PMI practice's unless stated.
 
@@ -394,8 +414,8 @@ never a silent fix):
    then classified by family:
    - *presentation and validation properties* (`draughting_model_item_association`,
      `draughting_callout` and its annotation occurrences and their exclusively owned geometry
-     and styles, CAx-IF PMI validation properties): with policy `Refuse` (the default) the edit
-     is refused naming them by id and type; with policy `RemovePresentation` they are removed
+     and styles, CAx-IF PMI validation properties): with policy `Refuse` the edit
+     is refused naming them by id and type; with policy `RemovePresentation` (the default, decision 7) they are removed
      too, a `draughting_model` or view whose item list names them is rewritten without them, and
      the report lists every removed and rewritten instance by id;
    - *anything else* (an unconsumed PMI instance found by the reader, an application's own
@@ -537,7 +557,7 @@ and `pmi::write` are the next stages.
 
 ## Out of scope for now
 
-- **Graphic presentation** (callouts, datum feature symbols, polylines, tessellated
+- **Graphic presentation** other than datum feature symbols (callouts, polylines, tessellated
   presentation, saved views) derived from the semantics. Existing presentation is kept byte for
   byte, or removed and reported under the `RemovePresentation` policy; it is never updated.
 - **Writing datum targets and tolerance relations** (composite frames). Both are read and in the
