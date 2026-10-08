@@ -47,6 +47,7 @@ const SKIPPED: &[(&str, usize)] = &[
     ("recognise_polygonal_stock", 1),
     ("recognise_prismatic_pockets", 6),
     ("recognise_rectangular_blind_slots", 1),
+    ("recognise_rectangular_pads", 5),
     ("recognise_repeating_radial_profiles", 1),
     ("recognise_round_bottom_blind_slots", 1),
     ("recognise_through_steps", 7),
@@ -369,4 +370,9 @@ fn oriented_slots_match_python() {
 #[test]
 fn oriented_slot_patterns_match_python() {
     replay("recognise_oriented_slot_patterns");
+}
+
+#[test]
+fn rectangular_pads_match_python() {
+    replay("recognise_rectangular_pads");
 }
