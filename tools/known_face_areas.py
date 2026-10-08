@@ -53,6 +53,25 @@ SPECIAL = {
         "adds the triangle: this deliberately malformed file orients the triangle's loop as an outer "
         "boundary, which the port reads from the geometry instead.",
     ),
+    ("cadgenbench_inputs/cgb217.step.gz", 34, "occ"): (
+        "rust-wrong",
+        "tools/face_area_evidence.py gives 28.16983104 by Green's theorem and by direct slices; the "
+        "port gives {rust}. Traced to the boundary walk: the port's answer moves with the reference "
+        "its inner integral starts from (28.169842 from u = 0, 28.169781 from u = 1), so its path "
+        "does not close in v, by 2.2e-6, all of it on edge 89 between t = 0.8328 and 0.7427, where "
+        "the edge dips 1.6e-3 into the face from the side v = 1 it otherwise runs outside; the panel "
+        "sums there do not add up to the foot point's change in v. Not yet resolved. OpenCascade "
+        "gives {occ} (fixed rule), {fine} (adaptive) and {rebuilt} (pcurves projected from the edges).",
+    ),
+    ("cadgenbench_inputs/cgb207.step", 125, "occ"): (
+        "rust-wrong",
+        "tools/face_area_evidence.py gives 47.45338085 (Green's theorem) and 47.45337956 (direct "
+        "slices); the port gives {rust}, 1e-6 more. Unlike the faces fixed with it, the port's walk "
+        "closes here (its answer does not move with the inner integral's reference, to 6e-12), so "
+        "the difference is in the path the foot points take, not in the quadrature; not traced "
+        "further. OpenCascade gives {occ} (fixed rule), {fine} (adaptive) and {rebuilt} (pcurves "
+        "projected from the edges).",
+    ),
     ("cadgenbench_inputs/cgb242.step.gz", 483, "occ"): (
         "rust-wrong",
         "A degenerate seam-to-seam sliver: OpenCascade bounds it by one B-spline edge used twice and "

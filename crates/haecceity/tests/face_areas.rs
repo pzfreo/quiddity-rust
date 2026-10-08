@@ -141,6 +141,31 @@ fn rotated_seam_on_a_closed_bspline_surface() {
     }
 }
 
+/// A foot point that leaves a held side between an edge's end and the quadrature node beside
+/// it (cgb203 face 3, 2.3e-4 of its area). `late_turn.step`: the flat B-spline square
+/// S(u, v) = (10u, 10v, 0) carries (−1, 2), (0.001, 8), (5, 8), (5, 2), whose first side runs
+/// outside u = 0 and enters the square 1e-3 of its length before its end; the region its foot
+/// points bound is that quadrilateral clipped to x ≥ 0.
+#[test]
+fn foot_point_turning_next_to_an_edge_end() {
+    let y = 2.0 + 6.0 / 1.001;
+    let clipped = [(0.0, 2.0), (0.0, y), (0.001, 8.0), (5.0, 8.0), (5.0, 2.0)];
+    let want = 0.5
+        * (0..5)
+            .map(|k| {
+                let (a, b) = (clipped[k], clipped[(k + 1) % 5]);
+                a.0 * b.1 - b.0 * a.1
+            })
+            .sum::<f64>()
+            .abs();
+    let text = std::fs::read(common::fixtures().join("late_turn.step")).unwrap();
+    for placement in [IDENTITY, motion()] {
+        let part = haecceity::step::read_step_placed(&text, &placement).unwrap();
+        let got = part.face_mass(0).unwrap()[0];
+        assert!((got - want).abs() <= 1e-12 * want, "{got} vs {want}");
+    }
+}
+
 fn captured() -> Value {
     let path = common::fixtures().join("face_areas.json.gz");
     let mut text = String::new();

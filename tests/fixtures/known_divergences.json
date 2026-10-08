@@ -60,8 +60,8 @@
     "family": "kernel",
     "key": "solid masses differ by up to 1e-3",
     "count": 1,
-    "verdict": "rust-wrong",
-    "reason": "The port's volume, 4382309.4976, is now unchanged by any placement (it gave 4382320.555 in place and 4382375.138 / 4382301.960 moved: the shell's residual outward area vector, (0.29, -0.78, -0.12) mm², made a flux from the origin depend on where the part is; mass.rs now measures it from the solid's mean vertex use, as OpenCascade does). Against OpenCascade's adaptive integration (4382356.32, area 800065.50) the port is 1.1e-5 off in volume and 4.2e-6 in area (800062.151); the captured values (4381850.216, 800052.939) are its fixed rule. What remains is the sum of the face differences tests/face_areas.rs lists, of which B-spline faces 99, 100, 239, 396, 430, 1129, 1348, 1435 and 1439 are rust-wrong there."
+    "verdict": "rust-correct",
+    "reason": "The port's volume, 4382309.3945, is unchanged by any placement (it gave 4382320.555 in place and 4382375.138 / 4382301.960 moved: the shell's residual outward area vector, (0.29, -0.78, -0.12) mm², made a flux from the origin depend on where the part is; mass.rs now measures it from the solid's mean vertex use, as OpenCascade does). Against OpenCascade's adaptive integration (4382356.32, area 800065.50) the port is 1.1e-5 off in volume and 4.2e-6 in area (800062.147); the captured values (4381850.216, 800052.939) are its fixed rule. The area difference is the sum of the face differences tests/face_areas.rs lists, every one rust-correct (the independent integrations of tools/face_area_evidence.py over the 3D edges agree with the port) except B-spline face 397, undetermined, 1.7e-5 mm² of the 3.35. The volume is integrated over the same boundaries and has no independent check of its own."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",

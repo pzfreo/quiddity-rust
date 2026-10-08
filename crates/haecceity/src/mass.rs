@@ -903,7 +903,42 @@ impl Part {
                 latest: None,
                 swept: 0.0,
             };
-            let cuts = curve_cuts(surface, &ed.curve, t0, t1);
+            let mut cuts = curve_cuts(surface, &ed.curve, t0, t1);
+            // A foot point that turns a corner between a cut and the node beside it (the rule's
+            // nodes stop short of a panel's ends) leaves the turn inside that panel, unseen by
+            // its error estimate (2.3e-4 of cgb203 face 3, whose edge leaves the surface's side
+            // v = 1 within 1e-4 of its end): the edge is cut there too.
+            if matches!(surface, Surface::Freeform { .. }) && cuts.len() >= 2 {
+                let x = 0.5 * (1.0 + kronrod_nodes()[0].0);
+                let at = |t: f64, near: (f64, f64)| {
+                    foot(surface, spans, ed.curve.value(t), wrap(near))
+                        .map(|q| (t, unwrap(q, near)))
+                };
+                let mut more = Vec::new();
+                let mut near = last;
+                for k in 0..cuts.len() {
+                    let Some(here) = at(cuts[k], near) else {
+                        continue;
+                    };
+                    near = here.1;
+                    let sides = [k.checked_sub(1), (k + 1 < cuts.len()).then_some(k + 1)];
+                    for j in sides.into_iter().flatten() {
+                        let inner = cuts[k] + x * (cuts[j] - cuts[k]);
+                        if let Some(i) = at(inner, here.1)
+                            && held(here.1) != held(i.1)
+                        {
+                            let t = corner(i, cuts[k]);
+                            // (A turn within round-off of the cut is the cut's own.)
+                            if (t - cuts[k]).abs() > 1e-7 * (cuts[j] - cuts[k]).abs() {
+                                more.push(t);
+                            }
+                        }
+                    }
+                }
+                cuts.extend(more);
+                cuts.sort_by(|a, b| if t1 < t0 { b.total_cmp(a) } else { a.total_cmp(b) });
+                cuts.dedup();
+            }
             let (sum, excess, size, walk) = adaptive(&cuts, walk, floor, &mut eval)?;
             add((sum, excess, size, walk.swept));
             last = walk.last;
