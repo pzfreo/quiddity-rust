@@ -281,8 +281,17 @@ impl Part {
             })
             .collect();
         let centre = |b: &[f64; 4]| (0.5 * (b[0] + b[1]), 0.5 * (b[2] + b[3]));
-        let into_period =
-            |c: f64, periodic: bool| if periodic { c.rem_euclid(TAU) - c } else { 0.0 };
+        // A loop centred on the seam (a range symmetric about 0) has a centre a few ulps either
+        // side of it, which libm round-off decides; within 1e-9 of a turn it counts as on the
+        // seam and is kept at 0, not moved to 2π.
+        let into_period = |c: f64, periodic: bool| {
+            if periodic {
+                let c = c + 1e-9;
+                c.rem_euclid(TAU) - c
+            } else {
+                0.0
+            }
+        };
         let first: Vec<(f64, f64)> = boxes
             .iter()
             .map(|b| {
