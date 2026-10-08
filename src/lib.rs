@@ -7,6 +7,7 @@ pub mod correspondence;
 pub mod features;
 pub mod frames;
 pub mod recognition;
+pub mod serve;
 /// The geometry kernel, [`haecceity`], under the name the recognisers use.
 pub use haecceity as kernel;
 

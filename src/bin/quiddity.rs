@@ -11,23 +11,15 @@
 //! read (an unreadable, truncated, incomplete or unsupported STEP file is refused, never
 //! recognised as empty); 2 with the usage on stderr for bad arguments. `-h`/`--help` prints the
 //! usage on stdout and exits 0.
+//!
+//! `quiddity serve`: recognition and correspondence as a JSON-lines service on stdin and stdout
+//! (`quiddity::serve` has the protocol); exits 0 at the end of the input.
 
-use std::path::Path;
 use std::process::ExitCode;
 
-use quiddity::correspondence::{self, Fingerprints, Recognition};
-use quiddity::recognition::{self, RecognitionDocument};
-use serde::Serialize;
+use quiddity::serve::{self, Failure};
 
-const USAGE: &str = "usage: quiddity <file.step>\n       quiddity correspond <old.json|old.step> <new.json|new.step>\n\n`quiddity <file.step>` prints JSON: each family's records, their `fingerprints`, and the\nversioned recognition `document`.";
-
-/// What `quiddity <file.step>` prints.
-#[derive(Serialize)]
-struct Output {
-    #[serde(flatten)]
-    recognition: Recognition,
-    document: RecognitionDocument,
-}
+const USAGE: &str = "usage: quiddity <file.step>\n       quiddity correspond <old.json|old.step> <new.json|new.step>\n       quiddity serve\n\n`quiddity <file.step>` prints JSON: each family's records, their `fingerprints`, and the\nversioned recognition `document`. `quiddity serve` answers JSON-lines requests on stdin\n(`recognise`, `correspond`), one response line each on stdout.";
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -35,6 +27,15 @@ fn main() -> ExitCode {
         [flag] if flag == "-h" || flag == "--help" => {
             println!("{USAGE}");
             return ExitCode::SUCCESS;
+        }
+        [command] if command == "serve" => {
+            return match serve::serve(std::io::stdin().lock(), std::io::stdout().lock()) {
+                Ok(()) => ExitCode::SUCCESS,
+                Err(error) => {
+                    eprintln!("quiddity: serve: {error}");
+                    ExitCode::FAILURE
+                }
+            };
         }
         [command, old, new] if command == "correspond" => correspond(old, new),
         [path] if path != "correspond" => recognise(path),
@@ -55,53 +56,25 @@ fn main() -> ExitCode {
     }
 }
 
-/// A STEP file's part, warning on stderr of geometry that did not resolve: the solids holding
-/// it are not valid, so their features are not recognised.
-fn read_part(path: &str) -> Result<quiddity::kernel::Part, String> {
-    let part = quiddity::read_step_file(Path::new(path)).map_err(|e| format!("{path}: {e}"))?;
-    let (faces, edges) = (part.unresolved_faces(), part.unresolved_edges());
-    if !faces.is_empty() || !edges.is_empty() {
-        eprintln!(
-            "quiddity: {path}: warning: geometry did not resolve (faces {faces:?}, edges \
-             {edges:?}); the solids holding it are not recognised"
-        );
+/// A warning, on stderr, of geometry that did not resolve.
+fn warn(warning: Option<String>) {
+    if let Some(warning) = warning {
+        eprintln!("quiddity: {warning}");
     }
-    Ok(part)
 }
 
-fn recognise(path: &str) -> Result<String, String> {
-    let part = read_part(path)?;
-    let recognition = correspondence::recognise(&part);
-    let document = recognition::document(&recognition, part.faces.len());
-    let output = Output {
-        recognition,
-        document,
-    };
+fn recognise(path: &str) -> Result<String, Failure> {
+    let (output, warning) = serve::recognise_file(path)?;
+    warn(warning);
     Ok(serde_json::to_string_pretty(&output).expect("records serialise"))
 }
 
-/// A revision's fingerprints: from a recognition result's `fingerprints` (or a bare fingerprints
-/// document), or by recognising a STEP file.
-fn fingerprints(path: &str) -> Result<Fingerprints, String> {
-    let lower = path.to_lowercase();
-    let step = [".step", ".stp", ".step.gz", ".stp.gz"]
-        .iter()
-        .any(|e| lower.ends_with(e));
-    if step {
-        let part = read_part(path)?;
-        return Ok(correspondence::recognise(&part).fingerprints);
-    }
-    let text = std::fs::read_to_string(path).map_err(|e| format!("{path}: {e}"))?;
-    let mut value: serde_json::Value =
-        serde_json::from_str(&text).map_err(|e| format!("{path}: not JSON ({e})"))?;
-    if let Some(inner) = value.get_mut("fingerprints") {
-        value = inner.take();
-    }
-    serde_json::from_value(value)
-        .map_err(|e| format!("{path}: no fingerprints ({e}); write it with `quiddity <file.step>`"))
-}
-
-fn correspond(old: &str, new: &str) -> Result<String, String> {
-    let c = correspondence::correspond(&fingerprints(old)?, &fingerprints(new)?)?;
+fn correspond(old: &str, new: &str) -> Result<String, Failure> {
+    let revision = |path| {
+        let (fingerprints, warning) = serve::fingerprints_file(path)?;
+        warn(warning);
+        Ok::<_, Failure>(fingerprints)
+    };
+    let c = serve::correspond(&revision(old)?, &revision(new)?)?;
     Ok(serde_json::to_string_pretty(&c).expect("a correspondence serialises"))
 }

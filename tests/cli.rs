@@ -43,6 +43,23 @@ fn help_prints_usage_and_succeeds() {
 }
 
 #[test]
+fn the_usage_lists_serve() {
+    let out = quiddity(&["--help"]);
+    assert!(String::from_utf8_lossy(&out.stdout).contains("quiddity serve"));
+}
+
+#[test]
+fn serve_on_an_empty_input_succeeds_silently() {
+    let out = Command::new(env!("CARGO_BIN_EXE_quiddity"))
+        .arg("serve")
+        .stdin(std::process::Stdio::null())
+        .output()
+        .expect("quiddity runs");
+    assert!(out.status.success());
+    assert!(out.stdout.is_empty() && out.stderr.is_empty());
+}
+
+#[test]
 fn bad_arguments_print_usage_and_fail() {
     let out = quiddity(&[]);
     assert_eq!(out.status.code(), Some(2));
@@ -96,6 +113,10 @@ fn the_document_lists_each_feature_with_its_record_type_and_faces() {
             ("holes/1", "HoleRecord", &faces(&[11])),
             ("holes/2", "HoleRecord", &faces(&[12])),
             ("hole_patterns/0", "LinearArray", &faces(&[10, 11, 12])),
+            ("blends/0", "Blend", &faces(&[2])),
+            ("blends/1", "Blend", &faces(&[3])),
+            ("blends/2", "Blend", &faces(&[7])),
+            ("blends/3", "Blend", &faces(&[8])),
         ]
     );
     // The existing keys are kept: the records at the top level, the fingerprints beside them.
