@@ -53,6 +53,7 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 | Prismatic pockets | `recognise_prismatic_pockets` | 82/82 | 6 | 100/100 |
 | Oriented slots | `recognise_oriented_slots` | 33/33 | 1 | 100/100 |
 | Oriented slot patterns | `recognise_oriented_slot_patterns` | 26/26 | 0 | 100/100 |
+| Rectangular pads | `recognise_rectangular_pads` | 150/155 (5 known divergences) | 5 | 100/100 |
 
 *Captured test calls*: the Python suite's calls replayed by `tests/captured.rs`. *Not captured*:
 calls the suite makes that the capture could not record, outside the replay and pinned by it
@@ -71,7 +72,7 @@ its verdict and reason in a verdict file:
 | Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
 |---|---|---|---|---|---|---|---|
 | `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 141 (940 problems) | 101 | 17 | 22 | 0 | 1 |
-| `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 34 (35 calls) | 4 | 1 | 3 | 3 | 23 |
+| `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 39 (40 calls) | 4 | 1 | 3 | 3 | 28 |
 | `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 23 | 0 | 23 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
 | `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 36 | 10 | 26 | 0 | 0 | 0 |
@@ -79,9 +80,10 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 63 | 56 | 2 | 0 | 1 | 4 |
 | `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 41 | 5 | 1 | 2 | 0 | 33 |
 | `tests/fixtures/known_face_areas.json` | `crates/haecceity/tests/face_areas.rs` | 1831 | 1829 | 1 | 0 | 0 | 1 |
-| `tests/fixtures/captured/known_sections.json` | `tests/sections.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
+| `tests/fixtures/captured/known_sections.json` | `tests/sections.rs` | 1 | 0 | 0 | 0 | 0 | 1 |
 | `tests/fixtures/captured/passages/known_divergences.json` | `tests/passages.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_section_recess_helpers.json` | `tests/section_recess_helpers.rs` | 4 | 0 | 4 | 0 | 0 | 0 |
+| `tests/fixtures/captured/known_section_geometry.json` | `tests/section_geometry.rs` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `tests/fixtures/captured/section_recess/known_differences.json` | `tests/section_recess.rs` | 4 | 0 | 0 | 0 | 0 | 4 |
 | `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 118 (2920 answers) | 98 | 8 | 0 | 9 | 3 |
 | `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 9 | 3 | 3 | 0 | 0 | 3 |
@@ -150,13 +152,15 @@ decided.
 Three of the helpers section recesses compose are ported the same way
 (`tests/section_recess_helpers.rs`, `tools/capture_section_recess_helpers.py`):
 `_cylindrical_end_surface` (257 values from the Python tests, refusals by message),
-`cylindrical_seat_proofs` and `plane_envelope_passage_proofs` on 158 parts the Python tests
-build, the two golden passage fixtures and the corpus, with every private `_prove` question
-replayed on its own (2079 seat questions, 120 proved; 12926 envelope questions, 44 proved, none
-on the corpus). All agree; an envelope proof's two roof terms whose heights tie to round-off are
-compared in gradient order. Not captured: 1 value with a boolean radius (refused by type), 16
-test parts STEP export refuses, and 474 test parts on which Python proves nothing outside the
-helpers' own tests (left out to keep the fixtures small). Under the invariance motions 4 seats
+`cylindrical_seat_proofs` and `plane_envelope_passage_proofs` on 204 parts the Python tests
+build (60 of them parts where Python proves nothing, so the port must prove nothing too), the
+two golden passage fixtures and the corpus, with every private `_prove` question replayed on its
+own (2121 seat questions, 120 proved; 14459 envelope questions, 44 proved, none on the corpus).
+All agree; an envelope proof's two roof terms whose heights tie to round-off are compared in
+gradient order, and a seat's arc in one direction (Python's follows OCCT's per-process shape hash). Not
+captured: 1 value with a boolean radius (refused by type), 16 test parts STEP export refuses,
+and 428 more test parts on which Python proves nothing outside the helpers' own tests (all 474
+would add about 4 MB of STEP; 4 per test are kept). Under the invariance motions 4 seats
 at scale 0.1 are refused turned 90° about x, where the kernel's volume probe cannot answer a
 grazing end probe (rust-wrong).
 The section-recess records themselves are ported ahead of the family
@@ -186,6 +190,18 @@ certificates OpenCascade took over two minutes to mesh, 16 test shapes STEP expo
 and test parts past the first three per test function. Every certificate the port issues also
 agrees with its face's own orientation, and the answers are unchanged under two rigid motions
 (1 listed kernel face: cgb242 face 726).
+The three cylindrical proofs section recesses compose on top of it are ported the same way
+(`tests/section_geometry.rs`, `tools/capture_section_geometry.py`): `prove_cylindrical_channel`,
+`cylindrical_pocket_proofs` and `cylindrical_passage_proofs`, on 178 parts the Python tests
+build, the two golden fixtures and the corpus, with every private question replayed on its own
+(148 channel questions, 35 proved, on test parts those the tests ask and elsewhere those
+Python's recognition asks; 12703 pocket floors, 69 proofs; 25583 passage cells, 90 proofs).
+The removed cell Python builds by a boolean (a box or extrusion less or within the cylinder) is
+built exactly as the section swept from its plane to the cylinder branch, with conic edges.
+All agree but one pocket (rust-wrong): a test part whose end wall's crest vertex lies 0.003 off
+its own circle edges, which the kernel pins its samples to. Not captured: 18 test shapes STEP
+export refuses, and 206 test parts on which Python proves nothing outside the proofs' own tests
+(left out to keep the fixtures small). The proofs are unchanged under the invariance motions.
 
 For draftwright-rust, the kernel draws a part's views without OpenCascade's hidden-line
 algorithm or booleans (`crates/haecceity/src/hlr.rs`): every visible and hidden edge and
@@ -321,8 +337,15 @@ src/
     cylindrical_end_surface.rs  a cylinder branch as a section end's height over the section
     plane_envelope_passages.rs  polygonal passages through a convex two-plane roof
     section_recess.rs  the section-recess records and their validation (`_section_recess`)
+    cylindrical_channels.rs  three-support channels ending on a native bore, and the exact
+                     cell (a polygon swept between planes or cylinder branches) the three
+                     cylindrical proofs build and probe
+    cylindrical_pockets.rs  polygonal pockets whose open end is a native cylinder
+    cylindrical_passages.rs  polygonal passages ending on a native cross-bore
     prismatic_pockets.rs  rings capped at one end, and rings a mouth treatment interrupted,
                      recovered from their mouth or their floor and proved by swept-section probes
+    pads.rs          rectangular raised pads on their four walls, sharp or corner-blended, each
+                     top's material side certified (`_effective_surfaces`)
   frames.rs          part-relative recognition (`quiddity.frames`): the frame inferred from the
                      part's plane normals and cylinder axes, the part re-read into it, recognised
   framed_records.rs  records found in the frame carried back to the file's coordinates, fields
@@ -365,6 +388,8 @@ tests/
                      parts
   local_degradation.rs  which corpus parts take Python's local-degradation retry and what it
                      skips there, against the port's evidence paths, and under rigid motion
+  pads.rs            each pad's top and four walls on Python's evidence-test parts and the golden
+                     fixture; tolerances the capture cannot record (NaN, infinity)
   corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity
                      revision, every file and its sha256)
   determinism.rs     every corpus part's recognition (what the CLI prints, document included) and

@@ -311,5 +311,50 @@
     "count": 1,
     "verdict": "not-applicable",
     "reason": "Python is handed a precomputed graph over the same part (a rich argument), so the capture records no answer on the re-read STEP to compare with. The port's answer equals the captured in-memory answer exactly: one hexagonal boss, A/F 34.641, centre (0, 0, 20), z 5-35."
+  },
+  {
+    "function": "recognise_rectangular_pads",
+    "test": "tests/test_pad_attribution.py::test_unexplained_rounded_top_area_is_not_selected",
+    "file": "4f66ce9b6b1173f3.step.gz",
+    "options": {},
+    "count": 1,
+    "verdict": "not-applicable",
+    "reason": "The test monkeypatches the pad module's face area to 0, so the rounded top fails the area test and the captured answer (none) reflects that patch, not the part. Unpatched Python on this STEP file gives the port's record: the corner-blended 30 x 20 pad, z 5-9."
+  },
+  {
+    "function": "recognise_rectangular_pads",
+    "test": "tests/test_pad_attribution.py::test_nurbs_pad_refuses_ambiguous_recovery_in_both_entry_points",
+    "file": "6710e5e17ef29099.step.gz",
+    "options": {},
+    "count": 1,
+    "verdict": "not-applicable",
+    "reason": "The test monkeypatches EffectiveSurfaceIndex.fact to refuse every face as an ambiguous primitive, so the captured answer (none) reflects that patch, not the part. Unpatched Python on this STEP file (the pad with every face a B-spline) recovers the planes and gives the port's record: the 30 x 20 pad, z 5-9."
+  },
+  {
+    "function": "recognise_rectangular_pads",
+    "test": "tests/test_pad_attribution.py::test_pad_refuses_disagreeing_material_samples_in_both_entry_points[_pad]",
+    "file": "93d93a4ff5a93d06.step.gz",
+    "options": {},
+    "count": 1,
+    "verdict": "not-applicable",
+    "reason": "The test monkeypatches the plane material-side certification to refuse (samples disagree), so the captured answer (none) reflects that patch, not the part. Unpatched Python on this STEP file gives the port's record: the 30 x 20 pad, z 5-9."
+  },
+  {
+    "function": "recognise_rectangular_pads",
+    "test": "tests/test_pad_attribution.py::test_pad_refuses_disagreeing_material_samples_in_both_entry_points[_blended_pad]",
+    "file": "4f66ce9b6b1173f3.step.gz",
+    "options": {},
+    "count": 1,
+    "verdict": "not-applicable",
+    "reason": "The test monkeypatches the plane material-side certification to refuse (samples disagree), so the captured answer (none) reflects that patch, not the part. Unpatched Python on this STEP file gives the port's record: the corner-blended 30 x 20 pad, z 5-9."
+  },
+  {
+    "function": "recognise_rectangular_pads",
+    "test": "tests/test_pad_attribution.py::test_refused_lower_tier_cannot_introduce_the_upper_pad",
+    "file": "01d3c23d2c85f794.step.gz",
+    "options": {},
+    "count": 1,
+    "verdict": "not-applicable",
+    "reason": "The test monkeypatches the plane material-side certification to refuse the z = 9 top, so the captured answer (none) reflects that patch, not the part. Unpatched Python on this STEP file gives the port's record: the 30 x 20 pad, z 5-9, with the 1 x 1 tier on it suppressed (as in test_nurbs_pad_adversaries_preserve_tiers_envelope_and_ownership's expected count of 1)."
   }
 ]

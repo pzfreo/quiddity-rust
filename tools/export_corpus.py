@@ -74,6 +74,7 @@ from quiddity.passages import (  # noqa: E402
     recognise_passages,
     recognise_section_passages,
 )
+from quiddity.pads import _discover_rectangular_pads, recognise_rectangular_pads  # noqa: E402
 from quiddity.plates import _discover_plates  # noqa: E402
 from quiddity.prismatic_pockets import (  # noqa: E402
     _discover_prismatic_pockets,
@@ -345,6 +346,8 @@ def main() -> None:
         oriented_slots = (FamilyId.ORIENTED_SLOTS, lambda p, o: recognise_oriented_slots(p),
                           lambda p, ledger, o: _oriented_slots_from_proposals(
                               ledger.graph, section_ring_proposals(p, ledger.graph), ledger.writer.sink))
+        pads = (FamilyId.PADS, lambda p, o: recognise_rectangular_pads(p),
+                lambda p, ledger, o: _discover_rectangular_pads(p, writer=ledger.writer))
         entries.append(
             {
                 "file": str(path.relative_to(CORPUS)),
@@ -422,6 +425,7 @@ def main() -> None:
                     "recognise_prismatic_pockets": [
                         _run(part, "recognise_prismatic_pockets", *prismatic_pockets, {})
                     ],
+                    "recognise_rectangular_pads": [_run(part, "recognise_rectangular_pads", *pads, {})],
                     # The legacy roster: Python refuses its evidence path (PassageCompatibilityError).
                     "recognise_passages": [{"options": {}, "result": _plain(recognise_passages(part))}],
                     "recognise_gusset_rib_patterns": [

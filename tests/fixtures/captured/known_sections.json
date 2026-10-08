@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "case": "value",
+    "kind": "geometry",
+    "given": {"frame": {"origin": [0.0, 0.0, 0.0], "run": [0.0, 0.0, 1.0], "u": [1.0, 0.0, 0.0], "v": [0.0, 1.0, 0.0]}, "run_interval": [-1.0, 1.0], "boundary": [[2.0, -1.0, 0.0], [2.0, 1.0, 0.0], [-2.0, 1.0, 0.0], [-2.0, -1.0, 0.0]], "ends": [false, false]},
+    "verdict": "not-applicable",
+    "reason": "Python's test_sections.py::test_occurrence_read_validation_rejects_mutated_nested_values[section-order] builds an occurrence, then rotates its section's boundary in place with object.__setattr__ (the stored vertices no longer start where canonical form starts), and occurrence_geometry_dict refuses with 'section occurrence section is not canonical or was mutated'. The port's PlanarSection has no mutable boundary, so this input cannot be built: rebuilt from the captured vertices it canonicalises them, and the test reports the call as not constructible instead of producing Python's refusal itself."
+  }
+]

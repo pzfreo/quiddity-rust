@@ -21,7 +21,10 @@ pub mod circular_face_patterns;
 pub mod context;
 pub mod countersinks;
 pub mod cylinders;
+pub mod cylindrical_channels;
 pub mod cylindrical_end_surface;
+pub mod cylindrical_passages;
+pub mod cylindrical_pockets;
 pub mod cylindrical_seats;
 pub mod edge_open;
 pub mod edge_open_circular;
@@ -44,6 +47,7 @@ pub mod levels;
 pub mod oblique_through_steps;
 pub mod oriented_chamfers;
 pub mod oriented_slots;
+pub mod pads;
 pub mod paired_ramp_steps;
 pub mod passage_compat;
 pub mod passages;
@@ -143,6 +147,7 @@ pub struct Features {
     pub prismatic_pockets: Vec<prismatic_pockets::PrismaticPocket>,
     pub oriented_slots: Vec<oriented_slots::OrientedSlot>,
     pub oriented_slot_patterns: Vec<oriented_slots::OrientedSlotPattern>,
+    pub pads: Vec<pads::RaisedPad>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole, gusset rib, slot, pocket and oriented slot patterns) have none of their own: their
     /// members' faces are theirs ([`crate::correspondence`]).
@@ -310,6 +315,12 @@ pub fn recognise(part: &Part) -> Features {
         ),
         oriented_slot_patterns: oriented_slots::recognise_oriented_slot_patterns(&oriented_slots),
         oriented_slots,
+        pads: kept(
+            &mut defining,
+            "pads",
+            pads::discover(&ctx, &Default::default())
+                .unwrap_or_else(|e| panic!("rectangular pads refused: {e}")),
+        ),
         defining,
     }
 }

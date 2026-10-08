@@ -139,6 +139,12 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
             Ok(slots) => json(quiddity::recognise_oriented_slot_patterns(&slots)),
             Err(e) => serde_json::json!({ "refused": e.to_string() }),
         },
+        "recognise_rectangular_pads" => {
+            match quiddity::recognise_rectangular_pads(part, &options(kwargs)) {
+                Ok(found) => json(found),
+                Err(e) => serde_json::json!({ "refused": e.to_string() }),
+            }
+        }
         // Over a part: the patterns among the part's gusset ribs.
         "recognise_gusset_rib_patterns" => json(quiddity::recognise_gusset_rib_patterns(
             &quiddity::recognise_gusset_ribs(part),
@@ -264,6 +270,11 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
         }
         "recognise_oriented_slots" => {
             return quiddity::features::oriented_slots::discover_verified(&ctx).map(faces);
+        }
+        "recognise_rectangular_pads" => {
+            return quiddity::features::pads::discover(&ctx, &options(kwargs))
+                .map(faces)
+                .map_err(|e| e.to_string());
         }
         other => panic!("{other} has no evidence path"),
     };
