@@ -17,7 +17,9 @@ Two phases, written to ``tests/fixtures/captured/section_recess_helpers/``:
    reads it, with their private ``_prove`` wrapped (``proofs.json.gz``): per part the proofs,
    and every ``_prove`` question asked on the way with its answer (a proof, ``null``, or the
    exception the public function swallows). A test part is kept when it came from the helpers'
-   own tests (``OWN_TESTS``) or Python proves something on it; the rest are deleted again.
+   own tests (``OWN_TESTS``) or Python proves something on it, and a sample of the rest, on
+   which Python proves nothing, is kept so the port must prove nothing there too
+   (``NOTHING_PER_TEST``); the others are deleted again.
 
 A value whose input the port's types cannot carry (a boolean or a wrongly shaped tuple where a
 float or a pair belongs, which Python refuses by type) or a part that cannot be exported is
@@ -77,8 +79,11 @@ TESTS = (
     "tests/test_passage_publication_ties.py",
 )
 # Parts from these tests are all kept; a part only other tests build is kept when Python proves a
-# seat or an envelope passage on it (the rest are counted in ``unselected``: their questions
-# repeat the refusals these tests and the corpus already ask, at several MB of STEP).
+# seat or an envelope passage on it, or as one of ``NOTHING_PER_TEST`` parts per test (the first
+# test in ``TESTS`` that builds it) on which Python proves nothing: those that asked ``_prove``
+# something first, then by name. The rest are counted in ``unselected``: all 474 would add about
+# 4 MB of STEP, and their questions repeat refusals the kept ones and the corpus already ask.
+NOTHING_PER_TEST = 4
 OWN_TESTS = (
     "tests/test_cylindrical_seats.py",
     "tests/test_plane_envelope_passages.py",
@@ -387,7 +392,7 @@ def main() -> None:
     for old in parts_dir.glob("*.step.gz"):
         old.unlink()
     runs: list[dict] = []
-    unselected = 0
+    nothing: dict[str, list[tuple[bool, str, dict, Path]]] = {}
     for sha, (text, tests) in sorted(_parts.items()):
         path = parts_dir / f"{sha}.step.gz"
         path.write_bytes(gzip.compress(text.encode(), mtime=0))
@@ -397,8 +402,19 @@ def main() -> None:
             runs.append(run)
             print(path.name, file=sys.stderr)
         else:
-            path.unlink()
-            unselected += 1
+            first = min(tests, key=lambda t: (TESTS.index(t) if t in TESTS else len(TESTS), t))
+            asked = bool(run["seat_calls"] or run["envelope_calls"])
+            nothing.setdefault(first, []).append((not asked, sha, run, path))
+    unselected = 0
+    for test in sorted(nothing):
+        for i, (_, _, run, path) in enumerate(sorted(nothing[test], key=lambda c: c[:2])):
+            if i < NOTHING_PER_TEST:
+                runs.append(run)
+                print(path.name, "(nothing proved)", file=sys.stderr)
+            else:
+                path.unlink()
+                unselected += 1
+    runs.sort(key=lambda run: run["file"])
     for name in GOLDEN:
         runs.append({"source": "fixture", "file": name, **_proofs(_load(FIXTURES / name))})
     corpus = json.loads((FIXTURES / "corpus.json").read_text())["files"]
