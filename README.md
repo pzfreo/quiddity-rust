@@ -56,7 +56,7 @@ its verdict and reason in a verdict file:
 
 | Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
 |---|---|---|---|---|---|---|---|
-| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 133 (901 problems) | 72 | 11 | 15 | 35 | 0 |
+| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 133 (901 problems) | 76 | 16 | 18 | 23 | 0 |
 | `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 26 (27 calls) | 4 | 0 | 3 | 3 | 16 |
 | `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 9 | 0 | 9 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
