@@ -3862,23 +3862,5 @@
     ],
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's adaptive rule (relative error 1e-9) agrees with the port's area."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb242.step.gz",
-    "field": "rot_zx_moved:fact",
-    "faces": [
-      726
-    ],
-    "verdict": "rust-wrong",
-    "reason": "mass.rs gives this B-spline face no area when the part is moved (18.229 unmoved, rust-correct in known_face_areas.json), so its recovery tolerance and nominal are undefined and the port refuses it as invalid-input instead of not-recovered. Unchanged on w3/q-kernel-boxes (0c6de9b)."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb242.step.gz",
-    "field": "rot_zx_moved:nominal",
-    "faces": [
-      726
-    ],
-    "verdict": "rust-wrong",
-    "reason": "mass.rs gives this B-spline face no area when the part is moved (18.229 unmoved, rust-correct in known_face_areas.json), so its recovery tolerance and nominal are undefined and the port refuses it as invalid-input instead of not-recovered. Unchanged on w3/q-kernel-boxes (0c6de9b)."
   }
 ]

@@ -124,6 +124,34 @@ fn boundary_walk_splits_at_a_corner_beside_a_knot_line() {
     assert!((area - 28.16983104).abs() < 1e-7, "{area}");
 }
 
+/// cgb242's B-spline face 726 has a side u = 1 collapsed to a point, where its edge 730 starts.
+/// Under the motion below the walk's first node there lands at v = 1 instead of v = 0 (v is
+/// undetermined on that side), so its swept parameter area lost the jump's ∮ u dv, the loop read
+/// as clockwise and the face's area came out negative.
+#[test]
+fn a_jump_along_a_collapsed_side_leaves_the_area_unchanged() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let path = dir.join("cadgenbench_inputs/cgb242.step.gz");
+    let moved: haecceity::step::Placement = [
+        [0.0, 0.0, 1.0, 123.456],
+        [1.0, 0.0, 0.0, -78.9],
+        [0.0, 1.0, 0.0, 41.3],
+    ];
+    let area = |placement: &haecceity::step::Placement| {
+        let part = haecceity::step::read_step_file_placed(&path, placement).unwrap();
+        part.face_mass(726).unwrap()[0]
+    };
+    let (unmoved, moved) = (area(&haecceity::step::IDENTITY), area(&moved));
+    assert!((unmoved - 18.22923018).abs() < 1e-7, "{unmoved}");
+    assert!(
+        (moved - unmoved).abs() < 1e-9 * unmoved,
+        "{unmoved} moved {moved}"
+    );
+}
+
 /// Two quarter cylinders of radius 7 on axes 14 apart (x = ±7, y = 0) kiss along x = y = 0 with
 /// opposite outward normals, as sm-hanger's faces 11 and 12 do; the first-order turn is
 /// round-off there. Extruded 5 in z by OpenCascade from the profile (0,0) - arc to (7,7) -

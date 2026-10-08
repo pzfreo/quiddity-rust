@@ -82,7 +82,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/known_sections.json` | `tests/sections.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/passages/known_divergences.json` | `tests/passages.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_section_recess_helpers.json` | `tests/section_recess_helpers.rs` | 4 | 0 | 4 | 0 | 0 | 0 |
-| `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 120 (2922 answers) | 98 | 10 | 0 | 9 | 3 |
+| `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 118 (2920 answers) | 98 | 8 | 0 | 9 | 3 |
 
 The undetermined entries are the backlog: differences not yet shown to be either side's error.
 The rust-wrong entries are known port defects.

@@ -235,7 +235,7 @@ struct Walk {
     crossed: bool,
     first: Option<Met>,
     latest: Option<Met>,
-    /// ∫ u dv so far: the parameter-space area the walk sweeps (Green's theorem).
+    /// ∫ (u − u_ref) dv so far: the parameter-space area the walk sweeps (Green's theorem).
     swept: f64,
 }
 
@@ -658,6 +658,9 @@ impl Part {
         } else {
             collapsed.0.unwrap_or(start.0)
         };
+        // (The swept area, read only where the loops do not run round u, is measured from the
+        // same reference.)
+        let u_ref = if along_v { 0.0 } else { reference };
         let term = |u: f64, v: f64, du: f64, dv: f64| {
             let (weight, y) = if along_v {
                 let cuts = surface_cuts(surface, spans.1, true, reference, v);
@@ -675,13 +678,14 @@ impl Part {
         // unresolved at the scale of the whole face's terms.
         let mut passes = Vec::with_capacity(loops.len());
         for &i in &loops {
-            passes.push(self.boundary_integral(face, i, shifts[i], &term, None)?);
+            passes.push(self.boundary_integral(face, i, shifts[i], &term, None, u_ref)?);
         }
         let floor = 1e-11 * passes.iter().map(|p| p.2).sum::<f64>();
         let mut total = [0.0; N];
         for (&i, (mut sum, excess, _, swept)) in loops.iter().zip(passes) {
             if excess > floor {
-                let refined = self.boundary_integral(face, i, shifts[i], &term, Some(floor))?;
+                let refined =
+                    self.boundary_integral(face, i, shifts[i], &term, Some(floor), u_ref)?;
                 // A panel still unresolved at the floor after the deepest halving leaves the
                 // area unknown to that scale: refused rather than reported as if exact.
                 if refined.1 > floor {
@@ -701,7 +705,10 @@ impl Part {
 
     /// ∮ `term`(u, v, du/dt, dv/dt) dt round loop *i* of the face in parameter space (placed by
     /// `shift`): along each edge's exact curve, and straight across any gap between one edge's
-    /// end and the next one's start (a collapsed B-spline side, a pole), less whole turns.
+    /// end and the next one's start (a collapsed B-spline side, a pole), less whole turns. The
+    /// swept parameter area is ∮ (u − `u_ref`) dv, measured from the inner integral's reference
+    /// as the terms are: where the foot point jumps along a collapsed side u = `u_ref` (its v
+    /// undetermined there), neither counts the jump.
     fn boundary_integral<const N: usize>(
         &self,
         face: usize,
@@ -709,6 +716,7 @@ impl Part {
         shift: (f64, f64),
         term: &dyn Fn(f64, f64, f64, f64) -> [f64; N],
         floor: Option<f64>,
+        u_ref: f64,
     ) -> Option<Panel<f64, N>> {
         let fc = &self.faces[face];
         let surface = &fc.surface;
@@ -886,7 +894,7 @@ impl Part {
                 let mut weights = kronrod_nodes().iter().map(|n| 0.5 * (b - a) * n.1);
                 let panel = kronrod(walk, a, b, |walk, t| {
                     let ((u, v), (du, dv)) = node(walk, t)?;
-                    walk.swept += weights.next().unwrap_or(0.0) * u * dv;
+                    walk.swept += weights.next().unwrap_or(0.0) * (u - u_ref) * dv;
                     met.push((t, (u, v)));
                     Some(term(u, v, du, dv))
                 })?;
@@ -1020,7 +1028,7 @@ impl Part {
             let pieces = (gu.hypot(gv).ceil() as usize).max(1);
             let (sum, excess, size, ()) =
                 adaptive(&cuts(0.0, 1.0, pieces, &[]), (), floor, &mut eval)?;
-            add((sum, excess, size, gv * (from.0 + 0.5 * gu)));
+            add((sum, excess, size, gv * (from.0 + 0.5 * gu - u_ref)));
         }
         Some(total)
     }
