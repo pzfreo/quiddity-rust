@@ -89,7 +89,8 @@ crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code
                      shares with a solid, without a boolean: exact ray lengths integrated
                      between the corners of the solid ∩ probe arrangement
     mass.rs          exact solid volume and area: Green's theorem along the exact edges,
-                     Gauss-Legendre quadrature (BRepGProp)
+                     adaptive Gauss-Kronrod quadrature (BRepGProp); every corpus face is
+                     checked against OpenCascade and under motion (tests/face_areas.rs)
     hlr.rs           hidden-line projection and section views (HLRBRep, draftwright's
                      section A–A): edges and traced silhouettes cut where their projections
                      cross, each piece's visibility by one ray; section contours traced
@@ -141,6 +142,8 @@ crates/haecceity/tests/
                      cover.rs (tools/capture_patches.py records them)
   probes.rs          every volume probe Python's recognisers ask over the corpus, answered by
                      volume.rs (tools/capture_probes.py records them)
+  face_areas.rs      every corpus face's area against OpenCascade's, and against itself moved
+                     (tools/capture_face_areas.py records them)
   kernel.rs          kernel behaviour on real parts
   drawings.rs        projections and section views against OpenCascade's drawings
                      (tools/capture_hlr.py, tools/capture_section.py record them)
@@ -150,6 +153,7 @@ crates/haecceity/examples/
 tools/
   capture_probes.py  records every volume probe Python asks over the corpus
   capture_patches.py records every covered_patch question Python asks over the corpus
+  capture_face_areas.py records OpenCascade's area of every corpus face
   capture_hlr.py     records OpenCascade's hidden-line projection of every corpus part
   capture_section.py records draftwright's section view of every corpus part
   capture_plugin.py  pytest plugin that records the Python suite's recogniser calls
@@ -253,7 +257,8 @@ reader reproduces:
 
 Known kernel limitations: OpenCascade's healing adds missing seam edges to periodic faces (and splits closed edges they cross), which the reader does not; sphere patches that pass through a pole have approximate interior
 bounding boxes; closed surfaces of revolution/extrusion in NURBS form are treated as
-non-periodic. A face swept into a probe solid (`crates/haecceity/src/sweep.rs`, Python's
+non-periodic, and a face on such a surface whose own seam is not the surface's (its boundary
+crosses the surface's seam mid-edge, cgb217 face 29) has no area, so its solid has no mass. A face swept into a probe solid (`crates/haecceity/src/sweep.rs`, Python's
 `Solid.extrude`) may be bounded only by lines and by circles and arcs about the sweep: the
 edge-open recess floor proof declines a floor with any other edge (rust-wrong; no captured call
 or corpus part has one).

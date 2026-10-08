@@ -226,9 +226,9 @@
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
-    "contains": "solid masses differ by up to 1e-2",
-    "verdict": "undetermined"
+    "reason": "The port has no solid mass for this part: its face 29 is a B-spline face on a surface closed in u whose own seam edge (edge 71, at u = 0.018) is not the surface's seam (u = 0 = 1), so its boundary crosses the surface's seam mid-edge; mass.rs's boundary walk does not unwrap that and refuses the face (it formerly returned -0.0049 for OpenCascade's 49.92). Supporting rotated seams is not done.",
+    "contains": "solid masses differ by up to 1einf",
+    "verdict": "rust-wrong"
   },
   {
     "file": "cadgenbench_inputs/cgb241.step",
@@ -238,8 +238,8 @@
   },
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
-    "contains": "solid masses differ by up to 1e-3",
+    "reason": "B-spline and torus faces: OpenCascade integrates over its pcurves, which stray from the 3D edges (within their tolerance) and leave gaps the port closes; tests/face_areas.rs lists each face whose area differs, most confirmed by an independent integration over the 3D edges. Not traced to the solid total.",
+    "contains": "solid masses differ by up to 1e-4",
     "verdict": "undetermined"
   },
   {
@@ -400,14 +400,5 @@
     ],
     "verdict": "rust-wrong",
     "reason": "Same plate. Python's body key is None, and it refuses the plate's evidence, because OpenCascade's BRepCheck finds geometric faults in this deliberately malformed part that the port's topological validity check does not look for (see this file's evidence entry)."
-  },
-  {
-    "file": "nist/nist_ftc_07_asme1_rd.stp",
-    "contains": [
-      "recognise_plates",
-      "fields {\"body_key\"}"
-    ],
-    "verdict": "rust-wrong",
-    "reason": "Same five plates, centres and defining faces; only the body key's mass terms differ: the port's solid volume 1730910.905 and area 391075.864 against OpenCascade's 1726247.579 and 391371.347, which its adaptive integration confirms (1726247.579, 391371.347). The port's solid mass is wrong on this file (its face_mass gives 0 area on face 209, the haecceity fix stream F addresses; the inventory also differs by the seams OpenCascade's healing adds, so the corpus test's mass check never runs here)."
   }
 ]
