@@ -732,8 +732,15 @@ fn kept(c: &[V3], plane: &Plane, tol: f64, curve: Option<&Curve>) -> Vec<Vec<V3>
 /// join that runs along the surface's silhouette is drawn, as the outline it is there.
 fn edges<'p>(part: &'p Part, view: &View, drawn: &[usize]) -> Vec<(Class, Vec<V3>, On<'p>)> {
     let on_outline = |e: usize, face: usize| {
-        let s = &part.edges[e].samples;
-        let mid = s[s.len() / 2];
+        // On the curve halfway along a middle chord (a line's samples are its two vertices,
+        // which a file may leave off the curve: cgb242's edge 83, 2e-4 at one end), and within
+        // 1e-6 rad of the view (the curve itself may stray off its face by 1e-8, ftc_09's).
+        let (edge, s) = (&part.edges[e], &part.edges[e].samples);
+        let k = (s.len() / 2).max(1);
+        let mid = edge.curve.value(
+            edge.curve
+                .parameter(geom::scale(geom::add(s[k - 1], s[k]), 0.5)),
+        );
         part.faces[face]
             .surface
             .parameters(mid, None)
@@ -741,7 +748,7 @@ fn edges<'p>(part: &'p Part, view: &View, drawn: &[usize]) -> Vec<(Class, Vec<V3
                 part.faces[face]
                     .surface
                     .normal(u, v)
-                    .is_some_and(|n| geom::dot(n, view.toward).abs() <= 1e-9)
+                    .is_some_and(|n| geom::dot(n, view.toward).abs() <= 1e-6)
             })
     };
     // A seam: an edge one face's loops use twice (listed once among its faces).
