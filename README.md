@@ -53,6 +53,7 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 | Prismatic pockets | `recognise_prismatic_pockets` | 82/82 | 6 | 100/100 |
 | Oriented slots | `recognise_oriented_slots` | 33/33 | 1 | 100/100 |
 | Oriented slot patterns | `recognise_oriented_slot_patterns` | 26/26 | 0 | 100/100 |
+| Rectangular pads | `recognise_rectangular_pads` | 150/155 (5 known divergences) | 5 | 100/100 |
 
 *Captured test calls*: the Python suite's calls replayed by `tests/captured.rs`. *Not captured*:
 calls the suite makes that the capture could not record, outside the replay and pinned by it
@@ -71,7 +72,7 @@ its verdict and reason in a verdict file:
 | Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
 |---|---|---|---|---|---|---|---|
 | `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 141 (942 problems) | 77 | 18 | 19 | 27 | 0 |
-| `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 34 (35 calls) | 4 | 1 | 3 | 3 | 23 |
+| `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 39 (40 calls) | 4 | 1 | 3 | 3 | 28 |
 | `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 23 | 0 | 23 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
 | `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 36 | 10 | 26 | 0 | 0 | 0 |
@@ -283,6 +284,8 @@ src/
     plane_envelope_passages.rs  polygonal passages through a convex two-plane roof
     prismatic_pockets.rs  rings capped at one end, and rings a mouth treatment interrupted,
                      recovered from their mouth or their floor and proved by swept-section probes
+    pads.rs          rectangular raised pads on their four walls, sharp or corner-blended, each
+                     top's material side certified (`_effective_surfaces`)
   frames.rs          part-relative recognition (`quiddity.frames`): the frame inferred from the
                      part's plane normals and cylinder axes, the part re-read into it, recognised
   framed_records.rs  records found in the frame carried back to the file's coordinates, fields
@@ -321,6 +324,8 @@ tests/
                      Python's captured calls, and the proofs under the invariance motions
   prismatic_pockets.rs  prismatic pocket walls and consulted floors on Python's evidence-test
                      parts
+  pads.rs            each pad's top and four walls on Python's evidence-test parts and the golden
+                     fixture; tolerances the capture cannot record (NaN, infinity)
   corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity
                      revision, every file and its sha256)
   determinism.rs     every corpus part's recognition (what the CLI prints, document included) and

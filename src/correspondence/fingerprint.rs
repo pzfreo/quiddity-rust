@@ -795,6 +795,22 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("center", Placement),
         ],
     },
+    FamilyFingerprint {
+        family: "pads",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("direction", Placement),
+            // The box: its extent along the axis is the height, across it the footprint.
+            ("x0", Derived),
+            ("x1", Derived),
+            ("y0", Derived),
+            ("y1", Derived),
+            ("z0", Derived),
+            ("z1", Derived),
+        ],
+    },
 ];
 
 /// The fingerprint table of the family with this serde key.
@@ -1061,6 +1077,18 @@ fn derived_sizes(family: &str, r: &Value, sizes: &mut BTreeMap<String, f64>) {
             insert_sorted(sizes, "section.walls", walls.unwrap_or_default());
         }
         "oriented_slots" => put("depth", interval("source.run_interval")),
+        "pads" => {
+            let extents = ["x", "y", "z"].map(|a| span(&format!("{a}0"), &format!("{a}1")));
+            let axis = at(r, "axis")
+                .first()
+                .and_then(|v| v.as_str())
+                .and_then(|a| ["x", "y", "z"].iter().position(|&n| n == a));
+            if let (Some(axis), [Some(_), Some(_), Some(_)]) = (axis, extents) {
+                put("height", extents[axis]);
+                let across = (0..3).filter(|&i| i != axis).filter_map(|i| extents[i]);
+                insert_sorted(sizes, "footprint", across.collect());
+            }
+        }
         "section_passages" => {
             put("run_length", interval("run_interval"));
             // The closed boundary's chords (an arc's too), whatever vertex it starts at.
