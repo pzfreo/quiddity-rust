@@ -33,6 +33,7 @@ from quiddity._adjacency import FaceGraph  # noqa: E402
 from quiddity._candidates import FamilyId  # noqa: E402
 from quiddity._claims import ClaimLedger  # noqa: E402
 from quiddity.angled_steps import _discover_angled_steps  # noqa: E402
+from quiddity.blends import _discover_blends, recognise_blends  # noqa: E402
 from quiddity.bosses import _discover_bosses  # noqa: E402
 from quiddity.chamfers import _discover_chamfers  # noqa: E402
 from quiddity._cylinder_substrate import analyse_cylinders  # noqa: E402
@@ -247,6 +248,8 @@ def main() -> None:
                    lambda p, ledger, o: _discover_grooves(p, ledger=ledger.writer))
         plates = (FamilyId.PLATES, lambda p, o: recognise_plates(p, **o),
                   lambda p, ledger, o: _discover_plates(p, writer=ledger.writer, **o))
+        blends = (FamilyId.BLENDS, lambda p, o: recognise_blends(p),
+                  lambda p, ledger, o: _discover_blends(p, graph=ledger.graph, writer=ledger.writer))
         entries.append(
             {
                 "file": str(path.relative_to(CORPUS)),
@@ -299,6 +302,7 @@ def main() -> None:
                     "recognise_edge_open_prismatic_recesses": [
                         _run(part, "recognise_edge_open_prismatic_recesses", *open_prismatic, {})
                     ],
+                    "recognise_blends": [_run(part, "recognise_blends", *blends, {})],
                     "recognise_gusset_rib_patterns": [
                         {"options": {}, "result": _plain(recognise_gusset_rib_patterns(recognise_gusset_ribs(part)))}
                     ],

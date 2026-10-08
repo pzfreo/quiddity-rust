@@ -227707,19 +227707,4466 @@
      }
     }
    ]
+  },
+  {
+   "test": "tests/test_blends.py::test_direct_convex_chains_are_superseded_by_dimension_worthy_fillets",
+   "function": "recognise_blends",
+   "file": "47739b9fae53bb2d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 2.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       -18.0,
+       -13.0,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       -18.0,
+       13.0,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       18.0,
+       -13.0,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       18.0,
+       13.0,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 2.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       -18.0,
+       -13.0,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       -18.0,
+       13.0,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       18.0,
+       -13.0,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       18.0,
+       13.0,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_internal_rounds_are_public_concave_chains_with_exact_evidence",
+   "function": "recognise_blends",
+   "file": "fff0bc2c0f21dfe8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -8.0,
+       0.0,
+       2.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       -8.0,
+       2.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       8.0,
+       2.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       8.0,
+       -0.0,
+       2.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -8.0,
+       0.0,
+       2.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       0.0,
+       -8.0,
+       2.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       8.0,
+       2.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       8.0,
+       -0.0,
+       2.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_native_toroidal_edges_publish_truthful_circular_paths_and_exact_faces",
+   "function": "recognise_blends",
+   "file": "5c757e3242e218b6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       0.2
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 14.8
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       39.8
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 14.8
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       40.2
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 8.2
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       69.8
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 7.8
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       0.2
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 14.8
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       39.8
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 14.8
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       40.2
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 8.2
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       69.8
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 7.8
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_internal_toroidal_bottom_is_a_concave_circular_blend",
+   "function": "recognise_blends",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_dimension_worthy_turned_fillets_supersede_the_same_toroidal_blends",
+   "function": "recognise_blends",
+   "file": "7a0c25ea430dc5d3.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 0.8,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       0.8
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 14.2
+     }
+    },
+    {
+     "radius": 0.8,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       39.2
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 14.2
+     }
+    },
+    {
+     "radius": 0.8,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       40.8
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 8.8
+     }
+    },
+    {
+     "radius": 0.8,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       69.2
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 7.2
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 0.8,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       0.8
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 14.2
+     }
+    },
+    {
+     "radius": 0.8,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       39.2
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 14.2
+     }
+    },
+    {
+     "radius": 0.8,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       40.8
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 8.8
+     }
+    },
+    {
+     "radius": 0.8,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       69.2
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 7.2
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_full_torus_bead_and_incomplete_torus_are_not_edge_blends",
+   "function": "recognise_blends",
+   "file": "8cd5c2e86c7a8c9c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_blends.py::test_full_torus_bead_and_incomplete_torus_are_not_edge_blends",
+   "function": "recognise_blends",
+   "file": "83bd0bbbd4ce54f1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_blends.py::test_full_torus_bead_and_incomplete_torus_are_not_edge_blends",
+   "function": "recognise_blends",
+   "file": "5d0333f5ee9992d2.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_blends.py::test_full_torus_bead_and_incomplete_torus_are_not_edge_blends",
+   "function": "recognise_blends",
+   "file": "5825e2f70daa9e6b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_blends.py::test_subdivided_torus_is_one_complete_circular_path",
+   "function": "recognise_blends",
+   "file": "435d92e7a463235e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_subdivided_torus_is_one_complete_circular_path",
+   "function": "recognise_blends",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_parallel_wall_circular_slot_ends_are_not_edge_blends",
+   "function": "recognise_blends",
+   "file": "76a060c5b4c6dff1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_blends.py::test_oblique_chain_retains_canonical_free_axis_and_rigid_translation",
+   "function": "recognise_blends",
+   "file": "7e93adb20392c185.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -21.374,
+       -5.527,
+       11.121
+      ],
+      "direction": [
+       0.5,
+       -0.296198,
+       0.813798
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -4.897,
+       -23.58,
+       -5.574
+      ],
+      "direction": [
+       0.5,
+       -0.296198,
+       0.813798
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       4.897,
+       23.58,
+       5.574
+      ],
+      "direction": [
+       0.5,
+       -0.296198,
+       0.813798
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       21.374,
+       5.527,
+       -11.121
+      ],
+      "direction": [
+       0.5,
+       -0.296198,
+       0.813798
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -21.374,
+       -5.527,
+       11.121
+      ],
+      "direction": [
+       0.5,
+       -0.296198,
+       0.813798
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -4.897,
+       -23.58,
+       -5.574
+      ],
+      "direction": [
+       0.5,
+       -0.296198,
+       0.813798
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       4.897,
+       23.58,
+       5.574
+      ],
+      "direction": [
+       0.5,
+       -0.296198,
+       0.813798
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       21.374,
+       5.527,
+       -11.121
+      ],
+      "direction": [
+       0.5,
+       -0.296198,
+       0.813798
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_oblique_chain_retains_canonical_free_axis_and_rigid_translation",
+   "function": "recognise_blends",
+   "file": "fcdbddb4c81aead8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -8.374,
+       -12.527,
+       16.121
+      ],
+      "direction": [
+       0.5,
+       -0.296198,
+       0.813798
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       8.103,
+       -30.58,
+       -0.574
+      ],
+      "direction": [
+       0.5,
+       -0.296198,
+       0.813798
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       17.897,
+       16.58,
+       10.574
+      ],
+      "direction": [
+       0.5,
+       -0.296198,
+       0.813798
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       34.374,
+       -1.473,
+       -6.121
+      ],
+      "direction": [
+       0.5,
+       -0.296198,
+       0.813798
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -8.374,
+       -12.527,
+       16.121
+      ],
+      "direction": [
+       0.5,
+       -0.296198,
+       0.813798
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       8.103,
+       -30.58,
+       -0.574
+      ],
+      "direction": [
+       0.5,
+       -0.296198,
+       0.813798
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       17.897,
+       16.58,
+       10.574
+      ],
+      "direction": [
+       0.5,
+       -0.296198,
+       0.813798
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       34.374,
+       -1.473,
+       -6.121
+      ],
+      "direction": [
+       0.5,
+       -0.296198,
+       0.813798
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_concave_chains_retain_side_radius_and_direction_under_rigid_motion",
+   "function": "recognise_blends",
+   "file": "77335da2cdfaac98.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -4.307,
+       -6.473,
+       2.748
+      ],
+      "direction": [
+       -0.55667,
+       0.609923,
+       0.564014
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -3.453,
+       4.287,
+       6.14
+      ],
+      "direction": [
+       0.663414,
+       0.735024,
+       -0.140077
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       5.453,
+       -5.472,
+       -2.885
+      ],
+      "direction": [
+       0.663414,
+       0.735024,
+       -0.140077
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       6.307,
+       5.288,
+       0.507
+      ],
+      "direction": [
+       -0.55667,
+       0.609923,
+       0.564014
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -4.307,
+       -6.473,
+       2.748
+      ],
+      "direction": [
+       -0.55667,
+       0.609923,
+       0.564014
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -3.453,
+       4.287,
+       6.14
+      ],
+      "direction": [
+       0.663414,
+       0.735024,
+       -0.140077
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       5.453,
+       -5.472,
+       -2.885
+      ],
+      "direction": [
+       0.663414,
+       0.735024,
+       -0.140077
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       6.307,
+       5.288,
+       0.507
+      ],
+      "direction": [
+       -0.55667,
+       0.609923,
+       0.564014
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_concave_chains_retain_side_radius_and_direction_under_rigid_motion",
+   "function": "recognise_blends",
+   "file": "af1839d62c06eb2f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       8.693,
+       -13.473,
+       7.748
+      ],
+      "direction": [
+       -0.55667,
+       0.609923,
+       0.564014
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       9.547,
+       -2.713,
+       11.14
+      ],
+      "direction": [
+       0.663414,
+       0.735024,
+       -0.140077
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       18.453,
+       -12.472,
+       2.115
+      ],
+      "direction": [
+       0.663414,
+       0.735024,
+       -0.140077
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       19.307,
+       -1.712,
+       5.507
+      ],
+      "direction": [
+       -0.55667,
+       0.609923,
+       0.564014
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       8.693,
+       -13.473,
+       7.748
+      ],
+      "direction": [
+       -0.55667,
+       0.609923,
+       0.564014
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       9.547,
+       -2.713,
+       11.14
+      ],
+      "direction": [
+       0.663414,
+       0.735024,
+       -0.140077
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       18.453,
+       -12.472,
+       2.115
+      ],
+      "direction": [
+       0.663414,
+       0.735024,
+       -0.140077
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       19.307,
+       -1.712,
+       5.507
+      ],
+      "direction": [
+       -0.55667,
+       0.609923,
+       0.564014
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_circular_paths_are_free_axis_and_translation_covariant",
+   "function": "recognise_blends",
+   "file": "34c56c4823ac5039.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       1.5,
+       -0.889,
+       2.441
+      ],
+      "normal": [
+       0.5,
+       -0.296198,
+       0.813798
+      ],
+      "radius": 4.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       1.5,
+       -0.889,
+       2.441
+      ],
+      "normal": [
+       0.5,
+       -0.296198,
+       0.813798
+      ],
+      "radius": 4.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_circular_paths_are_free_axis_and_translation_covariant",
+   "function": "recognise_blends",
+   "file": "66b731caad99c0a8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       14.5,
+       -7.889,
+       7.441
+      ],
+      "normal": [
+       0.5,
+       -0.296198,
+       0.813798
+      ],
+      "radius": 4.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       14.5,
+       -7.889,
+       7.441
+      ],
+      "normal": [
+       0.5,
+       -0.296198,
+       0.813798
+      ],
+      "radius": 4.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_circular_blend_raw_and_framed_paths_agree_under_rigid_motion[angles0]",
+   "function": "recognise_blends",
+   "file": "392f8acd3af93e84.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       13.0,
+       -7.0,
+       8.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       13.0,
+       -7.0,
+       8.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_circular_blend_raw_and_framed_paths_agree_under_rigid_motion[angles1]",
+   "function": "recognise_blends",
+   "file": "68edfb7f9d026d4f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       13.0,
+       -10.0,
+       5.0
+      ],
+      "normal": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       13.0,
+       -10.0,
+       5.0
+      ],
+      "normal": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_circular_blend_raw_and_framed_paths_agree_under_rigid_motion[angles2]",
+   "function": "recognise_blends",
+   "file": "f9cd27afb221ddf4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       16.0,
+       -7.0,
+       5.0
+      ],
+      "normal": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       16.0,
+       -7.0,
+       5.0
+      ],
+      "normal": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_circular_blend_raw_and_framed_paths_agree_under_rigid_motion[angles3]",
+   "function": "recognise_blends",
+   "file": "15181cc709987337.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       14.545,
+       -7.752,
+       7.459
+      ],
+      "normal": [
+       0.515038,
+       -0.250611,
+       0.819713
+      ],
+      "radius": 4.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       14.545,
+       -7.752,
+       7.459
+      ],
+      "normal": [
+       0.515038,
+       -0.250611,
+       0.819713
+      ],
+      "radius": 4.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_circular_blend_raw_and_framed_paths_agree_under_rigid_motion[angles4]",
+   "function": "recognise_blends",
+   "file": "27cff655636f9dc7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       13.977,
+       -9.682,
+       5.923
+      ],
+      "normal": [
+       -0.325568,
+       0.894005,
+       -0.307831
+      ],
+      "radius": 4.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       13.977,
+       -9.682,
+       5.923
+      ],
+      "normal": [
+       -0.325568,
+       0.894005,
+       -0.307831
+      ],
+      "radius": 4.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_rotated_partial_circular_edge_path_remains_unsupported",
+   "function": "recognise_blends",
+   "file": "6af0999d1dee4833.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_blends.py::test_mirror_preserves_circular_path_side_and_dimensions",
+   "function": "recognise_blends",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_mirror_preserves_circular_path_side_and_dimensions",
+   "function": "recognise_blends",
+   "file": "71e02f64db706a7b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_occurrences_and_scales_dimensions[0.05]",
+   "function": "recognise_blends",
+   "file": "016c60d49a52fa18.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       -14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       -14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       -14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       14.8,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       -14.8,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_occurrences_and_scales_dimensions[0.05]",
+   "function": "recognise_blends",
+   "file": "b8d3fc70558d0417.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 0.01,
+     "side": "convex",
+     "path": {
+      "at": [
+       -0.99,
+       -0.74,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.01,
+     "side": "convex",
+     "path": {
+      "at": [
+       -0.99,
+       0.74,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.01,
+     "side": "convex",
+     "path": {
+      "at": [
+       0.99,
+       -0.74,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.01,
+     "side": "convex",
+     "path": {
+      "at": [
+       0.99,
+       0.74,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 0.01,
+     "side": "convex",
+     "path": {
+      "at": [
+       -0.99,
+       -0.74,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.01,
+     "side": "convex",
+     "path": {
+      "at": [
+       -0.99,
+       0.74,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.01,
+     "side": "convex",
+     "path": {
+      "at": [
+       0.99,
+       -0.74,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.01,
+     "side": "convex",
+     "path": {
+      "at": [
+       0.99,
+       0.74,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_occurrences_and_scales_dimensions[5.0]",
+   "function": "recognise_blends",
+   "file": "016c60d49a52fa18.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       -14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       -14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       -14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       14.8,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       -14.8,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_occurrences_and_scales_dimensions[5.0]",
+   "function": "recognise_blends",
+   "file": "bc6b875c5da62e74.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       -99.0,
+       -74.0,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 1.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       -99.0,
+       74.0,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 1.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       99.0,
+       -74.0,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 1.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       99.0,
+       74.0,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       -99.0,
+       -74.0,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 1.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       -99.0,
+       74.0,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 1.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       99.0,
+       -74.0,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 1.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       99.0,
+       74.0,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_occurrences_and_scales_dimensions[100.0]",
+   "function": "recognise_blends",
+   "file": "016c60d49a52fa18.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       -14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       -14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       -14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       14.8,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       -14.8,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_occurrences_and_scales_dimensions[100.0]",
+   "function": "recognise_blends",
+   "file": "da3e44f70967bd4c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 20.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       -1980.0,
+       -1480.0,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 20.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       -1980.0,
+       1480.0,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 20.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       1980.0,
+       -1480.0,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 20.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       1980.0,
+       1480.0,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 20.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       -1980.0,
+       -1480.0,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 20.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       -1980.0,
+       1480.0,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 20.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       1980.0,
+       -1480.0,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 20.0,
+     "side": "convex",
+     "path": {
+      "at": [
+       1980.0,
+       1480.0,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_concave_occurrences[0.05]",
+   "function": "recognise_blends",
+   "file": "fff0bc2c0f21dfe8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -8.0,
+       0.0,
+       2.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       -8.0,
+       2.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       8.0,
+       2.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       8.0,
+       -0.0,
+       2.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -8.0,
+       0.0,
+       2.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       0.0,
+       -8.0,
+       2.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       8.0,
+       2.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       8.0,
+       -0.0,
+       2.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_concave_occurrences[0.05]",
+   "function": "recognise_blends",
+   "file": "5a30bebb2ebfc23c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 0.1,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.4,
+       0.0,
+       0.1
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 0.1,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       -0.4,
+       0.1
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 0.1,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       0.4,
+       0.1
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 0.1,
+     "side": "concave",
+     "path": {
+      "at": [
+       0.4,
+       -0.0,
+       0.1
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 0.1,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.4,
+       0.0,
+       0.1
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 0.1,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       -0.4,
+       0.1
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 0.1,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       0.4,
+       0.1
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 0.1,
+     "side": "concave",
+     "path": {
+      "at": [
+       0.4,
+       -0.0,
+       0.1
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_concave_occurrences[5.0]",
+   "function": "recognise_blends",
+   "file": "fff0bc2c0f21dfe8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -8.0,
+       0.0,
+       2.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       -8.0,
+       2.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       8.0,
+       2.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       8.0,
+       -0.0,
+       2.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -8.0,
+       0.0,
+       2.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       0.0,
+       -8.0,
+       2.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       8.0,
+       2.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       8.0,
+       -0.0,
+       2.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_concave_occurrences[5.0]",
+   "function": "recognise_blends",
+   "file": "52b57b616becfdd6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 10.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -40.0,
+       0.0,
+       10.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 10.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       -40.0,
+       10.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 10.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       40.0,
+       10.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 10.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       40.0,
+       -0.0,
+       10.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 10.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -40.0,
+       0.0,
+       10.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 10.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       0.0,
+       -40.0,
+       10.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 10.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       40.0,
+       10.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 10.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       40.0,
+       -0.0,
+       10.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_concave_occurrences[100.0]",
+   "function": "recognise_blends",
+   "file": "fff0bc2c0f21dfe8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -8.0,
+       0.0,
+       2.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       -8.0,
+       2.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       8.0,
+       2.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       8.0,
+       -0.0,
+       2.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -8.0,
+       0.0,
+       2.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       0.0,
+       -8.0,
+       2.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       8.0,
+       2.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 2.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       8.0,
+       -0.0,
+       2.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_concave_occurrences[100.0]",
+   "function": "recognise_blends",
+   "file": "dca7a67556123b72.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 200.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -800.0,
+       0.0,
+       200.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 200.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       -800.0,
+       200.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 200.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       800.0,
+       200.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 200.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       800.0,
+       -0.0,
+       200.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 200.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -800.0,
+       0.0,
+       200.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 200.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       0.0,
+       -800.0,
+       200.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 200.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       -0.0,
+       800.0,
+       200.0
+      ],
+      "direction": [
+       1.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "radius": 200.0,
+     "side": "concave",
+     "path": {
+      "at": [
+       800.0,
+       -0.0,
+       200.0
+      ],
+      "direction": [
+       0.0,
+       1.0,
+       0.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_circular_blend_paths[0.05]",
+   "function": "recognise_blends",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_circular_blend_paths[0.05]",
+   "function": "recognise_blends",
+   "file": "9e0a42b190fdb0f8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 0.05,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       0.15
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 0.2
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 0.05,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       0.15
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 0.2
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_circular_blend_paths[5.0]",
+   "function": "recognise_blends",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_circular_blend_paths[5.0]",
+   "function": "recognise_blends",
+   "file": "cf05e1e6a51dd88f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 5.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       15.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 20.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 5.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       15.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 20.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_circular_blend_paths[100.0]",
+   "function": "recognise_blends",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_uniform_scale_preserves_circular_blend_paths[100.0]",
+   "function": "recognise_blends",
+   "file": "ce26fffdb1de510d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 100.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       300.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 400.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 100.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       300.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 400.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_step_round_trip_preserves_toroidal_blend_records",
+   "function": "recognise_blends",
+   "file": "671b430b8198d4fb.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_step_round_trip_preserves_toroidal_blend_records",
+   "function": "recognise_blends",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 1.0,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       3.0
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 4.0
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_sharp_stock_and_full_cylinder_are_not_blends",
+   "function": "recognise_blends",
+   "file": "3de8d043e4eff8a2.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_blends.py::test_sharp_stock_and_full_cylinder_are_not_blends",
+   "function": "recognise_blends",
+   "file": "eea1b44e77612c35.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_blends.py::test_face_traversal_order_does_not_change_records",
+   "function": "recognise_blends",
+   "file": "016c60d49a52fa18.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       -14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       -14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       -14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       14.8,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       -14.8,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_face_traversal_order_does_not_change_records",
+   "function": "recognise_blends",
+   "file": "016c60d49a52fa18.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       -14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       -14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       -14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       -19.8,
+       14.8,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       -14.8,
+       0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "at": [
+       19.8,
+       14.8,
+       -0.0
+      ],
+      "direction": [
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_toroidal_face_traversal_order_does_not_change_records",
+   "function": "recognise_blends",
+   "file": "5c757e3242e218b6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       0.2
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 14.8
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       39.8
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 14.8
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       40.2
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 8.2
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       69.8
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 7.8
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       0.2
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 14.8
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       39.8
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 14.8
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       40.2
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 8.2
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       69.8
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 7.8
+     }
+    }
+   ]
+  },
+  {
+   "test": "tests/test_blends.py::test_toroidal_face_traversal_order_does_not_change_records",
+   "function": "recognise_blends",
+   "file": "5c757e3242e218b6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       0.2
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 14.8
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       39.8
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 14.8
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       40.2
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 8.2
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       69.8
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 7.8
+     }
+    }
+   ],
+   "result": [
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       0.2
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 14.8
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       39.8
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 14.8
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "concave",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       40.2
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 8.2
+     }
+    },
+    {
+     "radius": 0.2,
+     "side": "convex",
+     "path": {
+      "center": [
+       0.0,
+       0.0,
+       69.8
+      ],
+      "normal": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "radius": 7.8
+     }
+    }
+   ]
   }
  ],
- "skipped": {
-  "recognise_interior_voids: capture failed: RuntimeError": 2,
-  "recognise_through_steps: capture failed: RuntimeError": 7,
-  "recognise_oblique_through_steps: capture failed: RuntimeError": 1,
-  "recognise_circular_blind_steps: capture failed: RuntimeError": 2,
-  "recognise_turned_steps: capture failed: RuntimeError": 18,
-  "recognise_round_bottom_blind_slots: capture failed: RuntimeError": 1,
-  "recognise_plates: capture failed: RuntimeError": 4,
-  "recognise_grooves: capture failed: RuntimeError": 3,
-  "recognise_rectangular_blind_slots: capture failed: RuntimeError": 1,
-  "recognise_double_d_bores: capture failed: RuntimeError": 1,
-  "recognise_edge_open_prismatic_recesses: capture failed: RuntimeError": 2
- }
+ "skipped": [
+  {
+   "function": "recognise_interior_voids",
+   "test": null,
+   "reason": "capture failed: RuntimeError",
+   "count": 2
+  },
+  {
+   "function": "recognise_through_steps",
+   "test": null,
+   "reason": "capture failed: RuntimeError",
+   "count": 7
+  },
+  {
+   "function": "recognise_oblique_through_steps",
+   "test": null,
+   "reason": "capture failed: RuntimeError",
+   "count": 1
+  },
+  {
+   "function": "recognise_circular_blind_steps",
+   "test": null,
+   "reason": "capture failed: RuntimeError",
+   "count": 2
+  },
+  {
+   "function": "recognise_turned_steps",
+   "test": null,
+   "reason": "capture failed: RuntimeError",
+   "count": 18
+  },
+  {
+   "function": "recognise_round_bottom_blind_slots",
+   "test": null,
+   "reason": "capture failed: RuntimeError",
+   "count": 1
+  },
+  {
+   "function": "recognise_plates",
+   "test": null,
+   "reason": "capture failed: RuntimeError",
+   "count": 4
+  },
+  {
+   "function": "recognise_grooves",
+   "test": null,
+   "reason": "capture failed: RuntimeError",
+   "count": 3
+  },
+  {
+   "function": "recognise_rectangular_blind_slots",
+   "test": null,
+   "reason": "capture failed: RuntimeError",
+   "count": 1
+  },
+  {
+   "function": "recognise_double_d_bores",
+   "test": null,
+   "reason": "capture failed: RuntimeError",
+   "count": 1
+  },
+  {
+   "function": "recognise_edge_open_prismatic_recesses",
+   "test": null,
+   "reason": "capture failed: RuntimeError",
+   "count": 2
+  }
+ ]
 }

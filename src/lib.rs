@@ -11,6 +11,9 @@ pub use haecceity as kernel;
 
 pub use correspondence::{Correspondence, Fingerprints, correspond};
 pub use features::angled_steps::{AngledStep, recognise_angled_steps};
+pub use features::blends::{
+    Blend, BlendPath, CircularBlendPath, StraightBlendPath, recognise_blends,
+};
 pub use features::bosses::{BossRecord, recognise_bosses};
 pub use features::chamfers::{Chamfer, ChamferOptions, recognise_chamfers};
 pub use features::circular_blind_steps::{CircularBlindStep, recognise_circular_blind_steps};

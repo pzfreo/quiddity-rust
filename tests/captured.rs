@@ -293,3 +293,8 @@ fn edge_open_circular_pockets_match_python() {
 fn edge_open_prismatic_recesses_match_python() {
     replay("recognise_edge_open_prismatic_recesses");
 }
+
+#[test]
+fn blends_match_python() {
+    replay("recognise_blends");
+}
