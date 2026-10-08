@@ -390,5 +390,43 @@
     "schema": "Upgraded { from: [\"AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }\"], to: \"AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }\" }"
    }
   }
- }
+ },
+ "occt": [
+  {
+   "detail": "Size_Diameter",
+   "key": "assembly_plate_pin_intent occt missing dimension #1310",
+   "verdict": "rust-correct",
+   "reason": "OpenCascade does not read a feature whose faces one ITEM_IDENTIFIED_REPRESENTATION_USAGE identifies as a SET_REPRESENTATION_ITEM, which is the PMI practice's form for a feature of several faces (§6.5.1, Figure 36 and its Part 21 example: #280=ITEM_IDENTIFIED_REPRESENTATION_USAGE('','datum feature',#269,#246,SET_REPRESENTATION_ITEM(#281,#282))). geometric_item_specific_usage redeclares its item as one geometric_model_item, and item_identified_representation_usage UR2 allows one usage per aspect and representation, so a usage per face is not an alternative. haecceity reads the item back (pmi_write.rs) and the schema and rules validate it; OpenCascade drops the dimension or tolerance on that feature."
+  },
+  {
+   "detail": "Position",
+   "key": "assembly_plate_pin_intent occt missing tolerance #1385",
+   "verdict": "rust-correct",
+   "reason": "OpenCascade does not read a feature whose faces one ITEM_IDENTIFIED_REPRESENTATION_USAGE identifies as a SET_REPRESENTATION_ITEM, which is the PMI practice's form for a feature of several faces (§6.5.1, Figure 36 and its Part 21 example: #280=ITEM_IDENTIFIED_REPRESENTATION_USAGE('','datum feature',#269,#246,SET_REPRESENTATION_ITEM(#281,#282))). geometric_item_specific_usage redeclares its item as one geometric_model_item, and item_identified_representation_usage UR2 allows one usage per aspect and representation, so a usage per face is not an alternative. haecceity reads the item back (pmi_write.rs) and the schema and rules validate it; OpenCascade drops the dimension or tolerance on that feature."
+  },
+  {
+   "detail": "#6553: value 20.0105 vs 20. Millimetre (different)",
+   "key": "every_kind occt dimension 0:1:4:3",
+   "verdict": "rust-correct",
+   "reason": "The dimension is Ø20 H7 with its limits stated beside the class (20.000/20.021, §5.2.5: 'upper limit'/'lower limit' items beside 'nominal value' and LIMITS_AND_FITS). OpenCascade gives the value as the middle of the stated limits (20.0105) instead of the 'nominal value' item (20.); haecceity reads the nominal, the class and the limits as written."
+  },
+  {
+   "detail": "SurfaceProfile",
+   "key": "every_kind occt missing tolerance #6600",
+   "verdict": "rust-correct",
+   "reason": "OpenCascade does not read a feature whose faces one ITEM_IDENTIFIED_REPRESENTATION_USAGE identifies as a SET_REPRESENTATION_ITEM, which is the PMI practice's form for a feature of several faces (§6.5.1, Figure 36 and its Part 21 example: #280=ITEM_IDENTIFIED_REPRESENTATION_USAGE('','datum feature',#269,#246,SET_REPRESENTATION_ITEM(#281,#282))). geometric_item_specific_usage redeclares its item as one geometric_model_item, and item_identified_representation_usage UR2 allows one usage per aspect and representation, so a usage per face is not an alternative. haecceity reads the item back (pmi_write.rs) and the schema and rules validate it; OpenCascade drops the dimension or tolerance on that feature."
+  },
+  {
+   "detail": "Size_Diameter",
+   "key": "spool_fits_intent occt missing dimension #6342",
+   "verdict": "rust-correct",
+   "reason": "OpenCascade does not read a feature whose faces one ITEM_IDENTIFIED_REPRESENTATION_USAGE identifies as a SET_REPRESENTATION_ITEM, which is the PMI practice's form for a feature of several faces (§6.5.1, Figure 36 and its Part 21 example: #280=ITEM_IDENTIFIED_REPRESENTATION_USAGE('','datum feature',#269,#246,SET_REPRESENTATION_ITEM(#281,#282))). geometric_item_specific_usage redeclares its item as one geometric_model_item, and item_identified_representation_usage UR2 allows one usage per aspect and representation, so a usage per face is not an alternative. haecceity reads the item back (pmi_write.rs) and the schema and rules validate it; OpenCascade drops the dimension or tolerance on that feature."
+  },
+  {
+   "detail": "Position",
+   "key": "spool_fits_intent occt missing tolerance #6370",
+   "verdict": "rust-correct",
+   "reason": "OpenCascade does not read a feature whose faces one ITEM_IDENTIFIED_REPRESENTATION_USAGE identifies as a SET_REPRESENTATION_ITEM, which is the PMI practice's form for a feature of several faces (§6.5.1, Figure 36 and its Part 21 example: #280=ITEM_IDENTIFIED_REPRESENTATION_USAGE('','datum feature',#269,#246,SET_REPRESENTATION_ITEM(#281,#282))). geometric_item_specific_usage redeclares its item as one geometric_model_item, and item_identified_representation_usage UR2 allows one usage per aspect and representation, so a usage per face is not an alternative. haecceity reads the item back (pmi_write.rs) and the schema and rules validate it; OpenCascade drops the dimension or tolerance on that feature."
+  }
+ ]
 }

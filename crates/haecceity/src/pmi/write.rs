@@ -1441,6 +1441,8 @@ struct PartPlan<'a> {
     /// Features that are also an applied area or a thread runout beside their own role: a
     /// second instance of that type.
     twins: BTreeSet<(usize, Role)>,
+    /// Features something refers to (other than as an area or a runout).
+    referenced: BTreeSet<usize>,
     /// Datums resolved to the part's existing datum (add): datum → (`#datum`, `#datum_feature`).
     existing_datums: BTreeMap<usize, (u64, Option<u64>)>,
     /// Geometry → an existing supplemental geometry item with the same value.
@@ -1494,6 +1496,7 @@ impl<'a> PartPlan<'a> {
             canonical: (0..pmi.features.len()).collect(),
             roles: BTreeMap::new(),
             twins: BTreeSet::new(),
+            referenced: BTreeSet::new(),
             existing_datums: BTreeMap::new(),
             existing_geometry: BTreeMap::new(),
             system_names: BTreeSet::new(),
@@ -1731,15 +1734,66 @@ impl<'a> PartPlan<'a> {
                 );
             }
         }
+        // Features something refers to other than as a thread's or knurl's area or a thread's
+        // runout.
+        let mut referenced: BTreeSet<usize> = BTreeSet::new();
+        {
+            let mut add = |f: FeatureId| {
+                referenced.insert(self.canonical[f.0]);
+            };
+            for d in &p.datums {
+                d.feature().into_iter().for_each(&mut add);
+            }
+            for d in &p.dimensions {
+                match &d.kind {
+                    DimensionKind::Size { feature, path, .. } => {
+                        add(*feature);
+                        path.iter().copied().for_each(&mut add);
+                    }
+                    DimensionKind::Location { from, to, path, .. } => {
+                        add(*from);
+                        add(*to);
+                        path.iter().copied().for_each(&mut add);
+                    }
+                }
+            }
+            for t in &p.tolerances {
+                if let ToleranceTarget::Feature(f) = t.target {
+                    add(f);
+                }
+                if let Some(z) = &t.zone {
+                    z.projected.iter().filter_map(|x| x.end).for_each(&mut add);
+                    z.non_uniform.iter().flatten().copied().for_each(&mut add);
+                }
+            }
+            for f in &p.features {
+                if let Feature::Group { members, .. } | Feature::Derived { from: members, .. } = f {
+                    members.iter().copied().for_each(&mut add);
+                }
+            }
+            for th in &p.threads {
+                add(th.feature);
+            }
+            for k in &p.knurls {
+                add(k.feature);
+            }
+            for a in &p.attributes {
+                if let Some(NoteOwner::Feature(f)) = a.on {
+                    add(f);
+                }
+            }
+        }
         for (f, rs) in roles {
             // A thread's or knurl's area and a thread's runout are shape aspects of their own
-            // types (applied_area, thread_runout; thread WR12, WR16): where the same faces are
-            // also another feature (a datum feature), that type is a second instance of the
-            // same items, composed of a shared member (UR1).
+            // types (applied_area, thread_runout; thread WR12, WR16). Where the same faces are
+            // also a feature in their own right (the threaded faces, a datum feature), that type
+            // is a second instance composed of the feature (§6.5.2, UR1), so that what states
+            // the feature keeps the plain shape aspect or datum feature.
             let primary = rs.iter().find(|r| !twin_role(r)).copied();
             let mut twins: Vec<Role> = rs.iter().filter(|r| twin_role(r)).copied().collect();
             let primary = match primary {
                 Some(r) => r,
+                None if referenced.contains(&f) => Role::Plain,
                 None => twins.remove(0),
             };
             self.roles.insert(f, primary);
@@ -1747,6 +1801,7 @@ impl<'a> PartPlan<'a> {
                 self.twins.insert((f, r));
             }
         }
+        self.referenced = referenced;
         // A datum feature with exactly one size dimension on it, nothing else stated of it
         // as a feature, is that dimension (§6.5.3).
         let datum_features: Vec<usize> = self
@@ -2146,6 +2201,24 @@ impl<'a> PartPlan<'a> {
                 }
             }
         }
+        let shared: BTreeSet<(R, Vec<R>)> = keys
+            .iter()
+            .filter(|(_, n)| **n > 1)
+            .map(|(k, _)| k.clone())
+            .collect();
+        let mut done = BTreeSet::new();
+        for (i, f) in p.features.iter().enumerate() {
+            let c = self.canonical[i];
+            if let Feature::Items(items) = f
+                && done.insert(c)
+                && !reused.contains(&c)
+                && self.referenced.contains(&c)
+                && let [k] = self.usage_keys(em, &st, items)?.as_slice()
+                && shared.contains(k)
+            {
+                st.owners.entry(k.clone()).or_insert(c);
+            }
+        }
         st.shared_keys = keys
             .into_iter()
             .filter(|(_, n)| *n > 1)
@@ -2432,7 +2505,7 @@ impl<'a> PartPlan<'a> {
                     }
                 };
                 st.features.insert(c, r);
-                self.usages(em, st, pds, r, items)?;
+                self.usages(em, st, pds, r, Some(c), items)?;
                 r
             }
             Feature::Group { members, kind } => {
@@ -2547,7 +2620,7 @@ impl<'a> PartPlan<'a> {
             ],
         )?;
         st.twins.insert((c, role), r);
-        self.usages(em, st, pds, r, items)?;
+        self.usages(em, st, pds, r, None, items)?;
         Ok(r)
     }
 
@@ -2633,12 +2706,23 @@ impl<'a> PartPlan<'a> {
         st: &mut Emitted,
         pds: R,
         feature: R,
+        own: Option<usize>,
         items: &[Anchor],
     ) -> Result<(), WriteError> {
         for (rep, items) in self.usage_keys(em, st, items)? {
             let key = (rep, items.clone());
             let member = if let Some(&m) = st.shared.get(&key) {
                 Some(m)
+            } else if st.shared_keys.contains(&key)
+                && own == st.owners.get(&key).copied()
+                && own.is_some()
+            {
+                // This feature owns the shared items: the others are composed of it.
+                Self::usage(em, feature, rep, &items)?;
+                st.shared.insert(key, feature);
+                continue;
+            } else if let Some(&o) = st.owners.get(&key) {
+                Some(self.feature(em, st, pds, o)?)
             } else if st.shared_keys.contains(&key) {
                 let m = em.simple(
                     "shape_aspect",
@@ -3684,6 +3768,8 @@ struct Emitted {
     /// Usage keys (representation, items) several features need: each one shape aspect.
     shared_keys: BTreeSet<(R, Vec<R>)>,
     shared: BTreeMap<(R, Vec<R>), R>,
+    /// Per shared key, the feature that owns it (a referenced feature of exactly those items).
+    owners: BTreeMap<(R, Vec<R>), usize>,
     twins: BTreeMap<(usize, Role), R>,
 }
 

@@ -1666,3 +1666,988 @@ fn load_pins() -> Json {
     )
     .unwrap()
 }
+
+// ---------------------------------------------------------------------------------------------
+// OpenCascade XCAF's reading of written files (adapted from the reader's oracle in pmi_read.rs)
+// ---------------------------------------------------------------------------------------------
+
+/// The item's own instance among its provenance: the first of the given entity types.
+fn root(doc: &Document, prov: &[u64], types: &[&str]) -> u64 {
+    prov.iter()
+        .copied()
+        .find(|&id| {
+            let names: Vec<String> = match doc.get(id).unwrap() {
+                haecceity::p21::RawEntity::Simple { name, .. } => vec![name.to_ascii_lowercase()],
+                haecceity::p21::RawEntity::Complex { parts, .. } => {
+                    parts.iter().map(|p| p.name.to_ascii_lowercase()).collect()
+                }
+            };
+            names
+                .iter()
+                .any(|n| types.iter().any(|t| haecceity::express::is_a(n, t)))
+        })
+        .unwrap_or(0)
+}
+
+fn cover(p: &PartPmi, f: pmi::FeatureId) -> Vec<pmi::Anchor> {
+    let mut out = Vec::new();
+    let mut stack = vec![f];
+    while let Some(f) = stack.pop() {
+        match &p.features[f.0] {
+            Feature::Items(a) => out.extend(a.iter().copied()),
+            Feature::Group { members, .. } => stack.extend(members.iter().copied()),
+            Feature::Derived { from, .. } => stack.extend(from.iter().copied()),
+        }
+    }
+    out.sort();
+    out.dedup();
+    out
+}
+
+fn target_feature(p: &PartPmi, t: &ToleranceTarget) -> Option<pmi::FeatureId> {
+    match t {
+        ToleranceTarget::Feature(f) => Some(*f),
+        ToleranceTarget::Dimension(d) => match &p.dimensions[d.0].kind {
+            DimensionKind::Size { feature, .. } => Some(*feature),
+            DimensionKind::Location { .. } => None,
+        },
+        _ => None,
+    }
+}
+
+/// A value OpenCascade gives against one the reader read: equal in millimetres (degrees for
+/// angles), or equal only in the file's own unit (OpenCascade did not convert it).
+fn occt_value(occt: f64, v: &pmi::Value) -> Option<&'static str> {
+    let close = |a: f64, b: f64| (a - b).abs() <= 1e-9 * a.abs().max(b.abs()).max(1.0);
+    let si = match &v.quantity {
+        pmi::Quantity::Length(l) => l.mm(),
+        pmi::Quantity::Angle(a) => a.rad().to_degrees(),
+    };
+    if close(occt, si) {
+        None
+    } else if close(occt, v.decimal().to_f64()) {
+        Some("in the file's unit, not converted")
+    } else {
+        Some("different")
+    }
+}
+
+fn face_cover(p: &PartPmi, f: pmi::FeatureId) -> Vec<usize> {
+    let mut v: Vec<usize> = cover(p, f)
+        .into_iter()
+        .map(|a| match a {
+            pmi::Anchor::Face(i) => i.0,
+            pmi::Anchor::Edge(e) => usize::MAX - e.0,
+            pmi::Anchor::Geometry(g) => usize::MAX / 2 - g.0,
+        })
+        .collect();
+    v.sort_unstable();
+    v
+}
+
+fn occt_dim_type(d: &pmi::Dimension) -> String {
+    match &d.kind {
+        DimensionKind::Size { angle: Some(_), .. } => "Size_Angular".into(),
+        DimensionKind::Size { kind, .. } => {
+            let camel: String = kind
+                .name()
+                .split(' ')
+                .map(|w| {
+                    let mut c = w.chars();
+                    c.next()
+                        .map(|f| f.to_ascii_uppercase().to_string() + c.as_str())
+                        .unwrap_or_default()
+                })
+                .collect();
+            format!("Size_{camel}")
+        }
+        DimensionKind::Location { angle: Some(_), .. } => "Location_Angular".into(),
+        DimensionKind::Location { kind, .. } => match kind {
+            pmi::LocationKind::LinearDistance => "Location_LinearDistance".into(),
+            pmi::LocationKind::CurvedDistance => "Location_CurvedDistance".into(),
+            k => {
+                let n = k.name().trim_start_matches("linear distance ");
+                let w: Vec<&str> = n.split(' ').collect();
+                let cap = |x: &str| {
+                    match x {
+                        "centre" => "Center",
+                        "outer" => "Outer",
+                        "inner" => "Inner",
+                        o => o,
+                    }
+                    .to_string()
+                };
+                match w.as_slice() {
+                    [a, b] => format!("Location_LinearDistance_From{}To{}", cap(a), cap(b)),
+                    [a] => format!("Location_LinearDistance_{}", cap(a)),
+                    _ => format!("Location_{}", k.name()),
+                }
+            }
+        },
+    }
+}
+
+fn occt_tol_type(k: ToleranceKind) -> &'static str {
+    match k {
+        ToleranceKind::Angularity => "Angularity",
+        ToleranceKind::CircularRunout => "CircularRunout",
+        ToleranceKind::Coaxiality => "Coaxiality",
+        ToleranceKind::Concentricity => "Concentricity",
+        ToleranceKind::Cylindricity => "Cylindricity",
+        ToleranceKind::Flatness => "Flatness",
+        ToleranceKind::LineProfile => "ProfileOfLine",
+        ToleranceKind::Parallelism => "Parallelism",
+        ToleranceKind::Perpendicularity => "Perpendicularity",
+        ToleranceKind::Position => "Position",
+        ToleranceKind::Roundness => "CircularityOrRoundness",
+        ToleranceKind::Straightness => "Straightness",
+        ToleranceKind::SurfaceProfile => "ProfileOfSurface",
+        ToleranceKind::Symmetry => "Symmetry",
+        ToleranceKind::TotalRunout => "TotalRunout",
+    }
+}
+
+/// The differences between OpenCascade's reading of a dimension and one the reader read on the
+/// same faces.
+fn occt_dim_fields(o: &Json, p: &PartPmi, d: &pmi::Dimension) -> Vec<String> {
+    let mut out = Vec::new();
+    let t = o["type"].as_str().unwrap();
+    if t != occt_dim_type(d) {
+        out.push(format!("type {t} vs {}", occt_dim_type(d)));
+    }
+    let _ = p;
+    let num = |k: &str| o[k].as_f64().unwrap_or(0.0);
+    let cmp = |what: &str, occt: f64, v: &pmi::Value| {
+        occt_value(occt, v)
+            .map(|why| format!("{what} {occt} vs {} {} ({why})", v.decimal(), unit_name(v)))
+    };
+    match &d.tolerance {
+        DimTolerance::Limits(b) => {
+            if !o["range"].as_bool().unwrap_or(false) {
+                out.push("not a range".into());
+            }
+            out.extend(cmp("lower_bound", num("lower_bound"), b.lower()));
+            out.extend(cmp("upper_bound", num("upper_bound"), b.upper()));
+        }
+        DimTolerance::Deviations(b) => {
+            if let Some(n) = &d.nominal {
+                out.extend(cmp("value", num("value"), n));
+            }
+            if !o["plus_minus"].as_bool().unwrap_or(false) {
+                out.push(format!(
+                    "not plus/minus (range {} lower_bound {} upper_bound {})",
+                    o["range"],
+                    num("lower_bound"),
+                    num("upper_bound")
+                ));
+            } else {
+                out.extend(cmp("upper_tol", num("upper_tol"), b.upper()));
+                let mut lower = b.lower().clone();
+                // OpenCascade gives the lower deviation as a magnitude below nominal.
+                let neg = format!("{}", -b.lower().decimal().to_f64());
+                let neg = pmi::Decimal::parse(&neg).unwrap_or_else(|_| b.lower().decimal().clone());
+                match &mut lower.quantity {
+                    pmi::Quantity::Length(l) => l.value = neg,
+                    pmi::Quantity::Angle(a) => a.value = neg,
+                }
+                out.extend(cmp("lower_tol", num("lower_tol"), &lower));
+            }
+        }
+        DimTolerance::Fit { class, .. } => {
+            if let Some(n) = &d.nominal {
+                out.extend(cmp("value", num("value"), n));
+            }
+            if !o["class_of_tolerance"].as_bool().unwrap_or(false) {
+                out.push(format!("class {class} not read as a class"));
+            } else {
+                let c = &o["class"];
+                let theirs = format!(
+                    "{}{}",
+                    c["form_variance"].as_str().unwrap_or(""),
+                    c["grade"].as_str().unwrap_or("").trim_start_matches("IT")
+                );
+                let hole = c["is_hole"].as_u64() == Some(1);
+                let ours_hole = class.deviation.of == pmi::FitFeature::Hole;
+                if !theirs.eq_ignore_ascii_case(&class.to_string()) || hole != ours_hole {
+                    out.push(format!("class {c} vs {class}"));
+                }
+            }
+        }
+        DimTolerance::None | DimTolerance::Basic => {
+            match &d.nominal {
+                Some(n) => out.extend(cmp("value", num("value"), n)),
+                // OpenCascade gives 0 where the file states no value.
+                None if num("value") == 0.0 => {}
+                None => out.push(format!("value {} vs none stated", num("value"))),
+            }
+            if o["plus_minus"].as_bool().unwrap_or(false) || o["range"].as_bool().unwrap_or(false) {
+                out.push("toleranced in OpenCascade".into());
+            }
+        }
+    }
+    out
+}
+
+fn unit_name(v: &pmi::Value) -> String {
+    match &v.quantity {
+        pmi::Quantity::Length(l) => format!("{:?}", l.unit),
+        pmi::Quantity::Angle(a) => format!("{:?}", a.unit),
+    }
+}
+
+fn occt_tol_fields(o: &Json, p: &PartPmi, t: &pmi::GeometricTolerance) -> Vec<String> {
+    let mut out = Vec::new();
+    match &t.magnitude {
+        Some(m) => {
+            if let Some(why) = occt_value(o["value"].as_f64().unwrap_or(0.0), m) {
+                out.push(format!("value {} vs {} ({why})", o["value"], m.decimal()));
+            }
+        }
+        None => out.push(format!("value {} vs none", o["value"])),
+    }
+    let mm = o["material_modifier"].as_str().unwrap_or("None");
+    let ours = if t
+        .modifiers
+        .contains(&ToleranceModifier::MaximumMaterialRequirement)
+    {
+        "M"
+    } else if t
+        .modifiers
+        .contains(&ToleranceModifier::LeastMaterialRequirement)
+    {
+        "L"
+    } else {
+        "None"
+    };
+    if mm != ours {
+        out.push(format!("material modifier {mm} vs {ours}"));
+    }
+    let tv = o["type_of_value"].as_str().unwrap_or("None");
+    let zone = match &t.zone {
+        Some(z) if z.form.is_diametral() => "Diameter",
+        Some(z) if z.form.is_spherical() => "SphericalDiameter",
+        _ => "None",
+    };
+    if tv != zone {
+        out.push(format!("type of value {tv} vs {zone}"));
+    }
+    let projected = t.zone.as_ref().and_then(|z| z.projected.as_ref());
+    match (o["zone_modifier"].as_str().unwrap_or("None"), projected) {
+        ("Projected", Some(pz)) => {
+            if let Some(why) = occt_value(o["zone_value"].as_f64().unwrap_or(0.0), &pz.length) {
+                out.push(format!(
+                    "projected length {} vs {} ({why})",
+                    o["zone_value"],
+                    pz.length.decimal()
+                ));
+            }
+        }
+        ("None", None) => {}
+        (z, p) => out.push(format!("zone modifier {z} vs projected {}", p.is_some())),
+    }
+    let theirs: Vec<(String, u64)> = o["datums"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|d| {
+            (
+                d["name"].as_str().unwrap().to_string(),
+                d["position"].as_u64().unwrap(),
+            )
+        })
+        .collect();
+    let mut ours: Vec<(String, u64)> = Vec::new();
+    if let Some(s) = &t.datums {
+        for (i, c) in s.compartments().iter().enumerate() {
+            for r in &c.references {
+                ours.push((p.datums[r.datum.0].label().to_string(), i as u64 + 1));
+            }
+        }
+    }
+    if theirs != ours {
+        out.push(format!("datums {theirs:?} vs {ours:?}"));
+    }
+    out
+}
+
+/// The part (index) and its anchors that OpenCascade's faces and edges are, by their
+/// `advanced_face` / edge instances (OpenCascade's shapes need not be the file's product
+/// definitions); faces are numbered, edges as `usize::MAX - index`.
+fn occt_faces(
+    j: &Json,
+    parts: &[haecceity::step::PartDefinition],
+    r: &PmiRead,
+) -> Option<(usize, Vec<usize>)> {
+    let mut part = None;
+    let mut out = Vec::new();
+    for f in j.as_array().unwrap() {
+        let (n, edge) = match f["advanced_face"].as_str() {
+            Some(a) => (a, false),
+            None => (f["instance"].as_str()?, true),
+        };
+        let n: u64 = n.trim_start_matches('#').parse().ok()?;
+        let (pi, i) = parts.iter().enumerate().find_map(|(pi, p)| {
+            if edge {
+                p.edge_index(n).map(|i| (pi, usize::MAX - i)).or_else(|| {
+                    // An edge OpenCascade made of supplemental geometry the reader holds.
+                    r.provenance.parts[pi]
+                        .geometry_items
+                        .iter()
+                        .position(|&g| g == n)
+                        .map(|g| (pi, usize::MAX / 2 - g))
+                })
+            } else {
+                p.face_index(n).map(|i| (pi, i))
+            }
+        })?;
+        if part.is_some_and(|q| q != pi) {
+            return None;
+        }
+        part = Some(pi);
+        out.push(i);
+    }
+    out.sort_unstable();
+    out.dedup();
+    Some((part?, out))
+}
+
+/// Oracle 3: each item OpenCascade read (on faces of a part, matched by instance) against the
+/// reader's item of that part on the same faces, and the reader's items OpenCascade did not
+/// read.
+fn compare_occt(
+    name: &str,
+    occt: &Json,
+    r: &PmiRead,
+    doc: &Document,
+    parts: &[haecceity::step::PartDefinition],
+) -> Vec<(String, String)> {
+    let mut out = Vec::new();
+    let all = |k: &str| -> Vec<Json> {
+        occt["parts"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .flat_map(|p| p[k].as_array().unwrap().iter().cloned())
+            .collect()
+    };
+    let (odims, otols, odatums) = (
+        all("dimensions"),
+        all("geometric_tolerances"),
+        all("datums"),
+    );
+    for (pi, p) in r.parts.iter().enumerate() {
+        let prov = &r.provenance.parts[pi];
+        let dim_id = |i: usize| {
+            root(
+                doc,
+                &prov.dimensions[i],
+                &["dimensional_size", "dimensional_location"],
+            )
+        };
+        let tol_id = |i: usize| root(doc, &prov.tolerances[i], &["geometric_tolerance"]);
+        let on_part = |j: &Json| {
+            occt_faces(j, parts, r)
+                .filter(|(q, _)| *q == pi)
+                .map(|(_, f)| f)
+        };
+        let mut dims_left: Vec<bool> = vec![true; p.dimensions.len()];
+        for o in &odims {
+            let t = o["type"].as_str().unwrap();
+            let label = o["label"].as_str().unwrap();
+            if t == "DimensionPresentation" {
+                continue; // presentation only: OpenCascade's record of a callout, no semantics
+            }
+            let Some(f1) = on_part(&o["faces"]) else {
+                continue;
+            };
+            let f2 = if o["faces2"].as_array().unwrap().is_empty() {
+                Vec::new()
+            } else {
+                match on_part(&o["faces2"]) {
+                    Some(f) => f,
+                    None => continue,
+                }
+            };
+            let candidates: Vec<usize> = (0..p.dimensions.len())
+                .filter(|&i| match &p.dimensions[i].kind {
+                    DimensionKind::Size { feature, .. } => {
+                        f2.is_empty() && face_cover(p, *feature) == f1
+                    }
+                    DimensionKind::Location { from, to, .. } => {
+                        let (a, b) = (face_cover(p, *from), face_cover(p, *to));
+                        (a == f1 && b == f2) || (a == f2 && b == f1)
+                    }
+                })
+                .collect();
+            let mut best = candidates
+                .iter()
+                .filter(|&&i| dims_left[i])
+                .min_by_key(|&&i| occt_dim_fields(o, p, &p.dimensions[i]).len())
+                .copied();
+            let mut subset = false;
+            if best.is_none() && f2.is_empty() {
+                // OpenCascade may attach a pattern's dimension to some of its faces only.
+                best = (0..p.dimensions.len())
+                    .filter(|&i| dims_left[i] && occt_dim_type(&p.dimensions[i]) == t)
+                    .filter(|&i| match &p.dimensions[i].kind {
+                        DimensionKind::Size { feature, .. } => {
+                            let c = face_cover(p, *feature);
+                            f1.iter().all(|x| c.contains(x))
+                        }
+                        DimensionKind::Location { .. } => false,
+                    })
+                    .min_by_key(|&i| occt_dim_fields(o, p, &p.dimensions[i]).len());
+                subset = best.is_some();
+            }
+            match best {
+                Some(i) => {
+                    dims_left[i] = false;
+                    let mut diff = occt_dim_fields(o, p, &p.dimensions[i]);
+                    if subset {
+                        let c = match &p.dimensions[i].kind {
+                            DimensionKind::Size { feature, .. } => face_cover(p, *feature),
+                            DimensionKind::Location { .. } => Vec::new(),
+                        };
+                        diff.insert(
+                            0,
+                            format!("on faces {f1:?}, a part of the dimensioned feature's {c:?}"),
+                        );
+                    }
+                    if !diff.is_empty() {
+                        out.push((
+                            format!("{name} occt dimension {label}"),
+                            format!("#{}: {}", dim_id(i), diff.join("; ")),
+                        ));
+                    }
+                }
+                None => out.push((
+                    format!("{name} occt dimension {label}"),
+                    format!(
+                        "{t} {} on faces {f1:?} {f2:?}: no dimension read on those faces",
+                        o["value"]
+                    ),
+                )),
+            }
+        }
+        for (i, left) in dims_left.iter().enumerate() {
+            if *left {
+                out.push((
+                    format!("{name} occt missing dimension #{}", dim_id(i)),
+                    occt_dim_type(&p.dimensions[i]),
+                ));
+            }
+        }
+        let mut tols_left = vec![true; p.tolerances.len()];
+        for o in &otols {
+            let t = o["type"].as_str().unwrap();
+            let label = o["label"].as_str().unwrap();
+            let f = if o["faces"].as_array().unwrap().is_empty() {
+                if pi != 0 {
+                    continue;
+                }
+                Vec::new()
+            } else {
+                match on_part(&o["faces"]) {
+                    Some(f) => f,
+                    None => continue,
+                }
+            };
+            let on_faces = |i: usize, exact: bool| -> bool {
+                match target_feature(p, &p.tolerances[i].target) {
+                    Some(x) => {
+                        let c = face_cover(p, x);
+                        !exact && !f.is_empty() && c != f && f.iter().all(|y| c.contains(y))
+                    }
+                    None => false,
+                }
+            };
+            let mut best = (0..p.tolerances.len())
+                .filter(|&i| {
+                    tols_left[i]
+                        && occt_tol_type(p.tolerances[i].kind) == t
+                        && match &p.tolerances[i].target {
+                            ToleranceTarget::WholePart => f.is_empty(),
+                            tt => target_feature(p, tt).is_some_and(|x| face_cover(p, x) == f)
+                                || matches!(tt, ToleranceTarget::Dimension(d) if match &p.dimensions[d.0].kind {
+                                    DimensionKind::Location { from, to, .. } => {
+                                        let mut c = face_cover(p, *from);
+                                        c.extend(face_cover(p, *to));
+                                        c.sort_unstable();
+                                        c.dedup();
+                                        c == f
+                                    }
+                                    _ => false,
+                                }),
+                        }
+                })
+                .min_by_key(|&i| occt_tol_fields(o, p, &p.tolerances[i]).len());
+            let mut subset = false;
+            if best.is_none() {
+                best = (0..p.tolerances.len())
+                    .filter(|&i| {
+                        tols_left[i]
+                            && occt_tol_type(p.tolerances[i].kind) == t
+                            && on_faces(i, false)
+                    })
+                    .min_by_key(|&i| occt_tol_fields(o, p, &p.tolerances[i]).len());
+                subset = best.is_some();
+            }
+            match best {
+                Some(i) => {
+                    tols_left[i] = false;
+                    let mut diff = occt_tol_fields(o, p, &p.tolerances[i]);
+                    if subset {
+                        let c = target_feature(p, &p.tolerances[i].target)
+                            .map(|x| face_cover(p, x))
+                            .unwrap_or_default();
+                        diff.insert(
+                            0,
+                            format!("on faces {f:?}, a part of the toleranced feature's {c:?}"),
+                        );
+                    }
+                    if !diff.is_empty() {
+                        out.push((
+                            format!("{name} occt tolerance {label}"),
+                            format!("#{}: {}", tol_id(i), diff.join("; ")),
+                        ));
+                    }
+                }
+                None => out.push((
+                    format!("{name} occt tolerance {label}"),
+                    format!(
+                        "{t} {} on faces {f:?}: no tolerance read on those faces",
+                        o["value"]
+                    ),
+                )),
+            }
+        }
+        for (i, left) in tols_left.iter().enumerate() {
+            if *left {
+                out.push((
+                    format!("{name} occt missing tolerance #{}", tol_id(i)),
+                    format!("{:?}", p.tolerances[i].kind),
+                ));
+            }
+        }
+        // Datums by label and faces (OpenCascade keeps one per tolerance that cites it).
+        let mut theirs: Vec<(String, Vec<usize>)> = odatums
+            .iter()
+            .filter(|d| !d["is_target"].as_bool().unwrap_or(false))
+            .filter_map(|d| {
+                Some((
+                    d["name"].as_str().unwrap().to_string(),
+                    on_part(&d["faces"])?,
+                ))
+            })
+            .collect();
+        theirs.sort();
+        theirs.dedup();
+        for (i, d) in p.datums.iter().enumerate() {
+            let ours = d.feature().map(|f| face_cover(p, f)).unwrap_or_default();
+            let key = (d.label().to_string(), ours.clone());
+            if let Some(j) = theirs.iter().position(|x| *x == key) {
+                theirs.remove(j);
+            } else if d.feature().is_some() {
+                let id = root(doc, &prov.datums[i], &["datum"]);
+                out.push((
+                    format!("{name} occt missing datum {} #{id}", d.label()),
+                    format!("faces {ours:?}"),
+                ));
+            }
+        }
+        for (l, f) in theirs {
+            out.push((
+                format!("{name} occt datum {l} {f:?}"),
+                "a datum the reader does not have on those faces".into(),
+            ));
+        }
+    }
+    // Items on faces of no part the reader has.
+    for (k, list) in [("dimension", &odims), ("tolerance", &otols)] {
+        for o in list.iter() {
+            if o["type"] == "DimensionPresentation" || o["faces"].as_array().unwrap().is_empty() {
+                continue;
+            }
+            if occt_faces(&o["faces"], parts, r).is_none() {
+                out.push((
+                    format!("{name} occt {k} {}", o["label"].as_str().unwrap()),
+                    format!(
+                        "{} on faces that are not one part's: {}",
+                        o["type"], o["faces"]
+                    ),
+                ));
+            }
+        }
+    }
+    // Material.
+    let materials: Vec<String> = occt["materials"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|m| m["name"] != "pmi-assist answers")
+        .map(|m| m["name"].as_str().unwrap().to_string())
+        .collect();
+    let ours: Vec<String> = r
+        .parts
+        .iter()
+        .filter_map(|p| p.material.as_ref().map(|m| m.id.clone()))
+        .collect();
+    for m in &materials {
+        if !ours.contains(m) {
+            out.push((format!("{name} occt material {m}"), "not read".into()));
+        }
+    }
+    out
+}
+
+/// The written files OpenCascade is asked to read (`tools/check_pmi_occt.py`): one with every
+/// kind of item the writer makes, on a specify-core part, and specify-core's intents written
+/// onto their original corpus files. `None` for a case whose input is missing (the corpus).
+fn written_cases() -> Vec<(String, Option<Vec<u8>>)> {
+    let mut out = Vec::new();
+    // Every kind of item, replacing a specify-core part's PMI.
+    let f = spool();
+    let mut p = four_datums();
+    p.features.extend([
+        faces(&[4]),
+        faces(&[5]),
+        faces(&[6]),
+        faces(&[7]),
+        faces(&[8]),
+        faces(&[9, 10]),
+    ]);
+    p.dimensions = vec![
+        size(4, "20.", DimTolerance::Deviations(bounds("0.1", "-0.05"))),
+        size(
+            5,
+            "70.",
+            DimTolerance::Fit {
+                class: fit("g6"),
+                limits: None,
+            },
+        ),
+        size(
+            6,
+            "20.",
+            DimTolerance::Fit {
+                class: fit("H7"),
+                limits: Some(bounds("20.021", "20.000")),
+            },
+        ),
+        size(7, "12.", DimTolerance::Limits(bounds("12.1", "11.9"))),
+        Dimension {
+            kind: DimensionKind::Location {
+                from: FeatureId(0),
+                to: FeatureId(8),
+                kind: LocationKind::LinearDistance,
+                path: None,
+                directed: false,
+                angle: None,
+            },
+            nominal: Some(mm("30.")),
+            tolerance: DimTolerance::Basic,
+            qualifier: None,
+            modifiers: Vec::new(),
+            principle: None,
+        },
+    ];
+    let zone = |form: ZoneForm| Zone {
+        form,
+        projected: None,
+        non_uniform: None,
+        runout_angle: None,
+        affected_plane: None,
+    };
+    let mut pos = tolerance(
+        ToleranceKind::Position,
+        ToleranceTarget::Dimension(DimensionId(0)),
+        "0.2",
+    );
+    pos.datums = Some(system(&[0, 1, 2]));
+    pos.modifiers = vec![ToleranceModifier::MaximumMaterialRequirement];
+    pos.zone = Some(zone(ZoneForm::CylindricalOrCircular));
+    let mut perp = tolerance(
+        ToleranceKind::Perpendicularity,
+        ToleranceTarget::Feature(FeatureId(1)),
+        "0.05",
+    );
+    perp.datums = Some(system(&[0]));
+    let mut par = tolerance(
+        ToleranceKind::Parallelism,
+        ToleranceTarget::Feature(FeatureId(3)),
+        "0.04",
+    );
+    par.datums = Some(system(&[3, 1, 2]));
+    let mut run = tolerance(
+        ToleranceKind::CircularRunout,
+        ToleranceTarget::Feature(FeatureId(5)),
+        "0.02",
+    );
+    run.datums = Some(system(&[0, 1]));
+    let mut total = tolerance(
+        ToleranceKind::TotalRunout,
+        ToleranceTarget::Feature(FeatureId(6)),
+        "0.03",
+    );
+    total.datums = Some(system(&[0]));
+    let mut prof = tolerance(
+        ToleranceKind::SurfaceProfile,
+        ToleranceTarget::Feature(FeatureId(9)),
+        "0.1",
+    );
+    prof.datums = Some(system(&[0, 1]));
+    p.tolerances = vec![
+        tolerance(
+            ToleranceKind::Flatness,
+            ToleranceTarget::Feature(FeatureId(0)),
+            "0.02",
+        ),
+        pos,
+        perp,
+        par,
+        run,
+        total,
+        prof,
+    ];
+    p.general = vec![GeneralTolerance::Class {
+        text: "ISO 2768-mK".into(),
+        standard: pmi::standards::Iso2768::recognise("ISO 2768-mK"),
+    }];
+    p.material = Some(Material {
+        id: "Aluminium 6082-T6".into(),
+        name: None,
+        density: None,
+    });
+    p.attributes = vec![AttributeSet {
+        name: "inspection".into(),
+        on: Some(NoteOwner::Feature(FeatureId(4))),
+        items: vec![("gauge".into(), AttributeValue::Text("plug".into()))],
+    }];
+    let (edit, _) = pmi::write(
+        &f.doc,
+        &f.parts,
+        &[(PartId(0), p)],
+        Mode::Replace,
+        PresentationPolicy::RemovePresentation,
+    )
+    .unwrap_or_else(|e| panic!("{e}"));
+    out.push((
+        "every_kind".to_string(),
+        Some(f.doc.apply(&edit).unwrap().bytes),
+    ));
+
+    // specify-core's intents onto the original files.
+    let dir = common::fixtures().join("ap242/specify");
+    for case in [
+        "assembly_plate_pin",
+        "spool_fits",
+        "string_post_tapped",
+        "thumbwheel_thread_knurl",
+    ] {
+        let meta: Json = serde_json::from_str(
+            &std::fs::read_to_string(dir.join(format!("{case}.meta.json"))).unwrap(),
+        )
+        .unwrap();
+        let Some(path) = original(meta["input"].as_str().unwrap()) else {
+            out.push((format!("{case}_intent"), None));
+            continue;
+        };
+        let intents: Json = serde_json::from_str(
+            &std::fs::read_to_string(dir.join(format!("{case}.intent.json"))).unwrap(),
+        )
+        .unwrap();
+        let intents: Vec<Json> = match intents {
+            Json::Array(a) => a,
+            one => vec![one],
+        };
+        let f = open(&path);
+        let pmi_: Vec<(PartId, PartPmi)> = intents
+            .iter()
+            .map(|i| {
+                (
+                    PartId(i["binding"]["part"].as_u64().unwrap() as usize),
+                    intent_pmi(i).0,
+                )
+            })
+            .collect();
+        let (edit, _) = pmi::write(
+            &f.doc,
+            &f.parts,
+            &pmi_,
+            Mode::Add,
+            PresentationPolicy::RemovePresentation,
+        )
+        .unwrap_or_else(|e| panic!("{case}: {e}"));
+        out.push((
+            format!("{case}_intent"),
+            Some(f.doc.apply(&edit).unwrap().bytes),
+        ));
+    }
+    out
+}
+
+fn write_dir() -> PathBuf {
+    common::fixtures().join("ap242/write")
+}
+
+/// Development aid: writes the written cases to `tests/fixtures/ap242/write/`
+/// (`cargo test --release --test pmi_write export_written_files -- --ignored`), then
+/// `tools/check_pmi_occt.py` captures OpenCascade's reading of them.
+#[test]
+#[ignore]
+fn export_written_files() {
+    std::fs::create_dir_all(write_dir()).unwrap();
+    for (name, bytes) in written_cases() {
+        let bytes = bytes.unwrap_or_else(|| panic!("{name}: input missing"));
+        let mut gz = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::best());
+        std::io::Write::write_all(&mut gz, &bytes).unwrap();
+        std::fs::write(
+            write_dir().join(format!("{name}.step.gz")),
+            gz.finish().unwrap(),
+        )
+        .unwrap();
+    }
+}
+
+/// The committed written files are what the writer writes now (so OpenCascade's captures of
+/// them are of the current writer's output); re-export and re-capture when this fails.
+#[test]
+fn written_files_are_the_writers_current_output() {
+    for (name, bytes) in written_cases() {
+        let Some(bytes) = bytes else { continue };
+        let committed = file_bytes(&write_dir().join(format!("{name}.step.gz")));
+        assert!(
+            committed == bytes,
+            "{name}: the writer's output changed; run export_written_files and tools/check_pmi_occt.py"
+        );
+    }
+}
+
+/// Oracle: OpenCascade XCAF's reading of each written file against haecceity's (equal to
+/// what was written, checked above); every difference pinned with a verdict
+/// (`known_pmi_write.json` "occt").
+#[test]
+fn opencascade_reads_the_written_files() {
+    let pins = load_pins();
+    let pinned = pins["occt"].as_array().unwrap();
+    common::check_verdicts("known_pmi_write.json occt", pinned);
+    let mut problems = Vec::new();
+    let mut actual = Vec::new();
+    let mut names: Vec<String> = std::fs::read_dir(write_dir())
+        .unwrap()
+        .map(|e| e.unwrap().file_name().to_string_lossy().to_string())
+        .filter_map(|n| n.strip_suffix(".occt.json.gz").map(str::to_string))
+        .collect();
+    names.sort();
+    assert!(
+        !names.is_empty(),
+        "no OpenCascade captures of written files"
+    );
+    for name in names {
+        let capture: Json = serde_json::from_slice(&file_bytes(
+            &write_dir().join(format!("{name}.occt.json.gz")),
+        ))
+        .unwrap();
+        let path = write_dir().join(format!("{name}.step.gz"));
+        assert_eq!(
+            capture["sha256"].as_str(),
+            Some(sha256_hex(&std::fs::read(&path).unwrap()).as_str()),
+            "{name}: the capture is not of the committed file"
+        );
+        let f = open(&path);
+        let r = pmi::read(&f.doc, &f.parts).unwrap();
+        for (key, detail) in compare_occt(&name, &capture, &r, &f.doc, &f.parts) {
+            match pinned.iter().find(|e| e["key"] == key.as_str()) {
+                Some(e) if e["detail"] == detail.as_str() => {}
+                Some(e) => problems.push(format!(
+                    "{key}: changed: pinned {} actual {detail}",
+                    e["detail"]
+                )),
+                None => problems.push(format!("{key}: not pinned: {detail}")),
+            }
+            actual.push(serde_json::json!({"key": key, "detail": detail}));
+        }
+    }
+    for e in pinned {
+        if !actual.iter().any(|a| a["key"] == e["key"]) {
+            problems.push(format!("{}: pinned but not found", e["key"]));
+        }
+    }
+    let _ = std::fs::write(
+        std::env::temp_dir().join("pmi_write_occt.json"),
+        serde_json::to_string_pretty(&actual).unwrap(),
+    );
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
+
+/// SHA-256 (FIPS 180-4) of `data`, lower-case hex: the captures record their file's.
+fn sha256_hex(data: &[u8]) -> String {
+    const K: [u32; 64] = [
+        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4,
+        0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe,
+        0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f,
+        0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+        0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc,
+        0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b,
+        0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070, 0x19a4c116,
+        0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7,
+        0xc67178f2,
+    ];
+    let mut h: [u32; 8] = [
+        0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab,
+        0x5be0cd19,
+    ];
+    let mut msg = data.to_vec();
+    msg.push(0x80);
+    while msg.len() % 64 != 56 {
+        msg.push(0);
+    }
+    msg.extend_from_slice(&((data.len() as u64) * 8).to_be_bytes());
+    for chunk in msg.chunks(64) {
+        let mut w = [0u32; 64];
+        for i in 0..16 {
+            w[i] = u32::from_be_bytes([
+                chunk[4 * i],
+                chunk[4 * i + 1],
+                chunk[4 * i + 2],
+                chunk[4 * i + 3],
+            ]);
+        }
+        for i in 16..64 {
+            let s0 = w[i - 15].rotate_right(7) ^ w[i - 15].rotate_right(18) ^ (w[i - 15] >> 3);
+            let s1 = w[i - 2].rotate_right(17) ^ w[i - 2].rotate_right(19) ^ (w[i - 2] >> 10);
+            w[i] = w[i - 16]
+                .wrapping_add(s0)
+                .wrapping_add(w[i - 7])
+                .wrapping_add(s1);
+        }
+        let mut v = h;
+        for i in 0..64 {
+            let s1 = v[4].rotate_right(6) ^ v[4].rotate_right(11) ^ v[4].rotate_right(25);
+            let ch = (v[4] & v[5]) ^ (!v[4] & v[6]);
+            let t1 = v[7]
+                .wrapping_add(s1)
+                .wrapping_add(ch)
+                .wrapping_add(K[i])
+                .wrapping_add(w[i]);
+            let s0 = v[0].rotate_right(2) ^ v[0].rotate_right(13) ^ v[0].rotate_right(22);
+            let maj = (v[0] & v[1]) ^ (v[0] & v[2]) ^ (v[1] & v[2]);
+            let t2 = s0.wrapping_add(maj);
+            v = [
+                t1.wrapping_add(t2),
+                v[0],
+                v[1],
+                v[2],
+                v[3].wrapping_add(t1),
+                v[4],
+                v[5],
+                v[6],
+            ];
+        }
+        for (a, b) in h.iter_mut().zip(v) {
+            *a = a.wrapping_add(b);
+        }
+    }
+    h.iter().map(|x| format!("{x:08x}")).collect()
+}
