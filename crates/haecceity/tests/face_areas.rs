@@ -1,15 +1,15 @@
 //! Face areas against OpenCascade's: every corpus face's [`Part::face_mass`] area against
-//! `BRepGProp::SurfaceProperties` (`tools/capture_face_areas.py`), and against itself with the
-//! part moved by a translation and a generic rotation.
+//! `face.area`, what Python's recognisers read (`BRepGProp::SurfaceProperties` with its fixed
+//! Gauss rule, captured by `tools/capture_face_areas.py`), and against itself with the part
+//! moved by a translation and a generic rotation.
 //!
 //! The port integrates over the region its 3D edge curves bound; OpenCascade over the region
-//! the face's pcurves bound, with a fixed Gauss rule unless asked for a precision. So an area
-//! that misses `face.area` (what Python reads) still agrees with OpenCascade when it matches
-//! the adaptive rule (the fixed one is coarse there), or the adaptive area of the face with its
-//! pcurves projected again from the edges (the file's or the import's pcurves stray from the
-//! edges, within the edges' tolerance). Both are reported as counts. Any other difference, and
-//! any change under motion, must be listed in `tests/fixtures/known_face_areas.json` with a
-//! verdict, pinned to the area the port gives.
+//! the face's pcurves bound. Every difference, and every change under motion, must be listed in
+//! `tests/fixtures/known_face_areas.json` with a verdict, pinned to the area the port gives
+//! (`tools/known_face_areas.py` writes the list from the differences, the capture's further
+//! OpenCascade references and the independent integrations of `tools/face_area_evidence.py`).
+//! A file whose faces the reader does not walk in OpenCascade's order (a known inventory
+//! divergence) is compared as one `order` entry instead of face by face.
 
 mod common;
 
@@ -18,19 +18,20 @@ use std::io::Read;
 use std::path::Path;
 
 use haecceity::Part;
+use haecceity::geom::SurfaceType;
 use haecceity::step::{IDENTITY, Placement, read_step_file_placed};
 use serde_json::Value;
 
 /// Agreement: relative, with a floor for faces too small for a relative test to mean anything.
 const RELATIVE: f64 = 1e-6;
 const FLOOR: f64 = 1e-9;
-/// A placement must leave every area unchanged to the integration's resolution: each boundary
-/// panel is resolved to 1e-9 of its own terms, and where a foot point grazes a B-spline
-/// surface's side the corner it turns is located only as well as the inversion settles, so
-/// moved areas agree to about 1e-8 (the largest corpus spread is 2e-8); a placement-dependent
-/// boundary walk shows at 1e-5 and beyond.
-const PLACED: f64 = 1e-7;
-/// A listed difference's pinned area has changed beyond the same resolution.
+/// A placement must leave every area unchanged: each boundary panel is resolved to 1e-9 of its
+/// own terms, and all but 16 corpus faces agree to 1e-12 moved. Four B-spline faces change by
+/// 1.6e-9 to 2.2e-8 and are listed; tightening the panels a hundredfold leaves them, so the
+/// cause is in the walk, not the quadrature (not traced). Whether this threshold holds across
+/// platforms is open (see the list's entries).
+const PLACED: f64 = 1e-9;
+/// A listed difference's pinned area has changed.
 const PINNED: f64 = 1e-7;
 
 /// A non-round translation and 37° about a direction off every axis and diagonal.
@@ -56,18 +57,52 @@ fn captured() -> Value {
     serde_json::from_str(&text).unwrap()
 }
 
+/// A difference: the port's area, moved (for a placement difference), and a report.
+type Found = (Option<f64>, Option<f64>, String);
+
+/// The first face whose kind is not the one OpenCascade's traversal has there: faces the reader
+/// does not walk in OpenCascade's order (tests/corpus.rs checks the order fully, with its
+/// known divergences; kinds suffice to keep a reordered file's areas from being paired here).
+fn misaligned(part: &Part, inventory: &[Value]) -> Option<String> {
+    for (i, want) in inventory.iter().enumerate() {
+        let got = match part.faces[i].surface.kind() {
+            SurfaceType::Plane => "PLANE",
+            SurfaceType::Cylinder => "CYLINDER",
+            SurfaceType::Cone => "CONE",
+            SurfaceType::Sphere => "SPHERE",
+            SurfaceType::Torus => "TORUS",
+            SurfaceType::Freeform | SurfaceType::Other => "OTHER",
+        };
+        let kind = want["type"].as_str().unwrap();
+        let analytic = ["PLANE", "CYLINDER", "CONE", "SPHERE", "TORUS"].contains(&kind);
+        if got != kind && (got != "OTHER" || analytic) {
+            return Some(format!("face {i} is {got}, OpenCascade's is {kind}"));
+        }
+    }
+    None
+}
+
 /// What one file's faces gave: differences by (file, face, check) with the port's area and a
-/// report, and how many faces agreed only with the adaptive rule or with rebuilt pcurves.
+/// report, and how many faces had a negative area.
 #[derive(Default)]
 struct Outcome {
-    found: BTreeMap<(String, u64, String), (Option<f64>, String)>,
-    coarse: usize,
-    pcurves: usize,
+    found: BTreeMap<(String, u64, String), Found>,
     negative: usize,
 }
 
-/// Every face of one file: against OpenCascade, and moved against unmoved.
-fn check_file(dir: &Path, entry: &Value, out: &mut Outcome) {
+/// The relative change an area makes under motion, when both are there.
+fn change(a: Option<f64>, b: Option<f64>) -> String {
+    match (a, b) {
+        (Some(a), Some(b)) => format!(
+            " (relative change {:.1e})",
+            (a - b).abs() / a.abs().max(b.abs())
+        ),
+        _ => String::new(),
+    }
+}
+
+/// Every face of one file: against OpenCascade's `face.area`, and moved against unmoved.
+fn check_file(dir: &Path, entry: &Value, inventory: &[Value], out: &mut Outcome) {
     let file = entry["file"].as_str().unwrap();
     let path = dir.join(file);
     let part = read_step_file_placed(&path, &IDENTITY).unwrap();
@@ -84,24 +119,26 @@ fn check_file(dir: &Path, entry: &Value, out: &mut Outcome) {
     let types = entry["types"].as_array().unwrap();
     assert_eq!(part.faces.len(), occ.len(), "{file}: face count");
     let area = |p: &Part, f: usize| p.face_mass(f).map(|m| m[0]);
+    let order = misaligned(&part, inventory);
+    if let Some(report) = &order {
+        let areas: Vec<_> = (0..part.faces.len()).map(|f| area(&part, f)).collect();
+        let key = (file.to_string(), 0, "order".to_string());
+        out.found
+            .insert(key, (None, None, format!("{report}; areas {areas:?}")));
+    }
     for f in 0..occ.len() {
         let got = area(&part, f);
         let key = |check: &str| (file.to_string(), f as u64, check.to_string());
-        let near = |want: Option<f64>| matches!((got, want), (Some(g), Some(w)) if (g - w).abs() <= RELATIVE * w.abs() + FLOOR);
         if got.is_some_and(|g| g < 0.0) {
             out.negative += 1;
         }
-        if near(occ[f]) {
-        } else if near(fine[f]) {
-            out.coarse += 1;
-        } else if near(rebuilt[f]) {
-            out.pcurves += 1;
-        } else {
+        let near = matches!((got, occ[f]), (Some(g), Some(w)) if (g - w).abs() <= RELATIVE * w.abs() + FLOOR);
+        if !near && order.is_none() {
             let report = format!(
                 "{} rust {got:?} occ {:?} (adaptive {:?}, pcurves rebuilt {:?})",
                 types[f], occ[f], fine[f], rebuilt[f]
             );
-            out.found.insert(key("occ"), (got, report));
+            out.found.insert(key("occ"), (got, None, report));
         }
         let placed = area(&moved, f);
         let same = match (got, placed) {
@@ -112,7 +149,15 @@ fn check_file(dir: &Path, entry: &Value, out: &mut Outcome) {
         if !same {
             out.found.insert(
                 key("placement"),
-                (got, format!("{} rust {got:?} moved {placed:?}", types[f])),
+                (
+                    got,
+                    placed,
+                    format!(
+                        "{} rust {got:?} moved {placed:?}{}",
+                        types[f],
+                        change(got, placed)
+                    ),
+                ),
             );
         }
     }
@@ -126,6 +171,18 @@ fn face_areas_match_opencascade_and_ignore_placement() {
     };
     let captured = captured();
     let entries = captured["files"].as_array().unwrap();
+    let corpus = common::load("corpus.json");
+    let inventories: BTreeMap<&str, &[Value]> = corpus["files"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|e| {
+            (
+                e["file"].as_str().unwrap(),
+                e["inventory"].as_array().unwrap().as_slice(),
+            )
+        })
+        .collect();
     let known = common::load("known_face_areas.json");
     let known = known.as_array().unwrap();
     common::check_verdicts("known_face_areas.json", known);
@@ -134,11 +191,12 @@ fn face_areas_match_opencascade_and_ignore_placement() {
     let outcomes: Vec<Outcome> = std::thread::scope(|scope| {
         let workers: Vec<_> = (0..threads)
             .map(|w| {
-                let dir = &dir;
+                let (dir, inventories) = (&dir, &inventories);
                 scope.spawn(move || {
                     let mut out = Outcome::default();
                     for entry in entries.iter().skip(w).step_by(threads) {
-                        check_file(dir, entry, &mut out);
+                        let inventory = inventories[entry["file"].as_str().unwrap()];
+                        check_file(dir, entry, inventory, &mut out);
                     }
                     out
                 })
@@ -147,20 +205,22 @@ fn face_areas_match_opencascade_and_ignore_placement() {
         workers.into_iter().map(|w| w.join().unwrap()).collect()
     });
     let mut found = BTreeMap::new();
-    let (mut coarse, mut pcurves, mut negative) = (0, 0, 0);
+    let mut negative = 0;
     for out in outcomes {
         found.extend(out.found);
-        (coarse, pcurves, negative) = (
-            coarse + out.coarse,
-            pcurves + out.pcurves,
-            negative + out.negative,
-        );
+        negative += out.negative;
     }
-    eprintln!(
-        "{coarse} faces agree with OpenCascade's adaptive rule only, {pcurves} only once their \
-         pcurves are projected from the edges; {} differences",
-        found.len()
-    );
+    eprintln!("{} differences", found.len());
+    // For tools/known_face_areas.py, which writes the list from them and the evidence.
+    if let Some(dump) = std::env::var_os("FACE_AREAS_DUMP") {
+        let rows: Vec<Value> = found
+            .iter()
+            .map(|((file, face, check), (rust, moved, report))| {
+                serde_json::json!({"file": file, "face": face, "check": check, "rust": rust, "moved": moved, "report": report})
+            })
+            .collect();
+        std::fs::write(dump, serde_json::to_string_pretty(&rows).unwrap()).unwrap();
+    }
     let mut problems = Vec::new();
     if negative > 0 {
         problems.push(format!("{negative} faces have a negative area"));
@@ -172,16 +232,16 @@ fn face_areas_match_opencascade_and_ignore_placement() {
             k["face"].as_u64().unwrap(),
             k["check"].as_str().unwrap().to_string(),
         );
-        let pinned = k["rust"].as_f64();
+        let pinned = (k["rust"].as_f64(), k["moved"].as_f64());
+        let same = |got: Option<f64>, pin: Option<f64>| match (got, pin) {
+            (Some(g), Some(p)) => (g - p).abs() <= PINNED * p.abs() + FLOOR,
+            (None, None) => true,
+            _ => false,
+        };
         match found.get(&key) {
             None => problems.push(format!("{key:?} is listed but now agrees: remove it")),
-            Some((got, report)) => {
-                let same = match (got, pinned) {
-                    (Some(g), Some(p)) => (g - p).abs() <= PINNED * p.abs() + FLOOR,
-                    (None, None) => true,
-                    _ => false,
-                };
-                if !same {
+            Some((got, moved, report)) => {
+                if !same(*got, pinned.0) || !same(*moved, pinned.1) {
                     problems.push(format!(
                         "{key:?} is listed at {pinned:?} but changed: {report}"
                     ));
@@ -190,7 +250,7 @@ fn face_areas_match_opencascade_and_ignore_placement() {
         }
         listed.push(key);
     }
-    for (key, (_, report)) in &found {
+    for (key, (_, _, report)) in &found {
         if !listed.contains(key) {
             problems.push(format!("{} face {} {}: {report}", key.0, key.1, key.2));
         }

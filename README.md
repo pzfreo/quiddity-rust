@@ -154,6 +154,8 @@ tools/
   capture_probes.py  records every volume probe Python asks over the corpus
   capture_patches.py records every covered_patch question Python asks over the corpus
   capture_face_areas.py records OpenCascade's area of every corpus face
+  face_area_evidence.py independent areas over the 3D edges, the evidence for face-area verdicts
+  known_face_areas.py writes known_face_areas.json from face_areas.rs's differences
   capture_hlr.py     records OpenCascade's hidden-line projection of every corpus part
   capture_section.py records draftwright's section view of every corpus part
   capture_plugin.py  pytest plugin that records the Python suite's recogniser calls

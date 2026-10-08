@@ -591,9 +591,13 @@ impl Part {
         let mut total = [0.0; N];
         for (&i, (mut sum, excess, _, swept)) in loops.iter().zip(passes) {
             if excess > floor {
-                sum = self
-                    .boundary_integral(face, i, shifts[i], &term, Some(floor))?
-                    .0;
+                let refined = self.boundary_integral(face, i, shifts[i], &term, Some(floor))?;
+                // A panel still unresolved at the floor after the deepest halving leaves the
+                // area unknown to that scale: refused rather than reported as if exact.
+                if refined.1 > floor {
+                    return None;
+                }
+                sum = refined.0;
             }
             // A loop that winds round either parameter has no signed area to read.
             let winding = along_v || uv[i].winds_v;

@@ -10,7 +10,9 @@ recognisers read), the same integration driven to a relative error of 1e-9 (the 
 evidence where the fixed rule is coarse), and that adaptive area of a copy of the face whose
 pcurves are dropped and projected again from the 3D edge curves (evidence where the file's or
 the import's pcurves stray from the edges they stand for; ``null`` where ShapeFix cannot
-rebuild them), with the quiddity revision.
+rebuild them), and the strip the edges' tolerances allow the boundary (the sum over the face's
+edge uses of length times tolerance: two readings of the face that differ by less are both
+within what the file declares), with the quiddity revision.
 """
 
 from __future__ import annotations
@@ -27,7 +29,9 @@ QUIDDITY = Path(os.environ.get("QUIDDITY", "../quiddity")).resolve()
 sys.path[:0] = [str(QUIDDITY / "src")]
 
 from OCP.BRep import BRep_Builder, BRep_Tool  # noqa: E402
+from OCP.BRepAdaptor import BRepAdaptor_Curve  # noqa: E402
 from OCP.BRepBuilderAPI import BRepBuilderAPI_Copy  # noqa: E402
+from OCP.GCPnts import GCPnts_AbscissaPoint  # noqa: E402
 from OCP.BRepGProp import BRepGProp  # noqa: E402
 from OCP.GProp import GProp_GProps  # noqa: E402
 from OCP.ShapeAnalysis import ShapeAnalysis_Edge  # noqa: E402
@@ -37,6 +41,9 @@ from OCP.TopExp import TopExp_Explorer  # noqa: E402
 from OCP.TopoDS import TopoDS  # noqa: E402
 
 from quiddity import import_step_geometry  # noqa: E402
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from export_fixtures import _inventory  # noqa: E402
 
 CORPUS = QUIDDITY / "tests" / "corpus"
 FIXTURES = Path(__file__).resolve().parent.parent / "tests" / "fixtures"
@@ -68,6 +75,16 @@ def _edges(face):
         explorer.Next()
 
 
+def _band(face) -> float:
+    """Each edge use's length times the edge's tolerance, summed over the face."""
+
+    return sum(
+        GCPnts_AbscissaPoint.Length_s(BRepAdaptor_Curve(edge)) * BRep_Tool.Tolerance_s(edge)
+        for edge in _edges(face)
+        if not BRep_Tool.Degenerated_s(edge)
+    )
+
+
 def _area_3d(face) -> float | None:
     """The adaptive area of a copy of *face* with its pcurves projected again from the edges."""
 
@@ -97,8 +114,9 @@ def main() -> None:
     for entry in corpus["files"]:
         part = _load(CORPUS / entry["file"])
         faces = list(part.faces())
-        # The traversal must be the inventory's, which the Rust reader is checked against.
-        assert len(faces) == len(entry["inventory"]), entry["file"]
+        # The traversal must be the inventory's, which the Rust reader is checked against face by
+        # face (tests/corpus.rs): the same kinds, edge counts and bounds in the same order.
+        assert _inventory(part) == entry["inventory"], entry["file"]
         files.append(
             {
                 "file": entry["file"],
@@ -106,6 +124,7 @@ def main() -> None:
                 "area": [_area(face.wrapped) for face in faces],
                 "area_fine": [_area(face.wrapped, 1e-9) for face in faces],
                 "area_3d": [_area_3d(face.wrapped) for face in faces],
+                "band": [_band(face.wrapped) for face in faces],
             }
         )
         print(entry["file"], len(faces), file=sys.stderr)
