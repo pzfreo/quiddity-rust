@@ -44,8 +44,8 @@
     "family": "inventory",
     "key": "face bounds",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Face 1870's B-spline boundary edge lies up to 0.012 mm off its torus (within the edge's tolerance); OpenCascade's face box follows the surface, the port's follows the edge."
+    "verdict": "rust-wrong",
+    "reason": "Face 1870 is a torus about the y axis through y = -102.5 with minor radius 5, so no point of the face lies below y = -107.5; OpenCascade's box gives -107.5000001 (the surface, padded by 1e-7). The port's reaches -107.512205: it bounds the 3D edges, and B-spline edge 1077 ((64.21, -107.5, -104.03) to (58.45, -107.14, -103.87)) strays up to 0.022 mm off the torus (within its 0.0853 tolerance, 2001 samples projected onto the surface) and dips 0.0122 below the surface's lowest y. The face's tolerance is 1e-7, so the surface, not the edge, says where the face is. The cause is the kernel's face box, not a recogniser."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -274,8 +274,8 @@
     "family": "recognise_circular_face_patterns",
     "key": "{} records: 1 vs 1 records, fields {\"fit_error\"}",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Same pattern (7 copies, same axis and pitch). fit_error is sampling noise here: the copies are B-spline faces parameterised differently, so Python measures OpenCascade's mesh points (0.884) and the port its own mesh-density samples of the exact surfaces (0.326). Neither is a property of the geometry."
+    "verdict": "rust-correct",
+    "reason": "Same pattern (7 copies about z, pitch 51.428571429°, the same 152 faces). fit_error is the largest 99th-percentile nearest-sample distance between a copy turned one pitch and the next, so it measures the sampling as well as the geometry; the geometry's own value is 0: OpenCascade mesh nodes of the 152 faces at 0.05 mm deflection (339254 points), turned one pitch either way and projected onto the pattern faces' surfaces, lie at a 99th-percentile distance of 3.7e-9 mm (median 3.3e-10). The port's 0.326125 (its samples of the exact surfaces) is nearer that than Python's 1.08891 (OpenCascade's mesh at the family's 0.9 mm deflection, 0.25% of the part's 360 mm); both are under the match threshold, 2.5 deflections (2.25 mm), so the pattern is the same."
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -306,8 +306,8 @@
     "family": "recognise_thin_wall_bodies",
     "key": "{} records: 1 vs 1 records, fields {\"body_key\", \"face_pairs\", \"paired_area_fraction\"}",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Same wall pairs. Pair thicknesses differ in the sixth figure because the probes sit at fractions of each face's parameter range, which the port takes from the exact edges (see this file's uv_bounds entry); the body key and paired area fraction follow this file's untraced B-spline area difference (see its masses entry)."
+    "verdict": "rust-wrong",
+    "reason": "Same 55 wall pairs. The body key's box is short in the port and right in OpenCascade: y min -41.183689 against -41.183964, reached on B-spline edge 452, which lies on torus face 175 to 1e-12 and reaches -41.1839642 (4001 samples); z min -32.499215 against -32.499246, reached inside B-spline face 22, whose OpenCascade mesh has an interior node at -32.4992456. The port's face boxes miss both extremes (the kernel's, not this recogniser's). The key's volume and area are the port's to within its known face defects: an independent Green's-theorem integration over the 3D edges (area and position-vector flux, faces 245, 230, 191, 90, 154, 207, 224, 125, where the port and OpenCascade differ most) agrees with the port to 1.1e-4 mm³ per face where OpenCascade's terms are up to 0.48 mm³ off, leaving 0.002 mm³ between the port and OpenCascade's integration over pcurves projected again from the edges on the remaining faces; the area summed from tests/fixtures/face_area_evidence.json.gz is 73707.384614 (port 73707.384605; its gap is faces 125, rust-wrong, and 154, undetermined, in tests/fixtures/known_face_areas.json). Python's 111664.728 and 73704.855 are OpenCascade's fixed Gauss rule (its adaptive rule gives 111692.922 and 73707.664). Paired area fraction: with the independent face areas it is 0.89481592 (port 0.89481592, Python 0.89480852, which follows the fixed rule's areas). Pair thicknesses: the 9 of 55 pairs that differ by more than 1e-9 (at most 4.6e-6, pair 120-185) each have a face whose uv bounds differ (this file's rust-correct uv_bounds entries), and no other pair differs: the probes sit at fractions of those bounds."
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -378,16 +378,16 @@
     "family": "recognise_interior_voids",
     "key": "{} records: 1 vs 1 records, fields {\"air_samples\", \"body_key\"}",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Same void faces, openings, enclosed samples (169) and estimated volume; the air samples differ by 75 of 89347 (0.08%): the void grid is a sampling instrument anchored at the solid's box, and OpenCascade's box is padded (by 1e-7 on this part's faces) where the port's is exact, so the two grids sit a fraction of a micron apart and cells whose centres fall on a face flip. The body key carries the solid's mass, whose difference is its own entry (undetermined). The enclosed samples agree since the trimming domain of face 29 (a rotated seam on a closed B-spline surface) unwraps across the surface's seam."
+    "verdict": "rust-wrong",
+    "reason": "Same void faces, openings and enclosed samples (169). The air samples differ on three grid lines, not through the box: Python's own grid (quiddity._interior_void_grid) anchored at the port's exact box also gives 89347. On the x lines at (y 28.718, z 12.477) and (y 37.006, z 14.549) OpenCascade reports one crossing twice (faces 34 and 39 2.1 µm apart, the face-39 hit 4.7 µm outside its trim; faces 37 and 29 51 µm apart, both entering), so the count is odd and the line gives no evidence; the port counts one crossing each. On the y line at (x 15.540, z 18.693) the port misses the crossing at y 22.847 near cylinder face 51's edge, which OpenCascade finds (2.85 µm outside face 51's trim) and parity requires (the line's other five crossings are well inside their faces), so the port's count is odd and it drops the line. Counting every line right gives 89462: the port's 89422 is 40 short, Python's 89347 is 115 short. The miss is in the kernel's ray crossings, not this recogniser. The body key's area and volume are as in this file's turned-steps entry."
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "family": "recognise_turned_steps",
     "key": "{} records: 5 vs 5 records, fields {\"profile\"}",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Same five steps (positions and diameters) and the same defining faces; only the profile's body key differs, because it carries the solid's volume and area and this file's masses differ (listed above: OpenCascade integrates its approximated B-spline pcurves, the port the exact curves). The body box agrees within OpenCascade's 1e-7 tolerance padding."
+    "verdict": "rust-wrong",
+    "reason": "Same five steps and defining faces; only the profile's body key differs, in the solid's volume and area (the body bounds differ by OpenCascade's 1e-7 padding, within tolerance). The port's area, 52556.5746593, is 5.3e-5 under the 52556.5747120 summed from tests/fixtures/face_area_evidence.json.gz: that is B-spline face 34's known 5e-5 (rust-wrong in tests/fixtures/known_face_areas.json), so the key's area is not exact. Its volume, 223473.964, holds: an independent Green's-theorem integration of the position-vector flux over the 3D edges agrees with the port to 2e-6 mm³ on the 20 faces where the port and OpenCascade differ most (37, 315, 321, 330 to 343, 38, 51, 33; OpenCascade's terms are up to 2.18 mm³ off), leaving 0.013 mm³ between the port and OpenCascade's integration over pcurves projected again from the edges on the rest, 0.017 of it on face 29, whose boundary the file defines only to a 1.1 mm² tolerance strip. Python's 223533.796 and 52563.707 are OpenCascade's fixed Gauss rule, 2.7e-4 and 1.4e-4 off."
   },
   {
     "file": "cadgenbench_inputs/cgb241.step",
@@ -570,8 +570,8 @@
     "family": "recognise_interior_voids",
     "key": "{} records: 1 vs 1 records, fields {\"air_samples\", \"body_key\", \"enclosed_samples\", \"estimated_volume\"}",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Same void faces and openings; the sample counts differ by about 1%: the void grid is a sampling instrument anchored at the solid's box, and OpenCascade's box is padded (by 1e-7 on this part's faces) where the port's is exact, so the two grids sit a fraction of a micron apart and cells whose centres fall on a face flip, and the body key follows this file's mass difference."
+    "verdict": "rust-wrong",
+    "reason": "Same void faces and openings. The sample counts differ through the grid lines' crossings, not the box: Python's own grid (quiddity._interior_void_grid) anchored at the port's exact box also gives 118911 air and 6372 enclosed. Of the 8673 lines, OpenCascade reports a crossing twice on 42 (the extra hit 35 µm to 0.15 mm from a crossing the port also finds) and misses 7 crossings of the B-spline comb (faces 233 and 234) on one, so those 43 counts are odd and the lines give no evidence. The port misses crossings on 8 lines, all well inside B-spline faces (0.03 to 0.42 mm from their edges): one on face 225 on four lines and on face 238 on two, so its count is odd and it drops the line, and an entering and leaving pair (faces 225 and 223; 238 and 239) on two, which OpenCascade finds with consistent parity. Counting every line right gives 120541 air and 6425 enclosed samples (estimated volume 57567.24): the port has 120324 and 6385 (57208.84), Python 118911 and 6372 (57092.37). The misses are the kernel's ray crossings on B-spline faces, not this recogniser. The body key's volume is not settled: an independent Green's-theorem integration agrees with the port on the cylinders and sphere where OpenCascade's adaptive terms are off by up to 6.83 mm³ (faces 224, 336, 237, 232, 408, to 2e-6), but faces 225, 233, 234, 238 and 337 are undetermined in tests/fixtures/known_face_areas.json."
   },
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
@@ -610,16 +610,16 @@
     "family": "recognise_thin_wall_bodies",
     "key": "{} records: 1 vs 1 records, fields {\"body_key\"}",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Only the body key differs: its volume and area follow this file's untraced B-spline mass difference (see its masses entry)."
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area: the port's 121083.3066955 and 127538.9199071 agree with OpenCascade's adaptive integration (eps 1e-9: 121083.3066944, 127538.9199072) and with that integration over pcurves projected again from the 3D edges (121083.3066944, 127538.9199072) to 9e-12 and 1e-12. Python's 121083.594931 and 127539.014087 are OpenCascade's fixed Gauss rule, 2.4e-6 and 7.4e-7 off. The box agrees."
   },
   {
     "file": "cadgenbench_inputs/cgb245.step",
     "family": "recognise_sheet_metal_bodies",
     "key": "{} records: 1 vs 1 records, fields {\"body_key\", \"flanges\"}",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Same skins, cut faces, 26 flanges, 31 bends, 102 edge treatments and defining faces (status non_tree). The body key's volume is the thin-wall body's (this file's untraced B-spline mass difference; see its thin-wall entry); flange 4's area is face 53's, rust-correct per tests/fixtures/known_face_areas.json (OpenCascade's own integration driven to 1e-9 gives the port's 24749.46851; face.area's fixed Gauss rule 24749.5601)."
+    "verdict": "rust-correct",
+    "reason": "Same skins, cut faces, 26 flanges, 31 bends, 102 edge treatments and defining faces (status non_tree). The body key is the thin-wall body's: the port's volume and area agree with OpenCascade's adaptive integration, on the file's pcurves and on pcurves projected again from the 3D edges, to 9e-12 and 1e-12, where Python's fixed rule is 2.4e-6 and 7.4e-7 off (this file's thin-wall entry). Flange 4's area is face 53's, rust-correct per tests/fixtures/known_face_areas.json (OpenCascade's own integration driven to 1e-9 gives the port's 24749.46851; face.area's fixed Gauss rule 24749.5601)."
   },
   {
     "file": "gramel/string_post.step",
@@ -634,32 +634,32 @@
     "family": "recognise_turned_steps",
     "key": "{} records: 4 vs 4 records, fields {\"profile\"}",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Same four steps (the rungs the Python test pins: 3.4, 5, 6, 7.5) and the same defining faces; only the profile's body key differs, because it carries the solid's volume and area and this file's masses differ by up to 1e-4 (listed above: OpenCascade integrates its approximated B-spline pcurves, the port the exact curves)."
+    "verdict": "rust-correct",
+    "reason": "Same four steps (the rungs the Python test pins: 3.4, 5, 6, 7.5) and the same defining faces; only the profile's body key differs, in the solid's volume and area. The port's 250.1888512 and 359.3628011 agree with OpenCascade's adaptive integration over pcurves projected again from the 3D edges (250.1888513, 359.3628012) to 3e-10 and 2e-10, and on the file's own pcurves (250.1888522, 359.3628022) to 4e-9 and 3e-9. Python's 250.186131 and 359.360478 are OpenCascade's fixed Gauss rule, 1.1e-5 and 6.5e-6 off. The body box agrees (Python's 3.7500001 is OpenCascade's 1e-7 padding, within tolerance)."
   },
   {
     "file": "inventory_refusal/13975.step.gz",
     "family": "inventory",
     "key": "edge count",
     "count": 9,
-    "verdict": "undetermined",
-    "reason": "A deliberately malformed corpus part (its shell is not orientable). OpenCascade's import healing rebuilds and reorders its faces, so face indices no longer line up with the file's shell order the port reads; it has no fillets either way."
+    "verdict": "equivalent",
+    "reason": "The same 17 faces in another order. Pairing each of the port's faces with OpenCascade's of the same type, edge count and box (to the inventory's 3 decimals) matches all 17 one to one (the port's 0 to 16 are OpenCascade's 0, 15, 1, 16, 14, 13, 2, 12, 4, 10, 5, 9, 6, 7, 3, 8, 11), no face unmatched or matched twice. OpenCascade's import heals this non-orientable shell and reorders its faces; the port reads the file without that healing. Every listed difference compares one face with another."
   },
   {
     "file": "inventory_refusal/13975.step.gz",
     "family": "inventory",
     "key": "face bounds",
     "count": 14,
-    "verdict": "undetermined",
-    "reason": "A deliberately malformed corpus part (its shell is not orientable). OpenCascade's import healing rebuilds and reorders its faces, so face indices no longer line up with the file's shell order the port reads; it has no fillets either way."
+    "verdict": "equivalent",
+    "reason": "The same 17 faces in another order. Pairing each of the port's faces with OpenCascade's of the same type, edge count and box (to the inventory's 3 decimals) matches all 17 one to one (the port's 0 to 16 are OpenCascade's 0, 15, 1, 16, 14, 13, 2, 12, 4, 10, 5, 9, 6, 7, 3, 8, 11), no face unmatched or matched twice. OpenCascade's import heals this non-orientable shell and reorders its faces; the port reads the file without that healing. Every listed difference compares one face with another."
   },
   {
     "file": "inventory_refusal/13975.step.gz",
     "family": "inventory",
     "key": "face type",
     "count": 2,
-    "verdict": "undetermined",
-    "reason": "A deliberately malformed corpus part (its shell is not orientable). OpenCascade's import healing rebuilds and reorders its faces, so face indices no longer line up with the file's shell order the port reads; it has no fillets either way."
+    "verdict": "equivalent",
+    "reason": "The same 17 faces in another order. Pairing each of the port's faces with OpenCascade's of the same type, edge count and box (to the inventory's 3 decimals) matches all 17 one to one (the port's 0 to 16 are OpenCascade's 0, 15, 1, 16, 14, 13, 2, 12, 4, 10, 5, 9, 6, 7, 3, 8, 11), no face unmatched or matched twice. OpenCascade's import heals this non-orientable shell and reorders its faces; the port reads the file without that healing. Every listed difference compares one face with another."
   },
   {
     "file": "inventory_refusal/13975.step.gz",
