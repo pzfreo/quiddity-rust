@@ -3,7 +3,7 @@
 A pure-Rust port of [quiddity](https://github.com/pzfreo/quiddity): deterministic,
 geometry-only feature recognition for STEP B-Rep. No OpenCascade: STEP is read with
 [`step-io`](https://crates.io/crates/step-io) and everything the Python implementation asks of
-OpenCascade is reimplemented in `src/kernel`.
+OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::kernel`).
 
 **Status: prototype.** Ported so far, each checked against Python call by call:
 
@@ -43,13 +43,14 @@ Known divergences are listed, with reasons, in `tests/fixtures/captured/known_di
 
 The kernel also answers the questions the unported families ask of OpenCascade's booleans,
 checked against every one Python asks over the corpus: the volume a probe shares with a solid
-(`kernel/volume.rs`, `tests/probes.rs`) and whether faces cover a face (`kernel/cover.rs`,
-`tests/patches.rs`). Faces stored as B-splines that are exactly planes, cylinders, cones or
-spheres are recovered as such (`kernel/recover.rs`), as Python's `_effective_surfaces` does.
+(`crates/haecceity/src/volume.rs`, `crates/haecceity/tests/probes.rs`) and whether faces cover
+a face (`crates/haecceity/src/cover.rs`, `crates/haecceity/tests/patches.rs`). Faces stored as
+B-splines that are exactly planes, cylinders, cones or spheres are recovered as such
+(`crates/haecceity/src/recover.rs`), as Python's `_effective_surfaces` does.
 
 For draftwright-rust, the kernel draws a part's views without OpenCascade's hidden-line
-algorithm or booleans (`kernel/hlr.rs`): every visible and hidden edge and silhouette, and a
-section view's kept half and cut outline. `crates/haecceity/tests/drawings.rs` checks them
+algorithm or booleans (`crates/haecceity/src/hlr.rs`): every visible and hidden edge and
+silhouette, and a section view's kept half and cut outline. `crates/haecceity/tests/drawings.rs` checks them
 against OpenCascade's drawings of the corpus: 85 parts in four views and 98 sections. The cut
 outlines agree on 95 of 99 parts, where the other four are OpenCascade boolean failures. The
 views that differ by more than 1e-3 mm are listed in `tests/fixtures/known_drawings.json`.
@@ -121,7 +122,7 @@ src/
                      planes, the mouth capping a wall chain, paired shared-edge occurrences, and
                      the floor proof by swept-face probes
     edge_open_circular.rs  edge_open_prismatic.rs
-    volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over kernel/volume.rs
+    volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over haecceity's volume.rs
   correspondence/    revision matching (docs/correspondence.md): fingerprint.rs (features and
                      faces), align.rs (rigid alignment), assign.rs (Hungarian with an
                      unmatched option), faces.rs (seeded propagation), mod.rs (`correspond`)
@@ -163,7 +164,9 @@ tools/
 cargo build --release
 ./target/release/quiddity part.step > part.json            # records and fingerprints
 ./target/release/quiddity correspond old.json new.json      # or two STEP files
-cargo test --workspace --release   # corpus tests need ../quiddity/tests/corpus or QUIDDITY_CORPUS
+QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release
+# corpus tests read ../quiddity/tests/corpus or $QUIDDITY_CORPUS; without
+# QUIDDITY_CORPUS_REQUIRED=1 they pass by skipping when the corpus is missing
 ```
 
 ## How a family is ported
@@ -188,7 +191,8 @@ cargo test --workspace --release   # corpus tests need ../quiddity/tests/corpus 
 3. **Wire it in**: the module in `src/features/mod.rs` (and, for a family with occurrences,
    a `Features` field filled in `recognise`), the entry point re-exported from `src/lib.rs`,
    match arms in `tests/common/mod.rs` (`recognise`, and `defining` for an evidence path), a
-   `#[test]` in `tests/captured.rs`, and a row in the table above.
+   `#[test]` in `tests/captured.rs`, the family in `tests/invariance.rs`, and a row in the table
+   above.
 4. **Explain every difference** that remains in the relevant `known_divergences.json`; the
    tests fail on any unexplained difference and on any listed one that has disappeared.
 
@@ -213,8 +217,8 @@ frames right-handed.
 ## What parity means
 
 Python's *specified* numeric behaviour is matched exactly: rounding grids, summation order,
-tie-breaking, thresholds (`kernel/py.rs`). OpenCascade's *accidents* are not reproduced: where
-it approximates (pcurves it builds on import, a fixed Gauss order on B-spline faces), heals a
+tie-breaking, thresholds (`crates/haecceity/src/py.rs`). OpenCascade's *accidents* are not
+reproduced: where it approximates (pcurves it builds on import, a fixed Gauss order on B-spline faces), heals a
 file, or decides a degenerate case by round-off, the port computes the true geometry and the
 difference is recorded with its reason. Some older emulation remains where removing it would
 cost many records (face ranges boxed by B-spline pcurve poles, which hole depths follow).
@@ -249,7 +253,7 @@ reader reproduces:
 
 Known kernel limitations: OpenCascade's healing adds missing seam edges to periodic faces (and splits closed edges they cross), which the reader does not; sphere patches that pass through a pole have approximate interior
 bounding boxes; closed surfaces of revolution/extrusion in NURBS form are treated as
-non-periodic. A face swept into a probe solid (`kernel/sweep.rs`, Python's
+non-periodic. A face swept into a probe solid (`crates/haecceity/src/sweep.rs`, Python's
 `Solid.extrude`) may be bounded only by lines and by circles and arcs about the sweep: the
 edge-open recess floor proof declines a floor with any other edge (rust-wrong; no captured call
 or corpus part has one).
