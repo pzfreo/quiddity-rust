@@ -2,7 +2,7 @@
 name = "haecceity"
 version = "0.1.0"
 edition = "2024"
-license = "Apache-2.0"
+license = "AGPL-3.0-only"
 description = "An exact B-rep geometry kernel in pure Rust: STEP import, rays, classification, volumes and surface recovery."
 
 [dependencies]
