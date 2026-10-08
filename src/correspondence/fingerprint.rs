@@ -538,7 +538,8 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("support.v_degree", Trait),
             ("support.u_periodic", Trait),
             ("support.v_periodic", Trait),
-            ("support.poles", Placement),
+            // Read for the distances between the net's corners ([`derived_sizes`]).
+            ("support.poles", Derived),
             // The parameterisation: one surface has many.
             ("support.weights", Ignored),
             ("support.u_knots", Ignored),
@@ -763,6 +764,25 @@ fn derived_sizes(family: &str, r: &Value, sizes: &mut BTreeMap<String, f64>) {
         "plates" => put("thickness", span("lo", "hi")),
         "turned_steps" => put("length", span("lo", "hi")),
         "gusset_ribs" => put("thickness", interval("thickness_bounds")),
+        "freeform_surfaces" => {
+            // The distances between the control net's four corner poles (a clamped support's
+            // corners): they move together with the surface, so are sizes.
+            let net: Option<Vec<Vec<Vec<f64>>>> = at(r, "support.poles").first().and_then(|p| {
+                p.as_array()?
+                    .iter()
+                    .map(|row| row.as_array()?.iter().map(point).collect())
+                    .collect()
+            });
+            if let Some(net) = net.filter(|n| n.first().is_some_and(|row| !row.is_empty())) {
+                let (u, v) = (net.len() - 1, net[0].len() - 1);
+                let corners = [&net[0][0], &net[0][v], &net[u][0], &net[u][v]];
+                let lengths = (0..4)
+                    .flat_map(|i| (i + 1..4).map(move |j| (i, j)))
+                    .map(|(i, j)| distance(corners[i], corners[j]))
+                    .collect();
+                insert_sorted(sizes, "support.corners", lengths);
+            }
+        }
         "through_steps" => {
             let legs = at(r, "section").first().map(|s| chain_lengths(s));
             insert_sorted(sizes, "section.legs", legs.unwrap_or_default());

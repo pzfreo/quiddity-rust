@@ -38,7 +38,7 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 | Edge-open circular pockets | `recognise_edge_open_circular_pockets` | 9/9 | 0 | 100/100 |
 | Edge-open prismatic recesses | `recognise_edge_open_prismatic_recesses` | 23/23 | 2 | 100/100 |
 | Blends | `recognise_blends` | 52/52 | 0 | 94/100 (6 known) |
-| Freeform surfaces | `recognise_freeform_surfaces` | 3/3 | 0 | CORPUS |
+| Freeform surfaces | `recognise_freeform_surfaces` | 3/3 | 0 | 98/100 (2 known) |
 
 *Captured test calls*: the Python suite's calls replayed by `tests/captured.rs`. *Not captured*:
 calls the suite makes that the capture could not record, outside the replay and pinned by it
@@ -56,11 +56,11 @@ its verdict and reason in a verdict file:
 
 | Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
 |---|---|---|---|---|---|---|---|
-| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 133 (901 problems) | 70 | 18 | 13 | 32 | 0 |
+| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 134 (902 problems) | 71 | 17 | 13 | 33 | 0 |
 | `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 23 (24 calls) | 4 | 0 | 1 | 2 | 16 |
 | `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 11 | 0 | 11 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 48 | 18 | 14 | 0 | 16 | 0 |
-| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 19 | 4 | 15 | 0 | 0 | 0 |
+| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 24 | 9 | 15 | 0 | 0 | 0 |
 | `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 28 (53 probes) | 6 | 12 | 0 | 10 | 0 |
 | `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 64 | 13 | 0 | 0 | 51 | 0 |
 | `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 45 | 1 | 5 | 2 | 4 | 33 |

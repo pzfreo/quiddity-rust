@@ -213,6 +213,14 @@
     "reason": "Python refuses every blend component here (all 681 BlendCollapseIndex results are ownership-unproven, and the 342 torus components fail common_valid_solid) because OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid (as for this file's other families' evidence entries). With SolidProperties.is_valid forced true, Python's recognise_blends publishes the same 69 records, 65 identical and 4 straight anchors differing by 0.001 to 0.006 mm; for the largest (face 1461, at z -64.022 against -64.028) an independent integration of the face (its rulings and end curves sampled at 20001 points, r dz dθ integrated) gives the centroid z -64.21562 the port uses, as does BRepGProp with eps 1e-9 (-64.21562), where the default precision Python uses gives -64.22163. The other three were not checked face by face."
   },
   {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "recognise_freeform_surfaces",
+    "key": "{} records: 576 vs 0 records, fields {}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Python keeps only faces of a valid solid, and OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid (as for this file's other families' evidence entries). With SolidProperties.is_valid forced true, Python's recognise_freeform_surfaces publishes the same 576 records, every field equal to one part in a million."
+  },
+  {
     "file": "cadgenbench_inputs/cgb203.step",
     "family": "kernel",
     "key": "solid masses differ by up to 1e-2",
@@ -291,6 +299,14 @@
     "count": 1,
     "verdict": "rust-correct",
     "reason": "A straight path's anchor is its faces' area centre projected onto the cylinder axis (_straight_path_anchor). Python takes the centre from BRepGProp.SurfaceProperties at its default precision, which on this face is off; the port's boundary quadrature gives the centre BRepGProp gives at eps 1e-9: face 208's anchor (48.529, 0.201) against Python's (48.531, 0.199); BRepGProp at eps 1e-9 gives (48.5289, 0.2013), its default (48.5305, 0.1993)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "family": "recognise_freeform_surfaces",
+    "key": "{} records: 88 vs 88 records, fields {\"offset_distance\"}",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Same records and offset partners. The offset distance of faces 120 and 185 is their thin-wall pair's thickness, 3.0021547 against Python's 3.0021501, which differs as this file's recognise_thin_wall_bodies entry explains (probes at fractions of each face's parameter range, which the port takes from the exact edges)."
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
