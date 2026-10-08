@@ -13,7 +13,7 @@ use crate::kernel::geom::{self, Surface, V3};
 
 /// Bumped whenever a fingerprint's content or meaning changes: [`super::correspond`] refuses to
 /// compare fingerprints of two versions.
-pub const FINGERPRINT_VERSION: &str = "quiddity-rust/fingerprint/1";
+pub const FINGERPRINT_VERSION: &str = "quiddity-rust/fingerprint/2";
 
 /// The fingerprints of one recognition result.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -36,8 +36,9 @@ pub struct FeatureFingerprint {
     /// Semantics, the subtype: the record's categorical fields (a hole's `bottom`, a fillet's
     /// `side`, whether a counterbore is present, a pattern's shape), by name.
     pub traits: BTreeMap<String, String>,
-    /// Semantics, the intrinsic sizes: the record's size fields by name (a counterbore's diameter
-    /// is `cbore.diameter`), and a pattern's member `count`.
+    /// Semantics, the intrinsic sizes: the record's size fields by path (a counterbore's diameter
+    /// is `cbore.diameter`), a pattern's member `count`, and sizes derived from fields that move
+    /// with the part (a plate's `thickness`), as [`FAMILIES`] lists them.
     pub sizes: BTreeMap<String, f64>,
     /// Placement: the feature's axis, normal or run, as a unit vector (its sign is not
     /// significant).
@@ -80,60 +81,463 @@ pub struct FaceFingerprint {
     pub adjacency: Vec<String>,
 }
 
-/// The record fields that are a feature's intrinsic sizes. Positions, frame-aligned bounds and
-/// body keys are left out: they move with the part.
-const SIZES: [&str; 32] = [
-    "across",
-    "across_flats",
-    "angle",
-    "axial_length",
-    "col_pitch",
-    "cols",
-    "corner_radius",
-    "count",
-    "depth",
-    "diameter",
-    "drill_diameter",
-    "end_radius",
-    "flat_width",
-    "half_width",
-    "height",
-    "height_above_base",
-    "included_angle",
-    "leg1",
-    "leg2",
-    "legs",
-    "length",
-    "major_diameter",
-    "major_radius",
-    "minor_radius",
-    "pitch",
-    "pitch_degrees",
-    "radius",
-    "row_pitch",
-    "rows",
-    "thickness",
-    "width",
-    "half_widths",
+/// What a record field is to a feature's fingerprint.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Role {
+    /// An intrinsic size, under its path (`cbore.diameter`). Several numbers (a list, or a field
+    /// of each item of a list) are ordered by the frame or the record's canonical order, so they
+    /// are kept smallest first as `<path>.<i>` (a ramp's two half-widths), `[]` left out.
+    Size,
+    /// The feature's axis, a unit vector or an axis letter: the first such field present.
+    /// Placement.
+    Axis,
+    /// Categorical, the subtype: a string, boolean or null; a nested record's presence (`present`
+    /// or `none`); a list's items, sorted and joined.
+    Trait,
+    /// A list of member records (a pattern's holes): its length is the size of this name.
+    Count(&'static str),
+    /// Moves with the part: positions, frame-aligned bounds, spans and points, directions, axis
+    /// letters and signs. The feature's placement is its axis and its faces' centroid.
+    Placement,
+    /// Read through the family's derived sizes only ([`derived_sizes`]): bounds whose difference
+    /// is a size (a plate's `lo` and `hi`), a section's points.
+    Derived,
+    /// Not a property of the design: face and body indices, sampling diagnostics, heuristic
+    /// hints, a fit's residual.
+    Ignored,
+}
+
+/// How one family's records are fingerprinted.
+pub struct FamilyFingerprint {
+    /// The family's field in [`Features`], its serde JSON key.
+    pub family: &'static str,
+    /// For a derived family (patterns of another family's records), which has no defining faces
+    /// of its own: the record field holding its members, and the family they are records of,
+    /// whose faces it takes.
+    pub members: Option<(&'static str, &'static str)>,
+    /// The records are untagged variants (a bolt circle, a grid): the record's field names are
+    /// its `shape` trait.
+    pub variants: bool,
+    /// Every field path the records have and its role: `a.b` is a nested record's field, `a[]`
+    /// each item of a list. A leaf of a record takes the role of the longest path that is it or
+    /// leads to it (`tests/wiring.rs` checks that every leaf has one and every path is used).
+    pub fields: &'static [(&'static str, Role)],
+}
+
+use Role::{Axis, Count, Derived, Ignored, Placement, Size, Trait};
+
+/// The families, in [`Features`]' order.
+pub const FAMILIES: &[FamilyFingerprint] = &[
+    FamilyFingerprint {
+        family: "fillets",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("radius", Size),
+            ("side", Trait),
+            ("turned", Trait),
+            ("at", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "chamfers",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("leg1", Size),
+            ("leg2", Size),
+            ("angle", Size),
+            ("turned", Trait),
+            ("at", Placement),
+            // The virtual sharp corner; absent exactly when `turned`.
+            ("corner", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "bosses",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("diameter", Size),
+            ("height", Size),
+            ("location", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "angled_steps",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("leg1", Size),
+            ("leg2", Size),
+            ("angle", Size),
+            ("length", Size),
+            ("at", Placement),
+            ("corner", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "flats",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("across", Size),
+            ("at", Placement),
+            ("axis_direction", Placement),
+            ("axis_line", Placement),
+            // The stock cylinder's extent along its axis, not the flat's.
+            ("stock_span", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "paired_ramp_steps",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("angle", Size),
+            ("length", Size),
+            ("half_width", Size),
+            // Low side first: ordered by the frame, so sorted.
+            ("half_widths", Size),
+            ("at", Placement),
+            ("opening_direction", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "oriented_chamfers",
+        members: None,
+        variants: false,
+        fields: &[
+            ("run", Axis),
+            ("length", Size),
+            ("leg1", Size),
+            ("leg2", Size),
+            ("angle", Size),
+            ("at", Placement),
+            ("corner", Placement),
+            ("leg1_direction", Placement),
+            ("leg2_direction", Placement),
+            ("support_spans", Placement),
+            ("body_key", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "circular_face_patterns",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis_direction", Axis),
+            ("count", Size),
+            ("pitch_degrees", Size),
+            ("axis_origin", Placement),
+            ("seed_index", Ignored),
+            ("fit_error", Ignored),
+        ],
+    },
+    FamilyFingerprint {
+        family: "oblique_through_steps",
+        members: None,
+        variants: false,
+        fields: &[
+            ("run", Axis),
+            ("length", Size),
+            ("depth", Size),
+            ("at", Placement),
+            ("depth_direction", Placement),
+            ("across_direction", Placement),
+            ("wall_outline", Placement),
+            ("body_key", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "circular_blind_steps",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("radius", Size),
+            ("length", Size),
+            ("centreline", Placement),
+            // Arc endpoint, centre, arc endpoint: the radius is its size.
+            ("section", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "holes",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("diameter", Size),
+            ("depth", Size),
+            ("bottom", Trait),
+            ("cbore", Trait),
+            ("cbore.diameter", Size),
+            ("cbore.depth", Size),
+            ("spotface", Trait),
+            ("spotface.diameter", Size),
+            ("spotface.depth", Size),
+            ("csink", Trait),
+            ("csink.major_diameter", Size),
+            ("csink.drill_diameter", Size),
+            ("csink.included_angle", Size),
+            ("csink.depth", Size),
+            ("csink.axis", Placement),
+            ("csink.location", Placement),
+            ("location", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "countersinks",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("major_diameter", Size),
+            ("drill_diameter", Size),
+            ("included_angle", Size),
+            ("depth", Size),
+            ("location", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "hole_patterns",
+        members: Some(("holes", "holes")),
+        variants: true,
+        fields: &[
+            ("direction", Axis),
+            ("holes", Count("count")),
+            ("rows", Size),
+            ("cols", Size),
+            ("row_pitch", Size),
+            ("col_pitch", Size),
+            ("width", Size),
+            ("height", Size),
+            ("diameter", Size),
+            ("pitch", Size),
+            // The pattern's orientation in the part's frame.
+            ("angle", Placement),
+            ("center", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "gusset_ribs",
+        members: None,
+        variants: false,
+        fields: &[
+            ("thickness_axis", Axis),
+            ("legs", Size),
+            ("thickness_bounds", Derived),
+            ("supports", Placement),
+            ("directions", Placement),
+            ("body_key", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "gusset_rib_patterns",
+        members: Some(("ribs", "gusset_ribs")),
+        variants: true,
+        fields: &[
+            ("axis", Axis),
+            ("ribs", Count("count")),
+            ("pitch", Size),
+            ("mirror_plane", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "thin_wall_bodies",
+        members: None,
+        variants: false,
+        fields: &[
+            ("thickness", Size),
+            ("face_pairs", Count("pairs")),
+            ("body_key", Placement),
+            // Face and body indices, which a revision renumbers.
+            ("body_index", Ignored),
+            ("unpaired_faces", Ignored),
+            ("unpaired_face_classes", Ignored),
+            ("rim_regions", Ignored),
+            // How well the faces pair, and a heuristic guess at the modelling history.
+            ("paired_area_fraction", Ignored),
+            ("history_hint", Ignored),
+        ],
+    },
+    FamilyFingerprint {
+        family: "interior_voids",
+        members: None,
+        variants: false,
+        fields: &[
+            ("estimated_volume", Size),
+            ("volume_method", Trait),
+            ("openings", Count("openings")),
+            ("body_key", Placement),
+            ("body_index", Ignored),
+            ("void_faces", Ignored),
+            // The sampling the volume was estimated with.
+            ("grid_pitch", Ignored),
+            ("enclosed_samples", Ignored),
+            ("air_samples", Ignored),
+        ],
+    },
+    FamilyFingerprint {
+        family: "through_steps",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("length", Size),
+            ("endpoint_scopes", Trait),
+            // Boundary endpoint, concave corner, boundary endpoint: its two legs.
+            ("section", Derived),
+            ("at", Placement),
+            ("body_key", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "turned_steps",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("diameter", Size),
+            ("lo", Derived),
+            ("hi", Derived),
+            ("profile", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "grooves",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("width", Size),
+            ("diameter", Size),
+            ("at", Placement),
+            ("profile", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "plates",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("lo", Derived),
+            ("hi", Derived),
+            ("u", Placement),
+            ("v", Placement),
+            ("body_key", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "round_bottom_blind_slots",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("length", Size),
+            ("flat_width", Size),
+            ("radius", Size),
+            ("at", Placement),
+            ("width_axis", Placement),
+            ("depth_axis", Placement),
+            ("depth_sign", Placement),
+            ("open_sign", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "rectangular_blind_slots",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("length", Size),
+            ("width", Size),
+            ("depth", Size),
+            ("at", Placement),
+            ("width_axis", Placement),
+            ("depth_axis", Placement),
+            ("depth_sign", Placement),
+            ("open_sign", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "double_d_bores",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("major_diameter", Size),
+            ("across_flats", Size),
+            ("depth", Size),
+            ("through", Trait),
+            ("location", Placement),
+            ("flat_direction", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "edge_open_circular_pockets",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("run_interval", Derived),
+            ("open_sign", Placement),
+            ("section.segments[].kind", Trait),
+            ("section.segments[].radius", Size),
+            ("section.segments[].sweep", Derived),
+            ("section.segments[].start", Derived),
+            ("section.segments[].end", Derived),
+            ("section.segments[].center", Placement),
+            ("section.opening", Derived),
+        ],
+    },
+    FamilyFingerprint {
+        family: "edge_open_prismatic_recesses",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("run_interval", Derived),
+            ("open_sign", Placement),
+            ("section.wall_chain", Derived),
+            ("section.opening.start", Derived),
+            ("section.opening.end", Derived),
+        ],
+    },
 ];
 
-/// Fields read as the feature's axis, in order of preference: a vector, or an axis letter.
-const AXES: [&str; 6] = [
-    "axis",
-    "axis_direction",
-    "run",
-    "direction",
-    "thickness_axis",
-    "depth_direction",
-];
+/// The fingerprint table of the family with this serde key.
+pub fn family(key: &str) -> Option<&'static FamilyFingerprint> {
+    FAMILIES.iter().find(|f| f.family == key)
+}
 
-/// Derived families: their members are records of another family, whose faces they take.
-const DERIVED: [(&str, &str, &str); 2] = [
-    ("hole_patterns", "holes", "holes"),
-    ("gusset_rib_patterns", "ribs", "gusset_ribs"),
-];
+/// The field path, and its role, that a record leaf at *path* (`a.b`, `a[]`) of family *key*
+/// takes: the longest listed path that is it or leads to it.
+pub fn classify(key: &str, path: &str) -> Option<(&'static str, Role)> {
+    let leads = |p: &str| {
+        path.strip_prefix(p)
+            .is_some_and(|rest| rest.is_empty() || rest.starts_with(['.', '[']))
+    };
+    family(key)?
+        .fields
+        .iter()
+        .filter(|(p, _)| leads(p))
+        .max_by_key(|(p, _)| p.len())
+        .copied()
+}
 
 /// The fingerprints of *features*, recognised on *part*.
+///
+/// Panics on a family missing from [`FAMILIES`], or one with neither defining faces in
+/// `features.defining` nor members: a wiring defect, not an input.
 pub fn fingerprint(part: &Part, features: &Features) -> Fingerprints {
     let faces: Vec<FaceFingerprint> = (0..part.faces.len()).map(|i| face(part, i)).collect();
     let scale = faces
@@ -144,21 +548,30 @@ pub fn fingerprint(part: &Part, features: &Features) -> Fingerprints {
         .max(1e-3);
     let json = serde_json::to_value(features).expect("records serialise");
     let mut out = Vec::new();
-    for (family, records) in json.as_object().expect("an object") {
+    for (key, records) in json.as_object().expect("an object") {
         let Some(records) = records.as_array() else {
             continue;
         };
+        let table = family(key)
+            .unwrap_or_else(|| panic!("family {key} has no fingerprint table (FAMILIES)"));
         for (n, record) in records.iter().enumerate() {
-            let own = features
-                .defining
-                .get(family.as_str())
-                .and_then(|d| d.get(n))
-                .cloned();
-            let faces_of = own.unwrap_or_else(|| derived_faces(&json, features, family, record));
+            let faces_of = match (features.defining.get(key.as_str()), table.members) {
+                (Some(defining), _) => defining.get(n).cloned().unwrap_or_else(|| {
+                    panic!(
+                        "family {key} has {} records but defining faces for {}",
+                        records.len(),
+                        defining.len()
+                    )
+                }),
+                (None, Some(members)) => derived_faces(&json, features, key, members, record),
+                (None, None) => panic!(
+                    "family {key} has no defining faces in Features::defining and is not derived"
+                ),
+            };
             out.push(feature(
                 &faces,
-                format!("{family}/{n}"),
-                family,
+                format!("{key}/{n}"),
+                table,
                 record,
                 faces_of,
             ));
@@ -174,20 +587,23 @@ pub fn fingerprint(part: &Part, features: &Features) -> Fingerprints {
 
 /// A derived record's faces: its members' defining faces, each member found among the base
 /// family's records (the first not yet taken that is equal to it).
-fn derived_faces(json: &Value, features: &Features, family: &str, record: &Value) -> Vec<usize> {
-    let Some(&(_, field, base)) = DERIVED.iter().find(|d| d.0 == family) else {
-        return Vec::new();
-    };
-    let (Some(members), Some(pool), Some(defining)) = (
-        record.get(field).and_then(Value::as_array),
+fn derived_faces(
+    json: &Value,
+    features: &Features,
+    family: &str,
+    (field, base): (&str, &str),
+    record: &Value,
+) -> Vec<usize> {
+    let (Some(pool), Some(defining)) = (
         json.get(base).and_then(Value::as_array),
         features.defining.get(base),
     ) else {
-        return Vec::new();
+        panic!("family {family} takes its faces from {base}, which has no defining faces");
     };
+    let members = record.get(field).and_then(Value::as_array);
     let mut taken = vec![false; pool.len()];
     let mut out = Vec::new();
-    for m in members {
+    for m in members.into_iter().flatten() {
         if let Some(k) = (0..pool.len()).find(|&k| !taken[k] && pool[k] == *m) {
             taken[k] = true;
             out.extend(defining.get(k).into_iter().flatten().copied());
@@ -198,10 +614,156 @@ fn derived_faces(json: &Value, features: &Features, family: &str, record: &Value
     out
 }
 
+/// The values at *path* in *v*: `a.b` steps into a nested record, `a[]` into each item of a
+/// list. A missing field gives none.
+fn resolve<'a>(v: &'a Value, path: &str, out: &mut Vec<&'a Value>) {
+    let (head, rest) = match path.split_once('.') {
+        Some((h, r)) => (h, Some(r)),
+        None => (path, None),
+    };
+    let (name, each) = match head.strip_suffix("[]") {
+        Some(n) => (n, true),
+        None => (head, false),
+    };
+    let Some(x) = v.get(name) else {
+        return;
+    };
+    let items: Vec<&Value> = match (each, x) {
+        (true, Value::Array(items)) => items.iter().collect(),
+        (true, _) => return,
+        (false, x) => vec![x],
+    };
+    for item in items {
+        match rest {
+            Some(r) => resolve(item, r, out),
+            None => out.push(item),
+        }
+    }
+}
+
+fn at<'a>(v: &'a Value, path: &str) -> Vec<&'a Value> {
+    let mut out = Vec::new();
+    resolve(v, path, &mut out);
+    out
+}
+
+/// A trait's text: a scalar as written, null `none`, a nested record `present`, a list its
+/// items' texts sorted and joined.
+fn trait_text(v: &Value) -> String {
+    match v {
+        Value::Null => "none".into(),
+        Value::Bool(b) => b.to_string(),
+        Value::Number(x) => x.to_string(),
+        Value::String(s) => s.clone(),
+        Value::Array(items) => joined(items.iter()),
+        Value::Object(_) => "present".into(),
+    }
+}
+
+fn joined<'a>(items: impl Iterator<Item = &'a Value>) -> String {
+    let mut texts: Vec<String> = items.map(trait_text).collect();
+    texts.sort();
+    texts.join(",")
+}
+
+/// Sizes kept smallest first, as `<name>.<i>`.
+fn insert_sorted(sizes: &mut BTreeMap<String, f64>, name: &str, mut values: Vec<f64>) {
+    values.sort_by(f64::total_cmp);
+    for (i, x) in values.into_iter().enumerate() {
+        sizes.insert(format!("{name}.{i}"), x);
+    }
+}
+
+fn point(v: &Value) -> Option<Vec<f64>> {
+    v.as_array()?.iter().map(Value::as_f64).collect()
+}
+
+fn distance(a: &[f64], b: &[f64]) -> f64 {
+    a.iter()
+        .zip(b)
+        .map(|(x, y)| (x - y).powi(2))
+        .sum::<f64>()
+        .sqrt()
+}
+
+/// The lengths of a chain of points' segments.
+fn chain_lengths(points: &Value) -> Vec<f64> {
+    let points: Vec<Vec<f64>> = points
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter_map(point)
+        .collect();
+    points.windows(2).map(|w| distance(&w[0], &w[1])).collect()
+}
+
+/// The sizes a family's [`Role::Derived`] fields give: differences of frame-aligned bounds, and
+/// distances and angles within a section, which a rigid motion leaves unchanged. Lists are kept
+/// smallest first, since the order of a section's parts follows the frame.
+fn derived_sizes(family: &str, r: &Value, sizes: &mut BTreeMap<String, f64>) {
+    let number = |path: &str| at(r, path).first().and_then(|v| v.as_f64());
+    let span = |lo: &str, hi: &str| Some((number(hi)? - number(lo)?).abs());
+    let interval = |path: &str| {
+        let ends = at(r, path).first().and_then(|v| point(v))?;
+        (ends.len() == 2).then(|| (ends[1] - ends[0]).abs())
+    };
+    let mut put = |name: &str, x: Option<f64>| {
+        if let Some(x) = x {
+            sizes.insert(name.into(), x);
+        }
+    };
+    match family {
+        "plates" => put("thickness", span("lo", "hi")),
+        "turned_steps" => put("length", span("lo", "hi")),
+        "gusset_ribs" => put("thickness", interval("thickness_bounds")),
+        "through_steps" => {
+            let legs = at(r, "section").first().map(|s| chain_lengths(s));
+            insert_sorted(sizes, "section.legs", legs.unwrap_or_default());
+        }
+        "edge_open_circular_pockets" => {
+            put("run_length", interval("run_interval"));
+            let opening = at(r, "section.opening").first().map(|s| chain_lengths(s));
+            put("opening_width", opening.and_then(|o| o.first().copied()));
+            // A sweep's sign follows the section's handedness in the frame.
+            let sweeps = at(r, "section.segments[].sweep");
+            let sweeps = sweeps.iter().filter_map(|v| v.as_f64()).map(f64::abs);
+            insert_sorted(sizes, "section.segments.sweep", sweeps.collect());
+            let mut lines = Vec::new();
+            for s in at(r, "section.segments[]") {
+                if s.get("kind").and_then(Value::as_str) == Some("line")
+                    && let (Some(a), Some(b)) =
+                        (s.get("start").and_then(point), s.get("end").and_then(point))
+                {
+                    lines.push(distance(&a, &b));
+                }
+            }
+            insert_sorted(sizes, "section.segments.line", lines);
+        }
+        "edge_open_prismatic_recesses" => {
+            put("run_length", interval("run_interval"));
+            let (start, end) = (
+                at(r, "section.opening.start")
+                    .first()
+                    .and_then(|v| point(v)),
+                at(r, "section.opening.end").first().and_then(|v| point(v)),
+            );
+            put(
+                "opening_width",
+                start.zip(end).map(|(a, b)| distance(&a, &b)),
+            );
+            let walls = at(r, "section.wall_chain")
+                .first()
+                .map(|s| chain_lengths(s));
+            insert_sorted(sizes, "section.walls", walls.unwrap_or_default());
+        }
+        _ => {}
+    }
+}
+
 fn feature(
     faces: &[FaceFingerprint],
     id: String,
-    family: &str,
+    table: &FamilyFingerprint,
     record: &Value,
     mut own: Vec<usize>,
 ) -> FeatureFingerprint {
@@ -210,72 +772,63 @@ fn feature(
     let mut traits = BTreeMap::new();
     let mut sizes = BTreeMap::new();
     let mut axis = None;
-    let Some(fields) = record.as_object() else {
-        return FeatureFingerprint {
-            id,
-            family: family.into(),
-            traits,
-            sizes,
-            axis,
-            position: None,
-            faces: own,
-            neighbourhood: Vec::new(),
-        };
-    };
-    for name in AXES {
-        if axis.is_none() {
-            axis = fields.get(name).and_then(read_axis);
-        }
-    }
-    let pattern = family.ends_with("_patterns");
-    if pattern {
+    if table.variants
+        && let Some(fields) = record.as_object()
+    {
         let keys: Vec<&str> = fields.keys().map(String::as_str).collect();
         traits.insert("shape".into(), keys.join(","));
     }
-    for (k, v) in fields {
-        // A pattern's angle is its orientation in the part's frame, not a size.
-        let size = SIZES.contains(&k.as_str()) && !(pattern && k == "angle");
-        match v {
-            Value::Number(x) if size => {
-                sizes.insert(k.clone(), x.as_f64().unwrap_or(0.0));
-            }
-            Value::String(s) if !matches!(s.as_str(), "x" | "y" | "z") => {
-                traits.insert(k.clone(), s.clone());
-            }
-            Value::Bool(b) => {
-                traits.insert(k.clone(), b.to_string());
-            }
-            Value::Null => {
-                traits.insert(k.clone(), "none".into());
-            }
-            // A pair of sizes is ordered by the frame (a ramp's two half-widths), so it is
-            // kept smallest first.
-            Value::Array(items) if size && items.iter().all(Value::is_number) => {
-                let mut values: Vec<f64> = items.iter().filter_map(Value::as_f64).collect();
-                values.sort_by(f64::total_cmp);
-                for (i, x) in values.into_iter().enumerate() {
-                    sizes.insert(format!("{k}.{i}"), x);
-                }
-            }
-            Value::Array(items) if !items.is_empty() && items.iter().all(Value::is_object) => {
-                sizes.insert("count".into(), items.len() as f64);
-            }
-            Value::Object(nested) => {
-                traits.insert(k.clone(), "present".into());
-                for (n, x) in nested {
-                    if let (true, Some(x)) = (SIZES.contains(&n.as_str()), x.as_f64()) {
-                        sizes.insert(format!("{k}.{n}"), x);
+    for &(path, role) in table.fields {
+        let values = at(record, path);
+        if values.is_empty() {
+            continue;
+        }
+        let each = path.contains("[]");
+        match role {
+            Size => {
+                let mut numbers = Vec::new();
+                for v in &values {
+                    match v {
+                        Value::Number(x) => numbers.extend(x.as_f64()),
+                        Value::Array(items) => {
+                            numbers.extend(items.iter().filter_map(Value::as_f64))
+                        }
+                        _ => {}
                     }
                 }
+                match (each, values[0]) {
+                    (false, Value::Number(_)) => {
+                        sizes.insert(path.into(), numbers[0]);
+                    }
+                    _ => insert_sorted(&mut sizes, &path.replace("[]", ""), numbers),
+                }
             }
-            _ => {}
+            Axis => {
+                if axis.is_none() {
+                    axis = read_axis(values[0]);
+                }
+            }
+            Trait => {
+                let text = if each {
+                    joined(values.into_iter())
+                } else {
+                    trait_text(values[0])
+                };
+                traits.insert(path.replace("[]", ""), text);
+            }
+            Count(name) => {
+                let n = values[0].as_array().map_or(0, Vec::len);
+                sizes.insert(name.into(), n as f64);
+            }
+            Placement | Derived | Ignored => {}
         }
     }
+    derived_sizes(table.family, record, &mut sizes);
     let position = weighted_centroid(faces, &own);
     let neighbourhood = neighbourhood(faces, &own);
     FeatureFingerprint {
         id,
-        family: family.into(),
+        family: table.family.into(),
         traits,
         sizes,
         axis,

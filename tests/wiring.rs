@@ -1,0 +1,199 @@
+//! Family wiring (review findings M1 and H5): every family `features::recognise` returns is
+//! either given its defining faces, record by record, or derived from another family's records;
+//! and every leaf of every family's records has a role in its fingerprint table
+//! (`correspondence::fingerprint::FAMILIES`), every path in a table being some leaf's, and every
+//! feature's fingerprint has a size. Run over the STEP fixtures and, when present, the corpus.
+
+mod common;
+
+use std::collections::{BTreeMap, BTreeSet};
+use std::path::PathBuf;
+
+use quiddity::correspondence::fingerprint::{FAMILIES, classify, family, fingerprint};
+use quiddity::features::{self, gussets};
+use serde_json::Value;
+
+/// Each leaf of *v* (a scalar or null) by its path: `a.b` into a nested record, `a[]` into a
+/// list's items.
+fn leaves(v: &Value, path: &str, out: &mut BTreeSet<String>) {
+    match v {
+        Value::Object(fields) => {
+            for (k, x) in fields {
+                let p = if path.is_empty() {
+                    k.clone()
+                } else {
+                    format!("{path}.{k}")
+                };
+                leaves(x, &p, out);
+            }
+        }
+        Value::Array(items) => {
+            for x in items {
+                leaves(x, &format!("{path}[]"), out);
+            }
+        }
+        _ => {
+            out.insert(path.to_string());
+        }
+    }
+}
+
+/// What one part's recognition gets wrong in its wiring, and the leaf paths of its records by
+/// family.
+fn check(name: &str, json: &Value, defining: &features::Defining) -> (Vec<String>, Leaves) {
+    let mut problems = Vec::new();
+    let mut found = Leaves::new();
+    let object = json.as_object().unwrap();
+    for (key, records) in object {
+        let Some(records) = records.as_array() else {
+            continue;
+        };
+        let Some(table) = family(key) else {
+            problems.push(format!("{name}: family {key} has no fingerprint table"));
+            continue;
+        };
+        match (defining.get(key.as_str()), table.members) {
+            (Some(d), None) if d.len() == records.len() => {}
+            (Some(d), None) => problems.push(format!(
+                "{name}: {key} has {} records but {} defining-face lists",
+                records.len(),
+                d.len()
+            )),
+            (Some(_), Some(_)) => problems.push(format!(
+                "{name}: {key} is derived but also has defining faces"
+            )),
+            (None, Some((field, base))) => {
+                if !defining.contains_key(base) {
+                    problems.push(format!("{name}: {key}'s base {base} has no defining faces"));
+                }
+                for r in records {
+                    if !r.get(field).is_some_and(Value::is_array) {
+                        problems.push(format!("{name}: a {key} record has no member list {field}"));
+                    }
+                }
+            }
+            (None, None) => problems.push(format!(
+                "{name}: {key} has no defining faces and is not derived"
+            )),
+        }
+        let paths = found.entry(key.clone()).or_default();
+        for r in records {
+            leaves(r, "", paths);
+        }
+    }
+    for key in defining.keys() {
+        if !object.get(*key).is_some_and(Value::is_array) {
+            problems.push(format!(
+                "{name}: defining faces under {key}, which is no family"
+            ));
+        }
+    }
+    (problems, found)
+}
+
+type Leaves = BTreeMap<String, BTreeSet<String>>;
+
+/// The STEP fixtures and the corpus's files (`corpus.json`), when the corpus is present.
+fn parts() -> (Vec<PathBuf>, bool) {
+    let mut out: Vec<PathBuf> = std::fs::read_dir(common::fixtures())
+        .unwrap()
+        .map(|e| e.unwrap().path())
+        .filter(|p| p.extension().is_some_and(|e| e == "step"))
+        .collect();
+    out.sort();
+    let corpus = common::corpus_dir();
+    assert!(
+        corpus.is_some() || std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
+        "QUIDDITY_CORPUS_REQUIRED is set but the corpus was not found"
+    );
+    if let Some(dir) = &corpus {
+        for entry in common::load("corpus.json")["files"].as_array().unwrap() {
+            out.push(dir.join(entry["file"].as_str().unwrap()));
+        }
+    }
+    (out, corpus.is_some())
+}
+
+#[test]
+fn families_are_wired_and_their_records_fingerprinted_field_by_field() {
+    let (paths, corpus) = parts();
+    let threads = std::thread::available_parallelism().map_or(4, |n| n.get());
+    let results: Vec<(Vec<String>, Leaves)> = std::thread::scope(|s| {
+        let chunks: Vec<_> = paths
+            .chunks(paths.len().div_ceil(threads))
+            .map(|chunk| {
+                s.spawn(move || {
+                    let mut out = Vec::new();
+                    for path in chunk {
+                        // The corpus test reports read failures.
+                        let Ok(part) = quiddity::read_step_file(path) else {
+                            continue;
+                        };
+                        let features = features::recognise(&part);
+                        let json = serde_json::to_value(&features).unwrap();
+                        let name = path.file_name().unwrap().to_string_lossy();
+                        let (mut problems, leaves) = check(&name, &json, &features.defining);
+                        // A feature with no size would be carried through any resize.
+                        for f in fingerprint(&part, &features).features {
+                            if f.sizes.is_empty() {
+                                problems.push(format!("{name}: {} has no sizes", f.id));
+                            }
+                        }
+                        out.push((problems, leaves));
+                    }
+                    out
+                })
+            })
+            .collect();
+        chunks.into_iter().flat_map(|c| c.join().unwrap()).collect()
+    });
+    let mut problems = Vec::new();
+    let mut found = Leaves::new();
+    for (p, leaves) in results {
+        problems.extend(p);
+        for (key, paths) in leaves {
+            found.entry(key).or_default().extend(paths);
+        }
+    }
+    // The array variant of a gusset rib pattern is in no fixture or corpus part.
+    let array = gussets::GussetRibPattern::Array {
+        ribs: Vec::new(),
+        axis: 'x',
+        pitch: 10.0,
+    };
+    leaves(
+        &serde_json::to_value(array).unwrap(),
+        "",
+        found.entry("gusset_rib_patterns".into()).or_default(),
+    );
+    let mut used: BTreeSet<(String, &str)> = BTreeSet::new();
+    for (key, paths) in &found {
+        for path in paths {
+            match classify(key, path) {
+                Some((entry, _)) => {
+                    used.insert((key.clone(), entry));
+                }
+                None => problems.push(format!(
+                    "{key}: record field {path} has no role in the fingerprint table"
+                )),
+            }
+        }
+    }
+    let unused: Vec<String> = FAMILIES
+        .iter()
+        .flat_map(|f| f.fields.iter().map(move |(p, _)| (f.family, *p)))
+        .filter(|(key, p)| !used.contains(&(key.to_string(), *p)))
+        .map(|(key, p)| format!("{key}: the fingerprint table's {p} is no record field"))
+        .collect();
+    // Without the corpus, some families have no records to show their fields.
+    if corpus {
+        problems.extend(unused);
+    }
+    eprintln!(
+        "{} parts, {} families, {} leaf paths",
+        paths.len(),
+        found.len(),
+        found.values().map(BTreeSet::len).sum::<usize>()
+    );
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
