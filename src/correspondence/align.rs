@@ -116,83 +116,87 @@ fn candidates<T>(
         .collect()
 }
 
-/// The alignment of *old* onto *new*.
-pub fn align(old: &Fingerprints, new: &Fingerprints, th: &Thresholds) -> (Motion, Alignment) {
-    let scale = old.scale.max(new.scale);
-    let tol = th.position_tol * scale;
-    let cos_tol = th.angle_tol.cos();
+/// Both revisions' anchors (features first, then faces) and the candidate pairs between them.
+struct Candidates {
+    old: Vec<Anchor>,
+    new: Vec<Anchor>,
+    pairs: Vec<Pair>,
+}
 
-    // Anchors: features first, then faces.
-    let mut old_anchors = Vec::new();
-    let mut new_anchors = Vec::new();
-    let mut pairs: Vec<(Pair, usize, f64)> = Vec::new();
-    let feature_pairs = candidates(
-        &old.features,
-        &new.features,
-        |a, b| same_feature(a, b, th.same_rel),
-        th.anchor_candidates,
-    );
-    let mut index_old = vec![usize::MAX; old.features.len()];
-    let mut index_new = vec![usize::MAX; new.features.len()];
-    for (i, j, n) in feature_pairs {
-        let (Some(a), Some(b)) = (
-            feature_anchor(&old.features[i]),
-            feature_anchor(&new.features[j]),
-        ) else {
-            continue;
-        };
-        if index_old[i] == usize::MAX {
-            index_old[i] = old_anchors.len();
-            old_anchors.push(a);
+impl Candidates {
+    fn of(old: &Fingerprints, new: &Fingerprints, th: &Thresholds) -> Candidates {
+        // Anchors: features first, then faces.
+        let mut old_anchors = Vec::new();
+        let mut new_anchors = Vec::new();
+        let mut pairs: Vec<(Pair, usize, f64)> = Vec::new();
+        let feature_pairs = candidates(
+            &old.features,
+            &new.features,
+            |a, b| same_feature(a, b, th.same_rel),
+            th.anchor_candidates,
+        );
+        let mut index_old = vec![usize::MAX; old.features.len()];
+        let mut index_new = vec![usize::MAX; new.features.len()];
+        for (i, j, n) in feature_pairs {
+            let (Some(a), Some(b)) = (
+                feature_anchor(&old.features[i]),
+                feature_anchor(&new.features[j]),
+            ) else {
+                continue;
+            };
+            if index_old[i] == usize::MAX {
+                index_old[i] = old_anchors.len();
+                old_anchors.push(a);
+            }
+            if index_new[j] == usize::MAX {
+                index_new[j] = new_anchors.len();
+                new_anchors.push(b);
+            }
+            pairs.push(((index_old[i], index_new[j]), n, f64::INFINITY));
         }
-        if index_new[j] == usize::MAX {
-            index_new[j] = new_anchors.len();
-            new_anchors.push(b);
+        let face_pairs = candidates(
+            &old.faces,
+            &new.faces,
+            |a, b| same_face(a, b, th.same_rel),
+            th.anchor_candidates,
+        );
+        let mut index_old = vec![usize::MAX; old.faces.len()];
+        let mut index_new = vec![usize::MAX; new.faces.len()];
+        for (i, j, n) in face_pairs {
+            if index_old[i] == usize::MAX {
+                index_old[i] = old_anchors.len();
+                old_anchors.push(face_anchor(&old.faces[i]));
+            }
+            if index_new[j] == usize::MAX {
+                index_new[j] = new_anchors.len();
+                new_anchors.push(face_anchor(&new.faces[j]));
+            }
+            pairs.push((
+                (index_old[i], index_new[j]),
+                n,
+                old.faces[i].area.unwrap_or(0.0),
+            ));
         }
-        pairs.push(((index_old[i], index_new[j]), n, f64::INFINITY));
+        // The most distinctive first (fewest candidates; then features, then the larger faces),
+        // as many as the budget allows.
+        pairs.sort_by(|a, b| a.1.cmp(&b.1).then(b.2.total_cmp(&a.2)));
+        pairs.truncate(th.anchor_pairs);
+        Candidates {
+            old: old_anchors,
+            new: new_anchors,
+            pairs: pairs.into_iter().map(|p| p.0).collect(),
+        }
     }
-    let face_pairs = candidates(
-        &old.faces,
-        &new.faces,
-        |a, b| same_face(a, b, th.same_rel),
-        th.anchor_candidates,
-    );
-    let mut index_old = vec![usize::MAX; old.faces.len()];
-    let mut index_new = vec![usize::MAX; new.faces.len()];
-    for (i, j, n) in face_pairs {
-        if index_old[i] == usize::MAX {
-            index_old[i] = old_anchors.len();
-            old_anchors.push(face_anchor(&old.faces[i]));
-        }
-        if index_new[j] == usize::MAX {
-            index_new[j] = new_anchors.len();
-            new_anchors.push(face_anchor(&new.faces[j]));
-        }
-        pairs.push((
-            (index_old[i], index_new[j]),
-            n,
-            old.faces[i].area.unwrap_or(0.0),
-        ));
-    }
-    // The most distinctive first (fewest candidates; then features, then the larger faces), as
-    // many as the budget allows.
-    pairs.sort_by(|a, b| a.1.cmp(&b.1).then(b.2.total_cmp(&a.2)));
-    pairs.truncate(th.anchor_pairs);
-    let pairs: Vec<Pair> = pairs.into_iter().map(|p| p.0).collect();
-    let anchors = {
-        let mut seen: Vec<usize> = pairs.iter().map(|p| p.0).collect();
-        seen.sort_unstable();
-        seen.dedup();
-        seen.len()
-    };
 
-    let inliers = |m: &Motion| -> (usize, f64, Vec<Pair>) {
-        let mut hit_old = vec![false; old_anchors.len()];
-        let mut hit_new = vec![false; new_anchors.len()];
+    /// How many pairs *m* takes each anchor onto its partner for (each anchor counted once),
+    /// the rms of their distances, and every pair it does.
+    fn inliers(&self, m: &Motion, tol: f64, cos_tol: f64) -> (usize, f64, Vec<Pair>) {
+        let mut hit_old = vec![false; self.old.len()];
+        let mut hit_new = vec![false; self.new.len()];
         let (mut count, mut sq) = (0, 0.0);
         let mut kept = Vec::new();
-        for &(i, j) in &pairs {
-            let (a, b) = (&old_anchors[i], &new_anchors[j]);
+        for &(i, j) in &self.pairs {
+            let (a, b) = (&self.old[i], &self.new[j]);
             let d = geom::dist(m.point(a.point), b.point);
             if d > tol {
                 continue;
@@ -212,19 +216,15 @@ pub fn align(old: &Fingerprints, new: &Fingerprints, th: &Thresholds) -> (Motion
             }
         }
         (count, (sq / count.max(1) as f64).sqrt(), kept)
-    };
+    }
 
-    // Hypotheses: pairs of pairs, then triples, each all of them or a deterministic sample.
-    // The best motion fixed by points spanning a plane, and the best fixed only by points on a
-    // line (an axisymmetric part: its rotation about the line is not determined).
-    let mut best: [Option<(Motion, usize, f64)>; 2] = [None, None];
-    let mut rivals: Vec<(Motion, usize)> = Vec::new();
-    let n = pairs.len();
-    let mut consider = |sample: &[usize]| {
+    /// The points *pairs* fix a motion by, old and new: each anchor's point and, for a face
+    /// with a normal, the point *scale* along it.
+    fn points(&self, pairs: impl IntoIterator<Item = Pair>, scale: f64) -> (Vec<V3>, Vec<V3>) {
         let mut from = Vec::new();
         let mut to = Vec::new();
-        for &k in sample {
-            let (a, b) = (&old_anchors[pairs[k].0], &new_anchors[pairs[k].1]);
+        for (i, j) in pairs {
+            let (a, b) = (&self.old[i], &self.new[j]);
             from.push(a.point);
             to.push(b.point);
             if let (Some(da), Some(db), false) = (a.dir, b.dir, a.line) {
@@ -232,98 +232,29 @@ pub fn align(old: &Fingerprints, new: &Fingerprints, th: &Thresholds) -> (Motion
                 to.push(geom::add(b.point, geom::scale(db, scale)));
             }
         }
-        let line = !spread(&from, tol);
-        if line && !far_apart(&from, tol) {
-            return;
-        }
-        let best = &mut best[usize::from(line)];
-        let Some(m) = horn(&from, &to) else {
-            return;
-        };
-        if from
-            .iter()
-            .zip(&to)
-            .any(|(p, q)| geom::dist(m.point(*p), *q) > tol)
-        {
-            return;
-        }
-        let (count, rms, _) = inliers(&m);
-        rivals.push((m, count));
-        let better = match &*best {
-            None => true,
-            Some((bm, bc, br)) => {
-                count > *bc
-                    || (count == *bc
-                        && (rms < br - 0.1 * tol
-                            || ((rms - br).abs() <= 0.1 * tol
-                                && distance_from_identity(&m, scale)
-                                    < distance_from_identity(bm, scale) - 1e-9)))
-            }
-        };
-        if better {
-            *best = Some((m, count, rms));
-        }
-    };
-    let mut rng = 0x9e37_79b9_7f4a_7c15u64;
-    let mut next = |bound: usize| {
-        rng ^= rng << 13;
-        rng ^= rng >> 7;
-        rng ^= rng << 17;
-        (rng % bound as u64) as usize
-    };
-    if n >= 2 {
-        if n * (n - 1) / 2 <= th.hypotheses {
-            for a in 0..n {
-                for b in a + 1..n {
-                    consider(&[a, b]);
-                }
-            }
-        } else {
-            for _ in 0..th.hypotheses {
-                let (a, b) = (next(n), next(n));
-                if a != b {
-                    consider(&[a, b]);
-                }
-            }
-        }
+        (from, to)
     }
-    if n >= 3 {
-        if n * (n - 1) * (n - 2) / 6 <= th.hypotheses {
-            for a in 0..n {
-                for b in a + 1..n {
-                    for c in b + 1..n {
-                        consider(&[a, b, c]);
-                    }
-                }
-            }
-        } else {
-            for _ in 0..th.hypotheses {
-                let (a, b, c) = (next(n), next(n), next(n));
-                if a != b && b != c && a != c {
-                    consider(&[a, b, c]);
-                }
-            }
-        }
-    }
+}
 
-    let unaligned = |inliers: usize, symmetric: bool| {
-        (
-            Motion::IDENTITY,
-            Alignment {
-                found: false,
-                rotation: Motion::IDENTITY.r,
-                translation: [0.0; 3],
-                anchors,
-                inliers,
-                symmetric,
-                axisymmetric: false,
-                axis: None,
-                fold: None,
-                rms: 0.0,
-            },
-        )
+/// A hypothesis kept as the best so far: its motion, inlier count and rms.
+type Best = Option<(Motion, usize, f64)>;
+
+/// The alignment of *old* onto *new*.
+pub fn align(old: &Fingerprints, new: &Fingerprints, th: &Thresholds) -> (Motion, Alignment) {
+    let scale = old.scale.max(new.scale);
+    let tol = th.position_tol * scale;
+    let cos_tol = th.angle_tol.cos();
+
+    let c = Candidates::of(old, new, th);
+    let anchors = {
+        let mut seen: Vec<usize> = c.pairs.iter().map(|p| p.0).collect();
+        seen.sort_unstable();
+        seen.dedup();
+        seen.len()
     };
-    let accepted = |b: &Option<(Motion, usize, f64)>| {
+
+    let (best, rivals) = search(&c, th, scale, tol, cos_tol);
+    let accepted = |b: &Best| {
         b.filter(|(_, count, _)| {
             *count >= th.min_inliers && *count as f64 >= th.min_inlier_fraction * anchors as f64
         })
@@ -333,43 +264,22 @@ pub fn align(old: &Fingerprints, new: &Fingerprints, th: &Thresholds) -> (Motion
         (None, Some((m, c, _))) => (m, c, true),
         (None, None) => {
             let most = best.iter().flatten().map(|b| b.1).max().unwrap_or(0);
-            return unaligned(most, false);
+            return unaligned(anchors, most);
         }
     };
     // Refine on every inlier, then recount.
-    let (_, _, kept) = inliers(&m);
-    let mut from = Vec::new();
-    let mut to = Vec::new();
-    for (i, j) in kept {
-        let (a, b) = (&old_anchors[i], &new_anchors[j]);
-        from.push(a.point);
-        to.push(b.point);
-        if let (Some(da), Some(db), false) = (a.dir, b.dir, a.line) {
-            from.push(geom::add(a.point, geom::scale(da, scale)));
-            to.push(geom::add(b.point, geom::scale(db, scale)));
-        }
-    }
+    let (_, _, kept) = c.inliers(&m, tol, cos_tol);
+    let (from, to) = c.points(kept, scale);
     let refined = horn(&from, &to).unwrap_or(m);
-    let (count2, rms2, _) = inliers(&refined);
+    let (count2, rms2, _) = c.inliers(&refined, tol, cos_tol);
     let (m, count, rms) = if count2 >= count {
         (refined, count2, rms2)
     } else {
-        (m, count, inliers(&m).1)
+        (m, count, c.inliers(&m, tol, cos_tol).1)
     };
     // The line every anchor lies on, in the new revision: through its two furthest points.
     let axis = if axisymmetric {
-        let a = to[0];
-        let far = to
-            .iter()
-            .copied()
-            .max_by(|p, q| geom::dist(*p, a).total_cmp(&geom::dist(*q, a)))
-            .unwrap_or(a);
-        let b = to
-            .iter()
-            .copied()
-            .max_by(|p, q| geom::dist(*p, far).total_cmp(&geom::dist(*q, far)))
-            .unwrap_or(a);
-        geom::unit(geom::sub(b, far)).map(|d| [far, d])
+        line_through(&to)
     } else {
         None
     };
@@ -413,6 +323,149 @@ pub fn align(old: &Fingerprints, new: &Fingerprints, th: &Thresholds) -> (Motion
             rms,
         },
     )
+}
+
+/// No alignment: the identity, with how many *inliers* the best hypothesis had.
+fn unaligned(anchors: usize, inliers: usize) -> (Motion, Alignment) {
+    (
+        Motion::IDENTITY,
+        Alignment {
+            found: false,
+            rotation: Motion::IDENTITY.r,
+            translation: [0.0; 3],
+            anchors,
+            inliers,
+            symmetric: false,
+            axisymmetric: false,
+            axis: None,
+            fold: None,
+            rms: 0.0,
+        },
+    )
+}
+
+/// The hypotheses tried: the best motion fixed by points spanning a plane, and the best fixed
+/// only by points on a line (an axisymmetric part: its rotation about the line is not
+/// determined); and every motion tried with its inlier count.
+fn search(
+    c: &Candidates,
+    th: &Thresholds,
+    scale: f64,
+    tol: f64,
+    cos_tol: f64,
+) -> ([Best; 2], Vec<(Motion, usize)>) {
+    let mut best: [Best; 2] = [None, None];
+    let mut rivals: Vec<(Motion, usize)> = Vec::new();
+    for_each_sample(c.pairs.len(), th.hypotheses, |sample| {
+        let Some((m, line)) = hypothesis(c, sample, scale, tol) else {
+            return;
+        };
+        let best = &mut best[usize::from(line)];
+        let (count, rms, _) = c.inliers(&m, tol, cos_tol);
+        rivals.push((m, count));
+        if better(&m, count, rms, best, tol, scale) {
+            *best = Some((m, count, rms));
+        }
+    });
+    (best, rivals)
+}
+
+/// Each sample of *n* pairs to solve from: pairs of pairs, then triples, each all of them or
+/// a deterministic sample of *hypotheses*.
+fn for_each_sample(n: usize, hypotheses: usize, mut consider: impl FnMut(&[usize])) {
+    let mut rng = 0x9e37_79b9_7f4a_7c15u64;
+    let mut next = |bound: usize| {
+        rng ^= rng << 13;
+        rng ^= rng >> 7;
+        rng ^= rng << 17;
+        (rng % bound as u64) as usize
+    };
+    if n >= 2 {
+        if n * (n - 1) / 2 <= hypotheses {
+            for a in 0..n {
+                for b in a + 1..n {
+                    consider(&[a, b]);
+                }
+            }
+        } else {
+            for _ in 0..hypotheses {
+                let (a, b) = (next(n), next(n));
+                if a != b {
+                    consider(&[a, b]);
+                }
+            }
+        }
+    }
+    if n >= 3 {
+        if n * (n - 1) * (n - 2) / 6 <= hypotheses {
+            for a in 0..n {
+                for b in a + 1..n {
+                    for c in b + 1..n {
+                        consider(&[a, b, c]);
+                    }
+                }
+            }
+        } else {
+            for _ in 0..hypotheses {
+                let (a, b, c) = (next(n), next(n), next(n));
+                if a != b && b != c && a != c {
+                    consider(&[a, b, c]);
+                }
+            }
+        }
+    }
+}
+
+/// The motion the pairs of *sample* fix, and whether their points lie on one line; `None` when
+/// they are too close together to fix one or it leaves any of them out of place.
+fn hypothesis(c: &Candidates, sample: &[usize], scale: f64, tol: f64) -> Option<(Motion, bool)> {
+    let (from, to) = c.points(sample.iter().map(|&k| c.pairs[k]), scale);
+    let line = !spread(&from, tol);
+    if line && !far_apart(&from, tol) {
+        return None;
+    }
+    let m = horn(&from, &to)?;
+    if from
+        .iter()
+        .zip(&to)
+        .any(|(p, q)| geom::dist(m.point(*p), *q) > tol)
+    {
+        return None;
+    }
+    Some((m, line))
+}
+
+/// Whether *m*, with *count* inliers at *rms*, beats *best*: more inliers, then a clearly
+/// smaller rms, then nearer the identity.
+fn better(m: &Motion, count: usize, rms: f64, best: &Best, tol: f64, scale: f64) -> bool {
+    match best {
+        None => true,
+        Some((bm, bc, br)) => {
+            count > *bc
+                || (count == *bc
+                    && (rms < br - 0.1 * tol
+                        || ((rms - br).abs() <= 0.1 * tol
+                            && distance_from_identity(m, scale)
+                                < distance_from_identity(bm, scale) - 1e-9)))
+        }
+    }
+}
+
+/// The line through the two furthest apart of *points* (the first is a point on it, the second
+/// its direction), from the first point's furthest.
+fn line_through(points: &[V3]) -> Option<[V3; 2]> {
+    let a = points[0];
+    let far = points
+        .iter()
+        .copied()
+        .max_by(|p, q| geom::dist(*p, a).total_cmp(&geom::dist(*q, a)))
+        .unwrap_or(a);
+    let b = points
+        .iter()
+        .copied()
+        .max_by(|p, q| geom::dist(*p, far).total_cmp(&geom::dist(*q, far)))
+        .unwrap_or(a);
+    geom::unit(geom::sub(b, far)).map(|d| [far, d])
 }
 
 /// The rotation by *angle* about unit direction *d*.

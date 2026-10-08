@@ -4,8 +4,8 @@
 
 use std::f64::consts::{PI, TAU};
 
-use super::brep::{Part, Pcurve};
-use super::geom::{self, Surface, V3};
+use super::brep::{Face, Loop, Part, Pcurve};
+use super::geom::{self, Frame, Surface, V3};
 use super::sampling::{edge_interval, extremes_along};
 
 /// The face's boundary as (u, v) polylines.
@@ -658,59 +658,14 @@ impl Part {
             return Some((0.0, TAU, -PI / 2.0, PI / 2.0));
         }
         if let Surface::Plane { frame } = f.surface {
-            // A plane's range is exactly its edges' extent in plane coordinates.
-            let mut range = [
-                f64::INFINITY,
-                f64::NEG_INFINITY,
-                f64::INFINITY,
-                f64::NEG_INFINITY,
-            ];
-            for e in self.face_edges(face) {
-                let ed = &self.edges[e];
-                let interval =
-                    edge_interval(&ed.curve, ed.start, ed.end, ed.same_sense, ed.is_closed());
-                let ends = [ed.curve.value(interval.0), ed.curve.value(interval.1)];
-                for p in
-                    ends.into_iter()
-                        .chain(extremes_along(&ed.curve, interval, &[frame.x, frame.y]))
-                {
-                    let l = frame.to_local(p);
-                    range = [
-                        range[0].min(l[0]),
-                        range[1].max(l[0]),
-                        range[2].min(l[1]),
-                        range[3].max(l[1]),
-                    ];
-                }
-            }
-            return range[0]
-                .is_finite()
-                .then_some((range[0], range[1], range[2], range[3]));
+            return self.plane_uv_bounds(face, frame);
         }
-        let (pu, pv) = f.surface.periodic();
+        let periodic = f.surface.periodic();
+        let (pu, pv) = periodic;
         let loops = self.uv_loops(face)?;
-        let mut range = [
-            f64::INFINITY,
-            f64::NEG_INFINITY,
-            f64::INFINITY,
-            f64::NEG_INFINITY,
-        ];
-        let mut add = |(u, v): (f64, f64)| {
-            range = [
-                range[0].min(u),
-                range[1].max(u),
-                range[2].min(v),
-                range[3].max(v),
-            ];
-        };
+        let mut range = NO_RANGE;
         // Loops are placed in one period by `loop_placement`; whether a loop winds round a
         // periodic direction is read from its ends.
-        let near = |(u, v): (f64, f64), (ru, rv): (f64, f64)| {
-            (
-                if pu { geom::nearest_turn(u, ru) } else { u },
-                if pv { geom::nearest_turn(v, rv) } else { v },
-            )
-        };
         let mut winds = (false, false);
         for lp in loops {
             let (Some(&first), Some(&last)) = (lp.points.first(), lp.points.last()) else {
@@ -724,7 +679,7 @@ impl Part {
             for (lp, shift) in loops.iter().zip(&shifts) {
                 lp.points
                     .iter()
-                    .for_each(|&(u, v)| add((u + shift.0, v + shift.1)));
+                    .for_each(|&(u, v)| widen(&mut range, (u + shift.0, v + shift.1)));
             }
         } else {
             // Edge by edge: where the file gives an edge's pcurve, it sizes the range in place of
@@ -733,87 +688,7 @@ impl Part {
                 if lp.vertex.is_some() {
                     continue; // an apex bounds v through its edges; its u is meaningless
                 }
-                // Start this loop where its own unwrapped samples sit, in its placed period.
-                let Some(&start) = uv.points.first() else {
-                    continue;
-                };
-                let mut last = (start.0 + shift.0, start.1 + shift.1);
-                let (lu, lv) = (
-                    self::range(uv.points.iter(), |p| p.0),
-                    self::range(uv.points.iter(), |p| p.1),
-                );
-                let loop_centre = (0.5 * (lu.0 + lu.1) + shift.0, 0.5 * (lv.0 + lv.1) + shift.1);
-                for &(e, forward) in &lp.edges {
-                    let samples = &self.edges[e].samples;
-                    let ordered: Box<dyn Iterator<Item = &V3>> = if forward {
-                        Box::new(samples.iter())
-                    } else {
-                        Box::new(samples.iter().rev())
-                    };
-                    let mut pts = Vec::with_capacity(samples.len());
-                    for p in ordered {
-                        let q = f.surface.parameters(*p, None)?;
-                        if f.surface.singular_v(q.1).is_some() {
-                            continue; // a pole or apex: its u is arbitrary
-                        }
-                        let q = near(q, last);
-                        pts.push(q);
-                        last = q;
-                    }
-                    if pts.is_empty() {
-                        continue;
-                    }
-                    // Put the edge in the period its loop occupies: across a skipped pole or apex
-                    // sample, continuity alone cannot tell which turn the edge is on.
-                    let n = pts.len() as f64;
-                    let mean = (
-                        pts.iter().map(|p| p.0).sum::<f64>() / n,
-                        pts.iter().map(|p| p.1).sum::<f64>() / n,
-                    );
-                    let placed = near(mean, loop_centre);
-                    let (du, dv) = (placed.0 - mean.0, placed.1 - mean.1);
-                    pts.iter_mut().for_each(|p| *p = (p.0 + du, p.1 + dv));
-                    last = *pts.last().expect("non-empty");
-                    let own: Vec<&Pcurve> = f
-                        .pcurves
-                        .iter()
-                        .filter(|(pe, _)| *pe == e)
-                        .map(|(_, c)| c)
-                        .collect();
-                    if own.is_empty() {
-                        pts.iter().for_each(|&p| add(p));
-                        continue;
-                    }
-                    let centre = placed;
-                    for curve in own {
-                        match curve {
-                            Pcurve::Poles(poles) => {
-                                let m = poles.len() as f64;
-                                let mid = (
-                                    poles.iter().map(|p| p.0).sum::<f64>() / m,
-                                    poles.iter().map(|p| p.1).sum::<f64>() / m,
-                                );
-                                let aligned = near(mid, centre);
-                                poles.iter().for_each(|&(u, v)| {
-                                    add((u + aligned.0 - mid.0, v + aligned.1 - mid.1))
-                                });
-                            }
-                            Pcurve::Line { point, dir } => {
-                                // A line constant in one parameter fixes that parameter exactly;
-                                // the other comes from the edge's samples.
-                                let along_v = dir.0.abs() <= 1e-12 * dir.1.abs();
-                                let along_u = dir.1.abs() <= 1e-12 * dir.0.abs();
-                                let fixed = near(*point, centre);
-                                for &(u, v) in &pts {
-                                    add((
-                                        if along_v { fixed.0 } else { u },
-                                        if along_u { fixed.1 } else { v },
-                                    ));
-                                }
-                            }
-                        }
-                    }
-                }
+                self.widen_by_loop_edges(f, lp, uv, *shift, periodic, &mut range)?;
             }
         }
         let seam = self.seam_parameters(face);
@@ -830,6 +705,108 @@ impl Part {
             }
         }
         Some((range[0], range[1], range[2], range[3]))
+    }
+
+    /// A plane's range is exactly its edges' extent in plane coordinates.
+    fn plane_uv_bounds(&self, face: usize, frame: Frame) -> Option<(f64, f64, f64, f64)> {
+        let mut range = NO_RANGE;
+        for e in self.face_edges(face) {
+            let ed = &self.edges[e];
+            let interval =
+                edge_interval(&ed.curve, ed.start, ed.end, ed.same_sense, ed.is_closed());
+            let ends = [ed.curve.value(interval.0), ed.curve.value(interval.1)];
+            for p in
+                ends.into_iter()
+                    .chain(extremes_along(&ed.curve, interval, &[frame.x, frame.y]))
+            {
+                let l = frame.to_local(p);
+                widen(&mut range, (l[0], l[1]));
+            }
+        }
+        range[0]
+            .is_finite()
+            .then_some((range[0], range[1], range[2], range[3]))
+    }
+
+    /// Widens *range* by one loop of face *f*, edge by edge, from the edges' samples or, where
+    /// the file gives them, their pcurves. *uv* is the loop unwrapped and *shift* its placement.
+    fn widen_by_loop_edges(
+        &self,
+        f: &Face,
+        lp: &Loop,
+        uv: &UvLoop,
+        shift: (f64, f64),
+        periodic: (bool, bool),
+        range: &mut [f64; 4],
+    ) -> Option<()> {
+        // Start this loop where its own unwrapped samples sit, in its placed period.
+        let Some(&start) = uv.points.first() else {
+            return Some(());
+        };
+        let mut last = (start.0 + shift.0, start.1 + shift.1);
+        let (lu, lv) = (
+            self::range(uv.points.iter(), |p| p.0),
+            self::range(uv.points.iter(), |p| p.1),
+        );
+        let loop_centre = (0.5 * (lu.0 + lu.1) + shift.0, 0.5 * (lv.0 + lv.1) + shift.1);
+        for &(e, forward) in &lp.edges {
+            let mut pts = self.edge_uv_points(f, e, forward, periodic, &mut last)?;
+            if pts.is_empty() {
+                continue;
+            }
+            // Put the edge in the period its loop occupies: across a skipped pole or apex
+            // sample, continuity alone cannot tell which turn the edge is on.
+            let n = pts.len() as f64;
+            let mean = (
+                pts.iter().map(|p| p.0).sum::<f64>() / n,
+                pts.iter().map(|p| p.1).sum::<f64>() / n,
+            );
+            let placed = near(periodic, mean, loop_centre);
+            let (du, dv) = (placed.0 - mean.0, placed.1 - mean.1);
+            pts.iter_mut().for_each(|p| *p = (p.0 + du, p.1 + dv));
+            last = *pts.last().expect("non-empty");
+            let own: Vec<&Pcurve> = f
+                .pcurves
+                .iter()
+                .filter(|(pe, _)| *pe == e)
+                .map(|(_, c)| c)
+                .collect();
+            if own.is_empty() {
+                pts.iter().for_each(|&p| widen(range, p));
+                continue;
+            }
+            widen_by_pcurves(&own, &pts, placed, periodic, range);
+        }
+        Some(())
+    }
+
+    /// Edge *e*'s samples on face *f*, walked *forward* or back, in (u, v) continuing from
+    /// *last* (which follows them); a pole or apex sample is skipped.
+    fn edge_uv_points(
+        &self,
+        f: &Face,
+        e: usize,
+        forward: bool,
+        periodic: (bool, bool),
+        last: &mut (f64, f64),
+    ) -> Option<Vec<(f64, f64)>> {
+        let samples = &self.edges[e].samples;
+        let ordered: Box<dyn Iterator<Item = &V3>> = if forward {
+            Box::new(samples.iter())
+        } else {
+            Box::new(samples.iter().rev())
+        };
+        let mut pts = Vec::with_capacity(samples.len());
+        for p in ordered {
+            let q = f.surface.parameters(*p, None)?;
+            if f.surface.singular_v(q.1).is_some() {
+                continue; // a pole or apex: its u is arbitrary
+            }
+            let q = near(periodic, q, *last);
+            pts.push(q);
+            *last = q;
+        }
+        Some(pts)
     }
 
     /// The constant periodic parameter of a seam edge (an edge used twice by this face), if
@@ -862,6 +839,82 @@ impl Part {
             }
         }
         out
+    }
+}
+
+/// An empty (u_min, u_max, v_min, v_max) range.
+const NO_RANGE: [f64; 4] = [
+    f64::INFINITY,
+    f64::NEG_INFINITY,
+    f64::INFINITY,
+    f64::NEG_INFINITY,
+];
+
+/// Widens a (u_min, u_max, v_min, v_max) range to take in (u, v).
+fn widen(range: &mut [f64; 4], (u, v): (f64, f64)) {
+    *range = [
+        range[0].min(u),
+        range[1].max(u),
+        range[2].min(v),
+        range[3].max(v),
+    ];
+}
+
+/// (u, v) moved by whole turns in its periodic parameters to lie nearest (ru, rv).
+fn near(periodic: (bool, bool), (u, v): (f64, f64), (ru, rv): (f64, f64)) -> (f64, f64) {
+    (
+        if periodic.0 {
+            geom::nearest_turn(u, ru)
+        } else {
+            u
+        },
+        if periodic.1 {
+            geom::nearest_turn(v, rv)
+        } else {
+            v
+        },
+    )
+}
+
+/// Widens *range* by an edge's own pcurves, each aligned to the period of *centre*, where the
+/// edge's samples *pts* sit.
+fn widen_by_pcurves(
+    own: &[&Pcurve],
+    pts: &[(f64, f64)],
+    centre: (f64, f64),
+    periodic: (bool, bool),
+    range: &mut [f64; 4],
+) {
+    for curve in own {
+        match curve {
+            Pcurve::Poles(poles) => {
+                let m = poles.len() as f64;
+                let mid = (
+                    poles.iter().map(|p| p.0).sum::<f64>() / m,
+                    poles.iter().map(|p| p.1).sum::<f64>() / m,
+                );
+                let aligned = near(periodic, mid, centre);
+                poles.iter().for_each(|&(u, v)| {
+                    widen(range, (u + aligned.0 - mid.0, v + aligned.1 - mid.1))
+                });
+            }
+            Pcurve::Line { point, dir } => {
+                // A line constant in one parameter fixes that parameter exactly; the other comes
+                // from the edge's samples.
+                let along_v = dir.0.abs() <= 1e-12 * dir.1.abs();
+                let along_u = dir.1.abs() <= 1e-12 * dir.0.abs();
+                let fixed = near(periodic, *point, centre);
+                for &(u, v) in pts {
+                    widen(
+                        range,
+                        (
+                            if along_v { fixed.0 } else { u },
+                            if along_u { fixed.1 } else { v },
+                        ),
+                    );
+                }
+            }
+        }
     }
 }
 
