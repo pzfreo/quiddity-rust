@@ -10,6 +10,16 @@ use super::brep::{Edge, Part};
 use super::geom::{self, Bounds, COORD_FLOOR, Surface, V3};
 use super::sampling::{CHORD_TOLERANCE, edge_interval};
 
+/// The largest cosine between a ray and a surface's normal at which a tangential root is a touch
+/// rather than a crossing: a double root sits where the ray is square to the normal, to within
+/// the discriminant's rounding.
+const TOUCH_COS: f64 = 1e-6;
+
+/// How many bands of a straying edge a crossing past the neighbouring surface may lie from the
+/// edge and still be taken for the edge's overshoot ([`RayCaster::overshoots`]). The ones seen
+/// (nist_ftc_10's cross bores) lie up to 1.3 bands from it.
+const OVERSHOOT_BANDS: f64 = 4.0;
+
 /// One meeting of a ray with a face, `t` along the (unit) direction.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Hit {
@@ -168,10 +178,19 @@ impl<'a> RayCaster<'a> {
 
     /// The hits that lie on their faces' trimmed regions themselves, not merely within the
     /// tolerance of an edge: the crossings that bound material along a line. A line passing an
-    /// edge at a distance sees one face or the other there, never both and never neither.
+    /// edge at a distance sees one face or the other there, never both and never neither. A
+    /// line that only touches a face at its boundary (a double root on an edge, as along the
+    /// circle where a blend meets a face tangentially) meets it at that one point and does not
+    /// pass through it: whatever the line crosses there belongs to the faces across the edge.
     pub fn trimmed_hits(&self, origin: V3, dir: V3, t_max: f64) -> Option<Vec<Hit>> {
         let (crossings, _) = self.crossings(origin, dir, t_max)?;
-        let on_trim = |c: &Crossing| !matches!(c.contact, Contact::Edge { inside: false });
+        let on_trim = |c: &Crossing| match c.contact {
+            Contact::Edge { inside } => {
+                let q = geom::add(origin, geom::scale(dir, c.hit.t));
+                inside && !(c.tangent && self.touches(c.hit.face, q, dir))
+            }
+            _ => true,
+        };
         Some(
             crossings
                 .into_iter()
@@ -179,6 +198,16 @@ impl<'a> RayCaster<'a> {
                 .map(|c| c.hit)
                 .collect(),
         )
+    }
+
+    /// Whether a ray along *dir* only touches face *i*'s surface at *q*: the surface's normal
+    /// there is square to the ray.
+    fn touches(&self, i: usize, q: V3, dir: V3) -> bool {
+        let surface = &self.part.faces[i].surface;
+        surface
+            .parameters(q, None)
+            .and_then(|(u, v)| surface.normal(u, v))
+            .is_some_and(|n| geom::dot(n, dir).abs() <= TOUCH_COS)
     }
 
     /// How many times the ray crosses the faces, for parity; `None` when that cannot be
@@ -223,7 +252,9 @@ impl<'a> RayCaster<'a> {
                         in_surface |= tangent && ts.is_empty();
                         for t in ts {
                             let q = geom::add(origin, geom::scale(dir, t));
-                            if let Some(contact) = self.contact(i, q) {
+                            if let Some(contact) = self.contact(i, q)
+                                && !self.overshoots(i, q)
+                            {
                                 let hit = Hit { t, face: i };
                                 out.push(Crossing {
                                     hit,
@@ -257,6 +288,85 @@ impl<'a> RayCaster<'a> {
         }
         kept.sort_by(|a, b| order(&a.hit, &b.hit));
         Some((kept, in_surface))
+    }
+
+    /// Whether face *i* holds a point *q* of its surface (by its trim, or an edge's band) only
+    /// because an edge that strays from the surface overshoots: *q* lies within a few bands of
+    /// the edge and past the surface of the face across it. The file leaves the boundary
+    /// uncertain there (a B-spline edge standing for the intersection of two cylinders,
+    /// displaced into the opening it bounds), and the two surfaces themselves place the point;
+    /// along the surface the uncertainty exceeds the edge's stray, hence the reach. Both faces
+    /// must be analytic: a B-spline face may itself approximate its neighbour, and does not
+    /// place the point (applied to them, the classifier's rays disagree at four more corpus
+    /// points).
+    fn overshoots(&self, i: usize, q: V3) -> bool {
+        let part = self.part;
+        if !exact(&part.faces[i].surface) {
+            return false;
+        }
+        part.edge_deviation(i).iter().any(|&(e, deviation)| {
+            let band = COORD_FLOOR + deviation;
+            deviation > COORD_FLOOR
+                && self.edge_boxes[e].contains(q, OVERSHOOT_BANDS * band)
+                && geom::dist(nearest_on_edge(&part.edges[e], q).0, q) <= OVERSHOOT_BANDS * band
+                && self.past_neighbour(i, e, band, q)
+        })
+    }
+
+    /// Whether a point *q* on face *i*'s surface, near its straying edge *e*, lies past the
+    /// surface of a face across that edge: on the other side of it from face *i*'s own region
+    /// (a point of the face ten bands from the edge, on the side of it the trim holds). The
+    /// crossing is then the neighbour's territory, even where the line never crosses the
+    /// neighbour (it runs along it). Undecided (false) where either point lies on the
+    /// neighbour's surface within the coordinate floor, or the trim holds neither side or both.
+    fn past_neighbour(&self, i: usize, e: usize, band: f64, q: V3) -> bool {
+        let part = self.part;
+        let surface = &part.faces[i].surface;
+        // The edge strays from the surface: the way across it is taken from its foot on the
+        // surface, so that it runs along the surface.
+        let onto = |p: V3| {
+            surface
+                .parameters(p, None)
+                .map(|(u, v)| surface.value(u, v))
+        };
+        let Some(foot) = onto(nearest_on_edge(&part.edges[e], q).0) else {
+            return false;
+        };
+        let Some(away) = geom::unit(geom::sub(q, foot)) else {
+            return false;
+        };
+        let at = |k: f64| onto(geom::add(foot, geom::scale(away, k * 10.0 * band)));
+        let inside: Vec<V3> = [1.0, -1.0]
+            .into_iter()
+            .filter_map(at)
+            .filter(|&p| self.contact(i, p) == Some(Contact::Interior))
+            .collect();
+        let [within] = inside[..] else {
+            return false;
+        };
+        let side = |p: V3, s: &Surface| {
+            let (u, v) = s.parameters(p, None)?;
+            let n = s.normal(u, v)?;
+            Some(geom::dot(n, geom::sub(p, s.value(u, v))))
+        };
+        part.edge_faces()[e].iter().filter(|&&b| b != i).any(|&b| {
+            let s = &part.faces[b].surface;
+            if !exact(s) {
+                return false;
+            }
+            match (side(q, s), side(within, s)) {
+                (Some(x), Some(y)) => {
+                    x.abs() > COORD_FLOOR && y.abs() > COORD_FLOOR && (x > 0.0) != (y > 0.0)
+                }
+                _ => false,
+            }
+        })
+    }
+
+    /// Whether a point on face *i*'s surface lies on the face: inside its trim, on its boundary
+    /// or in the band of an edge that strays from its surface.
+    pub(super) fn claims(&self, i: usize, q: V3) -> bool {
+        self.contact(i, q).is_some()
     }
 
     /// How a point on face *i*'s surface meets the face, if it does. The band is where the file
@@ -321,6 +431,11 @@ impl<'a> RayCaster<'a> {
             in_band
         }
     }
+}
+
+/// Whether a surface is analytic (exact), not a B-spline that may approximate a neighbour.
+fn exact(surface: &Surface) -> bool {
+    !matches!(surface, Surface::Freeform { .. } | Surface::Other { .. })
 }
 
 /// The point of an edge nearest *q*, and whether it lies between the edge's ends (else it is
@@ -483,7 +598,7 @@ fn point_segment_distance(p: V3, a: V3, b: V3) -> f64 {
     geom::dist(p, geom::add(a, geom::scale(ab, t)))
 }
 
-fn ray_meets_box(p: V3, dir: V3, t_max: f64, b: &Bounds, pad: f64) -> bool {
+pub(super) fn ray_meets_box(p: V3, dir: V3, t_max: f64, b: &Bounds, pad: f64) -> bool {
     let (mut t0, mut t1) = (0.0f64, t_max + pad);
     for i in 0..3 {
         let (lo, hi) = (b.min[i] - pad, b.max[i] + pad);
@@ -630,5 +745,25 @@ mod tests {
         let o = geom::sub(touch, geom::scale(along, 3.0));
         assert_eq!(rays.any_hit(o, along, 0.0, 6.0), Some(true));
         assert_eq!(rays.crossing_count(o, along, 6.0), None);
+    }
+
+    #[test]
+    fn a_line_touching_a_face_at_its_edge_bounds_no_material_there() {
+        // The bored box: a line along y at x = 5 touches the bore (radius 5 about z) at
+        // (5, 0, 0), a double root on the bore's seam edge, between the block's sides at
+        // y = ±15; it runs in the material all the way.
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../tests/fixtures/rejected_bored_box.step");
+        let part = crate::read_step_file(&path).unwrap();
+        let rays = RayCaster::for_solid(&part, 0);
+        let (o, d) = ([5.0, -20.0, 0.0], [0.0, 1.0, 0.0]);
+        assert_eq!(rays.hits(o, d, 40.0).unwrap().len(), 3, "the touch is met");
+        let ts: Vec<f64> = rays
+            .trimmed_hits(o, d, 40.0)
+            .unwrap()
+            .iter()
+            .map(|h| h.t)
+            .collect();
+        assert_eq!(ts, [5.0, 35.0]);
     }
 }

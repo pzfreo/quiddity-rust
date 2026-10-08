@@ -3,15 +3,8 @@
     "file": "inventory_refusal/14052.step.gz",
     "caller": "through_steps",
     "probes": [3],
-    "verdict": "undetermined",
-    "reason": "A deliberately malformed corpus part (non-orientable shell) that OpenCascade heals on import."
-  },
-  {
-    "file": "mfcadpp_holdout/520.step",
-    "caller": "_recess_reduce",
-    "probes": [0],
-    "verdict": "undetermined",
-    "reason": "Sub-micron material: a fillet or slope tangent to a probe face leaves a sliver a few microns deep, reached beyond the 1e-6 inset; Python's boolean measures it a little differently or not at all (OpenCascade's 1e-7 fuzz). Fractions below 1e-5 of the probe."
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (its shell is not orientable; OpenCascade's import yields no solid and heals the shell). The port answers 12.5826 of 1948.4578, exactly the complement of Python's 1935.8751 (they sum to the probe volume within 2e-11): the two sides read material and air the other way round in this box, as at the 22 points where the two classifiers disagree on this file (known_classify.json, not-applicable). The part has no well-defined inside to measure against."
   },
   {
     "file": "nist/nist_ctc_01_asme1_rd.stp",
@@ -23,16 +16,9 @@
   {
     "file": "nist/nist_ctc_02_asme1_rc.stp",
     "caller": "_recess_reduce",
-    "probes": [2],
-    "verdict": "rust-wrong",
-    "reason": "The port answers 118221.3 where Python's boolean answers 118859.2 (0.54% of the material, 4.8e-5 of the probe). Split into 5 x 5 x 5 boxes, Python's booleans sum to 118859.4 and agree with the port box by box except the two columns at the probe's high-y end (x near -130 to -78 and 78 to 130, y 676.7 to 715.0), where Python finds 100 to 200 mm3 more per box: material near x = -127.7, y 709 to 715, z -206 to -189, bounded by cylinder face 566. There the port's classifier agrees with OpenCascade's at all 27000 points of a 30 x 30 x 30 grid of box (0, 4, 1) (1017 in each), and lines along all six axis directions through such a point count odd crossings, so the rays are right and the integrator in volume.rs misses the material (its lengths along y, integrated across x, do not see it; the port's answer for that box equals the boxes before it). Before, this probe was refused for odd lines elsewhere in it."
-  },
-  {
-    "file": "nist/nist_ctc_02_asme1_rc.stp",
-    "caller": "_recess_reduce",
     "probes": [4, 7],
-    "verdict": "undetermined",
-    "reason": "B-spline-heavy part: curved faces take the adaptive rule, and differences are up to 1e-6 relative; on the two _recess_reduce boxes where Python measures 0.216 the port's 7.06 agrees with classifying a 40\u00b3 grid of points (6.82)."
+    "verdict": "rust-correct",
+    "reason": "Python's boolean misses material the probe holds: on these two _recess_reduce boxes it answers 0.216 where the port answers 7.056073 (#4) and 7.799779 (#7). OpenCascade itself agrees with the port once its boolean is given a fuzzy value: BRepAlgoAPI_Common with SetFuzzyValue(1e-6) gives 7.056070 and 7.799776 (1e-5 the same; 1e-7 still 0.216), and BRepClass3d_SolidClassifier at 1e-7 puts 2250 and 2310 of a 30 x 30 x 30 grid of cell centres IN (6.99 and 7.62 by volume); splitting each box into 2^3 and 4^3 boxes, its unfuzzed booleans sum to 4.46, 6.30 and 4.93, 6.97, so the unfuzzed answer depends on where the box is cut."
   },
   {
     "file": "nist/nist_ctc_03_asme1_rc.stp",
@@ -75,19 +61,5 @@
     "probes": [57],
     "verdict": "rust-correct",
     "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
-  },
-  {
-    "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "caller": "_recess_reduce",
-    "probes": [5],
-    "verdict": "rust-wrong",
-    "reason": "The port refuses where Python answers: integration lines along y run parallel to the bore cylinder face 200 (radius 1.75, axis along y), 7e-5 inside its wall, and meet the cross bore's cylinder face 175 near their intersection, which the file gives as a B-spline edge (edge 402) straying 4.5e-4 from face 175. Within that stray the trim cannot place the crossing (the exact intersection puts it in bore 200, off face 175), and the face across the edge is parallel to the line and cannot claim it, so the count stays odd and the probe is refused. File precision (a band edge), not the polyline sliver of an exact edge."
-  },
-  {
-    "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "caller": "_open_channel_section",
-    "probes": [18, 22],
-    "verdict": "rust-wrong",
-    "reason": "The port refuses where Python answers: an integration line along x (y 22.9999987, z 36.5016417) runs exactly along the line where the channel's sphere and torus blends (faces 42, 45, 53, 58) touch a plane, tangent to each at their shared circle edges. Each touch is a double root on an edge, which the trims claim or not by their polylines; a touch never changes parity, but counting one of them leaves the count odd, and nudges of 1e-9 stay within the tangency. A measure-zero line the probe's Gauss points happen to land on."
   }
 ]

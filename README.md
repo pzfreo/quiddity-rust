@@ -61,9 +61,9 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 9 | 0 | 9 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
 | `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 19 | 4 | 15 | 0 | 0 | 0 |
-| `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 13 (28 probes) | 6 | 4 | 0 | 3 | 0 |
+| `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 9 (23 probes) | 7 | 1 | 0 | 0 | 1 |
 | `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 64 | 13 | 0 | 0 | 51 | 0 |
-| `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 41 | 1 | 1 | 2 | 4 | 33 |
+| `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 41 | 5 | 1 | 2 | 0 | 33 |
 | `tests/fixtures/known_face_areas.json` | `crates/haecceity/tests/face_areas.rs` | 1831 | 1815 | 3 | 0 | 12 | 1 |
 | `tests/fixtures/captured/known_sections.json` | `tests/sections.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 
@@ -421,4 +421,8 @@ Rays meet a face where they cross it inside its trim, or within the band by whic
 edges strays from its surface: B-spline faces exported as approximations of their neighbours
 leave cracks up to a few tenths of a millimetre wide, which OpenCascade covers with the edge
 tolerances it sets on import. A hit found only in that band gives way to the face across the
-crack. A sphere bounded only by a vertex loop at a pole is the whole sphere.
+crack. Where such an edge joins two analytic faces and overshoots (a B-spline edge for the
+intersection of two cylinders, displaced into the opening it bounds), a hit within a few bands
+of it that lies past the other face's surface is not on the face, whatever its trim says. A
+line that only touches a face at its edge (a tangent blend) bounds no material there. A sphere
+bounded only by a vertex loop at a pole is the whole sphere.
