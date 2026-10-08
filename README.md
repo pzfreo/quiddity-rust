@@ -82,6 +82,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/known_sections.json` | `tests/sections.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/passages/known_divergences.json` | `tests/passages.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_section_recess_helpers.json` | `tests/section_recess_helpers.rs` | 4 | 0 | 4 | 0 | 0 | 0 |
+| `tests/fixtures/captured/section_recess/known_differences.json` | `tests/section_recess.rs` | 4 | 0 | 0 | 0 | 0 | 4 |
 | `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 120 (2922 answers) | 98 | 10 | 0 | 9 | 3 |
 
 The undetermined entries are the backlog: differences not yet shown to be either side's error.
@@ -134,6 +135,20 @@ test parts STEP export refuses, and 474 test parts on which Python proves nothin
 helpers' own tests (left out to keep the fixtures small). Under the invariance motions 4 seats
 at scale 0.1 are refused turned 90° about x, where the kernel's volume probe cannot answer a
 grazing end probe (rust-wrong).
+The section-recess records themselves are ported ahead of the family
+(`src/features/section_recess.rs`, `tests/section_recess.rs`,
+`tools/capture_section_recess.py`): `_section_recess`'s geometry, closed and open profiles,
+planar, plane-envelope and cylindrical ends, classification, evidence, refusals, patterns and
+the schema-4 document, with every `__post_init__` check refusing by Python's message. 5378
+distinct constructions (94 refused) from the section-recess Python tests and
+`build_section_recess_document` on the corpus are rebuilt from their inputs: all agree. Not
+captured: 18 test constructions whose inputs the port's types cannot carry (booleans, lists,
+strings, negative indices, wrongly sized tuples, which Python refuses by type). Patterns are
+also built under the invariance motions and geometries on a principal run under the
+translation (1060 moved records); 4 channel values whose cylinder centroid height is a
+three-decimal rounding tie disagree with their shifted interval once moved, as in Python
+(not-applicable). Section recesses remain pending: their provers (`_section_recess_geometry`)
+and `recognise_section_recesses` are not ported.
 The effective-surface query the rectangular pads, cylindrical channels, pockets and passages
 and section recesses read (`_effective_surfaces`: each face's native or recovered analytic fact
 or typed refusal, `recovery_nominal` / `recovery_tolerance`, and surface uses with a
@@ -281,6 +296,7 @@ src/
     cylindrical_seats.rs  open at-most-semicircular cylindrical troughs proved on original faces
     cylindrical_end_surface.rs  a cylinder branch as a section end's height over the section
     plane_envelope_passages.rs  polygonal passages through a convex two-plane roof
+    section_recess.rs  the section-recess records and their validation (`_section_recess`)
     prismatic_pockets.rs  rings capped at one end, and rings a mouth treatment interrupted,
                      recovered from their mouth or their floor and proved by swept-section probes
   frames.rs          part-relative recognition (`quiddity.frames`): the frame inferred from the
@@ -315,6 +331,8 @@ tests/
                      on test parts, fixtures and the corpus
   section_recess_helpers.rs  seat and envelope-passage proofs and cylindrical end values against
                      Python's captured calls, and the proofs under the invariance motions
+  section_recess.rs  every captured section-recess record construction rebuilt (dictionary or
+                     refusal), and the geometric records moved
   prismatic_pockets.rs  prismatic pocket walls and consulted floors on Python's evidence-test
                      parts
   corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity
@@ -370,6 +388,8 @@ tools/
                      (captured/passages/helpers.json.gz)
   capture_section_recess_helpers.py records the seat, envelope-passage and cylindrical-end
                      calls (captured/section_recess_helpers/)
+  capture_section_recess.py records every section-recess record construction in the
+                     section-recess tests and the corpus documents (captured/section_recess/)
   capture_effective_surfaces.py records `_effective_surfaces`'s answers for every face of its
                      consumers' test parts, the golden fixtures and the corpus
                      (captured/effective_surfaces/)
