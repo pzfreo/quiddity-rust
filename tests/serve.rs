@@ -175,6 +175,13 @@ fn malformed_requests_are_refused_with_their_codes() {
     let message = failure(&parsed("{\"id\": 1, \"op\""), Value::Null, "bad_json");
     assert!(message.contains("not JSON"), "{message}");
     failure(&parsed("[1, 2]"), Value::Null, "bad_request");
+    // A repeated key is refused, not resolved by keeping one of its values.
+    let message = failure(
+        &parsed("{\"id\": 1, \"id\": 2, \"op\": \"recognise\"}"),
+        Value::Null,
+        "bad_request",
+    );
+    assert!(message.contains("repeats `id`"), "{message}");
     failure(&parsed("\"recognise\""), Value::Null, "bad_request");
     // No id to echo, or one that is neither a string nor an integer.
     failure(
@@ -341,6 +348,36 @@ fn one_stream_serves_every_request_in_order_and_keeps_serving_after_failures() {
     let mut library = Vec::new();
     serve(input.as_bytes(), &mut library).unwrap();
     assert_eq!(String::from_utf8(library).unwrap(), output);
+}
+
+#[test]
+fn a_line_that_is_not_utf8_is_refused_and_serving_goes_on() {
+    let mut input = b"{\"id\":1,\"op\":\"x\"}\n\xff\xfe\n".to_vec();
+    input.extend_from_slice(b"{\"id\":2,\"op\":\"x\"}\r\n");
+    let mut output = Vec::new();
+    serve(input.as_slice(), &mut output).unwrap();
+    let output = String::from_utf8(output).unwrap();
+    let responses: Vec<Value> = output
+        .lines()
+        .map(|l| serde_json::from_str(l).unwrap())
+        .collect();
+    assert_eq!(responses.len(), 3, "{output}");
+    failure(&responses[0], json!(1), "unknown_op");
+    let message = failure(&responses[1], Value::Null, "bad_json");
+    assert!(message.contains("not UTF-8"), "{message}");
+    failure(&responses[2], json!(2), "unknown_op");
+
+    // The binary too keeps serving.
+    let mut child = Command::new(env!("CARGO_BIN_EXE_quiddity"))
+        .arg("serve")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()
+        .expect("quiddity serve runs");
+    child.stdin.take().unwrap().write_all(&input).unwrap();
+    let out = child.wait_with_output().unwrap();
+    assert!(out.status.success());
+    assert_eq!(String::from_utf8(out.stdout).unwrap(), output);
 }
 
 #[test]

@@ -16,13 +16,13 @@
 //! not all resolve: the CLI's stderr warning, which here has no stderr to go to.
 //!
 //! A failure is `{"id": ID, "error": {"code": CODE, "message": TEXT}}`, `ID` `null` when the
-//! request has none to echo. Codes: `bad_json` (the line is not JSON), `bad_request` (not an
-//! object, an `id` that is not a string or integer, a field of the wrong type, an unknown
-//! field), `missing_field`, `unknown_op`, `unreadable` (a file cannot be read), `broken_step`
-//! (the kernel refuses the STEP file: [`StepError`]'s parse, unsupported and incomplete
-//! refusals), `bad_document` (a revision without valid fingerprints, or fingerprints
-//! `correspond` refuses) and `internal` (a panic, caught per request; the server keeps serving).
-//! Blank lines are skipped.
+//! request has none to echo. Codes: `bad_json` (the line is not UTF-8 JSON), `bad_request`
+//! (not an object, a repeated key, an `id` that is not a string or integer, a field of the wrong
+//! type, an unknown field), `missing_field`, `unknown_op`, `unreadable` (a file cannot be
+//! read), `broken_step` (the kernel refuses the STEP file: [`StepError`]'s parse, unsupported
+//! and incomplete refusals), `bad_document` (a revision without valid fingerprints, or
+//! fingerprints `correspond` refuses) and `internal` (a panic, caught per request; the server
+//! keeps serving). Blank lines are skipped.
 //!
 //! Output is deterministic: the same request gives the same bytes.
 //!
@@ -263,6 +263,38 @@ fn error_line(id: &Value, failure: &Failure) -> String {
     format!("{{\"id\":{id},\"error\":{error}}}")
 }
 
+/// The first key the JSON object *line* repeats at its top level, if any.
+fn repeated_key(line: &str) -> Option<String> {
+    struct Keys(Option<String>);
+    impl<'de> serde::Deserialize<'de> for Keys {
+        fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+            struct Visit;
+            impl<'de> serde::de::Visitor<'de> for Visit {
+                type Value = Keys;
+                fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                    f.write_str("a JSON object")
+                }
+                fn visit_map<A: serde::de::MapAccess<'de>>(
+                    self,
+                    mut map: A,
+                ) -> Result<Keys, A::Error> {
+                    let mut seen = std::collections::BTreeSet::new();
+                    let mut repeated = None;
+                    while let Some(key) = map.next_key::<String>()? {
+                        map.next_value::<serde::de::IgnoredAny>()?;
+                        if !seen.insert(key.clone()) && repeated.is_none() {
+                            repeated = Some(key);
+                        }
+                    }
+                    Ok(Keys(repeated))
+                }
+            }
+            d.deserialize_map(Visit)
+        }
+    }
+    serde_json::from_str::<Keys>(line).ok().and_then(|k| k.0)
+}
+
 /// The response line (without its newline) to one request line, or `None` for a blank line.
 pub fn respond(line: &str) -> Option<String> {
     if line.trim().is_empty() {
@@ -283,6 +315,13 @@ pub fn respond(line: &str) -> Option<String> {
             &Failure::new("bad_request", "the request is not a JSON object"),
         ));
     };
+    // `Value` keeps the last of a repeated key; the request's own keys must be unique.
+    if let Some(key) = repeated_key(line) {
+        return Some(error_line(
+            &Value::Null,
+            &Failure::new("bad_request", format!("the request repeats `{key}`")),
+        ));
+    }
     let id = match request_id(&request) {
         Ok(id) => id,
         Err(failure) => return Some(error_line(&Value::Null, &failure)),
@@ -304,14 +343,34 @@ pub fn respond(line: &str) -> Option<String> {
 }
 
 /// Serve requests from *input* to *output* until the input ends, flushing after each response.
-pub fn serve(input: impl BufRead, mut output: impl Write) -> io::Result<()> {
-    for line in input.lines() {
-        if let Some(response) = respond(&line?) {
+/// A line that is not UTF-8 is refused as `bad_json` and serving goes on; only an I/O error
+/// stops it.
+pub fn serve(mut input: impl BufRead, mut output: impl Write) -> io::Result<()> {
+    let mut raw = Vec::new();
+    loop {
+        raw.clear();
+        if input.read_until(b'\n', &mut raw)? == 0 {
+            return Ok(());
+        }
+        // The line ending, `\n` or `\r\n`, as `BufRead::lines` strips it.
+        if raw.last() == Some(&b'\n') {
+            raw.pop();
+            if raw.last() == Some(&b'\r') {
+                raw.pop();
+            }
+        }
+        let response = match std::str::from_utf8(&raw) {
+            Ok(line) => respond(line),
+            Err(e) => Some(error_line(
+                &Value::Null,
+                &Failure::new("bad_json", format!("the request is not UTF-8 ({e})")),
+            )),
+        };
+        if let Some(response) = response {
             writeln!(output, "{response}")?;
             output.flush()?;
         }
     }
-    Ok(())
 }
 
 #[cfg(test)]
