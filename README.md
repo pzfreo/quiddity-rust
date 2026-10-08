@@ -38,6 +38,8 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 | Edge-open circular pockets | `recognise_edge_open_circular_pockets` | 9/9 | 0 | 100/100 |
 | Edge-open prismatic recesses | `recognise_edge_open_prismatic_recesses` | 23/23 | 2 | 100/100 |
 | Blends | `recognise_blends` | 52/52 | 0 | 94/100 (6 known) |
+| Section passages | `recognise_section_passages` | 83/83 | 3 | 100/100 |
+| Passages (legacy roster) | `recognise_passages` | 60/60 | 2 | 100/100 |
 
 *Captured test calls*: the Python suite's calls replayed by `tests/captured.rs`. *Not captured*:
 calls the suite makes that the capture could not record, outside the replay and pinned by it
@@ -65,6 +67,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 41 | 1 | 1 | 2 | 4 | 33 |
 | `tests/fixtures/known_face_areas.json` | `crates/haecceity/tests/face_areas.rs` | 1831 | 1815 | 3 | 0 | 12 | 1 |
 | `tests/fixtures/captured/known_sections.json` | `tests/sections.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
+| `tests/fixtures/captured/passages/known_divergences.json` | `tests/passages.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 
 The undetermined entries are the backlog: differences not yet shown to be either side's error.
 The rust-wrong entries are known port defects.
@@ -88,6 +91,20 @@ compared as a set, since Python's order between them changes from run to run. No
 body reference foreign to the run or mutated, which Python checks by object identity and the
 port's types rule out, or a malformed boundary), and 5 objects handed to
 `section_ring_proposals` that STEP export refuses (such as the tests' shallow part views).
+
+Passages publish from those proposals (`src/features/passages.rs`): `recognise_section_passages`
+gives Python's `SectionPassage` records, and `recognise_passages` the frozen legacy roster over
+`_rings` rings, whose value each matching section passage must reproduce. Python's internal
+`ValueError`s are `PassageError` refusals with its messages (one test part refuses, as in
+Python); `recognise` panics with the message, as Python's aggregate raises. `tests/passages.rs`
+replays the entry calls and, on 359 parts (the calls' parts, the section tests' parts, every
+golden fixture, the corpus), every ring, the legacy roster's walls, the records and defining
+walls, and 274 compatibility calls (`tools/capture_passages.py`): all agree. `Features` carries
+them as `section_passages`, Python's `RecognitionResult` field, unreconciled with through slots.
+Open question for the maintainer: Python 0.4 publishes passages through the unified
+`section_recess` projection rather than as a family of their own; whether the recognition
+document should keep `section_passages` as a family (as now) or wait for that projection is not
+decided.
 
 For draftwright-rust, the kernel draws a part's views without OpenCascade's hidden-line
 algorithm or booleans (`crates/haecceity/src/hlr.rs`): every visible and hidden edge and
@@ -181,6 +198,10 @@ src/
     entry_treatments.rs planar entry bevels that explain a wall ring's missing patches
     section_passages.rs constant-section planar-wall rings on any run (`section_ring_proposals`),
                      the proposals passages and oriented slots will publish from
+    rings.rs         closed principal-axis rings of planar walls, their sections, spans and
+                     caps (`_rings`), for passages and later prismatic pockets
+    passage_compat.rs the legacy `Passage` view of a section passage (`_passage_compat`)
+    passages.rs      section passages and the frozen legacy roster they must reproduce
   frames.rs          part-relative recognition (`quiddity.frames`): the frame inferred from the
                      part's plane normals and cylinder axes, the part re-read into it, recognised
   correspondence/    revision matching (docs/correspondence.md): fingerprint.rs (features and
@@ -205,6 +226,9 @@ tests/
                      build123d revision pairs get their expected classes
   sections.rs        the section helpers' captured calls (values, covered patches, ring
                      proposals and entry treatments on test parts, fixtures and the corpus)
+  passages.rs        the passage entry points' captured calls (captured/passages/calls.json),
+                     and rings, legacy roster, records, defining walls and compatibility calls
+                     on test parts, fixtures and the corpus
   corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity
                      revision, every file and its sha256)
   determinism.rs     recognition and correspondence JSON byte for byte the same twice in one
@@ -251,6 +275,9 @@ tools/
   capture_sections.py records the section helpers' calls in their Python tests, and their ring
                      proposals over those tests' parts, the golden fixtures and the corpus
                      (captured/sections/)
+  capture_passages.py records rings, the legacy roster, section passages and their compatibility
+                     calls on the passage tests' parts, fixtures and the corpus
+                     (captured/passages/helpers.json.gz)
   capture_frames.py  records Python's part frames (captured/frames.json, the built parts as
                      STEP in captured/frames/); --compare runs a Python recogniser on a corpus
                      part's framed working part, as read and turned

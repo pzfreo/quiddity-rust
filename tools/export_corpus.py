@@ -60,6 +60,11 @@ from quiddity.interior_voids import _claim_records as _claim_voids  # noqa: E402
 from quiddity.interior_voids import _discover_interior_voids  # noqa: E402
 from quiddity.oriented_chamfers import _discover_oriented_chamfers  # noqa: E402
 from quiddity.paired_ramp_steps import _discover_paired_ramp_steps  # noqa: E402
+from quiddity.passages import (  # noqa: E402
+    _discover_section_passages,
+    recognise_passages,
+    recognise_section_passages,
+)
 from quiddity.plates import _discover_plates  # noqa: E402
 from quiddity.rectangular_blind_slots import (  # noqa: E402
     _discover_rectangular_blind_slots,
@@ -250,6 +255,9 @@ def main() -> None:
                   lambda p, ledger, o: _discover_plates(p, writer=ledger.writer, **o))
         blends = (FamilyId.BLENDS, lambda p, o: recognise_blends(p),
                   lambda p, ledger, o: _discover_blends(p, graph=ledger.graph, writer=ledger.writer))
+        section_passages = (FamilyId.PASSAGES, lambda p, o: recognise_section_passages(p),
+                            lambda p, ledger, o: _discover_section_passages(p, ledger.graph,
+                                                                            ledger.writer.sink))
         entries.append(
             {
                 "file": str(path.relative_to(CORPUS)),
@@ -303,6 +311,11 @@ def main() -> None:
                         _run(part, "recognise_edge_open_prismatic_recesses", *open_prismatic, {})
                     ],
                     "recognise_blends": [_run(part, "recognise_blends", *blends, {})],
+                    "recognise_section_passages": [
+                        _run(part, "recognise_section_passages", *section_passages, {})
+                    ],
+                    # The legacy roster: Python refuses its evidence path (PassageCompatibilityError).
+                    "recognise_passages": [{"options": {}, "result": _plain(recognise_passages(part))}],
                     "recognise_gusset_rib_patterns": [
                         {"options": {}, "result": _plain(recognise_gusset_rib_patterns(recognise_gusset_ribs(part)))}
                     ],

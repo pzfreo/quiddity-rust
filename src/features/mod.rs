@@ -37,6 +37,8 @@ pub mod levels;
 pub mod oblique_through_steps;
 pub mod oriented_chamfers;
 pub mod paired_ramp_steps;
+pub mod passage_compat;
+pub mod passages;
 pub mod planes;
 pub mod plates;
 pub mod policy;
@@ -44,6 +46,7 @@ pub mod probes;
 pub mod profiled_bores;
 pub mod rectangular_blind_slots;
 pub mod regions;
+pub mod rings;
 pub mod round_bottom_slots;
 pub mod section_passages;
 pub mod sections;
@@ -97,6 +100,9 @@ pub struct Features {
     pub edge_open_circular_pockets: Vec<edge_open_circular::EdgeOpenCircularPocket>,
     pub edge_open_prismatic_recesses: Vec<edge_open_prismatic::EdgeOpenPrismaticRecess>,
     pub blends: Vec<blends::Blend>,
+    /// Python's `RecognitionResult.section_passages`: every section passage, through slots
+    /// included (Python's aggregate reconciles them; this does not).
+    pub section_passages: Vec<passages::SectionPassage>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole and gusset rib patterns) have none of their own: their members' faces are
     /// theirs ([`crate::correspondence`]).
@@ -212,6 +218,13 @@ pub fn recognise(part: &Part) -> Features {
             edge_open_prismatic::discover(&ctx),
         ),
         blends: kept(&mut defining, "blends", blends::discover(&ctx)),
+        // Python's aggregate raises on the same internal inconsistencies, refusing the whole
+        // recognition; `recognise` has no refusal to return, so it panics with the message.
+        section_passages: kept(
+            &mut defining,
+            "section_passages",
+            passages::discover(&ctx).unwrap_or_else(|e| panic!("section passages refused: {e}")),
+        ),
         defining,
     }
 }

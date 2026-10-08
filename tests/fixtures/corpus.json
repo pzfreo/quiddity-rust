@@ -5839,6 +5839,19 @@
       ]
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -21588,6 +21601,19 @@
         161
        ]
       ]
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -119001,6 +119027,19 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -126617,6 +126656,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -141554,6 +141606,19 @@
         64
        ]
       ]
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -159497,6 +159562,19 @@
       ]
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -162957,6 +163035,19 @@
         47
        ]
       ]
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -205453,6 +205544,19 @@
       ]
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -234584,6 +234688,19 @@
       ]
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -261280,6 +261397,19 @@
       ]
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -262389,6 +262519,19 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -263107,6 +263250,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -264629,6 +264785,19 @@
       ]
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -265622,6 +265791,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -267012,6 +267194,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -269735,6 +269930,424 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          0.0,
+          2.735,
+          11.741
+         ],
+         "run": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         4.219
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.1458,
+            0.3051
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.5372,
+            -1.0119
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.6086,
+            0.7068
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          0.0,
+          9.521,
+          9.024
+         ],
+         "run": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         4.219
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.3378,
+            -2.0989
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.6622,
+            -2.0989
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.6622,
+            -0.1704
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.5708,
+            -0.1704
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.5708,
+            1.8296
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.0683,
+            1.8296
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.0683,
+            -0.0989
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.3378,
+            -0.0989
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          0.0,
+          9.521,
+          9.024
+         ],
+         "run": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "run_interval": [
+         12.834,
+         48.413
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.3378,
+            -2.0989
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.6622,
+            -2.0989
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.6622,
+            -0.1704
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.5708,
+            -0.1704
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.5708,
+            1.8296
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.0683,
+            1.8296
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.0683,
+            -0.0989
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.3378,
+            -0.0989
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        19,
+        20,
+        21
+       ],
+       [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+       ],
+       [
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 3,
+        "length": 4.219,
+        "at": [
+         2.11,
+         2.735,
+         11.741
+        ],
+        "section": [
+         [
+          1.589,
+          12.046
+         ],
+         [
+          3.272,
+          10.729
+         ],
+         [
+          3.343,
+          12.448
+         ]
+        ]
+       },
+       {
+        "axis": "x",
+        "sides": 8,
+        "length": 4.219,
+        "at": [
+         2.11,
+         9.521,
+         9.024
+        ],
+        "section": [
+         [
+          8.183,
+          6.925
+         ],
+         [
+          10.183,
+          6.925
+         ],
+         [
+          10.183,
+          8.854
+         ],
+         [
+          11.091,
+          8.854
+         ],
+         [
+          11.091,
+          10.854
+         ],
+         [
+          8.452,
+          10.854
+         ],
+         [
+          8.452,
+          8.925
+         ],
+         [
+          8.183,
+          8.925
+         ]
+        ]
+       },
+       {
+        "axis": "x",
+        "sides": 8,
+        "length": 35.579,
+        "at": [
+         30.624,
+         9.521,
+         9.024
+        ],
+        "section": [
+         [
+          8.183,
+          6.925
+         ],
+         [
+          10.183,
+          6.925
+         ],
+         [
+          10.183,
+          8.854
+         ],
+         [
+          11.091,
+          8.854
+         ],
+         [
+          11.091,
+          10.854
+         ],
+         [
+          8.452,
+          10.854
+         ],
+         [
+          8.452,
+          8.925
+         ],
+         [
+          8.183,
+          8.925
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -271330,6 +271943,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -273304,6 +273930,128 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          10.377,
+          16.957,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         2.348,
+         14.031
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -3.7612,
+            -5.7531
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            3.7612,
+            -5.7531
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            3.7612,
+            5.7531
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -3.7612,
+            5.7531
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        26,
+        27,
+        28,
+        29
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 4,
+        "length": 11.683,
+        "at": [
+         10.377,
+         16.957,
+         8.189
+        ],
+        "section": [
+         [
+          6.616,
+          11.204
+         ],
+         [
+          14.139,
+          11.204
+         ],
+         [
+          14.139,
+          22.71
+         ],
+         [
+          6.616,
+          22.71
+         ]
+        ]
+       }
+      ]
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -276305,6 +277053,115 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          5.487,
+          7.076,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         18.989
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.3526,
+            0.4931
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.1034,
+            -0.9249
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.2493,
+            -1.418
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.3526,
+            -0.4931
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.1034,
+            0.9249
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.2493,
+            1.418
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.18739,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        22,
+        23,
+        24,
+        25,
+        26,
+        27
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -277746,6 +278603,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -280647,6 +281517,144 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          16.264,
+          5.907,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         11.616
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.0263,
+            -0.4292
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.427,
+            -1.2298
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.5659,
+            -1.111
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.9595,
+            -0.1917
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.5272,
+            0.3857
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.9698,
+            0.7927
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.5201,
+            1.6158
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.3603,
+            0.5226
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.6327,
+            0.49
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -282225,6 +283233,282 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          9.858,
+          16.65,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         46.045
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.8678,
+            0.497
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.8643,
+            -0.503
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.0035,
+            -1.0
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.8678,
+            -0.497
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.8643,
+            0.503
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.0035,
+            1.0
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          0.0,
+          20.917,
+          22.88
+         ],
+         "run": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         13.085
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.7141,
+            0.726
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.4858,
+            -1.1214
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.2283,
+            -1.8475
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.7141,
+            -0.726
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.4858,
+            1.1214
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.2283,
+            1.8475
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        17,
+        18,
+        19,
+        20,
+        21,
+        22
+       ],
+       [
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 6,
+        "length": 13.085,
+        "at": [
+         6.542,
+         20.917,
+         22.88
+        ],
+        "section": [
+         [
+          19.203,
+          23.606
+         ],
+         [
+          19.431,
+          21.759
+         ],
+         [
+          21.145,
+          21.033
+         ],
+         [
+          22.631,
+          22.154
+         ],
+         [
+          22.402,
+          24.002
+         ],
+         [
+          20.688,
+          24.728
+         ]
+        ]
+       },
+       {
+        "axis": "z",
+        "sides": 6,
+        "length": 46.045,
+        "at": [
+         9.858,
+         16.65,
+         23.022
+        ],
+        "section": [
+         [
+          8.99,
+          17.147
+         ],
+         [
+          8.993,
+          16.147
+         ],
+         [
+          9.861,
+          15.65
+         ],
+         [
+          10.726,
+          16.153
+         ],
+         [
+          10.722,
+          17.153
+         ],
+         [
+          9.854,
+          17.65
+         ]
+        ]
+       }
+      ]
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -284089,6 +285373,116 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          23.095,
+          12.872,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         40.994
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.022,
+            0.1398
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.2686,
+            -0.8632
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.7534,
+            0.7234
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        11,
+        12,
+        13
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 3,
+        "length": 40.994,
+        "at": [
+         23.095,
+         12.872,
+         20.497
+        ],
+        "section": [
+         [
+          22.073,
+          13.012
+         ],
+         [
+          23.364,
+          12.009
+         ],
+         [
+          23.849,
+          13.596
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -285916,6 +287310,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -287809,6 +289216,199 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          6.343,
+          11.417,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         44.013
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.5253,
+            -1.0319
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.5253,
+            -1.0319
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.5253,
+            1.0319
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.5253,
+            1.0319
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          2.984,
+          0.0,
+          13.289
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         32.841
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.2393,
+            0.7495
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.1106,
+            -1.3464
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.1287,
+            0.597
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        26,
+        27,
+        28,
+        29
+       ],
+       [
+        12,
+        13,
+        14,
+        20
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 4,
+        "length": 44.013,
+        "at": [
+         6.343,
+         11.417,
+         22.007
+        ],
+        "section": [
+         [
+          4.818,
+          10.385
+         ],
+         [
+          7.869,
+          10.385
+         ],
+         [
+          7.869,
+          12.449
+         ],
+         [
+          4.818,
+          12.449
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -289654,6 +291254,140 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          7.7,
+          30.851,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         33.245
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.9501,
+            0.6343
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.0809,
+            -0.9666
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.8691,
+            0.3323
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        27,
+        28,
+        29
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 3,
+        "length": 11.886,
+        "at": [
+         5.943,
+         24.57,
+         16.226
+        ],
+        "section": [
+         [
+          23.275,
+          14.764
+         ],
+         [
+          26.365,
+          15.998
+         ],
+         [
+          24.07,
+          17.917
+         ]
+        ]
+       },
+       {
+        "axis": "z",
+        "sides": 3,
+        "length": 33.245,
+        "at": [
+         7.7,
+         30.851,
+         16.623
+        ],
+        "section": [
+         [
+          6.75,
+          31.485
+         ],
+         [
+          7.781,
+          29.884
+         ],
+         [
+          8.569,
+          31.183
+         ]
+        ]
+       }
+      ]
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -291871,6 +293605,152 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          5.97,
+          0.0,
+          30.609
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         16.545
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.4258,
+            -0.7426
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.0698,
+            -1.6061
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.356,
+            -0.8635
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.4258,
+            0.7426
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.0698,
+            1.6061
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.356,
+            0.8635
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        17,
+        18,
+        19,
+        20,
+        21,
+        22
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "sides": 6,
+        "length": 16.545,
+        "at": [
+         5.97,
+         8.273,
+         30.609
+        ],
+        "section": [
+         [
+          4.364,
+          30.539
+         ],
+         [
+          5.228,
+          29.183
+         ],
+         [
+          6.834,
+          29.252
+         ],
+         [
+          7.576,
+          30.678
+         ],
+         [
+          6.713,
+          32.034
+         ],
+         [
+          5.107,
+          31.965
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -293533,6 +295413,19 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -295073,6 +296966,19 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -296100,6 +298006,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -298051,6 +299970,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -300204,6 +302136,91 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          17.501,
+          0.0,
+          11.772
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         36.022,
+         44.448
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.0123,
+            0.2328
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.5376,
+            -0.9226
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.4747,
+            0.6898
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          2.20604
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        19,
+        20,
+        21
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -302180,6 +304197,19 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -304047,6 +306077,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -306468,6 +308511,91 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          12.978,
+          0.0,
+          3.692
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         13.859
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.5975,
+            -0.9125
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.9535,
+            -0.1619
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.356,
+            1.0744
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          -0.016132
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        9,
+        10,
+        11
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -308323,6 +310451,19 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -310073,6 +312214,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -312264,6 +314418,340 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          5.815,
+          21.771,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         13.057
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.8538,
+            -0.1707
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.7791,
+            -1.6908
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.0747,
+            -1.5201
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.8538,
+            0.1707
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.7791,
+            1.6908
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.0747,
+            1.5201
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          0.0,
+          32.966,
+          10.127
+         ],
+         "run": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         27.387
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.0818,
+            0.084
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.6136,
+            -0.8948
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.4681,
+            -0.9788
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.0818,
+            -0.084
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.6136,
+            0.8948
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.4681,
+            0.9788
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          -0.444686
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          0.0,
+          32.966,
+          10.127
+         ],
+         "run": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "run_interval": [
+         30.144,
+         37.616
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.0818,
+            0.084
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.6136,
+            -0.8948
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.4681,
+            -0.9788
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.0818,
+            -0.084
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.6136,
+            0.8948
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.4681,
+            0.9788
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.444686
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        24,
+        25,
+        26,
+        27,
+        28,
+        29
+       ],
+       [
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+       ],
+       [
+        17,
+        18,
+        19,
+        20,
+        21,
+        22
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 6,
+        "length": 13.057,
+        "at": [
+         5.815,
+         21.771,
+         6.528
+        ],
+        "section": [
+         [
+          3.961,
+          21.601
+         ],
+         [
+          5.036,
+          20.08
+         ],
+         [
+          6.889,
+          20.251
+         ],
+         [
+          7.668,
+          21.942
+         ],
+         [
+          6.594,
+          23.462
+         ],
+         [
+          4.74,
+          23.291
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -313419,6 +315907,116 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          0.0,
+          14.181,
+          13.956
+         ],
+         "run": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         30.816
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.8231,
+            -1.3153
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.6242,
+            -0.2508
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.8011,
+            1.5661
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        14,
+        15,
+        16
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 3,
+        "length": 30.816,
+        "at": [
+         15.408,
+         14.181,
+         13.956
+        ],
+        "section": [
+         [
+          13.357,
+          12.64
+         ],
+         [
+          15.805,
+          13.705
+         ],
+         [
+          13.379,
+          15.522
+         ]
+        ]
+       }
+      ]
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -315287,6 +317885,116 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          21.878,
+          0.0,
+          32.26
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         29.265
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.6473,
+            -0.7841
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.0177,
+            -0.1375
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.3704,
+            0.9216
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        21,
+        22,
+        23
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "sides": 3,
+        "length": 29.265,
+        "at": [
+         21.878,
+         14.632,
+         32.26
+        ],
+        "section": [
+         [
+          21.094,
+          31.613
+         ],
+         [
+          22.799,
+          31.89
+         ],
+         [
+          21.74,
+          33.278
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -317043,6 +319751,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -319124,6 +321845,19 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -320977,6 +323711,152 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          27.512,
+          0.0,
+          30.226
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         32.942,
+         39.353
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.9999,
+            -0.0106
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.4908,
+            -0.8713
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.5091,
+            -0.8607
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.9999,
+            0.0106
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.4908,
+            0.8713
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.5091,
+            0.8607
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "sides": 6,
+        "length": 6.411,
+        "at": [
+         27.512,
+         36.147,
+         30.226
+        ],
+        "section": [
+         [
+          26.641,
+          29.735
+         ],
+         [
+          27.501,
+          29.226
+         ],
+         [
+          28.373,
+          29.717
+         ],
+         [
+          28.383,
+          30.717
+         ],
+         [
+          27.523,
+          31.226
+         ],
+         [
+          26.651,
+          30.735
+         ]
+        ]
+       }
+      ]
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -323115,6 +325995,238 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          7.02,
+          25.147,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         16.654
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.9799,
+            -0.1993
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.3174,
+            -0.9483
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.6625,
+            -0.749
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.9799,
+            0.1993
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.3174,
+            0.9483
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.6625,
+            0.749
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          28.506,
+          22.311,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         16.654
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.3758,
+            0.079
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.6682,
+            -1.3216
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.7076,
+            1.2426
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        27,
+        28,
+        29,
+        30
+       ],
+       [
+        16,
+        17,
+        18
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "sides": 3,
+        "length": 44.596,
+        "at": [
+         21.053,
+         22.298,
+         14.049
+        ],
+        "section": [
+         [
+          20.009,
+          14.219
+         ],
+         [
+          21.458,
+          13.163
+         ],
+         [
+          21.691,
+          14.766
+         ]
+        ]
+       },
+       {
+        "axis": "z",
+        "sides": 3,
+        "length": 16.654,
+        "at": [
+         28.506,
+         22.311,
+         8.327
+        ],
+        "section": [
+         [
+          27.13,
+          22.39
+         ],
+         [
+          29.174,
+          20.99
+         ],
+         [
+          29.213,
+          23.554
+         ]
+        ]
+       }
+      ]
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -325489,6 +328601,379 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          24.919,
+          21.976,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         27.765
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.9359,
+            0.3524
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.7731,
+            -0.6343
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.1628,
+            -0.9867
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.9359,
+            -0.3524
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.7731,
+            0.6343
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.1628,
+            0.9867
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          32.811,
+          10.494,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         27.765
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.9925,
+            0.1219
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.6018,
+            -0.7986
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.3907,
+            -0.9205
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.9925,
+            -0.1219
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.6018,
+            0.7986
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.3907,
+            0.9205
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          0.0,
+          26.231,
+          19.379
+         ],
+         "run": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         39.254
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.4442,
+            -2.5517
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.4442,
+            -2.5517
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.4442,
+            2.5517
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.4442,
+            2.5517
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        37,
+        38,
+        39
+       ],
+       [
+        24,
+        25,
+        26,
+        27,
+        28,
+        29
+       ],
+       [
+        9,
+        10,
+        11,
+        12
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 4,
+        "length": 39.254,
+        "at": [
+         19.627,
+         26.231,
+         19.379
+        ],
+        "section": [
+         [
+          24.787,
+          16.828
+         ],
+         [
+          27.675,
+          16.828
+         ],
+         [
+          27.675,
+          21.931
+         ],
+         [
+          24.787,
+          21.931
+         ]
+        ]
+       },
+       {
+        "axis": "y",
+        "sides": 3,
+        "length": 37.346,
+        "at": [
+         34.71,
+         18.673,
+         10.476
+        ],
+        "section": [
+         [
+          33.664,
+          8.686
+         ],
+         [
+          36.633,
+          10.003
+         ],
+         [
+          33.833,
+          12.738
+         ]
+        ]
+       },
+       {
+        "axis": "z",
+        "sides": 6,
+        "length": 27.765,
+        "at": [
+         32.811,
+         10.494,
+         13.883
+        ],
+        "section": [
+         [
+          31.818,
+          10.616
+         ],
+         [
+          32.209,
+          9.696
+         ],
+         [
+          33.201,
+          9.574
+         ],
+         [
+          33.803,
+          10.373
+         ],
+         [
+          33.412,
+          11.293
+         ],
+         [
+          32.42,
+          11.415
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -326830,6 +330315,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -328267,6 +331765,91 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          39.1,
+          0.0,
+          10.032
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         29.842
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.89,
+            0.7943
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.2624,
+            -1.2055
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.1524,
+            0.4111
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.376366,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        9,
+        10,
+        11
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -330328,6 +333911,19 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -332028,6 +335624,128 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          5.763,
+          13.062,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         16.599
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.5727,
+            -1.0
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.5727,
+            -1.0
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.5727,
+            1.0
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.5727,
+            1.0
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        16,
+        17,
+        18,
+        19
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 4,
+        "length": 16.599,
+        "at": [
+         5.763,
+         13.062,
+         8.299
+        ],
+        "section": [
+         [
+          4.191,
+          12.062
+         ],
+         [
+          7.336,
+          12.062
+         ],
+         [
+          7.336,
+          14.062
+         ],
+         [
+          4.191,
+          14.062
+         ]
+        ]
+       }
+      ]
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -333752,6 +337470,19 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -335474,6 +339205,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -337354,6 +341098,282 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          0.0,
+          34.472,
+          7.44
+         ],
+         "run": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         1.605
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.0,
+            -0.0031
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.4973,
+            -0.8676
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.5027,
+            -0.8645
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.0,
+            0.0031
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.4973,
+            0.8676
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.5027,
+            0.8645
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          0.0,
+          34.472,
+          7.44
+         ],
+         "run": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "run_interval": [
+         21.711,
+         29.751
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.0,
+            -0.0031
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.4973,
+            -0.8676
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.5027,
+            -0.8645
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.0,
+            0.0031
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.4973,
+            0.8676
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.5027,
+            0.8645
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+       ],
+       [
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 6,
+        "length": 1.605,
+        "at": [
+         0.803,
+         34.472,
+         7.44
+        ],
+        "section": [
+         [
+          33.472,
+          7.437
+         ],
+         [
+          33.975,
+          6.572
+         ],
+         [
+          34.975,
+          6.575
+         ],
+         [
+          35.472,
+          7.443
+         ],
+         [
+          34.97,
+          8.307
+         ],
+         [
+          33.97,
+          8.304
+         ]
+        ]
+       },
+       {
+        "axis": "x",
+        "sides": 6,
+        "length": 8.04,
+        "at": [
+         25.731,
+         34.472,
+         7.44
+        ],
+        "section": [
+         [
+          33.472,
+          7.437
+         ],
+         [
+          33.975,
+          6.572
+         ],
+         [
+          34.975,
+          6.575
+         ],
+         [
+          35.472,
+          7.443
+         ],
+         [
+          34.97,
+          8.307
+         ],
+         [
+          33.97,
+          8.304
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -338820,6 +342840,128 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          7.485,
+          6.676,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         13.594
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -4.3048,
+            -1.4707
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            4.3048,
+            -1.4707
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            4.3048,
+            1.4707
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -4.3048,
+            1.4707
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        13,
+        14,
+        15,
+        16
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 4,
+        "length": 13.594,
+        "at": [
+         7.485,
+         6.676,
+         6.797
+        ],
+        "section": [
+         [
+          3.18,
+          5.205
+         ],
+         [
+          11.79,
+          5.205
+         ],
+         [
+          11.79,
+          8.146
+         ],
+         [
+          3.18,
+          8.146
+         ]
+        ]
+       }
+      ]
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -341201,6 +345343,128 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          0.0,
+          33.314,
+          4.963
+         ],
+         "run": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         32.529
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -2.9721,
+            -1.2788
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            2.9721,
+            -1.2788
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            2.9721,
+            1.2788
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -2.9721,
+            1.2788
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        9,
+        10,
+        11,
+        12
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 4,
+        "length": 32.529,
+        "at": [
+         16.264,
+         33.314,
+         4.963
+        ],
+        "section": [
+         [
+          30.341,
+          3.684
+         ],
+         [
+          36.286,
+          3.684
+         ],
+         [
+          36.286,
+          6.242
+         ],
+         [
+          30.341,
+          6.242
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -342584,6 +346848,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -345091,6 +349368,152 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          27.407,
+          0.0,
+          17.492
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         17.6
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -2.6305,
+            1.5068
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -2.6202,
+            -1.5247
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.0103,
+            -3.0315
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            2.6305,
+            -1.5068
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            2.6202,
+            1.5247
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.0103,
+            3.0315
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "sides": 6,
+        "length": 17.6,
+        "at": [
+         27.407,
+         8.8,
+         17.492
+        ],
+        "section": [
+         [
+          24.375,
+          17.503
+         ],
+         [
+          25.882,
+          14.872
+         ],
+         [
+          28.913,
+          14.862
+         ],
+         [
+          30.438,
+          17.482
+         ],
+         [
+          28.931,
+          20.113
+         ],
+         [
+          25.9,
+          20.123
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -346570,6 +350993,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -348694,6 +353130,209 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          13.642,
+          0.0,
+          2.85
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         3.979,
+         7.32
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.876,
+            -0.4822
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.0204,
+            -0.9998
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.8557,
+            -0.5175
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.876,
+            0.4822
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.0204,
+            0.9998
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.8557,
+            0.5175
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          -0.964084
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          13.642,
+          0.0,
+          2.85
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         14.827,
+         22.146
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.876,
+            -0.4822
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.0204,
+            -0.9998
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.8557,
+            -0.5175
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.876,
+            0.4822
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.0204,
+            0.9998
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.8557,
+            0.5175
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.964084
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        25,
+        26,
+        27,
+        28,
+        29,
+        30
+       ],
+       [
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -350618,6 +355257,152 @@
       ]
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          16.09,
+          0.0,
+          11.472
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         23.22
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.2511,
+            0.3713
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.9471,
+            -0.8978
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.304,
+            -1.2692
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.2511,
+            -0.3713
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.9471,
+            0.8978
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.304,
+            1.2692
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "sides": 6,
+        "length": 23.22,
+        "at": [
+         16.09,
+         11.61,
+         11.472
+        ],
+        "section": [
+         [
+          14.821,
+          11.776
+         ],
+         [
+          15.193,
+          10.525
+         ],
+         [
+          16.462,
+          10.221
+         ],
+         [
+          17.36,
+          11.168
+         ],
+         [
+          16.988,
+          12.419
+         ],
+         [
+          15.719,
+          12.723
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -351726,6 +356511,19 @@
         2
        ]
       ]
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -353383,6 +358181,152 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          19.164,
+          2.93,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         8.933
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.996,
+            0.0891
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.5751,
+            -0.8181
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.4209,
+            -0.9071
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.996,
+            -0.0891
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.5751,
+            0.8181
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.4209,
+            0.9071
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 6,
+        "length": 8.933,
+        "at": [
+         19.164,
+         2.93,
+         4.466
+        ],
+        "section": [
+         [
+          18.168,
+          3.019
+         ],
+         [
+          18.589,
+          2.112
+         ],
+         [
+          19.585,
+          2.023
+         ],
+         [
+          20.16,
+          2.841
+         ],
+         [
+          19.739,
+          3.748
+         ],
+         [
+          18.743,
+          3.837
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -354539,6 +359483,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -356300,6 +361257,186 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          40.631,
+          12.698,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         23.453
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.0389,
+            -0.111
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.5282,
+            -0.7651
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.5108,
+            0.8762
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          31.11,
+          1.593,
+          7.007
+         ],
+         "run": [
+          0.0,
+          0.975119,
+          -0.221682
+         ],
+         "u": [
+          0.0,
+          0.221682,
+          0.975119
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         8.217,
+         22.242
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.1798,
+            -1.1421
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.562,
+            -0.3295
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.3821,
+            1.4716
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          -0.227338,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        23,
+        24,
+        25
+       ],
+       [
+        9,
+        10,
+        11
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 3,
+        "length": 23.453,
+        "at": [
+         40.631,
+         12.698,
+         11.727
+        ],
+        "section": [
+         [
+          39.592,
+          12.587
+         ],
+         [
+          41.159,
+          11.933
+         ],
+         [
+          41.142,
+          13.575
+         ]
+        ]
+       }
+      ]
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -358642,6 +363779,56 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 6,
+        "length": 39.714,
+        "at": [
+         19.857,
+         20.94,
+         16.612
+        ],
+        "section": [
+         [
+          19.771,
+          16.923
+         ],
+         [
+          20.086,
+          15.755
+         ],
+         [
+          21.254,
+          15.444
+         ],
+         [
+          22.109,
+          16.3
+         ],
+         [
+          21.794,
+          17.468
+         ],
+         [
+          20.625,
+          17.78
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -359865,6 +365052,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -361610,6 +366810,19 @@
       ]
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -363106,6 +368319,19 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -364095,6 +369321,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -365538,6 +370777,19 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -366907,6 +372159,210 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          8.617,
+          0.0,
+          15.838
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         3.633
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.8793,
+            -0.4186
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.7048,
+            -0.6341
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.1745,
+            1.0526
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          13.681,
+          0.0,
+          16.035
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         3.633
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.6557,
+            0.694
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.3188,
+            -0.9755
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.9745,
+            0.2815
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        14,
+        15,
+        16
+       ],
+       [
+        11,
+        12,
+        13
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "sides": 3,
+        "length": 3.633,
+        "at": [
+         8.617,
+         1.817,
+         15.838
+        ],
+        "section": [
+         [
+          7.983,
+          16.543
+         ],
+         [
+          8.199,
+          14.959
+         ],
+         [
+          9.67,
+          16.012
+         ]
+        ]
+       },
+       {
+        "axis": "y",
+        "sides": 3,
+        "length": 3.633,
+        "at": [
+         13.681,
+         1.817,
+         16.035
+        ],
+        "section": [
+         [
+          12.705,
+          15.716
+         ],
+         [
+          14.375,
+          15.379
+         ],
+         [
+          13.962,
+          17.009
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -368153,6 +373609,116 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          8.295,
+          0.0,
+          20.864
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         44.155
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.6103,
+            2.9654
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.5806,
+            -2.5795
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            3.1909,
+            -0.3859
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        16,
+        17,
+        18
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "sides": 3,
+        "length": 44.155,
+        "at": [
+         8.295,
+         22.078,
+         20.864
+        ],
+        "section": [
+         [
+          5.716,
+          19.283
+         ],
+         [
+          11.261,
+          19.253
+         ],
+         [
+          7.909,
+          24.054
+         ]
+        ]
+       }
+      ]
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -369875,6 +375441,256 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          28.655,
+          3.093,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         2.76
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.7264,
+            0.7012
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.3014,
+            -0.8866
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.0279,
+            0.1854
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          12.711,
+          0.0,
+          13.571
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         2.812
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.7628,
+            -0.5918
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.9642,
+            -0.3814
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.2014,
+            0.9732
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          -0.651662,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          12.711,
+          0.0,
+          13.571
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         11.063,
+         13.875
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.7628,
+            -0.5918
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.9642,
+            -0.3814
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.2014,
+            0.9732
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.651662,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        19,
+        20,
+        21
+       ],
+       [
+        12,
+        13,
+        14
+       ],
+       [
+        16,
+        17,
+        18
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 3,
+        "length": 2.76,
+        "at": [
+         28.655,
+         3.093,
+         1.38
+        ],
+        "section": [
+         [
+          27.929,
+          3.794
+         ],
+         [
+          28.354,
+          2.206
+         ],
+         [
+          29.683,
+          3.278
+         ]
+        ]
+       }
+      ]
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -371887,6 +377703,234 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          2.349,
+          7.733,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         13.3
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.0,
+            -1.0
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.0,
+            -1.0
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.0,
+            1.0
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.0,
+            1.0
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          3.409,
+          31.553,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         13.3
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.0,
+            -1.0
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.0,
+            -1.0
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.0,
+            1.0
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.0,
+            1.0
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        12,
+        13,
+        14,
+        15
+       ],
+       [
+        16,
+        17,
+        18,
+        19
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 4,
+        "length": 13.3,
+        "at": [
+         2.349,
+         7.733,
+         6.65
+        ],
+        "section": [
+         [
+          1.349,
+          6.733
+         ],
+         [
+          3.349,
+          6.733
+         ],
+         [
+          3.349,
+          8.733
+         ],
+         [
+          1.349,
+          8.733
+         ]
+        ]
+       },
+       {
+        "axis": "z",
+        "sides": 4,
+        "length": 13.3,
+        "at": [
+         3.409,
+         31.553,
+         6.65
+        ],
+        "section": [
+         [
+          2.409,
+          30.553
+         ],
+         [
+          4.409,
+          30.553
+         ],
+         [
+          4.409,
+          32.553
+         ],
+         [
+          2.409,
+          32.553
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -373520,6 +379564,224 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          0.0,
+          23.418,
+          4.352
+         ],
+         "run": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         37.679
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -2.8583,
+            -0.0066
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -2.0709,
+            -0.623
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.9228,
+            -0.5634
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.9228,
+            -1.4033
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            2.4346,
+            -1.4033
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            2.4346,
+            1.324
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.7482,
+            1.324
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.7905,
+            1.3572
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.8729,
+            1.324
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.9228,
+            1.324
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.9228,
+            1.3039
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -2.7181,
+            0.9835
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 12,
+        "length": 37.679,
+        "at": [
+         18.84,
+         23.418,
+         4.352
+        ],
+        "section": [
+         [
+          20.56,
+          4.345
+         ],
+         [
+          21.348,
+          3.729
+         ],
+         [
+          21.496,
+          3.789
+         ],
+         [
+          21.496,
+          2.949
+         ],
+         [
+          25.853,
+          2.949
+         ],
+         [
+          25.853,
+          5.676
+         ],
+         [
+          21.67,
+          5.676
+         ],
+         [
+          21.628,
+          5.709
+         ],
+         [
+          21.546,
+          5.676
+         ],
+         [
+          21.496,
+          5.676
+         ],
+         [
+          21.496,
+          5.656
+         ],
+         [
+          20.7,
+          5.336
+         ]
+        ]
+       }
+      ]
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -375813,6 +382075,213 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          0.0,
+          2.687,
+          30.668
+         ],
+         "run": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         13.398
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.9096,
+            -0.4154
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.0951,
+            -0.9955
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.8146,
+            -0.5801
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.9096,
+            0.4154
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.0951,
+            0.9955
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.8146,
+            0.5801
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          0.0,
+          7.187,
+          20.79
+         ],
+         "run": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         13.398
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.5542,
+            0.8551
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.4979,
+            -0.7531
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.0521,
+            -0.102
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        28,
+        29,
+        36
+       ],
+       [
+        5,
+        6,
+        7
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 3,
+        "length": 13.398,
+        "at": [
+         6.699,
+         7.187,
+         20.79
+        ],
+        "section": [
+         [
+          6.633,
+          21.645
+         ],
+         [
+          6.689,
+          20.037
+         ],
+         [
+          8.239,
+          20.688
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -377654,6 +384123,19 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -378978,6 +385460,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -380762,6 +387257,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -382950,6 +389458,129 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          19.315,
+          0.0,
+          2.008
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         32.384
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.0,
+            -1.0
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.0,
+            -1.0
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.0,
+            1.0
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.0,
+            1.0
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        26,
+        27,
+        28,
+        29,
+        31
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 4,
+        "length": 23.479,
+        "at": [
+         12.813,
+         8.917,
+         11.739
+        ],
+        "section": [
+         [
+          11.813,
+          4.433
+         ],
+         [
+          13.813,
+          4.433
+         ],
+         [
+          13.813,
+          13.402
+         ],
+         [
+          11.813,
+          13.402
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -384653,6 +391284,115 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          10.779,
+          19.168,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         10.456
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.9279,
+            -0.3727
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.1412,
+            -0.99
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.7868,
+            -0.6173
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.9279,
+            0.3727
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.1412,
+            0.99
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.7868,
+            0.6173
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        1,
+        3,
+        4,
+        5,
+        6,
+        16
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -386557,6 +393297,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -388901,6 +395654,117 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          5.328,
+          0.0,
+          10.988
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         13.292
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.9603,
+            -0.2791
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.2384,
+            -0.9712
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.7218,
+            -0.6921
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.9603,
+            0.2791
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.2384,
+            0.9712
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.7218,
+            0.6921
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        36,
+        37
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -391665,6 +398529,274 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          12.004,
+          13.386,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         16.623
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.5831,
+            0.7102
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.5387,
+            -0.7487
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.1218,
+            0.0386
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          0.0,
+          8.398,
+          3.789
+         ],
+         "run": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         14.627
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -3.7875,
+            -1.6221
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            3.7875,
+            -1.6221
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            3.7875,
+            1.6221
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -3.7875,
+            1.6221
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          0.0,
+          16.987,
+          4.01
+         ],
+         "run": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         14.627
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -2.4783,
+            -0.137
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -1.5727,
+            -1.9203
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            2.4783,
+            0.137
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.5727,
+            1.9203
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        17,
+        18,
+        19
+       ],
+       [
+        12,
+        13,
+        14,
+        15,
+        47
+       ],
+       [
+        8,
+        9,
+        10,
+        11,
+        45
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 3,
+        "length": 16.623,
+        "at": [
+         12.004,
+         13.386,
+         8.311
+        ],
+        "section": [
+         [
+          11.421,
+          14.096
+         ],
+         [
+          11.465,
+          12.637
+         ],
+         [
+          13.126,
+          13.424
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -393285,6 +400417,176 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          6.292,
+          0.0,
+          3.323
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         29.984
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.8937,
+            -0.4486
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.0583,
+            -0.9983
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.8354,
+            -0.5497
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.8937,
+            0.4486
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.0583,
+            0.9983
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.8354,
+            0.5497
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "sides": 6,
+        "length": 29.984,
+        "at": [
+         6.292,
+         14.992,
+         3.323
+        ],
+        "section": [
+         [
+          5.293,
+          3.265
+         ],
+         [
+          5.843,
+          2.429
+         ],
+         [
+          6.841,
+          2.488
+         ],
+         [
+          7.29,
+          3.381
+         ],
+         [
+          6.74,
+          4.217
+         ],
+         [
+          5.742,
+          4.159
+         ]
+        ]
+       },
+       {
+        "axis": "z",
+        "sides": 3,
+        "length": 15.193,
+        "at": [
+         16.806,
+         9.059,
+         7.596
+        ],
+        "section": [
+         [
+          8.418,
+          9.059
+         ],
+         [
+          21.0,
+          7.494
+         ],
+         [
+          21.0,
+          10.623
+         ]
+        ]
+       }
+      ]
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -395195,6 +402497,19 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -396992,6 +404307,210 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          35.576,
+          0.0,
+          12.405
+         ],
+         "run": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          1.0,
+          0.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         37.071
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.0123,
+            -0.1918
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.797,
+            -0.6813
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.2152,
+            0.873
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       },
+       {
+        "frame": {
+         "origin": [
+          0.0,
+          27.726,
+          7.106
+         ],
+         "run": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "u": [
+          0.0,
+          1.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         37.696
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -1.2425,
+            1.5573
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.6439,
+            -1.5396
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.8864,
+            -0.0177
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        24,
+        25,
+        26
+       ],
+       [
+        10,
+        11,
+        12
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 3,
+        "length": 37.696,
+        "at": [
+         18.848,
+         27.726,
+         7.106
+        ],
+        "section": [
+         [
+          26.483,
+          8.663
+         ],
+         [
+          27.082,
+          5.566
+         ],
+         [
+          29.612,
+          7.088
+         ]
+        ]
+       },
+       {
+        "axis": "y",
+        "sides": 3,
+        "length": 37.071,
+        "at": [
+         35.576,
+         18.536,
+         12.405
+        ],
+        "section": [
+         [
+          34.894,
+          13.202
+         ],
+         [
+          35.384,
+          11.393
+         ],
+         [
+          36.449,
+          12.62
+         ]
+        ]
+       }
+      ]
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -399129,6 +406648,115 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          13.289,
+          -5.684,
+          24.517
+         ],
+         "run": [
+          0.393292,
+          0.919414,
+          0.0
+         ],
+         "u": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "v": [
+          0.919414,
+          -0.393292,
+          0.0
+         ]
+        },
+        "run_interval": [
+         7.297,
+         9.598
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.9998,
+            -0.0223
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.4806,
+            -0.8769
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.5192,
+            -0.8547
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.9998,
+            0.0223
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.4806,
+            0.8769
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.5192,
+            0.8547
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.427764
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -401630,6 +409258,116 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          31.128,
+          16.784,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         19.192
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.7624,
+            -0.4915
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            1.0607,
+            -0.3838
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.2983,
+            0.8753
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        32,
+        33,
+        34
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 3,
+        "length": 19.192,
+        "at": [
+         31.128,
+         16.784,
+         9.596
+        ],
+        "section": [
+         [
+          30.366,
+          16.292
+         ],
+         [
+          32.189,
+          16.4
+         ],
+         [
+          30.83,
+          17.659
+         ]
+        ]
+       }
+      ]
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -403734,6 +411472,152 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "frame": {
+         "origin": [
+          23.052,
+          19.963,
+          0.0
+         ],
+         "run": [
+          0.0,
+          0.0,
+          1.0
+         ],
+         "u": [
+          1.0,
+          0.0,
+          0.0
+         ],
+         "v": [
+          0.0,
+          1.0,
+          0.0
+         ]
+        },
+        "run_interval": [
+         0.0,
+         14.863
+        ],
+        "section": {
+         "boundary": [
+          {
+           "point": [
+            -0.9751,
+            0.2217
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.6796,
+            -0.7336
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.2955,
+            -0.9553
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.9751,
+            -0.2217
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            0.6796,
+            0.7336
+           ],
+           "bulge": 0.0
+          },
+          {
+           "point": [
+            -0.2955,
+            0.9553
+           ],
+           "bulge": 0.0
+          }
+         ]
+        },
+        "ends": {
+         "low_capped": false,
+         "high_capped": false,
+         "low_gradient": [
+          0.0,
+          0.0
+         ],
+         "high_gradient": [
+          0.0,
+          0.0
+         ]
+        }
+       }
+      ],
+      "defining": [
+       [
+        21,
+        22,
+        23,
+        24,
+        25,
+        26
+       ]
+      ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 6,
+        "length": 14.863,
+        "at": [
+         23.052,
+         19.963,
+         7.432
+        ],
+        "section": [
+         [
+          22.077,
+          20.185
+         ],
+         [
+          22.372,
+          19.23
+         ],
+         [
+          23.347,
+          19.008
+         ],
+         [
+          24.027,
+          19.742
+         ],
+         [
+          23.731,
+          20.697
+         ],
+         [
+          22.756,
+          20.919
+         ]
+        ]
+       }
+      ]
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -412030,6 +419914,19 @@
         122
        ]
       ]
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -443587,6 +451484,19 @@
       ]
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -453888,6 +461798,19 @@
         102
        ]
       ]
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -480013,6 +487936,19 @@
       ]
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -491837,6 +499773,19 @@
       ]
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -499563,6 +507512,19 @@
         93
        ]
       ]
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -512685,6 +520647,19 @@
         72
        ]
       ]
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -527297,6 +535272,19 @@
       ]
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -536840,6 +544828,19 @@
         52
        ]
       ]
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [
@@ -548193,6 +556194,19 @@
       "defining": []
      }
     ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
     "recognise_gusset_rib_patterns": [
      {
       "options": {},
@@ -555267,6 +563281,19 @@
         35
        ]
       ]
+     }
+    ],
+    "recognise_section_passages": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_gusset_rib_patterns": [

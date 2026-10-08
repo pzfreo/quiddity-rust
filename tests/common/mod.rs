@@ -99,6 +99,12 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
             json(quiddity::recognise_edge_open_prismatic_recesses(part))
         }
         "recognise_blends" => json(quiddity::recognise_blends(part)),
+        "recognise_passages" => json(quiddity::recognise_passages(part)),
+        // A refusal is an answer Python never gives, so it shows as a difference.
+        "recognise_section_passages" => match quiddity::recognise_section_passages(part) {
+            Ok(found) => json(found),
+            Err(e) => serde_json::json!({ "refused": e.to_string() }),
+        },
         // Over a part: the patterns among the part's gusset ribs.
         "recognise_gusset_rib_patterns" => json(quiddity::recognise_gusset_rib_patterns(
             &quiddity::recognise_gusset_ribs(part),
@@ -194,6 +200,10 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
             quiddity::features::edge_open_prismatic::discover_verified(&ctx).map(faces)
         }
         "recognise_blends" => quiddity::features::blends::discover_verified(&ctx).map(faces),
+        // Refused for its own reasons as well as evidence ones, so its error is already text.
+        "recognise_section_passages" => {
+            return quiddity::features::passages::discover_verified(&ctx).map(faces);
+        }
         other => panic!("{other} has no evidence path"),
     };
     result.map_err(|e| e.to_string())
