@@ -1,11 +1,5 @@
 [
   {
-    "file": "inventory_refusal/13975.step.gz",
-    "view": "plan",
-    "verdict": "undetermined",
-    "reason": "A deliberately malformed corpus part (its shell is not orientable) that OpenCascade heals on import; the two are not drawing the same solid."
-  },
-  {
     "file": "inventory_refusal/14052.step.gz",
     "view": "front",
     "verdict": "undetermined",

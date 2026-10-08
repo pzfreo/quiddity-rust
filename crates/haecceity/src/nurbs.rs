@@ -3,7 +3,7 @@
 //! Every surface the analytic set does not cover (B-splines, extrusions, revolutions) reaches the
 //! recognisers in this form, via `step-io`'s exact NURBS conversion.
 
-use super::geom::{self, V3};
+use super::geom::{self, COORD_FLOOR, V3};
 
 fn find_span(knots: &[f64], degree: usize, n: usize, t: f64) -> usize {
     // n = number of control points; valid spans are degree..n-1: the last whose knot is <= t.
@@ -284,9 +284,52 @@ struct Grid {
     us: Vec<f64>,
     vs: Vec<f64>,
     points: Vec<Vec<V3>>,
+    /// Per cell: how far the surface strays from the cell's triangles (sampled).
+    deviation: Vec<Vec<f64>>,
     /// Blocks of cells (`i0..i1`, `j0..j1`) with a box holding every seed their cells can
     /// give, so a ray tests only the cells of blocks it passes.
     blocks: Vec<(usize, usize, usize, usize, [V3; 2])>,
+}
+
+impl Grid {
+    fn new(us: Vec<f64>, vs: Vec<f64>, points: Vec<Vec<V3>>, deviation: Vec<Vec<f64>>) -> Self {
+        let mut blocks = Vec::new();
+        for i0 in (0..us.len() - 1).step_by(BLOCK) {
+            for j0 in (0..vs.len() - 1).step_by(BLOCK) {
+                let (i1, j1) = (
+                    (i0 + BLOCK).min(us.len() - 1),
+                    (j0 + BLOCK).min(vs.len() - 1),
+                );
+                let (mut lo, mut hi, mut pad) =
+                    ([f64::INFINITY; 3], [f64::NEG_INFINITY; 3], 0.0f64);
+                for i in i0..i1 {
+                    for j in j0..j1 {
+                        pad = pad.max(seed_pad(deviation[i][j]));
+                        for p in [
+                            points[i][j],
+                            points[i + 1][j],
+                            points[i + 1][j + 1],
+                            points[i][j + 1],
+                        ] {
+                            for k in 0..3 {
+                                lo[k] = lo[k].min(p[k]);
+                                hi[k] = hi[k].max(p[k]);
+                            }
+                        }
+                    }
+                }
+                let box_ = [lo.map(|c| c - pad), hi.map(|c| c + pad)];
+                blocks.push((i0, i1, j0, j1, box_));
+            }
+        }
+        Grid {
+            us,
+            vs,
+            points,
+            deviation,
+            blocks,
+        }
+    }
 }
 
 /// Cells per block side.
@@ -314,21 +357,40 @@ fn ray_meets(origin: V3, dir: V3, t_max: f64, [lo, hi]: [V3; 2]) -> bool {
 /// How far (mm) a hinted inversion may land from its point before a global search is tried.
 const HINT_RETRY_DISTANCE: f64 = 0.05;
 
-/// Grid subdivisions per knot span in each direction.
+/// How many times a ray may halve a cell that strays from its triangles by more than a quarter
+/// of its diagonal (where the grid's refinement stopped at `GRID_POINTS`).
+const REFINE_DEPTH: usize = 6;
+
+/// A crossing this near tangent (the cosine between ray and normal) is a graze: Newton's method
+/// settles a touching ray within 1e-10 of its surface, where the cosine is still about
+/// `sqrt(2e-10 / radius)`, and a ray this close to tangent may cross twice within a cell.
+const GRAZING_COS: f64 = 1e-3;
+
+/// Grid subdivisions per knot span in each direction, before any refinement.
 const GRID_PER_SPAN: usize = 6;
 
-fn grid_params(knots: &[f64], degree: usize) -> Vec<f64> {
+/// The grid is refined until its cells' triangles stray from the surface by no more than this
+/// fraction of the surface's size...
+const GRID_DEVIATION: f64 = 1e-3;
+
+/// ...or until it would have more points than this.
+const GRID_POINTS: usize = 1 << 18;
+
+fn grid_params(knots: &[f64], degree: usize, per_span: usize) -> Vec<f64> {
     let (lo, hi) = (knots[degree], knots[knots.len() - degree - 1]);
     let mut out = Vec::new();
     for w in breaks(knots, degree).windows(2) {
-        for i in 0..GRID_PER_SPAN {
-            out.push(w[0] + (w[1] - w[0]) * i as f64 / GRID_PER_SPAN as f64);
+        for i in 0..per_span {
+            out.push(w[0] + (w[1] - w[0]) * i as f64 / per_span as f64);
         }
     }
     out.push(hi);
     // Very coarse surfaces (one span) still need enough samples to seed Newton.
-    if out.len() < 17 {
-        out = (0..=16).map(|i| lo + (hi - lo) * i as f64 / 16.0).collect();
+    let least = 16 * per_span / GRID_PER_SPAN;
+    if out.len() <= least {
+        out = (0..=least)
+            .map(|i| lo + (hi - lo) * i as f64 / least as f64)
+            .collect();
     }
     out
 }
@@ -382,50 +444,73 @@ impl NurbsSurface {
 
     fn grid(&self) -> &Grid {
         self.grid.get_or_init(|| {
-            let us = grid_params(&self.knots_u, self.degree_u);
-            let vs = grid_params(&self.knots_v, self.degree_v);
-            let points: Vec<Vec<V3>> = us
-                .iter()
-                .map(|&u| vs.iter().map(|&v| self.value(u, v)).collect())
-                .collect();
-            let mut blocks = Vec::new();
-            for i0 in (0..us.len() - 1).step_by(BLOCK) {
-                for j0 in (0..vs.len() - 1).step_by(BLOCK) {
-                    let (i1, j1) = (
-                        (i0 + BLOCK).min(us.len() - 1),
-                        (j0 + BLOCK).min(vs.len() - 1),
-                    );
-                    let (mut lo, mut hi, mut pad) =
-                        ([f64::INFINITY; 3], [f64::NEG_INFINITY; 3], 0.0f64);
-                    for i in i0..i1 {
-                        for j in j0..j1 {
-                            let q = [
-                                points[i][j],
-                                points[i + 1][j],
-                                points[i + 1][j + 1],
-                                points[i][j + 1],
-                            ];
-                            pad =
-                                pad.max(0.25 * geom::dist(q[0], q[2]).max(geom::dist(q[1], q[3])));
-                            for p in q {
-                                for k in 0..3 {
-                                    lo[k] = lo[k].min(p[k]);
-                                    hi[k] = hi[k].max(p[k]);
-                                }
-                            }
-                        }
+            // Halve the cells in each direction whose triangles stray further than
+            // GRID_DEVIATION of the surface's size, so that a seed's pad stays small.
+            let mut per_span = [GRID_PER_SPAN; 2];
+            loop {
+                let us = grid_params(&self.knots_u, self.degree_u, per_span[0]);
+                let vs = grid_params(&self.knots_v, self.degree_v, per_span[1]);
+                let points: Vec<Vec<V3>> = us
+                    .iter()
+                    .map(|&u| vs.iter().map(|&v| self.value(u, v)).collect())
+                    .collect();
+                let mut worst = [0.0f64; 3];
+                let deviation: Vec<Vec<f64>> = (0..us.len() - 1)
+                    .map(|i| {
+                        (0..vs.len() - 1)
+                            .map(|j| {
+                                let quad = [
+                                    points[i][j],
+                                    points[i + 1][j],
+                                    points[i + 1][j + 1],
+                                    points[i][j + 1],
+                                ];
+                                let d = self.deviation([us[i], us[i + 1], vs[j], vs[j + 1]], &quad);
+                                (0..3).for_each(|k| worst[k] = worst[k].max(d[k]));
+                                d[0].max(d[1]).max(d[2])
+                            })
+                            .collect()
+                    })
+                    .collect();
+                let mut lo = [f64::INFINITY; 3];
+                let mut hi = [f64::NEG_INFINITY; 3];
+                for p in points.iter().flatten() {
+                    for k in 0..3 {
+                        lo[k] = lo[k].min(p[k]);
+                        hi[k] = hi[k].max(p[k]);
                     }
-                    let box_ = [lo.map(|c| c - pad), hi.map(|c| c + pad)];
-                    blocks.push((i0, i1, j0, j1, box_));
+                }
+                let target = GRID_DEVIATION * geom::dist(lo, hi);
+                // Along u, along v, or (a twist, seen only at the centre) both.
+                let mut finer = [worst[0] > target, worst[1] > target];
+                if worst[2] > target && !finer[0] && !finer[1] {
+                    finer = [true, true];
+                }
+                let room = us.len() * vs.len() * 4 <= GRID_POINTS;
+                if !room || finer == [false, false] {
+                    return Grid::new(us, vs, points, deviation);
+                }
+                for k in 0..2 {
+                    if finer[k] {
+                        per_span[k] *= 2;
+                    }
                 }
             }
-            Grid {
-                us,
-                vs,
-                points,
-                blocks,
-            }
         })
+    }
+
+    /// How far the surface strays over `[u0, u1] × [v0, v1]` from the two triangles of its
+    /// corners *quad* (in the grid's corner order, split along `quad[0]`–`quad[2]`): sampled at
+    /// the midpoints of the edges along u, of those along v, and at the centre.
+    fn deviation(&self, [u0, u1, v0, v1]: [f64; 4], quad: &[V3; 4]) -> [f64; 3] {
+        let (um, vm) = (0.5 * (u0 + u1), 0.5 * (v0 + v1));
+        let mid = |a: V3, b: V3| geom::scale(geom::add(a, b), 0.5);
+        let off = |u: f64, v: f64, chord: V3| geom::dist(self.value(u, v), chord);
+        [
+            off(um, v0, mid(quad[0], quad[1])).max(off(um, v1, mid(quad[2], quad[3]))),
+            off(u1, vm, mid(quad[1], quad[2])).max(off(u0, vm, mid(quad[3], quad[0]))),
+            off(um, vm, mid(quad[0], quad[2])),
+        ]
     }
 
     pub fn domain(&self) -> (f64, f64, f64, f64) {
@@ -545,7 +630,9 @@ impl NurbsSurface {
         (g.us[best.1], g.vs[best.2])
     }
 
-    /// Ray hits `(t, u, v)`, plus a grazing flag when any hit is near-tangent.
+    /// Ray hits `(t, u, v)`, plus a grazing flag when any hit is near-tangent or when the ray
+    /// comes within [`COORD_FLOOR`] of the surface somewhere no crossing could be resolved (so
+    /// the hits cannot be trusted for parity).
     pub fn ray_hits(&self, origin: V3, dir: V3, t_max: f64) -> (Vec<(f64, f64, f64)>, bool) {
         let g = self.grid();
         let mut seeds = Vec::new();
@@ -557,75 +644,38 @@ impl NurbsSurface {
                 (i0..i1).flat_map(move |i| (j0..j1).map(move |j| (i, j)))
             });
         for (i, j) in cells {
-            {
-                let quad = [
-                    g.points[i][j],
-                    g.points[i + 1][j],
-                    g.points[i + 1][j + 1],
-                    g.points[i][j + 1],
-                ];
-                // Seed from any triangle the ray passes near, padded for the chordal error.
-                let pad = 0.25 * geom::dist(quad[0], quad[2]).max(geom::dist(quad[1], quad[3]));
-                for tri in [[0, 1, 2], [0, 2, 3]] {
-                    if let Some((t, a, b)) =
-                        ray_triangle(origin, dir, quad[tri[0]], quad[tri[1]], quad[tri[2]], pad)
-                    {
-                        let (pu, pv) = match tri {
-                            [0, 1, 2] => (
-                                g.us[i] + (g.us[i + 1] - g.us[i]) * (a + b),
-                                g.vs[j] + (g.vs[j + 1] - g.vs[j]) * b,
-                            ),
-                            _ => (
-                                g.us[i] + (g.us[i + 1] - g.us[i]) * a,
-                                g.vs[j] + (g.vs[j + 1] - g.vs[j]) * (a + b),
-                            ),
-                        };
-                        seeds.push((
-                            t,
-                            pu.clamp(g.us[i], g.us[i + 1]),
-                            pv.clamp(g.vs[j], g.vs[j + 1]),
-                            (g.us[i + 1] - g.us[i], g.vs[j + 1] - g.vs[j], pad),
-                        ));
-                    }
-                }
-            }
+            let quad = [
+                g.points[i][j],
+                g.points[i + 1][j],
+                g.points[i + 1][j + 1],
+                g.points[i][j + 1],
+            ];
+            let cell = [g.us[i], g.us[i + 1], g.vs[j], g.vs[j + 1]];
+            let ray = (origin, dir, t_max);
+            self.seed_cell(ray, cell, quad, g.deviation[i][j], 0, &mut seeds);
         }
-        let (u0, u1, v0, v1) = self.domain();
         let mut hits: Vec<(f64, f64, f64)> = Vec::new();
         let mut grazing = false;
-        // Nearest first, so a seed in the cell of a hit already found (one more triangle the
-        // ray passes near) need not be refined again.
-        seeds.sort_by(|a, b| a.0.total_cmp(&b.0));
-        for (t, u, v, (cell_u, cell_v, pad)) in seeds {
-            if hits.iter().any(|h| {
-                (h.0 - t).abs() <= pad && (h.1 - u).abs() <= cell_u && (h.2 - v).abs() <= cell_v
-            }) {
+        // Nearest first. Every seed is refined, even one beside a hit already found: a ray can
+        // cross a curved cell twice.
+        seeds.sort_by(|a, b| {
+            (a.0.total_cmp(&b.0))
+                .then(a.1.total_cmp(&b.1))
+                .then(a.2.total_cmp(&b.2))
+        });
+        for (_, u, v) in seeds {
+            // Where the ray comes nearest the surface from this seed: clear of it, a miss;
+            // otherwise a crossing for Newton's method to resolve, or the ray is ambiguous (but
+            // for a touch where the ray starts, on the surface itself).
+            let (gap, near) = self.closest_approach(origin, dir, (u, v));
+            if gap > COORD_FLOOR || near.0 < -COORD_FLOOR || near.0 > t_max + COORD_FLOOR {
                 continue;
             }
-            let (mut t, mut u, mut v) = (t, u, v);
-            let mut converged = false;
-            for _ in 0..40 {
-                let (s, su, sv) = self.value_and_partials(u, v);
-                let f = geom::sub(s, geom::add(origin, geom::scale(dir, t)));
-                if geom::norm(f) < 1e-10 {
-                    converged = true;
-                    break;
-                }
-                // Solve [su sv -dir] (du dv dt) = -f by Cramer's rule.
-                let m = [su, sv, geom::scale(dir, -1.0)];
-                let det = geom::dot(m[0], geom::cross(m[1], m[2]));
-                if det.abs() < 1e-300 {
-                    break;
-                }
-                let rhs = geom::scale(f, -1.0);
-                let du = geom::dot(rhs, geom::cross(m[1], m[2])) / det;
-                let dv = geom::dot(m[0], geom::cross(rhs, m[2])) / det;
-                let dt = geom::dot(m[0], geom::cross(m[1], rhs)) / det;
-                u = (u + du).clamp(u0, u1);
-                v = (v + dv).clamp(v0, v1);
-                t += dt;
-            }
-            if !converged || t <= 1e-12 || t > t_max {
+            let Some((t, u, v)) = self.ray_newton(origin, dir, near) else {
+                grazing |= near.0 > COORD_FLOOR;
+                continue;
+            };
+            if t <= 1e-12 || t > t_max {
                 continue;
             }
             if hits
@@ -637,35 +687,221 @@ impl NurbsSurface {
             let (_, su, sv) = self.value_and_partials(u, v);
             let normal = geom::cross(su, sv);
             let cos = geom::dot(normal, dir).abs() / (geom::norm(normal).max(1e-300));
-            if cos < 1e-6 {
+            if cos < GRAZING_COS {
                 grazing = true;
             }
             hits.push((t, u, v));
         }
         (hits, grazing)
     }
+
+    /// Seeds `(t, u, v)` from each triangle of the cell `[u0, u1, v0, v1]` (corners *quad*)
+    /// that the ray passes near, padded for the cell's chordal *deviation*. A cell that strays
+    /// from its triangles by more than a quarter of its diagonal (a grid refinement cut short)
+    /// is split instead, so that a seed stays near enough its crossing for Newton's method.
+    fn seed_cell(
+        &self,
+        ray: (V3, V3, f64),
+        cell: [f64; 4],
+        quad: [V3; 4],
+        deviation: f64,
+        depth: usize,
+        seeds: &mut Vec<(f64, f64, f64)>,
+    ) {
+        let (origin, dir, t_max) = ray;
+        let [u0, u1, v0, v1] = cell;
+        if deviation > 0.25 * diagonal(&quad) && depth < REFINE_DEPTH {
+            let (us, vs) = ([u0, 0.5 * (u0 + u1), u1], [v0, 0.5 * (v0 + v1), v1]);
+            let corner = |i: usize, j: usize| match (i, j) {
+                (0, 0) => quad[0],
+                (2, 0) => quad[1],
+                (2, 2) => quad[2],
+                (0, 2) => quad[3],
+                _ => self.value(us[i], vs[j]),
+            };
+            let p = [0, 1, 2].map(|i| [0, 1, 2].map(|j| corner(i, j)));
+            for (a, b) in [(0, 0), (1, 0), (0, 1), (1, 1)] {
+                let q = [p[a][b], p[a + 1][b], p[a + 1][b + 1], p[a][b + 1]];
+                let sub = [us[a], us[a + 1], vs[b], vs[b + 1]];
+                let dev = self.deviation(sub, &q).into_iter().fold(0.0, f64::max);
+                let reach = seed_pad(dev);
+                let mut lo = [f64::INFINITY; 3];
+                let mut hi = [f64::NEG_INFINITY; 3];
+                for c in q {
+                    for k in 0..3 {
+                        lo[k] = lo[k].min(c[k] - reach);
+                        hi[k] = hi[k].max(c[k] + reach);
+                    }
+                }
+                if ray_meets(origin, dir, t_max, [lo, hi]) {
+                    self.seed_cell(ray, sub, q, dev, depth + 1, seeds);
+                }
+            }
+            return;
+        }
+        let pad = seed_pad(deviation);
+        for tri in [[0, 1, 2], [0, 2, 3]] {
+            if let Some((t, a, b)) =
+                ray_triangle(origin, dir, quad[tri[0]], quad[tri[1]], quad[tri[2]], pad)
+            {
+                let (pu, pv) = match tri {
+                    [0, 1, 2] => (u0 + (u1 - u0) * (a + b), v0 + (v1 - v0) * b),
+                    _ => (u0 + (u1 - u0) * a, v0 + (v1 - v0) * (a + b)),
+                };
+                seeds.push((t, pu.clamp(u0, u1), pv.clamp(v0, v1)));
+            }
+        }
+    }
+
+    /// Newton's method for the ray's crossing from the seed `(t, u, v)`; `None` when it does
+    /// not converge.
+    fn ray_newton(&self, origin: V3, dir: V3, seed: (f64, f64, f64)) -> Option<(f64, f64, f64)> {
+        let (u0, u1, v0, v1) = self.domain();
+        let (mut t, mut u, mut v) = seed;
+        for _ in 0..40 {
+            let (s, su, sv) = self.value_and_partials(u, v);
+            let f = geom::sub(s, geom::add(origin, geom::scale(dir, t)));
+            if geom::norm(f) < 1e-10 {
+                return Some((t, u, v));
+            }
+            // Solve [su sv -dir] (du dv dt) = -f by Cramer's rule.
+            let m = [su, sv, geom::scale(dir, -1.0)];
+            let det = geom::dot(m[0], geom::cross(m[1], m[2]));
+            if det.abs() < 1e-300 {
+                return None;
+            }
+            let rhs = geom::scale(f, -1.0);
+            let du = geom::dot(rhs, geom::cross(m[1], m[2])) / det;
+            let dv = geom::dot(m[0], geom::cross(rhs, m[2])) / det;
+            let dt = geom::dot(m[0], geom::cross(m[1], rhs)) / det;
+            u = (u + du).clamp(u0, u1);
+            v = (v + dv).clamp(v0, v1);
+            t += dt;
+        }
+        None
+    }
+
+    /// The nearest the line through *origin* along the unit *dir* comes to the surface, found
+    /// from `(u, v)` by damped Gauss–Newton within the domain: the distance there and its
+    /// `(t, u, v)`. A local minimum, which is what a seed's own cell needs; the search stops
+    /// once the line is well within [`COORD_FLOOR`] (Newton's method finishes a crossing), or
+    /// once a step gains under a hundredth while the line is still clear of it (a miss creeping
+    /// towards its minimum).
+    fn closest_approach(&self, origin: V3, dir: V3, (u, v): (f64, f64)) -> (f64, (f64, f64, f64)) {
+        let (u0, u1, v0, v1) = self.domain();
+        // A vector's part across the line, and a surface point's offset from the line.
+        let across = |x: V3| geom::sub(x, geom::scale(dir, geom::dot(x, dir)));
+        let gap = |u: f64, v: f64| geom::norm(across(geom::sub(self.value(u, v), origin)));
+        let (mut u, mut v) = (u, v);
+        for _ in 0..50 {
+            let (s, su, sv) = self.value_and_partials(u, v);
+            let r = across(geom::sub(s, origin));
+            let here = geom::norm(r);
+            if here <= 0.1 * COORD_FLOOR {
+                break;
+            }
+            let (ju, jv) = (across(su), across(sv));
+            let (a, b, c) = (geom::dot(ju, ju), geom::dot(ju, jv), geom::dot(jv, jv));
+            let damping = 1e-9 * (a + c);
+            let (a, c) = (a + damping, c + damping);
+            let (g0, g1) = (geom::dot(ju, r), geom::dot(jv, r));
+            let det = a * c - b * b;
+            if det <= 0.0 {
+                break;
+            }
+            let (mut du, mut dv) = (-(c * g0 - b * g1) / det, -(a * g1 - b * g0) / det);
+            // Along a bound the step pushes past, search the other parameter alone.
+            if (u <= u0 && du < 0.0) || (u >= u1 && du > 0.0) {
+                (du, dv) = (0.0, -g1 / c);
+            } else if (v <= v0 && dv < 0.0) || (v >= v1 && dv > 0.0) {
+                (du, dv) = (-g0 / a, 0.0);
+            }
+            let mut step = 1.0;
+            let mut next = None;
+            for _ in 0..30 {
+                let (nu, nv) = ((u + step * du).clamp(u0, u1), (v + step * dv).clamp(v0, v1));
+                let there = gap(nu, nv);
+                if there < here {
+                    next = Some((nu, nv, there));
+                    break;
+                }
+                step *= 0.5;
+            }
+            let Some((nu, nv, there)) = next else { break };
+            (u, v) = (nu, nv);
+            if there > COORD_FLOOR && there > 0.99 * here {
+                break;
+            }
+        }
+        let w = geom::sub(self.value(u, v), origin);
+        (geom::norm(across(w)), (geom::dot(w, dir), u, v))
+    }
 }
 
-/// Möller–Trumbore, returning `(t, a, b)` barycentrics; *pad* widens the triangle's acceptance.
+/// A cell's longer diagonal.
+fn diagonal(quad: &[V3; 4]) -> f64 {
+    geom::dist(quad[0], quad[2]).max(geom::dist(quad[1], quad[3]))
+}
+
+/// How near a cell's triangles a ray must pass to seed a crossing: twice the cell's sampled
+/// chordal deviation (its samples can miss the worst of it), and never less than
+/// [`COORD_FLOOR`], within which a miss is unresolved rather than clean.
+fn seed_pad(deviation: f64) -> f64 {
+    2.0 * deviation + COORD_FLOOR
+}
+
+/// Where the line through *o* along the unit *d* meets the triangle, or else passes within
+/// *pad* of it: `(t, a, b)`, the barycentrics of the meeting or of the nearest point of the
+/// triangle (on an edge, where a line that misses a triangle comes nearest it).
 fn ray_triangle(o: V3, d: V3, p0: V3, p1: V3, p2: V3, pad: f64) -> Option<(f64, f64, f64)> {
     let e1 = geom::sub(p1, p0);
     let e2 = geom::sub(p2, p0);
+    // Möller–Trumbore.
     let h = geom::cross(d, e2);
     let det = geom::dot(e1, h);
-    if det.abs() < 1e-300 {
-        return None;
+    if det.abs() >= 1e-300 {
+        let s = geom::sub(o, p0);
+        let a = geom::dot(s, h) / det;
+        let q = geom::cross(s, e1);
+        let b = geom::dot(d, q) / det;
+        if a >= 0.0 && b >= 0.0 && a + b <= 1.0 {
+            return Some((geom::dot(e2, q) / det, a, b));
+        }
     }
-    let s = geom::sub(o, p0);
-    let a = geom::dot(s, h) / det;
-    let q = geom::cross(s, e1);
-    let b = geom::dot(d, q) / det;
-    let t = geom::dot(e2, q) / det;
-    let size = geom::norm(e1).max(geom::norm(e2)).max(1e-300);
-    let slack = pad / size;
-    if a < -slack || b < -slack || a + b > 1.0 + slack {
-        return None;
+    let mut best: Option<(f64, f64, f64, f64)> = None;
+    for (k, start, run) in [(0, p0, e1), (1, p0, e2), (2, p1, geom::sub(p2, p1))] {
+        let (gap, t, s) = line_segment(o, d, start, run);
+        if gap <= pad && best.is_none_or(|b| gap < b.0) {
+            // The barycentrics of the point *s* along the edge.
+            let (a, b) = match k {
+                0 => (s, 0.0),
+                1 => (0.0, s),
+                _ => (1.0 - s, s),
+            };
+            best = Some((gap, t, a, b));
+        }
     }
-    Some((t, a.clamp(0.0, 1.0), b.clamp(0.0, 1.0 - a.clamp(0.0, 1.0))))
+    best.map(|(_, t, a, b)| (t, a, b))
+}
+
+/// The nearest the line through *o* along the unit *d* comes to the segment from *p* along
+/// *e*: the distance, the line's `t` and the segment's fraction there.
+fn line_segment(o: V3, d: V3, p: V3, e: V3) -> (f64, f64, f64) {
+    let w = geom::sub(p, o);
+    let (b, c) = (geom::dot(d, e), geom::dot(e, e));
+    let (dw, ew) = (geom::dot(d, w), geom::dot(e, w));
+    let across = c - b * b;
+    let s = if across > 1e-300 {
+        ((b * dw - ew) / across).clamp(0.0, 1.0)
+    } else {
+        0.0
+    };
+    let t = dw + s * b;
+    let gap = geom::norm(geom::sub(
+        geom::add(w, geom::scale(e, s)),
+        geom::scale(d, t),
+    ));
+    (gap, t, s)
 }
 
 #[cfg(test)]
@@ -725,6 +961,60 @@ mod tests {
         assert_eq!(hits.len(), 1);
         assert!(!grazing);
         assert!((hits[0].0 - 1.0).abs() < 1e-9);
+    }
+
+    /// A thin flat strip bent round a quarter circle (radii 54.36 to 55, the shape of a thread
+    /// flank): its seed grid's chords cut inside the arc by more than the strip is wide.
+    fn thin_arc_strip() -> NurbsSurface {
+        let w = std::f64::consts::FRAC_1_SQRT_2;
+        let rows = [[1.0, 0.0], [1.0, 1.0], [0.0, 1.0]];
+        let control_points = rows
+            .iter()
+            .map(|&[x, y]| [54.36, 55.0].map(|r| [r * x, r * y, 0.0]).to_vec())
+            .collect();
+        let weights = vec![vec![1.0, 1.0], vec![w, w], vec![1.0, 1.0]];
+        NurbsSurface::new(
+            2,
+            1,
+            control_points,
+            weights,
+            vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
+            vec![0.0, 0.0, 1.0, 1.0],
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn ray_hits_find_crossings_outside_the_seed_grids_chords() {
+        let s = thin_arc_strip();
+        // Near the outer rim, midway between two grid columns, where the arc bulges furthest
+        // beyond the chords (about 0.06 mm, against a strip 0.64 mm wide in 16 rows).
+        for degrees in [47.8125f64, 20.0, 84.375] {
+            let (sin, cos) = degrees.to_radians().sin_cos();
+            let target = [54.99 * cos, 54.99 * sin, 0.0];
+            let dir = geom::unit([0.3, -0.2, -1.0]).unwrap();
+            let origin = geom::sub(target, geom::scale(dir, 10.0));
+            let (hits, grazing) = s.ray_hits(origin, dir, 100.0);
+            assert!(!grazing);
+            assert_eq!(hits.len(), 1, "at {degrees}°");
+            assert!((hits[0].0 - 10.0).abs() < 1e-9);
+        }
+    }
+
+    #[test]
+    fn ray_hits_flag_a_ray_that_touches_or_nearly_misses() {
+        let s = quarter_cylinder();
+        let (sin, cos) = 0.7f64.sin_cos();
+        let tangent = [-sin, cos, 0.0];
+        // Touching the cylinder along a tangent: not a clean crossing.
+        let touch = [cos, sin, 1.0];
+        let (_, grazing) = s.ray_hits(geom::sub(touch, geom::scale(tangent, 5.0)), tangent, 10.0);
+        assert!(grazing);
+        // Passing clearly outside it: a clean miss, not an ambiguous one.
+        let clear = [1.001 * cos, 1.001 * sin, 1.0];
+        let (hits, grazing) =
+            s.ray_hits(geom::sub(clear, geom::scale(tangent, 5.0)), tangent, 10.0);
+        assert!(hits.is_empty() && !grazing);
     }
 
     #[test]
