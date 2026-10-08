@@ -78,6 +78,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/known_face_areas.json` | `crates/haecceity/tests/face_areas.rs` | 1831 | 1815 | 3 | 0 | 12 | 1 |
 | `tests/fixtures/captured/known_sections.json` | `tests/sections.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/passages/known_divergences.json` | `tests/passages.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
+| `tests/fixtures/captured/known_section_recess_helpers.json` | `tests/section_recess_helpers.rs` | 4 | 0 | 4 | 0 | 0 | 0 |
 
 The undetermined entries are the backlog: differences not yet shown to be either side's error.
 The rust-wrong entries are known port defects.
@@ -117,6 +118,18 @@ Open question for the maintainer: Python 0.4 publishes passages through the unif
 `section_recess` projection rather than as a family of their own; whether the recognition
 document should keep `section_passages` as a family (as now) or wait for that projection is not
 decided.
+Three of the helpers section recesses compose are ported the same way
+(`tests/section_recess_helpers.rs`, `tools/capture_section_recess_helpers.py`):
+`_cylindrical_end_surface` (257 values from the Python tests, refusals by message),
+`cylindrical_seat_proofs` and `plane_envelope_passage_proofs` on 158 parts the Python tests
+build, the two golden passage fixtures and the corpus, with every private `_prove` question
+replayed on its own (2079 seat questions, 120 proved; 12926 envelope questions, 44 proved, none
+on the corpus). All agree; an envelope proof's two roof terms whose heights tie to round-off are
+compared in gradient order. Not captured: 1 value with a boolean radius (refused by type), 16
+test parts STEP export refuses, and 474 test parts on which Python proves nothing outside the
+helpers' own tests (left out to keep the fixtures small). Under the invariance motions 4 seats
+at scale 0.1 are refused turned 90° about x, where the kernel's volume probe cannot answer a
+grazing end probe (rust-wrong).
 
 For draftwright-rust, the kernel draws a part's views without OpenCascade's hidden-line
 algorithm or booleans (`crates/haecceity/src/hlr.rs`): every visible and hidden edge and
@@ -243,6 +256,9 @@ src/
                      caps (`_rings`), for passages and later prismatic pockets
     passage_compat.rs the legacy `Passage` view of a section passage (`_passage_compat`)
     passages.rs      section passages and the frozen legacy roster they must reproduce
+    cylindrical_seats.rs  open at-most-semicircular cylindrical troughs proved on original faces
+    cylindrical_end_surface.rs  a cylinder branch as a section end's height over the section
+    plane_envelope_passages.rs  polygonal passages through a convex two-plane roof
   frames.rs          part-relative recognition (`quiddity.frames`): the frame inferred from the
                      part's plane normals and cylinder axes, the part re-read into it, recognised
   correspondence/    revision matching (docs/correspondence.md): fingerprint.rs (features and
@@ -271,6 +287,8 @@ tests/
   passages.rs        the passage entry points' captured calls (captured/passages/calls.json),
                      and rings, legacy roster, records, defining walls and compatibility calls
                      on test parts, fixtures and the corpus
+  section_recess_helpers.rs  seat and envelope-passage proofs and cylindrical end values against
+                     Python's captured calls, and the proofs under the invariance motions
   corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity
                      revision, every file and its sha256)
   determinism.rs     every corpus part's recognition and correspondence JSON byte for byte the
@@ -320,6 +338,8 @@ tools/
   capture_passages.py records rings, the legacy roster, section passages and their compatibility
                      calls on the passage tests' parts, fixtures and the corpus
                      (captured/passages/helpers.json.gz)
+  capture_section_recess_helpers.py records the seat, envelope-passage and cylindrical-end
+                     calls (captured/section_recess_helpers/)
   capture_frames.py  records Python's part frames (captured/frames.json, the built parts as
                      STEP in captured/frames/); --compare runs a Python recogniser on a corpus
                      part's framed working part, as read and turned
