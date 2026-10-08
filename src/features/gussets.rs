@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 use super::Context;
 use super::evidence::{self, EvidenceError, Occurrence, common_valid_solid};
 use super::graph::{face_vertices_along_loops, is_planar};
-use super::hole_patterns::pattern_tol;
+use super::pattern_geometry::pattern_tol;
 use super::planes::axis_aligned_axis;
 use super::policy::length_tol;
 use crate::kernel::brep::{Arc, Part};

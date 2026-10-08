@@ -41,6 +41,8 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 | Slots | `recognise_slots` | 42/42 | 0 | 98/100 (2 known) |
 | Pockets | `recognise_pockets` | 19/19 | 1 | 98/100 (2 known) |
 | Channels | `recognise_channels` | 44/45 (1 known divergence) | 3 | 100/100 |
+| Slot patterns | `recognise_slot_patterns` | 272/272 | 0 | CORPUS_SLOT |
+| Pocket patterns | `recognise_pocket_patterns` | 58/58 | 0 | CORPUS_POCKET |
 
 *Captured test calls*: the Python suite's calls replayed by `tests/captured.rs`. *Not captured*:
 calls the suite makes that the capture could not record, outside the replay and pinned by it
@@ -177,6 +179,9 @@ src/
     recess_core.rs   the wall-pair candidates, corner notches, and each family's per-solid scan
                      (`_recess_core`)
     slots.rs  pockets.rs  channels.rs
+    pattern_geometry.rs  linear arrays and rectangular grids among any located records, shared by
+                     the pattern families (`_pattern_geometry`)
+    recess_patterns.rs  slot and pocket arrays and grids (`_recess_patterns`)
     volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over haecceity's volume.rs
   frames.rs          part-relative recognition (`quiddity.frames`): the frame inferred from the
                      part's plane normals and cylinder axes, the part re-read into it, recognised

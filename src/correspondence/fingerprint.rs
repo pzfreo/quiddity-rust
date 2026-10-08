@@ -589,6 +589,39 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("body_key", Placement),
         ],
     },
+    FamilyFingerprint {
+        family: "slot_patterns",
+        members: Some(("slots", "slots")),
+        variants: true,
+        fields: &[
+            ("direction", Axis),
+            ("slots", Count("count")),
+            ("rows", Size),
+            ("cols", Size),
+            ("row_pitch", Size),
+            ("col_pitch", Size),
+            ("pitch", Size),
+            // The pattern's orientation in the part's frame.
+            ("angle", Placement),
+            ("center", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "pocket_patterns",
+        members: Some(("pockets", "pockets")),
+        variants: true,
+        fields: &[
+            ("direction", Axis),
+            ("pockets", Count("count")),
+            ("rows", Size),
+            ("cols", Size),
+            ("row_pitch", Size),
+            ("col_pitch", Size),
+            ("pitch", Size),
+            ("angle", Placement),
+            ("center", Placement),
+        ],
+    },
 ];
 
 /// The fingerprint table of the family with this serde key.

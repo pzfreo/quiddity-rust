@@ -73,6 +73,10 @@ from quiddity._recess_features import (  # noqa: E402
     recognise_pockets,
     recognise_slots,
 )
+from quiddity._recess_patterns import (  # noqa: E402
+    recognise_pocket_patterns,
+    recognise_slot_patterns,
+)
 from quiddity.round_bottom_slots import (  # noqa: E402
     _discover_round_bottom_blind_slots,
     recognise_round_bottom_blind_slots,
@@ -325,6 +329,12 @@ def main() -> None:
                     ],
                     "recognise_hole_patterns": [
                         {"options": {"csinks": "auto"}, "result": _plain(recognise_hole_patterns(holes))}
+                    ],
+                    "recognise_slot_patterns": [
+                        {"options": {}, "result": _plain(recognise_slot_patterns(recognise_slots(part)))}
+                    ],
+                    "recognise_pocket_patterns": [
+                        {"options": {}, "result": _plain(recognise_pocket_patterns(recognise_pockets(part)))}
                     ],
                 },
             }

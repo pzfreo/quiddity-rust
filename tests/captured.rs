@@ -315,3 +315,13 @@ fn pockets_match_python() {
 fn channels_match_python() {
     replay("recognise_channels");
 }
+
+#[test]
+fn slot_patterns_match_python() {
+    replay("recognise_slot_patterns");
+}
+
+#[test]
+fn pocket_patterns_match_python() {
+    replay("recognise_pocket_patterns");
+}

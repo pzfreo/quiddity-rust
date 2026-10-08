@@ -37,6 +37,7 @@ pub mod levels;
 pub mod oblique_through_steps;
 pub mod oriented_chamfers;
 pub mod paired_ramp_steps;
+pub(crate) mod pattern_geometry;
 pub mod planes;
 pub mod plates;
 pub mod pockets;
@@ -46,6 +47,7 @@ pub mod profiled_bores;
 pub mod recess_core;
 pub mod recess_faces;
 pub mod recess_obround;
+pub mod recess_patterns;
 pub mod recess_radii;
 pub mod recess_records;
 pub mod recess_reduce;
@@ -107,9 +109,11 @@ pub struct Features {
     pub slots: Vec<slots::Slot>,
     pub pockets: Vec<pockets::Pocket>,
     pub channels: Vec<channels::Channel>,
+    pub slot_patterns: Vec<recess_patterns::SlotPattern>,
+    pub pocket_patterns: Vec<recess_patterns::PocketPattern>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
-    /// families (hole and gusset rib patterns) have none of their own: their members' faces are
-    /// theirs ([`crate::correspondence`]).
+    /// families (hole, gusset rib, slot and pocket patterns) have none of their own: their
+    /// members' faces are theirs ([`crate::correspondence`]).
     #[serde(skip)]
     pub defining: Defining,
 }
@@ -126,6 +130,8 @@ pub fn recognise(part: &Part) -> Features {
     let holes = kept(&mut defining, "holes", holes::discover(&ctx, &seats));
     let countersinks = kept(&mut defining, "countersinks", seats);
     let gusset_ribs = kept(&mut defining, "gusset_ribs", gussets::discover(&ctx));
+    let slots = kept(&mut defining, "slots", slots::discover(&ctx));
+    let pockets = kept(&mut defining, "pockets", pockets::discover(&ctx));
     Features {
         fillets: kept(
             &mut defining,
@@ -222,8 +228,10 @@ pub fn recognise(part: &Part) -> Features {
             edge_open_prismatic::discover(&ctx),
         ),
         blends: kept(&mut defining, "blends", blends::discover(&ctx)),
-        slots: kept(&mut defining, "slots", slots::discover(&ctx)),
-        pockets: kept(&mut defining, "pockets", pockets::discover(&ctx)),
+        slot_patterns: recess_patterns::recognise_slot_patterns(&slots),
+        slots,
+        pocket_patterns: recess_patterns::recognise_pocket_patterns(&pockets),
+        pockets,
         channels: kept(&mut defining, "channels", channels::discover(&ctx)),
         defining,
     }
