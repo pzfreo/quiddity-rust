@@ -5902,6 +5902,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -6503,13 +6510,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -48420,6 +48420,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -48450,13 +48457,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -145932,6 +145932,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -146091,13 +146098,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -219487,6 +219487,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -219517,13 +219524,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -274457,6 +274457,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -274487,13 +274494,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -307647,6 +307647,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -307762,13 +307769,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -324346,6 +324346,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -324376,13 +324383,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -477328,6 +477328,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -477358,13 +477365,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -557309,6 +557309,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -557814,13 +557821,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -588207,6 +588207,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -588322,13 +588329,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -589417,6 +589417,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -589447,13 +589454,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -590238,6 +590238,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -590268,13 +590275,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -595047,6 +595047,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -595077,13 +595084,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -596196,6 +596196,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -596226,13 +596233,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -597687,38 +597687,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -597750,6 +597718,38 @@
        }
       ],
       "evidence_error": "physical evidence must belong to one valid closed solid"
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -601217,6 +601217,125 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 6,
+        "depth": 2.104,
+        "open_sign": -1,
+        "at": [
+         1.052,
+         3.134,
+         9.258
+        ],
+        "section": [
+         [
+          2.086,
+          8.871
+         ],
+         [
+          2.945,
+          8.157
+         ],
+         [
+          3.993,
+          8.544
+         ],
+         [
+          4.182,
+          9.645
+         ],
+         [
+          3.323,
+          10.359
+         ],
+         [
+          2.275,
+          9.972
+         ]
+        ]
+       },
+       {
+        "axis": "y",
+        "sides": 3,
+        "depth": 9.926,
+        "open_sign": 1,
+        "at": [
+         30.318,
+         7.63,
+         26.676
+        ],
+        "section": [
+         [
+          29.65,
+          27.392
+         ],
+         [
+          30.016,
+          25.705
+         ],
+         [
+          31.288,
+          26.931
+         ]
+        ]
+       },
+       {
+        "axis": "z",
+        "sides": 4,
+        "depth": 3.445,
+        "open_sign": -1,
+        "at": [
+         39.336,
+         10.187,
+         1.723
+        ],
+        "section": [
+         [
+          38.336,
+          8.782
+         ],
+         [
+          40.336,
+          8.782
+         ],
+         [
+          40.336,
+          11.591
+         ],
+         [
+          38.336,
+          11.591
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+       ],
+       [
+        47,
+        48,
+        49
+       ],
+       [
+        31,
+        32,
+        33,
+        34
+       ]
+      ]
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -601360,125 +601479,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "x",
-        "sides": 6,
-        "depth": 2.104,
-        "open_sign": -1,
-        "at": [
-         1.052,
-         3.134,
-         9.258
-        ],
-        "section": [
-         [
-          2.086,
-          8.871
-         ],
-         [
-          2.945,
-          8.157
-         ],
-         [
-          3.993,
-          8.544
-         ],
-         [
-          4.182,
-          9.645
-         ],
-         [
-          3.323,
-          10.359
-         ],
-         [
-          2.275,
-          9.972
-         ]
-        ]
-       },
-       {
-        "axis": "y",
-        "sides": 3,
-        "depth": 9.926,
-        "open_sign": 1,
-        "at": [
-         30.318,
-         7.63,
-         26.676
-        ],
-        "section": [
-         [
-          29.65,
-          27.392
-         ],
-         [
-          30.016,
-          25.705
-         ],
-         [
-          31.288,
-          26.931
-         ]
-        ]
-       },
-       {
-        "axis": "z",
-        "sides": 4,
-        "depth": 3.445,
-        "open_sign": -1,
-        "at": [
-         39.336,
-         10.187,
-         1.723
-        ],
-        "section": [
-         [
-          38.336,
-          8.782
-         ],
-         [
-          40.336,
-          8.782
-         ],
-         [
-          40.336,
-          11.591
-         ],
-         [
-          38.336,
-          11.591
-         ]
-        ]
-       }
-      ],
-      "defining": [
-       [
-        13,
-        14,
-        15,
-        16,
-        17,
-        18
-       ],
-       [
-        47,
-        48,
-        49
-       ],
-       [
-        31,
-        32,
-        33,
-        34
-       ]
-      ]
      }
     ],
     "recognise_oriented_slots": [
@@ -603172,38 +603172,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -603241,6 +603209,38 @@
         18
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -605359,6 +605359,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -605418,13 +605425,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -608678,38 +608678,6 @@
       ]
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -608827,6 +608795,38 @@
         21
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -610334,38 +610334,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -610418,6 +610386,38 @@
         22
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -613632,38 +613632,6 @@
       ]
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -613716,6 +613684,38 @@
         48
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -615583,6 +615583,45 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 3,
+        "depth": 9.384,
+        "open_sign": 1,
+        "at": [
+         4.926,
+         21.815,
+         41.353
+        ],
+        "section": [
+         [
+          2.922,
+          23.323
+         ],
+         [
+          4.981,
+          19.501
+         ],
+         [
+          6.875,
+          22.622
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        23,
+        24,
+        25
+       ]
+      ]
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -615686,45 +615725,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "z",
-        "sides": 3,
-        "depth": 9.384,
-        "open_sign": 1,
-        "at": [
-         4.926,
-         21.815,
-         41.353
-        ],
-        "section": [
-         [
-          2.922,
-          23.323
-         ],
-         [
-          4.981,
-          19.501
-         ],
-         [
-          6.875,
-          22.622
-         ]
-        ]
-       }
-      ],
-      "defining": [
-       [
-        23,
-        24,
-        25
-       ]
-      ]
      }
     ],
     "recognise_oriented_slots": [
@@ -617755,63 +617755,6 @@
       ]
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "z",
-        "sides": 3,
-        "length": 40.994,
-        "at": [
-         23.095,
-         12.872,
-         20.497
-        ],
-        "section": [
-         [
-          22.073,
-          13.012
-         ],
-         [
-          23.364,
-          12.009
-         ],
-         [
-          23.849,
-          13.596
-         ]
-        ]
-       }
-      ]
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -617884,6 +617827,63 @@
         19
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 3,
+        "length": 40.994,
+        "at": [
+         23.095,
+         12.872,
+         20.497
+        ],
+        "section": [
+         [
+          22.073,
+          13.012
+         ],
+         [
+          23.364,
+          12.009
+         ],
+         [
+          23.849,
+          13.596
+         ]
+        ]
+       }
+      ]
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -619867,38 +619867,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -619981,6 +619949,38 @@
         19
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -622180,6 +622180,50 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "sides": 4,
+        "depth": 7.212,
+        "open_sign": -1,
+        "at": [
+         5.78,
+         3.606,
+         32.879
+        ],
+        "section": [
+         [
+          4.78,
+          31.879
+         ],
+         [
+          6.78,
+          31.879
+         ],
+         [
+          6.78,
+          33.879
+         ],
+         [
+          4.78,
+          33.879
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        15,
+        16,
+        17,
+        18
+       ]
+      ]
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -622239,50 +622283,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "y",
-        "sides": 4,
-        "depth": 7.212,
-        "open_sign": -1,
-        "at": [
-         5.78,
-         3.606,
-         32.879
-        ],
-        "section": [
-         [
-          4.78,
-          31.879
-         ],
-         [
-          6.78,
-          31.879
-         ],
-         [
-          6.78,
-          33.879
-         ],
-         [
-          4.78,
-          33.879
-         ]
-        ]
-       }
-      ],
-      "defining": [
-       [
-        15,
-        16,
-        17,
-        18
-       ]
-      ]
      }
     ],
     "recognise_oriented_slots": [
@@ -624330,6 +624330,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -624409,13 +624416,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -626883,75 +626883,6 @@
       ]
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "y",
-        "sides": 6,
-        "length": 16.545,
-        "at": [
-         5.97,
-         8.273,
-         30.609
-        ],
-        "section": [
-         [
-          4.364,
-          30.539
-         ],
-         [
-          5.228,
-          29.183
-         ],
-         [
-          6.834,
-          29.252
-         ],
-         [
-          7.576,
-          30.678
-         ],
-         [
-          6.713,
-          32.034
-         ],
-         [
-          5.107,
-          31.965
-         ]
-        ]
-       }
-      ]
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -627039,6 +626970,75 @@
         34
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "sides": 6,
+        "length": 16.545,
+        "at": [
+         5.97,
+         8.273,
+         30.609
+        ],
+        "section": [
+         [
+          4.364,
+          30.539
+         ],
+         [
+          5.228,
+          29.183
+         ],
+         [
+          6.834,
+          29.252
+         ],
+         [
+          7.576,
+          30.678
+         ],
+         [
+          6.713,
+          32.034
+         ],
+         [
+          5.107,
+          31.965
+         ]
+        ]
+       }
+      ]
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -628765,38 +628765,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -628834,6 +628802,38 @@
         19
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -630438,6 +630438,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -630468,13 +630475,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -631632,6 +631632,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -631662,13 +631669,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -633743,6 +633743,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -633773,13 +633780,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -636129,6 +636129,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -636159,13 +636166,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -638238,38 +638238,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -638337,6 +638305,38 @@
         22
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -640302,6 +640302,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -640332,13 +640339,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -643016,38 +643016,6 @@
       ]
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -643090,6 +643058,38 @@
         38
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -645162,6 +645162,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -645192,13 +645199,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -647015,38 +647015,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -647129,6 +647097,38 @@
         25
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -649728,6 +649728,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -649795,13 +649802,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -651127,6 +651127,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -651182,13 +651189,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -653218,6 +653218,60 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "sides": 6,
+        "depth": 2.131,
+        "open_sign": -1,
+        "at": [
+         10.931,
+         1.066,
+         43.417
+        ],
+        "section": [
+         [
+          7.245,
+          41.504
+         ],
+         [
+          10.744,
+          39.268
+         ],
+         [
+          14.43,
+          41.18
+         ],
+         [
+          14.617,
+          45.329
+         ],
+         [
+          11.118,
+          47.565
+         ],
+         [
+          7.432,
+          45.653
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+       ]
+      ]
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -653273,60 +653327,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "y",
-        "sides": 6,
-        "depth": 2.131,
-        "open_sign": -1,
-        "at": [
-         10.931,
-         1.066,
-         43.417
-        ],
-        "section": [
-         [
-          7.245,
-          41.504
-         ],
-         [
-          10.744,
-          39.268
-         ],
-         [
-          14.43,
-          41.18
-         ],
-         [
-          14.617,
-          45.329
-         ],
-         [
-          11.118,
-          47.565
-         ],
-         [
-          7.432,
-          45.653
-         ]
-        ]
-       }
-      ],
-      "defining": [
-       [
-        15,
-        16,
-        17,
-        18,
-        19,
-        20
-       ]
-      ]
      }
     ],
     "recognise_oriented_slots": [
@@ -655271,38 +655271,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -655450,6 +655418,38 @@
         22
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -657625,6 +657625,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -657655,13 +657662,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -659677,6 +659677,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -659744,13 +659751,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -662155,6 +662155,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -662234,13 +662241,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -664948,6 +664948,45 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 3,
+        "depth": 10.273,
+        "open_sign": -1,
+        "at": [
+         5.136,
+         33.935,
+         14.519
+        ],
+        "section": [
+         [
+          33.289,
+          15.078
+         ],
+         [
+          33.678,
+          13.475
+         ],
+         [
+          34.838,
+          15.004
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        6,
+        7,
+        8
+       ]
+      ]
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -665067,45 +665106,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "x",
-        "sides": 3,
-        "depth": 10.273,
-        "open_sign": -1,
-        "at": [
-         5.136,
-         33.935,
-         14.519
-        ],
-        "section": [
-         [
-          33.289,
-          15.078
-         ],
-         [
-          33.678,
-          13.475
-         ],
-         [
-          34.838,
-          15.004
-         ]
-        ]
-       }
-      ],
-      "defining": [
-       [
-        6,
-        7,
-        8
-       ]
-      ]
      }
     ],
     "recognise_oriented_slots": [
@@ -666513,38 +666513,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -666582,6 +666550,38 @@
         14
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -668155,38 +668155,6 @@
       ]
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -668229,6 +668197,38 @@
         12
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -670470,38 +670470,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -670574,6 +670542,38 @@
         31
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -672482,6 +672482,50 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 4,
+        "depth": 9.885,
+        "open_sign": -1,
+        "at": [
+         8.273,
+         19.301,
+         4.943
+        ],
+        "section": [
+         [
+          5.498,
+          16.713
+         ],
+         [
+          11.048,
+          16.713
+         ],
+         [
+          11.048,
+          21.89
+         ],
+         [
+          5.498,
+          21.89
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        22,
+        23,
+        24,
+        25
+       ]
+      ]
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -672541,50 +672585,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "z",
-        "sides": 4,
-        "depth": 9.885,
-        "open_sign": -1,
-        "at": [
-         8.273,
-         19.301,
-         4.943
-        ],
-        "section": [
-         [
-          5.498,
-          16.713
-         ],
-         [
-          11.048,
-          16.713
-         ],
-         [
-          11.048,
-          21.89
-         ],
-         [
-          5.498,
-          21.89
-         ]
-        ]
-       }
-      ],
-      "defining": [
-       [
-        22,
-        23,
-        24,
-        25
-       ]
-      ]
      }
     ],
     "recognise_oriented_slots": [
@@ -674431,6 +674431,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -674461,13 +674468,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -676350,38 +676350,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -676454,6 +676422,38 @@
         25
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -678618,6 +678618,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -678721,13 +678728,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -680340,6 +680340,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -680399,13 +680406,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -682929,6 +682929,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -682988,13 +682995,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -684444,38 +684444,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -684513,6 +684481,38 @@
         13
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -687241,75 +687241,6 @@
       ]
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "y",
-        "sides": 6,
-        "length": 17.6,
-        "at": [
-         27.407,
-         8.8,
-         17.492
-        ],
-        "section": [
-         [
-          24.375,
-          17.503
-         ],
-         [
-          25.882,
-          14.872
-         ],
-         [
-          28.913,
-          14.862
-         ],
-         [
-          30.438,
-          17.482
-         ],
-         [
-          28.931,
-          20.113
-         ],
-         [
-          25.9,
-          20.123
-         ]
-        ]
-       }
-      ]
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -687472,6 +687403,75 @@
         27
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "sides": 6,
+        "length": 17.6,
+        "at": [
+         27.407,
+         8.8,
+         17.492
+        ],
+        "section": [
+         [
+          24.375,
+          17.503
+         ],
+         [
+          25.882,
+          14.872
+         ],
+         [
+          28.913,
+          14.862
+         ],
+         [
+          30.438,
+          17.482
+         ],
+         [
+          28.931,
+          20.113
+         ],
+         [
+          25.9,
+          20.123
+         ]
+        ]
+       }
+      ]
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -689080,6 +689080,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -689110,13 +689117,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -691525,38 +691525,6 @@
       ]
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -691629,6 +691597,38 @@
         13
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -693775,75 +693775,6 @@
       ]
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "y",
-        "sides": 6,
-        "length": 23.22,
-        "at": [
-         16.09,
-         11.61,
-         11.472
-        ],
-        "section": [
-         [
-          14.821,
-          11.776
-         ],
-         [
-          15.193,
-          10.525
-         ],
-         [
-          16.462,
-          10.221
-         ],
-         [
-          17.36,
-          11.168
-         ],
-         [
-          16.988,
-          12.419
-         ],
-         [
-          15.719,
-          12.723
-         ]
-        ]
-       }
-      ]
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -693926,6 +693857,75 @@
         18
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "sides": 6,
+        "length": 23.22,
+        "at": [
+         16.09,
+         11.61,
+         11.472
+        ],
+        "section": [
+         [
+          14.821,
+          11.776
+         ],
+         [
+          15.193,
+          10.525
+         ],
+         [
+          16.462,
+          10.221
+         ],
+         [
+          17.36,
+          11.168
+         ],
+         [
+          16.988,
+          12.419
+         ],
+         [
+          15.719,
+          12.723
+         ]
+        ]
+       }
+      ]
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -695100,6 +695100,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -695130,13 +695137,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -696952,6 +696952,60 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 6,
+        "depth": 2.721,
+        "open_sign": -1,
+        "at": [
+         31.84,
+         13.732,
+         1.36
+        ],
+        "section": [
+         [
+          30.351,
+          13.025
+         ],
+         [
+          31.708,
+          12.089
+         ],
+         [
+          33.197,
+          12.796
+         ],
+         [
+          33.329,
+          14.44
+         ],
+         [
+          31.972,
+          15.375
+         ],
+         [
+          30.483,
+          14.668
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+       ]
+      ]
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -697019,60 +697073,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "z",
-        "sides": 6,
-        "depth": 2.721,
-        "open_sign": -1,
-        "at": [
-         31.84,
-         13.732,
-         1.36
-        ],
-        "section": [
-         [
-          30.351,
-          13.025
-         ],
-         [
-          31.708,
-          12.089
-         ],
-         [
-          33.197,
-          12.796
-         ],
-         [
-          33.329,
-          14.44
-         ],
-         [
-          31.972,
-          15.375
-         ],
-         [
-          30.483,
-          14.668
-         ]
-        ]
-       }
-      ],
-      "defining": [
-       [
-        18,
-        19,
-        20,
-        21,
-        22,
-        23
-       ]
-      ]
      }
     ],
     "recognise_oriented_slots": [
@@ -698327,6 +698327,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -698357,13 +698364,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -700331,6 +700331,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -700386,13 +700393,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -702829,75 +702829,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "x",
-        "sides": 6,
-        "length": 39.714,
-        "at": [
-         19.857,
-         20.94,
-         16.612
-        ],
-        "section": [
-         [
-          19.771,
-          16.923
-         ],
-         [
-          20.086,
-          15.755
-         ],
-         [
-          21.254,
-          15.444
-         ],
-         [
-          22.109,
-          16.3
-         ],
-         [
-          21.794,
-          17.468
-         ],
-         [
-          20.625,
-          17.78
-         ]
-        ]
-       }
-      ]
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -702995,6 +702926,75 @@
         36
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 6,
+        "length": 39.714,
+        "at": [
+         19.857,
+         20.94,
+         16.612
+        ],
+        "section": [
+         [
+          19.771,
+          16.923
+         ],
+         [
+          20.086,
+          15.755
+         ],
+         [
+          21.254,
+          15.444
+         ],
+         [
+          22.109,
+          16.3
+         ],
+         [
+          21.794,
+          17.468
+         ],
+         [
+          20.625,
+          17.78
+         ]
+        ]
+       }
+      ]
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -704346,38 +704346,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -704485,6 +704453,38 @@
         10
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -706324,38 +706324,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -706453,6 +706421,38 @@
         18
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -708046,38 +708046,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -708175,6 +708143,38 @@
         16
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -709230,38 +709230,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -709299,6 +709267,38 @@
         12
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -710868,38 +710868,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -710972,6 +710940,38 @@
         15
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -712547,6 +712547,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -712626,13 +712633,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -714050,6 +714050,45 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 3,
+        "depth": 6.753,
+        "open_sign": -1,
+        "at": [
+         3.376,
+         16.137,
+         27.603
+        ],
+        "section": [
+         [
+          14.127,
+          27.301
+         ],
+         [
+          17.647,
+          25.967
+         ],
+         [
+          16.637,
+          29.54
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        9,
+        10,
+        11
+       ]
+      ]
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -714105,45 +714144,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "x",
-        "sides": 3,
-        "depth": 6.753,
-        "open_sign": -1,
-        "at": [
-         3.376,
-         16.137,
-         27.603
-        ],
-        "section": [
-         [
-          14.127,
-          27.301
-         ],
-         [
-          17.647,
-          25.967
-         ],
-         [
-          16.637,
-          29.54
-         ]
-        ]
-       }
-      ],
-      "defining": [
-       [
-        9,
-        10,
-        11
-       ]
-      ]
      }
     ],
     "recognise_oriented_slots": [
@@ -716142,6 +716142,60 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 6,
+        "depth": 15.075,
+        "open_sign": 1,
+        "at": [
+         8.78,
+         2.57,
+         9.31
+        ],
+        "section": [
+         [
+          1.563,
+          9.185
+         ],
+         [
+          2.174,
+          8.375
+         ],
+         [
+          3.182,
+          8.5
+         ],
+         [
+          3.578,
+          9.434
+         ],
+         [
+          2.966,
+          10.244
+         ],
+         [
+          1.959,
+          10.12
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        23,
+        24,
+        25,
+        26,
+        27,
+        28
+       ]
+      ]
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -716197,60 +716251,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "x",
-        "sides": 6,
-        "depth": 15.075,
-        "open_sign": 1,
-        "at": [
-         8.78,
-         2.57,
-         9.31
-        ],
-        "section": [
-         [
-          1.563,
-          9.185
-         ],
-         [
-          2.174,
-          8.375
-         ],
-         [
-          3.182,
-          8.5
-         ],
-         [
-          3.578,
-          9.434
-         ],
-         [
-          2.966,
-          10.244
-         ],
-         [
-          1.959,
-          10.12
-         ]
-        ]
-       }
-      ],
-      "defining": [
-       [
-        23,
-        24,
-        25,
-        26,
-        27,
-        28
-       ]
-      ]
      }
     ],
     "recognise_oriented_slots": [
@@ -718577,95 +718577,6 @@
       ]
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "z",
-        "sides": 4,
-        "length": 13.3,
-        "at": [
-         2.349,
-         7.733,
-         6.65
-        ],
-        "section": [
-         [
-          1.349,
-          6.733
-         ],
-         [
-          3.349,
-          6.733
-         ],
-         [
-          3.349,
-          8.733
-         ],
-         [
-          1.349,
-          8.733
-         ]
-        ]
-       },
-       {
-        "axis": "z",
-        "sides": 4,
-        "length": 13.3,
-        "at": [
-         3.409,
-         31.553,
-         6.65
-        ],
-        "section": [
-         [
-          2.409,
-          30.553
-         ],
-         [
-          4.409,
-          30.553
-         ],
-         [
-          4.409,
-          32.553
-         ],
-         [
-          2.409,
-          32.553
-         ]
-        ]
-       }
-      ]
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -718823,6 +718734,95 @@
         25
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 4,
+        "length": 13.3,
+        "at": [
+         2.349,
+         7.733,
+         6.65
+        ],
+        "section": [
+         [
+          1.349,
+          6.733
+         ],
+         [
+          3.349,
+          6.733
+         ],
+         [
+          3.349,
+          8.733
+         ],
+         [
+          1.349,
+          8.733
+         ]
+        ]
+       },
+       {
+        "axis": "z",
+        "sides": 4,
+        "length": 13.3,
+        "at": [
+         3.409,
+         31.553,
+         6.65
+        ],
+        "section": [
+         [
+          2.409,
+          30.553
+         ],
+         [
+          4.409,
+          30.553
+         ],
+         [
+          4.409,
+          32.553
+         ],
+         [
+          2.409,
+          32.553
+         ]
+        ]
+       }
+      ]
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -720743,6 +720743,60 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 6,
+        "depth": 6.035,
+        "open_sign": 1,
+        "at": [
+         34.662,
+         32.622,
+         9.455
+        ],
+        "section": [
+         [
+          30.138,
+          10.569
+         ],
+         [
+          30.415,
+          7.861
+         ],
+         [
+          32.899,
+          6.747
+         ],
+         [
+          35.106,
+          8.34
+         ],
+         [
+          34.829,
+          11.049
+         ],
+         [
+          32.345,
+          12.163
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        22,
+        23,
+        24,
+        25,
+        26,
+        27
+       ]
+      ]
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -720834,60 +720888,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "x",
-        "sides": 6,
-        "depth": 6.035,
-        "open_sign": 1,
-        "at": [
-         34.662,
-         32.622,
-         9.455
-        ],
-        "section": [
-         [
-          30.138,
-          10.569
-         ],
-         [
-          30.415,
-          7.861
-         ],
-         [
-          32.899,
-          6.747
-         ],
-         [
-          35.106,
-          8.34
-         ],
-         [
-          34.829,
-          11.049
-         ],
-         [
-          32.345,
-          12.163
-         ]
-        ]
-       }
-      ],
-      "defining": [
-       [
-        22,
-        23,
-        24,
-        25,
-        26,
-        27
-       ]
-      ]
      }
     ],
     "recognise_oriented_slots": [
@@ -723444,6 +723444,50 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "x",
+        "sides": 4,
+        "depth": 11.422,
+        "open_sign": 1,
+        "at": [
+         7.687,
+         6.189,
+         16.107
+        ],
+        "section": [
+         [
+          3.23,
+          15.107
+         ],
+         [
+          9.148,
+          15.107
+         ],
+         [
+          9.148,
+          17.107
+         ],
+         [
+          3.23,
+          17.107
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        31,
+        32,
+        33,
+        34
+       ]
+      ]
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -723499,50 +723543,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "x",
-        "sides": 4,
-        "depth": 11.422,
-        "open_sign": 1,
-        "at": [
-         7.687,
-         6.189,
-         16.107
-        ],
-        "section": [
-         [
-          3.23,
-          15.107
-         ],
-         [
-          9.148,
-          15.107
-         ],
-         [
-          9.148,
-          17.107
-         ],
-         [
-          3.23,
-          17.107
-         ]
-        ]
-       }
-      ],
-      "defining": [
-       [
-        31,
-        32,
-        33,
-        34
-       ]
-      ]
      }
     ],
     "recognise_oriented_slots": [
@@ -725570,38 +725570,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -725744,6 +725712,38 @@
         27
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -727166,38 +727166,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -727240,6 +727208,38 @@
         11
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -729115,6 +729115,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -729145,13 +729152,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -731483,6 +731483,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -731542,13 +731549,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -733414,38 +733414,6 @@
       ]
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -733488,6 +733456,38 @@
         27
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -735483,6 +735483,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -735513,13 +735520,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -738208,38 +738208,6 @@
       ]
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -738327,6 +738295,38 @@
         28
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -741471,6 +741471,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -741526,13 +741533,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -743425,6 +743425,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -743516,13 +743523,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -745495,38 +745495,6 @@
       "defining": []
      }
     ],
-    "recognise_passages": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_gusset_rib_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_hole_patterns": [
-     {
-      "options": {
-       "csinks": "auto"
-      },
-      "result": []
-     }
-    ],
-    "recognise_slot_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
-    "recognise_pocket_patterns": [
-     {
-      "options": {},
-      "result": []
-     }
-    ],
     "recognise_prismatic_pockets": [
      {
       "options": {},
@@ -745579,6 +745547,38 @@
         28
        ]
       ]
+     }
+    ],
+    "recognise_passages": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_gusset_rib_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_hole_patterns": [
+     {
+      "options": {
+       "csinks": "auto"
+      },
+      "result": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ],
     "recognise_oriented_slots": [
@@ -747611,6 +747611,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -747690,13 +747697,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -749994,6 +749994,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -750024,13 +750031,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -752809,6 +752809,60 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "sides": 6,
+        "depth": 3.179,
+        "open_sign": -1,
+        "at": [
+         6.604,
+         10.679,
+         1.589
+        ],
+        "section": [
+         [
+          5.612,
+          10.554
+         ],
+         [
+          6.216,
+          9.758
+         ],
+         [
+          7.208,
+          9.883
+         ],
+         [
+          7.596,
+          10.805
+         ],
+         [
+          6.991,
+          11.601
+         ],
+         [
+          5.999,
+          11.476
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+       ]
+      ]
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -752864,60 +752918,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [
-       {
-        "axis": "z",
-        "sides": 6,
-        "depth": 3.179,
-        "open_sign": -1,
-        "at": [
-         6.604,
-         10.679,
-         1.589
-        ],
-        "section": [
-         [
-          5.612,
-          10.554
-         ],
-         [
-          6.216,
-          9.758
-         ],
-         [
-          7.208,
-          9.883
-         ],
-         [
-          7.596,
-          10.805
-         ],
-         [
-          6.991,
-          11.601
-         ],
-         [
-          5.999,
-          11.476
-         ]
-        ]
-       }
-      ],
-      "defining": [
-       [
-        26,
-        27,
-        28,
-        29,
-        30,
-        31
-       ]
-      ]
      }
     ],
     "recognise_oriented_slots": [
@@ -755184,6 +755184,13 @@
       ]
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -755251,13 +755258,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -764004,6 +764004,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -764203,13 +764210,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -808074,6 +808074,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -809163,13 +809170,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -818780,6 +818780,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -819061,13 +819068,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -845410,6 +845410,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -846333,13 +846340,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -859563,6 +859563,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -859722,13 +859729,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -867694,6 +867694,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -867915,13 +867922,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -884969,6 +884969,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -885412,13 +885419,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -900032,6 +900032,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -900275,13 +900282,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -910009,6 +910009,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -910316,13 +910323,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -922055,6 +922055,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -922690,13 +922697,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
@@ -938615,6 +938615,13 @@
       "defining": []
      }
     ],
+    "recognise_prismatic_pockets": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -938645,13 +938652,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_prismatic_pockets": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ],
     "recognise_oriented_slots": [
