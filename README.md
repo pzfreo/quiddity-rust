@@ -66,6 +66,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 41 | 1 | 1 | 2 | 4 | 33 |
 | `tests/fixtures/known_face_areas.json` | `crates/haecceity/tests/face_areas.rs` | 1831 | 1815 | 3 | 0 | 12 | 1 |
 | `tests/fixtures/captured/known_sections.json` | `tests/sections.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
+| `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 122 (2924 answers) | 98 | 12 | 0 | 9 | 3 |
 
 The undetermined entries are the backlog: differences not yet shown to be either side's error.
 The rust-wrong entries are known port defects.
@@ -89,6 +90,20 @@ compared as a set, since Python's order between them changes from run to run. No
 body reference foreign to the run or mutated, which Python checks by object identity and the
 port's types rule out, or a malformed boundary), and 5 objects handed to
 `section_ring_proposals` that STEP export refuses (such as the tests' shallow part views).
+
+The effective-surface query the rectangular pads, cylindrical channels, pockets and passages
+and section recesses read (`_effective_surfaces`: each face's native or recovered analytic fact
+or typed refusal, `recovery_nominal` / `recovery_tolerance`, and surface uses with a
+material-side certificate) is ported ahead of them (`src/features/effective_surfaces.rs`) and
+replayed face by face (`tests/effective_surfaces.rs`, `tools/capture_effective_surfaces.py`):
+12275 faces of 260 parts its consumers' Python tests build, the two golden fixtures and the
+corpus, 36825 answers. 33905 agree; the 2920 that differ are listed (chiefly OpenCascade's
+coarse face areas and edge lengths in the nominal, and sides Python cannot certify where its
+mesh samples stray off the face or BRepCheck rejects cgb202's healed solid). Not captured: 3
+certificates OpenCascade took over two minutes to mesh, 16 test shapes STEP export refuses,
+and test parts past the first three per test function. Every certificate the port issues also
+agrees with its face's own orientation, and the answers are unchanged under two rigid motions
+(2 listed kernel faces).
 
 For draftwright-rust, the kernel draws a part's views without OpenCascade's hidden-line
 algorithm or booleans (`crates/haecceity/src/hlr.rs`): every visible and hidden edge and
@@ -171,6 +186,9 @@ src/
     edge_open_circular.rs  edge_open_prismatic.rs
     analytic_surfaces.rs  canonical plane/cylinder/cone/sphere parameters, their equivalence, and a
                      face's effective (native or recovered) analytic surface
+    effective_surfaces.rs the run's effective-surface query (`_effective_surfaces`): typed fact
+                     refusals, recovery nominal and tolerance, surface uses with a certified
+                     material side, `cylinder_surface_dependency`
     blend_view.rs    native cylindrical blend chains, with the face graph readings they need:
                      paired edge occurrences, their solid ownership, a smooth join's side
     blends.rs
@@ -206,6 +224,8 @@ tests/
                      as read and under a generic rotation, and the frame moving with the part
   correspondence.rs  every corpus part corresponds with itself moved, everything carried; the
                      build123d revision pairs get their expected classes
+  effective_surfaces.rs every face's effective fact, recovery lengths and material side against
+                     Python's (tests, fixtures, corpus), and unchanged under rigid motion
   sections.rs        the section helpers' captured calls (values, covered patches, ring
                      proposals and entry treatments on test parts, fixtures and the corpus)
   corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity
@@ -254,6 +274,9 @@ tools/
   capture_sections.py records the section helpers' calls in their Python tests, and their ring
                      proposals over those tests' parts, the golden fixtures and the corpus
                      (captured/sections/)
+  capture_effective_surfaces.py records `_effective_surfaces`'s answers for every face of its
+                     consumers' test parts, the golden fixtures and the corpus
+                     (captured/effective_surfaces/)
   capture_frames.py  records Python's part frames (captured/frames.json, the built parts as
                      STEP in captured/frames/); --compare runs a Python recogniser on a corpus
                      part's framed working part, as read and turned

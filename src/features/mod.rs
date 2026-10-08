@@ -23,6 +23,7 @@ pub mod cylinders;
 pub mod edge_open;
 pub mod edge_open_circular;
 pub mod edge_open_prismatic;
+pub mod effective_surfaces;
 pub mod entry_treatments;
 pub mod evidence;
 pub mod fillets;
