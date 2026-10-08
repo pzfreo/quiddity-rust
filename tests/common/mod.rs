@@ -117,6 +117,12 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
             quiddity::recognise_repeating_radial_profiles(part, &options(kwargs)),
         ),
         "recognise_freeform_surfaces" => json(quiddity::recognise_freeform_surfaces(part)),
+        "recognise_polygonal_bosses" => {
+            json(quiddity::recognise_polygonal_bosses(part, &options(kwargs)))
+        }
+        "recognise_polygonal_stock" => {
+            json(quiddity::recognise_polygonal_stock(part, &options(kwargs)))
+        }
         // Over a part: the patterns among the part's gusset ribs.
         "recognise_gusset_rib_patterns" => json(quiddity::recognise_gusset_rib_patterns(
             &quiddity::recognise_gusset_ribs(part),
@@ -224,6 +230,14 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
         "recognise_freeform_surfaces" => {
             let walls = quiddity::features::records(quiddity::features::thin_walls::discover(&ctx));
             quiddity::features::freeform_surfaces::discover_verified(&ctx, &walls).map(faces)
+        }
+        "recognise_polygonal_bosses" => {
+            quiddity::features::polygonal_bosses::discover_verified(&ctx, &options(kwargs))
+                .map(faces)
+        }
+        "recognise_polygonal_stock" => {
+            quiddity::features::polygonal_bosses::discover_stock_verified(&ctx, &options(kwargs))
+                .map(faces)
         }
         other => panic!("{other} has no evidence path"),
     };

@@ -42,6 +42,8 @@ const SKIPPED: &[(&str, usize)] = &[
     ("recognise_oblique_through_steps", 1),
     ("recognise_plates", 4),
     ("recognise_pockets", 1),
+    ("recognise_polygonal_bosses", 4),
+    ("recognise_polygonal_stock", 1),
     ("recognise_rectangular_blind_slots", 1),
     ("recognise_repeating_radial_profiles", 1),
     ("recognise_round_bottom_blind_slots", 1),
@@ -340,4 +342,14 @@ fn repeating_radial_profiles_match_python() {
 #[test]
 fn freeform_surfaces_match_python() {
     replay("recognise_freeform_surfaces");
+}
+
+#[test]
+fn polygonal_bosses_match_python() {
+    replay("recognise_polygonal_bosses");
+}
+
+#[test]
+fn polygonal_stock_match_python() {
+    replay("recognise_polygonal_stock");
 }

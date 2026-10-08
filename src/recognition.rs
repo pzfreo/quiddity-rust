@@ -111,6 +111,8 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
     ("pocket_patterns", &["PocketGrid", "PocketArray"]),
     ("repeating_radial_profiles", &["RepeatingRadialProfile"]),
     ("freeform_surfaces", &["FreeformSurface"]),
+    ("polygonal_bosses", &["PolygonalBoss"]),
+    ("polygonal_stock", &["PolygonalStock"]),
 ];
 
 /// The record class names a family's records can have.

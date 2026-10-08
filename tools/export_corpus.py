@@ -68,6 +68,13 @@ from quiddity.repeating_profiles import (  # noqa: E402
     _discover_repeating_radial_profiles,
     recognise_repeating_radial_profiles,
 )
+from quiddity.experimental_geometry import GeometryGraph  # noqa: E402
+from quiddity.polygonal_bosses import (  # noqa: E402
+    _discover_polygonal_bosses,
+    _discover_polygonal_stock,
+    recognise_polygonal_bosses,
+    recognise_polygonal_stock,
+)
 from quiddity.rectangular_blind_slots import (  # noqa: E402
     _discover_rectangular_blind_slots,
     recognise_rectangular_blind_slots,
@@ -308,6 +315,12 @@ def main() -> None:
                      lambda p, ledger, o: _discover_repeating_radial_profiles(p, writer=ledger.writer))
         freeform = (FamilyId.FREEFORM_SURFACES, lambda p, o: recognise_freeform_surfaces(p),
                     lambda p, ledger, o: _discover_freeform(p, ledger))
+        polygonal_bosses = (FamilyId.POLYGONAL_BOSSES, lambda p, o: recognise_polygonal_bosses(p),
+                            lambda p, ledger, o: _discover_polygonal_bosses(
+                                p, graph=GeometryGraph._from_graph(ledger.graph), writer=ledger.writer))
+        polygonal_stock = (FamilyId.POLYGONAL_STOCK, lambda p, o: recognise_polygonal_stock(p),
+                           lambda p, ledger, o: _discover_polygonal_stock(
+                               p, graph=GeometryGraph._from_graph(ledger.graph), writer=ledger.writer))
         entries.append(
             {
                 "file": str(path.relative_to(CORPUS)),
@@ -372,6 +385,12 @@ def main() -> None:
                     ],
                     "recognise_freeform_surfaces": [
                         _run(part, "recognise_freeform_surfaces", *freeform, {})
+                    ],
+                    "recognise_polygonal_bosses": [
+                        _run(part, "recognise_polygonal_bosses", *polygonal_bosses, {})
+                    ],
+                    "recognise_polygonal_stock": [
+                        _run(part, "recognise_polygonal_stock", *polygonal_stock, {})
                     ],
                     "recognise_gusset_rib_patterns": [
                         {"options": {}, "result": _plain(recognise_gusset_rib_patterns(recognise_gusset_ribs(part)))}

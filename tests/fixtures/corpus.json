@@ -6477,6 +6477,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -48376,6 +48390,20 @@
         156
        ]
       ]
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -145971,6 +145999,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -219350,6 +219392,20 @@
        ]
       ]
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -274273,6 +274329,20 @@
        ]
       ]
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -307501,6 +307571,20 @@
        ]
       ]
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -324067,6 +324151,20 @@
         42
        ]
       ]
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -477003,6 +477101,20 @@
        ]
       ]
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -557412,6 +557524,20 @@
        ]
       ]
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -587873,6 +587999,20 @@
        ]
       ]
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -588951,6 +589091,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -589720,6 +589874,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -594487,6 +594655,20 @@
        ]
       ]
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -595584,6 +595766,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -597028,6 +597224,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -600198,6 +600408,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -601876,6 +602100,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -603904,6 +604142,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -607056,6 +607308,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -608548,6 +608814,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -611632,6 +611912,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -613294,6 +613588,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -615242,6 +615550,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -617215,6 +617537,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -619258,6 +619594,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -621218,6 +621568,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -623584,6 +623948,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -625300,6 +625678,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -626894,6 +627286,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -628036,6 +628442,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -630100,6 +630520,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -632372,6 +632806,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -634434,6 +634882,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -636384,6 +636846,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -638984,6 +639460,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -641046,6 +641536,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -642847,6 +643351,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -645157,6 +645675,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -646395,6 +646927,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -648347,6 +648893,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -650276,6 +650836,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -652446,6 +653020,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -654350,6 +654938,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -656574,6 +657176,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -659005,6 +659621,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -660397,6 +661027,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -661888,6 +662532,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -664124,6 +664782,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -665937,6 +666609,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -667773,6 +668459,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -669645,6 +670345,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -671614,6 +672328,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -673131,6 +673859,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -675569,6 +676311,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -677003,6 +677759,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -679630,6 +680400,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -681223,6 +682007,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -683436,6 +684234,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -685476,6 +686288,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -686635,6 +687461,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -688349,6 +689189,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -689588,6 +690442,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -691403,6 +692271,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -693834,6 +694716,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -695170,6 +696066,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -697004,6 +697914,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -698587,6 +699511,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -699627,6 +700565,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -701191,6 +702143,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -702614,6 +703580,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -703944,6 +704924,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -705720,6 +706714,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -707883,6 +708891,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -709644,6 +710666,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -712026,6 +713062,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -714043,6 +715093,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -715450,6 +716514,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -717315,6 +718393,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -719560,6 +720652,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -721314,6 +722420,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -723299,6 +724419,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -725879,6 +727013,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -728788,6 +729936,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -730459,6 +731621,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -732426,6 +733602,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -734301,6 +735491,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -736492,6 +737696,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -739193,6 +740411,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -741348,6 +742580,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -750167,6 +751413,106 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "z",
+        "center": [
+         0.0,
+         0.0,
+         25.0
+        ],
+        "side_count": 6,
+        "across_flats": 100.0,
+        "base": 0.0,
+        "top": 50.0,
+        "flat_directions": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          -0.5,
+          -0.866,
+          0.0
+         ],
+         [
+          0.5,
+          -0.866,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.5,
+          0.866,
+          0.0
+         ],
+         [
+          -0.5,
+          0.866,
+          0.0
+         ]
+        ],
+        "flat_centres": [
+         [
+          -50.0,
+          0.0,
+          25.0
+         ],
+         [
+          -25.0,
+          -43.301,
+          25.0
+         ],
+         [
+          25.0,
+          -43.301,
+          25.0
+         ],
+         [
+          50.0,
+          0.0,
+          25.0
+         ],
+         [
+          25.0,
+          43.301,
+          25.0
+         ],
+         [
+          -25.0,
+          43.301,
+          25.0
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        61,
+        62,
+        63,
+        64,
+        65,
+        66
+       ]
+      ]
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -795085,6 +796431,20 @@
        ]
       ]
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -804931,6 +806291,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -832161,6 +833535,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -845503,6 +846891,20 @@
        ]
       ]
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -853644,6 +855046,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -870849,6 +872265,270 @@
        ]
       ]
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [
+       {
+        "axis": "y",
+        "center": [
+         -120.65,
+         -121.92,
+         -81.28
+        ],
+        "side_count": 4,
+        "across_flats": 25.3518,
+        "base": -123.19,
+        "top": -120.65,
+        "flat_directions": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ],
+        "flat_centres": [
+         [
+          -120.65,
+          -121.919,
+          -93.958
+         ],
+         [
+          -107.972,
+          -121.919,
+          -81.28
+         ],
+         [
+          -120.65,
+          -121.919,
+          -68.602
+         ],
+         [
+          -133.328,
+          -121.919,
+          -81.28
+         ]
+        ]
+       },
+       {
+        "axis": "y",
+        "center": [
+         -120.65,
+         -121.92,
+         81.28
+        ],
+        "side_count": 4,
+        "across_flats": 25.3518,
+        "base": -123.19,
+        "top": -120.65,
+        "flat_directions": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ],
+        "flat_centres": [
+         [
+          -120.65,
+          -121.919,
+          68.602
+         ],
+         [
+          -107.972,
+          -121.919,
+          81.28
+         ],
+         [
+          -120.65,
+          -121.919,
+          93.958
+         ],
+         [
+          -133.328,
+          -121.919,
+          81.28
+         ]
+        ]
+       },
+       {
+        "axis": "y",
+        "center": [
+         120.65,
+         -121.92,
+         -81.28
+        ],
+        "side_count": 4,
+        "across_flats": 25.3518,
+        "base": -123.19,
+        "top": -120.65,
+        "flat_directions": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ],
+        "flat_centres": [
+         [
+          120.65,
+          -121.919,
+          -93.958
+         ],
+         [
+          133.328,
+          -121.919,
+          -81.28
+         ],
+         [
+          120.65,
+          -121.919,
+          -68.602
+         ],
+         [
+          107.972,
+          -121.919,
+          -81.28
+         ]
+        ]
+       },
+       {
+        "axis": "y",
+        "center": [
+         120.65,
+         -121.92,
+         81.28
+        ],
+        "side_count": 4,
+        "across_flats": 25.3518,
+        "base": -123.19,
+        "top": -120.65,
+        "flat_directions": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ],
+        "flat_centres": [
+         [
+          120.65,
+          -121.919,
+          68.602
+         ],
+         [
+          133.328,
+          -121.919,
+          81.28
+         ],
+         [
+          120.65,
+          -121.919,
+          93.958
+         ],
+         [
+          107.972,
+          -121.919,
+          81.28
+         ]
+        ]
+       }
+      ],
+      "defining": [
+       [
+        237,
+        239,
+        260,
+        261
+       ],
+       [
+        235,
+        257,
+        258,
+        259
+       ],
+       [
+        240,
+        262,
+        263,
+        264
+       ],
+       [
+        241,
+        254,
+        255,
+        256
+       ]
+      ]
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -885665,6 +887345,20 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -895654,6 +897348,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],
@@ -907985,6 +909693,20 @@
         183
        ]
       ]
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -923889,6 +925611,20 @@
      }
     ],
     "recognise_freeform_surfaces": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_bosses": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_polygonal_stock": [
      {
       "options": {},
       "result": [],

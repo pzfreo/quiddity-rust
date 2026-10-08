@@ -26,9 +26,11 @@ pub mod edge_open_circular;
 pub mod edge_open_prismatic;
 pub mod entry_treatments;
 pub mod evidence;
+pub mod experimental_geometry;
 pub mod fillets;
 pub mod flats;
 pub mod freeform_surfaces;
+pub mod geometry_evidence;
 pub mod graph;
 pub mod grooves;
 pub mod gussets;
@@ -44,6 +46,7 @@ pub mod planes;
 pub mod plates;
 pub mod pockets;
 pub mod policy;
+pub mod polygonal_bosses;
 pub mod probes;
 pub mod profiled_bores;
 pub mod recess_core;
@@ -121,6 +124,8 @@ pub struct Features {
     pub pocket_patterns: Vec<recess_patterns::PocketPattern>,
     pub repeating_radial_profiles: Vec<repeating_profiles::RepeatingRadialProfile>,
     pub freeform_surfaces: Vec<freeform_surfaces::FreeformSurface>,
+    pub polygonal_bosses: Vec<polygonal_bosses::PolygonalBoss>,
+    pub polygonal_stock: Vec<polygonal_bosses::PolygonalStock>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole, gusset rib, slot and pocket patterns) have none of their own: their
     /// members' faces are theirs ([`crate::correspondence`]).
@@ -260,6 +265,16 @@ pub fn recognise(part: &Part) -> Features {
             repeating_profiles::discover(&ctx),
         ),
         freeform_surfaces,
+        polygonal_bosses: kept(
+            &mut defining,
+            "polygonal_bosses",
+            polygonal_bosses::discover(&ctx, &Default::default()),
+        ),
+        polygonal_stock: kept(
+            &mut defining,
+            "polygonal_stock",
+            polygonal_bosses::discover_stock(&ctx, &Default::default()),
+        ),
         defining,
     }
 }
