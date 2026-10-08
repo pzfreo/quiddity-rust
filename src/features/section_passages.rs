@@ -118,7 +118,12 @@ fn min_run(runs: impl IntoIterator<Item = V3>) -> Option<V3> {
 
 /// One collinear junction of two walls as `(u, v, t_low, t_high)` in *frame* (`_pair_line`):
 /// every shared edge straight along the run, on one line, the pieces joined without gaps.
-fn pair_line(part: &Part, left: usize, right: usize, frame: &LocalFrame) -> Option<[f64; 4]> {
+pub(crate) fn pair_line(
+    part: &Part,
+    left: usize,
+    right: usize,
+    frame: &LocalFrame,
+) -> Option<[f64; 4]> {
     let mut samples: Vec<V3> = Vec::new();
     let mut segments: Vec<[f64; 2]> = Vec::new();
     for edge in part.shared_edges(left, right) {
@@ -590,7 +595,7 @@ fn observed_planar_ring_ends(
 
 /// The cycle through *members* chosen by its corner sequence, never by traversal order
 /// (`_ordered_cycle`).
-fn ordered_cycle(
+pub(crate) fn ordered_cycle(
     members: &[usize],
     adjacency: &BTreeMap<usize, BTreeSet<usize>>,
     pair_lines: &BTreeMap<(usize, usize), [f64; 4]>,
@@ -836,7 +841,7 @@ fn enclosure_proposals(
 
 /// The components of *items* under the symmetric relation *adjacency*, each sorted, by their
 /// least member (Python leaves both orders unspecified).
-fn components(
+pub(crate) fn components(
     items: &BTreeSet<usize>,
     adjacency: &BTreeMap<usize, BTreeSet<usize>>,
 ) -> Vec<Vec<usize>> {
