@@ -54,12 +54,14 @@ its verdict and reason in a verdict file:
 
 | Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
 |---|---|---|---|---|---|---|---|
-| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 127 (895 problems) | 64 | 17 | 13 | 33 | 0 |
+| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 127 (895 problems) | 64 | 18 | 13 | 32 | 0 |
 | `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 23 (24 calls) | 4 | 0 | 1 | 2 | 16 |
-| `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 4 | 0 | 4 | 0 | 0 | 0 |
-| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 19 | 3 | 16 | 0 | 0 | 0 |
-| `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 23 | 6 | 0 | 0 | 17 | 0 |
-| `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 65 | 13 | 0 | 0 | 52 | 0 |
+| `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 7 | 0 | 7 | 0 | 0 | 0 |
+| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 18 | 3 | 15 | 0 | 0 | 0 |
+| `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 28 (53 probes) | 6 | 12 | 0 | 10 | 0 |
+| `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 64 | 13 | 0 | 0 | 51 | 0 |
+| `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 45 | 1 | 5 | 2 | 4 | 33 |
+| `tests/fixtures/known_face_areas.json` | `crates/haecceity/tests/face_areas.rs` | 1835 | 1789 | 33 | 0 | 12 | 1 |
 
 The undetermined entries are the backlog: differences not yet shown to be either side's error.
 The rust-wrong entries are known port defects.
@@ -163,6 +165,10 @@ tests/
                      revision, every file and its sha256)
   determinism.rs     recognition and correspondence JSON byte for byte the same twice in one
                      process (fresh hash seeds)
+  wiring.rs          every family's defining faces wired, and every record field given a role
+                     in the fingerprint table, over the fixtures and the corpus
+  cli.rs             the binary's usage, exit codes and refusal of broken STEP files
+                     (fixtures/broken/)
   common/parallel.rs the corpus loops' per-file work on every core, results in corpus order
   fixtures/          STEP parts and Python's recorded answers, shared by both crates
 crates/haecceity/tests/
@@ -172,6 +178,8 @@ crates/haecceity/tests/
                      volume.rs (tools/capture_probes.py records them)
   face_areas.rs      every corpus face's area against OpenCascade's, and against itself moved
                      (tools/capture_face_areas.py records them)
+  classify.rs        point classification against OpenCascade's at 300 seeded points per corpus
+                     file, every clean ray agreeing on parity (tools/capture_classify.py)
   kernel.rs          kernel behaviour on real parts
   drawings.rs        projections and section views against OpenCascade's drawings
                      (tools/capture_hlr.py, tools/capture_section.py record them)
@@ -182,6 +190,7 @@ tools/
   capture_probes.py  records every volume probe Python asks over the corpus
   capture_patches.py records every covered_patch question Python asks over the corpus
   capture_face_areas.py records OpenCascade's area of every corpus face
+  capture_classify.py records OpenCascade's classifier state at seeded points of every corpus part
   face_area_evidence.py independent areas over the 3D edges, the evidence for face-area verdicts
   known_face_areas.py writes known_face_areas.json from face_areas.rs's differences
   capture_hlr.py     records OpenCascade's hidden-line projection of every corpus part

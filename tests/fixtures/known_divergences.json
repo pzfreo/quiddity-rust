@@ -58,10 +58,10 @@
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "family": "kernel",
-    "key": "solid masses differ by up to 1e-1",
+    "key": "solid masses differ by up to 1e-3",
     "count": 1,
     "verdict": "rust-wrong",
-    "reason": "The port's sphere-face areas are wrong (H2 in docs/review-2026-10-08.md): faces 772, 994, 1021, 957 give 80.45, 55.34, 55.34, 55.34 where OpenCascade gives 15.48, 6.26, 6.26, 6.26, and faces 854, 838, 869, 832, 388, 372 give negative areas; the solid's area is 798840.82 against OpenCascade's 800065.50 (adaptive). The volume is not invariant under translation (4329644.59 in place, 4311070.28 and 4320116.71 moved), against OpenCascade's 4382356.32 (adaptive)."
+    "reason": "The port's volume is not invariant under translation, so its own integral is wrong: read moved by (250, -130, 75) and (-40, 10, 300) it gives 4382375.138 and 4382301.960, against 4382320.555 in place; OpenCascade's adaptive integration gives 4382356.32. The sphere-face areas of H2 are corrected (each face's area is checked in tests/face_areas.rs, which lists B-spline faces 99, 100, 239, 396, 430 and 1348 as rust-wrong); the area 800062.151 is invariant and within 4e-6 of OpenCascade's adaptive 800065.50. Not traced."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -871,10 +871,10 @@
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
     "family": "kernel",
-    "key": "solid masses differ by up to 1e-5",
+    "key": "solid masses differ by up to 1e-6",
     "count": 1,
     "verdict": "rust-wrong",
-    "reason": "The port's volume is not invariant under translation, so its own integral is wrong: read moved by (250, -130, 75) and (-40, 10, 300) it gives 1726243.568 and 1726248.877, against 1726245.165 in place; OpenCascade's adaptive integration (eps 1e-9 and 1e-12 agree) gives 1726247.579. Area is invariant (391371.435 against OpenCascade's 391371.347 adaptive, the difference on B-spline faces 90, 91, 95, 102, 103, 106, 125 whose edges lie up to 3e-3 mm off their surfaces). This file stores periodic faces without seams (its edge-count entry); the flux integral across a seamless face is the likely fault (not traced; mass.rs is the face-mass stream's)."
+    "reason": "The port's volume is not invariant under translation, so its own integral is wrong: read moved by (250, -130, 75) and (-40, 10, 300) it gives 1726245.823 and 1726246.799, against 1726246.730 in place; OpenCascade's adaptive integration (eps 1e-9 and 1e-12 agree) gives 1726247.579. Area is invariant (391371.381 against OpenCascade's 391371.347 adaptive, the difference on B-spline faces 90, 91, 95, 102, 103, 106, 125 whose edges lie up to 3e-3 mm off their surfaces). This file stores periodic faces without seams (its edge-count entry); the flux integral across a seamless face is the likely fault (not traced)."
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
@@ -915,14 +915,6 @@
     "count": 1,
     "verdict": "rust-correct",
     "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
-  },
-  {
-    "file": "nist/nist_ftc_07_asme1_rd.stp",
-    "family": "recognise_plates",
-    "key": "{} records: 5 vs 5 records, fields {\"body_key\"}",
-    "count": 1,
-    "verdict": "rust-wrong",
-    "reason": "Same five plates, centres and defining faces; only the body key's mass terms differ: the port's solid volume 1726245.165 and area 391371.435 against OpenCascade's 1726247.579 and 391371.347. The port's volume is wrong on this file (see its solid masses entry: it changes when the part is translated)."
   },
   {
     "file": "nist/nist_ftc_08_asme1_rc.stp",
