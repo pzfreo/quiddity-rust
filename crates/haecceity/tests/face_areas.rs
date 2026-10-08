@@ -128,6 +128,16 @@ fn rotated_seam_on_a_closed_bspline_surface() {
         if placement == IDENTITY {
             assert!((flux - 4.0 * want).abs() <= 1e-12 * want, "{flux}");
         }
+        // The trimming domain unwraps the same way: the band is every u for v in [0.2, 0.8]
+        // (z from −3 to 3 of −5 to 5), on either side of both seams.
+        let domain = part.domain(0).unwrap();
+        for u in [0.0, 0.05, 0.124, 0.126, 0.5, 0.95, 1.0] {
+            assert!(domain.contains(u, 0.5), "u {u}");
+            assert!(
+                !domain.contains(u, 0.1) && !domain.contains(u, 0.9),
+                "u {u}"
+            );
+        }
     }
 }
 

@@ -24,6 +24,9 @@ pub struct FaceDomain {
     /// The segments binned by the ray's fixed coordinate, so a query tests only those that can
     /// cross its ray.
     index: SegmentIndex,
+    /// Per parameter, how it is read: x ↦ (x − start)·factor. A B-spline surface that closes in
+    /// a parameter is read as turning once round its span, so the periodic rules serve it.
+    scale: [(f64, f64); 2],
 }
 
 fn range<'a>(
@@ -39,6 +42,11 @@ fn range<'a>(
 
 impl FaceDomain {
     pub fn new(loops: &[UvLoop], periodic: (bool, bool)) -> Self {
+        Self::scaled(loops, periodic, [(0.0, 1.0); 2])
+    }
+
+    /// The domain of `loops` given in parameters already read through `scale`.
+    fn scaled(loops: &[UvLoop], periodic: (bool, bool), scale: [(f64, f64); 2]) -> Self {
         let all = || loops.iter().flat_map(|l| l.points.iter());
         let (u_range, v_range) = (range(all(), |p| p.0), range(all(), |p| p.1));
         let loops: Vec<Vec<(f64, f64)>> = loops.iter().map(|l| l.points.clone()).collect();
@@ -52,15 +60,24 @@ impl FaceDomain {
             u_range,
             v_range,
             index,
+            scale,
         }
     }
 
     pub fn u_range(&self) -> (f64, f64) {
-        self.u_range
+        let (start, factor) = self.scale[0];
+        (
+            start + self.u_range.0 / factor,
+            start + self.u_range.1 / factor,
+        )
     }
 
     pub fn v_range(&self) -> (f64, f64) {
-        self.v_range
+        let (start, factor) = self.scale[1];
+        (
+            start + self.v_range.0 / factor,
+            start + self.v_range.1 / factor,
+        )
     }
 
     /// Whether (u, v) lies on the face, by the parity of a parameter-space ray.
@@ -69,6 +86,8 @@ impl FaceDomain {
     /// periodic u wraps every segment next to the point. A face closed in v but open in u
     /// casts in +u instead, and a face closed in both is the whole surface.
     pub fn contains(&self, u: f64, v: f64) -> bool {
+        let read = |x: f64, (start, factor): (f64, f64)| (x - start) * factor;
+        let (u, v) = (read(u, self.scale[0]), read(v, self.scale[1]));
         let (pu, pv) = self.periodic;
         let (vmin, vmax) = self.v_range;
         let (umin, umax) = self.u_range;
@@ -444,7 +463,62 @@ impl Part {
                         f.surface.periodic(),
                     ));
                 }
-                Some(FaceDomain::new(self.uv_loops(face)?, f.surface.periodic()))
+                let loops = self.uv_loops(face)?;
+                let spans = crate::mass::closed_spans(&f.surface);
+                let Surface::Freeform { surface, .. } = &f.surface else {
+                    return Some(FaceDomain::new(loops, f.surface.periodic()));
+                };
+                // A closed B-spline surface (which the reader does not mark periodic) whose face
+                // boundary crosses the surface's seam (a face's own seam need not lie on it)
+                // jumps by the span there: such a direction is read as turning once round the
+                // span, its loops unwrapped across the seam.
+                let jumps = |pick: fn(&(f64, f64)) -> f64, span: f64| {
+                    span.is_finite()
+                        && loops.iter().any(|lp| {
+                            lp.points
+                                .windows(2)
+                                .any(|w| (pick(&w[1]) - pick(&w[0])).abs() > 0.5 * span)
+                        })
+                };
+                let closed = (jumps(|p| p.0, spans.0), jumps(|p| p.1, spans.1));
+                if !closed.0 && !closed.1 {
+                    return Some(FaceDomain::new(loops, f.surface.periodic()));
+                }
+                let (u0, _, v0, _) = surface.domain();
+                let read = |start: f64, span: f64, closed: bool| {
+                    if closed {
+                        (start, TAU / span)
+                    } else {
+                        (0.0, 1.0)
+                    }
+                };
+                let scale = [read(u0, spans.0, closed.0), read(v0, spans.1, closed.1)];
+                let turned: Vec<UvLoop> = loops
+                    .iter()
+                    .map(|lp| {
+                        let mut points: Vec<(f64, f64)> = Vec::with_capacity(lp.points.len());
+                        for &(u, v) in &lp.points {
+                            let (mut u, mut v) =
+                                ((u - scale[0].0) * scale[0].1, (v - scale[1].0) * scale[1].1);
+                            if let Some(&(lu, lv)) = points.last() {
+                                if closed.0 {
+                                    u = geom::nearest_turn(u, lu);
+                                }
+                                if closed.1 {
+                                    v = geom::nearest_turn(v, lv);
+                                }
+                            }
+                            points.push((u, v));
+                        }
+                        UvLoop {
+                            points,
+                            anchors: Vec::new(),
+                            winds_u: false,
+                            winds_v: false,
+                        }
+                    })
+                    .collect();
+                Some(FaceDomain::scaled(&turned, closed, scale))
             })
             .as_ref()
     }

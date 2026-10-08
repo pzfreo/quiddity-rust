@@ -175,7 +175,7 @@ fn collapsed_sides(surface: &Surface) -> (Option<f64>, Option<f64>) {
 
 /// The parameter spans across which a B-spline surface closes on itself (its sides of
 /// constant u, or of constant v, coincide), infinite where it does not.
-fn closed_spans(surface: &Surface) -> (f64, f64) {
+pub(crate) fn closed_spans(surface: &Surface) -> (f64, f64) {
     let Surface::Freeform { surface, .. } = surface else {
         return (f64::INFINITY, f64::INFINITY);
     };

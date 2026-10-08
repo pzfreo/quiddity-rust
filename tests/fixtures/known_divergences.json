@@ -344,10 +344,10 @@
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "family": "recognise_interior_voids",
-    "key": "{} records: 1 vs 1 records, fields {\"air_samples\", \"body_key\", \"enclosed_samples\", \"estimated_volume\"}",
+    "key": "{} records: 1 vs 1 records, fields {\"air_samples\", \"body_key\"}",
     "count": 1,
     "verdict": "undetermined",
-    "reason": "Same void faces and openings; the sample counts (and so the estimated volume) differ by about 2%: the void grid is a sampling instrument anchored at the solid's box, and OpenCascade's box is padded (by 1e-7 on this part's faces) where the port's is exact, so the two grids sit a fraction of a micron apart and cells whose centres fall on a face flip, and the body key follows this file's mass difference."
+    "reason": "Same void faces, openings, enclosed samples (169) and estimated volume; the air samples differ by 75 of 89347 (0.08%): the void grid is a sampling instrument anchored at the solid's box, and OpenCascade's box is padded (by 1e-7 on this part's faces) where the port's is exact, so the two grids sit a fraction of a micron apart and cells whose centres fall on a face flip. The body key carries the solid's mass, whose difference is its own entry (rust-correct). The enclosed samples agree since the trimming domain of face 29 (a rotated seam on a closed B-spline surface) unwraps across the surface's seam."
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
