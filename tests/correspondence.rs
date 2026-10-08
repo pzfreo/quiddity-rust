@@ -87,6 +87,7 @@ fn invariance_problems(
                 || (s == "holes" && family == "hole_patterns")
                 || (s == "slots" && family == "slot_patterns")
                 || (s == "pockets" && family == "pocket_patterns")
+                || (s == "oriented_slots" && family == "oriented_slot_patterns")
         })
     };
     let mut out = Problems {

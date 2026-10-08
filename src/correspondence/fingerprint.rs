@@ -757,6 +757,44 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("section", Derived),
         ],
     },
+    FamilyFingerprint {
+        family: "oriented_slots",
+        members: None,
+        variants: false,
+        fields: &[
+            ("long_direction", Axis),
+            ("width", Size),
+            ("length", Size),
+            ("width_direction", Placement),
+            ("center", Placement),
+            ("body_key", Placement),
+            // The source passage: its run and frame move with the part, its run interval gives
+            // the depth, and its section is the rectangle measured by width and length.
+            ("source.frame", Placement),
+            ("source.run_interval", Derived),
+            ("source.section", Ignored),
+            ("source.ends.low_capped", Trait),
+            ("source.ends.high_capped", Trait),
+            ("source.ends.low_gradient", Placement),
+            ("source.ends.high_gradient", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "oriented_slot_patterns",
+        members: Some(("slots", "oriented_slots")),
+        variants: true,
+        fields: &[
+            ("direction", Axis),
+            ("slots", Count("count")),
+            ("rows", Size),
+            ("cols", Size),
+            ("row_pitch", Size),
+            ("col_pitch", Size),
+            ("pitch", Size),
+            ("angle", Placement),
+            ("center", Placement),
+        ],
+    },
 ];
 
 /// The fingerprint table of the family with this serde key.
@@ -1022,6 +1060,7 @@ fn derived_sizes(family: &str, r: &Value, sizes: &mut BTreeMap<String, f64>) {
                 .map(|s| chain_lengths(s));
             insert_sorted(sizes, "section.walls", walls.unwrap_or_default());
         }
+        "oriented_slots" => put("depth", interval("source.run_interval")),
         "section_passages" => {
             put("run_length", interval("run_interval"));
             // The closed boundary's chords (an arc's too), whatever vertex it starts at.

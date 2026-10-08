@@ -42,6 +42,7 @@ pub mod interior_voids;
 pub mod levels;
 pub mod oblique_through_steps;
 pub mod oriented_chamfers;
+pub mod oriented_slots;
 pub mod paired_ramp_steps;
 pub mod passage_compat;
 pub mod passages;
@@ -138,8 +139,10 @@ pub struct Features {
     /// not).
     pub section_passages: Vec<passages::SectionPassage>,
     pub prismatic_pockets: Vec<prismatic_pockets::PrismaticPocket>,
+    pub oriented_slots: Vec<oriented_slots::OrientedSlot>,
+    pub oriented_slot_patterns: Vec<oriented_slots::OrientedSlotPattern>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
-    /// families (hole, gusset rib, slot and pocket patterns) have none of their own: their
+    /// families (hole, gusset rib, slot, pocket and oriented slot patterns) have none of their own: their
     /// members' faces are theirs ([`crate::correspondence`]).
     #[serde(skip)]
     pub defining: Defining,
@@ -163,6 +166,16 @@ pub fn recognise(part: &Part) -> Features {
         &mut defining,
         "thin_wall_bodies",
         thin_walls::discover(&ctx),
+    );
+    // Python's aggregate raises on the same internal inconsistencies, refusing the whole
+    // recognition; `recognise` has no refusal to return, so it panics with the message.
+    let passages =
+        passages::discover(&ctx).unwrap_or_else(|e| panic!("section passages refused: {e}"));
+    let oriented_slots = kept(
+        &mut defining,
+        "oriented_slots",
+        oriented_slots::discover(&ctx, &passages)
+            .unwrap_or_else(|e| panic!("oriented slots refused: {e}")),
     );
     let freeform_surfaces = kept(
         &mut defining,
@@ -287,18 +300,14 @@ pub fn recognise(part: &Part) -> Features {
             "polygonal_stock",
             polygonal_bosses::discover_stock(&ctx, &Default::default()),
         ),
-        // Python's aggregate raises on the same internal inconsistencies, refusing the whole
-        // recognition; `recognise` has no refusal to return, so it panics with the message.
-        section_passages: kept(
-            &mut defining,
-            "section_passages",
-            passages::discover(&ctx).unwrap_or_else(|e| panic!("section passages refused: {e}")),
-        ),
+        section_passages: kept(&mut defining, "section_passages", passages),
         prismatic_pockets: kept(
             &mut defining,
             "prismatic_pockets",
             prismatic_pockets::discover(&ctx),
         ),
+        oriented_slot_patterns: oriented_slots::recognise_oriented_slot_patterns(&oriented_slots),
+        oriented_slots,
         defining,
     }
 }

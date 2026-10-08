@@ -17,7 +17,7 @@
 
 use std::fmt;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use super::Context;
 use super::evidence::{Occurrence, common_valid_solid};
@@ -71,7 +71,7 @@ pub struct Passage {
 }
 
 /// A section passage's placement frame (`PassageFrame`): origin to 3 decimals, directions to 6.
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PassageFrame {
     pub origin: V3,
     pub run: V3,
@@ -81,20 +81,20 @@ pub struct PassageFrame {
 
 /// One section vertex (`PassageSectionVertex`): its point to 4 decimals and the bulge of the
 /// edge to the next to 12.
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PassageSectionVertex {
     pub point: V2,
     pub bulge: f64,
 }
 
 /// The canonical, origin-centred section (`PassageSection`).
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PassageSection {
     pub boundary: Vec<PassageSectionVertex>,
 }
 
 /// Both ends open, and each termination plane's gradient across the section (`PassageEnds`).
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PassageEnds {
     pub low_capped: bool,
     pub high_capped: bool,
@@ -103,7 +103,7 @@ pub struct PassageEnds {
 }
 
 /// A recognised section passage (`SectionPassage`).
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SectionPassage {
     pub frame: PassageFrame,
     pub run_interval: (f64, f64),
@@ -402,7 +402,7 @@ fn serialized_passage_section(section: &PlanarSection) -> Checked<PassageSection
 
 /// One proposal as its public serialized value (`_section_passage_record`), refused when the
 /// serialization moves any section vertex at either end by more than 2e-3.
-fn section_passage_record(proposal: &SectionRingProposal) -> Checked<SectionPassage> {
+pub(crate) fn section_passage_record(proposal: &SectionRingProposal) -> Checked<SectionPassage> {
     let o = &proposal.occurrence;
     let f = o.frame();
     let (lo, hi) = o.run_interval();
