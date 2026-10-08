@@ -11,6 +11,7 @@ use std::collections::BTreeMap;
 
 use quiddity::Part;
 use quiddity::features::{self, levels};
+use quiddity::frames;
 use quiddity::kernel::step::{IDENTITY, Placement, read_step_file_placed};
 
 /// A non-round translation (so rounding grids are not trivially aligned) and five rotations with
@@ -89,6 +90,34 @@ fn signature(part: &Part) -> BTreeMap<&'static str, Vec<Vec<usize>>> {
 /// are other faces, in Python as here.
 const WORLD_Z: [&str; 2] = ["face_levels", "risers"];
 
+/// The listed exceptions for these motions, keyed by (file, motion, family), with the most
+/// occurrences each may differ by.
+fn known_entries(motions: &[&str]) -> Vec<((String, String, String), usize)> {
+    let known = common::load("known_invariance.json");
+    let known = known.as_array().unwrap();
+    common::check_verdicts("known_invariance.json", known);
+    known
+        .iter()
+        .filter(|k| motions.contains(&k["motion"].as_str().unwrap()))
+        .map(|k| {
+            let s = |f: &str| k[f].as_str().unwrap().to_string();
+            let most = k["max_differing"]
+                .as_u64()
+                .unwrap_or_else(|| panic!("an entry gives max_differing: {k}"));
+            ((s("file"), s("motion"), s("family")), most as usize)
+        })
+        .collect()
+}
+
+fn corpus_files() -> Vec<String> {
+    common::load("corpus.json")["files"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|e| e["file"].as_str().unwrap().to_string())
+        .collect()
+}
+
 /// A family whose occurrences differ under a motion: how many differ, and which.
 struct Difference {
     family: &'static str,
@@ -106,25 +135,9 @@ fn recognition_is_invariant_under_rigid_motion() {
         eprintln!("corpus not found; set QUIDDITY_CORPUS");
         return;
     };
-    let known = common::load("known_invariance.json");
-    let known = known.as_array().unwrap();
-    common::check_verdicts("known_invariance.json", known);
-    let known: Vec<((String, String, String), usize)> = known
-        .iter()
-        .map(|k| {
-            let s = |f: &str| k[f].as_str().unwrap().to_string();
-            let most = k["max_differing"]
-                .as_u64()
-                .unwrap_or_else(|| panic!("an entry gives max_differing: {k}"));
-            ((s("file"), s("motion"), s("family")), most as usize)
-        })
-        .collect();
-    let files: Vec<String> = common::load("corpus.json")["files"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .map(|e| e["file"].as_str().unwrap().to_string())
-        .collect();
+    let names: Vec<&str> = MOTIONS.iter().map(|m| m.0).collect();
+    let known = known_entries(&names);
+    let files = corpus_files();
     // Every part unmoved, then every part under every motion, each spread over every core; the
     // differences come back in corpus order, motion by motion.
     let unmoved = common::parallel::map(&files, |name| {
@@ -140,30 +153,54 @@ fn recognition_is_invariant_under_rigid_motion() {
         let (faces, expected) = unmoved[i].as_ref().unwrap();
         let moved = read_step_file_placed(&dir.join(name), &placement(r, t)).unwrap();
         assert_eq!(moved.faces.len(), *faces, "{name} {motion}");
-        let mut out = Vec::new();
-        for (family, got) in signature(&moved) {
-            if WORLD_Z.contains(&family) && r[2][2].abs() != 1.0 {
-                continue;
-            }
-            if got != expected[family] {
-                let differing = symmetric_difference(&expected[family], &got);
-                out.push(Difference {
-                    family,
-                    count: differing.len(),
-                    text: format!(
-                        "{} occurrences, {} unmoved; differing: {differing:?}",
-                        got.len(),
-                        expected[family].len(),
-                    ),
-                });
-            }
-        }
-        out
+        differences(expected, &signature(&moved), |family| {
+            WORLD_Z.contains(&family) && r[2][2].abs() != 1.0
+        })
     });
+    let found = cases
+        .iter()
+        .zip(found)
+        .map(|(&(i, (motion, _, _)), d)| (&files[i], *motion, d));
+    let problems = unexplained(&known, found);
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
+
+/// The families of *got* whose occurrences are not *expected*'s, except those *skip* names.
+fn differences(
+    expected: &BTreeMap<&'static str, Vec<Vec<usize>>>,
+    got: &BTreeMap<&'static str, Vec<Vec<usize>>>,
+    skip: impl Fn(&str) -> bool,
+) -> Vec<Difference> {
+    let mut out = Vec::new();
+    for (&family, got) in got {
+        if skip(family) {
+            continue;
+        }
+        if *got != expected[family] {
+            let differing = symmetric_difference(&expected[family], got);
+            out.push(Difference {
+                family,
+                count: differing.len(),
+                text: format!(
+                    "{} occurrences, {} unmoved; differing: {differing:?}",
+                    got.len(),
+                    expected[family].len(),
+                ),
+            });
+        }
+    }
+    out
+}
+
+/// The differences not explained by a listed exception, a listed exception exceeded, and every
+/// listed exception no longer seen.
+fn unexplained<'a>(
+    known: &[((String, String, String), usize)],
+    found: impl Iterator<Item = (&'a String, &'a str, Vec<Difference>)>,
+) -> Vec<String> {
     let mut problems = Vec::new();
     let mut seen = Vec::new();
-    for (&(i, (motion, _, _)), differences) in cases.iter().zip(found) {
-        let name = &files[i];
+    for (name, motion, differences) in found {
         for d in differences {
             let key = (name.clone(), motion.to_string(), d.family.to_string());
             match known.iter().find(|k| k.0 == key) {
@@ -183,11 +220,112 @@ fn recognition_is_invariant_under_rigid_motion() {
             }
         }
     }
-    for (key, _) in &known {
+    for (key, _) in known {
         if !seen.contains(key) {
             problems.push(format!("{key:?} is listed but now invariant: remove it"));
         }
     }
+    problems
+}
+
+/// Review M8's generic rotation (37° about (1, 2, 3), then the translation `T`), under its name in
+/// `known_invariance.json`. No principal axis stays principal, so caller-space recognition (which
+/// reads world axes) is not expected to survive it; recognition in the part's own frame
+/// (`quiddity::frames`) is.
+const GENERIC: &str = "generic_framed";
+
+/// The rotation by *degrees* about *axis* (Rodrigues), then *translation*.
+fn rotation(axis: [f64; 3], degrees: f64, translation: [f64; 3]) -> Placement {
+    let n = (axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]).sqrt();
+    let [x, y, z] = axis.map(|c| c / n);
+    let (s, c) = degrees.to_radians().sin_cos();
+    let t = 1.0 - c;
+    [
+        [
+            t * x * x + c,
+            t * x * y - s * z,
+            t * x * z + s * y,
+            translation[0],
+        ],
+        [
+            t * x * y + s * z,
+            t * y * y + c,
+            t * y * z - s * x,
+            translation[1],
+        ],
+        [
+            t * x * z - s * y,
+            t * y * z + s * x,
+            t * z * z + c,
+            translation[2],
+        ],
+    ]
+}
+
+/// Every corpus part recognised in its own frame (`frames::prepare_framed`), unmoved and under
+/// the generic rotation: each family, face levels and risers included (in the frame they are read
+/// along the frame's z), must find the same features on the same faces. Where a part's frame is
+/// not full the two working frames may differ by the gauge's freedom (a sign or interchange, a
+/// roll about the axis), and the listed exceptions say so.
+///
+/// Also prints, without failing, how many family results caller-space recognition changes under
+/// the same rotation (review M8's measure).
+#[test]
+fn framed_recognition_is_invariant_under_a_generic_rotation() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(
+            std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
+            "QUIDDITY_CORPUS_REQUIRED is set but the corpus was not found"
+        );
+        eprintln!("corpus not found; set QUIDDITY_CORPUS");
+        return;
+    };
+    let known = known_entries(&[GENERIC]);
+    let files = corpus_files();
+    let generic = rotation([1.0, 2.0, 3.0], 37.0, T);
+    let found = common::parallel::map(&files, |name| {
+        let path = dir.join(name);
+        // Caller space: the part as read, and as read under the rotation.
+        let plain = read_step_file_placed(&path, &IDENTITY).ok().map(|unmoved| {
+            let moved = read_step_file_placed(&path, &generic).unwrap();
+            differences(&signature(&unmoved), &signature(&moved), |_| false)
+        });
+        // In the part's frame. A refused frame (no material, an unmeasured face) is a
+        // difference only when the two placements disagree on it.
+        let framed = |placement: &Placement| {
+            frames::prepare_framed_file(&path, placement)
+                .map(|f| (f.frame.gauge, signature(&f.part)))
+                .map_err(|e| e.to_string())
+        };
+        let differing = match (framed(&IDENTITY), framed(&generic)) {
+            (Ok((_, unmoved)), Ok((_, moved))) => differences(&unmoved, &moved, |_| false),
+            (Err(a), Err(b)) if a == b => Vec::new(),
+            (a, b) => vec![Difference {
+                family: "frame",
+                count: 1,
+                text: format!("unmoved {:?}, moved {:?}", a.map(|f| f.0), b.map(|f| f.0)),
+            }],
+        };
+        (plain, differing)
+    });
+    let (mut results, mut occurrences) = (0, 0);
+    for (name, (plain, _)) in files.iter().zip(&found) {
+        for d in plain.iter().flatten() {
+            results += 1;
+            occurrences += d.count;
+            eprintln!("caller space, {name} {}: {}", d.family, d.text);
+        }
+    }
+    eprintln!(
+        "caller-space recognition under the generic rotation: {results} family results change \
+         ({occurrences} occurrences differ) over {} parts",
+        files.len()
+    );
+    let framed = files
+        .iter()
+        .zip(found)
+        .map(|(name, (_, d))| (name, GENERIC, d));
+    let problems = unexplained(&known, framed);
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 

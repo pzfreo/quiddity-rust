@@ -1,0 +1,488 @@
+[
+  {
+    "file": "golden_interrupted_and_cross_bores.step",
+    "case": "frame",
+    "fields": [
+      "gauge",
+      "x",
+      "z"
+    ],
+    "verdict": "rust-correct",
+    "reason": "The part is mirror-symmetric along z (offsets of the z class +-20 and 0 about the port's origin, to 1e-13), so the z sign is not observable and the gauge is orthogonal, as the port says. Python's default-rule centroid is 1.8e-8 off the symmetry plane (its z is 1.79e-8; OpenCascade's adaptive VolumeProperties gives -1.7e-13), which makes the rounded offsets 19.999999982 / -20.000000018 asymmetric, so Python calls the sign observable (gauge full) and takes it from that error."
+  },
+  {
+    "file": "golden_interrupted_and_cross_bores.step",
+    "case": "moved",
+    "fields": [
+      "gauge",
+      "x",
+      "z"
+    ],
+    "verdict": "rust-correct",
+    "reason": "The part is mirror-symmetric along z (offsets of the z class +-20 and 0 about the port's origin, to 1e-13), so the z sign is not observable and the gauge is orthogonal, as the port says. Python's default-rule centroid is 1.8e-8 off the symmetry plane (its z is 1.79e-8; OpenCascade's adaptive VolumeProperties gives -1.7e-13), which makes the rounded offsets 19.999999982 / -20.000000018 asymmetric, so Python calls the sign observable (gauge full) and takes it from that error."
+  },
+  {
+    "file": "rejected_internal_pocket.step",
+    "case": "frame",
+    "fields": [
+      "y",
+      "z"
+    ],
+    "verdict": "rust-correct",
+    "reason": "Both gauges are orthogonal (two classes tie); the axes differ by the sign of the second class, which is mirror-symmetric (offsets +-10, +-20 and two half-cylinders at 0). Python's SurfaceProperties centroid of one half-cylinder (area 58.265) is 1.25e-9 off the axis, so its rounded offsets are not symmetric and its sign comes from that error; the port's offsets are symmetric to 1e-15 and it keeps the class's canonical sign."
+  },
+  {
+    "file": "rejected_internal_pocket.step",
+    "case": "moved",
+    "fields": [
+      "y",
+      "z"
+    ],
+    "verdict": "rust-correct",
+    "reason": "Both gauges are orthogonal (two classes tie); the axes differ by the sign of the second class, which is mirror-symmetric (offsets +-10, +-20 and two half-cylinders at 0). Python's SurfaceProperties centroid of one half-cylinder (area 58.265) is 1.25e-9 off the axis, so its rounded offsets are not symmetric and its sign comes from that error; the port's offsets are symmetric to 1e-15 and it keeps the class's canonical sign."
+  },
+  {
+    "file": "torus_elbow_seamless.step",
+    "case": "moved",
+    "fields": [
+      "refusal"
+    ],
+    "verdict": "rust-wrong",
+    "reason": "Kernel: under the generic motion this seamless torus elbow's solid integrates to a negative volume (solid_mass -103.4 and area -432.4 against 219.3 and 444.9 unmoved), so the frame is refused for no material. The torus band between two loops without a seam edge takes the wrong side once moved (mass.rs's boundary walk); the in-place reading is right (crates/haecceity/tests/kernel.rs) and Python's frame agrees with it."
+  },
+  {
+    "file": "torus_elbow_seamless_reversed_bound.step",
+    "case": "frame",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 1.0,
+    "verdict": "rust-wrong",
+    "reason": "Kernel: one planar end cap (face 2) is read with its normal into the material. Its flux p.n vanishes in place only because its plane passes through the world origin, so solid_mass is right unmoved (829.047, the exact 2 pi^2 7 9 (2/3), as kernel.rs checks) but the centroid, which weighs the cap by its distance from the box centre, takes the wrong volume (702.7) and a wrong centre; moved, solid_mass gives -3168.4. Python's origin is the exact centroid."
+  },
+  {
+    "file": "torus_elbow_seamless_reversed_bound.step",
+    "case": "moved",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 1.0,
+    "verdict": "rust-wrong",
+    "reason": "Kernel: one planar end cap (face 2) is read with its normal into the material. Its flux p.n vanishes in place only because its plane passes through the world origin, so solid_mass is right unmoved (829.047, the exact 2 pi^2 7 9 (2/3), as kernel.rs checks) but the centroid, which weighs the cap by its distance from the box centre, takes the wrong volume (702.7) and a wrong centre; moved, solid_mass gives -3168.4. Python's origin is the exact centroid."
+  },
+  {
+    "file": "cadgenbench/threaded_connector_109.step",
+    "case": "frame",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 8e-06,
+    "verdict": "rust-correct",
+    "reason": "Origin only: Python's origin is BRepGProp::VolumeProperties at its default (fixed Gauss) rule. OpenCascade's own adaptive integration (eps 1e-9) of the same shape lands 7.8e-7 from the port's origin, against 5.3e-6 for the default rule, so the listed difference is the default rule's error."
+  },
+  {
+    "file": "cadgenbench/threaded_connector_109.step",
+    "case": "moved",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 9e-06,
+    "verdict": "rust-correct",
+    "reason": "Origin only: Python's origin is BRepGProp::VolumeProperties at its default (fixed Gauss) rule. OpenCascade's own adaptive integration (eps 1e-9) of the same shape lands 7.8e-7 from the port's origin, against 5.3e-6 for the default rule, so the listed difference is the default rule's error."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "case": "frame",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 0.02,
+    "verdict": "undetermined",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-wrong): the port's origin is 3.3e-4 from OpenCascade's adaptive integration (eps 1e-9) and 1.3e-2 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "case": "moved",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 0.02,
+    "verdict": "undetermined",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-wrong): the port's origin is 3.3e-4 from OpenCascade's adaptive integration (eps 1e-9) and 1.3e-2 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "case": "frame",
+    "fields": [
+      "y",
+      "z",
+      "origin"
+    ],
+    "origin_within": 0.2,
+    "verdict": "undetermined",
+    "reason": "The second axis is chosen among three cylinder classes of equal area (0.171950254, tilted at 120 degrees about z) by their face offsets, which differ only in the fifth decimal (41.90179 / 41.90177 / 41.90174 about the port's origin) and so are decided by the origin. The origins differ by 0.13 (Python's default rule; the port is 5.6e-4 from OpenCascade's adaptive centroid, and this file's mass difference is undetermined), so each side picks a different class. If the three are congruent the choice is round-off on both sides and neither frame's full gauge is established."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "case": "moved",
+    "fields": [
+      "y",
+      "z",
+      "origin"
+    ],
+    "origin_within": 0.2,
+    "verdict": "undetermined",
+    "reason": "The second axis is chosen among three cylinder classes of equal area (0.171950254, tilted at 120 degrees about z) by their face offsets, which differ only in the fifth decimal (41.90179 / 41.90177 / 41.90174 about the port's origin) and so are decided by the origin. The origins differ by 0.13 (Python's default rule; the port is 5.6e-4 from OpenCascade's adaptive centroid, and this file's mass difference is undetermined), so each side picks a different class. If the three are congruent the choice is round-off on both sides and neither frame's full gauge is established."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "case": "frame",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 0.02,
+    "verdict": "undetermined",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, undetermined): the port's origin is 7.1e-4 from OpenCascade's adaptive integration (eps 1e-9) and 1.1e-2 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "case": "moved",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 0.02,
+    "verdict": "undetermined",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, undetermined): the port's origin is 7.1e-4 from OpenCascade's adaptive integration (eps 1e-9) and 1.1e-2 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "case": "frame",
+    "fields": [
+      "refusal"
+    ],
+    "verdict": "rust-wrong",
+    "reason": "Kernel: face 29 (a B-spline face whose own seam is not its surface's) is not integrated (see this file's corpus mass entry), so the port has no volume and refuses the frame (unmeasured-face, the port's own refusal) where Python derives one."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "case": "moved",
+    "fields": [
+      "refusal"
+    ],
+    "verdict": "rust-wrong",
+    "reason": "Kernel: face 29 (a B-spline face whose own seam is not its surface's) is not integrated (see this file's corpus mass entry), so the port has no volume and refuses the frame (unmeasured-face, the port's own refusal) where Python derives one."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb241.step",
+    "case": "frame",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 0.6,
+    "verdict": "undetermined",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-correct: OpenCascade integrates a planar face over pcurves 1% off its edges): the port's origin is 8.9e-3 from OpenCascade's adaptive integration (eps 1e-9) and 0.37 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb241.step",
+    "case": "moved",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 0.7,
+    "verdict": "undetermined",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-correct: OpenCascade integrates a planar face over pcurves 1% off its edges): the port's origin is 8.9e-3 from OpenCascade's adaptive integration (eps 1e-9) and 0.37 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "case": "frame",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 0.006,
+    "verdict": "undetermined",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, undetermined): the port's origin is 1.8e-4 from OpenCascade's adaptive integration (eps 1e-9) and 4.3e-3 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "case": "moved",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 0.005,
+    "verdict": "undetermined",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, undetermined): the port's origin is 1.8e-4 from OpenCascade's adaptive integration (eps 1e-9) and 4.3e-3 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "case": "frame",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 0.06,
+    "verdict": "undetermined",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-correct: the helical thread face's area follows OpenCascade's pcurve approximation): the port's origin is 2.1e-2 from OpenCascade's adaptive integration (eps 1e-9) and 4.2e-2 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "case": "moved",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 0.07,
+    "verdict": "undetermined",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-correct: the helical thread face's area follows OpenCascade's pcurve approximation): the port's origin is 2.1e-2 from OpenCascade's adaptive integration (eps 1e-9) and 4.2e-2 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb245.step",
+    "case": "frame",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 0.0002,
+    "verdict": "rust-correct",
+    "reason": "Origin only: Python's origin is BRepGProp::VolumeProperties at its default (fixed Gauss) rule. OpenCascade's own adaptive integration (eps 1e-9) of the same shape lands 6.6e-6 from the port's origin, against 1.3e-4 for the default rule, so the listed difference is the default rule's error."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb245.step",
+    "case": "moved",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 0.0002,
+    "verdict": "rust-correct",
+    "reason": "Origin only: Python's origin is BRepGProp::VolumeProperties at its default (fixed Gauss) rule. OpenCascade's own adaptive integration (eps 1e-9) of the same shape lands 6.6e-6 from the port's origin, against 1.3e-4 for the default rule, so the listed difference is the default rule's error."
+  },
+  {
+    "file": "gramel/string_post.step",
+    "case": "frame",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 2e-05,
+    "verdict": "rust-correct",
+    "reason": "Origin only: Python's origin is BRepGProp::VolumeProperties at its default (fixed Gauss) rule. OpenCascade's own adaptive integration (eps 1e-9) of the same shape lands 3e-9 from the port's origin, against 1e-5 for the default rule, so the listed difference is the default rule's error."
+  },
+  {
+    "file": "gramel/string_post.step",
+    "case": "moved",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 2e-05,
+    "verdict": "rust-correct",
+    "reason": "Origin only: Python's origin is BRepGProp::VolumeProperties at its default (fixed Gauss) rule. OpenCascade's own adaptive integration (eps 1e-9) of the same shape lands 3e-9 from the port's origin, against 1e-5 for the default rule, so the listed difference is the default rule's error."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "case": "frame",
+    "fields": [
+      "refusal"
+    ],
+    "verdict": "undetermined",
+    "reason": "A deliberately malformed corpus part (its shell is not orientable): OpenCascade's import yields no solid, so Python refuses for no material; the port reads the file's one solid and derives a frame (the corpus `solid count` entry)."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "case": "moved",
+    "fields": [
+      "refusal"
+    ],
+    "verdict": "undetermined",
+    "reason": "A deliberately malformed corpus part (its shell is not orientable): OpenCascade's import yields no solid, so Python refuses for no material; the port reads the file's one solid and derives a frame (the corpus `solid count` entry)."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "case": "frame",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 0.03,
+    "verdict": "undetermined",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, undetermined: a deliberately malformed face whose region is ambiguous): the port's origin is 2.3e-2 from OpenCascade's adaptive integration (eps 1e-9) and 2.3e-2 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "case": "moved",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 0.04,
+    "verdict": "undetermined",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, undetermined: a deliberately malformed face whose region is ambiguous): the port's origin is 2.3e-2 from OpenCascade's adaptive integration (eps 1e-9) and 2.3e-2 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+  },
+  {
+    "file": "nist/nist_ctc_01_asme1_rd.stp",
+    "case": "frame",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 5e-05,
+    "verdict": "rust-wrong",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-wrong: the port's volume moves under translation): the port's origin is 3.2e-5 from OpenCascade's adaptive integration (eps 1e-9) and 3.2e-5 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement. OpenCascade's two rules agree with each other, so the port's integral is the one off."
+  },
+  {
+    "file": "nist/nist_ctc_01_asme1_rd.stp",
+    "case": "moved",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 4e-05,
+    "verdict": "rust-wrong",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-wrong: the port's volume moves under translation): the port's origin is 3.2e-5 from OpenCascade's adaptive integration (eps 1e-9) and 3.2e-5 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement. OpenCascade's two rules agree with each other, so the port's integral is the one off."
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "case": "frame",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 8.0,
+    "verdict": "rust-correct",
+    "reason": "Python's VolumeProperties is taken of the whole imported compound, which here holds a loose one-face shell beside the solid (2 shells, 1 solid); that open face's flux enters Python's mass and centre (47847994 against the solid's 47100608), which is not even a property of the part's material (it changes with where the world origin is). The port takes the centroid of the solids. OpenCascade's centroid of the solid alone (adaptive, eps 1e-9) is 1.1e-2 (the residual follows this file's undetermined B-spline mass entry) from the port's."
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "case": "moved",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 6.0,
+    "verdict": "rust-correct",
+    "reason": "Python's VolumeProperties is taken of the whole imported compound, which here holds a loose one-face shell beside the solid (2 shells, 1 solid); that open face's flux enters Python's mass and centre (47847994 against the solid's 47100608), which is not even a property of the part's material (it changes with where the world origin is). The port takes the centroid of the solids. OpenCascade's centroid of the solid alone (adaptive, eps 1e-9) is 1.1e-2 (the residual follows this file's undetermined B-spline mass entry) from the port's."
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "case": "frame",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 3e-06,
+    "verdict": "rust-wrong",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-wrong: the port's volume moves under translation): the port's origin is 1.7e-6 from OpenCascade's adaptive integration (eps 1e-9) and 1.7e-6 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement. OpenCascade's two rules agree with each other, so the port's integral is the one off."
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "case": "moved",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 2e-06,
+    "verdict": "rust-wrong",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-wrong: the port's volume moves under translation): the port's origin is 1.7e-6 from OpenCascade's adaptive integration (eps 1e-9) and 1.7e-6 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement. OpenCascade's two rules agree with each other, so the port's integral is the one off."
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "case": "frame",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 0.004,
+    "verdict": "rust-correct",
+    "reason": "Python's VolumeProperties is taken of the whole imported compound, which here holds a loose one-face shell beside the solid (2 shells, 1 solid); that open face's flux enters Python's mass and centre (17518568 against the solid's 17519088), which is not even a property of the part's material (it changes with where the world origin is). The port takes the centroid of the solids. OpenCascade's centroid of the solid alone (adaptive, eps 1e-9) is 3e-8 from the port's."
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "case": "moved",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 0.004,
+    "verdict": "rust-correct",
+    "reason": "Python's VolumeProperties is taken of the whole imported compound, which here holds a loose one-face shell beside the solid (2 shells, 1 solid); that open face's flux enters Python's mass and centre (17518568 against the solid's 17519088), which is not even a property of the part's material (it changes with where the world origin is). The port takes the centroid of the solids. OpenCascade's centroid of the solid alone (adaptive, eps 1e-9) is 3e-8 from the port's."
+  },
+  {
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "case": "frame",
+    "fields": [
+      "y",
+      "z",
+      "origin"
+    ],
+    "origin_within": 3.0,
+    "verdict": "rust-correct",
+    "reason": "Python's VolumeProperties is taken of the whole imported compound, which here holds a loose one-face shell beside the solid (2 shells, 1 solid); that open face's flux enters Python's mass and centre (12828991 against the solid's 12694922), which is not even a property of the part's material (it changes with where the world origin is). The port takes the centroid of the solids. OpenCascade's centroid of the solid alone (adaptive, eps 1e-9) is 4.8e-5 from the port's. The 2.1 mm shift also flips the sign Python reads for the second axis (y and z differ by sign)."
+  },
+  {
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "case": "moved",
+    "fields": [
+      "y",
+      "z",
+      "origin"
+    ],
+    "origin_within": 2.0,
+    "verdict": "rust-correct",
+    "reason": "Python's VolumeProperties is taken of the whole imported compound, which here holds a loose one-face shell beside the solid (2 shells, 1 solid); that open face's flux enters Python's mass and centre (12828991 against the solid's 12694922), which is not even a property of the part's material (it changes with where the world origin is). The port takes the centroid of the solids. OpenCascade's centroid of the solid alone (adaptive, eps 1e-9) is 4.8e-5 from the port's. The 2.1 mm shift also flips the sign Python reads for the second axis (y and z differ by sign)."
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "case": "frame",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 4e-05,
+    "verdict": "rust-wrong",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-wrong: the port's volume moves under translation): the port's origin is 2.7e-5 from OpenCascade's adaptive integration (eps 1e-9) and 2.7e-5 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement. OpenCascade's two rules agree with each other, so the port's integral is the one off."
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "case": "moved",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 3e-05,
+    "verdict": "rust-wrong",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-wrong: the port's volume moves under translation): the port's origin is 2.7e-5 from OpenCascade's adaptive integration (eps 1e-9) and 2.7e-5 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement. OpenCascade's two rules agree with each other, so the port's integral is the one off."
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "case": "frame",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 3e-06,
+    "verdict": "rust-wrong",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-wrong: the port's volume moves under translation): the port's origin is 3.4e-6 from OpenCascade's adaptive integration (eps 1e-9) and 2.3e-6 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement. OpenCascade's two rules agree with each other, so the port's integral is the one off."
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "case": "moved",
+    "fields": [
+      "origin"
+    ],
+    "origin_within": 4e-06,
+    "verdict": "rust-wrong",
+    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-wrong: the port's volume moves under translation): the port's origin is 3.4e-6 from OpenCascade's adaptive integration (eps 1e-9) and 2.3e-6 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement. OpenCascade's two rules agree with each other, so the port's integral is the one off."
+  },
+  {
+    "file": "ttt_inputs/sm-hanger.step",
+    "case": "frame",
+    "fields": [
+      "gauge",
+      "y",
+      "z"
+    ],
+    "verdict": "rust-correct",
+    "reason": "The part is mirror-symmetric across the plane y = 0 (the y class's offsets +-56.26, +-40, +-33.13 ... about the port's origin, whose y is 7e-12), so the y sign is not observable and the gauge is orthogonal, as the port says. Python's origin has y = -1.2e-9 (default rule), enough to make the rounded offsets asymmetric, so Python calls the gauge full and takes the y sign from that error."
+  },
+  {
+    "file": "ttt_inputs/sm-hanger.step",
+    "case": "moved",
+    "fields": [
+      "gauge",
+      "y",
+      "z"
+    ],
+    "verdict": "rust-correct",
+    "reason": "The part is mirror-symmetric across the plane y = 0 (the y class's offsets +-56.26, +-40, +-33.13 ... about the port's origin, whose y is 7e-12), so the y sign is not observable and the gauge is orthogonal, as the port says. Python's origin has y = -1.2e-9 (default rule), enough to make the rounded offsets asymmetric, so Python calls the gauge full and takes the y sign from that error."
+  },
+  {
+    "file": "torus_elbow_seamless.step",
+    "case": "equivariance",
+    "fields": [
+      "refusal"
+    ],
+    "verdict": "rust-wrong",
+    "reason": "Kernel: under the generic motion this seamless torus elbow's solid integrates to a negative volume (solid_mass -103.4 and area -432.4 against 219.3 and 444.9 unmoved), so the frame is refused for no material. The torus band between two loops without a seam edge takes the wrong side once moved (mass.rs's boundary walk); the in-place reading is right (crates/haecceity/tests/kernel.rs) and Python's frame agrees with it."
+  }
+]

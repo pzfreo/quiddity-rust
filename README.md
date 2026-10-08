@@ -57,7 +57,8 @@ its verdict and reason in a verdict file:
 |---|---|---|---|---|---|---|---|
 | `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 133 (901 problems) | 70 | 18 | 13 | 32 | 0 |
 | `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 23 (24 calls) | 4 | 0 | 1 | 2 | 16 |
-| `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 7 | 0 | 7 | 0 | 0 | 0 |
+| `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 11 | 0 | 11 | 0 | 0 | 0 |
+| `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 48 | 18 | 14 | 0 | 16 | 0 |
 | `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 19 | 4 | 15 | 0 | 0 | 0 |
 | `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 28 (53 probes) | 6 | 12 | 0 | 10 | 0 |
 | `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 64 | 13 | 0 | 0 | 51 | 0 |
@@ -159,6 +160,8 @@ src/
                      paired edge occurrences, their solid ownership, a smooth join's side
     blends.rs
     volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over haecceity's volume.rs
+  frames.rs          part-relative recognition (`quiddity.frames`): the frame inferred from the
+                     part's plane normals and cylinder axes, the part re-read into it, recognised
   correspondence/    revision matching (docs/correspondence.md): fingerprint.rs (features and
                      faces), align.rs (rigid alignment), assign.rs (Hungarian with an
                      unmatched option), faces.rs (seeded propagation), mod.rs (`correspond`)
@@ -170,7 +173,10 @@ tests/
   captured.rs        replays every recogniser call the Python test suite makes
   corpus.rs          every ported recogniser over the shared 100-file STEP corpus
   evidence.rs        fillet defining faces and evidence refusals on hand-built cases
-  invariance.rs      every corpus part moved and turned: each family must find the same faces
+  invariance.rs      every corpus part moved and turned: each family must find the same faces;
+                     and under a generic rotation, recognised in its own frame
+  frames.rs          the frames Python derives (fixtures, corpus, Python's frame-test parts),
+                     as read and under a generic rotation, and the frame moving with the part
   correspondence.rs  every corpus part corresponds with itself moved, everything carried; the
                      build123d revision pairs get their expected classes
   corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity
@@ -214,6 +220,9 @@ tools/
                      revision too)
   export_fixtures.py hand-built fillet evidence cases
   capture_revisions.py builds the revision pairs in build123d, with their expected classes
+  capture_frames.py  records Python's part frames (captured/frames.json, the built parts as
+                     STEP in captured/frames/); --compare runs a Python recogniser on a corpus
+                     part's framed working part, as read and turned
 ```
 
 ## Running
@@ -296,9 +305,19 @@ entry without one.
 a translation and right-angle rotations (`read_step_placed`), and each family must find the same
 features on the same faces (every `Features` family by its defining faces, and face levels and
 risers, which are read along world Z, by the faces each is read from under the motions that keep
-Z vertical). Each listed exception pins the most occurrences it may differ by. Arbitrary rotations are left to the frame normalisation Python does
-before recognising (not yet ported); reflections are refused by the reader for now, which rebuilds
-frames right-handed.
+Z vertical). Each listed exception pins the most occurrences it may differ by. Reflections are
+refused by the reader for now, which rebuilds frames right-handed.
+
+A part turned by a generic rotation (37° about (1, 2, 3)) is recognised in its own frame
+(`src/frames.rs`, Python's `quiddity.frames`; `recognise` stays caller-space, as Python's entry
+points do): the frame is inferred from the part's plane normals and cylinder axes, ranked by
+area and by where the faces sit about the part's centroid, and the part is re-read placed in it.
+`tests/frames.rs` checks the frame against Python's on every fixture and corpus part, as read and
+turned, and that it moves with the part; `tests/invariance.rs` checks that every family, face
+levels and risers included, finds the same faces on the corpus part turned as unmoved, each in
+its frame (4 listed exceptions: two recogniser thresholds Python shares, two kernel face-box
+defects). Caller-space recognition does not survive that rotation (the same test prints by how
+much; review M8).
 
 ## What parity means
 
