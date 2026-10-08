@@ -4,8 +4,8 @@
     "point": 230,
     "check": "state",
     "observed": "rust I occ N",
-    "verdict": "undetermined",
-    "reason": "The point lies within the tolerance OpenCascade gives a nearby edge (the file's faces do not meet there to better than that), so the model does not decide it: OpenCascade calls it ON by that tolerance; the port classifies by the faces' own geometry, at its 1e-6 ON tolerance.",
+    "verdict": "rust-correct",
+    "reason": "OpenCascade calls the point ON only by the tolerance its import sets on a nearby edge (the file's faces do not meet there to better than that); classified against the faces' own geometry it answers as the port does. With every tolerance of the imported shape set to 1e-7 (ShapeFix_ShapeTolerance), BRepClass3d_SolidClassifier answers I at 1e-6 and at 1e-9, as the port does; over this file's 300 captured points that changes OpenCascade's answer at exactly the five state entries listed here, each to the port's.",
     "evidence": "0.001 mm inside face 11 (material side); 0.0072 mm from an edge toleranced 0.024 mm; OpenCascade's own rays count 1,3,1,2,2,2,3."
   },
   {
@@ -13,8 +13,8 @@
     "point": 234,
     "check": "state",
     "observed": "rust I occ N",
-    "verdict": "undetermined",
-    "reason": "The point lies within the tolerance OpenCascade gives a nearby edge (the file's faces do not meet there to better than that), so the model does not decide it: OpenCascade calls it ON by that tolerance; the port classifies by the faces' own geometry, at its 1e-6 ON tolerance.",
+    "verdict": "rust-correct",
+    "reason": "OpenCascade calls the point ON only by the tolerance its import sets on a nearby edge (the file's faces do not meet there to better than that); classified against the faces' own geometry it answers as the port does. With every tolerance of the imported shape set to 1e-7 (ShapeFix_ShapeTolerance), BRepClass3d_SolidClassifier answers I at 1e-6 and at 1e-9, as the port does; over this file's 300 captured points that changes OpenCascade's answer at exactly the five state entries listed here, each to the port's.",
     "evidence": "0.0048 mm inside face 20; 0.0048 mm from an edge toleranced 0.0066 mm; OpenCascade's rays count 1,3,1,1,1,1,5 (all odd)."
   },
   {
@@ -49,8 +49,8 @@
     "point": 270,
     "check": "state",
     "observed": "rust I occ N",
-    "verdict": "undetermined",
-    "reason": "The point lies within the tolerance OpenCascade gives a nearby edge (the file's faces do not meet there to better than that), so the model does not decide it: OpenCascade calls it ON by that tolerance; the port classifies by the faces' own geometry, at its 1e-6 ON tolerance.",
+    "verdict": "rust-correct",
+    "reason": "OpenCascade calls the point ON only by the tolerance its import sets on a nearby edge (the file's faces do not meet there to better than that); classified against the faces' own geometry it answers as the port does. With every tolerance of the imported shape set to 1e-7 (ShapeFix_ShapeTolerance), BRepClass3d_SolidClassifier answers I at 1e-6 and at 1e-9, as the port does; over this file's 300 captured points that changes OpenCascade's answer at exactly the five state entries listed here, each to the port's.",
     "evidence": "0.001 mm inside face 44; 0.0123 mm from an edge toleranced 0.018 mm; OpenCascade's rays count 5,5,4,2,1,2,4, exactly as the port's do."
   },
   {
@@ -58,8 +58,8 @@
     "point": 289,
     "check": "state",
     "observed": "rust O occ N",
-    "verdict": "undetermined",
-    "reason": "The point lies within the tolerance OpenCascade gives a nearby edge (the file's faces do not meet there to better than that), so the model does not decide it: OpenCascade calls it ON by that tolerance; the port classifies by the faces' own geometry, at its 1e-6 ON tolerance.",
+    "verdict": "rust-correct",
+    "reason": "OpenCascade calls the point ON only by the tolerance its import sets on a nearby edge (the file's faces do not meet there to better than that); classified against the faces' own geometry it answers as the port does. With every tolerance of the imported shape set to 1e-7 (ShapeFix_ShapeTolerance), BRepClass3d_SolidClassifier answers O at 1e-6 and at 1e-9, as the port does; over this file's 300 captured points that changes OpenCascade's answer at exactly the five state entries listed here, each to the port's.",
     "evidence": "0.01 mm outside face 94; 0.0100 mm from an edge toleranced 0.024 mm; OpenCascade's rays count 3,4,4,0,0,0,6."
   },
   {

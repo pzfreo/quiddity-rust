@@ -6,17 +6,18 @@
 //! each line is exact (ray crossings). It bends only where a line passes a corner of the
 //! solid ∩ probe arrangement, so both integrals are split at those corners. In height: the two
 //! shapes' vertices and edge turning points, and where either shape's edges pierce the other's
-//! faces. Across a slice: where either shape's edges cross it, and where the line two planar
-//! faces (one from each shape) share crosses it. Between those breaks, with planar faces only,
-//! the length is linear and the area quadratic, so two-point Gauss is exact; curved faces refine
-//! adaptively. The two exact shortcuts Python takes come first.
+//! faces. Across a slice: where either shape's edges cross it, where the line two planar faces
+//! (one from each shape) share crosses it, and where a planar face of one shape cuts a curved
+//! face of the other within it. Between those breaks, with planar faces only, the length is
+//! linear and the area quadratic, so two-point Gauss is exact; curved faces refine adaptively.
+//! The two exact shortcuts Python takes come first.
 
 use std::f64::consts::{PI, TAU};
 
 use super::brep::Edge;
 use super::classify::{Classifier, State};
 use super::geom::{self, Bounds, COORD_FLOOR, Curve, Frame, Surface, V3};
-use super::rays::RayCaster;
+use super::rays::{RayCaster, ray_meets_box};
 
 /// A probe region: an axis-aligned box, a solid (its part's first solid), or a planar region
 /// swept along a coordinate axis (`Solid.extrude(face, ...)`).
@@ -255,11 +256,15 @@ impl Probe<'_> {
 }
 
 /// One shape's part in the arrangement near the region: its edges, the planes of its planar
-/// faces, and whether it has curved faces there.
+/// faces (with a box holding the face, and the face of a solid), the curved faces of a solid,
+/// and whether it has curved faces there (a prism's curved sides are not faces).
 struct Side<'a> {
     edges: Vec<Polyline<'a>>,
-    planes: Vec<(V3, f64)>,
+    planes: Vec<(V3, f64, Bounds, Option<usize>)>,
+    curved_faces: Vec<usize>,
     curved: bool,
+    /// The solid's rays, whose faces are the ones named.
+    rays: Option<&'a RayCaster<'a>>,
 }
 
 /// An edge as its samples, with its curve when crossings must be solved on it, and whether
@@ -271,7 +276,7 @@ struct Polyline<'a> {
 }
 
 impl<'a> Side<'a> {
-    fn of_solid(rays: &'a RayCaster<'_>, region: &Bounds) -> Self {
+    fn of_solid(rays: &'a RayCaster<'a>, region: &Bounds) -> Self {
         let faces = faces_meeting(rays, region);
         let part = rays.part;
         let mut ids: Vec<usize> = faces.iter().flat_map(|&f| part.face_edges(f)).collect();
@@ -282,19 +287,24 @@ impl<'a> Side<'a> {
             .map(|e| Polyline::of(&part.edges[e]))
             .collect();
         let mut planes = Vec::new();
-        let mut curved = false;
+        let mut curved_faces = Vec::new();
         for &f in &faces {
             match part.faces[f].surface {
-                Surface::Plane { frame } => {
-                    planes.push((frame.z, geom::dot(frame.z, frame.origin)))
-                }
-                _ => curved = true,
+                Surface::Plane { frame } => planes.push((
+                    frame.z,
+                    geom::dot(frame.z, frame.origin),
+                    rays.face_boxes[f],
+                    Some(f),
+                )),
+                _ => curved_faces.push(f),
             }
         }
         Side {
             edges,
             planes,
-            curved,
+            curved: !curved_faces.is_empty(),
+            curved_faces,
+            rays: Some(rays),
         }
     }
 
@@ -316,12 +326,14 @@ impl<'a> Side<'a> {
         }
         let unit = |k: usize| [0, 1, 2].map(|j| if j == k { 1.0 } else { 0.0 });
         let planes = (0..3)
-            .flat_map(|k| [(unit(k), b.min[k]), (unit(k), b.max[k])])
+            .flat_map(|k| [(unit(k), b.min[k], *b, None), (unit(k), b.max[k], *b, None)])
             .collect();
         Side {
             edges,
             planes,
+            curved_faces: Vec::new(),
             curved: false,
+            rays: None,
         }
     }
 }
@@ -338,7 +350,11 @@ impl Side<'_> {
         };
         let unit_axis = [0, 1, 2].map(|k| if k == a { 1.0 } else { 0.0 });
         let mut edges = Vec::new();
-        let mut planes = vec![(unit_axis, prism.lo), (unit_axis, prism.hi)];
+        let b = prism.bounds();
+        let mut planes = vec![
+            (unit_axis, prism.lo, b, None),
+            (unit_axis, prism.hi, b, None),
+        ];
         let mut curved = false;
         for e in prism.loops.iter().flatten() {
             let (Some(&first), Some(&last)) = (e.points.first(), e.points.last()) else {
@@ -360,13 +376,15 @@ impl Side<'_> {
             if !e.straight {
                 curved = true;
             } else if let Some(n) = geom::unit(geom::cross(geom::sub(last, first), unit_axis)) {
-                planes.push((n, geom::dot(n, at(first, prism.lo))));
+                planes.push((n, geom::dot(n, at(first, prism.lo)), b, None));
             }
         }
         Side {
             edges,
             planes,
+            curved_faces: Vec::new(),
             curved,
+            rays: None,
         }
     }
 }
@@ -485,22 +503,77 @@ fn shared(solid: &Classifier<'_>, probe: &Probe<'_>, inset: f64) -> Option<Pair>
             }
         }
     }
-    // Breaks across a slice: both shapes' edges crossing it, and the lines shared by a plane of
-    // each crossing it.
+    // Breaks across a slice: both shapes' edges crossing it, the lines shared by a plane of
+    // each crossing it, and the curves where a plane of one meets a curved face of the other:
+    // a sliver of material between such a curve and the nearest edge can be narrower than the
+    // spacing of the Gauss points and be missed by both rules.
     let area = |h: f64| {
         let mut ss: Vec<f64> = Vec::new();
         for e in mine.edges.iter().chain(&theirs.edges) {
             ss.extend(crossings(e, frame.z, h, frame.x));
         }
-        for &(n1, d1) in &mine.planes {
-            for &(n2, d2) in &theirs.planes {
+        for &(n1, d1, ..) in &mine.planes {
+            for &(n2, d2, ..) in &theirs.planes {
                 ss.extend(three_planes(n1, d1, n2, d2, frame.z, h).map(|v| at(v, frame.x)));
             }
+        }
+        for (curved, flat) in [(&mine, &theirs), (&theirs, &mine)] {
+            ss.extend(
+                plane_cuts(curved, flat, frame.z, h, &region)
+                    .into_iter()
+                    .map(|v| at(v, frame.x)),
+            );
         }
         integrate(&|s| length(h, s), across, ss, rule.per(h1 - h0))
     };
     let total = integrate(&area, (h0, h1), hs, rule);
     (!unresolved.get()).then_some(total)
+}
+
+/// Where a plane of *flat* meets a curved face of *curved* in the slice `z · p = h`: the line
+/// the plane shares with the slice, cut by the face's surface, where both faces claim the point.
+fn plane_cuts(curved: &Side<'_>, flat: &Side<'_>, z: V3, h: f64, region: &Bounds) -> Vec<V3> {
+    let Some(rays) = curved.rays else {
+        return Vec::new();
+    };
+    let reach = region.diagonal();
+    let mut out = Vec::new();
+    for &(n, d, plane_box, plane_face) in &flat.planes {
+        let Some(dir) = geom::unit(geom::cross(n, z)) else {
+            continue;
+        };
+        let Some(mid) = three_planes(n, d, z, h, dir, geom::dot(region.centre(), dir)) else {
+            continue;
+        };
+        let origin = geom::sub(mid, geom::scale(dir, reach));
+        if !ray_meets_box(origin, dir, 2.0 * reach, &plane_box, COORD_FLOOR) {
+            continue;
+        }
+        for &f in &curved.curved_faces {
+            if !ray_meets_box(origin, dir, 2.0 * reach, &rays.face_boxes[f], COORD_FLOOR) {
+                continue;
+            }
+            // A line that grazes the surface lies along it (a face lying on the plane): there the
+            // faces coincide rather than cut.
+            let Some((ts, false)) = rays.part.faces[f]
+                .surface
+                .ray_hits(origin, dir, 2.0 * reach)
+            else {
+                continue;
+            };
+            for t in ts {
+                let v = geom::add(origin, geom::scale(dir, t));
+                let on_plane = match (flat.rays, plane_face) {
+                    (Some(owner), Some(g)) => owner.claims(g, v),
+                    _ => plane_box.contains(v, COORD_FLOOR),
+                };
+                if on_plane && rays.claims(f, v) {
+                    out.push(v);
+                }
+            }
+        }
+    }
+    out
 }
 
 /// The point three planes `n · p = d` share, if they meet in one.
@@ -745,4 +818,34 @@ fn adapt(f: &dyn Fn(f64) -> Pair, x0: f64, x1: f64, whole: Pair, tol: f64, depth
         adapt(f, x0, xm, l, tol / 2.0, depth + 1),
         adapt(f, xm, x1, r, tol / 2.0, depth + 1),
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_sliver_where_a_probe_face_cuts_a_curved_face_is_measured() {
+        // Box(30, 30, 20) - Cylinder(5, 20): x, y in [-15, 15], z in [-10, 10], bored along z.
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../tests/fixtures/rejected_bored_box.step");
+        let part = crate::read_step_file(&path).unwrap();
+        let solid = Classifier::new(&part);
+        // A box reaching y = b just under the bore's top, across |x| <= c, where the bore takes
+        // in all of y in [3, b], and on by e past -c: the material is the sliver between the
+        // bore and the box's face y = b over x in [-c - e, -c], narrower than the Gauss points
+        // across the box come to its side. Lines run along y, so the sliver ends where the face
+        // y = b cuts the bore, an x no edge marks (before, the probe read as empty).
+        let (b, e) = (4.98f64, 0.02);
+        let c = (25.0 - b * b).sqrt();
+        let probe = Probe::Box(Bounds {
+            min: [-c - e, 3.0, -10.0],
+            max: [c, b, 10.0],
+        });
+        let primitive = |x: f64| 0.5 * (x * (25.0 - x * x).sqrt() + 25.0 * (x / 5.0).asin());
+        let want = 20.0 * (b * e - (primitive(-c) - primitive(-c - e)));
+        let got = common_volume(&solid, &probe).unwrap();
+        assert!(want > 0.0);
+        assert!((got - want).abs() <= 1e-6 * want, "{got} vs {want}");
+    }
 }

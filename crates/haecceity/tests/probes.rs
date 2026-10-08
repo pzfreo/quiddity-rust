@@ -93,6 +93,30 @@ fn probes_match_python() {
     );
 }
 
+/// nist_ftc_10: a line along y, just inside the wall of bore 200 (radius 1.75 along y), enters
+/// the material at face 172 and the cross bore 175 (along x) at its near wall. It meets 175's
+/// far wall 4.9e-4 inside bore 200, in the opening, but the file's B-spline edge between the
+/// bores (edge 402, 4.4e-4 off 175 and 4.9e-4 off 200) is displaced into that opening, so the
+/// trim of 175 claims the crossing; the cylinders themselves put it past bore 200, and the line
+/// goes on in air.
+#[test]
+fn a_crossing_a_straying_edge_overshoots_yields_to_the_bore_across_it() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let part = read_step_file(&dir.join("nist/nist_ftc_10_asme1_rb.stp")).unwrap();
+    let rays = RayCaster::for_solid(&part, 0);
+    let origin = [42.79002251668521, -1.0, -25.36981851445912];
+    let faces: Vec<usize> = rays
+        .trimmed_hits(origin, [0.0, 1.0, 0.0], 100.0)
+        .unwrap()
+        .iter()
+        .map(|h| h.face)
+        .collect();
+    assert_eq!(faces, [172, 175]);
+}
+
 /// A probe the port answers differently: file, caller, index in the file, report.
 type Problem = (String, String, usize, String);
 
