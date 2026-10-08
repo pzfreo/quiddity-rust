@@ -5,7 +5,9 @@
 //! bound (by the even-odd rule, as draftwright hatches) agree within `AREA`. Every view or cut
 //! that does not is listed in `known_drawings.json`, with its verdict and how far it may be off:
 //! its lowest score (`min_score`) and, for a cut, its area's relative error (`max_area_error`),
-//! so a listed difference that gets worse still fails.
+//! so a listed difference that gets worse still fails. A part some of whose curved edge
+//! stretches are not drawn with exact curves would be listed there too (its view `exact`), with
+//! the share that are (`min_exact_share`), so that a part drawing fewer fails; none is.
 
 mod common;
 
@@ -16,8 +18,9 @@ use serde_json::Value;
 const AGREE: f64 = 0.99;
 const AREA: f64 = 1e-3;
 /// Drawn with exact curves, of every `exact_curves_follow_their_points` edge stretch: the share
-/// measured when the floor was set (9,927 of 11,105 at c9ce1cd), so fewer exact curves fail.
-const EXACT_SHARE: f64 = 0.8939;
+/// measured when the floor was set (30,293 of 33,464 over every part, once zero-length stretches
+/// were no longer drawn), so fewer exact curves fail.
+const EXACT_SHARE: f64 = 0.9052;
 
 /// A view or cut that does not agree: its lowest score, its cut area's relative error, and a
 /// description.
@@ -85,6 +88,8 @@ fn drawings_match_opencascade() {
     .into_iter()
     .flatten()
     .collect();
+    // The exact-curve floors are `exact_curves_follow_their_points`' own.
+    let known: Vec<&Value> = known.iter().filter(|k| k["view"] != "exact").collect();
     let listed = |p: &Problem, k: &Value| k["file"] == p.file.as_str() && k["view"] == p.view;
     let mut failures = Vec::new();
     for p in &problems {
@@ -123,9 +128,12 @@ fn drawings_match_opencascade() {
     );
 }
 
-/// Every stretch drawn with an exact curve is that curve: its ends meet the stretch's (cut on a chord), and the
-/// curve between them lies along the stretch's points (within their chords' 0.2 µm tolerance).
-/// And at least `EXACT_SHARE` of the stretches are drawn with exact curves.
+/// Every stretch drawn with an exact curve is that curve: its ends meet the stretch's (cut on a
+/// chord), and the curve between them lies along the stretch's points (within their chords'
+/// 0.2 µm tolerance). At least `EXACT_SHARE` of the edge stretches are drawn with exact curves,
+/// and of each part's, every one that is not straight (a circle or an ellipse seen edge-on is a
+/// segment, drawn by its points) but where `known_drawings.json` lists a lower share for the part
+/// (as its view `exact`, the share in `min_exact_share`).
 #[test]
 fn exact_curves_follow_their_points() {
     use haecceity::hlr::{Class, View, project};
@@ -133,11 +141,15 @@ fn exact_curves_follow_their_points() {
         assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
         return;
     };
+    let known: Vec<Value> = serde_json::from_value(common::load("known_drawings.json")).unwrap();
+    let floors: Vec<&Value> = known.iter().filter(|k| k["view"] == "exact").collect();
     let all = load_gz(&common::fixtures().join("hlr.json.gz"));
-    let records: Vec<&Value> = all["parts"].as_array().unwrap().iter().step_by(4).collect();
+    let records: Vec<&Value> = all["parts"].as_array().unwrap().iter().collect();
     // Every record spread over every core; the counts and problems come back in fixture order.
     let found = common::parallel::map(&records, |record| {
         let (mut exact, mut edges, mut problems) = (0, 0, Vec::new());
+        // The stretches that are not straight, and how many of them are exact.
+        let (mut curved, mut curved_exact) = (0, 0);
         let file = record["file"].as_str().unwrap();
         let part = read_step_file(&dir.join(file)).unwrap();
         for (toward, up) in [
@@ -148,12 +160,30 @@ fn exact_curves_follow_their_points() {
         ] {
             let view = View::new(toward, up).unwrap();
             for piece in project(&part, &view).unwrap() {
+                let pts = &piece.points;
+                // Every stretch draws something: none is shorter than the 1e-9 of the part's
+                // size below which a stretch is passed over.
+                let length: f64 = pts
+                    .windows(2)
+                    .map(|w| (w[1][0] - w[0][0]).hypot(w[1][1] - w[0][1]))
+                    .sum();
+                if length <= 1e-9
+                    || piece
+                        .exact
+                        .as_ref()
+                        .is_some_and(|c| c.range().0 == c.range().1)
+                {
+                    problems.push(format!("{file} {toward:?}: a stretch of no length {pts:?}"));
+                }
                 if piece.class != Class::Outline {
                     edges += 1;
+                    if !straight(pts) {
+                        curved += 1;
+                        curved_exact += usize::from(piece.exact.is_some());
+                    }
                 }
                 let Some(curve) = &piece.exact else { continue };
                 exact += 1;
-                let pts = &piece.points;
                 let (t0, t1) = curve.range();
                 let gap = |a: [f64; 2], b: [f64; 2]| (a[0] - b[0]).hypot(a[1] - b[1]);
                 let ends = gap(curve.at(t0), pts[0]).max(gap(curve.at(t1), pts[pts.len() - 1]));
@@ -172,6 +202,18 @@ fn exact_curves_follow_their_points() {
                 }
             }
         }
+        let floor = floors.iter().find(|k| k["file"] == file);
+        let line = format!("{file}: {curved_exact} of {curved} curved edge stretches exact");
+        match floor.map(|k| k["min_exact_share"].as_f64()) {
+            None if curved_exact < curved => problems.push(line),
+            None => {}
+            Some(None) => panic!("known_drawings.json: no min_exact_share in {floor:?}"),
+            Some(Some(_)) if curved_exact == curved => problems.push(format!("stale: {line}")),
+            Some(Some(min)) if (curved_exact as f64) < min * curved as f64 => {
+                problems.push(format!("{line}, below the floor of {min}"))
+            }
+            Some(Some(_)) => {}
+        }
         (exact, edges, problems)
     });
     let (mut exact, mut edges, mut problems) = (0, 0, Vec::new());
@@ -180,6 +222,11 @@ fn exact_curves_follow_their_points() {
         edges += e;
         problems.extend(p);
     }
+    for k in &floors {
+        if !records.iter().any(|r| r["file"] == k["file"]) {
+            problems.push(format!("stale: {k}"));
+        }
+    }
     println!("{exact} of {edges} edge stretches exact");
     assert!(
         exact as f64 >= EXACT_SHARE * edges as f64,
@@ -187,15 +234,34 @@ fn exact_curves_follow_their_points() {
     );
     assert!(
         problems.is_empty(),
-        "{} stray:\n{}",
+        "{} problems:\n{}",
         problems.len(),
         problems
             .iter()
-            .take(10)
+            .take(40)
             .cloned()
             .collect::<Vec<_>>()
             .join("\n")
     );
+}
+
+/// Whether the points lie along one line (within the exact curves' 3e-4 tolerance): measured
+/// from the line through the first and the point furthest from it, as a stretch seen edge-on
+/// can run there and back.
+fn straight(pts: &[[f64; 2]]) -> bool {
+    let gap = |a: [f64; 2], b: [f64; 2]| (a[0] - b[0]).hypot(a[1] - b[1]);
+    let far = pts
+        .iter()
+        .copied()
+        .max_by(|p, q| gap(*p, pts[0]).total_cmp(&gap(*q, pts[0])))
+        .unwrap_or(pts[0]);
+    let length = gap(far, pts[0]);
+    length == 0.0
+        || pts.iter().all(|p| {
+            let cross = (far[0] - pts[0][0]) * (p[1] - pts[0][1])
+                - (far[1] - pts[0][1]) * (p[0] - pts[0][0]);
+            cross.abs() / length <= 3e-4
+        })
 }
 
 fn segment_distance(p: [f64; 2], a: [f64; 2], b: [f64; 2]) -> f64 {

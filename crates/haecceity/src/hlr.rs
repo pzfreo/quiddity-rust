@@ -8,7 +8,7 @@
 //! Seen in the view, a curve can only pass behind or come out from behind something where its
 //! projection crosses another curve's or ends on one, so each curve is cut at every such point
 //! and each piece's visibility decided once, exactly, by a ray from its middle towards the
-//! viewer.
+//! viewer (a drawing with a piece no ray can decide is refused).
 //!
 //! A section keeps the curves on one side of a plane and adds the plane's own contours across
 //! the faces; a ray then runs only to the plane, where it is stopped by the cut face if it
@@ -257,7 +257,10 @@ impl Plane {
 /// The drawn faces and their edges whose geometry did not resolve on reading
 /// ([`Part::unresolved_faces`], [`Part::unresolved_edges`]). Such a face can neither be drawn
 /// nor hide anything, and such an edge has only its chord, so a drawing of the part is refused
-/// rather than drawn wrong.
+/// rather than drawn wrong. Alike when a stretch's visibility cannot be decided (a ray from it
+/// reaches a face the kernel cannot intersect, and nothing it can intersect stops it): then
+/// `faces` are those faces and `edges` the stretch's edge (none for a silhouette or a section's
+/// outline).
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Unresolved {
     pub faces: Vec<usize>,
@@ -391,6 +394,35 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected
     resolved(part, &faces)?;
     let rays = RayCaster::for_faces(part, faces.clone());
     let scale = rays.bounds().diagonal().max(1.0);
+    // Visibility asks only whether some face stops the ray, so the faces are asked in two
+    // groups, those a ray meets in closed form first: a ray they stop never reaches the
+    // freeform faces, whose intersection is costly. The answer is the one all the faces give
+    // together (each group judges a boundary contact with the same tolerance).
+    let groups: Vec<RayCaster> = {
+        let (freeform, closed): (Vec<usize>, Vec<usize>) = faces
+            .iter()
+            .partition(|&&f| matches!(part.faces[f].surface, Surface::Freeform { .. }));
+        [closed, freeform]
+            .into_iter()
+            .filter(|g| !g.is_empty())
+            .map(|g| {
+                let mut group = RayCaster::for_faces(part, g);
+                group.edge_tol = rays.edge_tol;
+                group
+            })
+            .collect()
+    };
+    let any_hit = |p: V3, start: f64, end: f64| -> Option<bool> {
+        let mut unanswered = false;
+        for group in &groups {
+            match group.any_hit(p, view.toward, start, end) {
+                Some(true) => return Some(true),
+                Some(false) => {}
+                None => unanswered = true,
+            }
+        }
+        (!unanswered).then_some(false)
+    };
     let mut curves: Vec<(Class, Vec<V3>, On)> = edges(part, view, &faces);
     for &face in &faces {
         let found = silhouette(part, face, view);
@@ -436,12 +468,12 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected
         .collect();
     let cuts = crossings(&flat, scale / 64.0, 1e-9 * scale);
     let reach = 2.0 * scale + 1.0;
-    // Hidden from *p*, the ray to the viewer starting *start* along. A face the kernel cannot
-    // intersect (`any_hit` unknown) does not occlude, as before (refusing such parts is left to
-    // the reader).
-    let hidden = |p: V3, start: f64| {
+    // Hidden from *p*, the ray to the viewer starting *start* along; `None` when that is not
+    // known: the ray reaches a face the kernel cannot intersect, and no face it can intersect
+    // (nor, in a section, the cut face) stops it.
+    let hidden = |p: V3, start: f64| -> Option<bool> {
         let Some((plane, classifier)) = plane.zip(classifier.as_ref()) else {
-            return rays.any_hit(p, view.toward, start, reach).unwrap_or(false);
+            return any_hit(p, start, reach);
         };
         // Cut away: the ray runs only to the plane, and is stopped there by the cut face when
         // it reaches the plane within the material.
@@ -452,16 +484,24 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected
             reach
         };
         if to_plane <= 1e-6 * scale {
-            return false;
+            return Some(false);
         }
-        rays.any_hit(p, view.toward, start, to_plane.min(reach))
-            .unwrap_or(false)
+        let met = any_hit(p, start, to_plane.min(reach));
+        if met == Some(true)
             || (to_plane < reach
                 && classifier.classify(geom::add(p, geom::scale(view.toward, to_plane)))
                     == State::In)
+        {
+            return Some(true);
+        }
+        met
     };
-    let mut out = Vec::new();
-    for (i, (class, points, on)) in curves.iter().enumerate() {
+    // Each curve's stretches, the curves shared out over every core (each judged alone, so the
+    // drawing does not depend on how): the costliest first, so that none is left to the end.
+    let mut order: Vec<usize> = (0..curves.len()).collect();
+    order.sort_by_key(|&i| std::cmp::Reverse(curves[i].1.len() + cuts[i].len()));
+    let judged = parallel(&order, |i| {
+        let (_, points, on) = &curves[i];
         // An edge standing off its faces (within the file's tolerance) can start its ray just
         // inside them: the ray starts clear of that stand-off, so the edge does not hide itself.
         let start = 1e-6 * scale
@@ -499,9 +539,31 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected
                 }
                 On::Section => p,
             };
-            hidden(at, start)
+            hidden(at, start).ok_or(at)
         };
-        for (visible, run) in pieces(points, &cuts[i], &judge) {
+        pieces(points, &cuts[i], (view, 1e-9 * scale), &judge)
+    });
+    let mut out = Vec::new();
+    for ((class, _, on), runs) in curves.iter().zip(judged) {
+        // A stretch whose visibility is not known is drawn neither way: the drawing is refused,
+        // naming the faces its ray could not be intersected with, and its edge.
+        let runs = runs.map_err(|at| Unresolved {
+            faces: faces
+                .iter()
+                .copied()
+                .filter(|&f| {
+                    part.faces[f]
+                        .surface
+                        .ray_hits(at, view.toward, reach)
+                        .is_none()
+                })
+                .collect(),
+            edges: match on {
+                On::Edge(_, e) => vec![*e],
+                _ => Vec::new(),
+            },
+        })?;
+        for (visible, run) in runs {
             let exact = match on {
                 On::Edge(curve, _) => exact(curve, view, &run),
                 _ => None,
@@ -515,6 +577,35 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected
         }
     }
     Ok(out)
+}
+
+/// `f` of each of *items* (a permutation of `0..items.len()`), on every core, each thread taking
+/// the next item left; the results in the items' order as numbers, not as listed.
+fn parallel<R: Send>(items: &[usize], f: impl Fn(usize) -> R + Sync) -> Vec<R> {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    let threads = std::thread::available_parallelism()
+        .map_or(1, |n| n.get())
+        .min(items.len());
+    let next = AtomicUsize::new(0);
+    let mut done: Vec<(usize, R)> = std::thread::scope(|scope| {
+        let workers: Vec<_> = (0..threads)
+            .map(|_| {
+                scope.spawn(|| {
+                    let mut mine = Vec::new();
+                    while let Some(&i) = items.get(next.fetch_add(1, Ordering::Relaxed)) {
+                        mine.push((i, f(i)));
+                    }
+                    mine
+                })
+            })
+            .collect();
+        workers
+            .into_iter()
+            .flat_map(|w| w.join().expect("a drawing thread panicked"))
+            .collect()
+    });
+    done.sort_by_key(|(i, _)| *i);
+    done.into_iter().map(|(_, r)| r).collect()
 }
 
 /// The stretches of polyline *c* on the plane's kept side (or within *tol* of it), each
@@ -1035,13 +1126,16 @@ fn segment_crossing(p: [f64; 2], q: [f64; 2], r: [f64; 2], s: [f64; 2]) -> Optio
     ((0.0..=1.0).contains(&t) && (0.0..=1.0).contains(&u)).then_some((t, u))
 }
 
-/// A curve split at its cuts into runs, each visible or hidden as its middle is, with
-/// neighbouring runs of one visibility joined.
+/// A curve split at its cuts into runs, each visible or hidden as its middle is (*hidden*
+/// answers, or gives where it could not, which is returned), with neighbouring runs of one
+/// visibility joined. A breakpoint seen within *tol* of the one before (in *view*) is passed
+/// over: a stretch that short draws nothing.
 fn pieces(
     points: &[V3],
     cuts: &[(usize, f64)],
-    hidden: &impl Fn(V3) -> bool,
-) -> Vec<(bool, Vec<V3>)> {
+    (view, tol): (&View, f64),
+    hidden: &impl Fn(V3) -> Result<bool, V3>,
+) -> Result<Vec<(bool, Vec<V3>)>, V3> {
     let lerp = |s: usize, t: f64| {
         geom::add(
             points[s],
@@ -1059,15 +1153,31 @@ fn pieces(
             points[s]
         }
     };
-    let mut out: Vec<(bool, Vec<V3>)> = Vec::new();
-    let mut run: Vec<V3> = vec![place(&marks[0])];
-    let mut run_visible: Option<bool> = None;
-    for w in marks.windows(2) {
-        let (a, b) = (place(&w[0]), place(&w[1]));
-        if geom::dist(a, b) <= 1e-12 {
-            continue;
+    let apart = |p: V3, q: V3| {
+        let (a, b) = (view.map(p), view.map(q));
+        (a[0] - b[0]).hypot(a[1] - b[1]) > tol
+    };
+    let mut at: Vec<V3> = Vec::with_capacity(marks.len());
+    for p in marks.iter().map(place) {
+        if at.last().is_none_or(|q| apart(*q, p)) {
+            at.push(p);
         }
-        let visible = !hidden(geom::scale(geom::add(a, b), 0.5));
+    }
+    // The curve ends at its end, not at a breakpoint just short of it.
+    let end = points[points.len() - 1];
+    while at.len() > 1 && !apart(at[at.len() - 1], end) {
+        at.pop();
+    }
+    at.push(end);
+    if at.len() == 2 && !apart(at[0], end) {
+        return Ok(Vec::new());
+    }
+    let mut out: Vec<(bool, Vec<V3>)> = Vec::new();
+    let mut run: Vec<V3> = vec![at[0]];
+    let mut run_visible: Option<bool> = None;
+    for w in at.windows(2) {
+        let (a, b) = (w[0], w[1]);
+        let visible = !hidden(geom::scale(geom::add(a, b), 0.5))?;
         if let Some(v) = run_visible
             && v != visible
         {
@@ -1080,5 +1190,72 @@ fn pieces(
     if let Some(v) = run_visible {
         out.push((v, run));
     }
-    out
+    Ok(out)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// A 30 × 30 × 20 block about the origin, bored through along z, with the x = 15 side
+    /// (that face's index) made one the kernel cannot intersect.
+    fn unintersectable_side() -> (Part, usize) {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../tests/fixtures/rejected_bored_box.step");
+        let mut part = crate::read_step_file(&path).unwrap();
+        let all: Vec<usize> = (0..part.faces.len()).collect();
+        let side = RayCaster::for_faces(&part, all)
+            .hits([20.0, 10.0, 0.0], [-1.0, 0.0, 0.0], 100.0)
+            .unwrap()[0]
+            .face;
+        part.faces[side].surface = Surface::Other { kind: "TEST" };
+        (part, side)
+    }
+
+    #[test]
+    fn a_face_that_cannot_be_intersected_is_not_seen_through() {
+        let (part, side) = unintersectable_side();
+        assert!(part.unresolved_faces().is_empty() && part.unresolved_edges().is_empty());
+        // Seen from beyond it, the far side's edges are behind it, and only it: nothing decides
+        // whether they are hidden, so the drawing is refused, naming it.
+        let facing = View::new([1.0, 0.0, 0.0], [0.0, 0.0, 1.0]).unwrap();
+        let refused = project(&part, &facing).unwrap_err();
+        assert_eq!(refused.faces, [side]);
+        assert!(refused.edges.len() <= 1);
+        let plane = Plane::new([0.0; 3], [0.0, 1.0, 0.0]).unwrap();
+        assert_eq!(
+            project_section(&part, &facing, &plane).unwrap_err().faces,
+            [side]
+        );
+        // Seen from the other side, every ray that reaches it is stopped first by a face that
+        // can be intersected, or meets nothing: the drawing is made.
+        let away = View::new([-1.0, 0.0, 0.0], [0.0, 0.0, 1.0]).unwrap();
+        let drawn = project(&part, &away).unwrap();
+        assert!(drawn.iter().any(|p| p.visible) && drawn.iter().any(|p| !p.visible));
+    }
+
+    #[test]
+    fn a_stretch_too_short_to_see_is_not_drawn() {
+        // A straight curve cut a hair before its end, where the hair alone is judged hidden (as
+        // a ray from beside a vertex can be): before, a stretch of no length came out.
+        let view = View::new([0.0, 0.0, 1.0], [0.0, 1.0, 0.0]).unwrap();
+        let points = [[0.0, 0.0, 0.0], [5.0, 0.0, 0.0], [10.0, 0.0, 0.0]];
+        let cuts = [(0, 0.5), (1, 1.0 - 1e-11)];
+        let hair = |p: V3| Ok(p[0] > 10.0 - 1e-10);
+        let runs = pieces(&points, &cuts, (&view, 1e-9), &hair).unwrap();
+        assert_eq!(runs.len(), 1);
+        let (visible, run) = &runs[0];
+        assert!(*visible);
+        assert_eq!(run.first(), Some(&points[0]));
+        assert_eq!(run.last(), Some(&points[2]));
+        // A cut that far in makes a stretch of its own, which ends at the curve's end.
+        let cuts = [(1, 1.0 - 1e-6)];
+        let tail = |p: V3| Ok(p[0] > 10.0 - 1e-5);
+        let runs = pieces(&points, &cuts, (&view, 1e-9), &tail).unwrap();
+        assert_eq!(runs.iter().map(|r| r.0).collect::<Vec<_>>(), [true, false]);
+        assert_eq!(runs[1].1.last(), Some(&points[2]));
+        // A stretch not known is returned, with where it was judged.
+        let unknown = pieces(&points, &cuts, (&view, 1e-9), &|p: V3| Err(p));
+        assert_eq!(unknown.unwrap_err(), [2.5, 0.0, 0.0]);
+    }
 }
