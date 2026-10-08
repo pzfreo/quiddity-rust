@@ -5909,6 +5909,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -6523,13 +6530,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -48434,6 +48434,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -48477,13 +48484,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -145953,6 +145953,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -146125,13 +146132,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -219515,6 +219515,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -219558,13 +219565,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -274492,6 +274492,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -274535,13 +274542,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -307689,6 +307689,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -307817,13 +307824,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -324395,6 +324395,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -324438,13 +324445,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -477384,6 +477384,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -477427,13 +477434,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -557372,6 +557372,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -557890,13 +557897,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -588277,6 +588277,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -588405,13 +588412,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -589494,6 +589494,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -589537,13 +589544,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -590322,6 +590322,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -590365,13 +590372,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -595138,6 +595138,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -595181,13 +595188,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -596294,6 +596294,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -596337,13 +596344,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -597818,6 +597818,13 @@
       "evidence_error": "physical evidence must belong to one valid closed solid"
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -597861,13 +597868,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -601441,6 +601441,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -601597,13 +601604,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -603323,6 +603323,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -603366,13 +603373,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -605485,6 +605485,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -605557,13 +605564,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -608923,6 +608923,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -608966,13 +608973,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -610521,6 +610521,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -610564,13 +610571,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -613826,6 +613826,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -613869,13 +613876,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -615769,6 +615769,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -615885,13 +615892,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -617983,6 +617983,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -618051,13 +618058,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -620112,6 +620112,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -620155,13 +620162,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -622392,6 +622392,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -622464,13 +622471,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -624512,6 +624512,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -624604,13 +624611,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -627154,6 +627154,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -627234,13 +627241,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -628993,6 +628993,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -629036,13 +629043,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -630641,6 +630641,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -630684,13 +630691,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -631842,6 +631842,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -631885,13 +631892,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -633960,6 +633960,49 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [
+       {
+        "x0": 0.0,
+        "x1": 2.828,
+        "y0": 12.327,
+        "y1": 16.681,
+        "z0": 0.0,
+        "z1": 20.258,
+        "axis": "y",
+        "direction": 1
+       },
+       {
+        "x0": 0.0,
+        "x1": 4.274,
+        "y0": 10.285,
+        "y1": 16.681,
+        "z0": 36.317,
+        "z1": 39.721,
+        "axis": "y",
+        "direction": 1
+       }
+      ],
+      "defining": [
+       [
+        3,
+        14,
+        15,
+        16,
+        25
+       ],
+       [
+        0,
+        3,
+        7,
+        9,
+        12
+       ]
+      ]
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -634003,49 +634046,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [
-       {
-        "x0": 0.0,
-        "x1": 2.828,
-        "y0": 12.327,
-        "y1": 16.681,
-        "z0": 0.0,
-        "z1": 20.258,
-        "axis": "y",
-        "direction": 1
-       },
-       {
-        "x0": 0.0,
-        "x1": 4.274,
-        "y0": 10.285,
-        "y1": 16.681,
-        "z0": 36.317,
-        "z1": 39.721,
-        "axis": "y",
-        "direction": 1
-       }
-      ],
-      "defining": [
-       [
-        3,
-        14,
-        15,
-        16,
-        25
-       ],
-       [
-        0,
-        3,
-        7,
-        9,
-        12
-       ]
-      ]
      }
     ]
    }
@@ -636389,6 +636389,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -636432,13 +636439,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -638567,6 +638567,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -638610,13 +638617,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -640576,6 +640576,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -640619,13 +640626,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -643334,6 +643334,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -643377,13 +643384,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -645450,6 +645450,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -645493,13 +645500,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -647387,6 +647387,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -647430,13 +647437,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -650030,6 +650030,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -650110,13 +650117,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -651436,6 +651436,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -651504,13 +651511,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -653581,6 +653581,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -653649,13 +653656,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -655736,6 +655736,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -655779,13 +655786,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -657955,6 +657955,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -657998,13 +658005,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -660014,6 +660014,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -660094,13 +660101,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -662499,6 +662499,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -662591,13 +662598,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -665331,6 +665331,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -665463,13 +665470,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -666903,6 +666903,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -666946,13 +666953,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -668557,6 +668557,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -668600,13 +668607,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -670909,6 +670909,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -670952,13 +670959,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -672898,6 +672898,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -672970,13 +672977,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -674817,6 +674817,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -674860,13 +674867,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -676810,6 +676810,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -676853,13 +676860,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -679018,6 +679018,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -679134,13 +679141,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -680747,6 +680747,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -680819,13 +680826,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -683343,6 +683343,32 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [
+       {
+        "x0": 0.0,
+        "x1": 3.592,
+        "y0": 0.0,
+        "y1": 4.785,
+        "z0": 7.951,
+        "z1": 12.438,
+        "axis": "y",
+        "direction": -1
+       }
+      ],
+      "defining": [
+       [
+        0,
+        1,
+        2,
+        3,
+        20
+       ]
+      ]
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -683415,32 +683441,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [
-       {
-        "x0": 0.0,
-        "x1": 3.592,
-        "y0": 0.0,
-        "y1": 4.785,
-        "z0": 7.951,
-        "z1": 12.438,
-        "axis": "y",
-        "direction": -1
-       }
-      ],
-      "defining": [
-       [
-        0,
-        1,
-        2,
-        3,
-        20
-       ]
-      ]
      }
     ]
    }
@@ -684916,6 +684916,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -684959,13 +684966,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -687845,6 +687845,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -687925,13 +687932,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -689534,6 +689534,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -689577,13 +689584,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -692053,6 +692053,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -692096,13 +692103,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -694320,6 +694320,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -694400,13 +694407,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -695575,6 +695575,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -695618,13 +695625,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -697481,6 +697481,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -697561,13 +697568,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -698816,6 +698816,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -698859,13 +698866,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -700827,6 +700827,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -700895,13 +700902,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -703424,6 +703424,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -703504,13 +703511,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -704958,6 +704958,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -705001,13 +705008,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -706933,6 +706933,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -706976,13 +706983,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -708662,6 +708662,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -708705,13 +708712,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -709793,6 +709793,32 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [
+       {
+        "x0": 43.259,
+        "x1": 48.938,
+        "y0": 24.485,
+        "y1": 41.262,
+        "z0": 7.769,
+        "z1": 16.518,
+        "axis": "y",
+        "direction": 1
+       }
+      ],
+      "defining": [
+       [
+        1,
+        3,
+        7,
+        8,
+        9
+       ]
+      ]
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -709836,32 +709862,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [
-       {
-        "x0": 43.259,
-        "x1": 48.938,
-        "y0": 24.485,
-        "y1": 41.262,
-        "z0": 7.769,
-        "z1": 16.518,
-        "axis": "y",
-        "direction": 1
-       }
-      ],
-      "defining": [
-       [
-        1,
-        3,
-        7,
-        8,
-        9
-       ]
-      ]
      }
     ]
    }
@@ -711492,6 +711492,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -711535,13 +711542,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -713111,6 +713111,32 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [
+       {
+        "x0": 21.588,
+        "x1": 24.449,
+        "y0": 0.0,
+        "y1": 3.633,
+        "z0": 0.0,
+        "z1": 13.808,
+        "axis": "z",
+        "direction": -1
+       }
+      ],
+      "defining": [
+       [
+        3,
+        5,
+        7,
+        8,
+        9
+       ]
+      ]
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -713203,32 +713229,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [
-       {
-        "x0": 21.588,
-        "x1": 24.449,
-        "y0": 0.0,
-        "y1": 3.633,
-        "z0": 0.0,
-        "z1": 13.808,
-        "axis": "z",
-        "direction": -1
-       }
-      ],
-      "defining": [
-       [
-        3,
-        5,
-        7,
-        8,
-        9
-       ]
-      ]
      }
     ]
    }
@@ -714672,6 +714672,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -714740,13 +714747,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -716786,6 +716786,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -716854,13 +716861,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -719333,6 +719333,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -719433,13 +719440,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -721401,6 +721401,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -721505,13 +721512,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -724099,6 +724099,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -724167,13 +724174,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -726332,6 +726332,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -726375,13 +726382,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -727835,6 +727835,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -727878,13 +727885,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -729754,6 +729754,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -729797,13 +729804,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -732129,6 +732129,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -732201,13 +732208,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -734104,6 +734104,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -734147,13 +734154,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -736143,6 +736143,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -736186,13 +736193,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -738957,6 +738957,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -739000,13 +739007,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -742145,6 +742145,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -742323,13 +742330,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -744106,6 +744106,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -744210,13 +744217,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -746230,6 +746230,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -746273,13 +746280,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -748306,6 +748306,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -748398,13 +748405,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -750696,6 +750696,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -750739,13 +750746,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -753565,6 +753565,13 @@
       ]
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -753633,13 +753640,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -755900,6 +755900,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -755980,13 +755987,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -764727,6 +764727,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -764939,13 +764946,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -808804,6 +808804,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -809906,13 +809913,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -819517,6 +819517,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -819811,13 +819818,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -846154,6 +846154,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -847090,13 +847097,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -860314,6 +860314,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -860486,13 +860493,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -868452,6 +868452,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -868686,13 +868693,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -885734,6 +885734,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -886190,13 +886197,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -900804,6 +900804,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -901060,13 +901067,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -910788,6 +910788,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -911108,13 +911115,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -922841,6 +922841,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -923489,13 +923496,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
@@ -939408,6 +939408,13 @@
       "defining": []
      }
     ],
+    "recognise_rectangular_pads": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
     "recognise_passages": [
      {
       "options": {},
@@ -939451,13 +939458,6 @@
      {
       "options": {},
       "result": []
-     }
-    ],
-    "recognise_rectangular_pads": [
-     {
-      "options": {},
-      "result": [],
-      "defining": []
      }
     ]
    }
