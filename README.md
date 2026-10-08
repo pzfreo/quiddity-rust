@@ -64,6 +64,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 64 | 13 | 0 | 0 | 51 | 0 |
 | `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 41 | 1 | 1 | 2 | 4 | 33 |
 | `tests/fixtures/known_face_areas.json` | `crates/haecceity/tests/face_areas.rs` | 1831 | 1815 | 3 | 0 | 12 | 1 |
+| `tests/fixtures/captured/known_sections.json` | `tests/sections.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 
 The undetermined entries are the backlog: differences not yet shown to be either side's error.
 The rust-wrong entries are known port defects.
@@ -74,6 +75,19 @@ checked against every one Python asks over the corpus: the volume a probe shares
 a face (`crates/haecceity/src/cover.rs`, `crates/haecceity/tests/patches.rs`). Faces stored as
 B-splines that are exactly planes, cylinders, cones or spheres are recovered as such
 (`crates/haecceity/src/recover.rs`), as Python's `_effective_surfaces` does.
+
+The shared machinery under passages, section passages, oriented slots and section recesses is
+ported ahead of those families and replayed call by call (`tests/sections.rs`,
+`tools/capture_sections.py`): canonical sections, frames and the published occurrence shape
+(`_sections`, 2268 calls from its Python tests, refusals by message), polygon `covered_patch`
+questions (445), and `section_ring_proposals` with every `prove_entry_treatments` question it
+asks (369, 31 proved) on 132 parts the Python tests build, the two golden passage fixtures and
+the 100 corpus files (168 proposals). All agree; proposals whose sort keys tie to round-off are
+compared as a set, since Python's order between them changes from run to run. Not captured: 56
+`covered_patch` questions on curved or holed faces, 4 value calls whose inputs are not values (a
+body reference foreign to the run or mutated, which Python checks by object identity and the
+port's types rule out, or a malformed boundary), and 5 objects handed to
+`section_ring_proposals` that STEP export refuses (such as the tests' shallow part views).
 
 For draftwright-rust, the kernel draws a part's views without OpenCascade's hidden-line
 algorithm or booleans (`crates/haecceity/src/hlr.rs`): every visible and hidden edge and
@@ -160,6 +174,13 @@ src/
                      paired edge occurrences, their solid ownership, a smooth join's side
     blends.rs
     volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over haecceity's volume.rs
+    sections.rs      canonical line/arc sections, run-local frames, body references and the
+                     published occurrence shape (`_sections`), with Python's refusals
+    support_patches.rs `covered_patch` over haecceity's cover.rs, and the polygon faces and
+                     polyhedra (ruled prisms, convex cells) the section proofs build
+    entry_treatments.rs planar entry bevels that explain a wall ring's missing patches
+    section_passages.rs constant-section planar-wall rings on any run (`section_ring_proposals`),
+                     the proposals passages and oriented slots will publish from
   frames.rs          part-relative recognition (`quiddity.frames`): the frame inferred from the
                      part's plane normals and cylinder axes, the part re-read into it, recognised
   correspondence/    revision matching (docs/correspondence.md): fingerprint.rs (features and
@@ -182,6 +203,8 @@ tests/
                      as read and under a generic rotation, and the frame moving with the part
   correspondence.rs  every corpus part corresponds with itself moved, everything carried; the
                      build123d revision pairs get their expected classes
+  sections.rs        the section helpers' captured calls (values, covered patches, ring
+                     proposals and entry treatments on test parts, fixtures and the corpus)
   corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity
                      revision, every file and its sha256)
   determinism.rs     recognition and correspondence JSON byte for byte the same twice in one
@@ -225,6 +248,9 @@ tools/
                      revision too)
   export_fixtures.py hand-built fillet evidence cases
   capture_revisions.py builds the revision pairs in build123d, with their expected classes
+  capture_sections.py records the section helpers' calls in their Python tests, and their ring
+                     proposals over those tests' parts, the golden fixtures and the corpus
+                     (captured/sections/)
   capture_frames.py  records Python's part frames (captured/frames.json, the built parts as
                      STEP in captured/frames/); --compare runs a Python recogniser on a corpus
                      part's framed working part, as read and turned

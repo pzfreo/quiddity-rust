@@ -11,3 +11,6 @@ license = "AGPL-3.0-only"
 haecceity = { path = "crates/haecceity" }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = { version = "1.0.151", features = ["float_roundtrip"] }
+
+[dev-dependencies]
+flate2 = "1.1.10"
