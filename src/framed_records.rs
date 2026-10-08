@@ -54,6 +54,7 @@ use crate::features::holes::{CounterBore, HoleRecord};
 use crate::features::interior_voids::InteriorVoid;
 use crate::features::oblique_through_steps::ObliqueThroughStep;
 use crate::features::oriented_chamfers::OrientedChamfer;
+use crate::features::oriented_slots::{OrientedSlot, OrientedSlotPattern};
 use crate::features::paired_ramp_steps::PairedRampStep;
 use crate::features::passages::{
     PassageEnds, PassageFrame, PassageSection, PassageSectionVertex, SectionPassage,
@@ -61,6 +62,7 @@ use crate::features::passages::{
 use crate::features::pattern_geometry::plane_uv;
 use crate::features::plates::Plate;
 use crate::features::polygonal_bosses::PolygonalPrism;
+use crate::features::prismatic_pockets::PrismaticPocket;
 use crate::features::profiled_bores::DoubleDBore;
 use crate::features::recess_patterns::{PocketPattern, SlotPattern};
 use crate::features::recess_records::{Channel, Pocket, Slot};
@@ -418,6 +420,9 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
         polygonal_bosses,
         polygonal_stock,
         section_passages,
+        prismatic_pockets,
+        oriented_slots,
+        oriented_slot_patterns,
         defining,
     } = features;
     let mut local = LocalFields::new();
@@ -515,6 +520,13 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
         polygonal_bosses: each!("polygonal_bosses", polygonal_bosses, polygonal_prism),
         polygonal_stock: each!("polygonal_stock", polygonal_stock, polygonal_prism),
         section_passages: each!("section_passages", section_passages, section_passage),
+        prismatic_pockets: each!("prismatic_pockets", prismatic_pockets, prismatic_pocket),
+        oriented_slots: each!("oriented_slots", oriented_slots, oriented_slot),
+        oriented_slot_patterns: each!(
+            "oriented_slot_patterns",
+            oriented_slot_patterns,
+            oriented_slot_pattern
+        ),
         // The working part's faces are the caller's, under the same indices.
         defining,
     };
@@ -1828,6 +1840,101 @@ fn section_passage(out: &mut Out, r: SectionPassage) -> SectionPassage {
         run_interval: (run_interval.0 + shift, run_interval.1 + shift),
         section: passage_section(section),
         ends: passage_ends(ends),
+    }
+}
+
+/// `section` is the void's corners in the two axes across `axis`, walked canonically in the
+/// frame (counter-clockwise from the least corner); that walk is kept, as an edge-open recess's
+/// wall chain is.
+fn prismatic_pocket(out: &mut Out, r: PrismaticPocket) -> PrismaticPocket {
+    let PrismaticPocket {
+        axis,
+        sides,
+        depth,
+        open_sign,
+        at,
+        section,
+    } = r;
+    let i = index_str(&axis);
+    PrismaticPocket {
+        open_sign: out.sign(i, open_sign, "open_sign"),
+        section: section
+            .into_iter()
+            .map(|p| out.across(i, p, "section"))
+            .collect(),
+        axis: out.letter_string(axis, "axis"),
+        sides,
+        depth,
+        at: out.point(at),
+    }
+}
+
+/// The slot's directions keep the frame's canonical sense, as other directions do.
+fn oriented_slot(out: &mut Out, r: OrientedSlot) -> OrientedSlot {
+    let OrientedSlot {
+        source,
+        width_direction,
+        long_direction,
+        width,
+        length,
+        center,
+        body_key,
+    } = r;
+    OrientedSlot {
+        source: section_passage(out, source),
+        width_direction: out.direction(width_direction),
+        long_direction: out.direction(long_direction),
+        width,
+        length,
+        center: out.point(center),
+        body_key: out.body_key(body_key, "body_key"),
+    }
+}
+
+fn oriented_slot_pattern(out: &mut Out, r: OrientedSlotPattern) -> OrientedSlotPattern {
+    let members = |out: &mut Out, slots: Vec<OrientedSlot>| {
+        let mut each = Out::new(out.motion, "slots[].");
+        let slots = slots
+            .into_iter()
+            .map(|s| oriented_slot(&mut each, s))
+            .collect();
+        out.local.extend(each.done());
+        slots
+    };
+    match r {
+        OrientedSlotPattern::OrientedSlotGrid {
+            slots,
+            rows,
+            cols,
+            row_pitch,
+            col_pitch,
+            angle,
+            center,
+        } => {
+            // The grid's plane basis is taken from the members' depth direction.
+            let normal = slots
+                .first()
+                .expect("an oriented slot pattern has members")
+                .depth_direction();
+            OrientedSlotPattern::OrientedSlotGrid {
+                angle: out.pattern_angle(normal, angle, 180.0),
+                slots: members(out, slots),
+                rows,
+                cols,
+                row_pitch,
+                col_pitch,
+                center: out.point(center),
+            }
+        }
+        OrientedSlotPattern::OrientedSlotArray {
+            slots,
+            pitch,
+            direction,
+        } => OrientedSlotPattern::OrientedSlotArray {
+            slots: members(out, slots),
+            pitch,
+            direction: out.direction(direction),
+        },
     }
 }
 
