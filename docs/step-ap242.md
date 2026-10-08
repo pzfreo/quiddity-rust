@@ -15,6 +15,34 @@ OpenCascade XCAF (`STEPCAFControl`) is a cross-check with a verdict for every di
 specify-core's current PMI handling is shaped by OpenCascade's round-trip defects; none of that
 shape is inherited (see [Anti-requirements](#anti-requirements)).
 
+## Maintainer decisions (2026-10-08)
+
+These override anything below and any stream brief that says otherwise.
+
+1. **No schema conversion.** haecceity never rewrites an AP214 or AP203 file as AP242, and never
+   changes a file's `FILE_SCHEMA`. `pmi::write` accepts only a file that is already AP242 (any
+   AP242 edition the express table covers); an AP214 or AP203 input is refused with an error
+   saying the caller must supply an AP242 file. Converting a file is the caller's job, outside
+   haecceity. Reading PMI works on every file. The edition-upgrade path in [Architecture](#architecture)
+   item 2 (validating a whole AP214 file to claim AP242 conformance, pinning which corpus files
+   can be upgraded) is dropped; `validate_document` stays as a check of AP242 files.
+2. **Material as specify-core writes it.** The writer writes the material's name in the CAx-IF
+   'material name' construct exactly as specify-core's files carry it (a `REPRESENTATION('material
+   name', …)` whose `DESCRIPTIVE_REPRESENTATION_ITEM` holds the name, related to the part as
+   OpenCascade's XCAF writes it; take the exact entity structure from a specify-core-written
+   file, and validate it against the schema). No density is written (specify-core writes none:
+   OpenCascade writes its unit wrongly). The reader reads the material name, and a density when
+   a file states one, with its own unit. `Material` is therefore in scope for reading and
+   writing; it is not "undetermined".
+3. **General tolerance as a class.** The general tolerance is written as specify-core writes it:
+   the CAx-IF PMI practice's `PROPERTY_DEFINITION('default tolerances', …)` on the part's
+   `product_definition_shape`, with a `REPRESENTATION('default tolerances', …)` whose
+   `DESCRIPTIVE_REPRESENTATION_ITEM('tolerance class', …)` holds the class as stated, e.g.
+   `'ISO 2768-m'` or `'ISO 2768-mK'` (the ISO 2768-2 geometric class needs nothing more). The
+   model's `GeneralTolerance` is `Class { text, standard: Option<Iso2768 { linear: f|m|c|v,
+   geometric: Option<H|K|L> }> }` (the text kept as stated, the standard recognised from it), or
+   `Table { … }` for a `default_tolerance_table` a file carries (read, not written).
+
 Schema references below are to the AP242 MIM long form `242_mim_lf.exp` (WG12 N11521, from
 stepcode); section numbers (§) are the PMI practice's unless stated.
 
@@ -209,25 +237,12 @@ A `Composite` relation requires both tolerances to be position, both line profil
 surface profile, with the same target (`geometric_tolerance_relationship` WR1–WR2), and each
 tolerance has at most one composite relation (`geometric_tolerance` WR5).
 
-**General tolerances.** A general tolerance is a table, not a named standard:
-
-```rust
-pub struct GeneralTolerance {
-    pub name: String,                     // the table's own name as stated
-    pub cells: Vec<ToleranceCell>,        // schema default_tolerance_table_cell
-    pub standard: Option<GeneralStandard>, // recognised, never stored: Iso2768_1(Class f|m|c|v)
-}
-pub struct ToleranceCell { pub over: Length, pub up_to: Length, pub tolerance: TolerancePair }
-```
-
-ISO 2768-1 is a named instance: `standards.rs` holds its table, `GeneralTolerance::iso2768_1(m)`
-builds it, and the reader sets `standard` when a table's cells equal it. An ASME title-block
-table (`.XX ±0.01`) is a table like any other. The mapping rests on the schema alone
-(`default_tolerance_table` WR1–WR2, `default_tolerance_table_cell` WR1–WR5): the PMI practice
-§6.3 represents general *geometric* tolerances as tolerances on the part or on a 'multiple
-elements' group of the untoleranced faces and does not mention `default_tolerance_table`. The
-ISO 2768-2 geometric class (the K of ISO 2768-mK) has no AP242 entity; it is not encoded in a
-table name or other string. It stays an open question for the maintainer.
+**General tolerances.** A class, as stated, written in the PMI practice's 'default tolerances'
+/ 'tolerance class' construct (decision 3): `GeneralTolerance::Class { text, standard }`, where
+`standard` recognises ISO 2768 from the text (linear class f, m, c or v; geometric class H, K or
+L when given, as in `ISO 2768-mK`). A `default_tolerance_table` a file carries is read as
+`GeneralTolerance::Table { name, cells }` and reported; it is not written. `standards.rs` holds
+ISO 2768-1's table so a consumer can evaluate a class.
 
 **Threads and knurls** are exactly their schema parameters (`thread` WR1–WR16,
 `turned_knurl` WR1–WR12), typed:
@@ -266,13 +281,9 @@ files that carry threads, and recorded here; pitch, if derivable, is a function,
 Tapping drill diameter and depth and full-thread depth are not thread semantics: they are an
 `AttributeSet` on the thread's feature (UDA practice).
 
-**Material** (`Material { name, density: Option<Density> }`). The PMI practice defers to the
-CAx-IF *Material Identification and Density* practice, which is not on mbx-if.org's current
-list and could not be fetched (2026-10-08: the recommended-practices index and the Wayback
-index have no copy). The oracle stage searches again with bounded effort. Until it is obtained
-the mapping is **undetermined**: the reader reports material constructs as findings
-(`undetermined-practice`, with what they say) and does not consume them, and the writer refuses
-`Material`. OpenCascade's 'material name'/'density' representation is not adopted by default.
+**Material** (`Material { name, density: Option<Density> }`): decision 2. The name is written in
+the 'material name' construct as specify-core's files carry it; density is read when stated
+(with its own unit) and not written.
 
 **Notes and attributes.** `Note { text, on: Option<FeatureId> }` for descriptive requirements;
 `AttributeSet { name, on: AttributeOwner (Part | Feature), items: Vec<(String, AttributeValue)> }`
@@ -330,18 +341,11 @@ never a silent fix):
    `default_tolerance_table` WR1–WR2 and cell WR1–WR5, `datum` WR1–WR4, `datum_target`
    WR1–WR5, `geometric_tolerance` WR1/WR5, `geometric_tolerance_relationship` WR1–WR2,
    `datum_system` UR1, `plus_minus_tolerance` UR1), each citing its label.
-   **Editions.** The writer targets exactly the edition the express table represents (the
-   stage that builds it determines which edition N11521 is, and builds one table per edition if
-   other long forms are found). A file whose `FILE_SCHEMA` is that edition keeps it; the edit
-   is refused if the edited file has a violation the original did not have, and violations the
-   original already had are reported, not repaired. A file of another AP242 edition, or
-   AP214/AP203 (90 and 10 of the 100 corpus files), is written only when `validate_document`
-   passes every instance of the edited file against the target table, and its `FILE_SCHEMA`
-   becomes the target edition's identifier (the new identifier claims conformance, so no
-   existing violation is tolerated); otherwise the edit is refused, naming the violating
-   instances. Which corpus and NIST files can be upgraded is pinned per file with the
-   violations and reasons. Entity names alone are not enough: attribute counts and types can
-   differ between APs and editions.
+   **Editions.** The writer targets exactly the edition the express table represents (one table
+   per edition if other long forms are found). It writes only into a file that is already AP242
+   and never changes `FILE_SCHEMA` (decision 1); AP214 and AP203 inputs are refused for writing.
+   The edit is refused if the edited file has a violation the original did not have; violations
+   the original already had are reported, not repaired.
 3. **Face provenance** in `step.rs`: each `Part` face and edge records its `advanced_face` /
    `edge_curve` id and its placed instance. step-io fills each arena in ascending id order over
    the instances it keeps; the reader rebuilds the map from the raw graph and the report's
@@ -395,7 +399,7 @@ never a silent fix):
    The removal plan is a document-level operation (`removal.rs`: seeds, policy → removed and
    rewritten instances, or a refusal naming the blockers), independent of the PMI model.
    UDAs and material on the part are in scope of replace exactly when the reader consumed them
-   (UDAs: yes; material: not while its practice is undetermined, so it stays untouched).
+   (UDAs and material: yes).
    Unconsumed PMI of the part is kept byte for byte and reported again. `remove(part)` is
    `replace(part, empty)`. Verification is `pmi::read` of the output compared semantically
    with what was written, plus `express` over every instance the edit touched.
@@ -428,9 +432,9 @@ be read, e.g. the pre-4.0.6 datum forms of §6.5.2):
 | Tolerance target | the `datum_feature` / `shape_aspect`; the `dimensional_size` or `dimensional_location` for a feature of size; the `product_definition_shape` for the whole part (§6.1–§6.3) |
 | Tolerance relation | `geometric_tolerance_relationship` 'composite tolerance' / 'precedence' / 'simultaneity' — read now, written later |
 | Zone | `tolerance_zone` + `tolerance_zone_form` (§6.9.2); `runout_zone_definition` (three attributes) only for a stated runout orientation |
-| General tolerance | `default_tolerance_table` of `default_tolerance_table_cell`s related to the 'default tolerance' representation by 'general tolerance definition' (schema only; see above) |
+| General tolerance | `property_definition('default tolerances')` → `representation('default tolerances')` with `descriptive_representation_item('tolerance class', <text>)` (decision 3); `default_tolerance_table` read only |
 | Thread / knurl | `thread` / `turned_knurl` with one `shape_representation_with_parameters` whose items are exactly the model's fields, named as the WHERE rules name them; 'applied shape', 'partial area occurrence', 'thread runout' relationships |
-| Material | undetermined (see Material) |
+| Material | 'material name' representation as specify-core's files carry it (decision 2); density read only |
 | Attributes | UDA practice §5–7: `general_property` 'user defined attribute' |
 | Standard | `applied_document_reference` to the dimensioning standard (§4) |
 
@@ -496,7 +500,8 @@ reading of the result with verdicts; determinism (same input, same bytes, fresh 
 - **Writing datum targets and tolerance relations** (composite frames). Both are read and in the
   model; the writer refuses them by name.
 - **PMI on assembly occurrences** (`assembly_component_usage` paths); reported as findings.
-- **Material**, until the CAx-IF material practice is obtained.
+- **Writing material density** (read only).
+- **Converting AP214/AP203 files to AP242** (decision 1): the caller's job.
 - **A general EXPRESS rule engine**; named checks cover what the writer emits.
 - **ISO 286 limit computation** from a class.
 - **AP242 XML, external references, validation properties written.**
