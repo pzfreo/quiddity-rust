@@ -306,8 +306,12 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<GussetRib>> {
         let thickness = high.at - low.at;
         // One-sided fillets leave unequal end caps. Their smaller triangle must still be filled
         // all the way to the opposite cap; the removed blend lies outside that probe.
-        let area = |c: &Cap| part.face_mass(c.face).map_or(0.0, |m| m[0]);
-        let probe_cap = if area(high) < area(low) { high } else { low };
+        let area = |c: &Cap| part.face_mass(c.face).map(|m| m[0]);
+        // Without both caps' areas the smaller cannot be chosen: refuse rather than guess.
+        let (Some(high_area), Some(low_area)) = (area(high), area(low)) else {
+            continue;
+        };
+        let probe_cap = if high_area < low_area { high } else { low };
         // The cap's triangle swept along the rib's axis from one cap to the other.
         let corners = &probe_cap.corners;
         let sides = (0..corners.len())
@@ -322,11 +326,14 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<GussetRib>> {
             hi: high.at,
             loops: vec![sides],
         });
-        let whole = probe_volume(&probe);
-        if whole <= 0.0 {
+        let Some(whole) = probe_volume(&probe).filter(|&w| w > 0.0) else {
             continue;
-        }
-        let residual = whole - common_volume(ctx.solid_classifier(solid), &probe);
+        };
+        // The claim is that the triangle is filled; an unanswered probe does not show that.
+        let Some(filled) = common_volume(ctx.solid_classifier(solid), &probe) else {
+            continue;
+        };
+        let residual = whole - filled;
         if residual > whole / thickness * length_tol(thickness, 1e-7) {
             continue;
         }

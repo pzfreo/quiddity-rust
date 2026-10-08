@@ -409,5 +409,14 @@
     ],
     "verdict": "rust-wrong",
     "reason": "Same five plates, centres and defining faces; only the body key's mass terms differ: the port's solid volume 1730910.905 and area 391075.864 against OpenCascade's 1726247.579 and 391371.347, which its adaptive integration confirms (1726247.579, 391371.347). The port's solid mass is wrong on this file (its face_mass gives 0 area on face 209, the haecceity fix stream F addresses; the inventory also differs by the seams OpenCascade's healing adds, so the corpus test's mass check never runs here)."
+  },
+  {
+    "file": "mfcadpp/10255.step",
+    "contains": [
+      "recognise_edge_open_prismatic_recesses",
+      "0 vs 1 records"
+    ],
+    "verdict": "rust-wrong",
+    "reason": "The recess's open-end probe (swept_face_fraction of the floor) is refused: integration lines along x within 5e-6 of the tangent of the recess's radius-1 wall keep an odd crossing count, so the volume probe answers None and the opening cannot be shown clear (known_probes.json, mfcadpp/10255 edge_open_prismatic_recesses #0, #1). Python's boolean answers and finds the recess. When unresolved lines were read as air the port agreed, by luck; a limitation of the ray caster near a curved boundary."
   }
 ]

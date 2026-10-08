@@ -14,7 +14,8 @@ pub type Spans = [(f64, f64); 3];
 
 /// The fraction of the prism, drawn in by *inset* (at most a quarter of each span) on every side,
 /// that *solid*'s material fills (`prism_material_fraction`). `None` where Python raises: a span
-/// without positive extent. A prism too thin to build counts as full: it cannot prove emptiness.
+/// without positive extent; and where the volume probe cannot answer. A prism too thin to build
+/// counts as full: it cannot prove emptiness.
 pub fn prism_material_fraction(
     ctx: &Context<'_>,
     solid: usize,
@@ -39,12 +40,12 @@ pub fn prism_material_fraction(
         min: [0, 1, 2].map(|i| centre[i] - size[i] / 2.0),
         max: [0, 1, 2].map(|i| centre[i] + size[i] / 2.0),
     });
-    let occupied = common_volume(ctx.solid_classifier(solid), &probe);
+    let occupied = common_volume(ctx.solid_classifier(solid), &probe)?;
     Some(occupied / (size[0] * size[1] * size[2]))
 }
 
 /// Whether the inset prism holds no material of *solid* at all (`prism_is_empty`): exactly
-/// zero, not within a tolerance.
+/// zero, not within a tolerance. A probe that cannot answer proves nothing, so is not empty.
 pub fn prism_is_empty(ctx: &Context<'_>, solid: usize, spans: &Spans, inset: f64) -> bool {
     prism_material_fraction(ctx, solid, spans, inset) == Some(0.0)
 }

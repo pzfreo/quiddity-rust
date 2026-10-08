@@ -319,9 +319,12 @@ fn prism_probes_measure_swept_regions() {
             min: [x0, y0, z0],
             max: [x1, y1, z1],
         });
-        let (a, b) = (common_volume(&solid, &prism), common_volume(&solid, &cube));
+        let (a, b) = (
+            common_volume(&solid, &prism).unwrap(),
+            common_volume(&solid, &cube).unwrap(),
+        );
         assert!((a - b).abs() <= 1e-9 * b.max(1.0), "{a} vs {b}");
-        assert!((probe_volume(&prism) - probe_volume(&cube)).abs() <= 1e-9);
+        assert!((probe_volume(&prism).unwrap() - probe_volume(&cube).unwrap()).abs() <= 1e-9);
     }
     // The slot's own section swept along the slot is empty; swept on beyond the cap it is full.
     let arc = |cx: f64, from: f64, to: f64| PrismEdge {
@@ -350,13 +353,96 @@ fn prism_probes_measure_swept_regions() {
             loops: vec![section()],
         })
     };
-    assert_eq!(common_volume(&solid, &swept(0.0, 20.0)), 0.0);
+    assert_eq!(common_volume(&solid, &swept(0.0, 20.0)), Some(0.0));
     let beyond = swept(-10.0, 0.0);
-    let full = probe_volume(&beyond);
+    let full = probe_volume(&beyond).unwrap();
     // Chords inside the arcs: 64 per quarter lose about 0.02 mm³ over the 10 mm.
     assert!(
         (full - 10.0 * (4.0 * 3.0 + 9.0 * half_pi)).abs() < 0.05,
         "{full}"
     );
-    assert!((common_volume(&solid, &beyond) - full).abs() <= 1e-9 * full);
+    assert!((common_volume(&solid, &beyond).unwrap() - full).abs() <= 1e-9 * full);
+}
+
+#[test]
+fn convex_prism_probes_match_the_analytic_volume() {
+    use haecceity::volume::{Prism, PrismEdge, Probe, common_volume, probe_volume};
+    // Box(30, 30, 20) - Cylinder(5, 20): x, y in [-15, 15], z in [-10, 10], bored along z.
+    let part = fixture("rejected_bored_box.step");
+    let solid = Classifier::new(&part);
+    // A gusset-like triangle, legs 14 from (6, 6), its hypotenuse oblique to every axis.
+    let triangle = |pts: [[f64; 3]; 3]| {
+        (0..3)
+            .map(|i| PrismEdge {
+                points: vec![pts[i], pts[(i + 1) % 3]],
+                straight: true,
+            })
+            .collect::<Vec<_>>()
+    };
+    // Swept along z over [0, 15]: the block clips two corners (legs 5) and the top at z = 10,
+    // so the material shares (98 - 2 × 12.5) × 10 = 730 of the probe's 98 × 15 = 1470.
+    let along_z = Probe::Prism(Prism {
+        axis: 2,
+        lo: 0.0,
+        hi: 15.0,
+        loops: vec![triangle([
+            [6.0, 6.0, 0.0],
+            [20.0, 6.0, 0.0],
+            [6.0, 20.0, 0.0],
+        ])],
+    });
+    assert!((probe_volume(&along_z).unwrap() - 1470.0).abs() <= 1e-9);
+    let got = common_volume(&solid, &along_z).unwrap();
+    assert!((got - 730.0).abs() <= 1e-9 * 730.0, "{got}");
+    // A triangle with legs 7 in (y, z) swept along x over [-5, 5], within the block and clear
+    // of the bore (y ≥ 6 > 5): full, 24.5 × 10.
+    let along_x = Probe::Prism(Prism {
+        axis: 0,
+        lo: -5.0,
+        hi: 5.0,
+        loops: vec![triangle([
+            [0.0, 6.0, -8.0],
+            [0.0, 13.0, -8.0],
+            [0.0, 6.0, -1.0],
+        ])],
+    });
+    let full = probe_volume(&along_x).unwrap();
+    assert!((full - 245.0).abs() <= 1e-9);
+    let got = common_volume(&solid, &along_x).unwrap();
+    assert!((got - full).abs() <= 1e-9 * full, "{got}");
+}
+
+#[test]
+fn volume_probes_refuse_rather_than_read_unanswered_rays_as_air() {
+    use haecceity::geom::{Bounds, Surface, SurfaceType};
+    use haecceity::volume::{Probe, common_volume};
+    // Box(30, 30, 20) - Cylinder(5, 20), with the bore's surface made one the rays cannot
+    // intersect.
+    let mut part = fixture("rejected_bored_box.step");
+    let bore = (0..part.faces.len())
+        .find(|&f| part.faces[f].surface.kind() == SurfaceType::Cylinder)
+        .unwrap();
+    part.faces[bore].surface = Surface::Other { kind: "test" };
+    let solid = Classifier::new(&part);
+    let probe = |min: [f64; 3], max: [f64; 3]| Probe::Box(Bounds { min, max });
+    // Lines clear of the bore still answer: a 4 × 4 × 10 box in the material.
+    let away = common_volume(&solid, &probe([8.0, 8.0, -5.0], [12.0, 12.0, 5.0])).unwrap();
+    assert!((away - 160.0).abs() <= 1e-9 * 160.0, "{away}");
+    // Lines through the bore cannot be resolved: no answer, rather than air where they fail.
+    assert_eq!(
+        common_volume(&solid, &probe([-8.0, -8.0, -5.0], [8.0, 8.0, 5.0])),
+        None
+    );
+    // With every surface unresolvable, a box clear of every face is placed by its centre, which
+    // the classifier leaves `Unknown`: no answer, not empty.
+    let mut blind = fixture("rejected_bored_box.step");
+    for face in &mut blind.faces {
+        face.surface = Surface::Other { kind: "test" };
+    }
+    let solid = Classifier::new(&blind);
+    assert_eq!(solid.classify([10.0, 10.0, 0.0]), State::Unknown);
+    assert_eq!(
+        common_volume(&solid, &probe([8.0, 8.0, -5.0], [12.0, 12.0, 5.0])),
+        None
+    );
 }
