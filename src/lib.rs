@@ -48,6 +48,9 @@ pub use features::oblique_through_steps::{ObliqueThroughStep, recognise_oblique_
 pub use features::oriented_chamfers::{
     OrientedChamfer, OrientedChamferOptions, recognise_oriented_chamfers,
 };
+pub use features::oriented_slots::{
+    OrientedSlot, OrientedSlotPattern, recognise_oriented_slot_patterns, recognise_oriented_slots,
+};
 pub use features::paired_ramp_steps::{PairedRampStep, recognise_paired_ramp_steps};
 pub use features::passages::{
     Passage, PassageError, SectionPassage, recognise_passages, recognise_section_passages,

@@ -6511,6 +6511,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -48444,6 +48457,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -146073,6 +146099,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -219486,6 +219525,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -274443,6 +274495,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -307705,6 +307770,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -324305,6 +324383,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -477275,6 +477366,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -557718,6 +557822,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -588213,6 +588330,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -589325,6 +589455,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -590132,6 +590275,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -594929,6 +595085,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -596064,6 +596233,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -597568,6 +597750,19 @@
        }
       ],
       "evidence_error": "physical evidence must belong to one valid closed solid"
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -601285,6 +601480,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -603033,6 +603241,19 @@
         18
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -605204,6 +605425,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -608594,6 +608828,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -610171,6 +610418,19 @@
         22
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -613457,6 +613717,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -615452,6 +615725,19 @@
         25
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -617599,6 +617885,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -619682,6 +619981,19 @@
         19
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -621972,6 +622284,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -624091,6 +624416,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -626702,6 +627040,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -628484,6 +628835,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -630112,6 +630476,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -631292,6 +631669,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -633390,6 +633780,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -635764,6 +636167,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -637922,6 +638338,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -639910,6 +640339,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -642649,6 +643091,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -644745,6 +645200,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -646661,6 +647129,19 @@
         25
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -649322,6 +649803,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -650695,6 +651189,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -652821,6 +653328,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -654930,6 +655450,19 @@
         22
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -657130,6 +657663,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -659205,6 +659751,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -661682,6 +662241,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -664535,6 +665107,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -665997,6 +666582,19 @@
         14
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -667631,6 +668229,19 @@
         12
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -669964,6 +670575,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -671962,6 +672586,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -673831,6 +674468,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -675804,6 +676454,19 @@
         25
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -678066,6 +678729,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -679730,6 +680406,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -682307,6 +682996,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -683811,6 +684513,19 @@
         13
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -686758,6 +687473,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -688389,6 +689117,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -690889,6 +691630,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -693173,6 +693927,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -694370,6 +695137,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -696294,6 +697074,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -697571,6 +698364,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -699587,6 +700393,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -702177,6 +702996,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -703653,6 +704485,19 @@
         10
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -705609,6 +706454,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -707318,6 +708176,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -708428,6 +709299,19 @@
         12
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -710089,6 +710973,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -711737,6 +712634,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -713234,6 +714144,19 @@
         11
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -715328,6 +716251,19 @@
         28
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -717888,6 +718824,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -719939,6 +720888,19 @@
         27
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -722582,6 +723544,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -724770,6 +725745,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -726252,6 +727240,19 @@
         11
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -728151,6 +729152,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -730536,6 +731550,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -732461,6 +733488,19 @@
         27
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -734480,6 +735520,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -737274,6 +738327,19 @@
         28
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -740468,6 +741534,129 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [
+       {
+        "source": {
+         "frame": {
+          "origin": [
+           0.0,
+           16.987,
+           4.01
+          ],
+          "run": [
+           1.0,
+           0.0,
+           0.0
+          ],
+          "u": [
+           0.0,
+           1.0,
+           0.0
+          ],
+          "v": [
+           0.0,
+           0.0,
+           1.0
+          ]
+         },
+         "run_interval": [
+          0.0,
+          14.627
+         ],
+         "section": {
+          "boundary": [
+           {
+            "point": [
+             -2.4783,
+             -0.137
+            ],
+            "bulge": 0.0
+           },
+           {
+            "point": [
+             -1.5727,
+             -1.9203
+            ],
+            "bulge": 0.0
+           },
+           {
+            "point": [
+             2.4783,
+             0.137
+            ],
+            "bulge": 0.0
+           },
+           {
+            "point": [
+             1.5727,
+             1.9203
+            ],
+            "bulge": 0.0
+           }
+          ]
+         },
+         "ends": {
+          "low_capped": false,
+          "high_capped": false,
+          "low_gradient": [
+           0.0,
+           0.0
+          ],
+          "high_gradient": [
+           0.0,
+           0.0
+          ]
+         }
+        },
+        "width_direction": [
+         0.0,
+         -0.452785,
+         0.89162
+        ],
+        "long_direction": [
+         0.0,
+         0.89161,
+         0.452804
+        ],
+        "width": 2.0,
+        "length": 4.543,
+        "center": [
+         7.314,
+         16.987,
+         4.01
+        ],
+        "body_key": [
+         0.0,
+         0.0,
+         0.0,
+         14.627159,
+         34.013445,
+         16.622684,
+         6645.77845136,
+         3685.52398939
+        ]
+       }
+      ],
+      "defining": [
+       [
+        8,
+        9,
+        10,
+        11,
+        45
+       ]
+      ]
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -742334,6 +743523,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -744377,6 +745579,19 @@
         28
        ]
       ]
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -746482,6 +747697,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -748803,6 +750031,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -751678,6 +752919,19 @@
        ]
       ]
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -754004,6 +755258,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -762943,6 +764210,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -807891,6 +809171,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -817775,6 +819068,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -845035,6 +846341,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -858411,6 +859730,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -866590,6 +867922,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -884075,6 +885420,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -898925,6 +900283,19 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -908952,6 +910323,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -921313,6 +922697,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -937255,6 +938652,19 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_oriented_slots": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_oriented_slot_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }

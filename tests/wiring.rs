@@ -10,7 +10,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::path::PathBuf;
 
 use quiddity::correspondence::fingerprint::{FAMILIES, classify, family, fingerprint};
-use quiddity::features::{self, gussets, recess_patterns};
+use quiddity::features::{self, gussets, oriented_slots, recess_patterns};
 use serde_json::Value;
 
 /// Each leaf of *v* (a scalar or null) by its path: `a.b` into a nested record, `a[]` into a
@@ -197,6 +197,43 @@ fn families_are_wired_and_their_records_fingerprinted_field_by_field() {
         "",
         found.entry("pocket_patterns".into()).or_default(),
     );
+    // Nor is an oriented slot pattern (the corpus has one oriented slot, 467.step's).
+    let slot: oriented_slots::OrientedSlot = serde_json::from_value(serde_json::json!({
+        "source": {
+            "frame": {"origin": [0.0, 0.0, 0.0], "run": [0.0, 0.0, 1.0],
+                      "u": [1.0, 0.0, 0.0], "v": [0.0, 1.0, 0.0]},
+            "run_interval": [0.0, 10.0],
+            "section": {"boundary": [
+                {"point": [-4.0, -1.0], "bulge": 0.0}, {"point": [4.0, -1.0], "bulge": 0.0},
+                {"point": [4.0, 1.0], "bulge": 0.0}, {"point": [-4.0, 1.0], "bulge": 0.0}]},
+            "ends": {"low_capped": false, "high_capped": false,
+                     "low_gradient": [0.0, 0.0], "high_gradient": [0.0, 0.0]}},
+        "width_direction": [0.0, 1.0, 0.0], "long_direction": [1.0, 0.0, 0.0],
+        "width": 2.0, "length": 8.0, "center": [0.0, 0.0, 5.0], "body_key": null
+    }))
+    .unwrap();
+    for pattern in [
+        oriented_slots::OrientedSlotPattern::OrientedSlotGrid {
+            slots: vec![slot.clone()],
+            rows: 2,
+            cols: 3,
+            row_pitch: 10.0,
+            col_pitch: 10.0,
+            angle: 0.0,
+            center: [0.0; 3],
+        },
+        oriented_slots::OrientedSlotPattern::OrientedSlotArray {
+            slots: vec![slot],
+            pitch: 10.0,
+            direction: [1.0, 0.0, 0.0],
+        },
+    ] {
+        leaves(
+            &serde_json::to_value(pattern).unwrap(),
+            "",
+            found.entry("oriented_slot_patterns".into()).or_default(),
+        );
+    }
     let mut used: BTreeSet<(String, &str)> = BTreeSet::new();
     for (key, paths) in &found {
         for path in paths {

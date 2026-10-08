@@ -51,6 +51,8 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 | Section passages | `recognise_section_passages` | 83/83 | 3 | 100/100 |
 | Passages (legacy roster) | `recognise_passages` | 60/60 | 2 | 100/100 |
 | Prismatic pockets | `recognise_prismatic_pockets` | 82/82 | 6 | 100/100 |
+| Oriented slots | `recognise_oriented_slots` | 33/33 | 1 | 100/100 |
+| Oriented slot patterns | `recognise_oriented_slot_patterns` | 26/26 | 0 | 100/100 |
 
 *Captured test calls*: the Python suite's calls replayed by `tests/captured.rs`. *Not captured*:
 calls the suite makes that the capture could not record, outside the replay and pinned by it

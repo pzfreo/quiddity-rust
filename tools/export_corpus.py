@@ -62,6 +62,12 @@ from quiddity.oblique_through_steps import _discover_oblique_through_steps  # no
 from quiddity.interior_voids import _claim_records as _claim_voids  # noqa: E402
 from quiddity.interior_voids import _discover_interior_voids  # noqa: E402
 from quiddity.oriented_chamfers import _discover_oriented_chamfers  # noqa: E402
+from quiddity._section_passages import section_ring_proposals  # noqa: E402
+from quiddity.oriented_slots import (  # noqa: E402
+    _from_proposals as _oriented_slots_from_proposals,
+    recognise_oriented_slot_patterns,
+    recognise_oriented_slots,
+)
 from quiddity.paired_ramp_steps import _discover_paired_ramp_steps  # noqa: E402
 from quiddity.passages import (  # noqa: E402
     _discover_section_passages,
@@ -336,6 +342,9 @@ def main() -> None:
         prismatic_pockets = (FamilyId.PRISMATIC_POCKETS, lambda p, o: recognise_prismatic_pockets(p),
                              lambda p, ledger, o: _discover_prismatic_pockets(p, graph=ledger.graph,
                                                                               ledger=ledger))
+        oriented_slots = (FamilyId.ORIENTED_SLOTS, lambda p, o: recognise_oriented_slots(p),
+                          lambda p, ledger, o: _oriented_slots_from_proposals(
+                              ledger.graph, section_ring_proposals(p, ledger.graph), ledger.writer.sink))
         entries.append(
             {
                 "file": str(path.relative_to(CORPUS)),
@@ -426,6 +435,13 @@ def main() -> None:
                     ],
                     "recognise_pocket_patterns": [
                         {"options": {}, "result": _plain(recognise_pocket_patterns(recognise_pockets(part)))}
+                    ],
+                    "recognise_oriented_slots": [
+                        _run(part, "recognise_oriented_slots", *oriented_slots, {})
+                    ],
+                    "recognise_oriented_slot_patterns": [
+                        {"options": {}, "result": _plain(
+                            recognise_oriented_slot_patterns(recognise_oriented_slots(part)))}
                     ],
                 },
             }

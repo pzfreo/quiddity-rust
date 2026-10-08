@@ -130,6 +130,15 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
             Err(e) => serde_json::json!({ "refused": e.to_string() }),
         },
         "recognise_prismatic_pockets" => json(quiddity::recognise_prismatic_pockets(part)),
+        "recognise_oriented_slots" => match quiddity::recognise_oriented_slots(part) {
+            Ok(found) => json(found),
+            Err(e) => serde_json::json!({ "refused": e.to_string() }),
+        },
+        // Over a part: the patterns among the part's oriented slots.
+        "recognise_oriented_slot_patterns" => match quiddity::recognise_oriented_slots(part) {
+            Ok(slots) => json(quiddity::recognise_oriented_slot_patterns(&slots)),
+            Err(e) => serde_json::json!({ "refused": e.to_string() }),
+        },
         // Over a part: the patterns among the part's gusset ribs.
         "recognise_gusset_rib_patterns" => json(quiddity::recognise_gusset_rib_patterns(
             &quiddity::recognise_gusset_ribs(part),
@@ -253,6 +262,9 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
         "recognise_section_passages" => {
             return quiddity::features::passages::discover_verified(&ctx).map(faces);
         }
+        "recognise_oriented_slots" => {
+            return quiddity::features::oriented_slots::discover_verified(&ctx).map(faces);
+        }
         other => panic!("{other} has no evidence path"),
     };
     result.map_err(|e| e.to_string())
@@ -282,6 +294,11 @@ pub fn recognise_records(function: &str, arguments: &Value) -> Value {
             let pockets: Vec<quiddity::Pocket> =
                 serde_json::from_value(arguments[0].clone()).unwrap();
             json(quiddity::recognise_pocket_patterns(&pockets))
+        }
+        "recognise_oriented_slot_patterns" => {
+            let slots: Vec<quiddity::OrientedSlot> =
+                serde_json::from_value(arguments[0].clone()).unwrap();
+            json(quiddity::recognise_oriented_slot_patterns(&slots))
         }
         other => panic!("{other} takes a part"),
     }

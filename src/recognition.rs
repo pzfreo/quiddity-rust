@@ -21,6 +21,7 @@ use crate::correspondence::Recognition;
 use crate::features::Features;
 use crate::features::gussets::GussetRibPattern;
 use crate::features::hole_patterns::HolePattern;
+use crate::features::oriented_slots::OrientedSlotPattern;
 use crate::features::recess_patterns::{PocketPattern, SlotPattern};
 
 /// Bumped whenever the document's shape or a field's meaning changes; a reader refuses another.
@@ -115,6 +116,11 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
     ("polygonal_stock", &["PolygonalStock"]),
     ("section_passages", &["SectionPassage"]),
     ("prismatic_pockets", &["PrismaticPocket"]),
+    ("oriented_slots", &["OrientedSlot"]),
+    (
+        "oriented_slot_patterns",
+        &["OrientedSlotGrid", "OrientedSlotArray"],
+    ),
 ];
 
 /// The record class names a family's records can have.
@@ -145,6 +151,10 @@ pub fn record_type(features: &Features, family: &str, n: usize) -> &'static str 
         "pocket_patterns" => match &features.pocket_patterns[n] {
             PocketPattern::PocketGrid { .. } => "PocketGrid",
             PocketPattern::PocketArray { .. } => "PocketArray",
+        },
+        "oriented_slot_patterns" => match &features.oriented_slot_patterns[n] {
+            OrientedSlotPattern::OrientedSlotGrid { .. } => "OrientedSlotGrid",
+            OrientedSlotPattern::OrientedSlotArray { .. } => "OrientedSlotArray",
         },
         _ => match record_types(family) {
             Some([one]) => one,
