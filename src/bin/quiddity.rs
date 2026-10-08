@@ -174,8 +174,7 @@ fn pmi_read(path: &str, part: Option<usize>) -> Result<String, String> {
 fn pmi_check(path: &str, json: &str) -> Result<String, String> {
     let (bytes, defs) = part_definitions(path)?;
     let text = std::fs::read_to_string(json).map_err(|e| format!("{json}: {e}"))?;
-    let value: serde_json::Value =
-        serde_json::from_str(&text).map_err(|e| format!("{json}: not JSON ({e})"))?;
+    let value = pmi_json::parse(&text).map_err(|e| format!("{json}: not JSON ({e})"))?;
     let document = pmi_json::document_from_json(&value).map_err(|e| format!("{json}: {e}"))?;
     pmi_json::check_against(&document, &bytes, &defs).map_err(|e| format!("{json}: {e}"))?;
     Ok(

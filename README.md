@@ -325,9 +325,11 @@ The PMI JSON (`src/pmi_json.rs` describes the form) is a document `{"format": "q
 "deg"|...}`, never a JSON number; anchors are `{"face": n}` / `{"edge": n}` in the numbering
 `quiddity parts` reports, from 0; references between items are indices into the part's lists;
 tolerance kinds are ISO 1101's names, fits `{"deviation": "H", "grade": "IT7"}`, schema
-enumerations their lower-case EXPRESS values. `binding.sha256` is the sha256 of the STEP text
+enumerations their lower-case EXPRESS values; a size or location kind, zone form or qualifier the
+practice does not list is `{"other": "<name>"}`, so a misspelt standard term is refused rather
+than kept as a name. `binding.sha256` is the sha256 of the STEP text
 (after gunzip for a `.gz` file) and `binding.reader` the reader version: `pmi check` refuses a
-document bound to another file or reader, an unknown field or term, a face or edge the part
+document bound to another file or reader, an unknown field or term, a key named twice, a face or edge the part
 does not have, or a violated model invariant, naming the JSON path. `pmi read --part N` keeps
 the findings of part N and those of no part. A tessellated-only file (no B-rep part to anchor
 PMI to) is refused, not read as empty. A STEP file is refused, never recognised as empty, when it does not parse (a cut-off

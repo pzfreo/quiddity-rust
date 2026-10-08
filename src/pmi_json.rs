@@ -22,7 +22,10 @@
 //!   ISO 286 classes as `{"deviation": "H", "grade": "IT7"}`; schema enumerations as their
 //!   EXPRESS value in lower case (`"maximum_material_requirement"`, `"all_over"`); strings the PMI
 //!   practice defines as the practice writes them (`"diameter"`, `"linear distance"`,
-//!   `"within a cylinder"`, `"multiple elements"`, `"envelope requirement"`).
+//!   `"within a cylinder"`, `"multiple elements"`, `"envelope requirement"`). Where the model
+//!   keeps a name the practice does not list (a size or location kind, a zone form, a qualifier),
+//!   it is written `{"other": "<name>"}`, never as a bare string: a bare string must be a
+//!   standard term, so a misspelt term is refused rather than kept as a free-text name.
 //! - Optional fields and empty lists are omitted on output and may be omitted (or `null`) on
 //!   input; every other field is required. Unknown fields are refused.
 //! - No `#N` appears in the model's form; [`Finding`]s cite instance ids as file evidence.
@@ -271,6 +274,55 @@ fn term<T: Copy>(table: &[(&'static str, T)], v: &Json, path: &str) -> R<T> {
         ),
     }
 }
+
+/// A term from a table of standard terms, or `{"other": name}` for a name outside the table
+/// (the model's `Other` variants). A bare string outside the table is refused, so a misspelt
+/// standard term cannot pass as a free-text name; an `other` naming a standard term is refused
+/// too, so each value has one form.
+fn open_term<T: Clone>(
+    table: &[(&'static str, T)],
+    other: impl FnOnce(String) -> T,
+    v: &Json,
+    path: &str,
+) -> R<T> {
+    if let Some(s) = v.as_str() {
+        return match table.iter().find(|(n, _)| *n == s) {
+            Some((_, t)) => Ok(t.clone()),
+            None => fail(
+                path,
+                format!(
+                    "unknown term {s:?} (expected one of {}, or {{\"other\": <name>}} for a name \
+                     the practice does not list)",
+                    table.iter().map(|(n, _)| *n).collect::<Vec<_>>().join(", ")
+                ),
+            ),
+        };
+    }
+    let (_, x, p) = tagged(v, path, &["other"])?;
+    let s = string(x, &p)?;
+    if table.iter().any(|(n, _)| *n == s) {
+        return fail(
+            &p,
+            format!("{s:?} is a standard term; write it as a bare string"),
+        );
+    }
+    Ok(other(s))
+}
+
+/// The JSON of an open term: the bare name, or `{"other": name}` for an `Other` variant.
+fn open_term_json(name: &str, is_other: bool) -> Json {
+    if is_other {
+        one("other", json!(name))
+    } else {
+        json!(name)
+    }
+}
+
+const QUALIFIERS: [(&str, Qualifier); 3] = [
+    ("maximum", Qualifier::Maximum),
+    ("minimum", Qualifier::Minimum),
+    ("average", Qualifier::Average),
+];
 
 fn name_of<T: Copy + PartialEq>(table: &[(&'static str, T)], t: T) -> &'static str {
     table
@@ -1107,12 +1159,17 @@ fn dimension_modifier_from(v: &Json, path: &str) -> R<DimensionModifier> {
     }
 }
 
-fn qualifier_name(q: &Qualifier) -> &str {
+fn qualifier_json(q: &Qualifier) -> Json {
     match q {
-        Qualifier::Maximum => "maximum",
-        Qualifier::Minimum => "minimum",
-        Qualifier::Average => "average",
-        Qualifier::Other(s) => s,
+        Qualifier::Other(s) => open_term_json(s, true),
+        k => open_term_json(
+            QUALIFIERS
+                .iter()
+                .find(|(_, x)| x == k)
+                .map(|(n, _)| *n)
+                .expect("every named qualifier is in QUALIFIERS"),
+            false,
+        ),
     }
 }
 
@@ -1127,7 +1184,10 @@ fn dimension_kind_json(k: &DimensionKind) -> Json {
             "size",
             Out::new()
                 .put("feature", json!(feature.0))
-                .put("kind", json!(kind.name()))
+                .put(
+                    "kind",
+                    open_term_json(kind.name(), matches!(kind, SizeKind::Other(_))),
+                )
                 .opt("path", path.map(|f| json!(f.0)))
                 .opt(
                     "angle",
@@ -1147,7 +1207,10 @@ fn dimension_kind_json(k: &DimensionKind) -> Json {
             Out::new()
                 .put("from", json!(from.0))
                 .put("to", json!(to.0))
-                .put("kind", json!(kind.name()))
+                .put(
+                    "kind",
+                    open_term_json(kind.name(), matches!(kind, LocationKind::Other(_))),
+                )
                 .opt("path", path.map(|f| json!(f.0)))
                 .put("directed", json!(directed))
                 .opt(
@@ -1166,7 +1229,9 @@ fn dimension_kind_from(v: &Json, path: &str) -> R<DimensionKind> {
         let o = object(x, &p, &["feature", "kind", "path", "angle"])?;
         DimensionKind::Size {
             feature: o.req_with("feature", feature_id)?,
-            kind: SizeKind::from_name(&o.req_with("kind", string)?),
+            kind: o.req_with("kind", |x, p| {
+                open_term(&SizeKind::TABLE, SizeKind::Other, x, p)
+            })?,
             path: o.opt_with("path", feature_id)?,
             angle: angle(&o)?,
         }
@@ -1175,7 +1240,9 @@ fn dimension_kind_from(v: &Json, path: &str) -> R<DimensionKind> {
         DimensionKind::Location {
             from: o.req_with("from", feature_id)?,
             to: o.req_with("to", feature_id)?,
-            kind: LocationKind::from_name(&o.req_with("kind", string)?),
+            kind: o.req_with("kind", |x, p| {
+                open_term(&LocationKind::TABLE, LocationKind::Other, x, p)
+            })?,
             path: o.opt_with("path", feature_id)?,
             directed: o.req_with("directed", boolean)?,
             angle: angle(&o)?,
@@ -1254,10 +1321,7 @@ fn dimension_json(d: &Dimension) -> Json {
         .put("kind", dimension_kind_json(&d.kind))
         .opt("nominal", d.nominal.as_ref().map(value_json))
         .put("tolerance", dim_tolerance_json(&d.tolerance))
-        .opt(
-            "qualifier",
-            d.qualifier.as_ref().map(|q| json!(qualifier_name(q))),
-        )
+        .opt("qualifier", d.qualifier.as_ref().map(qualifier_json))
         .list(
             "modifiers",
             d.modifiers
@@ -1287,7 +1351,7 @@ fn dimension_from(v: &Json, path: &str) -> R<Dimension> {
         nominal: o.opt_with("nominal", value_from)?,
         tolerance: o.req_with("tolerance", dim_tolerance_from)?,
         qualifier: o.opt_with("qualifier", |x, p| {
-            string(x, p).map(|s| Qualifier::from_name(&s))
+            open_term(&QUALIFIERS, Qualifier::Other, x, p)
         })?,
         modifiers: o.list("modifiers", dimension_modifier_from)?,
         principle: o.opt_with("principle", |x, p| term(&PRINCIPLES, x, p))?,
@@ -1340,20 +1404,23 @@ fn target_from(v: &Json, path: &str) -> R<ToleranceTarget> {
     })
 }
 
-fn zone_form_name(f: &ZoneForm) -> &str {
+fn zone_form_json(f: &ZoneForm) -> Json {
     match f {
-        ZoneForm::Other(s) => s,
-        k => ZoneForm::TABLE
-            .iter()
-            .find(|(_, x)| x == k)
-            .map(|(n, _)| *n)
-            .expect("every named form is in Table 13"),
+        ZoneForm::Other(s) => open_term_json(s, true),
+        k => open_term_json(
+            ZoneForm::TABLE
+                .iter()
+                .find(|(_, x)| x == k)
+                .map(|(n, _)| *n)
+                .expect("every named form is in Table 13"),
+            false,
+        ),
     }
 }
 
 fn zone_json(z: &Zone) -> Json {
     Out::new()
-        .put("form", json!(zone_form_name(&z.form)))
+        .put("form", zone_form_json(&z.form))
         .opt(
             "projected",
             z.projected.as_ref().map(|p| {
@@ -1383,7 +1450,9 @@ fn zone_from(v: &Json, path: &str) -> R<Zone> {
     ];
     let o = object(v, path, &keys)?;
     Ok(Zone {
-        form: ZoneForm::from_name(&o.req_with("form", string)?),
+        form: o.req_with("form", |x, p| {
+            open_term(&ZoneForm::TABLE, ZoneForm::Other, x, p)
+        })?,
         projected: o.opt_with("projected", |x, p| {
             let o = object(x, p, &["end", "length"])?;
             Ok(ProjectedZone {
@@ -2017,6 +2086,78 @@ pub fn document_to_json(d: &Document) -> Json {
         }).collect::<Vec<_>>(),
         "findings": d.findings.iter().map(finding_json).collect::<Vec<_>>(),
     })
+}
+
+/// JSON text as a value, refusing an object that names a key twice (`serde_json` keeps the last
+/// occurrence, which would accept a conflicting document without a word).
+pub fn parse(text: &str) -> Result<Json, serde_json::Error> {
+    use serde::de::{self, Deserialize, Deserializer, MapAccess, SeqAccess, Visitor};
+
+    struct Strict(Json);
+    struct V;
+
+    impl<'de> Visitor<'de> for V {
+        type Value = Strict;
+
+        fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            f.write_str("a JSON value")
+        }
+        fn visit_bool<E>(self, b: bool) -> Result<Strict, E> {
+            Ok(Strict(Json::Bool(b)))
+        }
+        fn visit_i64<E>(self, n: i64) -> Result<Strict, E> {
+            Ok(Strict(Json::from(n)))
+        }
+        fn visit_u64<E>(self, n: u64) -> Result<Strict, E> {
+            Ok(Strict(Json::from(n)))
+        }
+        fn visit_f64<E>(self, n: f64) -> Result<Strict, E> {
+            Ok(Strict(
+                serde_json::Number::from_f64(n).map_or(Json::Null, Json::Number),
+            ))
+        }
+        fn visit_str<E>(self, s: &str) -> Result<Strict, E> {
+            Ok(Strict(Json::String(s.to_string())))
+        }
+        fn visit_string<E>(self, s: String) -> Result<Strict, E> {
+            Ok(Strict(Json::String(s)))
+        }
+        fn visit_unit<E>(self) -> Result<Strict, E> {
+            Ok(Strict(Json::Null))
+        }
+        fn visit_none<E>(self) -> Result<Strict, E> {
+            Ok(Strict(Json::Null))
+        }
+        fn visit_some<D: Deserializer<'de>>(self, d: D) -> Result<Strict, D::Error> {
+            Strict::deserialize(d)
+        }
+        fn visit_seq<A: SeqAccess<'de>>(self, mut seq: A) -> Result<Strict, A::Error> {
+            let mut out = Vec::new();
+            while let Some(Strict(x)) = seq.next_element()? {
+                out.push(x);
+            }
+            Ok(Strict(Json::Array(out)))
+        }
+        fn visit_map<A: MapAccess<'de>>(self, mut map: A) -> Result<Strict, A::Error> {
+            let mut out = Map::new();
+            while let Some(k) = map.next_key::<String>()? {
+                if out.contains_key(&k) {
+                    return Err(de::Error::custom(format!("duplicate key {k:?}")));
+                }
+                let Strict(x) = map.next_value()?;
+                out.insert(k, x);
+            }
+            Ok(Strict(Json::Object(out)))
+        }
+    }
+
+    impl<'de> Deserialize<'de> for Strict {
+        fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Strict, D::Error> {
+            d.deserialize_any(V)
+        }
+    }
+
+    serde_json::from_str::<Strict>(text).map(|Strict(v)| v)
 }
 
 /// A document from its JSON form, refused on a different format or version, an unknown field

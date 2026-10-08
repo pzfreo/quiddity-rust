@@ -220,6 +220,34 @@ fn pmi_read_of_one_part() {
     assert!(String::from_utf8_lossy(&out.stderr).contains("usage: quiddity"));
 }
 
+/// The reader version and the sha256 of `pmi read`'s output over the committed fixtures, pinned
+/// together. `READER` is what `pmi check` holds a document's anchors to, so it must change
+/// whenever the reader's output does: when this fails, bump `pmi_json::READER` if `pmi::read`
+/// changed (a JSON-form change bumps `VERSION` instead), then re-pin both.
+const READER_PIN: (&str, &str) = (
+    "haecceity-pmi-read/1",
+    "b7a1fe7934e9f81fb61eca5ea79913b475d15334fb3afcf19638cb8b3a513b7b",
+);
+
+#[test]
+fn reader_version_is_pinned_to_the_readers_output() {
+    let mut all = Vec::new();
+    for path in fixtures() {
+        let (_, out) = ok(&["pmi", "read", path.to_str().unwrap()]);
+        all.extend(name(&path).into_bytes());
+        all.push(0);
+        all.extend(out);
+        all.push(0);
+    }
+    let digest = Binding::of(&all).sha256;
+    assert_eq!(
+        (pmi_json::READER, digest.as_str()),
+        READER_PIN,
+        "pmi read's output over the fixtures changed: bump READER if pmi::read changed, then \
+         re-pin"
+    );
+}
+
 #[test]
 fn every_read_part_round_trips_through_json() {
     let mut files = fixtures();
@@ -362,6 +390,77 @@ fn pmi_check_refusals_name_the_json_path() {
         err.contains("parts[0].pmi.tolerances[0].kind: unknown term \"runout\""),
         "{err}"
     );
+
+    // A misspelt standard term is refused, never kept as a free-text name; a name the practice
+    // does not list must be written {"other": …}, and an `other` naming a standard term is refused.
+    let size_kind = |kind: Json| {
+        let mut d = json.clone();
+        d["parts"][0]["pmi"]["dimensions"][0]["kind"]["size"]["kind"] = kind;
+        d
+    };
+    let err = check_refused(&step, &size_kind(json!("Diamter")), "misspelt-size-kind");
+    assert!(
+        err.contains("parts[0].pmi.dimensions[0].kind.size.kind: unknown term \"Diamter\""),
+        "{err}"
+    );
+    let err = check_refused(
+        &step,
+        &size_kind(json!({"other": "diameter"})),
+        "other-standard-size-kind",
+    );
+    assert!(
+        err.contains(
+            "parts[0].pmi.dimensions[0].kind.size.kind.other: \"diameter\" is a standard term"
+        ),
+        "{err}"
+    );
+    let out = check(
+        &step,
+        &size_kind(json!({"other": "chord"})).to_string(),
+        "other-size-kind",
+    );
+    assert_eq!(
+        out.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let mut bad = json.clone();
+    bad["parts"][0]["pmi"]["dimensions"][0]["kind"] =
+        json!({"location": {"from": 2, "to": 3, "kind": "linear distanse", "directed": false}});
+    let err = check_refused(&step, &bad, "misspelt-location-kind");
+    assert!(
+        err.contains(
+            "parts[0].pmi.dimensions[0].kind.location.kind: unknown term \"linear distanse\""
+        ),
+        "{err}"
+    );
+
+    let mut bad = json.clone();
+    bad["parts"][0]["pmi"]["tolerances"][0]["zone"]["form"] = json!("within a cylindre");
+    let err = check_refused(&step, &bad, "misspelt-zone-form");
+    assert!(
+        err.contains("parts[0].pmi.tolerances[0].zone.form: unknown term \"within a cylindre\""),
+        "{err}"
+    );
+
+    let mut bad = json.clone();
+    bad["parts"][0]["pmi"]["dimensions"][0]["qualifier"] = json!("maximun");
+    let err = check_refused(&step, &bad, "misspelt-qualifier");
+    assert!(
+        err.contains("parts[0].pmi.dimensions[0].qualifier: unknown term \"maximun\""),
+        "{err}"
+    );
+
+    // A key named twice is refused, not resolved to its last value.
+    let text = serde_json::to_string(&json).unwrap();
+    let dup = text.replacen("{\"binding\":", "{\"format\":\"x\",\"binding\":", 1);
+    assert_ne!(dup, text);
+    let out = check(&step, &dup, "duplicate-key");
+    assert_eq!(out.status.code(), Some(1));
+    let err = String::from_utf8_lossy(&out.stderr);
+    assert!(err.contains("duplicate key \"format\""), "{err}");
 
     let mut bad = json.clone();
     bad["parts"][0]["pmi"]["tolerances"][0]["modifiers"] = json!(["MAXIMUM_MATERIAL_REQUIREMENT"]);
