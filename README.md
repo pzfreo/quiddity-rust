@@ -169,6 +169,17 @@ QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release
 # QUIDDITY_CORPUS_REQUIRED=1 they pass by skipping when the corpus is missing
 ```
 
+`quiddity` exits 0 with the JSON on stdout; 1 with the error on stderr when a file cannot be
+read; 2 with the usage on stderr for bad arguments (`-h`/`--help` prints it on stdout and exits
+0). A STEP file is refused, never recognised as empty, when it does not parse (a cut-off
+write), has no solid or shell, has shape geometry or topology that is missing or that step-io
+dropped (a deleted face, a file cut at an entity and closed), or has a closed edge whose curve
+the kernel cannot resolve. A face or open edge whose geometry does not resolve is kept and
+recorded (`Part::unresolved_faces`, `unresolved_edges`): its solid is not valid, so its
+features are not recognised, `hlr` refuses to draw the part, and the CLI warns on stderr. Python
+(OpenCascade) reads a file with a deleted face as a loose shell, and resolves hyperbolas and
+offset surfaces, which this kernel does not model.
+
 ## How a family is ported
 
 1. **Capture Python's behaviour.** From the quiddity checkout, run its tests for the family

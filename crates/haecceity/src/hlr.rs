@@ -254,24 +254,78 @@ impl Plane {
     }
 }
 
+/// The drawn faces and their edges whose geometry did not resolve on reading
+/// ([`Part::unresolved_faces`], [`Part::unresolved_edges`]). Such a face can neither be drawn
+/// nor hide anything, and such an edge has only its chord, so a drawing of the part is refused
+/// rather than drawn wrong.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Unresolved {
+    pub faces: Vec<usize>,
+    pub edges: Vec<usize>,
+}
+
+impl std::fmt::Display for Unresolved {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "geometry did not resolve: faces {:?}, edges {:?}",
+            self.faces, self.edges
+        )
+    }
+}
+
+impl std::error::Error for Unresolved {}
+
 /// The part's edges and silhouettes seen in *view*, split into visible and hidden stretches.
-pub fn project(part: &Part, view: &View) -> Vec<Projected> {
+pub fn project(part: &Part, view: &View) -> Result<Vec<Projected>, Unresolved> {
     draw(part, view, None)
 }
 
 /// A section view: the part cut by *plane*, the half on its normal's side kept and seen in
 /// *view* (from the side removed), with the section's outline drawn as sharp edges.
-pub fn project_section(part: &Part, view: &View, plane: &Plane) -> Vec<Projected> {
+pub fn project_section(
+    part: &Part,
+    view: &View,
+    plane: &Plane,
+) -> Result<Vec<Projected>, Unresolved> {
     draw(part, view, Some(plane))
 }
 
 /// Where *plane* cuts the part: each face's curve of intersection with it, and each edge
 /// lying in it that bounds material on one side. The cut face, which draftwright hatches by
 /// the even-odd rule, is the region these bound.
-pub fn section(part: &Part, plane: &Plane) -> Vec<Vec<V3>> {
+pub fn section(part: &Part, plane: &Plane) -> Result<Vec<Vec<V3>>, Unresolved> {
     let faces = drawn_faces(part);
+    resolved(part, &faces)?;
+    Ok(cut(part, plane, &faces))
+}
+
+/// Refuses *faces* when any of them, or any of their edges, did not resolve.
+fn resolved(part: &Part, faces: &[usize]) -> Result<(), Unresolved> {
+    let unresolved = Unresolved {
+        faces: faces
+            .iter()
+            .copied()
+            .filter(|f| part.unresolved_faces().contains(f))
+            .collect(),
+        edges: part
+            .unresolved_edges()
+            .iter()
+            .copied()
+            .filter(|&e| part.edge_faces()[e].iter().any(|f| faces.contains(f)))
+            .collect(),
+    };
+    if unresolved.faces.is_empty() && unresolved.edges.is_empty() {
+        Ok(())
+    } else {
+        Err(unresolved)
+    }
+}
+
+/// [`section`] across *faces*, the drawn faces.
+fn cut(part: &Part, plane: &Plane, faces: &[usize]) -> Vec<Vec<V3>> {
     let mut out = Vec::new();
-    for &face in &faces {
+    for &face in faces {
         let surface = &part.faces[face].surface;
         let g = |(u, v): (f64, f64)| plane.distance(surface.value(u, v));
         out.extend(contour(part, face, &g));
@@ -281,7 +335,7 @@ pub fn section(part: &Part, plane: &Plane) -> Vec<Vec<V3>> {
     let mut edges: Vec<usize> = faces.iter().flat_map(|&f| part.face_edges(f)).collect();
     edges.sort_unstable();
     edges.dedup();
-    let classifier = Classifier::for_faces(part, faces);
+    let classifier = Classifier::for_faces(part, faces.to_vec());
     let step = 1e-4 * classifier.rays().bounds().diagonal().max(1.0);
     for e in edges {
         let edge = &part.edges[e];
@@ -332,8 +386,9 @@ enum On<'p> {
     Section,
 }
 
-fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Vec<Projected> {
+fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected>, Unresolved> {
     let faces = drawn_faces(part);
+    resolved(part, &faces)?;
     let rays = RayCaster::for_faces(part, faces.clone());
     let scale = rays.bounds().diagonal().max(1.0);
     let mut curves: Vec<(Class, Vec<V3>, On)> = edges(part, view, &faces);
@@ -360,7 +415,7 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Vec<Projected> {
             })
             .collect();
         curves.extend(
-            section(part, plane)
+            cut(part, plane, &faces)
                 .into_iter()
                 .map(|c| (Class::Sharp, c, On::Section)),
         );
@@ -456,7 +511,7 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Vec<Projected> {
             });
         }
     }
-    out
+    Ok(out)
 }
 
 /// The stretches of polyline *c* on the plane's kept side (or within *tol* of it), each

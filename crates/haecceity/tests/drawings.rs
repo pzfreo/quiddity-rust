@@ -103,7 +103,7 @@ fn exact_curves_follow_their_points() {
             ([1.0, -1.0, 1.0], [0.0, 0.0, 1.0]),
         ] {
             let view = View::new(toward, up).unwrap();
-            for piece in project(&part, &view) {
+            for piece in project(&part, &view).unwrap() {
                 if piece.class != Class::Outline {
                     edges += 1;
                 }
