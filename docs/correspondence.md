@@ -1,7 +1,7 @@
 # Correspondence between revisions
 
 **Status:** design accepted with draftwright-rust's ADR R3 (2026-10-07); implemented in
-`src/correspondence/` (fingerprint version `quiddity-rust/fingerprint/1`). See
+`src/correspondence/` (fingerprint version `quiddity-rust/fingerprint/2`). See
 [Implementation](#implementation) for what was built, the thresholds and how they were tuned, and
 what is not done.
 
@@ -131,19 +131,39 @@ before plus a top-level `fingerprints`; `quiddity correspond old new` takes two 
 two STEP files) and writes the `Correspondence`. In the library: `correspondence::recognise`,
 `fingerprint`, `correspond` and `correspond_with` (explicit `Thresholds`).
 
-### Fingerprints (`fingerprint.rs`, version `quiddity-rust/fingerprint/1`)
+### Fingerprints (`fingerprint.rs`, version `quiddity-rust/fingerprint/2`)
 
-- **Features** are read generically from each family's serialised records, so a newly ported
-  family is fingerprinted once it records its defining faces (`Features::defining`, filled by
-  `features::recognise`):
-  - *traits* (the subtype): string, boolean and null fields, and the presence of nested records
-    (a counterbore); axis letters are placement, not traits. Pattern families add their shape
-    (the record's field names, since the patterns are untagged variants);
-  - *sizes*: a fixed list of size names (diameter, depth, radius, legs, pitch, count, …). A
-    pattern's `angle` is its orientation in the frame and is left out; a pair of sizes ordered by
-    the frame (a ramp's half-widths) is sorted;
-  - *placement*: the first axis-like field (a vector or an axis letter) as a line, and the
-    area-weighted centroid of the defining faces. Derived patterns take their members' faces.
+- **Features** are read from each family's serialised records through an explicit table,
+  `FAMILIES` in `fingerprint.rs`, keyed by the family's field in `Features`. It lists every field
+  path of the family's records (`cbore.diameter` into a nested record, `section.segments[].radius`
+  into each item of a list) with its role, and a field takes the role of the longest listed path
+  leading to it:
+  - *size*: an intrinsic size by its path; several numbers (a gusset's two legs, a ramp's
+    half-widths, a pocket's arc radii) are ordered by the frame or the record's canonical order,
+    so they are kept smallest first as `<path>.<i>`;
+  - *trait* (the subtype): a string, boolean or null; a nested record's presence (a counterbore);
+    a list of strings, sorted and joined. Pattern families of untagged variants add their shape
+    (the record's field names);
+  - *count*: a list of member records, by its length (a pattern's `count`, a thin wall's `pairs`,
+    a void's `openings`);
+  - *axis* and *placement*: the first axis field present (a vector or an axis letter) is the
+    feature's axis; positions, frame-aligned bounds, spans, directions, axis letters and signs
+    move with the part and are otherwise not compared. Placement is the axis and the area-weighted
+    centroid of the defining faces; derived families (hole and gusset rib patterns, the table's
+    `members`) take their members' faces;
+  - *derived*: read only through sizes the family derives from them, unchanged by motion: a
+    plate's `thickness` (hi − lo), a turned step's `length` (hi − lo), a gusset rib's `thickness`
+    (its bounds), a through step's two section legs, and an edge-open pocket's or recess's
+    `run_length` (its run interval), `opening_width`, wall or straight-segment lengths and arc
+    sweeps (absolute, since a sweep's sign follows the section's handedness in the frame);
+  - *ignored*: face and body indices, sampling diagnostics (a void's grid pitch and sample
+    counts), a fit's residual, a thin wall's heuristic history hint.
+
+  `fingerprint` panics on a family missing from the table, or one with neither defining faces
+  (`Features::defining`) nor members: a wiring defect. `tests/wiring.rs` recognises every STEP
+  fixture and corpus part and fails on a family not wired that way (defining-face lists one per
+  record), on a record field with no role, on a table path no record has, and on a feature whose
+  fingerprint has no size.
   - *neighbourhood*: in draftwright's bridge format, with the arc labels below (which depart
     from the bridge's on nearly tangent edges).
 - **Faces:** the effective surface type (a B-spline exactly a plane, cylinder… counts as one),
@@ -158,9 +178,19 @@ two STEP files) and writes the `Correspondence`. In the library: `correspondence
   whose quadrature gives no area (nist_ftc_10 face 174, stream F's defect) has an unknown area
   and its edge samples' mean as centroid.
 - `scale` is the square root of the part's area, which motion leaves unchanged.
+- **Versions.** 2 (2026-10-08, review finding H5) replaced version 1's global list of 32 size
+  names, under which any other numeric field, a field nested two deep and the items of a list
+  were dropped: every plate, edge-open recess and interior void had no sizes, so a resize of one
+  was carried without a trace. Version 2 adds those sizes (and the gusset rib, turned step and
+  through step ones above), drops version 1's traits from incidental fields (a chamfer's corner, a
+  thin wall's history hint, a groove's profile key) and counts a thin wall's face pairs rather
+  than its unpaired faces.
 
 ### Correspond
 
+- **Input**: fingerprints read from a file are checked before use, and refused with an error
+  rather than indexed out of range: the version, a finite positive scale, each face at its own
+  index, and every face a feature or a face's neighbours name among the faces (review finding L2).
 - **Align** (`align.rs`): candidate pairs are features and faces whose motion-free fingerprints
   agree, with at most four candidates either way; hypotheses come from every pair and triple of
   pairs (or 3000 of each, sampled deterministically), solved by Horn's quaternion method (Kabsch
@@ -210,8 +240,9 @@ two STEP files) and writes the `Correspondence`. In the library: `correspondence
 
 ### Results
 
-- **Invariance** (`tests/correspondence.rs`): 100 corpus parts × 6 motions, 10 716 features and
-  64 014 faces. Every feature and face is carried to itself except in 19 listed (file, motion)
+- **Invariance** (`tests/correspondence.rs`): every corpus part under 6 motions; the test prints
+  how many it checked (600 moved parts, 11 088 features and 64 014 faces at fingerprint version 2,
+  2026-10-08). Every feature and face is carried to itself except in 30 listed (file, motion)
   cases in `tests/fixtures/known_correspondence.json`, each with a verdict and the exact features
   and face count that differ (any other difference in a listed case still fails):
   - `flanged_spool_132` under three of the turns (rust-correct): the part is six-fold symmetric
@@ -225,7 +256,13 @@ two STEP files) and writes the `Correspondence`. In the library: `correspondence
   - cgb207, cgb242 (rust-wrong): B-spline face areas that change with placement by up to 0.7%;
   - threaded_connector_109 (rust-wrong): a surface recovered as a plane in one placement only
     (recover.rs);
-  - nist_ctc_05 and cgb217 (rust-wrong): hole depths on a rounding half-way point.
+  - nist_ctc_05 and cgb217 (rust-wrong): hole depths on a rounding half-way point;
+  - five plates (rust-wrong, the plate recogniser, as Python): a side's faces closer than the
+    0.5 mm clustering tolerance are placed at the lowest, which flips with the axis's sign, so the
+    thickness version 2 records changes with the motion and the plate is reported adapted to
+    itself;
+  - cgb217 and cgb243's voids under three turns (rust-wrong, the void grid, as Python): the
+    estimated volume counts grid samples, and the grid's phase on the part changes with the turn.
 
   Families listed in `known_invariance.json` are left out where listed.
 - **Revision pairs** (`tools/capture_revisions.py`, `tests/fixtures/revisions/`, 10 pairs): a hole

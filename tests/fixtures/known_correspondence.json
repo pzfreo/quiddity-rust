@@ -199,5 +199,126 @@
       "holes/18"
     ],
     "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "motion": "rot_z90",
+    "verdict": "rust-wrong",
+    "reason": "Fingerprint version 2 records a void's estimated volume, which is enclosed grid samples times the grid pitch cubed, and the void grid is anchored at the box's minimum corner, so turned over its cells sit elsewhere on the part and enclose a different count of samples (cgb217: 166 samples at pitch 2.072 mm unmoved, 170 under rot_z90, 155 under rot_y180; the same defining faces 26 and 41). The record itself changes, and the correspondence honestly reports the void adapted (to itself). The recogniser's grid, not correspondence, is at fault (known_invariance.json's 11512 entry); Python's grid is anchored the same way.",
+    "features": [
+      "interior_voids/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "motion": "rot_x90",
+    "verdict": "rust-wrong",
+    "reason": "Fingerprint version 2 records a void's estimated volume, which is enclosed grid samples times the grid pitch cubed, and the void grid is anchored at the box's minimum corner, so turned over its cells sit elsewhere on the part and enclose a different count of samples (cgb217: 166 samples at pitch 2.072 mm unmoved, 170 under rot_z90, 155 under rot_y180; the same defining faces 26 and 41). The record itself changes, and the correspondence honestly reports the void adapted (to itself). The recogniser's grid, not correspondence, is at fault (known_invariance.json's 11512 entry); Python's grid is anchored the same way.",
+    "features": [
+      "interior_voids/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "motion": "rot_y180",
+    "verdict": "rust-wrong",
+    "reason": "Fingerprint version 2 records a void's estimated volume, which is enclosed grid samples times the grid pitch cubed, and the void grid is anchored at the box's minimum corner, so turned over its cells sit elsewhere on the part and enclose a different count of samples (cgb217: 166 samples at pitch 2.072 mm unmoved, 170 under rot_z90, 155 under rot_y180; the same defining faces 26 and 41). The record itself changes, and the correspondence honestly reports the void adapted (to itself). The recogniser's grid, not correspondence, is at fault (known_invariance.json's 11512 entry); Python's grid is anchored the same way.",
+    "features": [
+      "interior_voids/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "motion": "rot_z90",
+    "verdict": "rust-wrong",
+    "reason": "Fingerprint version 2 records a void's estimated volume, which is enclosed grid samples times the grid pitch cubed, and the void grid is anchored at the box's minimum corner, so turned over its cells sit elsewhere on the part and enclose a different count of samples (cgb217: 166 samples at pitch 2.072 mm unmoved, 170 under rot_z90, 155 under rot_y180; the same defining faces 26 and 41). The record itself changes, and the correspondence honestly reports the void adapted (to itself). The recogniser's grid, not correspondence, is at fault (known_invariance.json's 11512 entry); Python's grid is anchored the same way.",
+    "features": [
+      "interior_voids/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "motion": "rot_x90",
+    "verdict": "rust-wrong",
+    "reason": "Fingerprint version 2 records a void's estimated volume, which is enclosed grid samples times the grid pitch cubed, and the void grid is anchored at the box's minimum corner, so turned over its cells sit elsewhere on the part and enclose a different count of samples (cgb217: 166 samples at pitch 2.072 mm unmoved, 170 under rot_z90, 155 under rot_y180; the same defining faces 26 and 41). The record itself changes, and the correspondence honestly reports the void adapted (to itself). The recogniser's grid, not correspondence, is at fault (known_invariance.json's 11512 entry); Python's grid is anchored the same way.",
+    "features": [
+      "interior_voids/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "motion": "rot_y180",
+    "verdict": "rust-wrong",
+    "reason": "Fingerprint version 2 records a void's estimated volume, which is enclosed grid samples times the grid pitch cubed, and the void grid is anchored at the box's minimum corner, so turned over its cells sit elsewhere on the part and enclose a different count of samples (cgb217: 166 samples at pitch 2.072 mm unmoved, 170 under rot_z90, 155 under rot_y180; the same defining faces 26 and 41). The record itself changes, and the correspondence honestly reports the void adapted (to itself). The recogniser's grid, not correspondence, is at fault (known_invariance.json's 11512 entry); Python's grid is anchored the same way.",
+    "features": [
+      "interior_voids/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
+    "motion": "rot_y180",
+    "verdict": "rust-wrong",
+    "reason": "Fingerprint version 2 records a plate's thickness (hi - lo), and the plate recogniser's lo and hi are not invariant: each side's planar faces are clustered within the 0.5 mm tolerance and the cluster is placed at its lowest coordinate (plates.rs group, as Python's cluster_coordinates). Where one side has two faces less than 0.5 mm apart, which of them is lowest flips with the axis's sign, so the same defining faces give another thickness (mfcadpp_holdout/808: faces 7 at y=0 and 9 at y=0.5 with face 5 at y=3 give 3.0 unmoved and 2.5 under rot_z90). The record itself changes, and the correspondence honestly reports the plate adapted (to itself). The recogniser, not correspondence, is at fault; Python behaves the same.",
+    "features": [
+      "plates/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10049.step",
+    "motion": "rot_y180",
+    "verdict": "rust-wrong",
+    "reason": "Fingerprint version 2 records a plate's thickness (hi - lo), and the plate recogniser's lo and hi are not invariant: each side's planar faces are clustered within the 0.5 mm tolerance and the cluster is placed at its lowest coordinate (plates.rs group, as Python's cluster_coordinates). Where one side has two faces less than 0.5 mm apart, which of them is lowest flips with the axis's sign, so the same defining faces give another thickness (mfcadpp_holdout/808: faces 7 at y=0 and 9 at y=0.5 with face 5 at y=3 give 3.0 unmoved and 2.5 under rot_z90). The record itself changes, and the correspondence honestly reports the plate adapted (to itself). The recogniser, not correspondence, is at fault; Python behaves the same.",
+    "features": [
+      "plates/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp_holdout/182.step",
+    "motion": "rot_y180",
+    "verdict": "rust-wrong",
+    "reason": "Fingerprint version 2 records a plate's thickness (hi - lo), and the plate recogniser's lo and hi are not invariant: each side's planar faces are clustered within the 0.5 mm tolerance and the cluster is placed at its lowest coordinate (plates.rs group, as Python's cluster_coordinates). Where one side has two faces less than 0.5 mm apart, which of them is lowest flips with the axis's sign, so the same defining faces give another thickness (mfcadpp_holdout/808: faces 7 at y=0 and 9 at y=0.5 with face 5 at y=3 give 3.0 unmoved and 2.5 under rot_z90). The record itself changes, and the correspondence honestly reports the plate adapted (to itself). The recogniser, not correspondence, is at fault; Python behaves the same.",
+    "features": [
+      "plates/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp_holdout/340.step",
+    "motion": "rot_z90",
+    "verdict": "rust-wrong",
+    "reason": "Fingerprint version 2 records a plate's thickness (hi - lo), and the plate recogniser's lo and hi are not invariant: each side's planar faces are clustered within the 0.5 mm tolerance and the cluster is placed at its lowest coordinate (plates.rs group, as Python's cluster_coordinates). Where one side has two faces less than 0.5 mm apart, which of them is lowest flips with the axis's sign, so the same defining faces give another thickness (mfcadpp_holdout/808: faces 7 at y=0 and 9 at y=0.5 with face 5 at y=3 give 3.0 unmoved and 2.5 under rot_z90). The record itself changes, and the correspondence honestly reports the plate adapted (to itself). The recogniser, not correspondence, is at fault; Python behaves the same.",
+    "features": [
+      "plates/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp_holdout/808.step",
+    "motion": "rot_z90",
+    "verdict": "rust-wrong",
+    "reason": "Fingerprint version 2 records a plate's thickness (hi - lo), and the plate recogniser's lo and hi are not invariant: each side's planar faces are clustered within the 0.5 mm tolerance and the cluster is placed at its lowest coordinate (plates.rs group, as Python's cluster_coordinates). Where one side has two faces less than 0.5 mm apart, which of them is lowest flips with the axis's sign, so the same defining faces give another thickness (mfcadpp_holdout/808: faces 7 at y=0 and 9 at y=0.5 with face 5 at y=3 give 3.0 unmoved and 2.5 under rot_z90). The record itself changes, and the correspondence honestly reports the plate adapted (to itself). The recogniser, not correspondence, is at fault; Python behaves the same.",
+    "features": [
+      "plates/0"
+    ],
+    "faces": 0
   }
 ]

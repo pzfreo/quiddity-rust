@@ -237,31 +237,6 @@ pub struct Correspondence {
     pub questions: Vec<String>,
 }
 
-impl Correspondence {
-    /// How many old features (or faces) fall in each class, and how many are new.
-    pub fn feature_counts(&self) -> BTreeMap<Class, usize> {
-        let mut out = BTreeMap::new();
-        for e in &self.features {
-            *out.entry(e.class).or_default() += 1;
-        }
-        if !self.new_features.is_empty() {
-            out.insert(Class::New, self.new_features.len());
-        }
-        out
-    }
-
-    pub fn face_counts(&self) -> BTreeMap<Class, usize> {
-        let mut out = BTreeMap::new();
-        for e in &self.faces {
-            *out.entry(e.class).or_default() += 1;
-        }
-        if !self.new_faces.is_empty() {
-            out.insert(Class::New, self.new_faces.len());
-        }
-        out
-    }
-}
-
 /// Matches the *old* revision's features and faces to the *new* one's.
 pub fn correspond(old: &Fingerprints, new: &Fingerprints) -> Result<Correspondence, String> {
     correspond_with(old, new, &Thresholds::default())
@@ -274,12 +249,7 @@ pub fn correspond_with(
     th: &Thresholds,
 ) -> Result<Correspondence, String> {
     for (which, f) in [("old", old), ("new", new)] {
-        if f.fingerprint_version != FINGERPRINT_VERSION {
-            return Err(format!(
-                "the {which} fingerprints are version {:?}, not {FINGERPRINT_VERSION:?}; recognise the file again",
-                f.fingerprint_version
-            ));
-        }
+        validate(f).map_err(|e| format!("the {which} fingerprints {e}"))?;
     }
     let (motion, alignment) = align::align(old, new, th);
     let ctx = Ctx {
@@ -303,6 +273,42 @@ pub fn correspond_with(
         new_faces,
         questions,
     })
+}
+
+/// Whether fingerprints read from a file can be compared: of this version, with a finite
+/// positive scale, each face at its own index, and every face a feature or a face names among
+/// them. A hand-edited or truncated file is refused here rather than indexed out of range.
+fn validate(f: &Fingerprints) -> Result<(), String> {
+    if f.fingerprint_version != FINGERPRINT_VERSION {
+        return Err(format!(
+            "are version {:?}, not {FINGERPRINT_VERSION:?}; recognise the file again",
+            f.fingerprint_version
+        ));
+    }
+    if !(f.scale.is_finite() && f.scale > 0.0) {
+        return Err(format!(
+            "have scale {}, not a finite positive size",
+            f.scale
+        ));
+    }
+    let n = f.faces.len();
+    for (i, face) in f.faces.iter().enumerate() {
+        if face.index != i {
+            return Err(format!("list face {} at position {i}", face.index));
+        }
+        if let Some((g, _)) = face.neighbours.iter().find(|(g, _)| *g >= n) {
+            return Err(format!("give face {i} neighbour {g}, beyond the {n} faces"));
+        }
+    }
+    for feature in &f.features {
+        if let Some(g) = feature.faces.iter().find(|&&g| g >= n) {
+            return Err(format!(
+                "give feature {} face {g}, beyond the {n} faces",
+                feature.id
+            ));
+        }
+    }
+    Ok(())
 }
 
 /// Whether two values agree within *rel* of the larger (or absolutely, near zero).
@@ -735,3 +741,41 @@ enum Outcome {
 }
 
 mod faces;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Review finding L2: a fingerprints file naming a face that is not there (a feature's face
+    /// 999) was indexed out of range; such files are refused, either side.
+    #[test]
+    fn correspond_refuses_fingerprints_that_do_not_hold_together() {
+        let path =
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/prismatic.step");
+        let good = recognise(&crate::read_step_file(&path).unwrap()).fingerprints;
+        assert!(!good.features.is_empty());
+        assert!(correspond(&good, &good).is_ok());
+        type Mutation = fn(&mut Fingerprints);
+        let bad: [(&str, Mutation); 6] = [
+            ("face 999, beyond", |f| f.features[0].faces = vec![999]),
+            ("neighbour 999", |f| {
+                f.faces[0].neighbours.push((999, "convex".into()))
+            }),
+            ("at position 1", |f| f.faces[1].index = 0),
+            ("scale 0", |f| f.scale = 0.0),
+            ("scale NaN", |f| f.scale = f64::NAN),
+            ("version", |f| f.fingerprint_version = "other".into()),
+        ];
+        for (expected, mutate) in bad {
+            let mut f = good.clone();
+            mutate(&mut f);
+            // Read back as `quiddity correspond` reads a file, where JSON can carry it (it has
+            // no NaN).
+            let f = serde_json::from_str(&serde_json::to_string(&f).unwrap()).unwrap_or(f);
+            for (old, new) in [(&f, &good), (&good, &f)] {
+                let error = correspond(old, new).unwrap_err();
+                assert!(error.contains(expected), "{expected}: {error}");
+            }
+        }
+    }
+}
