@@ -16,6 +16,7 @@ use super::cylinders::{
     z_then_cross,
 };
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::policy;
 use super::stacks::{End, classify_end, end_partners};
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, COORD_FLOOR, Surface, V3};
@@ -172,9 +173,9 @@ fn merge_stacks(part: &Part, stacks: Vec<Vec<Segment>>) -> Vec<Vec<Segment>> {
         let (sa, sb) = (sources(a), sources(b));
         sa.intersection(&sb).any(|&index| {
             let cut = &original[index];
-            let tolerance = geom::length_tol(cut.diameter, STACK_GAP_FRAC);
+            let tolerance = policy::length_tol(cut.diameter, STACK_GAP_FRAC);
             let radius = cut.diameter / 2.0;
-            let radial_tolerance = geom::length_tol(radius, 5e-6);
+            let radial_tolerance = policy::length_tol(radius, 5e-6);
             endpoints.iter().all(|&point| {
                 let axial = py::dot(&point, &cut.direction);
                 let centre = axis_point_at(cut, axial);
@@ -226,7 +227,7 @@ fn merge_stacks(part: &Part, stacks: Vec<Vec<Segment>>) -> Vec<Vec<Segment>> {
                 );
                 cur = next;
             } else if b.s_lo - a.s_hi
-                <= geom::length_tol(a.diameter.max(b.diameter), STACK_GAP_FRAC)
+                <= policy::length_tol(a.diameter.max(b.diameter), STACK_GAP_FRAC)
                     + (a.diameter - b.diameter).abs()
                 && shared_transition(part, a, b)
             {

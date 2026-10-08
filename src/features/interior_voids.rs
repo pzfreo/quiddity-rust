@@ -9,10 +9,11 @@ use serde::Serialize;
 use super::Context;
 use super::body::BodyKey;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::policy::length_tol;
 use super::probes::probe_samples;
 use crate::kernel::brep::Part;
 use crate::kernel::classify::State;
-use crate::kernel::geom::{self, Bounds, COORD_FLOOR, Surface, V3, length_tol};
+use crate::kernel::geom::{self, Bounds, COORD_FLOOR, Surface, V3};
 
 const AXES: [V3; 6] = [
     [1.0, 0.0, 0.0],

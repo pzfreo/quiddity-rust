@@ -12,9 +12,10 @@ use super::bevel::{classify_bevel, convex_bevel};
 use super::cylinders::CylinderEvidence;
 use super::evidence::{self, EvidenceError, Occurrence};
 use super::planes::nearest_axis_aligned_planes;
+use super::policy::AXIS_ALIGNED_COS;
 use super::turned::{self, cone_rims};
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{self, AXIS_ALIGNED_COS, COORD_FLOOR, Surface, V3, dominant_axis};
+use crate::kernel::geom::{self, COORD_FLOOR, Surface, V3, dominant_axis};
 use crate::kernel::py;
 
 #[derive(Clone, Debug, PartialEq, Serialize)]

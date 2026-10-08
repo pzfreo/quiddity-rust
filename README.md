@@ -128,6 +128,10 @@ src/
                      computed once, on first use
     evidence.rs      Occurrence<R> (record + defining faces) and the valid-solid check
     body.rs          body keys: a solid's box, volume and area, unique within the part
+    policy.rs        the recognisers' tolerances and thresholds (`quiddity._geometry`):
+                     `length_tol`, `clears_threshold`, `cluster_coordinates`, `AXIS_*_COS`
+    graph.rs         face-graph readings (`FaceGraph`): planarity, normal, span, vertices,
+                     common neighbours, shared-edge occurrences, faces walked as one chain
     cylinders.rs     the cylinder inventory, runs, segments, coaxial keys
     planes.rs        nearest axis-aligned neighbour planes; a face's effective plane (native,
                      or a B-spline certified as one)
@@ -145,8 +149,8 @@ src/
     turned_steps.rs  round_bottom_slots.rs  rectangular_blind_slots.rs  gussets.rs
     grooves.rs  plates.rs  profiled_bores.rs
     edge_open.rs     what the two edge-open recess families share: `_rings.SPAN_EPS`, principal
-                     planes, the mouth capping a wall chain, paired shared-edge occurrences, and
-                     the floor proof by swept-face probes
+                     planes, the mouth capping a wall chain, and the floor proof by swept-face
+                     probes
     edge_open_circular.rs  edge_open_prismatic.rs
     volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over haecceity's volume.rs
   correspondence/    revision matching (docs/correspondence.md): fingerprint.rs (features and

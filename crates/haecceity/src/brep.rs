@@ -134,6 +134,13 @@ impl Edge {
     }
 }
 
+/// A part's boundary representation: faces, edges and solids in OpenCascade's traversal order.
+///
+/// Immutable after construction. `faces`, `edges` and `solids` are public for reading only:
+/// the per-face caches (parameter-space loops and bounds, boxes, mass, recovered surfaces),
+/// the edge-to-face map and the solid validity are computed lazily from them on first use and
+/// never recomputed, so a change to the topology after any query leaves those answers stale.
+/// Build a new `Part` instead.
 #[derive(Debug)]
 pub struct Part {
     pub faces: Vec<Face>,

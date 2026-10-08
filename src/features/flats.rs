@@ -8,6 +8,7 @@ use super::cylinders::{
     CylinderEvidence, axis_line_coordinates, canonical_axis_direction, z_then_cross,
 };
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::policy;
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, COORD_FLOOR, Surface, V3};
 use crate::kernel::py;
@@ -66,7 +67,7 @@ fn chord_ends_reach_od(vertices: &[V3], ax: V3, d: V3, n: V3, r: f64) -> bool {
             hi = Some((t, rad));
         }
     }
-    let reach = geom::length_tol(r, OD_REACH_FRAC);
+    let reach = policy::length_tol(r, OD_REACH_FRAC);
     matches!((lo, hi), (Some((_, a)), Some((_, b))) if a >= r - reach && b >= r - reach)
 }
 
@@ -196,5 +197,6 @@ fn same_axis_line(axis: usize, a_ax: V3, a_dir: V3, b_ax: V3, b_dir: V3, radius:
     let v = geom::sub(b_ax, a_ax);
     let along = v[0] * a_dir[0] + v[1] * a_dir[1] + v[2] * a_dir[2];
     let p = [0, 1, 2].map(|i| v[i] - along * a_dir[i]);
-    (p[0] * p[0] + p[1] * p[1] + p[2] * p[2]).powf(0.5) <= geom::length_tol(radius, AXIS_LINE_FRAC)
+    (p[0] * p[0] + p[1] * p[1] + p[2] * p[2]).powf(0.5)
+        <= policy::length_tol(radius, AXIS_LINE_FRAC)
 }

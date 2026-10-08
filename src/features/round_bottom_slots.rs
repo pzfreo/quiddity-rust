@@ -12,13 +12,14 @@ use serde::Serialize;
 use super::Context;
 use super::evidence::{self, EvidenceError, Occurrence};
 use super::planes::axis_aligned_axis;
+use super::policy::{AXIS_ALIGNED_COS, AXIS_ZERO_COS};
 use super::regions::{
     Region, RunKind, WireEdge, boundary_runs, common_convex_context, coplanar_region, edge_radius,
     empty_sweep, length_tolerance, principal_rectangle, region_boundary, region_bounds, relation,
     run_length, same_span,
 };
 use crate::kernel::brep::{Arc, Part};
-use crate::kernel::geom::{AXIS_ALIGNED_COS, AXIS_ZERO_COS, Surface, V3};
+use crate::kernel::geom::{Surface, V3};
 use crate::kernel::py;
 
 const AXES: [char; 3] = ['x', 'y', 'z'];

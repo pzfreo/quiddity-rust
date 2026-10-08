@@ -8,10 +8,9 @@ use serde::{Deserialize, Serialize};
 
 use super::Context;
 use super::body::BodyKey;
+use super::policy::{AXIS_ALIGNED_COS, AXIS_ZERO_COS, clears_threshold, cluster_coordinates};
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{
-    AXIS_ALIGNED_COS, AXIS_ZERO_COS, Bounds, Surface, clears_threshold, cluster_coordinates,
-};
+use crate::kernel::geom::{Bounds, Surface};
 use crate::kernel::py;
 
 /// Band within which two horizontal faces are one level (absolute, ADR 0008).

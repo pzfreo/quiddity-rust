@@ -1,37 +1,20 @@
 //! What the two edge-open recess families share (`edge_open_circular_recesses` and
 //! `edge_open_prismatic_recesses`): the span tolerance both import from `quiddity._rings`, and
-//! the face-graph readings each module keeps its own copy of in Python — a face's principal
-//! plane, the mouth face capping a wall chain, the paired shared-edge occurrences between two
-//! faces, and the floor proof by swept-face volume probes.
+//! the readings each module keeps its own copy of in Python — a face's principal plane, the
+//! mouth face capping a wall chain, and the floor proof by swept-face volume probes. The
+//! `FaceGraph` readings they make are in [`super::graph`].
 //!
 //! `_rings`' ring walk (`rings`, closed prismatic rings for passages and pockets) is not here:
 //! neither family calls it; they import only [`SPAN_EPS`].
 
 use super::Context;
-use super::planes::{normalized, plane_normal};
+use super::graph::{common_neighbours, normal};
+use super::policy::AXIS_ZERO_COS;
 use crate::kernel::brep::{Arc, Part};
-use crate::kernel::geom::{AXIS_ZERO_COS, Surface, V3};
+use crate::kernel::geom::V3;
 
 /// Spans agree to this to count as one (`_rings.SPAN_EPS`): a coordinate comparison, not a size.
 pub const SPAN_EPS: f64 = 1e-6;
-
-/// The face's unit normal as `FaceGraph.normal` reads it (`face.normal_at()`): at the centre of
-/// its parameter range, flipped on a reversed face. `None` for a face without one there.
-pub fn normal(part: &Part, face: usize) -> Option<V3> {
-    let n = if is_planar(part, face) {
-        plane_normal(part, face)?
-    } else {
-        let (u0, u1, v0, v1) = part.uv_bounds(face)?;
-        let (u, v) = (u0 + 0.5 * (u1 - u0), v0 + 0.5 * (v1 - v0));
-        normalized(part.face_normal(face, u, v)?)?
-    };
-    n.iter().all(|c| c.is_finite()).then_some(n)
-}
-
-/// Whether the face is a native plane (`FaceGraph.is_planar`).
-pub fn is_planar(part: &Part, face: usize) -> bool {
-    matches!(part.faces[face].surface, Surface::Plane { .. })
-}
 
 /// The principal axis a flat face lies across and its coordinate there (`_principal_plane`):
 /// its normal has exactly one component of at least `1 - AXIS_ZERO_COS`, and its box is no
@@ -49,24 +32,6 @@ pub fn principal_plane(part: &Part, face: usize) -> Option<(usize, f64)> {
     (high - low <= SPAN_EPS).then_some((axis, (low + high) / 2.0))
 }
 
-/// The face's box as `(low, high)` along *axis* (`FaceGraph.bounds(node)[axis]`).
-pub fn span(part: &Part, face: usize, axis: usize) -> (f64, f64) {
-    let b = part.face_bounds(face);
-    (b.min[axis], b.max[axis])
-}
-
-/// The neighbours every one of *faces* shares, in the first face's neighbour order.
-pub fn common_neighbours(part: &Part, faces: &[usize]) -> Vec<usize> {
-    let Some((&first, rest)) = faces.split_first() else {
-        return Vec::new();
-    };
-    let others: Vec<Vec<usize>> = rest.iter().map(|&f| part.neighbours(f)).collect();
-    part.neighbours(first)
-        .into_iter()
-        .filter(|n| others.iter().all(|o| o.contains(n)))
-        .collect()
-}
-
 /// The faces capping a wall chain's far end: among the faces every wall meets, those lying
 /// across *axis* at *at* that turn convex or smooth to every wall.
 pub fn mouths(part: &Part, walls: &[usize], axis: usize, at: f64) -> Vec<usize> {
@@ -80,43 +45,6 @@ pub fn mouths(part: &Part, walls: &[usize], axis: usize, at: f64) -> Vec<usize> 
                     .all(|&w| matches!(part.arc(node, w), Some(Arc::Convex) | Some(Arc::Smooth)))
         })
         .collect()
-}
-
-/// The edges two faces share whose uses pair up uniquely in opposite directions
-/// (`FaceGraph.shared_occurrences`): an edge read a different number of times by the two
-/// faces, or without one opposite partner per use, has no traversal-independent pairing and is
-/// left out.
-pub fn shared_occurrences(part: &Part, a: usize, b: usize) -> Vec<usize> {
-    if a == b {
-        return Vec::new();
-    }
-    let uses = |face: usize, edge: usize| -> Vec<bool> {
-        part.faces[face]
-            .loops
-            .iter()
-            .flat_map(|l| &l.edges)
-            .filter(|(e, _)| *e == edge)
-            .map(|(_, forward)| *forward)
-            .collect()
-    };
-    let mut out = Vec::new();
-    for edge in part.shared_edges(a, b) {
-        let (left, right) = (uses(a, edge), uses(b, edge));
-        if left.len() != right.len() {
-            continue;
-        }
-        let unique = left
-            .iter()
-            .all(|l| right.iter().filter(|r| *r != l).count() == 1)
-            && right
-                .iter()
-                .all(|r| left.iter().filter(|l| *l != r).count() == 1);
-        if unique {
-            // One occurrence per pair: as many as the edge has uses on either side.
-            out.extend(std::iter::repeat_n(edge, left.len()));
-        }
-    }
-    out
 }
 
 /// Whether the floor is a real floor (`_floor_proof` / `_exact_floor_proof`): the floor face

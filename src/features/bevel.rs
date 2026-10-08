@@ -3,9 +3,10 @@
 use std::collections::BTreeMap;
 
 use super::Context;
+use super::policy::{AXIS_ALIGNED_COS, INTERIOR_PROBE_FRAC};
 use crate::kernel::brep::Part;
-use crate::kernel::classify::State;
-use crate::kernel::geom::{AXIS_ALIGNED_COS, Bounds, INTERIOR_PROBE_FRAC, Surface, V3};
+use crate::kernel::classify::material_at;
+use crate::kernel::geom::{Bounds, Surface, V3};
 
 /// The in-plane component below which a normal runs along that axis, so the face is a
 /// single-axis bevel rather than a compound corner.
@@ -82,9 +83,10 @@ pub fn material_beyond_corner(
     edge_axis: usize,
     planes: &BTreeMap<usize, f64>,
 ) -> bool {
-    ctx.classifier()
-        .classify(near_corner(centre, edge_axis, planes, -1.0))
-        == State::In
+    material_at(
+        ctx.classifier(),
+        near_corner(centre, edge_axis, planes, -1.0),
+    )
 }
 
 /// Does the virtual sharp corner the bevel replaces lie outside the solid (`convex_bevel`)?
@@ -95,7 +97,8 @@ pub fn convex_bevel(
     edge_axis: usize,
     planes: &BTreeMap<usize, f64>,
 ) -> bool {
-    ctx.classifier()
-        .classify(near_corner(centre, edge_axis, planes, 1.0))
-        != State::In
+    !material_at(
+        ctx.classifier(),
+        near_corner(centre, edge_axis, planes, 1.0),
+    )
 }

@@ -9,10 +9,11 @@ use serde::Serialize;
 use super::Context;
 use super::body::BodyKey;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::policy::length_tol;
 use super::probes::{Sample, probe_samples};
 use crate::kernel::brep::Part;
 use crate::kernel::classify::State;
-use crate::kernel::geom::{self, COORD_FLOOR, Surface, length_tol};
+use crate::kernel::geom::{self, COORD_FLOOR, Surface};
 use crate::kernel::py;
 
 const PAIR_REL_TOL: f64 = 3e-4;

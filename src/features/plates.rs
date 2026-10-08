@@ -15,10 +15,11 @@ use serde::{Deserialize, Serialize};
 use super::Context;
 use super::body::BodyKey;
 use super::evidence::{self, EvidenceError, Occurrence};
-use super::planes::plane_normal;
+use super::planes::unit_plane_normal;
+use super::policy::{self, AXIS_ALIGNED_COS};
 use super::turned::axis_letter;
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{self, AXIS_ALIGNED_COS, Bounds, Surface, V3};
+use crate::kernel::geom::{self, Bounds, Surface, V3};
 use crate::kernel::py;
 
 /// The minimum slab thickness and coordinate-clustering tolerance: a minimum-evidence
@@ -174,7 +175,7 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
         // (location, area, u moment, v moment, face) per side: outward −axis, then +axis.
         let mut sides: [Vec<Entry>; 2] = [Vec::new(), Vec::new()];
         for &face in &faces {
-            let Some(normal) = plane_normal(part, face) else {
+            let Some(normal) = unit_plane_normal(part, face) else {
                 continue;
             };
             let component = normal[i];
@@ -201,7 +202,7 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
         // No ordered thin opposed span: no area threshold could publish a plate here.
         if !negative.keys().any(|&low| {
             positive.keys().any(|&high| {
-                tol < high.0 - low.0 && geom::clears_threshold(maximum_thickness, high.0 - low.0)
+                tol < high.0 - low.0 && policy::clears_threshold(maximum_thickness, high.0 - low.0)
             })
         }) {
             continue;
@@ -213,12 +214,12 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
         let threshold = opts.min_area_frac * cross;
         let mut events: Vec<(f64, i8, &Group)> = negative
             .iter()
-            .filter(|(_, g)| geom::clears_threshold(g.area, threshold))
+            .filter(|(_, g)| policy::clears_threshold(g.area, threshold))
             .map(|(c, g)| (c.0, -1, g))
             .chain(
                 positive
                     .iter()
-                    .filter(|(_, g)| geom::clears_threshold(g.area, threshold))
+                    .filter(|(_, g)| policy::clears_threshold(g.area, threshold))
                     .map(|(c, g)| (c.0, 1, g)),
             )
             .collect();
@@ -229,7 +230,7 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
                 continue;
             }
             let thickness = high - low;
-            if thickness <= tol || !geom::clears_threshold(maximum_thickness, thickness) {
+            if thickness <= tol || !policy::clears_threshold(maximum_thickness, thickness) {
                 continue;
             }
             let combined_area = low_group.area + high_group.area;
@@ -282,7 +283,7 @@ impl Ord for Coord {
 fn group(side: &[Entry], tol: f64) -> BTreeMap<Coord, Group> {
     let locations: Vec<f64> = side.iter().map(|e| e.0).collect();
     let mut groups = BTreeMap::new();
-    for cluster in geom::cluster_coordinates(&locations, tol) {
+    for cluster in policy::cluster_coordinates(&locations, tol) {
         let low = cluster
             .iter()
             .map(|&k| side[k].0)
@@ -327,7 +328,7 @@ fn oriented_cross_area(part: &Part, scope: &Scope, faces: &[usize], i: usize, ex
     let mut extreme_projections: Vec<(V3, f64)> = Vec::new();
     let mut angles: Vec<f64> = Vec::new();
     for &face in faces {
-        let Some(normal) = plane_normal(part, face) else {
+        let Some(normal) = unit_plane_normal(part, face) else {
             continue;
         };
         if normal[i].abs() > 1.0 - AXIS_ALIGNED_COS {

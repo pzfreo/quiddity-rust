@@ -7,12 +7,12 @@ use serde::{Deserialize, Serialize};
 use super::Context;
 use super::body::BodyKey;
 use super::evidence::{self, EvidenceError, Occurrence};
-use super::planes::{coordinates, linear_quad, normalized, plane_normal};
+use super::planes::{coordinates, linear_quad, normalized, unit_plane_normal};
+use super::policy::{AXIS_ALIGNED_COS, INTERIOR_PROBE_FRAC};
 use crate::kernel::brep::{Arc, Part};
-use crate::kernel::classify::{Classifier, State};
+use crate::kernel::classify::{Classifier, material_at};
 use crate::kernel::geom::{
-    AXIS_ALIGNED_COS, Bounds, COORD_FLOOR, Curve, INTERIOR_PROBE_FRAC, SMOOTH_ARC_GAP, Surface, V3,
-    add, dot, norm, scale, sub,
+    Bounds, COORD_FLOOR, Curve, SMOOTH_ARC_GAP, Surface, V3, add, dot, norm, scale, sub,
 };
 use crate::kernel::py;
 
@@ -93,7 +93,7 @@ fn edge_info(part: &Part, bevel: usize, neighbour: usize) -> Option<(usize, V3)>
     let Curve::Line { .. } = part.edges[edge].curve else {
         return None;
     };
-    Some((edge, plane_normal(part, neighbour)?))
+    Some((edge, unit_plane_normal(part, neighbour)?))
 }
 
 /// The run the probes and limits of one solid share.
@@ -164,7 +164,7 @@ fn pair(
         return None;
     }
     let station = (common_start + common_end) * 0.5;
-    let surface_normal = plane_normal(part, bevel)?;
+    let surface_normal = unit_plane_normal(part, bevel)?;
     if dot(surface_normal, normal1).min(dot(surface_normal, normal2)) <= SMOOTH_ARC_GAP {
         // A replacement bevel faces out between its two support normals; an ordinary side
         // wall meeting a top and an end face is not such a bevel.
@@ -205,7 +205,7 @@ fn pair(
     // The corner-to-face side is removed material, and so must the far side of the virtual
     // edge be (a concave gusset or web fails); just inside the bevel is material, just
     // outside is not.
-    let material = |p: V3| body.classifier.classify(p) == State::In;
+    let material = |p: V3| material_at(body.classifier, p);
     let toward = scale(sub(cross, corner), INTERIOR_PROBE_FRAC);
     if material(add(corner, toward)) || material(sub(corner, toward)) {
         return None;

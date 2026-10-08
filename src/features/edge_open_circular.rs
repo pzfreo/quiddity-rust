@@ -13,13 +13,12 @@ use std::f64::consts::{PI, TAU};
 use serde::Serialize;
 
 use super::Context;
-use super::edge_open::{
-    SPAN_EPS, dist2, floor_proof, is_planar, mouths, normal, principal_plane, shared_occurrences,
-    span,
-};
+use super::edge_open::{SPAN_EPS, dist2, floor_proof, mouths, principal_plane};
 use super::evidence::{self, EvidenceError, Occurrence, common_valid_solid};
+use super::graph::{is_planar, normal, ordered_chain, shared_occurrences, span};
+use super::policy::AXIS_ZERO_COS;
 use crate::kernel::brep::{Arc, Part};
-use crate::kernel::geom::{AXIS_ZERO_COS, Curve, Surface, V3};
+use crate::kernel::geom::{Curve, Surface, V3};
 use crate::kernel::py;
 
 const AXES: [char; 3] = ['x', 'y', 'z'];
@@ -161,46 +160,6 @@ impl EdgeOpenCircularPocket {
                 py::tuple_order(&flat(&self.section.opening), &flat(&other.section.opening))
             })
     }
-}
-
-/// The boundary faces as one chain joined by smooth arcs, from its lower-numbered end
-/// (`_ordered_chain`).
-fn ordered_chain(part: &Part, nodes: &[usize]) -> Option<Vec<usize>> {
-    let adjacent: Vec<Vec<usize>> = nodes
-        .iter()
-        .map(|&node| {
-            part.neighbours(node)
-                .into_iter()
-                .filter(|o| nodes.contains(o) && part.arc(node, *o) == Some(Arc::Smooth))
-                .collect()
-        })
-        .collect();
-    let of = |node: usize| &adjacent[nodes.iter().position(|&n| n == node).expect("member")];
-    let ends: Vec<usize> = nodes
-        .iter()
-        .copied()
-        .filter(|&n| of(n).len() == 1)
-        .collect();
-    if ends.len() != 2 || nodes.iter().any(|&n| !matches!(of(n).len(), 1 | 2)) {
-        return None;
-    }
-    let mut ordered = vec![*ends.iter().min().expect("two ends")];
-    while ordered.len() < nodes.len() {
-        let choices: Vec<usize> = of(*ordered.last().expect("started"))
-            .iter()
-            .copied()
-            .filter(|n| !ordered.contains(n))
-            .collect();
-        let &[next] = choices.as_slice() else {
-            return None;
-        };
-        ordered.push(next);
-    }
-    let mut a = ordered.clone();
-    let mut b = nodes.to_vec();
-    a.sort_unstable();
-    b.sort_unstable();
-    (a == b).then_some(ordered)
 }
 
 fn project(p: V3, axis: usize) -> Point {
@@ -363,7 +322,8 @@ fn one_floor(ctx: &Context<'_>, floor: usize) -> Option<Occurrence<EdgeOpenCircu
     if cylinders.len() != 2 || walls.len() != 2 {
         return None;
     }
-    let ordered = ordered_chain(part, &boundary)?;
+    // `_ordered_chain`: the boundary faces joined by smooth arcs.
+    let ordered = ordered_chain(part, &boundary, |a, b| part.arc(a, b) == Some(Arc::Smooth))?;
     let plane = |n: usize| is_planar(part, n);
     let alternating = (0..4).all(|i| plane(ordered[i]) == (i % 2 == 1))
         || (0..4).all(|i| plane(ordered[i]) == (i % 2 == 0));

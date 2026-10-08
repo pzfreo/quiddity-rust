@@ -12,13 +12,12 @@ use std::cmp::Ordering;
 use serde::Serialize;
 
 use super::Context;
-use super::edge_open::{
-    SPAN_EPS, dist2, floor_proof, is_planar, mouths, normal, principal_plane, shared_occurrences,
-    span,
-};
+use super::edge_open::{SPAN_EPS, dist2, floor_proof, mouths, principal_plane};
 use super::evidence::{self, EvidenceError, Occurrence, common_valid_solid};
+use super::graph::{is_planar, normal, ordered_chain, shared_occurrences, span};
+use super::policy::AXIS_ZERO_COS;
 use crate::kernel::brep::{Arc, Part};
-use crate::kernel::geom::{AXIS_ZERO_COS, Curve};
+use crate::kernel::geom::Curve;
 use crate::kernel::py;
 
 const AXES: [char; 3] = ['x', 'y', 'z'];
@@ -103,44 +102,6 @@ fn valid_chain(chain: &[Point]) -> bool {
         }
     }
     dist2(chain[chain.len() - 1], chain[0]) > EPS
-}
-
-/// The walls as one open chain from the lower-numbered end (`_ordered_open_chain`).
-fn ordered_open_chain(part: &Part, walls: &[usize]) -> Option<Vec<usize>> {
-    let adjacent: Vec<Vec<usize>> = walls
-        .iter()
-        .map(|&w| {
-            part.neighbours(w)
-                .into_iter()
-                .filter(|o| walls.contains(o))
-                .collect()
-        })
-        .collect();
-    let of = |node: usize| &adjacent[walls.iter().position(|&w| w == node).expect("member")];
-    let mut ends: Vec<usize> = walls
-        .iter()
-        .copied()
-        .filter(|&w| of(w).len() == 1)
-        .collect();
-    ends.sort_unstable();
-    if ends.len() != 2 || walls.iter().any(|&w| !matches!(of(w).len(), 1 | 2)) {
-        return None;
-    }
-    let mut ordered = vec![ends[0]];
-    while ordered.len() < walls.len() {
-        let choices: Vec<usize> = of(*ordered.last().expect("started"))
-            .iter()
-            .copied()
-            .filter(|n| !ordered.contains(n))
-            .collect();
-        let &[next] = choices.as_slice() else {
-            return None;
-        };
-        ordered.push(next);
-    }
-    let mut sorted = ordered.clone();
-    sorted.sort_unstable();
-    (sorted == walls).then_some(ordered)
 }
 
 /// Every side wall has one boundary, meets the floor, the mouth and its chain neighbours once
@@ -338,7 +299,8 @@ fn one_floor(ctx: &Context<'_>, floor: usize) -> Option<Occurrence<EdgeOpenPrism
     if walls.len() < 3 {
         return None;
     }
-    let ordered = ordered_open_chain(part, &walls)?;
+    // `_ordered_open_chain`: every neighbouring wall is a link.
+    let ordered = ordered_chain(part, &walls, |_, _| true)?;
     let exterior: Vec<usize> = neighbours
         .iter()
         .copied()

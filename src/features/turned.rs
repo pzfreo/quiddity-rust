@@ -12,8 +12,9 @@ use serde::{Deserialize, Serialize};
 use super::Context;
 use super::body::BodyKey;
 use super::cylinders::{CylinderEvidence, coaxial_axis_lines};
+use super::policy::{self, AXIS_ALIGNED_COS};
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{self, AXIS_ALIGNED_COS, Bounds, Curve, Surface, V3};
+use crate::kernel::geom::{self, Bounds, Curve, Surface, V3};
 use crate::kernel::py;
 
 /// Coaxial analytic axes may differ by modelling noise only (a fraction of the diameter).
@@ -44,7 +45,7 @@ pub fn coaxial_cylinders<'c>(
                 axis,
                 c.axis_point,
                 c.direction,
-                geom::length_tol(c.diameter, COAXIAL_FRAC),
+                policy::length_tol(c.diameter, COAXIAL_FRAC),
             )
         })
         .collect()
