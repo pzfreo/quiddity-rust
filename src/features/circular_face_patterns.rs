@@ -344,19 +344,20 @@ fn recognise_solid(
     }
     let deflection = part_scale * MESH_DEFLECTION_FRAC;
     let tolerance = deflection * MATCH_DEFLECTIONS;
+    // A face whose area cannot be integrated leaves the solid unread (not read as area 0).
     let facts: Vec<FaceFact> = faces
         .iter()
         .map(|&face| {
-            let area = part.face_mass(face).map_or(0.0, |m| m[0]);
-            FaceFact {
+            let area = part.face_mass(face)?[0];
+            Some(FaceFact {
                 face,
                 centre: part.face_centre(face).unwrap_or([f64::NAN; 3]),
                 area,
                 kind: kind_name(&part.faces[face].surface),
                 axis: face_axis(part, face, area),
-            }
+            })
         })
-        .collect();
+        .collect::<Option<_>>()?;
     let mut clouds = Clouds {
         part,
         deflection,

@@ -385,14 +385,23 @@ fn components(part: &Part, members: &BTreeSet<usize>) -> Vec<BTreeSet<usize>> {
     out
 }
 
-fn area(part: &Part, face: usize) -> f64 {
-    part.face_mass(face).map_or(0.0, |m| m[0])
+/// The faces' areas, by part face index; `None` when one cannot be integrated (a failed area
+/// is not read as 0).
+fn face_areas(part: &Part, faces: impl IntoIterator<Item = usize>) -> Option<BTreeMap<usize, f64>> {
+    faces
+        .into_iter()
+        .map(|f| part.face_mass(f).map(|m| (f, m[0])))
+        .collect()
 }
 
 /// `_skin_components`: the paired faces' connected skins, largest area first.
-fn skin_components(part: &Part, paired: &BTreeSet<usize>) -> Vec<BTreeSet<usize>> {
+fn skin_components(
+    part: &Part,
+    area: &BTreeMap<usize, f64>,
+    paired: &BTreeSet<usize>,
+) -> Vec<BTreeSet<usize>> {
     let mut groups = components(part, paired);
-    let size = |g: &BTreeSet<usize>| py::fsum(g.iter().map(|&i| area(part, i)));
+    let size = |g: &BTreeSet<usize>| py::fsum(g.iter().map(|&i| area[&i]));
     groups.sort_by(|a, b| py::order(size(b), size(a)));
     groups
 }
@@ -443,14 +452,17 @@ fn encloses(part: &Part, outer: &BTreeSet<usize>, inner: &BTreeSet<usize>, tol: 
     wider >= 2
 }
 
+/// `None` when the part's largest face, which the skins are compared with, has a face whose
+/// area cannot be integrated.
 fn history_hint(
     part: &Part,
+    area: &BTreeMap<usize, f64>,
     pairs: &[WallFacePair],
     unpaired: &[usize],
     rims: &[Vec<usize>],
-) -> ShellHistoryHint {
+) -> Option<ShellHistoryHint> {
     let paired = pair_faces(pairs);
-    let comps = skin_components(part, &paired);
+    let comps = skin_components(part, area, &paired);
     let (mut outer, mut inner) = (BTreeSet::new(), BTreeSet::new());
     if comps.len() >= 2 {
         let (first, second) = (&comps[0], &comps[1]);
@@ -462,9 +474,8 @@ fn history_hint(
             })
             .count();
         if cross * 2 >= first.len().min(second.len()) {
-            let largest = (0..part.faces.len())
-                .map(|f| area(part, f))
-                .fold(f64::NEG_INFINITY, f64::max);
+            let all = face_areas(part, 0..part.faces.len())?;
+            let largest = all.into_values().fold(f64::NEG_INFINITY, f64::max);
             let tol = length_tol(largest.sqrt(), 1e-6);
             if encloses(part, first, second, tol) {
                 (outer, inner) = (first.clone(), second.clone());
@@ -473,7 +484,7 @@ fn history_hint(
             }
         }
     }
-    let total_paired_area = py::fsum(paired.iter().map(|&i| area(part, i)));
+    let total_paired_area = py::fsum(paired.iter().map(|&i| area[&i]));
     let half_turn = |f: usize| {
         matches!(part.faces[f].surface, Surface::Cylinder { .. })
             && part
@@ -485,7 +496,7 @@ fn history_hint(
         .filter(|p| {
             half_turn(p.first_face)
                 && half_turn(p.second_face)
-                && area(part, p.first_face) + area(part, p.second_face) < 0.2 * total_paired_area
+                && area[&p.first_face] + area[&p.second_face] < 0.2 * total_paired_area
         })
         .cloned()
         .collect();
@@ -508,7 +519,7 @@ fn history_hint(
     } else {
         Vec::new()
     };
-    ShellHistoryHint {
+    Some(ShellHistoryHint {
         basis: "heuristic",
         direction: (shelled && !opening_rims.is_empty()).then_some("inward"),
         outer_faces: outer.into_iter().collect(),
@@ -516,7 +527,7 @@ fn history_hint(
         opening_rims,
         before_shell_collar_pairs: collars,
         after_shell_cut_faces: after,
-    }
+    })
 }
 
 fn classify_unpaired(
@@ -587,12 +598,16 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<ThinWallBody>> {
             .copied()
             .filter(|f| !paired.contains(f))
             .collect();
-        let comps = skin_components(part, &paired);
+        // A body with a paired face whose area cannot be integrated is not read.
+        let Some(area) = face_areas(part, paired.iter().copied()) else {
+            continue;
+        };
+        let comps = skin_components(part, &area, &paired);
         if comps.len() < 2 {
             continue;
         }
         let component_of = |f: usize| comps.iter().position(|g| g.contains(&f));
-        let both = |p: &WallFacePair| area(part, p.first_face) + area(part, p.second_face);
+        let both = |p: &WallFacePair| area[&p.first_face] + area[&p.second_face];
         let core_area = py::fsum(pairs.iter().filter_map(|p| {
             let (a, b) = (component_of(p.first_face), component_of(p.second_face));
             ((a, b) == (Some(0), Some(1)) || (a, b) == (Some(1), Some(0))).then(|| both(p))
@@ -602,7 +617,9 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<ThinWallBody>> {
             continue;
         }
         let rims = rim_regions(part, &unpaired, &pairs);
-        let hint = history_hint(part, &pairs, &unpaired, &rims);
+        let Some(hint) = history_hint(part, &area, &pairs, &unpaired, &rims) else {
+            continue;
+        };
         let classes = classify_unpaired(part, &unpaired, &pairs, &rims, &hint);
         let rim_faces: Vec<usize> = rims.iter().flatten().copied().collect();
         out.push(Occurrence {

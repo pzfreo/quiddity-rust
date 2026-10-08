@@ -287,10 +287,10 @@
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "family": "kernel",
-    "key": "solid masses differ by up to 1e-2",
+    "key": "solid masses differ by up to 1einf",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
+    "verdict": "rust-wrong",
+    "reason": "The port has no solid mass for this part: its face 29 is a B-spline face on a surface closed in u whose own seam edge (edge 71, at u = 0.018) is not the surface's seam (u = 0 = 1), so its boundary crosses the surface's seam mid-edge; mass.rs's boundary walk does not unwrap that and refuses the face (it formerly returned -0.0049 for OpenCascade's 49.92). Supporting rotated seams is not done."
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
@@ -383,10 +383,10 @@
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "family": "kernel",
-    "key": "solid masses differ by up to 1e-3",
+    "key": "solid masses differ by up to 1e-4",
     "count": 1,
     "verdict": "undetermined",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
+    "reason": "B-spline and torus faces: OpenCascade integrates over its pcurves, which stray from the 3D edges (within their tolerance) and leave gaps the port closes; tests/face_areas.rs lists each face whose area differs, most confirmed by an independent integration over the 3D edges. Not traced to the solid total."
   },
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
