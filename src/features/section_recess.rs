@@ -7,9 +7,11 @@
 //! `recognise_section_recesses` build these values, and every check refuses with Python's
 //! `ValueError` message rather than repairing the value. Python also refuses inputs of the wrong
 //! type or shape (a boolean, a list for a tuple, a record of another class, a negative or
-//! non-integer index); the port's types cannot carry those. The fields are private and the
-//! values are built only through their validating constructors, so Python's frozen dataclasses'
-//! immutability is the type system's.
+//! non-integer index); the port's types cannot carry those. This module's fields are private and
+//! its values are built only through their validating constructors, so Python's frozen
+//! dataclasses' immutability is the type system's. The reused passage types (`PassageFrame`,
+//! `PassageSectionVertex`) still have public fields, so a vertex written as a struct literal
+//! reaches these constructors without the checks Python ran when it was built.
 
 use std::cmp::Ordering;
 use std::fmt;
