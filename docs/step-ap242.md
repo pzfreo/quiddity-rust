@@ -1,6 +1,6 @@
 # AP242 and semantic PMI in haecceity
 
-**Status:** design (2026-10-08), not yet implemented. Branch `ap242`.
+**Status:** design (2026-10-08, revised after review), not yet implemented. Branch `ap242`.
 
 haecceity reads STEP geometry today (`crates/haecceity/src/step.rs`, through step-io's typed
 model). This document adds what specify-core and draftwright still need OpenCascade for: reading
@@ -15,6 +15,9 @@ OpenCascade XCAF (`STEPCAFControl`) is a cross-check with a verdict for every di
 specify-core's current PMI handling is shaped by OpenCascade's round-trip defects; none of that
 shape is inherited (see [Anti-requirements](#anti-requirements)).
 
+Schema references below are to the AP242 MIM long form `242_mim_lf.exp` (WG12 N11521, from
+stepcode); section numbers (§) are the PMI practice's unless stated.
+
 ## Requirements
 
 What the two consumers do with STEP today, restated in standards terms. *specify-core* is
@@ -24,259 +27,466 @@ draftwright's `origin/main`.
 | # | Need (standards terms) | Where it comes from |
 |---|---|---|
 | R1 | Read a part's B-rep with a stable numbering of its faces, per distinct part of an assembly (a part placed twice is one part with two placements), and know which `advanced_face` instance each face is. | specify-core `load.py` (`load_all`, `parts`, `face_ranks`), `requirements.face_entities_of` |
-| R2 | Read the product structure: product definitions, their names, the placements of their occurrences. | `load.py` (`_part_name`, `_instances`), `mates.py` (cylinders and planes placed per instance) |
-| R3 | Read the semantic PMI already in a file and anchor every item to the part's faces: datums and their features, dimensions (size and location, nominal, ± deviations, limits, ISO 286 class), geometric tolerances (type, magnitude, zone, modifiers, datum system), whatever a datum feature is made of (several faces, a set). Every item on its own part. | `existing.py` (`read_existing`, `datum_faces`, `notes`, `part_settings`); `magnitudes.py`; draftwright `pmi.py`, `_pmi_part21.py` (`read_geometric_tolerances`, `read_datum_occurrences`, `read_dimension_associations`, `read_dimension_display_facts`, `read_dimension_length_factor`) |
-| R4 | Read part-level information: material (name, density), general tolerances (ISO 2768), threads and knurls, notes and requirements, user defined attributes. | `existing.part_settings`, `existing.notes`; draftwright `read_material_properties`, `read_manufacturing_requirements`, `read_structured_manufacturing_requirements`, `read_surface_labels` |
-| R5 | Read display facts that are semantic: decimal places of a value (`value_format_type_qualifier`), basic (theoretically exact) dimensions, dimension modifiers. | draftwright `read_dimension_display_facts`, `dimension_basic_policy`; specify-core `locations.mark_basic` |
-| R6 | Write, for each part, the PMI of specify-core v1: datums A–H on one face, coplanar faces, or a hole or boss; size dimensions with ± deviations, limits or an ISO 286 fit; location dimensions (toleranced or basic); position (Ø, Ⓜ), flatness, perpendicularity, parallelism, profile of a surface, circular and total runout, each with its datum system; material; the ISO 2768 general tolerance; internal and external threads (designation, pitch, class, hand, tapping drill, depths); straight and diamond knurls (pitch, diameter). | `writer.py` (`_add`), `requirements.py` (`append`, `attributes`), `rules.py` (requirement kinds) |
-| R7 | Write into an existing file as an edit: add PMI to a part that has none, add to a part that has some, replace the PMI of a part; keep every other byte of the file. | `merge.py` (`transplant`), `writer._write_verified`, `resume.py` |
-| R8 | Store application data on a part (specify-core's answers) in a standard construct. | `resume.embed` |
-| R9 | Verify a write by reading it back with the same reader, semantically, not by searching the text. | `writer.verify`, `writer._verify_appended` |
+| R2 | Read the product structure: product definitions, their names, the placements of their occurrences. | `load.py` (`_part_name`, `_instances`), `mates.py` |
+| R3 | Read the semantic PMI already in a file and anchor every item to the part's faces: datums, datum features and datum targets, dimensions (size and location, nominal, ± deviations, limits, ISO 286 class), geometric tolerances (type, magnitude, zone, modifiers, datum system, what they apply to), tolerance relationships (composite). Every item on its own part. | `existing.py` (`read_existing`, `datum_faces`, `notes`, `part_settings`); `magnitudes.py`; draftwright `pmi.py`, `_pmi_part21.py` |
+| R4 | Read part-level information: material (name, density), general tolerances, default decimal places, threads and knurls, notes and requirements, user defined attributes. | `existing.part_settings`, `existing.notes`; draftwright `read_material_properties`, `read_manufacturing_requirements`, `read_structured_manufacturing_requirements`, `read_surface_labels` |
+| R5 | Read display facts that are semantic: decimal places of a value (`value_format_type_qualifier`, §5.4) and of the part (§4.1), basic dimensions, dimension modifiers. | draftwright `read_dimension_display_facts`, `dimension_basic_policy`; specify-core `locations.mark_basic` |
+| R6 | Write, for each part of a file (all parts in one edit), the PMI of specify-core v1: datums A–H on one face, coplanar faces, or a hole or boss; size dimensions with ± deviations, limits or an ISO 286 fit; location dimensions (toleranced or basic); position (Ø, Ⓜ), flatness, perpendicularity, parallelism, profile of a surface, circular and total runout, each with its datum system; material; the general tolerance; internal and external threads; straight and diamond knurls; specify-core's own data (tapping drill, depths, answers). | `writer.py` (`_add`, `write_parts`), `requirements.py`, `rules.py` |
+| R7 | Edit an existing file: add PMI to a part that has none or some, replace the PMI of a part, remove it; keep every other byte of the file. | `merge.py` (`transplant`), `writer._write_verified`, `resume.py` |
+| R8 | Store application data on a part or feature in a standard construct. | `resume.embed` |
+| R9 | Verify a write by reading it back with the same reader, semantically. | `writer.verify`, `writer._verify_appended` |
 | R10 | Report what cannot be read rather than drop it: unknown or unsupported PMI entities, references that do not resolve, values without units. | draftwright `PmiExtractionReport`, `lint_pmi_extraction` |
 
 Not needed by either consumer from the PMI layer: graphic presentation (specify-core writes
 datum feature symbols only so that presentation-only viewers show something; draftwright draws
 from semantics and reads no presentation except "common labels"), saved views, tessellated
-presentation.
+presentation. specify-core's `mesh` command (a face-indexed tessellation for its picker) also
+uses OpenCascade; it is not PMI and is listed under [Out of scope](#out-of-scope-for-now).
 
 ## Semantic model
 
-A plain Rust data model in `crates/haecceity/src/pmi/`, independent of Part 21. One reader maps
-AP242 to it, one writer maps it to AP242. All values are in the model's units: lengths in
-millimetres, angles in radians, as `Length(f64)` and `Angle(f64)` newtypes; a dimension's kind
-fixes which one its values are.
+A plain Rust data model in `crates/haecceity/src/pmi/model.rs`, independent of Part 21: no
+type in it holds a file instance id. One reader maps AP242 to it, one writer maps it to AP242.
+
+### Values and units
+
+A file states each value as a decimal in a unit; converting it to millimetres in `f64` and back
+does not reproduce it (of the three-decimal inch values 0.001–4.999, 670 change under
+`x * 25.4 / 25.4`, e.g. 0.003 → 0.0030000000000000005). So the model keeps the value **as
+stated**, and conversion is a view, never storage:
 
 ```rust
-pub struct PartPmi {                       // the PMI of one product definition
-    pub part: PartId,                      // its product_definition (file entity, or new)
-    pub standard: Option<Standard>,        // ISO or ASME (PMI practice §4), with its tolerance principle
-    pub features: Vec<Feature>,            // shape aspects: what PMI applies to
+pub struct Decimal(/* the decimal text, validated: sign, digits, '.', optional exponent */);
+pub enum LengthUnit { Millimetre, Micrometre, Centimetre, Metre, Inch, Foot, Other { name: String, metres: Decimal } }
+pub enum AngleUnit  { Radian, Degree, Other { name: String, radians: Decimal } }
+pub struct Length { pub value: Decimal, pub unit: LengthUnit }   // .mm() -> f64 for comparison
+pub struct Angle  { pub value: Decimal, pub unit: AngleUnit }    // .rad() -> f64
+pub enum Quantity { Length(Length), Angle(Angle) }
+pub struct Value  { pub quantity: Quantity, pub decimal_places: Option<u8> } // §5.4 qualifier
+pub struct Ratio(pub Decimal);  pub struct Count(pub u32);
+```
+
+The reader builds a `Decimal` from the Part 21 REAL token exactly as written (`0.0030` stays
+`0.0030`) and the unit from the `measure_with_unit`'s own unit entity (`si_unit` with prefix,
+`conversion_based_unit` such as INCH or DEGREE; `Other` for a conversion factor it does not know,
+keeping the factor as stated). Values a consumer creates are decimals in the unit the consumer
+states (specify-core: millimetres). The writer writes each value **in its own unit, with its own
+digits**: it references a unit instance of the part's context equal to the value's unit, or adds
+one (SI millimetre, `conversion_based_unit` inch, degree, …). Nothing is converted on write, so a
+read-then-replace of an inch file writes every value's text unchanged, and no value can take its
+unit from another. Semantic equality compares quantities (`mm()`, `rad()`) to 1e-12 relative;
+text equality is checked separately where the tests require it.
+
+### Part PMI
+
+```rust
+pub struct PartPmi {                            // the PMI of one product definition of the file
+    pub part: PartId,                           // index into read_part_definitions' parts
+    pub standard: Option<Standard>,             // §4: ISO or ASME document and its principle
+    pub decimal_places: Option<u8>,             // §4.1 default tolerance decimal places
+    pub features: Vec<Feature>,                 // shape aspects: what PMI applies to
+    pub datum_targets: Vec<DatumTarget>,
     pub datums: Vec<Datum>,
     pub dimensions: Vec<Dimension>,
     pub tolerances: Vec<GeometricTolerance>,
-    pub general: Option<GeneralTolerance>,
+    pub tolerance_relations: Vec<ToleranceRelation>,
+    pub general: Vec<GeneralTolerance>,
     pub threads: Vec<Thread>,
     pub knurls: Vec<Knurl>,
     pub material: Option<Material>,
     pub notes: Vec<Note>,
-    pub attributes: Vec<AttributeSet>,     // UDA practice, on the part or on a feature
+    pub attributes: Vec<AttributeSet>,          // UDA practice, on the part or on a feature
 }
+```
 
-pub enum Anchor { Face(FaceId), Edge(EdgeId) }        // a topological item of the part's shape
+**Anchoring.** `pub enum Anchor { Face(FaceIndex), Edge(EdgeIndex) }`. A `FaceIndex` is the
+part's face number in `read_part_definitions`' numbering (OpenCascade's `TopExp::MapShapes`
+order over the part's solid, which specify-core uses); an edge likewise. The binding to a
+file instance (`#N` of the `advanced_face` / `edge_curve`) is not in the model: the reader
+resolves `#N → index` and the writer `index → #N` through the face provenance of the same
+document (Architecture item 3). An anchor the provenance cannot resolve is a finding on read and
+a refusal on write. `PartId` likewise indexes the document's distinct parts; the model never
+creates product definitions.
+
+```rust
 pub enum Feature {
     Items(Vec<Anchor>),                                  // one feature of one or more items (§6.5.1)
     Group { members: Vec<FeatureId>, kind: GroupKind },  // multiple elements, pattern of features,
                                                          // all around, between (§6.4)
-    Derived { kind: DerivedKind, from: Vec<FeatureId> }, // axis, centre plane, centre point
-    WholePart,                                           // all over (§6.3)
+    Derived { kind: DerivedKind, from: Vec<FeatureId> }, // explicit derived shape (§5.1.4, Table 3)
 }
-pub struct Datum { pub label: DatumLabel, pub feature: FeatureId, pub targets: Vec<DatumTarget> }
-pub struct DatumSystem(Vec<Compartment>);                // primary, secondary, tertiary, in order
+```
+
+There is no "whole part" feature: `product_definition_shape` is not a `shape_aspect`; a tolerance
+on the whole part is a `ToleranceTarget::WholePart` (§6.3).
+
+**Datums, datum features and targets** (§6.5, §6.6; schema `datum` WR1–WR4, `datum_target`):
+
+```rust
+pub struct Datum { pub label: DatumLabel, pub feature: Option<FeatureId>, pub targets: Vec<DatumTargetId> }
+pub struct DatumTarget {
+    pub number: u32,                        // target_id > 0 (WR3); 'A1' is datum A, target 1
+    pub shape: TargetShape,                 // Point | Line{length} | Rectangle{length, width}
+                                            // | Circle{diameter} | CircularCurve{diameter} | Area(FeatureId)
+    pub placement: Option<Placement>,       // placed targets: location and axes (§6.6.2)
+    pub movable: Option<Direction>,         // 'movable direction' (§6.6.4)
+    pub on: Option<FeatureId>,              // feature_for_datum_target_relationship, at most one (§6.6.3)
+}
+pub struct DatumSystem(Vec<Compartment>);   // primary, secondary, tertiary, in order (1..=3)
 pub struct Compartment { pub references: Vec<DatumReference>, pub modifiers: Vec<DatumModifier> }
 pub struct DatumReference { pub datum: DatumId, pub modifiers: Vec<DatumModifier> }
+```
 
+Invariant: a datum is established by its feature, its targets, or both, never by neither, and by
+at most one feature (`datum` WR1–WR2). A `Feature` used by a datum *is* the datum feature: the
+writer writes it as the `datum_feature` (not a `shape_aspect` beside it), and tolerances and
+dimensions on that feature reference the `datum_feature` instance, so no duplicate shape aspect
+exists. The reader maps a `datum_feature` and the tolerances that reference it back to one
+`Feature`. Several datums in one compartment are a common datum (A–B, §6.9.8).
+
+**Dimensions** (§5):
+
+```rust
 pub struct Dimension {
-    pub kind: DimensionKind,            // Size(SizeKind) on one feature | Location{from, to, LocationKind}
-    pub nominal: Value,                 // Length or Angle by kind, with optional decimal places
+    pub kind: DimensionKind,       // Size{feature, SizeKind} | Location{from, to, LocationKind, path, directed}
+    pub nominal: Value,            // Length or Angle by kind
     pub tolerance: DimTolerance,
-    pub qualifier: Option<Qualifier>,   // maximum, minimum, average (§5.2.2)
-    pub modifiers: Vec<DimensionModifier>,
+    pub qualifier: Option<Qualifier>,           // maximum, minimum, average (§5.2.2)
+    pub modifiers: Vec<DimensionModifier>,      // Tables 7–8
 }
 pub enum DimTolerance {
     None,
-    Basic,                                   // theoretically exact
-    Deviations { upper: Value, lower: Value },  // signed offsets from nominal, upper > lower (§5.2.3)
-    Limits { upper: Value, lower: Value },      // value range (§5.2.4)
-    Fit(Iso286Class),                           // tolerance class (§5.2.5)
+    Basic,                                          // theoretically exact (§5.3)
+    Deviations { upper: Value, lower: Value },      // signed offsets from nominal (§5.2.3)
+    Limits { upper: Value, lower: Value },          // value range (§5.2.4)
+    Fit { class: Iso286Class, limits: Option<(Value, Value)> }, // §5.2.5, optionally with the
+                                                    // stated limits beside it: Ø20 H7 (20.000/20.021)
 }
 pub struct Iso286Class { pub deviation: FundamentalDeviation, pub grade: ToleranceGrade }
-
-pub struct GeometricTolerance {
-    pub kind: ToleranceKind,            // the 15 ISO 1101 / Y14.5 characteristics
-    pub feature: FeatureId,
-    pub magnitude: Value,
-    pub zone: Option<Zone>,             // form (Ø, sphere, …), projected, affected plane, runout orientation
-    pub modifiers: Vec<ToleranceModifier>,   // Ⓜ Ⓛ Ⓕ Ⓣ Ⓟ Ⓤ, statistical, per unit, max value …
-    pub datums: Option<DatumSystem>,
-    pub unequal: Option<Value>,         // ISO Ⓤ displacement (§6.9.4)
-}
-pub struct GeneralTolerance { pub linear: Option<Iso2768Linear>, pub geometric: Option<Iso2768Geometric> }
-pub struct Thread { pub feature: FeatureId, pub side: Side, pub designation: String, pub pitch: Length,
-                    pub major: Length, pub class: String, pub hand: Hand, /* tapping drill, depths */ }
-pub struct Knurl { pub feature: FeatureId, pub pattern: KnurlPattern, pub pitch: Length, pub diameter: Length }
 ```
+
+`FundamentalDeviation` is one enum of A…ZC and a…zc (case gives hole or shaft); `ToleranceGrade`
+is IT01…IT18. Deviations and limits hold `upper > lower` with no sign assumed (g6, f7 lie wholly
+below nominal).
+
+**Geometric tolerances** (§6.7–§6.9):
+
+```rust
+pub struct GeometricTolerance {
+    pub kind: ToleranceKind,
+    pub target: ToleranceTarget,
+    pub magnitude: Option<Value>,       // schema: OPTIONAL length_measure_with_unit
+    pub zone: Option<Zone>,             // form (Ø, sphere, …), projected, affected plane,
+                                        // non-uniform, runout orientation (§6.9.2)
+    pub modifiers: Vec<ToleranceModifier>,  // Ⓜ Ⓛ Ⓕ Ⓣ Ⓟ Ⓤ, statistical, … (§6.9.3)
+    pub unit_basis: Option<UnitBasis>,  // §6.9.6
+    pub maximum: Option<Value>,         // §6.9.5
+    pub unequal: Option<Value>,         // §6.9.4
+    pub datums: Option<DatumSystem>,
+}
+pub enum ToleranceTarget {              // schema geometric_tolerance_target (SELECT, line 4042)
+    Feature(FeatureId),                 // shape_aspect
+    Dimension(DimensionId),             // dimensional_size / dimensional_location: a feature of size
+    Relation { relating: FeatureId, related: FeatureId, name: String }, // shape_aspect_relationship
+    WholePart,                          // product_definition_shape (§6.3 "applies to all surfaces")
+}
+pub struct ToleranceRelation {          // schema geometric_tolerance_relationship
+    pub kind: RelationKind,             // Composite | Precedence | Simultaneity
+    pub relating: ToleranceId, pub related: ToleranceId,
+}
+```
+
+Datum references by `ToleranceKind`, from the schema's subtype structure (a test checks this
+table against the generated schema table):
+
+| Kinds | Schema | Datums |
+|---|---|---|
+| angularity, perpendicularity, parallelism, circular runout, total runout, symmetry, concentricity, coaxiality | `SUBTYPE OF (geometric_tolerance_with_datum_reference)` | required |
+| position, line profile, surface profile | `SUBTYPE OF (geometric_tolerance)`; datums by the complex form with `geometric_tolerance_with_datum_reference` | optional |
+| straightness, flatness, roundness, cylindricity | WR1: `NOT (… GEOMETRIC_TOLERANCE_WITH_DATUM_REFERENCE IN TYPEOF(SELF))` | forbidden |
+
+A `Composite` relation requires both tolerances to be position, both line profile or both
+surface profile, with the same target (`geometric_tolerance_relationship` WR1–WR2), and each
+tolerance has at most one composite relation (`geometric_tolerance` WR5).
+
+**General tolerances.** A general tolerance is a table, not a named standard:
+
+```rust
+pub struct GeneralTolerance {
+    pub name: String,                     // the table's own name as stated
+    pub cells: Vec<ToleranceCell>,        // schema default_tolerance_table_cell
+    pub standard: Option<GeneralStandard>, // recognised, never stored: Iso2768_1(Class f|m|c|v)
+}
+pub struct ToleranceCell { pub over: Length, pub up_to: Length, pub tolerance: TolerancePair }
+```
+
+ISO 2768-1 is a named instance: `standards.rs` holds its table, `GeneralTolerance::iso2768_1(m)`
+builds it, and the reader sets `standard` when a table's cells equal it. An ASME title-block
+table (`.XX ±0.01`) is a table like any other. The mapping rests on the schema alone
+(`default_tolerance_table` WR1–WR2, `default_tolerance_table_cell` WR1–WR5): the PMI practice
+§6.3 represents general *geometric* tolerances as tolerances on the part or on a 'multiple
+elements' group of the untoleranced faces and does not mention `default_tolerance_table`. The
+ISO 2768-2 geometric class (the K of ISO 2768-mK) has no AP242 entity; it is not encoded in a
+table name or other string. It stays an open question for the maintainer.
+
+**Threads and knurls** are exactly their schema parameters (`thread` WR1–WR16,
+`turned_knurl` WR1–WR12), typed:
+
+```rust
+pub struct Thread {
+    pub feature: FeatureId,               // 'applied shape' (WR13)
+    pub partial_area: Option<FeatureId>,  // 'partial area occurrence' (WR12)
+    pub side: ThreadSide,                 // 'thread side': internal | external (=1)
+    pub major_diameter: Length,           // (=1)
+    pub minor_diameter: Option<Length>,   // (<=1)
+    pub pitch_diameter: Option<Length>,   // (<=1)
+    pub number_of_threads: Ratio,         // ratio_measure_with_unit (=1)
+    pub form: String,                     // descriptive (=1)
+    pub fit_class: String,                // (=1)
+    pub fit_class_2: Option<String>,      // (<=1)
+    pub hand: Hand,                       // 'left' | 'right' (=1)
+    pub crest: Option<Length>,            // (<=1)
+    pub qualifier: Option<String>,        // (<=1)
+    pub nominal_size: Option<Length>,     // (<=1)
+    pub runout: Option<FeatureId>,        // 'thread runout' (WR16)
+}
+pub struct Knurl {
+    pub feature: FeatureId,
+    pub pattern: KnurlPattern,            // description: diamond | diagonal | straight (WR1)
+    pub major_diameter: Length, pub nominal_diameter: Length, pub diametral_pitch: Length,
+    pub number_of_teeth: Option<Count>, pub tooth_depth: Option<Length>, pub root_fillet: Option<Length>,
+    pub helix_angle: Option<Angle>,       // required for diamond and diagonal (WR9)
+    pub helix_hand: Option<Hand>,         // required for diagonal (WR10)
+}
+```
+
+The schema defines no pitch item: what 'number of threads' (a ratio) means (threads per unit
+length or starts) is settled by the reader stage from ISO 10303-242's definition text and the
+files that carry threads, and recorded here; pitch, if derivable, is a function, not a field.
+Tapping drill diameter and depth and full-thread depth are not thread semantics: they are an
+`AttributeSet` on the thread's feature (UDA practice).
+
+**Material** (`Material { name, density: Option<Density> }`). The PMI practice defers to the
+CAx-IF *Material Identification and Density* practice, which is not on mbx-if.org's current
+list and could not be fetched (2026-10-08: the recommended-practices index and the Wayback
+index have no copy). The oracle stage searches again with bounded effort. Until it is obtained
+the mapping is **undetermined**: the reader reports material constructs as findings
+(`undetermined-practice`, with what they say) and does not consume them, and the writer refuses
+`Material`. OpenCascade's 'material name'/'density' representation is not adopted by default.
+
+**Notes and attributes.** `Note { text, on: Option<FeatureId> }` for descriptive requirements;
+`AttributeSet { name, on: AttributeOwner (Part | Feature), items: Vec<(String, AttributeValue)> }`
+per the UDA practice §5–7.
 
 **Invariants**, checked by constructors and by the reader (a violation is a reported finding,
 never a silent fix):
 
-- Ids (`FeatureId`, `DatumId`, …) index this `PartPmi`'s own vectors; every reference resolves.
-- A datum has no position: precedence exists only in a `DatumSystem`. Labels are unique within
-  a part; the same letter on two parts is two datums.
-- A `DatumSystem` is a value: two equal systems are one system (PMI practice §6.9.7).
-- `Deviations` and `Limits` have `upper > lower`; both may be on one side of nominal (g6, f7).
-- `Iso286Class` is a pair of enums (`A`…`ZC`, `a`…`zc`; IT01…IT18): no other spelling exists.
-- A tolerance kind that requires datums (perpendicularity, parallelism, runout, …) has them; one
-  that forbids them (flatness, straightness, roundness, cylindricity) has none.
-- Every `Value` has its quantity fixed by its role; a unit never enters the model.
-
-**Anchoring.** An `Anchor` is the face or edge as the file states it: the instance id of its
-`advanced_face` (or `edge_curve`) in the part's shape representation. That is what an AP242
-`geometric_item_specific_usage` references, and it survives a write because the lossless layer
-never renumbers existing instances. A new file's anchors are the ids its geometry was written
-with. The B-rep reader records each `Part` face's source instance and, per distinct part, the
-face numbering consumers use (R1); the two convert in both directions, and a face number from a
-different file or reader version is refused (as specify-core's `Binding` does today).
+- Ids (`FeatureId`, `DatumId`, `DimensionId`, `ToleranceId`, …) index this `PartPmi`'s own
+  vectors; every reference resolves.
+- A datum has no position: precedence exists only in a `DatumSystem`. Labels are unique within a
+  part; the same letter on two parts is two datums.
+- A `DatumSystem` is a value: two equal systems are one system (§6.9.7).
+- Datums are established as stated above; datum targets of one datum have distinct numbers.
+- `Deviations`, `Limits` and a fit's limits have `upper > lower`; no sign is assumed.
+- `Iso286Class` is a pair of enums: no other spelling exists.
+- Datum references follow the table above; composite relations follow its rules.
+- Every `Value`'s quantity is fixed by its role (a dimension's kind, a tolerance's magnitude is
+  a length, …), and every value carries its own unit.
 
 ## Architecture
 
 ```
-            bytes ──▶ p21::Document ──────────────────────────────▶ bytes
-                       (every instance's byte range; edits)        (untouched bytes copied)
-                          │                     ▲
-     step.rs (B-rep) ◀────┤                     │ Edit (add / replace / remove)
-     + face provenance    │                     │
-                          ▼                     │
-                     pmi::read ──▶ PartPmi ──▶ pmi::write ──▶ express::validate
-                     (+ findings)                              (every instance written)
+            bytes ──▶ p21::Document ─────────────────────────────────────▶ bytes
+                       (every instance's byte range; edits)               (untouched bytes copied)
+                          │                          ▲
+     step.rs (B-rep) ◀────┤                          │ Edit (add / replace / remove)
+     + face provenance    │                          │
+                          ▼                          │
+                     pmi::read ──▶ [PartPmi] ──▶ pmi::write ──▶ express::validate (backstop)
+                     (+ findings,                (typed emission;     + express_rules
+                      consumed ids)               removal plan)
 ```
 
 1. **`p21`: a lossless Part 21 document.** Parses a file once into its instances, each with its
    id, its parsed record (step-io's `parser::RawEntity`) and the exact byte range of its text
-   (from `#` through `;`), plus the header and section boundaries. step-io's spans mark only the
-   `#N` token, so `p21` finds each instance's end itself (strings, `''` escapes and comments
-   respected) and checks the ids agree with step-io's graph. An `Edit` holds additions (with
-   provisional ids), replacements (same id, new record) and removals; applying one refuses a
-   removal that is still referenced and an addition that references nothing that exists.
-   Writing copies every untouched byte unchanged, writes a replaced instance in place, drops
-   a removed one with its line, and appends additions before the `ENDSEC` of the last DATA section,
-   numbered from the file's largest id upward in a deterministic order. New text uses the file's
-   own line ending, and strings are encoded with Part 21 escapes (`\X2\…\X0\`), valid in every
-   edition, so nothing else in the file needs re-escaping. A file whose `FILE_SCHEMA` is not
-   AP242 (90 of the 100 corpus files are AP214, 10 AP203) is changed to AP242 in that header
-   line, only when every entity type in it is declared by the AP242 schema; otherwise the edit
-   is refused, naming the types. With no edit, output equals input byte for byte.
-2. **`express`: the AP242 schema as data.** A table generated from the ISO 10303-242 EXPRESS
-   long form by `tools/express_table.py` (its source file and sha256 recorded): every entity's
-   supertypes, explicit attributes in order (inherited first, redeclarations applied), each
-   attribute's type (simple type, enumeration values, SELECT members, entity, aggregate bounds,
-   OPTIONAL). `validate(record)` checks a simple or complex instance: entity names exist,
-   attribute count and types (typed parameters in SELECTs, enumeration values, reference
-   targets' types, aggregate bounds), and that a complex instance's leaves form a legal and
-   minimal set. The WHERE rules the writer depends on (e.g. `thread.WR1`,
-   `default_tolerance_table.WR2`, `plus_minus_tolerance`'s uniqueness) are checked by named
-   functions, each citing its rule. A general EXPRESS rule engine is out of scope.
-3. **Face provenance** in `step.rs`: each `Part` face records its `advanced_face` id and its
-   instance. step-io does not expose its id map, but fills each arena in ascending id order over
-   the instances it keeps; the reader rebuilds the map from `p21` and the report's dropped ids,
-   and checks every face against its record (bound count, surface reference type, sense),
-   refusing on any disagreement. Per distinct part: its `product_definition`, name, placements,
-   and its faces in the order consumers number them (OpenCascade's `TopExp::MapShapes` over the
-   part's solid, which `Part`'s traversal order already matches).
-4. **`pmi::read`** walks the `p21` records (not step-io's typed model, which drops `thread`,
-   `turned_knurl`, `runout_zone_definition` and `default_tolerance_table`) from each part's
-   `product_definition_shape` through shape aspects, `geometric_item_specific_usage` and
-   `item_identified_representation_usage` to the anchors, as the PMI practice lays out. Every
-   measure is converted by its own unit (the `measure_with_unit`'s unit entity, resolved to SI;
-   a measure with no resolvable unit is a finding). It returns `PartPmi` per part plus
-   `Findings`: unknown or unsupported PMI entities (by id and type), nonconformances it read
-   through and how (e.g. NIST FTC-10's `LIMITS_AND_FITS('G6','hole','','')`, the grade in the
-   wrong attribute), and references that do not resolve. Presentation entities are counted and
-   listed as presentation, not interpreted.
-5. **`pmi::write`** turns a `PartPmi` into an `Edit`: it reuses the part's existing anchors,
-   contexts and units (adding an SI millimetre and radian unit only if the context has none),
-   emits one entity form per concept from a single mapping table (below), validates every new
-   or replaced instance with `express` before anything is written, and returns the edit for
-   `p21` to apply. **Editing** is first class: `add` (new items beside the existing ones,
-   resolving existing datum letters to the part's existing `datum`), `replace` (remove the
-   part's PMI subgraph, the instances reachable from its PMI roots and from nothing else, and
-   write the new one), and `remove`. Verification is `pmi::read` of the output compared
-   semantically with what was written, plus `express` over every instance the edit touched.
+   (from `#` through `;`), plus the header and section boundaries; checks the ids agree with
+   step-io's graph. An `Edit` holds additions (provisional ids), replacements (same id, new
+   record) and removals; applying one refuses a removal still referenced by a kept instance and
+   a reference to nothing. Writing copies every untouched byte unchanged, writes a replaced
+   instance in place, drops a removed one with its line, and appends additions before the
+   `ENDSEC` of the last DATA section, numbered from the file's largest id upward in a
+   deterministic order, in the file's own line ending; strings use Part 21 escapes
+   (`\X2\…\X0\`), valid in every edition. A complex record is built only through a `Complex`
+   type that holds its leaves sorted by name (the external mapping's order); `encode` refuses a
+   raw complex record whose parts are not in that order. With no edit, output equals input.
+2. **`express`: the AP242 schema as data.** A table generated from the EXPRESS long form by
+   `tools/express_table.py` (source and sha256 recorded). `validate(record)` checks a simple or
+   complex instance (names, attribute count and types, typed SELECT members, enumerations,
+   reference targets, aggregate bounds, legal and minimal complex sets); `validate_document`
+   runs it over every instance. The table also classifies every entity type into a *family*
+   (semantic PMI, presentation, validation property, product/shape/geometry/other) from its
+   supertypes, reviewed once and committed. `express_rules` checks by name the WHERE and UNIQUE
+   rules the writer depends on (`thread` WR1–WR16, `turned_knurl` WR1–WR12,
+   `default_tolerance_table` WR1–WR2 and cell WR1–WR5, `datum` WR1–WR4, `datum_target`
+   WR1–WR5, `geometric_tolerance` WR1/WR5, `geometric_tolerance_relationship` WR1–WR2,
+   `datum_system` UR1, `plus_minus_tolerance` UR1), each citing its label.
+   **Editions.** The writer targets exactly the edition the express table represents (the
+   stage that builds it determines which edition N11521 is, and builds one table per edition if
+   other long forms are found). A file whose `FILE_SCHEMA` is that edition keeps it. A file of
+   another AP242 edition, or AP214/AP203 (90 and 10 of the 100 corpus files), is written only
+   when `validate_document` passes every instance of the edited file against the target table
+   (exceptions pinned per file with reasons, as known validator-vs-file disagreements), and its
+   `FILE_SCHEMA` becomes the target edition's identifier; otherwise the edit is refused, naming
+   the violating instances. Entity names alone are not enough: attribute counts and types can
+   differ between APs and editions.
+3. **Face provenance** in `step.rs`: each `Part` face and edge records its `advanced_face` /
+   `edge_curve` id and its placed instance. step-io fills each arena in ascending id order over
+   the instances it keeps; the reader rebuilds the map from the raw graph and the report's
+   dropped ids and checks every face and edge against its record: entity type, bound count,
+   surface type and sense, **and one geometric value** (the surface's location point, the edge
+   vertices' coordinates) against step-io's typed geometry, refusing on any disagreement. Per
+   distinct part, `read_part_definitions` gives its `product_definition`, name, placements and
+   faces (and edges) in specify-core's numbering; this is the binding the PMI reader and writer
+   resolve anchors through.
+4. **`pmi::read`** walks the `p21` records (step-io's typed model drops `thread`,
+   `turned_knurl`, `runout_zone_definition`, `default_tolerance_table`) **inversely from each
+   part**: the *roots* of a part's PMI are the semantic-PMI-family instances that reference its
+   `product_definition_shape` (shape aspects by `of_shape`, tolerances on the whole part,
+   property definitions) or its `product_definition` (UDA and property constructs); from them it
+   follows references to anchors, values and units, and inverse references to the items built on
+   them (datums on datum features, tolerances on shape aspects and dimensions, relationships). It
+   returns `PmiRead { parts: Vec<PartPmi>, findings, provenance }`: findings are unknown or
+   unsupported PMI entities (by id and type), nonconformances read through and how (NIST
+   FTC-10's `LIMITS_AND_FITS('G6','hole','','')`), unresolved references, unitless measures,
+   PMI on an assembly product definition or an occurrence path (out of scope, never
+   misattributed), and constructs whose practice is undetermined (material). `provenance` lists,
+   per part and per model item, the instance ids it consumed. Accounting: every
+   semantic-PMI-family instance of the file is consumed or in a finding. Presentation is counted
+   as presentation, not interpreted. A part placed twice is one part, read once.
+5. **`pmi::write`** takes all parts at once: `write(doc, &[(PartId, PartPmi)], mode) -> Edit`
+   with `mode` add, replace or remove (and a presentation policy for replace and remove, item 6).
+   Datums resolve per part (two parts may both have A); anchors are checked to be faces or edges
+   of the named part. A **typed emission layer** in `write.rs` is the only way the writer makes
+   records: measures only through `length_measure(&Length, UnitRef)` and
+   `angle_measure(&Angle, UnitRef)`, which emit the typed form
+   (`LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(v),#u)`) with the value's own digits; complex
+   instances only through `p21::Complex`; `tolerance_value` only from `Deviations { upper, lower }`;
+   `limits_and_fits` only from `Iso286Class`. Each concept's form comes from one mapping table
+   (below). Before anything is returned, every added or replaced instance passes
+   `express::validate` and the edited document passes `express_rules` (the backstop).
+6. **Editing and removal.** `add` writes new items beside the part's existing ones; a datum
+   label the part already has resolves to its existing `datum` (with different faces: refused).
+   `replace(part, new)` means: afterwards `read(part) == new`. It removes the instances the
+   reader consumed for the part (its `provenance`), plus their forward dependencies that nothing
+   outside the removed set references (measures, representations, items; never units, contexts
+   or geometry, which are shared). Every kept instance that still references a removed one is
+   then classified by family:
+   - *presentation and validation properties* (`draughting_model_item_association`,
+     `draughting_callout` and its annotation occurrences and their exclusively owned geometry
+     and styles, CAx-IF PMI validation properties): with policy `Refuse` (the default) the edit
+     is refused naming them by id and type; with policy `RemovePresentation` they are removed
+     too, a `draughting_model` or view whose item list names them is rewritten without them, and
+     the report lists every removed and rewritten instance by id;
+   - *anything else* (an unconsumed PMI instance found by the reader, an application's own
+     data): refused, naming it.
+   UDAs and material on the part are in scope of replace exactly when the reader consumed them
+   (UDAs: yes; material: not while its practice is undetermined, so it stays untouched).
+   Unconsumed PMI of the part is kept byte for byte and reported again. `remove(part)` is
+   `replace(part, empty)`. Verification is `pmi::read` of the output compared semantically
+   with what was written, plus `express` over every instance the edit touched.
 
-**Mapping** (writer form; the reader also accepts the older forms the PMI practice says must
-still be read):
+**Mapping** (writer form; the reader also accepts the older forms the practice says must still
+be read, e.g. the pre-4.0.6 datum forms of §6.5.2):
 
 | Concept | AP242 form |
 |---|---|
-| Feature on items | `shape_aspect` + `geometric_item_specific_usage` per item (§5.1, §6.5.1) |
-| Group | `composite_group_shape_aspect` named 'multiple elements' / 'pattern of features', `shape_aspect_relationship` per member (§6.4) |
-| Datum | one `datum_feature` and one `datum` per label per part, `shape_aspect_relationship` (§6.5) |
-| Datum system | one `datum_system` per distinct system, `datum_reference_compartment` per position, never shared (§6.9.7) |
-| Size / location | `dimensional_size` / `dimensional_location` + `dimensional_characteristic_representation` + `shape_dimension_representation` with 'nominal value' (§5.2.1) |
-| Deviations | `plus_minus_tolerance` → `tolerance_value(lower, upper)` with `length_measure_with_unit`s (§5.2.3) |
+| Feature on items | `shape_aspect` + `geometric_item_specific_usage` per item, or `item_identified_representation_usage` with a `set_representation_item` (§5.1, §6.5.1) |
+| Group | `composite_group_shape_aspect` named 'multiple elements' / 'pattern of features', `shape_aspect_relationship` per member (§6.4); all around / between: `all_around_shape_aspect` / `between_shape_aspect` (§6.4.2–3) |
+| Derived feature | `derived_shape_aspect` (or the Table 3 subtype) with `shape_aspect_deriving_relationship`s (§5.1.4) — written only when the model states a derived feature |
+| Datum | one `datum` per label per part, established by `shape_aspect_relationship` from its `datum_feature` (the feature itself) and/or its `datum_target`s (§6.5, §6.6). A hole or boss datum is a datum feature on the cylindrical faces (§6.5.1, Figure 35); the axis is implied, so specify-core's "hole or boss axis" is written in that form, not as a derived axis |
+| Datum target | `placed_datum_target_feature` (point, line, rectangle, circle, circular curve with `shape_representation_with_parameters`) or `datum_target` on an area feature; `feature_for_datum_target_relationship`; 'movable direction' (§6.6) — read now, written later |
+| Datum system | one `datum_system` per distinct system, `datum_reference_compartment` per position, never shared (§6.9.7); common datums as `datum_reference_element`s (§6.9.8) |
+| Size / location | `dimensional_size` / `dimensional_location` (+ angular, with path, directed) + `dimensional_characteristic_representation` + `shape_dimension_representation` with 'nominal value' (§5.1–§5.2.1); a datum feature with a size is the complex `dimensional_size_with_datum_feature` (§6.5.3) |
+| Decimal places | `value_format_type_qualifier` on the value (§5.4); the part default by the §4.1 construct |
+| Deviations | `plus_minus_tolerance` → `tolerance_value(lower, upper)` with typed `length_measure_with_unit`s (§5.2.3) |
 | Limits | 'upper limit' and 'lower limit' items beside 'nominal value' (§5.2.4) |
-| Fit | `plus_minus_tolerance` → `limits_and_fits(form_variance='H', zone_variance='hole'/'shaft', grade='7', source='')` (§5.2.5) |
-| Basic, reference | `descriptive_representation_item('dimensional note','theoretical')` / `'auxiliary'` in the `shape_dimension_representation` (§5.3, Table 7); other modifiers grouped under 'modifiers' (Table 8) |
-| Geometric tolerance | the leaf type (`flatness_tolerance`, …), complex only when modifiers or a zone require `geometric_tolerance_with_modifiers` etc. (§6.9) |
-| Zone | `tolerance_zone` + `tolerance_zone_form` (§6.9.2); `runout_zone_definition` with its orientation only for a stated runout direction |
-| General tolerance | `default_tolerance_table` of ISO 2768-1 cells ('lower limit', 'upper limit', 'plus minus tolerance value'), related to the 'default tolerance' representation by 'general tolerance definition' (schema `default_tolerance_table` WR2, cell WR2–5) |
-| Thread / knurl | `thread` / `turned_knurl` (subtypes of `feature_definition`) with their `shape_representation_with_parameters` items as the schema's WHERE rules name them ('major diameter', 'pitch diameter', 'thread side', 'hand', 'fit class', …), linked to the feature's faces |
-| Material | the CAx-IF material practice's 'material name' and 'density' properties |
+| Fit | `plus_minus_tolerance` → `limits_and_fits(form_variance='H', zone_variance='hole'/'shaft', grade='7', source='')` (§5.2.5); stated limits as 'upper limit'/'lower limit' items beside it |
+| Basic, reference | `descriptive_representation_item('dimensional note','theoretical')` / `'auxiliary'` (§5.3, Table 7); other modifiers under 'modifiers' (Table 8) |
+| Geometric tolerance | the leaf type (`flatness_tolerance`, …); a complex instance only when the table of datum references, modifiers, unit basis, maximum or unequal disposition requires it (§6.9) |
+| Tolerance target | the `datum_feature` / `shape_aspect`; the `dimensional_size` or `dimensional_location` for a feature of size; the `product_definition_shape` for the whole part (§6.1–§6.3) |
+| Tolerance relation | `geometric_tolerance_relationship` 'composite tolerance' / 'precedence' / 'simultaneity' — read now, written later |
+| Zone | `tolerance_zone` + `tolerance_zone_form` (§6.9.2); `runout_zone_definition` (three attributes) only for a stated runout orientation |
+| General tolerance | `default_tolerance_table` of `default_tolerance_table_cell`s related to the 'default tolerance' representation by 'general tolerance definition' (schema only; see above) |
+| Thread / knurl | `thread` / `turned_knurl` with one `shape_representation_with_parameters` whose items are exactly the model's fields, named as the WHERE rules name them; 'applied shape', 'partial area occurrence', 'thread runout' relationships |
+| Material | undetermined (see Material) |
 | Attributes | UDA practice §5–7: `general_property` 'user defined attribute' |
+| Standard | `applied_document_reference` to the dimensioning standard (§4) |
 
 ## Anti-requirements
 
 Each OpenCascade defect specify-core works around today (`writer.py`'s docstring, `merge.py`,
-`existing.py`), and how this design makes it impossible.
+`existing.py`), and how this design rules it out. *Types* means the model or the emission layer
+has no way to express the defect; *validator* means `express`/`express_rules` would catch it
+before anything is written (the backstop for everything).
 
-| OpenCascade defect | Made impossible by | Checked by |
-|---|---|---|
-| Datum precedence held on the datum, so one datum label per letter per tolerance | `Datum` has no position; precedence is the order of `DatumSystem`'s compartments; the writer emits one `datum` per label per part and one `datum_system` per distinct system | a part with A\|B, B\|C\|A and D\|B\|C read back exactly; one `DATUM` per letter in the text |
-| Lower deviation negated | `Deviations` holds signed offsets as the standard defines them; the writer copies them into `tolerance_value` unchanged; no API takes a magnitude | round trip of +0.1/−0.05 and of g6 (−0.009/−0.025) |
-| Both deviations below nominal unreadable | the reader assumes no sign; the invariant is only `upper > lower` | g6 and f7 fixtures read; NIST STC-10 |
-| ISO 286 grade written wrongly, so fits written as bare limits | `Iso286Class` is two enums, written as `limits_and_fits` letter and grade digits | Ø20 H7 and Ø70 g6 written as fits and read back as the same class |
-| Tolerance length unit taken from the last dimension written (1000× errors) | every `Value` is in model units; the writer converts each measure by the unit it references, chosen per measure from the part's context; the writer holds no unit state | a part with tolerances and no dimension; a part whose context is in inches |
-| PMI that has been read cannot be written back (hence the text transplant) | the file is never regenerated: `p21` keeps every instance's bytes, and the writer emits only new or replaced instances | add PMI to every NIST AP242 file and check every original instance is byte-identical and its PMI reads the same |
-| Malformed `RUNOUT_ZONE_DEFINITION` | every written instance passes `express::validate` before anything is written; a zone definition is written only when the model states one | validator test with a three-attribute zone; every writer test validates its output |
-| Untyped `MEASURE_WITH_UNIT` limits | the quantity is fixed by the value's role, so the writer emits `length_measure_with_unit(length_measure(…))` or the angle form; `express` rejects an untyped measure in a typed position | validator test; writer output scan |
-| Complex entities where the simple form is expected | one mapping table chooses each form; `express` requires a complex instance to be minimal | validator test with a complex perpendicularity that needs no complex form |
-| Datums imported only when referenced | the reader enumerates every `datum` and `datum_feature` of the part, used or not | fixture with an unreferenced datum |
-| One datum per name per document (assemblies) | datums belong to a `PartPmi`; the writer resolves a label within that part's `product_definition_shape` only | an assembly of two parts, each with datum A on its own faces |
-| Threads, knurls and the general tolerance appended as raw text | they are model types written through the same validated writer as their AP242 entities (`thread`, `turned_knurl`, `default_tolerance_table`) | round trip; `express` WHERE-rule checks for `thread` and `default_tolerance_table` |
+| OpenCascade defect | Ruled out by | How | Checked by |
+|---|---|---|---|
+| Datum precedence on the datum (one label per letter per tolerance) | types | `Datum` has no position; precedence is the order of `DatumSystem`'s compartments; one `datum` per label per part | A\|B, B\|C\|A, D\|B\|C on one part read back exactly; one `DATUM` per letter in the text |
+| Lower deviation negated | types | `Deviations` holds signed offsets; `tolerance_value` is built only from it; no API takes a magnitude | +0.1/−0.05 and g6 (−0.009/−0.025) round trip |
+| Both deviations below nominal unreadable | types | the only invariant is `upper > lower` | g6 and f7 read; NIST STC-10 |
+| ISO 286 grade written wrongly (fits as bare limits) | types | `Iso286Class` is two enums; `limits_and_fits` is built only from it | Ø20 H7, Ø70 g6, and Ø20 H7 (20.000/20.021) read back as fits |
+| Tolerance unit taken from the last dimension written (1000×) | types | every value carries its own unit; the emission layer takes the unit per measure; the writer holds no unit state | tolerances on a part with no dimension; mm values into an inch-context part |
+| Values changed by unit conversion | types | values are kept as stated decimals in their own unit; nothing is converted on write | every value's text kept by read → replace on every inch NIST file |
+| PMI that has been read cannot be written back | design + test | read and write share one model; `replace(part, read(part))` is an operation like any other | read → replace → read over every NIST file and specify input, semantically equal; what the writer cannot write yet (datum targets, tolerance relations) refused by name and pinned |
+| Malformed `RUNOUT_ZONE_DEFINITION` | validator | written only when the model states an orientation; attribute count checked | validator test with a two-attribute zone |
+| Untyped `MEASURE_WITH_UNIT` | types + validator | the emission layer has only typed measure functions; `express` rejects untyped SELECT values | validator test; scan of every written instance |
+| Complex entities where the simple form is expected | types + validator | `Complex` holds sorted leaves; the mapping table chooses complex only when required; `express` requires a minimal set | validator test with a complex perpendicularity |
+| Datums imported only when referenced | reader | every `datum`, `datum_feature` and `datum_target` of the part is enumerated | an unreferenced datum read back; NIST files |
+| One datum per name per document (assemblies) | types | datums belong to a `PartPmi`; labels resolve per part | two-part assembly with datum A on each part |
+| Threads, knurls and general tolerance appended as raw text | types + validator | model types written as `thread`, `turned_knurl`, `default_tolerance_table` through the emission layer; `express_rules` checks their WHERE rules | round trip; rule tests |
 
-Also gone: the presentation workarounds (`CommonLabel` crashes, presentations with no edges),
-the schema-setting workaround, and UTF-8 written where escapes are required.
+Also gone: the text transplant (editing is an `Edit` on the document), the presentation
+workarounds, the schema-setting workaround, and UTF-8 written where escapes are required.
 
 ## Oracles and tests
 
 In order of authority:
 
-1. **The AP242 schema and the CAx-IF practices.** Every instance the writer emits is
-   validated; the validator itself is tested on hand-written valid and invalid instances, and run
-   over the PMI of every NIST AP242 file, its findings pinned with reasons (NIST says the files
-   have errors).
-2. **NIST's MBE PMI test models** (CTC 01–05, FTC 06–11, STC 06–10, AP242 editions 1–4, from
-   `usnistgov/SFA` `Release/NIST-PMI-STEP-Files.zip`, in the scratchpad's `ap242-nist`). Their
-   published PMI is the drawings in `PDF/` and, in the STEP File Analyzer's data, the expected
-   PMI per model. Small checked fixtures (`tests/fixtures/ap242/`) hold the expected semantic
-   PMI of selected models, each item transcribed with its drawing reference.
-3. **The STEP File Analyzer and Viewer** checks semantic PMI against the practices but needs
-   Windows (IFCsvr, tcom, twapi); it cannot run here. Its expected-PMI data is used if it can be
-   extracted from the release; otherwise item 2's fixtures stand in.
-4. **OpenCascade XCAF** through specify-core's venv: `tools/capture_pmi_occt.py` records what
-   `STEPCAFControl_Reader` reads (dimensions, tolerances, datums, faces as entity ids). Every
-   difference from haecceity's reader is listed in `tests/fixtures/known_pmi.json` with a verdict
-   (`rust-correct`, `rust-wrong`, `equivalent`, `undetermined`, `not-applicable`) and its
-   evidence, in the format of the other verdict files.
+1. **The AP242 schema and the CAx-IF practices.** Every instance the writer emits is validated;
+   the validator is tested on hand-written valid and invalid instances and run over every NIST
+   AP242 file, its findings pinned with reasons (NIST says the files have errors).
+2. **NIST's MBE PMI test models** (CTC 01–05, FTC 06–11, STC 06–10, AP242 editions 1–4; ten of
+   them use inch units). The STEP File Analyzer's expected-PMI data is used if it can be
+   extracted from its release. Otherwise selected models' PMI is transcribed from the drawings
+   (`PDF/`), **checked by a second, independent pass against the drawing**, and every reader
+   difference is resolved against both the drawing and the file text before it is pinned;
+   transcription errors found that way are recorded in `tests/fixtures/ap242/README.md`.
+3. **The STEP File Analyzer and Viewer** needs Windows (IFCsvr, tcom, twapi) and cannot run here.
+4. **OpenCascade XCAF** through specify-core's venv (`tools/capture_pmi_occt.py`): a
+   cross-check with a verdict per difference (`rust-correct`, `rust-wrong`, `equivalent`,
+   `undetermined`, `not-applicable`).
+5. **draftwright's extraction** (`tools/capture_pmi_draftwright.py`): everything draftwright
+   reads must be in the model; parity is a reader acceptance item, so gaps close in the model
+   before the writer exists.
 
-Tests: `p21` round trip byte for byte over the corpus and the NIST files; edits confined to
-their spans; face provenance against OpenCascade's (`LoadedPart.face_ranks` mapped to `#` ids);
-the reader on NIST fixtures and on specify-core-written files from corpus parts (inputs only:
-how specify-core writes PMI is not a reference); the writer by validation, by read-back, by the
-anti-requirement cases above, and by OpenCascade's reading of the result with verdicts;
-determinism (same input, same bytes, fresh hash seeds).
+Tests: `p21` round trip byte for byte; edits confined to their spans; face provenance against
+OpenCascade's; the reader on NIST and on specify-core-written files (inputs only, not a
+reference); the removal plan with both presentation policies on NIST files; the writer by
+validation, by read-back, by `read → replace → read` over every NIST and specify file, by
+value text preservation on inch files, by the anti-requirement cases, and by OpenCascade's
+reading of the result with verdicts; determinism (same input, same bytes, fresh hash seeds).
 
 ## Out of scope for now
 
 - **Graphic presentation** (callouts, datum feature symbols, polylines, tessellated
-  presentation, saved views). It is derived from semantics and kept separate; neither consumer
-  draws from it. Existing presentation in a file is kept byte for byte, but if it presents PMI
-  that `replace` removes, that is reported, not repaired.
-- **A general EXPRESS rule engine.** Structural validation plus named checks of the rules the
-  writer depends on covers the defects above. A full WHERE/RULE evaluator is a project of its own.
-- **Writing datum targets and composite tolerances.** They are read. specify-core v1 writes
-  neither.
-- **PMI on assembly occurrences** (instance-specific PMI through `assembly_component_usage`).
-  Both consumers specify parts.
-- **ISO 286 limit computation** from a class. Consumers have their own tables and the file
-  states the class.
-- **AP242 XML, external references, validation properties.**
+  presentation, saved views) derived from the semantics. Existing presentation is kept byte for
+  byte, or removed and reported under the `RemovePresentation` policy; it is never updated.
+- **Writing datum targets and tolerance relations** (composite frames). Both are read and in the
+  model; the writer refuses them by name.
+- **PMI on assembly occurrences** (`assembly_component_usage` paths); reported as findings.
+- **Material**, until the CAx-IF material practice is obtained.
+- **A general EXPRESS rule engine**; named checks cover what the writer emits.
+- **ISO 286 limit computation** from a class.
+- **AP242 XML, external references, validation properties written.**
+- **specify-core's `mesh` command** (face-indexed tessellation): an OpenCascade replacement item
+  for specify-core, but not PMI; planned separately on top of the face provenance.
