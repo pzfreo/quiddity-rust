@@ -447,25 +447,34 @@ impl Document {
         &self.graph.header
     }
 
-    /// The header's `FILE_SCHEMA` strings, in step-io's string convention.
-    #[must_use]
-    pub fn file_schema(&self) -> Vec<String> {
-        let schema = self.graph.header.iter().find_map(|h| match h {
+    /// The header's `FILE_SCHEMA` strings, in step-io's string convention. Refused when the
+    /// header has no `FILE_SCHEMA`, or one that is not a single list of strings.
+    pub fn file_schema(&self) -> Result<Vec<String>, P21Error> {
+        let bad = |why: &str| Err(P21Error::Parse(format!("FILE_SCHEMA {why}")));
+        let mut schemas = self.graph.header.iter().filter_map(|h| match h {
             RawEntity::Simple {
                 name, attributes, ..
-            } if name == "FILE_SCHEMA" => attributes.first(),
+            } if name == "FILE_SCHEMA" => Some(attributes),
             _ => None,
         });
-        match schema {
-            Some(Attribute::List(items)) => items
-                .iter()
-                .filter_map(|a| match a {
-                    Attribute::String(s) => Some(s.clone()),
-                    _ => None,
-                })
-                .collect(),
-            _ => Vec::new(),
+        let Some(attributes) = schemas.next() else {
+            return bad("is missing");
+        };
+        if schemas.next().is_some() {
+            return bad("appears more than once");
         }
+        let [Attribute::List(items)] = attributes.as_slice() else {
+            return bad("is not a single list");
+        };
+        items
+            .iter()
+            .map(|a| match a {
+                Attribute::String(s) => Ok(s.clone()),
+                other => Err(P21Error::Parse(format!(
+                    "FILE_SCHEMA holds {other:?}, not a string"
+                ))),
+            })
+            .collect()
     }
 
     /// The ids of the instances whose records reference `#id`, ascending.
@@ -525,7 +534,8 @@ impl Document {
             let mut err = None;
             visit_attributes_mut(&mut out.entity, &mut |a| {
                 let Attribute::EntityRef(t) = a else { return };
-                let target = if *t >= PROVISIONAL {
+                let provisional = *t >= PROVISIONAL;
+                let target = if provisional {
                     match ids.get(&NewId(*t - PROVISIONAL)) {
                         Some(&n) => n,
                         None => {
@@ -545,10 +555,12 @@ impl Document {
                         id: target,
                         by: vec![from],
                     });
-                } else if !self.graph.entities.contains_key(&target)
+                } else if !provisional
+                    && !self.graph.entities.contains_key(&target)
                     && !self.graph.external_references.contains_key(&target)
-                    && !(first_new..first_new + ids.len() as u64).contains(&target)
                 {
+                    // A literal number for an instance this edit adds is refused too: only
+                    // provisional references (`NewId::to_ref`) name additions.
                     err.get_or_insert(P21Error::Dangling {
                         from,
                         to: format!("#{target}"),
@@ -598,8 +610,26 @@ impl Document {
         for &id in replaced.keys() {
             patches.push((self.spans[&id].clone(), format!("#{id}={};", texts[&id])));
         }
-        for &id in &removed {
-            patches.push((self.removal_extent(&self.spans[&id]), String::new()));
+        // Removed instances separated only by spaces and tabs are removed as one run, so a line
+        // they share goes with them.
+        let mut runs: Vec<Range<usize>> = Vec::new();
+        let mut spans: Vec<Range<usize>> =
+            removed.iter().map(|id| self.spans[id].clone()).collect();
+        spans.sort_by_key(|r| r.start);
+        for span in spans {
+            match runs.last_mut() {
+                Some(run)
+                    if self.bytes[run.end..span.start]
+                        .iter()
+                        .all(|c| matches!(c, b' ' | b'\t')) =>
+                {
+                    run.end = span.end;
+                }
+                _ => runs.push(span),
+            }
+        }
+        for run in &runs {
+            patches.push((self.removal_extent(run), String::new()));
         }
         if let Some(schemas) = schema {
             let at = self
@@ -641,7 +671,7 @@ impl Document {
         Ok(Written { bytes, ids })
     }
 
-    /// What removing the instance at `span` drops: its whole line(s) with the line break that
+    /// What removing the instance(s) at `span` drops: its whole line(s) with the line break that
     /// follows when nothing but spaces and tabs shares them, else the span alone.
     fn removal_extent(&self, span: &Range<usize>) -> Range<usize> {
         let b = &self.bytes;
@@ -749,6 +779,9 @@ fn scan(b: &[u8]) -> Result<Scan, P21Error> {
                 .and_then(|s| s.parse::<u64>().ok())
                 .ok_or_else(|| err(start, "malformed instance id"))?;
             Statement::Instance(id)
+        } else if b[pos] == b'<' && section == Section::Ed3 {
+            // An ANCHOR entry, `<name> = #N;` (or another value): checked by step-io.
+            Statement::Anchor
         } else {
             while pos < b.len() && (b[pos].is_ascii_alphanumeric() || b"_-".contains(&b[pos])) {
                 pos += 1;
@@ -762,7 +795,7 @@ fn scan(b: &[u8]) -> Result<Scan, P21Error> {
             .ok_or_else(|| err(start, "statement without its terminating ';'"))?;
         let word = match &first {
             Statement::Word(w) => w.as_str(),
-            Statement::Instance(_) => "",
+            Statement::Instance(_) | Statement::Anchor => "",
         };
         match (section, &first) {
             (Section::Start, _) if word == "ISO-10303-21" => section = Section::Top,
@@ -799,6 +832,7 @@ fn scan(b: &[u8]) -> Result<Scan, P21Error> {
 
 enum Statement {
     Instance(u64),
+    Anchor,
     Word(String),
 }
 

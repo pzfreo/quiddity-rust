@@ -357,7 +357,7 @@ fn edits_touch_only_their_spans() {
     assert_eq!(doc.max_id(), 10);
     assert_eq!(doc.referrers(1), [3]);
     assert_eq!(doc.referrers(3), [9]);
-    assert_eq!(doc.file_schema(), ["T"]);
+    assert_eq!(doc.file_schema().unwrap(), ["T"]);
     let text = |id| String::from_utf8(doc.bytes()[doc.span(id).unwrap()].to_vec()).unwrap();
     assert_eq!(
         text(10),
@@ -513,6 +513,17 @@ fn edits_that_would_leave_a_reference_dangling_are_refused() {
         P21Error::Dangling {
             from: 7,
             to: "new #1".into()
+        }
+    );
+    // A literal number for an instance the edit adds is not a reference to it: only a
+    // provisional reference is.
+    assert_eq!(
+        refused(&|e| {
+            e.add(simple("X", vec![Attribute::EntityRef(11)]));
+        }),
+        P21Error::Dangling {
+            from: 11,
+            to: "#11".into()
         }
     );
     // Missing instances, and instances edited twice.
@@ -949,6 +960,100 @@ fn files_step_io_cannot_read_are_refused() {
     ));
     assert!(matches!(
         Document::parse(file("#1=X('unterminated);\n")),
+        Err(P21Error::Parse(_))
+    ));
+}
+
+#[test]
+fn removals_keep_their_neighbours() {
+    let removed = |data: &str, ids: &[u64]| {
+        let doc = Document::parse(file(data)).unwrap();
+        let mut e = Edit::new();
+        for &id in ids {
+            e.remove(id);
+        }
+        let out = String::from_utf8(doc.apply(&e).unwrap().bytes).unwrap();
+        let body = out.strip_prefix(HEAD).unwrap().strip_suffix(TAIL);
+        body.map_or_else(|| panic!("{out}"), str::to_owned)
+    };
+    // Two instances sharing a line: the line goes once both are gone, else only the span.
+    assert_eq!(removed("#1=X();#2=Y();\n#3=Z();\n", &[1, 2]), "#3=Z();\n");
+    assert_eq!(removed("#1=X(); #2=Y();\n#3=Z();\n", &[2, 1]), "#3=Z();\n");
+    assert_eq!(
+        removed("#1=X(); #2=Y();\n#3=Z();\n", &[1]),
+        " #2=Y();\n#3=Z();\n"
+    );
+    // A trailing comment keeps its line.
+    assert_eq!(
+        removed("#1=X(); /* one */\n#2=Y();\n", &[1]),
+        " /* one */\n#2=Y();\n"
+    );
+    // A removed instance spread over several lines takes them all.
+    assert_eq!(removed("#1=X(\n  1);\n#2=Y();\n", &[1]), "#2=Y();\n");
+}
+
+#[test]
+fn removing_the_instance_on_the_endsec_line_keeps_the_endsec() {
+    let doc = Document::parse(file("#1=X();\n#2=Y(); ")).unwrap();
+    let mut e = Edit::new();
+    e.remove(2);
+    let out = String::from_utf8(doc.apply(&e).unwrap().bytes).unwrap();
+    assert_eq!(out, String::from_utf8(file("#1=X();\n ")).unwrap());
+    assert!(Document::parse(out.into_bytes()).is_ok());
+}
+
+/// An edition 3 file: an ANCHOR naming #1, and #50 an external REFERENCE.
+const ED3: &str = "ISO-10303-21;\nHEADER;\nFILE_DESCRIPTION((''),'2;1');\n\
+                   FILE_NAME('t','',(''),(''),'','','');\nFILE_SCHEMA(('T'));\nENDSEC;\n\
+                   ANCHOR;\n<A1>=#1;\nENDSEC;\n\
+                   REFERENCE;\n#50=<other.stp#X; y>;\nENDSEC;\n\
+                   DATA;\n#1=X(#50);\n#2=Y(#1);\n#3=Z();\nENDSEC;\nEND-ISO-10303-21;\n";
+
+#[test]
+fn anchor_and_reference_sections_are_kept() {
+    let doc = Document::parse(ED3.as_bytes().to_vec()).unwrap();
+    assert_eq!(doc.ids().collect::<Vec<_>>(), [1, 2, 3]);
+    assert_eq!(doc.max_id(), 50, "the external reference #50 counts");
+    assert_eq!(doc.referrers(50), [1]);
+    assert_eq!(doc.apply(&Edit::new()).unwrap().bytes, ED3.as_bytes());
+    // An anchored instance cannot be removed, even with its referrer.
+    let mut e = Edit::new();
+    e.remove(2);
+    e.remove(1);
+    assert_eq!(
+        doc.apply(&e).unwrap_err(),
+        P21Error::Anchored {
+            id: 1,
+            name: "<A1>".into()
+        }
+    );
+    // An external reference is a valid target, and additions are numbered past it.
+    let mut e = Edit::new();
+    let a = e.add(simple("W", vec![Attribute::EntityRef(50)]));
+    let out = doc.apply(&e).unwrap();
+    assert_eq!(out.ids, BTreeMap::from([(a, 51)]));
+    assert_eq!(
+        String::from_utf8(out.bytes).unwrap(),
+        ED3.replace("#3=Z();\n", "#3=Z();\n#51=W(#50);\n")
+    );
+}
+
+#[test]
+fn a_malformed_file_schema_is_refused() {
+    let doc = |schema: &str| {
+        let text = String::from_utf8(file("#1=X();\n")).unwrap();
+        Document::parse(text.replace("FILE_SCHEMA(('T'));", schema).into_bytes())
+    };
+    assert_eq!(
+        doc("FILE_SCHEMA(('A','B'));")
+            .unwrap()
+            .file_schema()
+            .unwrap(),
+        ["A", "B"]
+    );
+    // step-io itself refuses a FILE_SCHEMA that is not a list of strings.
+    assert!(matches!(
+        doc("FILE_SCHEMA(('A',$));"),
         Err(P21Error::Parse(_))
     ));
 }
