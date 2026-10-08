@@ -14,6 +14,7 @@ pub mod geom;
 pub mod hlr;
 pub mod mass;
 pub mod nurbs;
+pub mod p21;
 pub mod poly;
 pub mod py;
 pub mod rays;
