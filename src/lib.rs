@@ -55,6 +55,9 @@ pub use features::recess_patterns::{
 pub use features::rectangular_blind_slots::{
     RectangularBlindSlot, recognise_rectangular_blind_slots,
 };
+pub use features::repeating_profiles::{
+    RepeatingRadialProfile, RepeatingRadialProfileOptions, recognise_repeating_radial_profiles,
+};
 pub use features::round_bottom_slots::{RoundBottomBlindSlot, recognise_round_bottom_blind_slots};
 pub use features::sheet_metal::{SheetMetalBody, SheetMetalOptions, recognise_sheet_metal_bodies};
 pub use features::slots::{Slot, recognise_slots};

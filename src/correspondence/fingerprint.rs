@@ -645,6 +645,21 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("center", Placement),
         ],
     },
+    FamilyFingerprint {
+        family: "repeating_radial_profiles",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("repeat_count", Size),
+            ("edge_count", Size),
+            ("centre", Placement),
+            ("span", Placement),
+            // Evidence that the count came from the complete wire; Python's consumers
+            // correspond the occurrence by axis, centre and span, not by these samples.
+            ("sector_signature", Ignored),
+        ],
+    },
 ];
 
 /// The fingerprint table of the family with this serde key.

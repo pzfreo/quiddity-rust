@@ -54,6 +54,7 @@ pub mod recess_records;
 pub mod recess_reduce;
 pub mod rectangular_blind_slots;
 pub mod regions;
+pub mod repeating_profiles;
 pub mod round_bottom_slots;
 pub mod section_passages;
 pub mod sections;
@@ -117,6 +118,7 @@ pub struct Features {
     pub channels: Vec<channels::Channel>,
     pub slot_patterns: Vec<recess_patterns::SlotPattern>,
     pub pocket_patterns: Vec<recess_patterns::PocketPattern>,
+    pub repeating_radial_profiles: Vec<repeating_profiles::RepeatingRadialProfile>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole, gusset rib, slot and pocket patterns) have none of their own: their
     /// members' faces are theirs ([`crate::correspondence`]).
@@ -244,6 +246,11 @@ pub fn recognise(part: &Part) -> Features {
         pocket_patterns: recess_patterns::recognise_pocket_patterns(&pockets),
         pockets,
         channels: kept(&mut defining, "channels", channels::discover(&ctx)),
+        repeating_radial_profiles: kept(
+            &mut defining,
+            "repeating_radial_profiles",
+            repeating_profiles::discover(&ctx),
+        ),
         defining,
     }
 }

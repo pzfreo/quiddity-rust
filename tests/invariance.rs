@@ -340,3 +340,79 @@ fn symmetric_difference(a: &[Vec<usize>], b: &[Vec<usize>]) -> Vec<String> {
     out.extend(only(b, a, "+"));
     out
 }
+
+/// Repeating radial profiles, which no corpus part has: every captured part Python finds one on,
+/// under each motion and, in its own frame, under the generic rotation, must give the same
+/// opposed faces with the same repeat and edge counts.
+#[test]
+fn repeating_radial_profiles_are_invariant_on_captured_parts() {
+    let calls = common::load("captured/calls.json");
+    let mut files: Vec<&str> = calls["calls"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|c| {
+            c["function"] == "recognise_repeating_radial_profiles"
+                && c["result"].as_array().is_some_and(|r| !r.is_empty())
+        })
+        .map(|c| c["file"].as_str().unwrap())
+        .collect();
+    files.sort_unstable();
+    files.dedup();
+    assert!(!files.is_empty());
+    let read = |part: &Part| {
+        let found = features::recognise(part);
+        let counts = found
+            .repeating_radial_profiles
+            .iter()
+            .map(|r| (r.repeat_count, r.edge_count));
+        let mut both: Vec<(Vec<usize>, (usize, usize))> =
+            found.defining["repeating_radial_profiles"]
+                .iter()
+                .map(|f| {
+                    let mut f = f.clone();
+                    f.sort_unstable();
+                    f
+                })
+                .zip(counts)
+                .collect();
+        both.sort();
+        both
+    };
+    let generic = rotation([1.0, 2.0, 3.0], 37.0, T);
+    for name in files {
+        let path = common::fixtures().join("captured").join(name);
+        let part = read_step_file_placed(&path, &IDENTITY).unwrap();
+        let unmoved = read(&part);
+        assert!(!unmoved.is_empty(), "{name}: no profile found");
+        // The evidence path publishes them on a solid and refuses an open shell, as Python's
+        // writer does (`test_open_shell_and_malformed_sampling_fail_closed`).
+        let verified =
+            features::repeating_profiles::discover_verified(&features::Context::new(&part));
+        if part.solids.is_empty() {
+            assert_eq!(
+                verified,
+                Err(features::EvidenceError::NoValidSolid),
+                "{name}"
+            );
+        } else {
+            assert_eq!(verified.map(|f| f.len()), Ok(unmoved.len()), "{name}");
+        }
+        for (motion, r, t) in &MOTIONS {
+            let moved = read(&read_step_file_placed(&path, &placement(r, t)).unwrap());
+            assert_eq!(moved, unmoved, "{name} {motion}");
+        }
+        // A refused frame (the open shell has no material) must be refused both ways.
+        let framed = |p: &Placement| {
+            frames::prepare_framed_file(&path, p)
+                .map(|f| read(&f.part))
+                .map_err(|e| e.to_string())
+        };
+        let unmoved = framed(&IDENTITY);
+        assert!(
+            unmoved.as_ref().map_or(true, |f| !f.is_empty()),
+            "{name}: none framed"
+        );
+        assert_eq!(framed(&generic), unmoved, "{name} {GENERIC}");
+    }
+}

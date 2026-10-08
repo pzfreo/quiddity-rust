@@ -234,7 +234,11 @@ fn recognise_one(
 
 /// `(normal axis, coordinate)` of a native plane face lying flat on one face of the box
 /// (`principal_boundary_plane`).
-fn principal_boundary_plane(part: &Part, face: usize, bbox: &Bounds) -> Option<(usize, f64)> {
+pub(crate) fn principal_boundary_plane(
+    part: &Part,
+    face: usize,
+    bbox: &Bounds,
+) -> Option<(usize, f64)> {
     if !matches!(part.faces[face].surface, Surface::Plane { .. }) {
         return None;
     }
