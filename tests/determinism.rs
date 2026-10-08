@@ -5,7 +5,8 @@
 //! recognition with fingerprints, and `correspond` of the part with itself — must be the same
 //! byte for byte. Two parts are also held to the maps they were chosen for: circular face
 //! patterns on cgb203, thin walls on cgb241. A part whose runs differ is reported with the
-//! families (or correspondence fields) that differ.
+//! families (or correspondence fields) that differ; a part that fails the same way twice is
+//! reported with its failure and must be pinned in `FAILING_IN_BOTH_RUNS`.
 
 mod common;
 
@@ -18,13 +19,22 @@ const GUARDED: [(&str, &str); 2] = [
     ("cadgenbench_inputs/cgb241.step", "thin_wall_bodies"),
 ];
 
+/// Parts whose read or correspondence with itself fails in both runs with the same message, and
+/// which step failed (`read` or `correspond`): none. Such a part has nothing to compare, so it is
+/// listed here rather than passing as deterministic (its message is printed), and a part that
+/// starts or stops failing changes the list and fails the test. A read failure is also a `read`
+/// problem in `tests/corpus.rs`, so the parts failing to read must be the `read` entries of
+/// `known_divergences.json`. (`recognise` returns no error: a refusal it cannot carry panics,
+/// which fails this test outright.)
+const FAILING_IN_BOTH_RUNS: [(&str, &str); 0] = [];
+
 /// What `quiddity <file.step>` prints, then what `quiddity correspond <file> <file>` prints, or
-/// the read error.
+/// the read or correspondence error.
 fn outputs(path: &std::path::Path) -> Result<(String, String), String> {
-    let part = quiddity::read_step_file(path).map_err(|e| e.to_string())?;
+    let part = quiddity::read_step_file(path).map_err(|e| format!("read: {e}"))?;
     let recognition = correspondence::recognise(&part);
-    let c =
-        correspondence::correspond(&recognition.fingerprints, &recognition.fingerprints).unwrap();
+    let c = correspondence::correspond(&recognition.fingerprints, &recognition.fingerprints)
+        .map_err(|e| format!("correspond: {e}"))?;
     Ok((
         serde_json::to_string_pretty(&recognition).unwrap(),
         serde_json::to_string_pretty(&c).unwrap(),
@@ -72,6 +82,7 @@ fn recognition_json_is_the_same_twice_in_one_process() {
     let runs: Vec<&String> = files.iter().flat_map(|name| [name, name]).collect();
     let found = common::parallel::map(&runs, |name| outputs(&dir.join(name)));
     let mut problems = Vec::new();
+    let mut failing = Vec::new();
     for (name, pair) in files.iter().zip(found.chunks(2)) {
         match (&pair[0], &pair[1]) {
             (Ok(first), Ok(second)) => {
@@ -88,7 +99,10 @@ fn recognition_json_is_the_same_twice_in_one_process() {
                     ));
                 }
             }
-            (Err(a), Err(b)) if a == b => {}
+            (Err(a), Err(b)) if a == b => {
+                eprintln!("{name}: fails in both runs: {a}");
+                failing.push((name.as_str(), a.split(':').next().unwrap()));
+            }
             (a, b) => problems.push(format!(
                 "{name}: reading differs between runs: {:?} vs {:?}",
                 a.as_ref().err(),
@@ -105,6 +119,34 @@ fn recognition_json_is_the_same_twice_in_one_process() {
         });
         assert!(exercised, "{guarded} no longer finds {family}");
     }
-    eprintln!("{} corpus parts recognised twice", files.len());
+    eprintln!(
+        "{} corpus parts recognised twice, {} failing in both runs",
+        files.len(),
+        failing.len()
+    );
+    if failing != FAILING_IN_BOTH_RUNS {
+        problems.push(format!(
+            "parts failing in both runs {failing:?}, FAILING_IN_BOTH_RUNS {FAILING_IN_BOTH_RUNS:?}"
+        ));
+    }
+    let known = common::load("known_divergences.json");
+    let mut read_divergences: Vec<&str> = known
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|e| e["family"] == "read")
+        .map(|e| e["file"].as_str().unwrap())
+        .collect();
+    read_divergences.sort();
+    let mut unread: Vec<&str> = FAILING_IN_BOTH_RUNS
+        .iter()
+        .filter(|(_, step)| *step == "read")
+        .map(|(file, _)| *file)
+        .collect();
+    unread.sort();
+    assert_eq!(
+        unread, read_divergences,
+        "the parts FAILING_IN_BOTH_RUNS to read and known_divergences.json's read entries disagree"
+    );
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }

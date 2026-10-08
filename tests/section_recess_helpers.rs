@@ -8,11 +8,14 @@
 //!   message);
 //! - `proofs.json.gz`: `cylindrical_seat_proofs` and `plane_envelope_passage_proofs` on the parts
 //!   the Python tests hand them, the golden fixtures and the corpus, and every private `_prove`
-//!   question asked on the way, each replayed on its own.
+//!   question asked on the way, each replayed on its own. The test parts include a sample of
+//!   those on which Python proves nothing (the rest are counted as `unselected`), where the port
+//!   must prove nothing too.
 //!
 //! Floats agree to one part in a million (`common::same`), refusals exactly. Python orders
 //! envelope proofs by its unspecified component walk, so a part's proofs are compared sorted by
-//! their faces. Differences are listed in
+//! their faces, and traces a seat's arc in a direction set by the hash seed, so seats are
+//! compared in one direction (`seat_direction`). Differences are listed in
 //! `tests/fixtures/captured/known_section_recess_helpers.json`: per entry its `case` (`value`,
 //! `seats`, `envelopes`, `seat_call`, `envelope_call`), what identifies it (a value's `kind` and
 //! `given` input, a part's `file`, a call's `file` and `walls`, and an envelope call's `mouth`),
@@ -252,13 +255,38 @@ fn tied_terms(proof: &Value) -> Value {
     proof
 }
 
+/// A seat proof with its arc traced in the direction of positive bulge. Python takes the arc's
+/// first and last vertex from the order a dict of rim vertices was filled in, which follows the
+/// string hash seed: on `parts/bb776cefab5303f2.step.gz` `PYTHONHASHSEED` 0 to 2 give the
+/// boundary `[(2.070, -3.131, -0.282), (-1.317, 3.515, 0)]` and 3 to 5 the same arc reversed,
+/// `[(-1.317, 3.515, 0.282), (2.070, -3.131, 0)]`. The direction is not a property of the part,
+/// so both sides are compared in one direction; the vertices and the arc are still compared.
+fn seat_direction(proof: &Value) -> Value {
+    let mut proof = proof.clone();
+    if let Some(boundary) = proof.get_mut("boundary").and_then(Value::as_array_mut)
+        && boundary.len() == 2
+        && float(&boundary[0][2]) < 0.0
+    {
+        let (first, last) = (floats::<3>(&boundary[1]), floats::<3>(&boundary[0]));
+        *boundary = vec![
+            json!([first[0], first[1], -last[2]]),
+            json!([last[0], last[1], 0.0]),
+        ];
+    }
+    proof
+}
+
 /// A part's proofs sorted by their faces (Python's envelope order follows its unspecified
-/// component walk), each with its tied terms ordered.
+/// component walk), each with its tied terms ordered and a seat's arc in one direction.
 fn sorted(proofs: &Value) -> Value {
     let Some(list) = proofs.as_array() else {
         return proofs.clone();
     };
-    let mut list: Vec<Value> = list.iter().map(tied_terms).collect();
+    let mut list: Vec<Value> = list
+        .iter()
+        .map(tied_terms)
+        .map(|p| seat_direction(&p))
+        .collect();
     let key = |p: &Value| (p["planar_context"].as_u64(), indices(&p["walls"]));
     list.sort_by_key(key);
     Value::Array(list)
@@ -334,7 +362,7 @@ fn seat_and_envelope_proofs_agree_with_python() {
                 origin: floats::<3>(&call["origin"]),
             };
             let got = prove_seat(&ctx, &walls, &cylinder).map_or(Value::Null, |p| seat_json(&p));
-            if !common::same(&got, &call["proof"]) {
+            if !common::same(&seat_direction(&got), &seat_direction(&call["proof"])) {
                 tally.found.push((
                     json!({"case": "seat_call", "file": file, "walls": walls}),
                     format!(
@@ -389,9 +417,15 @@ fn seat_and_envelope_proofs_agree_with_python() {
             );
         }
     }
+    let nothing = runs
+        .iter()
+        .filter(|r| r["source"] == "test" && r["seats"] == json!([]) && r["envelopes"] == json!([]))
+        .count();
     eprintln!(
-        "{} parts, {seat_calls} seat calls, {envelope_calls} envelope calls replayed",
-        ran.len()
+        "{} parts ({nothing} test parts on which Python proves nothing, {} more left out by the \
+         capture), {seat_calls} seat calls, {envelope_calls} envelope calls replayed",
+        ran.len(),
+        captured["unselected"]
     );
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }

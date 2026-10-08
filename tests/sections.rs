@@ -9,7 +9,12 @@
 //!   fixtures and the corpus, and every `prove_entry_treatments` question asked on the way,
 //!   each replayed on its own.
 //!
-//! Floats agree to one part in a million (`common::same`), refusals exactly. Differences are
+//! Floats agree to one part in a million (`common::same`), refusals exactly (a proposal run's
+//! captured refusal without its `<ExceptionType>: ` prefix). A part's proposals are compared in
+//! order except where their sort keys tie to round-off: Python's order between those is not
+//! stable from one Python run to the next (`same_proposals`), so tied proposals are compared as
+//! a set. A value whose input the port's types cannot hold (a section mutated after
+//! construction) is reported as not constructible rather than refused by this test. Differences are
 //! listed in `tests/fixtures/captured/known_sections.json`: per entry its `case` (`value`,
 //! `patch`, `proposals`, `entry_treatment`), what identifies it (a value's `kind` and `given`
 //! input, a patch's `index`, a part's `file`, a treatment question's `file`, `opening` and
@@ -135,12 +140,11 @@ fn value_answer(kind: &str, given: &Value) -> Value {
                 )?;
                 let stored = vertices(&given["boundary"])?;
                 let section = PlanarSection::new(stored.clone())?;
-                // Python revalidates a stored section by rebuilding it: one not already in
-                // canonical form was mutated after construction.
+                // Python revalidates a stored section by rebuilding it, and refuses one whose
+                // boundary was mutated after construction. A `PlanarSection` cannot be mutated,
+                // so the port has no such input: the call is reported, not refused here.
                 if section.boundary() != stored.as_slice() {
-                    return Err(SectionError(
-                        "section occurrence section is not canonical or was mutated",
-                    ));
+                    return Ok(None);
                 }
                 let [lo, hi] = floats::<2>(&given["run_interval"]);
                 let occurrence = SectionOccurrence::new(
@@ -150,10 +154,11 @@ fn value_answer(kind: &str, given: &Value) -> Value {
                     section,
                     SectionEnds::new(ends[0].as_bool().unwrap(), ends[1].as_bool().unwrap())?,
                 )?;
-                occurrence_geometry(&occurrence, &issuer)
+                occurrence_geometry(&occurrence, &issuer).map(Some)
             })();
             match geometry {
-                Ok(g) => json!({"geometry": serde_json::to_value(g).unwrap()}),
+                Ok(Some(g)) => json!({"geometry": serde_json::to_value(g).unwrap()}),
+                Ok(None) => json!({"not_constructible": "a mutated section"}),
                 Err(e) => refused(e),
             }
         }
@@ -212,6 +217,7 @@ fn section_values_agree_with_python() {
     let values = captured["values"].as_array().unwrap();
     assert!(!values.is_empty());
     let mut found = Vec::new();
+    let mut refusals = 0;
     for record in values {
         let kind = record["kind"].as_str().unwrap();
         let got = value_answer(kind, &record["given"]);
@@ -221,8 +227,17 @@ fn section_values_agree_with_python() {
                 json!({"case": "value", "kind": kind, "given": record["given"]}),
                 format!("{kind} {}: {}", record["given"], common::diff(&got, &want)),
             ));
+        } else if got.get("refused").is_some() {
+            refusals += 1;
         }
     }
+    eprintln!(
+        "section values: {} captured, {refusals} refusals matched, {} differ, {} skipped by the \
+         capture",
+        values.len(),
+        found.len(),
+        captured["skipped"]
+    );
     check_known("value", found, None);
 }
 
@@ -340,6 +355,42 @@ fn same_proposals(got: &Value, want: &Value) -> bool {
     true
 }
 
+/// A captured refusal without the `<ExceptionType>: ` prefix the capture writes before Python's
+/// message (`ValueError: ...`), so it compares with the port's message alone.
+fn python_message(refused: &str) -> &str {
+    match refused.split_once(": ") {
+        Some((name, message))
+            if !name.is_empty()
+                && name
+                    .chars()
+                    .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '.') =>
+        {
+            message
+        }
+        _ => refused,
+    }
+}
+
+#[test]
+fn captured_refusals_lose_their_exception_type() {
+    assert_eq!(
+        python_message("ValueError: section boundary must be simple"),
+        "section boundary must be simple"
+    );
+    assert_eq!(
+        python_message("numpy.linalg.LinAlgError: Singular matrix: rank 2"),
+        "Singular matrix: rank 2"
+    );
+    assert_eq!(
+        python_message("section boundary must be simple"),
+        "section boundary must be simple"
+    );
+    assert_eq!(
+        python_message("run interval collapses: lo 1, hi 1"),
+        "run interval collapses: lo 1, hi 1"
+    );
+}
+
 /// The port's answer to one captured treatment question, in the capture's shape.
 fn treatment_answer(ctx: &Context<'_>, call: &Value) -> Value {
     let part = ctx.part;
@@ -409,10 +460,11 @@ fn section_ring_proposals_agree_with_python() {
             Err(e) => json!({"refused": e.0}),
         };
         let mut want = json!({});
-        for key in ["proposals", "refused"] {
-            if !run[key].is_null() {
-                want[key] = run[key].clone();
-            }
+        if !run["proposals"].is_null() {
+            want["proposals"] = run["proposals"].clone();
+        }
+        if let Some(refused) = run["refused"].as_str() {
+            want["refused"] = json!(python_message(refused));
         }
         let agree = match (got.get("proposals"), want.get("proposals")) {
             (Some(g), Some(w)) => same_proposals(g, w),

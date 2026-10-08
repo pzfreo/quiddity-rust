@@ -125,13 +125,15 @@ decided.
 Three of the helpers section recesses compose are ported the same way
 (`tests/section_recess_helpers.rs`, `tools/capture_section_recess_helpers.py`):
 `_cylindrical_end_surface` (257 values from the Python tests, refusals by message),
-`cylindrical_seat_proofs` and `plane_envelope_passage_proofs` on 158 parts the Python tests
-build, the two golden passage fixtures and the corpus, with every private `_prove` question
-replayed on its own (2079 seat questions, 120 proved; 12926 envelope questions, 44 proved, none
-on the corpus). All agree; an envelope proof's two roof terms whose heights tie to round-off are
-compared in gradient order. Not captured: 1 value with a boolean radius (refused by type), 16
-test parts STEP export refuses, and 474 test parts on which Python proves nothing outside the
-helpers' own tests (left out to keep the fixtures small). Under the invariance motions 4 seats
+`cylindrical_seat_proofs` and `plane_envelope_passage_proofs` on 204 parts the Python tests
+build (60 of them parts where Python proves nothing, so the port must prove nothing too), the
+two golden passage fixtures and the corpus, with every private `_prove` question replayed on its
+own (2121 seat questions, 120 proved; 14459 envelope questions, 44 proved, none on the corpus).
+All agree; an envelope proof's two roof terms whose heights tie to round-off are compared in
+gradient order, and a seat's arc in one direction (Python's follows the string hash seed). Not
+captured: 1 value with a boolean radius (refused by type), 16 test parts STEP export refuses,
+and 428 more test parts on which Python proves nothing outside the helpers' own tests (all 474
+would add about 4 MB of STEP; 4 per test are kept). Under the invariance motions 4 seats
 at scale 0.1 are refused turned 90° about x, where the kernel's volume probe cannot answer a
 grazing end probe (rust-wrong).
 The effective-surface query the rectangular pads, cylindrical channels, pockets and passages
