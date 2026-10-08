@@ -503,7 +503,7 @@
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "view": "section",
     "verdict": "rust-correct",
-    "reason": "Follows from the cut: OpenCascade's boolean returns the part uncut, so its 'section view' draws the whole part rather than the kept half, and that is the difference (visible 0.1168 and 0.1622, hidden ink 0.4195 and 0.8998, by crates/haecceity/examples/hlr_compare). haecceity draws the kept half with its cut outline complete (the cut face matches the reference to 8.6e-7); completing it left these scores where they were.",
+    "reason": "Follows from the cut: OpenCascade's boolean returns the part uncut, so its 'section view' draws the whole part rather than the kept half, and that is the difference (visible 0.1168 and 0.1619, hidden ink 0.4195 and 0.9002, by crates/haecceity/examples/hlr_compare). haecceity draws the kept half with its cut outline complete (the cut face matches the reference to 8.6e-7); completing it left these scores where they were.",
     "min_score": 0.116
   },
   {

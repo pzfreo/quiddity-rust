@@ -588,6 +588,14 @@ HAECCEITY_NIST_PMI=<NIST-PMI-STEP-Files> HAECCEITY_NIST_PMI_REQUIRED=1 \
 `quiddity` exits 0 with the JSON on stdout; 1 with the error on stderr when a file cannot be
 read, a PMI document is refused, or a write is refused or does not verify; 2 with the usage on
 stderr for bad arguments (`-h`/`--help` prints it on stdout and exits 0).
+A STEP file is refused, never recognised as empty, when it does not parse (a cut-off
+write), has no solid or shell, has shape geometry or topology that is missing or that step-io
+dropped (a deleted face, a file cut at an entity and closed), or has a closed edge whose curve
+the kernel cannot resolve. A face or open edge whose geometry does not resolve is kept and
+recorded (`Part::unresolved_faces`, `unresolved_edges`): its solid is not valid, so its
+features are not recognised, `hlr` refuses to draw the part, and the CLI warns on stderr. Python
+(OpenCascade) reads a file with a deleted face as a loose shell, and resolves hyperbolas and
+offset surfaces, which this kernel does not model.
 
 `pmi write` writes every part the document lists in one edit: `add` (the default) beside the
 part's PMI, `replace` in place of it (afterwards `pmi read` gives the document's PMI), `remove`
@@ -627,14 +635,7 @@ than kept as a name. `binding.sha256` is the sha256 of the STEP text
 document bound to another file or reader, an unknown field or term, a key named twice, a face or edge the part
 does not have, or a violated model invariant, naming the JSON path. `pmi read --part N` keeps
 the findings of part N and those of no part. A tessellated-only file (no B-rep part to anchor
-PMI to) is refused, not read as empty. A STEP file is refused, never recognised as empty, when it does not parse (a cut-off
-write), has no solid or shell, has shape geometry or topology that is missing or that step-io
-dropped (a deleted face, a file cut at an entity and closed), or has a closed edge whose curve
-the kernel cannot resolve. A face or open edge whose geometry does not resolve is kept and
-recorded (`Part::unresolved_faces`, `unresolved_edges`): its solid is not valid, so its
-features are not recognised, `hlr` refuses to draw the part, and the CLI warns on stderr. Python
-(OpenCascade) reads a file with a deleted face as a loose shell, and resolves hyperbolas and
-offset surfaces, which this kernel does not model.
+PMI to) is refused, not read as empty.
 
 `quiddity serve` reads one JSON request per line on stdin and writes one response line per
 request on stdout, in order, until stdin ends (`src/serve.rs` has the protocol):
