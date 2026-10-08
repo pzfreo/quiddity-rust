@@ -23,7 +23,7 @@ pub fn normal(part: &Part, face: usize) -> Option<V3> {
     } else {
         let (u0, u1, v0, v1) = part.uv_bounds(face)?;
         let (u, v) = (u0 + 0.5 * (u1 - u0), v0 + 0.5 * (v1 - v0));
-        normalized(part.face_normal(face, u, v)?)
+        normalized(part.face_normal(face, u, v)?)?
     };
     n.iter().all(|c| c.is_finite()).then_some(n)
 }
