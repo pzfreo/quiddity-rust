@@ -343,3 +343,63 @@ fn framed_recognition_follows_the_part() {
         other => panic!("sphere: {:?}", other.map(|f| f.frame)),
     }
 }
+
+/// The default recognition reports the working part's faces under the caller's indices
+/// (`correspondence::recognise_placed`), which holds only if the second read numbers faces as
+/// the first: on every corpus part with a frame, each working face has the caller face's surface
+/// kind and edges, and each of those edges' ends is the caller's carried into the frame (to 1e-6
+/// of the part's size).
+#[test]
+fn working_faces_are_the_caller_faces_on_every_corpus_part() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(
+            std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
+            "QUIDDITY_CORPUS_REQUIRED is set but the corpus was not found"
+        );
+        return;
+    };
+    let files: Vec<String> = common::load("corpus.json")["files"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|e| e["file"].as_str().unwrap().to_string())
+        .collect();
+    let (mut checked, mut problems) = (0, Vec::new());
+    let found = common::parallel::map(&files, |name| {
+        let path = dir.join(name);
+        let Ok(caller) = read_step_file_placed(&path, &IDENTITY) else {
+            return None;
+        };
+        let Ok(framed) = quiddity::frames::prepare_framed_file(&path, &IDENTITY) else {
+            return None;
+        };
+        let size = caller
+            .edges
+            .iter()
+            .flat_map(|e| e.start.iter().chain(&e.end))
+            .fold(1.0f64, |m, c| m.max(c.abs()));
+        let mut out = Vec::new();
+        for (i, (local, face)) in framed.part.faces.iter().zip(&caller.faces).enumerate() {
+            let edges = caller.face_edges(i);
+            if local.surface.kind() != face.surface.kind() || framed.part.face_edges(i) != edges {
+                out.push(format!("{name}: face {i} is another face"));
+                continue;
+            }
+            for e in edges {
+                let (l, c) = (&framed.part.edges[e], &caller.edges[e]);
+                for (p, q) in [(l.start, c.start), (l.end, c.end)] {
+                    if largest_difference(p, framed.frame.to_local(q)) > 1e-6 * size {
+                        out.push(format!("{name}: face {i} edge {e} at {p:?}, not {q:?}"));
+                    }
+                }
+            }
+        }
+        Some(out)
+    });
+    for out in found.into_iter().flatten() {
+        checked += 1;
+        problems.extend(out);
+    }
+    assert!(checked > 90, "only {checked} corpus parts had a frame");
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+}

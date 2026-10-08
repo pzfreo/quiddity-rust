@@ -5,7 +5,10 @@
 //!
 //! - `{"id": ID, "op": "recognise", "step": PATH}` → `{"id": ID, "result": R}`, `R` the JSON
 //!   `quiddity <file.step>` writes ([`RecognitionOutput`]): each family's records, their
-//!   `fingerprints` and the versioned recognition `document`.
+//!   `fingerprints` and the versioned recognition `document`. The part is recognised in its own
+//!   frame and the records reported in the file's coordinates
+//!   ([`correspondence::recognise_placed`]); the document says which frame, and which record
+//!   fields are left in it.
 //! - `{"id": ID, "op": "correspond", "old": REV, "new": REV}` → `{"id": ID, "result": C}`, `C`
 //!   the correspondence `quiddity correspond` writes. A revision is a path, to a STEP file
 //!   (recognised on the spot) or to a JSON file `quiddity <file.step>` wrote, or a recognise
@@ -13,7 +16,8 @@
 //!
 //! `ID` is a string or an integer, echoed as given. Paths are relative to the server's working
 //! directory. A success carries `"warnings"` (after `result`) when a STEP file's geometry did
-//! not all resolve: the CLI's stderr warning, which here has no stderr to go to.
+//! not all resolve, or no frame could be inferred for it (it was then recognised as placed in
+//! the file): the CLI's stderr warnings, which here have no stderr to go to.
 //!
 //! A failure is `{"id": ID, "error": {"code": CODE, "message": TEXT}}`, `ID` `null` when the
 //! request has none to echo. Codes: `bad_json` (the line is not UTF-8 JSON), `bad_request`
@@ -41,8 +45,9 @@ use serde::Serialize;
 use serde_json::{Map, Value};
 
 use crate::correspondence::{self, Fingerprints, Recognition};
+use crate::frames::RecordFrame;
 use crate::kernel::brep::Part;
-use crate::kernel::step::StepError;
+use crate::kernel::step::{IDENTITY, Placement, StepError, read_step_file_placed};
 use crate::recognition::{self, RecognitionDocument};
 
 /// What `quiddity <file.step>` writes and `recognise` returns.
@@ -75,37 +80,59 @@ impl std::fmt::Display for Failure {
     }
 }
 
-/// A STEP file's part, with a warning when geometry did not resolve: the solids holding it are
-/// not valid, so their features are not recognised.
-pub fn read_part(path: &str) -> Result<(Part, Option<String>), Failure> {
-    let part = crate::kernel::step::read_step_file(Path::new(path)).map_err(|e| {
-        let code = if e.is::<StepError>() {
-            "broken_step"
-        } else {
-            "unreadable"
-        };
-        Failure::new(code, format!("{path}: {e}"))
-    })?;
+/// A read failure as a refusal: the kernel's refusals of the STEP file are `broken_step`.
+fn read_failure(path: &str, e: &(dyn std::error::Error + 'static)) -> Failure {
+    let code = if e.is::<StepError>() {
+        "broken_step"
+    } else {
+        "unreadable"
+    };
+    Failure::new(code, format!("{path}: {e}"))
+}
+
+/// The warning for a part whose geometry did not resolve: the solids holding it are not valid,
+/// so their features are not recognised.
+fn unresolved_warning(path: &str, part: &Part) -> Option<String> {
     let (faces, edges) = (part.unresolved_faces(), part.unresolved_edges());
-    let warning = (!faces.is_empty() || !edges.is_empty()).then(|| {
+    (!faces.is_empty() || !edges.is_empty()).then(|| {
         format!(
             "{path}: warning: geometry did not resolve (faces {faces:?}, edges {edges:?}); the \
              solids holding it are not recognised"
         )
-    });
-    Ok((part, warning))
+    })
 }
 
-/// Recognise the STEP file at *path*: the output and any warning.
-pub fn recognise_file(path: &str) -> Result<(RecognitionOutput, Option<String>), Failure> {
-    let (part, warning) = read_part(path)?;
-    let recognition = correspondence::recognise(&part);
+/// The default recognition of the STEP file at *path* read under *placement* (the file's own
+/// coordinates for [`IDENTITY`]): recognised in the part's own frame
+/// ([`correspondence::recognise_placed`]). With the part, and its warnings: geometry that did not
+/// resolve, and a frame that could not be inferred.
+pub fn recognise_step(
+    path: &str,
+    placement: &Placement,
+) -> Result<(Part, Recognition, Vec<String>), Failure> {
+    let read = |p: &Placement| read_step_file_placed(Path::new(path), p);
+    let (part, recognition) = correspondence::recognise_placed(&read, placement)
+        .map_err(|e| read_failure(path, e.as_ref()))?;
+    let mut warnings: Vec<String> = unresolved_warning(path, &part).into_iter().collect();
+    if let RecordFrame::Refused { reason } = &recognition.frame {
+        warnings.push(format!(
+            "{path}: warning: no part frame ({}); recognised as placed in the file, so the \
+             records depend on that placement",
+            reason.as_str()
+        ));
+    }
+    Ok((part, recognition, warnings))
+}
+
+/// Recognise the STEP file at *path*: the output and any warnings.
+pub fn recognise_file(path: &str) -> Result<(RecognitionOutput, Vec<String>), Failure> {
+    let (part, recognition, warnings) = recognise_step(path, &IDENTITY)?;
     let document = recognition::document(&recognition, part.faces.len());
     let output = RecognitionOutput {
         recognition,
         document,
     };
-    Ok((output, warning))
+    Ok((output, warnings))
 }
 
 /// Whether *path* names a STEP file (by its extension, as the CLI decides).
@@ -131,17 +158,17 @@ pub fn fingerprints_value(mut value: Value, source: &str) -> Result<Fingerprints
 }
 
 /// A revision's fingerprints from the file at *path*: a STEP file recognised, or a JSON file
-/// `quiddity <file.step>` wrote. With any warning.
-pub fn fingerprints_file(path: &str) -> Result<(Fingerprints, Option<String>), Failure> {
+/// `quiddity <file.step>` wrote. With any warnings.
+pub fn fingerprints_file(path: &str) -> Result<(Fingerprints, Vec<String>), Failure> {
     if is_step(path) {
-        let (part, warning) = read_part(path)?;
-        return Ok((correspondence::recognise(&part).fingerprints, warning));
+        let (_, recognition, warnings) = recognise_step(path, &IDENTITY)?;
+        return Ok((recognition.fingerprints, warnings));
     }
     let text = std::fs::read_to_string(path)
         .map_err(|e| Failure::new("unreadable", format!("{path}: {e}")))?;
     let value = serde_json::from_str(&text)
         .map_err(|e| Failure::new("bad_document", format!("{path}: not JSON ({e})")))?;
-    Ok((fingerprints_value(value, path)?, None))
+    Ok((fingerprints_value(value, path)?, Vec::new()))
 }
 
 /// Match two revisions' fingerprints.

@@ -1,0 +1,1178 @@
+[
+  {
+    "file": "cadgenbench/flanged_spool_132.step",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 2
+  },
+  {
+    "file": "cadgenbench/flanged_spool_132.step",
+    "check": "caller_space",
+    "family": "bosses",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same boss cylinder: the axis is negated and the location moves to the other end, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 3
+  },
+  {
+    "file": "cadgenbench/flanged_spool_132.step",
+    "check": "caller_space",
+    "family": "hole_patterns",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same pattern of the same holes; its members are listed in another order (a bolt circle's or rectangle's start is chosen by coordinates, in the frame here and in the file in caller space) or described from their other ends (the holes entries), and for the counterbored-both-ends holes of nist_ftc_10 the member faces follow the holes entry.",
+    "max_differing": 3
+  },
+  {
+    "file": "cadgenbench/flanged_spool_132.step",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 30
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 30
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "check": "caller_space",
+    "family": "fillets",
+    "verdict": "undetermined",
+    "reason": "The part's frame is not the file's axes (frame x = file y, y = (-0.0872, 0, -0.9962), 5 degrees off file -z; Python's frame agrees, captured/frames.json), so the default reads letter-axis families along the frame's axes and caller space along the file's, and directions and orders follow the frame: features found on other faces or not at all, and values differing. Which reading the part intends is not established (a maintainer question on M8: parts whose frame is not the file's axes).",
+    "max_differing": 42
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "check": "caller_space",
+    "family": "grooves",
+    "verdict": "undetermined",
+    "reason": "The part's frame is not the file's axes (frame x = file y, y = (-0.0872, 0, -0.9962), 5 degrees off file -z; Python's frame agrees, captured/frames.json), so the default reads letter-axis families along the frame's axes and caller space along the file's, and directions and orders follow the frame: features found on other faces or not at all, and values differing. Which reading the part intends is not established (a maintainer question on M8: parts whose frame is not the file's axes).",
+    "max_differing": 1
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "check": "caller_space",
+    "family": "circular_face_patterns",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same pattern: axis_direction is negated, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 1
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 1
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 4
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "check": "caller_space",
+    "family": "fillets",
+    "verdict": "undetermined",
+    "reason": "The part's frame is not the file's axes (frame x = file z, y = (-0.7464, -0.6655, 0); Python's frame agrees, captured/frames.json), so the default reads letter-axis families along the frame's axes and caller space along the file's, and directions and orders follow the frame: features found on other faces or not at all, and values differing. Which reading the part intends is not established (a maintainer question on M8: parts whose frame is not the file's axes).",
+    "max_differing": 2
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 24
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "check": "caller_space",
+    "family": "fillets",
+    "verdict": "undetermined",
+    "reason": "The part's frame is not the file's axes (frame x = file z, y = (-0.9741, -0.2261, 0); Python's frame agrees, captured/frames.json), so the default reads letter-axis families along the frame's axes and caller space along the file's, and directions and orders follow the frame: features found on other faces or not at all, and values differing. Which reading the part intends is not established (a maintainer question on M8: parts whose frame is not the file's axes).",
+    "max_differing": 8
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "check": "caller_space",
+    "family": "hole_patterns",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same pattern of the same holes; its members are listed in another order (a bolt circle's or rectangle's start is chosen by coordinates, in the frame here and in the file in caller space) or described from their other ends (the holes entries), and for the counterbored-both-ends holes of nist_ftc_10 the member faces follow the holes entry.",
+    "max_differing": 1
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 3
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "check": "caller_space",
+    "family": "interior_voids",
+    "verdict": "undetermined",
+    "reason": "The part's frame is not the file's axes (frame x = file z, y = (-0.9741, -0.2261, 0); Python's frame agrees, captured/frames.json), so the default reads letter-axis families along the frame's axes and caller space along the file's, and directions and orders follow the frame: features found on other faces or not at all, and values differing. Which reading the part intends is not established (a maintainer question on M8: parts whose frame is not the file's axes).",
+    "max_differing": 1
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "check": "caller_space",
+    "family": "turned_steps",
+    "verdict": "undetermined",
+    "reason": "The part's frame is not the file's axes (frame x = file z, y = (-0.9741, -0.2261, 0); Python's frame agrees, captured/frames.json), so the default reads letter-axis families along the frame's axes and caller space along the file's, and directions and orders follow the frame: features found on other faces or not at all, and values differing. Which reading the part intends is not established (a maintainer question on M8: parts whose frame is not the file's axes).",
+    "max_differing": 1
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 15
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "check": "caller_space",
+    "family": "bosses",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same boss cylinder: the axis is negated and the location moves to the other end, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 1
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "check": "caller_space",
+    "family": "flats",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same flat: axis_direction is negated (it is canonical along its axis in the frame) and stock_span, measured along it, is negated and reversed, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 5
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 4
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 10
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "check": "caller_space",
+    "family": "flats",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same flat: axis_direction is negated (it is canonical along its axis in the frame) and stock_span, measured along it, is negated and reversed, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 2
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "check": "caller_space",
+    "family": "hole_patterns",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same pattern of the same holes; its members are listed in another order (a bolt circle's or rectangle's start is chosen by coordinates, in the frame here and in the file in caller space) or described from their other ends (the holes entries), and for the counterbored-both-ends holes of nist_ftc_10 the member faces follow the holes entry.",
+    "max_differing": 1
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 6
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "check": "caller_space",
+    "family": "interior_voids",
+    "verdict": "undetermined",
+    "reason": "The same void; its volume is a sampled estimate (six_axis_grid) whose grid is laid in the coordinates it is recognised in, so the default's sample counts and estimate differ by 0.3% from caller space's. Both are estimates of the same method; neither is shown closer.",
+    "max_differing": 1
+  },
+  {
+    "file": "cadgenbench_inputs/cgb245.step",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 28
+  },
+  {
+    "file": "cadgenbench_inputs/cgb245.step",
+    "check": "caller_space",
+    "family": "hole_patterns",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same pattern of the same holes; its members are listed in another order (a bolt circle's or rectangle's start is chosen by coordinates, in the frame here and in the file in caller space) or described from their other ends (the holes entries), and for the counterbored-both-ends holes of nist_ftc_10 the member faces follow the holes entry.",
+    "max_differing": 1
+  },
+  {
+    "file": "gramel/string_post.step",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 2
+  },
+  {
+    "file": "gramel/string_post.step",
+    "check": "caller_space",
+    "family": "bosses",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same boss cylinder: the axis is negated and the location moves to the other end, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 1
+  },
+  {
+    "file": "gramel/string_post.step",
+    "check": "caller_space",
+    "family": "flats",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same flat: axis_direction is negated (it is canonical along its axis in the frame) and stock_span, measured along it, is negated and reversed, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/1000.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp/10007.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10007.step",
+    "check": "caller_space",
+    "family": "through_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section (boundary endpoint, corner, boundary endpoint) is listed from its other end, its lesser direction taken in the frame (endpoint_scopes follow it); the points agree.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10020.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10038.step",
+    "check": "caller_space",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "A pocket with a square (2.0 x 2.0) wall-pair footprint: which wall pair is the width is a tie (`width > length` with equal values), decided by coordinates and round-off, so the default reads the same pocket along other axes or by all four walls (the known square-pocket tie, as in known_invariance.json's pockets entries). The recogniser's tie; Python's framed recognition does the same (recognise_pockets on prepare_framed_part(part).part).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10038.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10038.step",
+    "check": "caller_space",
+    "family": "through_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section (boundary endpoint, corner, boundary endpoint) is listed from its other end, its lesser direction taken in the frame (endpoint_scopes follow it); the points agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/1004.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10046.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10049.step",
+    "check": "caller_space",
+    "family": "plates",
+    "verdict": "undetermined",
+    "reason": "A plate side clusters faces within the level tolerance and is keyed by the cluster's lowest coordinate; along an axis whose sense the frame reverses, the lowest is the other extreme, so lo or hi is another face's plane (e.g. mfcadpp/10049: faces 11 and 19 at x 3.670, face 14 a plane tilted 3.7 degrees whose origin is at 3.733). Python's framed recognition gives the same values (recognise_plates on prepare_framed_part(part).part: thickness 4.456, 1.593 and 2.500 for 10049, holdout/340 and holdout/808). Neither reading is established as right; the recogniser's rule depends on the axis sense.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10049.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10060.step",
+    "check": "caller_space",
+    "family": "edge_open_circular_pockets",
+    "verdict": "undetermined",
+    "reason": "The default finds an edge-open circular pocket that caller space does not; Python behaves the same (recognise_edge_open_circular_pockets finds none on the part as imported and one on prepare_framed_part(part).part). The recogniser's proof decides by round-off from the placement; which reading is right is not established.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10060.step",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10060.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10063.step",
+    "check": "caller_space",
+    "family": "circular_blind_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10063.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/1007.step",
+    "check": "caller_space",
+    "family": "oblique_through_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same oblique step: run is negated and the wall outline (along run from the wall's start) is listed from the other end, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/1007.step",
+    "check": "caller_space",
+    "family": "oriented_chamfers",
+    "verdict": "equivalent",
+    "reason": "Equivalent: two legs of equal length are ordered by their directions' coordinates, the frame's here, so leg1 and leg2 (and their directions and support spans) swap; or run is negated, its sense chosen by coordinates. The chamfer is the same.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10098.step",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10103.step",
+    "check": "caller_space",
+    "family": "edge_open_circular_pockets",
+    "verdict": "undetermined",
+    "reason": "The default finds an edge-open circular pocket that caller space does not; Python behaves the same (recognise_edge_open_circular_pockets finds none on the part as imported and one on prepare_framed_part(part).part). The recogniser's proof decides by round-off from the placement; which reading is right is not established.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10103.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10103.step",
+    "check": "caller_space",
+    "family": "through_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section (boundary endpoint, corner, boundary endpoint) is listed from its other end, its lesser direction taken in the frame (endpoint_scopes follow it); the points agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10119.step",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10127.step",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10127.step",
+    "check": "caller_space",
+    "family": "through_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section (boundary endpoint, corner, boundary endpoint) is listed from its other end, its lesser direction taken in the frame (endpoint_scopes follow it); the points agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10131.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10131.step",
+    "check": "caller_space",
+    "family": "through_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section (boundary endpoint, corner, boundary endpoint) is listed from its other end, its lesser direction taken in the frame (endpoint_scopes follow it); the points agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10138.step",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10138.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10156.step",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10156.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10167.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp/10170.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10212.step",
+    "check": "caller_space",
+    "family": "circular_blind_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10212.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10224.step",
+    "check": "caller_space",
+    "family": "circular_blind_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10224.step",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10247.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10247.step",
+    "check": "caller_space",
+    "family": "through_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section (boundary endpoint, corner, boundary endpoint) is listed from its other end, its lesser direction taken in the frame (endpoint_scopes follow it); the points agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10252.step",
+    "check": "caller_space",
+    "family": "oriented_chamfers",
+    "verdict": "undetermined",
+    "reason": "The default (in the part's frame) does not find the oriented chamfer on face 2 that caller space finds; Python does the same (Python's recognise_oriented_chamfers on prepare_framed_part(part).part finds none, on the part as imported this one). Which reading is right is not established: legs 0.54 and 0.54, a near tie.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10252.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10255.step",
+    "check": "caller_space",
+    "family": "edge_open_prismatic_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the wall chain is listed from its other end (its lesser direction taken in the frame) and the opening's start and end follow; the corners agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10255.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/118.step",
+    "check": "caller_space",
+    "family": "edge_open_prismatic_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the wall chain is listed from its other end (its lesser direction taken in the frame) and the opening's start and end follow; the corners agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/118.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/163.step",
+    "check": "caller_space",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "A pocket with a square (2.0 x 2.0) wall-pair footprint: which wall pair is the width is a tie (`width > length` with equal values), decided by coordinates and round-off, so the default reads the same pocket along other axes or by all four walls (the known square-pocket tie, as in known_invariance.json's pockets entries). The recogniser's tie; Python's framed recognition does the same (recognise_pockets on prepare_framed_part(part).part).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/163.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/16943.step",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/16943.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/18016.step",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/18016.step",
+    "check": "caller_space",
+    "family": "circular_blind_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/181.step",
+    "check": "caller_space",
+    "family": "circular_blind_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/181.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/183.step",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/183.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/20273.step",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/20273.step",
+    "check": "caller_space",
+    "family": "circular_blind_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/205.step",
+    "check": "caller_space",
+    "family": "through_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section (boundary endpoint, corner, boundary endpoint) is listed from its other end, its lesser direction taken in the frame (endpoint_scopes follow it); the points agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/238.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/238.step",
+    "check": "caller_space",
+    "family": "through_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section (boundary endpoint, corner, boundary endpoint) is listed from its other end, its lesser direction taken in the frame (endpoint_scopes follow it); the points agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/244.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/257.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp_holdout/265.step",
+    "check": "caller_space",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "A pocket with a square (2.0 x 2.0) wall-pair footprint: which wall pair is the width is a tie (`width > length` with equal values), decided by coordinates and round-off, so the default reads the same pocket along other axes or by all four walls (the known square-pocket tie, as in known_invariance.json's pockets entries). The recogniser's tie; Python's framed recognition does the same (recognise_pockets on prepare_framed_part(part).part).",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/274.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/317.step",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/340.step",
+    "check": "caller_space",
+    "family": "circular_blind_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/340.step",
+    "check": "caller_space",
+    "family": "plates",
+    "verdict": "undetermined",
+    "reason": "A plate side clusters faces within the level tolerance and is keyed by the cluster's lowest coordinate; along an axis whose sense the frame reverses, the lowest is the other extreme, so lo or hi is another face's plane (e.g. mfcadpp/10049: faces 11 and 19 at x 3.670, face 14 a plane tilted 3.7 degrees whose origin is at 3.733). Python's framed recognition gives the same values (recognise_plates on prepare_framed_part(part).part: thickness 4.456, 1.593 and 2.500 for 10049, holdout/340 and holdout/808). Neither reading is established as right; the recogniser's rule depends on the axis sense.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/363.step",
+    "check": "caller_space",
+    "family": "circular_blind_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/363.step",
+    "check": "caller_space",
+    "family": "edge_open_prismatic_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the wall chain is listed from its other end (its lesser direction taken in the frame) and the opening's start and end follow; the corners agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/388.step",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/388.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/464.step",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/464.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/467.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp_holdout/471.step",
+    "check": "caller_space",
+    "family": "circular_blind_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/471.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/498.step",
+    "check": "caller_space",
+    "family": "circular_blind_steps",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/498.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/520.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/808.step",
+    "check": "caller_space",
+    "family": "plates",
+    "verdict": "undetermined",
+    "reason": "A plate side clusters faces within the level tolerance and is keyed by the cluster's lowest coordinate; along an axis whose sense the frame reverses, the lowest is the other extreme, so lo or hi is another face's plane (e.g. mfcadpp/10049: faces 11 and 19 at x 3.670, face 14 a plane tilted 3.7 degrees whose origin is at 3.733). Python's framed recognition gives the same values (recognise_plates on prepare_framed_part(part).part: thickness 4.456, 1.593 and 2.500 for 10049, holdout/340 and holdout/808). Neither reading is established as right; the recogniser's rule depends on the axis sense.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/808.step",
+    "check": "caller_space",
+    "family": "section_passages",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
+    "max_differing": 1
+  },
+  {
+    "file": "nist/nist_ctc_01_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 12
+  },
+  {
+    "file": "nist/nist_ctc_01_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "hole_patterns",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same pattern of the same holes; its members are listed in another order (a bolt circle's or rectangle's start is chosen by coordinates, in the frame here and in the file in caller space) or described from their other ends (the holes entries), and for the counterbored-both-ends holes of nist_ftc_10 the member faces follow the holes entry.",
+    "max_differing": 2
+  },
+  {
+    "file": "nist/nist_ctc_01_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "oriented_chamfers",
+    "verdict": "equivalent",
+    "reason": "Equivalent: two legs of equal length are ordered by their directions' coordinates, the frame's here, so leg1 and leg2 (and their directions and support spans) swap; or run is negated, its sense chosen by coordinates. The chamfer is the same.",
+    "max_differing": 3
+  },
+  {
+    "file": "nist/nist_ctc_01_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "polygonal_bosses",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same prism; its sides are listed in ring order from another first side (chosen by coordinates, the frame's here), so flat_directions and flat_centres rotate.",
+    "max_differing": 1
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 6
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "check": "caller_space",
+    "family": "hole_patterns",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same pattern of the same holes; its members are listed in another order (a bolt circle's or rectangle's start is chosen by coordinates, in the frame here and in the file in caller space) or described from their other ends (the holes entries), and for the counterbored-both-ends holes of nist_ftc_10 the member faces follow the holes entry.",
+    "max_differing": 3
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 15
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "check": "caller_space",
+    "family": "slots",
+    "verdict": "rust-correct",
+    "reason": "The default finds both obround slots (walls 63/65 and 67/69), as Python does on the part as imported; caller space loses the second because the volume probe refuses its void prism unmoved (known_divergences.json's recognise_slots entry and known_invariance.json's rot_z90 and rot_x90 entries for this file). In the frame the probe answers.",
+    "max_differing": 3
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 12
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "hole_patterns",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same pattern of the same holes; its members are listed in another order (a bolt circle's or rectangle's start is chosen by coordinates, in the frame here and in the file in caller space) or described from their other ends (the holes entries), and for the counterbored-both-ends holes of nist_ftc_10 the member faces follow the holes entry.",
+    "max_differing": 8
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 30
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "oriented_chamfers",
+    "verdict": "equivalent",
+    "reason": "Equivalent: two legs of equal length are ordered by their directions' coordinates, the frame's here, so leg1 and leg2 (and their directions and support spans) swap; or run is negated, its sense chosen by coordinates. The chamfer is the same.",
+    "max_differing": 2
+  },
+  {
+    "file": "nist/nist_ftc_06_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 8
+  },
+  {
+    "file": "nist/nist_ftc_06_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "bosses",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same boss cylinder: the axis is negated and the location moves to the other end, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 4
+  },
+  {
+    "file": "nist/nist_ftc_06_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "hole_patterns",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same pattern of the same holes; its members are listed in another order (a bolt circle's or rectangle's start is chosen by coordinates, in the frame here and in the file in caller space) or described from their other ends (the holes entries), and for the counterbored-both-ends holes of nist_ftc_10 the member faces follow the holes entry.",
+    "max_differing": 1
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 1
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "hole_patterns",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same pattern of the same holes; its members are listed in another order (a bolt circle's or rectangle's start is chosen by coordinates, in the frame here and in the file in caller space) or described from their other ends (the holes entries), and for the counterbored-both-ends holes of nist_ftc_10 the member faces follow the holes entry.",
+    "max_differing": 4
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 8
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "polygonal_bosses",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same prism; its sides are listed in ring order from another first side (chosen by coordinates, the frame's here), so flat_directions and flat_centres rotate.",
+    "max_differing": 4
+  },
+  {
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 10
+  },
+  {
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "check": "caller_space",
+    "family": "hole_patterns",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same pattern of the same holes; its members are listed in another order (a bolt circle's or rectangle's start is chosen by coordinates, in the frame here and in the file in caller space) or described from their other ends (the holes entries), and for the counterbored-both-ends holes of nist_ftc_10 the member faces follow the holes entry.",
+    "max_differing": 3
+  },
+  {
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 21
+  },
+  {
+    "file": "nist/nist_ftc_09_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "hole_patterns",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same pattern of the same holes; its members are listed in another order (a bolt circle's or rectangle's start is chosen by coordinates, in the frame here and in the file in caller space) or described from their other ends (the holes entries), and for the counterbored-both-ends holes of nist_ftc_10 the member faces follow the holes entry.",
+    "max_differing": 1
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "check": "caller_space",
+    "family": "hole_patterns",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same pattern of the same holes; its members are listed in another order (a bolt circle's or rectangle's start is chosen by coordinates, in the frame here and in the file in caller space) or described from their other ends (the holes entries), and for the counterbored-both-ends holes of nist_ftc_10 the member faces follow the holes entry.",
+    "max_differing": 3
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "Equivalent: through holes counterbored at both ends; the record's defining faces are its bore and the counterbore at the end chosen as its entry, which the default chooses in the frame (the same bores, each with the other end's counterbore: e.g. faces [130, 148] against [138, 148], axis +z against -z).",
+    "max_differing": 8
+  },
+  {
+    "file": "ttt_inputs/sm-hanger.step",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "equivalent",
+    "reason": "The part's frame is turned 2.4e-9 rad off the file's axes (not a signed permutation, so letter fields stay in the frame); the blend paths' direction is negated, its sense chosen by coordinates in the frame. Same path.",
+    "max_differing": 18
+  },
+  {
+    "file": "ttt_inputs/sm-hanger.step",
+    "check": "caller_space",
+    "family": "sheet_metal_bodies",
+    "verdict": "equivalent",
+    "reason": "Equivalent: only flat-face triangulation vertices of the flat pattern differ (by up to 0.06 mm), and the same happens between placements of the part (this file's translate, rot_zx_moved and generic_framed entries): the kernel's plane triangulation samples the curved boundary at placement-dependent points; the development itself is the same. The fingerprint ignores flat_pattern for this reason.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10098.step",
+    "check": "generic_framed",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "The known square-pocket tie in the frame: known_invariance.json's generic_framed pockets entry for this file gives the evidence (the second wall pair's candidate passes or fails `width > length` by round-off from the placement; Python's framed recognition does the same).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10155.step",
+    "check": "generic_framed",
+    "family": "oblique_through_steps",
+    "verdict": "equivalent",
+    "reason": "The run's sense is chosen by its coordinates in the frame, and one of them is zero up to round-off (mfcadpp/10155: run (0, 0.3147, -0.9492) in the frame; nist_ctc_04: (0, 0.3206, -0.9472)), so the placement's round-off decides it; the same line (and wall outline, listed from the other end).",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10245.step",
+    "check": "generic_framed",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "The known square-pocket tie in the frame: known_invariance.json's generic_framed pockets entry for this file gives the evidence (the second wall pair's candidate passes or fails `width > length` by round-off from the placement; Python's framed recognition does the same).",
+    "max_differing": 2
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "check": "generic_framed",
+    "family": "oriented_chamfers",
+    "verdict": "equivalent",
+    "reason": "The run's sense is chosen by its coordinates in the frame, and one of them is zero up to round-off (mfcadpp/10155: run (0, 0.3147, -0.9492) in the frame; nist_ctc_04: (0, 0.3206, -0.9472)), so the placement's round-off decides it; the same line (and wall outline, listed from the other end).",
+    "max_differing": 2
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "check": "generic_framed",
+    "family": "polygonal_bosses",
+    "verdict": "equivalent",
+    "reason": "The same prism; the ring's first side is chosen by coordinates in the frame where two sides tie up to round-off, so flat_directions and flat_centres are listed from another side.",
+    "max_differing": 4
+  },
+  {
+    "file": "ttt_inputs/sm-hanger.step",
+    "check": "generic_framed",
+    "family": "sheet_metal_bodies",
+    "verdict": "equivalent",
+    "reason": "Equivalent: only flat-face triangulation vertices of the flat pattern differ (by up to 0.06 mm), and the same happens between placements of the part (this file's translate, rot_zx_moved and generic_framed entries): the kernel's plane triangulation samples the curved boundary at placement-dependent points; the development itself is the same. The fingerprint ignores flat_pattern for this reason.",
+    "max_differing": 1
+  },
+  {
+    "file": "ttt_inputs/sm-hanger.step",
+    "check": "rot_zx_moved",
+    "family": "sheet_metal_bodies",
+    "verdict": "equivalent",
+    "reason": "Equivalent: only flat-face triangulation vertices of the flat pattern differ (by up to 0.06 mm), and the same happens between placements of the part (this file's translate, rot_zx_moved and generic_framed entries): the kernel's plane triangulation samples the curved boundary at placement-dependent points; the development itself is the same. The fingerprint ignores flat_pattern for this reason.",
+    "max_differing": 1
+  },
+  {
+    "file": "ttt_inputs/sm-hanger.step",
+    "check": "translate",
+    "family": "sheet_metal_bodies",
+    "verdict": "equivalent",
+    "reason": "Equivalent: only flat-face triangulation vertices of the flat pattern differ (by up to 0.06 mm), and the same happens between placements of the part (this file's translate, rot_zx_moved and generic_framed entries): the kernel's plane triangulation samples the curved boundary at placement-dependent points; the development itself is the same. The fingerprint ignores flat_pattern for this reason.",
+    "max_differing": 1
+  }
+]

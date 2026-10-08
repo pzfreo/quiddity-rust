@@ -5,6 +5,7 @@
 
 pub mod correspondence;
 pub mod features;
+pub mod framed_records;
 pub mod frames;
 pub mod recognition;
 pub mod serve;

@@ -1,7 +1,10 @@
 //! `quiddity <file.step>`: recognise a STEP file's features and print them as JSON: each
 //! family's records at the top level, their `fingerprints`, and the versioned recognition
 //! `document` (`quiddity::recognition`: per feature its family, Python record type, defining
-//! faces and record).
+//! faces and record). The part is recognised in its own frame and the records reported in the
+//! file's coordinates; the document gives the frame and, per record, the fields no file axis
+//! corresponds to (left in the frame). A part with no frame (no plane or cylinder, no material)
+//! is recognised as placed in the file, with a warning on stderr.
 //!
 //! `quiddity correspond <old> <new>`: match two revisions and print the correspondence as JSON.
 //! Each revision is a recognition result written by `quiddity <file.step>`, or a STEP file
@@ -56,9 +59,9 @@ fn main() -> ExitCode {
     }
 }
 
-/// A warning, on stderr, of geometry that did not resolve.
-fn warn(warning: Option<String>) {
-    if let Some(warning) = warning {
+/// Warnings, on stderr: geometry that did not resolve, a part frame that could not be inferred.
+fn warn(warnings: Vec<String>) {
+    for warning in warnings {
         eprintln!("quiddity: {warning}");
     }
 }

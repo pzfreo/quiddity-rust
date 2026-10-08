@@ -21,12 +21,13 @@ const GUARDED: [(&str, &str); 2] = [
 /// What `quiddity <file.step>` prints, then what `quiddity correspond <file> <file>` prints, or
 /// the read error.
 fn outputs(path: &std::path::Path) -> Result<(String, String), String> {
-    let part = quiddity::read_step_file(path).map_err(|e| e.to_string())?;
-    let recognition = correspondence::recognise(&part);
-    let c =
-        correspondence::correspond(&recognition.fingerprints, &recognition.fingerprints).unwrap();
+    // The default recognition, in the part's own frame, with its document (review M8).
+    let (output, _) =
+        quiddity::serve::recognise_file(&path.to_string_lossy()).map_err(|e| e.message)?;
+    let fingerprints = &output.recognition.fingerprints;
+    let c = correspondence::correspond(fingerprints, fingerprints).unwrap();
     Ok((
-        serde_json::to_string_pretty(&recognition).unwrap(),
+        serde_json::to_string_pretty(&output).unwrap(),
         serde_json::to_string_pretty(&c).unwrap(),
     ))
 }

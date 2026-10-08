@@ -22,8 +22,11 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 
 use crate::features::{self, Features};
+use crate::framed_records::{self, LocalFields, Mapped};
+use crate::frames::{self, PartFrame, RecordFrame};
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, V3};
+use crate::kernel::step::Placement;
 
 pub use align::Motion;
 pub use fingerprint::{
@@ -31,21 +34,105 @@ pub use fingerprint::{
 };
 
 /// A recognition result with its fingerprints: what `quiddity part.step` writes. The families'
-/// records are at the top level, as before, beside `fingerprints`.
+/// records are at the top level, as before, beside `fingerprints`; where they were found
+/// (`frame`) and which of their fields were left in that frame (`local`) are reported by the
+/// recognition document ([`crate::recognition`]).
 #[derive(Clone, Debug, Serialize)]
 pub struct Recognition {
     #[serde(flatten)]
     pub features: Features,
     pub fingerprints: Fingerprints,
+    #[serde(skip)]
+    pub frame: RecordFrame,
+    #[serde(skip)]
+    pub local: LocalFields,
 }
 
-/// Recognise every ported family on *part* and fingerprint the result.
+/// Recognise every ported family on *part* as it is placed (caller-space, as Python's entry
+/// points) and fingerprint the result. The default, [`recognise_placed`], recognises in the
+/// part's own frame.
 pub fn recognise(part: &Part) -> Recognition {
     let features = features::recognise(part);
     let fingerprints = fingerprint(part, &features);
     Recognition {
         features,
         fingerprints,
+        frame: RecordFrame::CallerSpace,
+        local: LocalFields::new(),
+    }
+}
+
+/// The default recognition (the maintainer's decision on review M8): the part *read* gives
+/// under *placement* is recognised in its own frame ([`frames::infer_part_frame`]) and the
+/// records reported in the placement's coordinates ([`framed_records`]), so they do not depend
+/// on how the part was placed. Fingerprints are taken on that part, the axis of a record whose
+/// axis letter names the frame's axis read as that axis. Where no frame can be inferred the part
+/// is recognised as placed, and `frame` says why. Returns the part as placed, with its
+/// recognition.
+pub fn recognise_placed(
+    read: frames::Read<'_>,
+    placement: &Placement,
+) -> Result<(Part, Recognition), Box<dyn std::error::Error>> {
+    let part = read(placement)?;
+    let frame = match frames::infer_part_frame(&part) {
+        Ok(frame) => frame,
+        Err(reason) => {
+            let mut recognition = recognise(&part);
+            recognition.frame = RecordFrame::Refused { reason };
+            return Ok((part, recognition));
+        }
+    };
+    let working = frames::working_part(read, placement, &part, &frame)?;
+    let Mapped { features, local } = framed_records::to_file(features::recognise(&working), &frame);
+    let mut fingerprints = fingerprint(&part, &features);
+    frame_axes(&mut fingerprints, &features, &local, &frame);
+    let recognition = Recognition {
+        features,
+        fingerprints,
+        frame: RecordFrame::Inferred(frame),
+        local,
+    };
+    Ok((part, recognition))
+}
+
+/// A feature fingerprint's axis read from an axis letter that names the frame's axis (a field
+/// [`framed_records`] left local) is that frame axis, not the file's.
+fn frame_axes(
+    fingerprints: &mut Fingerprints,
+    features: &Features,
+    local: &LocalFields,
+    frame: &PartFrame,
+) {
+    if local.is_empty() {
+        return;
+    }
+    let json = serde_json::to_value(features).expect("records serialise");
+    for f in &mut fingerprints.features {
+        let Some(paths) = local.get(&f.id) else {
+            continue;
+        };
+        let table = fingerprint::family(&f.family).expect("a fingerprinted family");
+        let n: usize =
+            f.id.rsplit('/')
+                .next()
+                .and_then(|n| n.parse().ok())
+                .expect("an ID");
+        let record = &json[&f.family][n];
+        let letter = table
+            .fields
+            .iter()
+            .filter(|(_, role)| *role == fingerprint::Role::Axis)
+            .find_map(|(path, _)| record.get(*path).map(|v| (*path, v)));
+        if let Some((path, Value::String(letter))) = letter
+            && paths.iter().any(|p| p == path)
+        {
+            f.axis = match letter.as_str() {
+                "x" => Some(frame.x),
+                "y" => Some(frame.y),
+                "z" => Some(frame.z),
+                _ => f.axis,
+            };
+        }
     }
 }
 

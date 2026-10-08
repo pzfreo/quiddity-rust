@@ -169,6 +169,28 @@ fn unresolved_geometry_is_reported_as_a_warning() {
     );
 }
 
+/// A part with no frame is recognised as placed in the file, with a warning (the CLI's stderr
+/// one) and the refusal in the document.
+#[test]
+fn a_part_without_a_frame_is_reported_as_a_warning() {
+    let path = fixture("captured/frames/sphere.step");
+    let response = ask(&json!({"id": 1, "op": "recognise", "step": path}));
+    assert_eq!(
+        response["result"]["document"]["frame"],
+        json!({"status": "refused", "reason": "no-analytic-direction"})
+    );
+    let warnings = response["warnings"].as_array().unwrap();
+    assert_eq!(warnings.len(), 1);
+    assert!(
+        warnings[0]
+            .as_str()
+            .unwrap()
+            .contains("no part frame (no-analytic-direction)"),
+        "{warnings:?}"
+    );
+    assert_eq!(response["result"], cli(&[&path]));
+}
+
 #[test]
 fn malformed_requests_are_refused_with_their_codes() {
     let parsed = |line: &str| -> Value { serde_json::from_str(&respond(line).unwrap()).unwrap() };
