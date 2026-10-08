@@ -54,14 +54,14 @@ SPECIAL = {
         "boundary, which the port reads from the geometry instead.",
     ),
     ("cadgenbench_inputs/cgb217.step.gz", 34, "occ"): (
-        "rust-wrong",
+        "rust-correct",
         "tools/face_area_evidence.py gives 28.16983104 by Green's theorem and by direct slices; the "
-        "port gives {rust}. Traced to the boundary walk: the port's answer moves with the reference "
-        "its inner integral starts from (28.169842 from u = 0, 28.169781 from u = 1), so its path "
-        "does not close in v, by 2.2e-6, all of it on edge 89 between t = 0.8328 and 0.7427, where "
-        "the edge dips 1.6e-3 into the face from the side v = 1 it otherwise runs outside; the panel "
-        "sums there do not add up to the foot point's change in v. Not yet resolved. OpenCascade "
-        "gives {occ} (fixed rule), {fine} (adaptive) and {rebuilt} (pcurves projected from the edges).",
+        "port gives {rust}. It gave 28.16978113 while its boundary walk split edge 89 at the knot "
+        "line u = 0.25 instead of at the corner 1.2e-5 before it, where the foot point leaves the "
+        "side v = 1 (the edge dips 1.6e-3 mm into the face from outside it): the step off the side "
+        "lay in a panel's last sliver, short of its last node, and the path did not close in v by "
+        "2.2e-6 (crates/haecceity/src/mass.rs now finds the corner first). OpenCascade gives {occ} "
+        "(fixed rule), {fine} (adaptive) and {rebuilt} (pcurves projected from the edges).",
     ),
     ("cadgenbench_inputs/cgb207.step", 125, "occ"): (
         "rust-correct",

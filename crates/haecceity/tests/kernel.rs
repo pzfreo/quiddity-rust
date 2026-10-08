@@ -108,6 +108,22 @@ fn arcs_at_closed_edges_ignore_their_recorded_direction() {
     assert!(rims >= 4, "both rims, both ways round");
 }
 
+/// cgb217's B-spline face 34: its edge 89 runs just outside the side v = 1 and dips 1.6e-3 mm
+/// into the face, leaving the side 1.2e-5 before it crosses the knot line u = 0.25. The walk
+/// must split at that corner, not only at the knot line, or it misses the foot point's step
+/// off the side. tools/face_area_evidence.py gives 28.16983104 by Green's theorem and by
+/// direct slices (tests/fixtures/known_face_areas.json).
+#[test]
+fn boundary_walk_splits_at_a_corner_beside_a_knot_line() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let part = read_step_file(&dir.join("cadgenbench_inputs/cgb217.step.gz")).unwrap();
+    let [area, _] = part.face_mass(34).unwrap();
+    assert!((area - 28.16983104).abs() < 1e-7, "{area}");
+}
+
 /// Two quarter cylinders of radius 7 on axes 14 apart (x = ±7, y = 0) kiss along x = y = 0 with
 /// opposite outward normals, as sm-hanger's faces 11 and 12 do; the first-order turn is
 /// round-off there. Extruded 5 in z by OpenCascade from the profile (0,0) - arc to (7,7) -

@@ -320,13 +320,14 @@ fn kronrod<S, const N: usize>(
 /// each half in turn, until its error estimate is below its terms' scale or the floor (the
 /// scale below which the integral is not resolved). The integrand is visited in walking order,
 /// carrying a state (`eval` runs one rule over (a, b) from a state, and may name a kink inside,
-/// where the panel is then split instead of halved), so a refined half restarts from where the
-/// walk stood.
+/// where the panel is then split instead of halved; a kink its rule cannot have seen, short of
+/// its outermost nodes, splits it even where its error estimate is resolved), so a refined half
+/// restarts from where the walk stood.
 fn adaptive<S: Copy, const N: usize>(
     cuts: &[f64],
     start: S,
     floor: Option<f64>,
-    eval: &mut impl FnMut(S, f64, f64) -> Option<(Panel<S, N>, Option<f64>)>,
+    eval: &mut impl FnMut(S, f64, f64) -> Option<(Panel<S, N>, Option<(f64, bool)>)>,
 ) -> Option<Panel<S, N>> {
     let mut state = start;
     let (mut total, mut excess, mut magnitude) = ([0.0; N], 0.0f64, 0.0);
@@ -337,9 +338,12 @@ fn adaptive<S: Copy, const N: usize>(
         let mut stack = vec![(w[0], w[1], 0, 0)];
         while let Some((a, b, depth, kinks)) = stack.pop() {
             let ((sum, error, size, end), kink) = eval(state, a, b)?;
+            let inside = |t: f64| (t - a) * (t - b) < 0.0 && t != a && t != b;
+            let kink = kink.filter(|&(t, _)| inside(t) && kinks < MAX_KINKS);
+            let unseen = kink.is_some_and(|(_, unseen)| unseen);
             let settled = match floor {
                 None => true,
-                Some(floor) => depth >= MAX_DEPTH || resolved(error, size, floor),
+                Some(floor) => depth >= MAX_DEPTH || (resolved(error, size, floor) && !unseen),
             };
             if settled {
                 for k in 0..N {
@@ -351,9 +355,8 @@ fn adaptive<S: Copy, const N: usize>(
                 }
                 state = end;
             } else {
-                let inside = |t: f64| (t - a) * (t - b) < 0.0 && t != a && t != b;
-                let (m, depth, kinks) = match kink.filter(|&t| inside(t) && kinks < MAX_KINKS) {
-                    Some(t) => (t, depth, kinks + 1),
+                let (m, depth, kinks) = match kink {
+                    Some((t, _)) => (t, depth, kinks + 1),
                     None => (0.5 * (a + b), depth + 1, kinks),
                 };
                 stack.push((m, b, depth, kinks));
@@ -890,7 +893,29 @@ impl Part {
                 let kink = met
                     .windows(2)
                     .find(|w| held(w[0].1) != held(w[1].1))
-                    .map(|w| corner(w[0], w[1].0));
+                    .map(|w| (corner(w[0], w[1].0), false));
+                // A turn between an end of the panel and the node beside it is beyond the rule's
+                // reach: cgb217 face 34's edge 89 leaves the side v = 1 1.2e-5 before crossing the
+                // knot line u = 0.25, where the walk splits, so the step off the side fell short of
+                // the next panel's first node (2.2e-6 in v, 5e-5 of the face's area). The foot
+                // point at each end is compared with the node beside it (a turn within round-off
+                // of the end is the split's own).
+                let unseen = || {
+                    let (first, last) = (*met.first()?, *met.last()?);
+                    [(first, a), (last, b)]
+                        .into_iter()
+                        .find_map(|((tn, pn), te)| {
+                            let q = foot(surface, spans, ed.curve.value(te), wrap(pn))
+                                .map(|q| unwrap(q, pn))?;
+                            let t = (held(q) != held(pn)).then(|| corner((tn, pn), te))?;
+                            ((t - te).abs() > 1e-9 * (b - a).abs()).then_some((t, true))
+                        })
+                };
+                // (Only refinement splits, so a single pass need not look.)
+                let kink = match surface {
+                    Surface::Freeform { .. } if kink.is_none() && floor.is_some() => unseen(),
+                    _ => kink,
+                };
                 Some((panel, kink))
             };
             let walk = Walk {
@@ -1237,7 +1262,7 @@ mod tests {
         assert!((sum[0] - 5.0 / 18.0).abs() < 1e-9);
         let mut split = |(): (), a: f64, b: f64| {
             let panel = kronrod((), a, b, |(), x| Some([(x - 1.0 / 3.0).abs()]))?;
-            Some((panel, Some(1.0 / 3.0)))
+            Some((panel, Some((1.0 / 3.0, false))))
         };
         let (sum, ..) = adaptive(&[0.0, 1.0], (), Some(0.0), &mut split).unwrap();
         assert!((sum[0] - 5.0 / 18.0).abs() < 1e-15);
