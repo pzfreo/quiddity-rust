@@ -64,13 +64,15 @@ SPECIAL = {
         "gives {occ} (fixed rule), {fine} (adaptive) and {rebuilt} (pcurves projected from the edges).",
     ),
     ("cadgenbench_inputs/cgb207.step", 125, "occ"): (
-        "rust-wrong",
-        "tools/face_area_evidence.py gives 47.45338085 (Green's theorem) and 47.45337956 (direct "
-        "slices); the port gives {rust}, 1e-6 more. Unlike the faces fixed with it, the port's walk "
-        "closes here (its answer does not move with the inner integral's reference, to 6e-12), so "
-        "the difference is in the path the foot points take, not in the quadrature; not traced "
-        "further. OpenCascade gives {occ} (fixed rule), {fine} (adaptive) and {rebuilt} (pcurves "
-        "projected from the edges).",
+        "rust-correct",
+        "tools/kernel_evidence.py faces gives 47.45337973 (32 and 64 panels per interval; change "
+        "8.6e-7) and tools/face_area_evidence.py 47.45338085 (Green's theorem) and 47.45337956 "
+        "(direct slices); the port gives {rust}, 1.7e-7 from the first. It was 4.95e-5 over while "
+        "crates/haecceity/src/geom.rs Curve::parameter took the eccentric angle of a point off an "
+        "ellipse for its parameter: the face's ellipse edge (edge 360, shared with face 154) "
+        "starts at a vertex 0.012 mm off the ellipse, whose foot is at 3.988586 (OpenCascade's "
+        "edge range). OpenCascade gives {occ} (fixed rule), {fine} (adaptive) and {rebuilt} "
+        "(pcurves projected from the edges).",
     ),
     ("cadgenbench_inputs/cgb242.step.gz", 483, "occ"): (
         "rust-wrong",
@@ -103,16 +105,15 @@ SPECIAL = {
         "projected again from the edges.",
     ),
     ("cadgenbench_inputs/cgb207.step", 154, "occ"): (
-        "rust-wrong",
+        "rust-correct",
         "A planar face bounded by two lines and an ellipse arc (edge 360) whose vertices lie up "
-        "to 0.012 mm off it. tools/kernel_evidence.py faces and tools/face_area_evidence.py give "
-        "0.7055622740 over the region the edges bound between their feet on the curves, and a "
-        "200001-point polygon in the plane the same to 1e-11. The port gives 0.7055221749, 4.0e-5"
-        " (5.7e-5 relative) less: crates/haecceity/src/geom.rs Curve::parameter reads an ellipse "
-        "point's parameter as its eccentric angle, atan2(y/b, x/a), exact only on the ellipse; "
-        "for the vertex 0.0119 mm off it that gives 3.987837 where the vertex's foot is at "
-        "3.988586 (OpenCascade's edge range), so the arc starts 7.5e-4 rad early and the gap to "
-        "the line closes elsewhere. OpenCascade gives 0.727092241 with every rule (its pcurves).",
+        "to 0.012 mm off it. tools/kernel_evidence.py faces gives 0.7055622740 over the region the "
+        "edges bound between their feet on the curves (32-to-64-panel change 1e-13), and a "
+        "200001-point polygon in the plane the same to 1e-11; the port gives {rust}, the same to "
+        "3e-13, now that crates/haecceity/src/geom.rs Curve::parameter places a point off an "
+        "ellipse at its foot (3.988586 for the vertex 0.0119 mm off it, OpenCascade's edge range, "
+        "where its eccentric angle, 3.987837, left the face 4.0e-5 short). OpenCascade gives "
+        "{occ} with every rule (its pcurves).",
     ),
     ("cadgenbench_inputs/cgb242.step.gz", 69, "occ"): (
         "rust-correct",

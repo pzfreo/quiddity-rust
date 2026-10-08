@@ -205,15 +205,15 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 74.69976518 (Green's theorem), within 7e-14 of the port's 74.69976518. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 74.69573047, adaptive 74.69573048, and 74.69976517 with the pcurves projected again from the edges. The difference from face.area, 0.004, is within the strip the edges' tolerances allow the boundary (0.0067).",
-    "rust": 74.69976518118054
+    "rust": 74.69976518118051
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "face": 11,
     "check": "occ",
     "verdict": "rust-correct",
-    "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 26.06317868 (Green's theorem), within 8e-15 of the port's 26.06317868. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 26.06227933, adaptive 26.06227934, and 26.06317866 with the pcurves projected again from the edges. The difference from face.area, 0.0009, is within the strip the edges' tolerances allow the boundary (0.0014).",
-    "rust": 26.063178680274163
+    "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 26.06317868 (Green's theorem), within 9e-15 of the port's 26.06317868. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 26.06227933, adaptive 26.06227934, and 26.06317866 with the pcurves projected again from the edges. The difference from face.area, 0.0009, is within the strip the edges' tolerances allow the boundary (0.0014).",
+    "rust": 26.06317868027412
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -261,7 +261,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 166.8233112 (Green's theorem), within 2e-14 of the port's 166.8233112. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 166.8183771, adaptive 166.8183771, and 166.8233111 with the pcurves projected again from the edges. The difference from face.area, 0.0049, is within the strip the edges' tolerances allow the boundary (0.0082).",
-    "rust": 166.8233111623722
+    "rust": 166.82331116237222
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -1797,7 +1797,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 4.381519897 (Green's theorem) and 4.381519802 (direct slices), within 2e-08 of the port's 4.381519802. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 4.38132675, adaptive 4.381476291, and 4.381521656 with the pcurves projected again from the edges. The difference from face.area, 0.00019, is within the strip the edges' tolerances allow the boundary (0.098).",
-    "rust": 4.381519801718565
+    "rust": 4.38151980171857
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -1829,7 +1829,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 8.84123008 (Green's theorem) and 8.841229952 (direct slices), within 1e-08 of the port's 8.841229952. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 8.838707181, adaptive 8.838908275, and 8.841229936 with the pcurves projected again from the edges. The difference from face.area, 0.0025, is within the strip the edges' tolerances allow the boundary (0.07).",
-    "rust": 8.841229952207165
+    "rust": 8.841229952207506
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -1861,7 +1861,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 18.51514223 (Green's theorem) and 18.51514154 (direct slices), within 4e-08 of the port's 18.51514154. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 18.50130994, adaptive 18.50125905, and 18.51514236 with the pcurves projected again from the edges. The difference from face.area, 0.014, is within the strip the edges' tolerances allow the boundary (0.11).",
-    "rust": 18.515141535366457
+    "rust": 18.51514153536618
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -1877,7 +1877,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 4.381519897 (Green's theorem) and 4.381519802 (direct slices), within 2e-08 of the port's 4.381519802. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 4.381326749, adaptive 4.381476291, and 4.381521656 with the pcurves projected again from the edges. The difference from face.area, 0.00019, is within the strip the edges' tolerances allow the boundary (0.098).",
-    "rust": 4.381519801706194
+    "rust": 4.381519801706189
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -1909,7 +1909,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 8.84123008 (Green's theorem) and 8.841229952 (direct slices), within 1e-08 of the port's 8.841229952. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 8.838707181, adaptive 8.838908275, and 8.841229936 with the pcurves projected again from the edges. The difference from face.area, 0.0025, is within the strip the edges' tolerances allow the boundary (0.069).",
-    "rust": 8.841229952193805
+    "rust": 8.84122995219382
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -1941,7 +1941,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 18.5148321 (Green's theorem) and 18.51483141 (direct slices), within 4e-08 of the port's 18.51483141. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 18.49970925, adaptive 18.50078762, and 18.51483265 with the pcurves projected again from the edges. The difference from face.area, 0.015, is within the strip the edges' tolerances allow the boundary (0.11).",
-    "rust": 18.51483140614417
+    "rust": 18.514831406144655
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -2261,15 +2261,15 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 27.03090408, 5e-09 from the port's 27.03090394; face.area gives 27.03096365.",
-    "rust": 27.0309039412093
+    "rust": 27.030903941209324
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "face": 711,
     "check": "occ",
     "verdict": "rust-correct",
-    "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 0.5941008566 (Green's theorem), within 9e-15 of the port's 0.5941008566. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 0.601040341, adaptive 0.601040341, and 0.5941008566 with the pcurves projected again from the edges. The difference from face.area, 0.0069, is within the strip the edges' tolerances allow the boundary (0.015).",
-    "rust": 0.5941008565973095
+    "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 0.5941008566 (Green's theorem), within 5e-15 of the port's 0.5941008566. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 0.601040341, adaptive 0.601040341, and 0.5941008566 with the pcurves projected again from the edges. The difference from face.area, 0.0069, is within the strip the edges' tolerances allow the boundary (0.015).",
+    "rust": 0.5941008565973009
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -2277,7 +2277,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 54.24199892 (Green's theorem), within 7e-14 of the port's 54.24199892. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 54.2490645, adaptive 54.24893818, and 54.2419987 with the pcurves projected again from the edges. The difference from face.area, 0.0071, is within the strip the edges' tolerances allow the boundary (0.089).",
-    "rust": 54.241998915658755
+    "rust": 54.241998915658776
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -2549,7 +2549,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 27.99377034 (Green's theorem) and 27.99376923 (direct slices), within 4e-08 of the port's 27.99376923. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 27.98677335, adaptive 27.98676265, and 27.99377024 with the pcurves projected again from the edges. The difference from face.area, 0.007, is within the strip the edges' tolerances allow the boundary (0.096).",
-    "rust": 27.99376923221739
+    "rust": 27.99376923221746
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -2581,7 +2581,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 8.84134154 (Green's theorem) and 8.841341412 (direct slices), within 1e-08 of the port's 8.841341412. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 8.838707182, adaptive 8.838908275, and 8.841341395 with the pcurves projected again from the edges. The difference from face.area, 0.0026, is within the strip the edges' tolerances allow the boundary (0.068).",
-    "rust": 8.84134141214752
+    "rust": 8.841341412147479
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -2613,7 +2613,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 27.99399294 (Green's theorem) and 27.99399182 (direct slices), within 4e-08 of the port's 27.99399182. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 27.98748574, adaptive 27.98822816, and 27.99399162 with the pcurves projected again from the edges. The difference from face.area, 0.0065, is within the strip the edges' tolerances allow the boundary (0.1).",
-    "rust": 27.993991820527423
+    "rust": 27.993991820527448
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -2701,7 +2701,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 2.490108335, 8e-07 from the port's 2.490106325; face.area gives 2.490133332.",
-    "rust": 2.4901063245609927
+    "rust": 2.4901063245611836
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -2861,7 +2861,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 2.490106148, 7e-08 from the port's 2.490106324; face.area gives 2.490134504.",
-    "rust": 2.4901063244771704
+    "rust": 2.4901063244771726
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -2877,7 +2877,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 2.490108335, 8e-07 from the port's 2.490106324; face.area gives 2.490133332.",
-    "rust": 2.4901063243683694
+    "rust": 2.490106324368369
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -2949,7 +2949,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 2.490106148, 7e-08 from the port's 2.490106325; face.area gives 2.490134504.",
-    "rust": 2.4901063246211237
+    "rust": 2.490106324621134
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -3213,7 +3213,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 27.99399294 (Green's theorem) and 27.99399182 (direct slices), within 4e-08 of the port's 27.99399182. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 27.98748574, adaptive 27.98822816, and 27.99399161 with the pcurves projected again from the edges. The difference from face.area, 0.0065, is within the strip the edges' tolerances allow the boundary (0.1).",
-    "rust": 27.993991821400986
+    "rust": 27.993991821401913
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -3245,7 +3245,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 8.841280136 (Green's theorem) and 8.841280008 (direct slices), within 1e-08 of the port's 8.841280008. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 8.838707181, adaptive 8.838908275, and 8.841279992 with the pcurves projected again from the edges. The difference from face.area, 0.0026, is within the strip the edges' tolerances allow the boundary (0.069).",
-    "rust": 8.841280008172635
+    "rust": 8.841280008172825
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -3277,7 +3277,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 27.99377034 (Green's theorem) and 27.99376923 (direct slices), within 4e-08 of the port's 27.99376923. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 27.98677335, adaptive 27.98676266, and 27.99377025 with the pcurves projected again from the edges. The difference from face.area, 0.007, is within the strip the edges' tolerances allow the boundary (0.096).",
-    "rust": 27.993769225841447
+    "rust": 27.993769225841277
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -3725,7 +3725,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 63.65317985 (Green's theorem) and 63.65317266 (direct slices), within 1e-07 of the port's 63.65317266. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 63.60896093, adaptive 63.59062446, and 63.59533429 with the pcurves projected again from the edges. The difference from face.area, 0.044, is within the strip the edges' tolerances allow the boundary (0.33).",
-    "rust": 63.6531726626345
+    "rust": 63.65317266263465
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -3741,7 +3741,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 59.95163291 (Green's theorem) and 59.95162816 (direct slices), within 8e-08 of the port's 59.95162816. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 59.94452469, adaptive 59.94751211, and 59.96419253 with the pcurves projected again from the edges. The difference from face.area, 0.0071, is within the strip the edges' tolerances allow the boundary (0.8).",
-    "rust": 59.95162815636561
+    "rust": 59.951628156365494
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -4405,7 +4405,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 40.37490134 (Green's theorem) and 40.37490022 (direct slices), within 3e-08 of the port's 40.37490022. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 40.333944, adaptive 40.33398839, and 40.3748976 with the pcurves projected again from the edges. The difference from face.area, 0.041, is within the strip the edges' tolerances allow the boundary (0.26).",
-    "rust": 40.37490022076399
+    "rust": 40.3749002207639
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -4597,7 +4597,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 29.85688151 (Green's theorem) and 29.85688054 (direct slices), within 3e-08 of the port's 29.85688054. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 29.8419463, adaptive 29.84205604, and 29.85688086 with the pcurves projected again from the edges. The difference from face.area, 0.015, is within the strip the edges' tolerances allow the boundary (0.13).",
-    "rust": 29.856880541339947
+    "rust": 29.856880541339805
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -4621,7 +4621,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 30.32450044 (Green's theorem) and 30.32449955 (direct slices), within 3e-08 of the port's 30.32449955. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 30.30790345, adaptive 30.30811148, and 30.32449559 with the pcurves projected again from the edges. The difference from face.area, 0.017, is within the strip the edges' tolerances allow the boundary (0.094).",
-    "rust": 30.32449955128834
+    "rust": 30.32449955128829
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -4685,7 +4685,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 32.15320957 (Green's theorem) and 32.15320854 (direct slices), within 3e-08 of the port's 32.15320854. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 32.12985185, adaptive 32.13004468, and 32.15320872 with the pcurves projected again from the edges. The difference from face.area, 0.023, is within the strip the edges' tolerances allow the boundary (0.08).",
-    "rust": 32.15320854421794
+    "rust": 32.15320854421686
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -4821,7 +4821,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 38.50008881, 1e-08 from the port's 38.50008842; face.area gives 38.50023003.",
-    "rust": 38.5000884218226
+    "rust": 38.500088421822625
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5085,7 +5085,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 171.7444437, 2e-12 from the port's 171.7444437; face.area gives 171.745616.",
-    "rust": 171.7444436945795
+    "rust": 171.74444369457967
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5228,8 +5228,8 @@
     "face": 1736,
     "check": "occ",
     "verdict": "rust-correct",
-    "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 2454.473854, 7e-16 from the port's 2454.473854; face.area gives 2454.4772.",
-    "rust": 2454.4738537212124
+    "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 2454.473854, 0e+00 from the port's 2454.473854; face.area gives 2454.4772.",
+    "rust": 2454.4738537212143
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5237,7 +5237,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 1918.826505, 1e-13 from the port's 1918.826505; face.area gives 1918.829433.",
-    "rust": 1918.8265052569723
+    "rust": 1918.826505256972
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5853,7 +5853,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 333.7874372, 1e-13 from the port's 333.7874372; face.area gives 333.7914869.",
-    "rust": 333.7874371583619
+    "rust": 333.7874371583622
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5957,7 +5957,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 603.435007, 4e-08 from the port's 603.4350337; face.area gives 603.1255331.",
-    "rust": 603.4350336736105
+    "rust": 603.4350336736104
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5973,7 +5973,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 1018.901737 (Green's theorem), within 1e-13 of the port's 1018.901737. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 1018.662099, adaptive 1018.903093, and 1018.901707 with the pcurves projected again from the edges. The difference from face.area, 0.24, is within the strip the edges' tolerances allow the boundary (0.43).",
-    "rust": 1018.9017367270575
+    "rust": 1018.9017367270574
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -6004,8 +6004,8 @@
     "face": 1932,
     "check": "occ",
     "verdict": "rust-correct",
-    "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 1018.951737 (Green's theorem), within 6e-16 of the port's 1018.951737. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 1018.955234, adaptive 1018.953023, and 1018.951637 with the pcurves projected again from the edges. The difference from face.area, 0.0035, is within the strip the edges' tolerances allow the boundary (0.41).",
-    "rust": 1018.951737198
+    "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 1018.951737 (Green's theorem), within 3e-16 of the port's 1018.951737. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 1018.955234, adaptive 1018.953023, and 1018.951637 with the pcurves projected again from the edges. The difference from face.area, 0.0035, is within the strip the edges' tolerances allow the boundary (0.41).",
+    "rust": 1018.9517371979998
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -6013,7 +6013,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 721.943301, 6e-08 from the port's 721.9433418; face.area gives 721.8322745.",
-    "rust": 721.9433417898368
+    "rust": 721.943341789837
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -6029,7 +6029,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 603.4688529, 4e-08 from the port's 603.468875; face.area gives 602.1136776.",
-    "rust": 603.4688749940183
+    "rust": 603.4688749940187
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -7973,7 +7973,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 59.6579408 (Green's theorem) and 59.65793862 (direct slices), within 4e-08 of the port's 59.65793866. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 59.5787803, adaptive 59.61098104, and 59.6551036 with the pcurves projected again from the edges. The difference from face.area, 0.079, is within the strip the edges' tolerances allow the boundary (1.2).",
-    "rust": 59.65793865620857
+    "rust": 59.657938656208806
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -7981,7 +7981,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 5.43496718 (Green's theorem) and 5.43496718 (direct slices), within 4e-11 of the port's 5.43496718. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 5.437695319, adaptive 5.437696937, and 5.434969965 with the pcurves projected again from the edges. The difference from face.area, 0.0027, is within the strip the edges' tolerances allow the boundary (0.019).",
-    "rust": 5.434967179599477
+    "rust": 5.434967179599488
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -7997,7 +7997,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 2.431141393 (Green's theorem) and 2.431141393 (direct slices), within 2e-11 of the port's 2.431141393. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 2.432193438, adaptive 2.432193418, and 2.431141785 with the pcurves projected again from the edges. The difference from face.area, 0.0011, is within the strip the edges' tolerances allow the boundary (0.044).",
-    "rust": 2.431141392696575
+    "rust": 2.4311413926965684
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -8021,7 +8021,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 25.72985544 (Green's theorem) and 25.72985425 (direct slices), within 5e-08 of the port's 25.72985425. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 25.7202388, adaptive 25.7221779, and 25.72984912 with the pcurves projected again from the edges. The difference from face.area, 0.0096, is within the strip the edges' tolerances allow the boundary (0.068).",
-    "rust": 25.72985425111685
+    "rust": 25.729854251117057
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -8155,9 +8155,9 @@
     "file": "cadgenbench_inputs/cgb207.step",
     "face": 125,
     "check": "occ",
-    "verdict": "rust-wrong",
-    "reason": "tools/face_area_evidence.py gives 47.45338085 (Green's theorem) and 47.45337956 (direct slices); the port gives 47.45342917, 1e-6 more. Unlike the faces fixed with it, the port's walk closes here (its answer does not move with the inner integral's reference, to 6e-12), so the difference is in the path the foot points take, not in the quadrature; not traced further. OpenCascade gives 47.47073639 (fixed rule), 47.47079742 (adaptive) and 47.44848265 (pcurves projected from the edges).",
-    "rust": 47.453429174836145
+    "verdict": "rust-correct",
+    "reason": "tools/kernel_evidence.py faces gives 47.45337973 (32 and 64 panels per interval; change 8.6e-7) and tools/face_area_evidence.py 47.45338085 (Green's theorem) and 47.45337956 (direct slices); the port gives 47.45337956, 1.7e-7 from the first. It was 4.95e-5 over while crates/haecceity/src/geom.rs Curve::parameter took the eccentric angle of a point off an ellipse for its parameter: the face's ellipse edge (edge 360, shared with face 154) starts at a vertex 0.012 mm off the ellipse, whose foot is at 3.988586 (OpenCascade's edge range). OpenCascade gives 47.47073639 (fixed rule), 47.47079742 (adaptive) and 47.44848265 (pcurves projected from the edges).",
+    "rust": 47.4533795561741
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -8181,7 +8181,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 17.86676382 (Green's theorem) and 17.8667632 (direct slices), within 3e-08 of the port's 17.8667632. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 17.81985385, adaptive 17.82084081, and 17.86657479 with the pcurves projected again from the edges. The difference from face.area, 0.047, is within the strip the edges' tolerances allow the boundary (0.15).",
-    "rust": 17.86676319883528
+    "rust": 17.866763198834985
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -8195,9 +8195,9 @@
     "file": "cadgenbench_inputs/cgb207.step",
     "face": 154,
     "check": "occ",
-    "verdict": "rust-wrong",
-    "reason": "A planar face bounded by two lines and an ellipse arc (edge 360) whose vertices lie up to 0.012 mm off it. tools/kernel_evidence.py faces and tools/face_area_evidence.py give 0.7055622740 over the region the edges bound between their feet on the curves, and a 200001-point polygon in the plane the same to 1e-11. The port gives 0.7055221749, 4.0e-5 (5.7e-5 relative) less: crates/haecceity/src/geom.rs Curve::parameter reads an ellipse point's parameter as its eccentric angle, atan2(y/b, x/a), exact only on the ellipse; for the vertex 0.0119 mm off it that gives 3.987837 where the vertex's foot is at 3.988586 (OpenCascade's edge range), so the arc starts 7.5e-4 rad early and the gap to the line closes elsewhere. OpenCascade gives 0.727092241 with every rule (its pcurves).",
-    "rust": 0.7055221748961624
+    "verdict": "rust-correct",
+    "reason": "A planar face bounded by two lines and an ellipse arc (edge 360) whose vertices lie up to 0.012 mm off it. tools/kernel_evidence.py faces gives 0.7055622740 over the region the edges bound between their feet on the curves (32-to-64-panel change 1e-13), and a 200001-point polygon in the plane the same to 1e-11; the port gives 0.705562274, the same to 3e-13, now that crates/haecceity/src/geom.rs Curve::parameter places a point off an ellipse at its foot (3.988586 for the vertex 0.0119 mm off it, OpenCascade's edge range, where its eccentric angle, 3.987837, left the face 4.0e-5 short). OpenCascade gives 0.727092241 with every rule (its pcurves).",
+    "rust": 0.7055622739773458
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -8308,8 +8308,8 @@
     "face": 190,
     "check": "occ",
     "verdict": "rust-correct",
-    "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 22.35271233 (Green's theorem) and 22.3527112 (direct slices), within 3e-07 of the port's 22.35271831. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 22.29416546, adaptive 22.2959113, and 22.3525233 with the pcurves projected again from the edges. The difference from face.area, 0.059, is within the strip the edges' tolerances allow the boundary (0.19).",
-    "rust": 22.352718310491305
+    "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 22.35271233 (Green's theorem) and 22.3527112 (direct slices), within 5e-08 of the port's 22.3527112. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 22.29416546, adaptive 22.2959113, and 22.3525233 with the pcurves projected again from the edges. The difference from face.area, 0.059, is within the strip the edges' tolerances allow the boundary (0.19).",
+    "rust": 22.35271119615153
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -8349,7 +8349,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 19.82814269 (Green's theorem) and 19.82814269 (direct slices), within 1e-12 of the port's 19.82814269. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 19.83191896, adaptive 19.83191897, and 19.82814287 with the pcurves projected again from the edges. The difference from face.area, 0.0038, is within the strip the edges' tolerances allow the boundary (0.11).",
-    "rust": 19.82814269325901
+    "rust": 19.828142693259032
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -8357,7 +8357,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 98.85302348 (Green's theorem), within 6e-14 of the port's 98.85302348. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 98.8617427, adaptive 98.86175504, and 98.85233338 with the pcurves projected again from the edges. The difference from face.area, 0.0087, is within the strip the edges' tolerances allow the boundary (0.17).",
-    "rust": 98.85302347831288
+    "rust": 98.85302347831289
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -8429,7 +8429,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 69.8057081 (Green's theorem) and 69.80570663 (direct slices), within 2e-08 of the port's 69.80570663. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 69.79846871, adaptive 69.79821518, and 69.807129 with the pcurves projected again from the edges. The difference from face.area, 0.0072, is within the strip the edges' tolerances allow the boundary (0.28).",
-    "rust": 69.80570663179763
+    "rust": 69.80570663179749
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -8461,7 +8461,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 48.08265967 (Green's theorem) and 48.08265713 (direct slices), within 5e-08 of the port's 48.08265712. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 48.07298151, adaptive 48.0731193, and 48.08265873 with the pcurves projected again from the edges. The difference from face.area, 0.0097, is within the strip the edges' tolerances allow the boundary (0.068).",
-    "rust": 48.08265712407616
+    "rust": 48.082657124076675
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -8469,7 +8469,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 125.8503575 (Green's theorem) and 125.8503522 (direct slices), within 4e-08 of the port's 125.8503522. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 125.8328781, adaptive 125.8344868, and 125.8271825 with the pcurves projected again from the edges. The difference from face.area, 0.017, is within the strip the edges' tolerances allow the boundary (0.35).",
-    "rust": 125.85035217635915
+    "rust": 125.85035217635588
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -8484,8 +8484,8 @@
     "face": 245,
     "check": "occ",
     "verdict": "rust-correct",
-    "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 44.95126035 (Green's theorem), within 1e-07 of the port's 44.95125439. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 45.11442214, adaptive 45.11442214, and 45.11442214 with the pcurves projected again from the edges. The difference from face.area, 0.16, is beyond the strip the edges' tolerances allow the boundary (0.054).",
-    "rust": 44.95125438984449
+    "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 44.95126035 (Green's theorem), within 3e-13 of the port's 44.95126035. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 45.11442214, adaptive 45.11442214, and 45.11442214 with the pcurves projected again from the edges. The difference from face.area, 0.16, is beyond the strip the edges' tolerances allow the boundary (0.054).",
+    "rust": 44.95126034709719
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -14269,7 +14269,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 4.269310206 (Green's theorem) and 4.269310206 (direct slices), within 2e-11 of the port's 4.269310206. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 4.269314997, adaptive 4.269319744, and 4.269308038 with the pcurves projected again from the edges. The difference from face.area, 4.8e-06, is within the strip the edges' tolerances allow the boundary (0.05).",
-    "rust": 4.269310206019053
+    "rust": 4.269310206019355
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
@@ -14277,7 +14277,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 4.269310206 (Green's theorem) and 4.269310206 (direct slices), within 2e-11 of the port's 4.269310206. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 4.269314997, adaptive 4.269319744, and 4.269308038 with the pcurves projected again from the edges. The difference from face.area, 4.8e-06, is within the strip the edges' tolerances allow the boundary (0.05).",
-    "rust": 4.269310206019443
+    "rust": 4.2693102060194414
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
