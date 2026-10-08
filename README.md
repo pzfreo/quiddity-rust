@@ -67,6 +67,8 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/known_pmi.json` "occt" | `crates/haecceity/tests/pmi_read.rs` | 403 | 402 | 1 | 0 | 0 | 0 |
 | `tests/fixtures/known_pmi.json` "specify" | `crates/haecceity/tests/pmi_read.rs` | 38 | 20 | 0 | 0 | 0 | 18 |
 | `tests/fixtures/known_pmi_draftwright.json` | `crates/haecceity/tests/pmi_draftwright.rs` | 117 | 111 | 0 | 0 | 0 | 6 |
+| `tests/fixtures/known_pmi_write.json` "occt" | `crates/haecceity/tests/pmi_write.rs` | 6 | 6 | 0 | 0 | 0 | 0 |
+| `tests/fixtures/known_pmi_write.json` "corpus" (patterns) | `crates/haecceity/tests/pmi_write.rs` | 9 | 7 | 0 | 0 | 2 | 0 |
 
 The undetermined entries are the backlog: differences not yet shown to be either side's error.
 The rust-wrong entries are known port defects. The AP242 PMI lists are against NIST's expected PMI
@@ -82,7 +84,10 @@ OpenCascade (design: `docs/step-ap242.md`): a lossless Part 21 document with byt
 source instance (`step::read_part_definitions`), and a plain semantic PMI model with one reader
 (`pmi/`). The reader keeps every value as the file states it, in its own unit; reports what it
 does not read (`pmi::Finding`), never drops it; and records the instances behind every item
-(`pmi::Provenance`). The writer is the next stage.
+(`pmi::Provenance`). The writer (`pmi::write`) maps every part's PMI to one edit of the file
+(add, replace, remove) through a typed emission layer, keeping every other byte; refusals,
+round trips and OpenCascade's reading of written files are pinned in
+`tests/fixtures/known_pmi_write.json`.
 
 The kernel also answers the questions the unported families ask of OpenCascade's booleans,
 checked against every one Python asks over the corpus: the volume a probe shares with a solid
@@ -154,7 +159,9 @@ crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code
                      geometry, datums, targets, systems, dimensions, tolerances, relations,
                      general tolerances, threads, knurls, material, notes, attributes, with
                      their invariants), read.rs (the AP242 reader: findings, provenance,
-                     accounting), standards.rs (ISO 2768 classes, ISO 2768-1 Table 1)
+                     accounting), standards.rs (ISO 2768 classes, ISO 2768-1 Table 1),
+                     write.rs (the AP242 writer: typed emission, add/replace/remove, refusals
+                     by name, schema and rule backstops; differences() compares PMI by meaning)
 src/
   features/          the recognisers, one module per family, plus what they share
     context.rs       Context: one run over one part; box, classifier, cylinder inventory
@@ -228,6 +235,12 @@ crates/haecceity/tests/
                      determinism; the model's invariants; threads, knurls, tables, material,
                      standards and bad references on hand-built additions
   pmi_draftwright.rs everything draftwright reads is in the model (known_pmi_draftwright.json)
+  pmi_write.rs       the PMI writer: one test per anti-requirement, add keeping every original
+                     byte, remove, refusals, determinism, specify-core's intents onto the
+                     original corpus files and OpenCascade's reading of written files
+                     (known_pmi_write.json, ap242/write/)
+  pmi_roundtrip.rs   read → replace → read over every NIST file and specify-core input, values
+                     as stated (known_pmi_write.json "roundtrip")
 crates/haecceity/examples/
   hlr_compare.rs     the drawings comparison, every score printed, with listings of the
                      curves either side draws differently
@@ -252,6 +265,8 @@ tools/
   capture_pmi_occt.py records OpenCascade XCAF's PMI reading (tests/fixtures/ap242/occt/)
   capture_pmi_draftwright.py records draftwright's PMI extraction (tests/fixtures/ap242/draftwright/)
   make_specify_inputs.py runs specify-core on corpus parts (tests/fixtures/ap242/specify/)
+  check_pmi_occt.py  records OpenCascade XCAF's reading of the writer's files
+                     (tests/fixtures/ap242/write/)
   capture_revisions.py builds the revision pairs in build123d, with their expected classes
 ```
 
@@ -265,7 +280,8 @@ QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release
 # corpus tests read ../quiddity/tests/corpus or $QUIDDITY_CORPUS; without
 # QUIDDITY_CORPUS_REQUIRED=1 they pass by skipping when the corpus is missing
 HAECCEITY_NIST_PMI=<NIST-PMI-STEP-Files> HAECCEITY_NIST_PMI_REQUIRED=1 \
-  cargo test --release -p haecceity --test p21 --test express --test face_sources --test pmi_read
+  cargo test --release -p haecceity --test p21 --test express --test face_sources --test pmi_read \
+  --test pmi_write --test pmi_roundtrip
 # the AP242 tests read all 17 NIST AP242 test files from that directory (NIST's
 # NIST-PMI-STEP-Files.zip); without it they check the 7 committed ones
 ```
