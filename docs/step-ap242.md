@@ -304,9 +304,17 @@ files that carry threads, and recorded here; pitch, if derivable, is a function,
 Tapping drill diameter and depth and full-thread depth are not thread semantics: they are an
 `AttributeSet` on the thread's feature (UDA practice).
 
-**Material** (`Material { name, density: Option<Density> }`): decision 2. The name is written in
-the 'material name' construct as specify-core's files carry it; density is read when stated
-(with its own unit) and not written.
+**Material** (`Material { id, name, density: Option<Density> }`): decision 2, on the CAx-IF
+*Recommended Practices for Material Identification and Density* Release 2.1 (obtained; see
+`tests/fixtures/ap242/README.md`). §4.1: `property_definition('material property', 'material
+name', <product_definition>)` → `representation('material name', …)` holding
+`descriptive_representation_item(<material id>, <material name>)`; the reader keeps both strings
+as stated. §4.2: `property_definition('material property', 'density', …)` →
+`representation('density', …)` holding `measure_representation_item('density measure',
+POSITIVE_RATIO_MEASURE(v), <derived unit>)`; the reader keeps the value as stated with its
+derived unit. The practice predates AP242 (it names AP214 and AP203). Material on a sub-shape
+(§4.1's optional form) is reported, not read; §5's material-as-product is not read. The writer writes the
+name as specify-core's files carry it; density is read only.
 
 **Notes and attributes.** `Note { text, on: Option<FeatureId> }` for descriptive requirements;
 `AttributeSet { name, on: AttributeOwner (Part | Feature), items: Vec<(String, AttributeValue)> }`
@@ -458,7 +466,7 @@ be read, e.g. the pre-4.0.6 datum forms of §6.5.2):
 | Zone | `tolerance_zone` + `tolerance_zone_form` (§6.9.2); `runout_zone_definition` (three attributes) only for a stated runout orientation |
 | General tolerance | `property_definition('default tolerances')` → `representation('default tolerances')` with `descriptive_representation_item('tolerance class', <text>)` (decision 3); `default_tolerance_table` read only |
 | Thread / knurl | `thread` / `turned_knurl` with one `shape_representation_with_parameters` whose items are exactly the model's fields, named as the WHERE rules name them; 'applied shape', 'partial area occurrence', 'thread runout' relationships |
-| Material | 'material name' representation as specify-core's files carry it (decision 2); density read only |
+| Material | Material practice R2.1 §4.1: `property_definition('material property','material name')` → `representation('material name')` → `descriptive_representation_item(id, name)`, as specify-core's files carry it (decision 2); §4.2 'density' → `measure_representation_item('density measure', POSITIVE_RATIO_MEASURE, derived unit)`, read only |
 | Attributes | UDA practice §5–7: `general_property` 'user defined attribute' |
 | Standard | `applied_document_reference` to the dimensioning standard (§4) |
 
