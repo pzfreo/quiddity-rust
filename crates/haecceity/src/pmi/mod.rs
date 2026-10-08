@@ -1,5 +1,6 @@
-//! Semantic PMI: the model ([`model`]), ISO general tolerance tables ([`standards`]) and the
-//! AP242 reader ([`read()`]). The design is `docs/step-ap242.md`.
+//! Semantic PMI: the model ([`model`]), ISO general tolerance tables ([`standards`]), the
+//! AP242 reader ([`read()`]) and writer ([`write()`], [`mod@write`]). The design is
+//! `docs/step-ap242.md`.
 //!
 //! [`read()`] maps a Part 21 document's semantic PMI to one [`PartPmi`] per distinct part of
 //! the file, with [`Finding`]s for everything it did not read (or read through a
@@ -9,9 +10,11 @@
 pub mod model;
 mod read;
 pub mod standards;
+pub mod write;
 
 pub use model::*;
 pub use read::read;
+pub use write::{Mode, write};
 
 /// The result of reading a file's PMI.
 #[derive(Clone, Debug, PartialEq, Eq)]
