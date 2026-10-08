@@ -613,8 +613,8 @@ tested; `pmi::write` (and replace built from the removal plan) is the next stage
   checked: general_datum_reference WR1–WR6, geometric_tolerance WR2/WR4,
   geometric_tolerance_relationship WR3.
 
-**Stage 3 (2026-10-08): the writer.** Delivered and tested on branch `ap242-writer`;
-datum feature symbols (decision 6) are not written yet (below).
+**Stage 3 (2026-10-08): the writer.** Delivered and tested on branch `ap242-writer`,
+datum feature symbols (decision 6) included.
 
 - **`pmi::write`** (`crates/haecceity/src/pmi/write.rs`, `tests/pmi_write.rs`,
   `tests/pmi_roundtrip.rs`, `tests/fixtures/known_pmi_write.json`, `tests/fixtures/ap242/write/`):
@@ -627,13 +627,41 @@ datum feature symbols (decision 6) are not written yet (below).
   reported. `pmi::write::differences` compares two `PartPmi` by meaning (indices resolved,
   collections as sets, values as quantities to 1e-12), `differences_as_stated` by value text and
   unit too.
-- **Round trips** (read → replace every part with what was read → read, values as stated):
-  equal for 22 files (assembly, assembly_plate_pin, bolt_thread_knurl, bracket_positions, nist_ctc_01_asme1_ap242-e1, nist_ctc_01_merge, nist_ctc_02_asme1_ap242-e2, nist_ctc_03_asme1_ap242-e2, nist_ctc_04_asme1_ap242-e1, nist_ctc_05_asme1_ap242-e1, nist_ftc_07_asme1_ap242-e2, nist_ftc_08_asme1_ap242-e2, nist_ftc_10_asme1_ap242-e2, nist_ftc_11_asme1_ap242-e2, nist_stc_06_asme1_ap242-e3, nist_stc_07_asme1_ap242-e3, nist_stc_09_asme1_ap242-e3, nist_stc_09_asme1_ap242-e4, nist_stc_10_asme1_ap242-e2, spool_fits, string_post_tapped, thumbwheel_thread_knurl), with the refused items left out and pinned per
-  file with a reason; the policy `Refuse` result pinned for each. No instance the reader consumed
+- **Round trips** (read → replace every part with what was read → read, values as stated),
+  pinned per file in `known_pmi_write.json` "roundtrip" with the file's sha256 (a pin is never
+  matched against another file of the same name): equal for 18 of 21 files, the 7 specify-core
+  inputs and the assembly plus 10 of NIST's (nist_ctc_01, ctc_02, ctc_03, ftc_07, ftc_08-e2,
+  ftc_10, stc_06, stc_07, stc_09-e4, stc_10), with the refused items left out and pinned with a
+  reason, and the number of items left out per kind (refused items and everything depending on
+  them) pinned too; the policy `Refuse` result pinned for each. No instance the reader consumed
   survives a replace (supplemental geometry excepted, below); no finding names a written
-  instance; every other finding is the original's. Refused by the removal plan, pinned: nist_ftc_06_asme1_ap242-e2, nist_ftc_08_asme1_ap242-e1-tg, nist_ftc_09_asme1_ap242-e1, nist_stc_08_asme1_ap242-e3
-  (PMI of the part the reader did not read references what the replace removes; nist_ftc_08's
-  tessellated file has no part).
+  instance; every other finding is the original's. Refused by the removal plan, pinned:
+  nist_ftc_06, nist_ftc_09, nist_stc_08 (PMI of the part the reader did not read references what
+  the replace removes). Without `HAECCEITY_NIST_PMI` the 7 committed NIST models run; with it,
+  every NIST pin must be of a file in that directory (stale pins fail) and every file must be
+  pinned.
+- **NIST's set.** The pins are of the set the reader's fixtures record (`NIST-PMI-STEP-Files.zip`
+  sha256 `1fb91bb8…`, February 2026; per-file sha256 in `ap242/occt/*.json.gz`). nist.gov
+  serves an older zip from this machine (sha256 `8fa78429…`, files of 2022–2024), of which 11
+  files are byte-identical to that set; with the 7 committed models, 13 of its 17 files are
+  pinned. Not obtainable here, so not pinned: nist_ctc_04_asme1_ap242-e2,
+  nist_ctc_05_asme1_ap242-e1 (the served file of that name differs), nist_ftc_08_asme1_ap242-e4-tg
+  and nist_ftc_11_asme1_ap242-e3. A run with `HAECCEITY_NIST_PMI` naming the full set reports
+  these four as not pinned until they are run and pinned.
+- **Datum feature symbols** (decision 6): for each datum feature of a datum the writer adds, a
+  minimal symbol (the label boxed in Hershey single-stroke lettering, a stem to a triangle whose
+  apex is on the feature), derived from the model at write time: one tessellated callout
+  (`tessellated_curve_set` in a `tessellated_geometric_set` named 'datum', §8.2) in its own
+  annotation plane (§9.1), the planes in one `draughting_model` of the part related to its shape
+  representation by `mechanical_design_and_draughting_relationship`, each callout linked to its
+  datum feature by `draughting_model_item_association('PMI representation to presentation
+  link', …)` (§7.3). Laid out above the part in the plane of its two longest extents, each
+  symbol in the plane through its feature's point, sized to the part (1/30 of its diagonal).
+  Replace and remove take it with its datum (the removal plan's presentation removal under the
+  default `RemovePresentation`; under `Refuse` it is presentation like any other, and a replace
+  that would orphan it is refused, as the caller asked). A datum resolved to the file's own
+  (add) gets none. OpenCascade links each symbol to its datum as the datum's presentation, with
+  its annotation plane (`check_pmi_occt.py` records it; the test requires it for every datum).
 - **Anti-requirements**: each row has its test in `pmi_write.rs`, named after it (precedence on
   the system; signed deviations; g6/f7; fits as `LIMITS_AND_FITS`; each value's own unit,
   including millimetres into NIST STC-06's inch part; stated text; read PMI written back;
@@ -656,7 +684,9 @@ Settled by the implementation (where the design was open or silent):
 - *Editions.* An AP242 file keeps its `FILE_SCHEMA` whatever its edition (decision 1: an AP242
   file stays AP242); the instances the writer makes are validated against that edition's table
   where there is one (editions 1 and 4), else against the target's (editions 2 and 3), and the
-  report names the table. An AP214/AP203 file that gains PMI becomes `TARGET_SCHEMA` only when
+  report names the table (`validated_against`). For an edition 2 or 3 file, whether the written
+  instances are valid instances of the file's own edition is therefore undetermined: the report
+  says so (`edition_undetermined`) and the round-trip pins record it per file (8 NIST files). An AP214/AP203 file that gains PMI becomes `TARGET_SCHEMA` only when
   every instance validates (refused otherwise, naming them). A replace or remove that adds
   nothing keeps the schema.
 - *Supplemental geometry* is the part's geometry, not PMI: a replace keeps it (it is not a
@@ -701,10 +731,8 @@ read; a bare 'thread runout' aspect (WR16, no runout feature) is reported uncons
 `RATIO_UNIT` is not resolved as a unit; a tolerance on a `shape_aspect_relationship` from a
 feature is read as that feature's composition.
 
-Not done in this stage: **datum feature symbols** (decision 6: a minimal presentation per datum,
-linked by `draughting_model_item_association`) — they need a presentation construct (draughting
-model, annotation geometry placed on the datum's faces, styles) of their own, which is a
-separate piece of work; and writing datum targets and tolerance relations (design: Out of scope).
+Not done in this stage: writing datum targets and tolerance relations (design: Out of scope);
+pinning the four NIST files of the reference set not obtainable here (above).
 
 ## Out of scope for now
 

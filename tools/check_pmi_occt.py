@@ -11,7 +11,8 @@ GD&T and names on, specify-core's ``load.py`` numbering), and the capture is wri
 as ``<case>.occt.json.gz``. ``crates/haecceity/tests/pmi_write.rs``
 (``opencascade_reads_the_written_files``) compares each capture with haecceity's reading of the
 same file, which equals what was written, and requires a verdict for every difference in
-``tests/fixtures/known_pmi_write.json`` ("occt"). OpenCascade is a cross-check, not an
+``tests/fixtures/known_pmi_write.json`` ("occt"). Each datum also records the presentation XCAF
+links to it (its datum feature symbol: name, edge count, whether it has an annotation plane). OpenCascade is a cross-check, not an
 authority: where it misreads (its ``known_misreads``), haecceity is rust-correct with the
 clause and the file text.
 
@@ -27,7 +28,37 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from capture_pmi_occt import capture_file  # noqa: E402
+import capture_pmi_occt  # noqa: E402
+from capture_pmi_occt import Capture, _text, capture_file  # noqa: E402
+from OCP.TopAbs import TopAbs_EDGE  # noqa: E402
+from OCP.TopExp import TopExp  # noqa: E402
+from OCP.TopTools import TopTools_IndexedMapOfShape  # noqa: E402
+from OCP.XCAFDoc import XCAFDoc_Datum  # noqa: E402
+
+
+class WrittenCapture(Capture):
+    """The capture, with what XCAF makes of each datum's presentation: the datum feature
+    symbol the writer derives for every datum it adds (decision 6), linked by a
+    ``draughting_model_item_association``."""
+
+    def datum(self, label) -> dict:
+        out = super().datum(label)
+        obj = XCAFDoc_Datum.Set_s(label).GetObject()
+        shape = obj.GetPresentation()
+        if shape.IsNull():
+            out["presentation"] = None
+        else:
+            edges = TopTools_IndexedMapOfShape()
+            TopExp.MapShapes_s(shape, TopAbs_EDGE, edges)
+            out["presentation"] = {
+                "name": _text(obj.GetPresentationName()),
+                "edges": edges.Extent(),
+                "plane": obj.HasPlane(),
+            }
+        return out
+
+
+capture_pmi_occt.Capture = WrittenCapture
 
 WRITE = Path(__file__).resolve().parent.parent / "tests" / "fixtures" / "ap242" / "write"
 

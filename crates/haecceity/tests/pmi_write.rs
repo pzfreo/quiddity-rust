@@ -744,6 +744,137 @@ fn unreferenced_datums_are_written_and_read() {
     written(&spool(), &p);
 }
 
+/// The references of instance `id`, in attribute order.
+fn refs_of(doc: &Document, id: u64) -> Vec<u64> {
+    let mut out = Vec::new();
+    haecceity::p21::visit_attributes(doc.get(id).unwrap(), &mut |a| {
+        if let Attribute::EntityRef(n) = a {
+            out.push(*n);
+        }
+    });
+    out
+}
+
+/// The datum feature symbols of the written file (decision 6): per
+/// `draughting_model_item_association`, the label of the datum its datum feature establishes,
+/// with its callout checked to be a tessellated 'datum' set in an annotation plane of a
+/// draughting model related to the part's shape representation.
+fn datum_symbols(w: &Written) -> Vec<String> {
+    let mut out = Vec::new();
+    for id in w.doc.ids() {
+        if w.names(id) != ["draughting_model_item_association"] {
+            continue;
+        }
+        let [feature, model, callout] = refs_of(&w.doc, id)[..] else {
+            panic!("#{id}: {}", w.text(id));
+        };
+        assert!(
+            w.text(id)
+                .contains("'PMI representation to presentation link'")
+        );
+        assert!(
+            w.names(feature).iter().any(|n| n.contains("datum_feature")),
+            "#{id} links {:?}",
+            w.names(feature)
+        );
+        assert_eq!(w.names(model), ["draughting_model"]);
+        assert_eq!(w.names(callout), ["draughting_callout"]);
+        let [occurrence] = refs_of(&w.doc, callout)[..] else {
+            panic!("{}", w.text(callout));
+        };
+        assert_eq!(w.names(occurrence), ["tessellated_annotation_occurrence"]);
+        let set = *refs_of(&w.doc, occurrence).last().unwrap();
+        assert!(
+            w.text(set).contains("TESSELLATED_GEOMETRIC_SET('datum'"),
+            "{}",
+            w.text(set)
+        );
+        let plane = refs_of(&w.doc, model)
+            .into_iter()
+            .find(|&p| w.names(p) == ["annotation_plane"] && refs_of(&w.doc, p).contains(&callout))
+            .expect("the callout's annotation plane is in the model");
+        assert!(refs_of(&w.doc, plane).len() >= 3);
+        assert!(
+            w.doc
+                .referrers(model)
+                .iter()
+                .any(|&r| w.names(r) == ["mechanical_design_and_draughting_relationship"]),
+            "the model is related to the shape"
+        );
+        let datum = w
+            .doc
+            .referrers(feature)
+            .iter()
+            .filter(|&&r| w.names(r) == ["shape_aspect_relationship"])
+            .map(|&r| refs_of(&w.doc, r)[1])
+            .find(|&d| w.names(d) == ["datum"])
+            .expect("the feature establishes a datum");
+        let text = w.text(datum);
+        let label = text.rsplit('\'').nth(1).unwrap().to_string();
+        out.push(label);
+    }
+    out.sort();
+    out
+}
+
+/// Datum feature symbols (decision 6): each added datum gets one, linked to its datum feature,
+/// valid against the schema (the writer's own check) and not read as PMI; replace and remove
+/// take the symbols with their datums, leaving none of what the first write added; a datum
+/// resolved to the file's own (add) gets none.
+#[test]
+fn datum_feature_symbols_go_with_their_datums() {
+    let f = spool();
+    let w = written(&f, &four_datums());
+    assert_eq!(datum_symbols(&w), ["A", "B", "C", "D"]);
+    assert_eq!(
+        w.report.datum_symbols,
+        ["A", "B", "C", "D"].map(|l| (PartId(0), l.to_string()))
+    );
+    let again = File {
+        parts: read_part_definitions(w.doc.bytes()).unwrap(),
+        doc: Document::parse(w.doc.bytes().to_vec()).unwrap(),
+    };
+    // Replace with datum A only: the other three symbols go with their datums.
+    let only_a = PartPmi {
+        features: vec![faces(&[0])],
+        datums: vec![datum("A", 0)],
+        ..PartPmi::default()
+    };
+    let w2 = written(&again, &only_a);
+    assert_eq!(datum_symbols(&w2), ["A"]);
+    assert!(
+        w2.doc
+            .ids()
+            .all(|id| id <= f.doc.max_id() || id > w.doc.max_id()),
+        "an instance of the first write survives its replacement"
+    );
+    // Remove: nothing of the first write is left.
+    let w3 = write(&again, &[(PartId(0), PartPmi::default())], Mode::Remove).unwrap();
+    assert!(datum_symbols(&w3).is_empty());
+    assert!(w3.doc.ids().all(|id| id <= f.doc.max_id()));
+    // Under the Refuse policy the symbols are presentation like any other: a replace that
+    // would orphan them is refused, naming them.
+    match pmi::write(
+        &again.doc,
+        &again.parts,
+        &[(PartId(0), PartPmi::default())],
+        Mode::Remove,
+        PresentationPolicy::Refuse,
+    ) {
+        Err(WriteError::Removal(r)) => assert!(
+            r.blockers
+                .iter()
+                .any(|b| b.entity == "draughting_model_item_association"),
+            "{r:?}"
+        ),
+        other => panic!("refused: {:?}", other.err()),
+    }
+    // Add with the file's datum A: reused, no symbol.
+    let w4 = write(&again, &[(PartId(0), only_a)], Mode::Add).unwrap();
+    assert!(w4.report.datum_symbols.is_empty());
+    assert_eq!(datum_symbols(&w4).len(), 4);
+}
+
 /// One datum per name per document (assemblies): datum A on each part of the two-part
 /// assembly, each on its own faces; replacing one part's PMI leaves the other's PMI and every
 /// byte of its instances untouched. The AP214 file becomes AP242 (decision 1) only because
@@ -960,18 +1091,20 @@ fn add_keeps_every_original_byte() {
         .map(|e| e.unwrap().path())
         .filter(|p| p.to_string_lossy().ends_with(".step.gz"))
         .collect();
-    files.extend(nist_files());
-    if files
-        .iter()
-        .all(|p| !p.to_string_lossy().contains("nist_stc"))
-    {
-        files.extend(
-            std::fs::read_dir(common::fixtures().join("ap242/nist"))
-                .unwrap()
-                .map(|e| e.unwrap().path())
-                .filter(|p| p.to_string_lossy().ends_with(".stp.gz")),
-        );
-    }
+    // The committed NIST models, and the rest of NIST's set when HAECCEITY_NIST_PMI names it.
+    let committed: Vec<PathBuf> = std::fs::read_dir(common::fixtures().join("ap242/nist"))
+        .unwrap()
+        .map(|e| e.unwrap().path())
+        .filter(|p| p.to_string_lossy().ends_with(".stp.gz"))
+        .collect();
+    let name = |p: &Path| p.file_name().unwrap().to_string_lossy().replace(".gz", "");
+    let committed_names: BTreeSet<String> = committed.iter().map(|p| name(p)).collect();
+    files.extend(committed);
+    files.extend(
+        nist_files()
+            .into_iter()
+            .filter(|p| !committed_names.contains(&name(p))),
+    );
     files.sort();
     let mut problems = Vec::new();
     for path in files {
@@ -1261,26 +1394,19 @@ fn writes_are_deterministic() {
     assert!(a == b, "two writes differ");
 }
 
-/// NIST's MBE PMI test models: `HAECCEITY_NIST_PMI`, else the AP242 track's download.
+/// NIST's MBE PMI test models: the `.stp` files of the directory `HAECCEITY_NIST_PMI` names
+/// (NIST's `NIST-PMI-STEP-Files`); none when it is not set, unless
+/// `HAECCEITY_NIST_PMI_REQUIRED` is.
 fn nist_files() -> Vec<PathBuf> {
-    let dir = std::env::var("HAECCEITY_NIST_PMI")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| {
-            PathBuf::from(
-                "/private/tmp/claude-501/-Users-paul-repos-quiddity-rust/\
-                 4f6aac0c-d5a0-4c82-bc67-2d2552947882/scratchpad/ap242-nist/x/NIST-PMI-STEP-Files",
-            )
-        });
-    if !dir.is_dir() {
+    let Some(dir) = std::env::var_os("HAECCEITY_NIST_PMI").map(PathBuf::from) else {
         assert!(
             std::env::var_os("HAECCEITY_NIST_PMI_REQUIRED").is_none(),
-            "NIST PMI files required but {} is missing",
-            dir.display()
+            "HAECCEITY_NIST_PMI_REQUIRED is set but HAECCEITY_NIST_PMI is not"
         );
         return Vec::new();
-    }
+    };
     let mut out: Vec<PathBuf> = std::fs::read_dir(&dir)
-        .unwrap()
+        .unwrap_or_else(|e| panic!("{}: {e}", dir.display()))
         .map(|e| e.unwrap().path())
         .filter(|p| p.extension().is_some_and(|e| e == "stp"))
         .collect();
@@ -1653,10 +1779,6 @@ fn specify_intents_written_onto_the_original_files() {
             ));
         }
     }
-    let _ = std::fs::write(
-        std::env::temp_dir().join("pmi_write_corpus.json"),
-        serde_json::to_string_pretty(&Json::Object(actual)).unwrap(),
-    );
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 
@@ -2525,7 +2647,7 @@ fn written_files_are_the_writers_current_output() {
 
 /// Oracle: OpenCascade XCAF's reading of each written file against haecceity's (equal to
 /// what was written, checked above); every difference pinned with a verdict
-/// (`known_pmi_write.json` "occt").
+/// (`known_pmi_write.json` "occt"); and every datum's symbol read as its presentation.
 #[test]
 fn opencascade_reads_the_written_files() {
     let pins = load_pins();
@@ -2551,9 +2673,30 @@ fn opencascade_reads_the_written_files() {
         let path = write_dir().join(format!("{name}.step.gz"));
         assert_eq!(
             capture["sha256"].as_str(),
-            Some(sha256_hex(&std::fs::read(&path).unwrap()).as_str()),
+            Some(common::sha256_hex(&std::fs::read(&path).unwrap()).as_str()),
             "{name}: the capture is not of the committed file"
         );
+        // Every datum in these files is one the writer added, so each has its datum feature
+        // symbol (decision 6), which OpenCascade links to the datum as its presentation.
+        let datums = capture["parts"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .chain([&capture["unattached"]])
+            .flat_map(|p| p["datums"].as_array().unwrap());
+        for d in datums {
+            let pres = &d["presentation"];
+            let want = format!("Datum {}", d["name"].as_str().unwrap_or(""));
+            if pres["name"].as_str() != Some(want.as_str())
+                || pres["edges"].as_u64().unwrap_or(0) == 0
+                || pres["plane"] != true
+            {
+                problems.push(format!(
+                    "{name}: OpenCascade reads datum {} without its symbol: {pres}",
+                    d["name"]
+                ));
+            }
+        }
         let f = open(&path);
         let r = pmi::read(&f.doc, &f.parts).unwrap();
         for (key, detail) in compare_occt(&name, &capture, &r, &f.doc, &f.parts) {
@@ -2573,81 +2716,5 @@ fn opencascade_reads_the_written_files() {
             problems.push(format!("{}: pinned but not found", e["key"]));
         }
     }
-    let _ = std::fs::write(
-        std::env::temp_dir().join("pmi_write_occt.json"),
-        serde_json::to_string_pretty(&actual).unwrap(),
-    );
     assert!(problems.is_empty(), "{}", problems.join("\n"));
-}
-
-/// SHA-256 (FIPS 180-4) of `data`, lower-case hex: the captures record their file's.
-fn sha256_hex(data: &[u8]) -> String {
-    const K: [u32; 64] = [
-        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4,
-        0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe,
-        0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f,
-        0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
-        0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc,
-        0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b,
-        0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070, 0x19a4c116,
-        0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7,
-        0xc67178f2,
-    ];
-    let mut h: [u32; 8] = [
-        0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab,
-        0x5be0cd19,
-    ];
-    let mut msg = data.to_vec();
-    msg.push(0x80);
-    while msg.len() % 64 != 56 {
-        msg.push(0);
-    }
-    msg.extend_from_slice(&((data.len() as u64) * 8).to_be_bytes());
-    for chunk in msg.chunks(64) {
-        let mut w = [0u32; 64];
-        for i in 0..16 {
-            w[i] = u32::from_be_bytes([
-                chunk[4 * i],
-                chunk[4 * i + 1],
-                chunk[4 * i + 2],
-                chunk[4 * i + 3],
-            ]);
-        }
-        for i in 16..64 {
-            let s0 = w[i - 15].rotate_right(7) ^ w[i - 15].rotate_right(18) ^ (w[i - 15] >> 3);
-            let s1 = w[i - 2].rotate_right(17) ^ w[i - 2].rotate_right(19) ^ (w[i - 2] >> 10);
-            w[i] = w[i - 16]
-                .wrapping_add(s0)
-                .wrapping_add(w[i - 7])
-                .wrapping_add(s1);
-        }
-        let mut v = h;
-        for i in 0..64 {
-            let s1 = v[4].rotate_right(6) ^ v[4].rotate_right(11) ^ v[4].rotate_right(25);
-            let ch = (v[4] & v[5]) ^ (!v[4] & v[6]);
-            let t1 = v[7]
-                .wrapping_add(s1)
-                .wrapping_add(ch)
-                .wrapping_add(K[i])
-                .wrapping_add(w[i]);
-            let s0 = v[0].rotate_right(2) ^ v[0].rotate_right(13) ^ v[0].rotate_right(22);
-            let maj = (v[0] & v[1]) ^ (v[0] & v[2]) ^ (v[1] & v[2]);
-            let t2 = s0.wrapping_add(maj);
-            v = [
-                t1.wrapping_add(t2),
-                v[0],
-                v[1],
-                v[2],
-                v[3].wrapping_add(t1),
-                v[4],
-                v[5],
-                v[6],
-            ];
-        }
-        for (a, b) in h.iter_mut().zip(v) {
-            *a = a.wrapping_add(b);
-        }
-    }
-    h.iter().map(|x| format!("{x:08x}")).collect()
 }

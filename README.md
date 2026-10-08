@@ -85,7 +85,8 @@ source instance (`step::read_part_definitions`), and a plain semantic PMI model 
 (`pmi/`). The reader keeps every value as the file states it, in its own unit; reports what it
 does not read (`pmi::Finding`), never drops it; and records the instances behind every item
 (`pmi::Provenance`). The writer (`pmi::write`) maps every part's PMI to one edit of the file
-(add, replace, remove) through a typed emission layer, keeping every other byte; refusals,
+(add, replace, remove) through a typed emission layer, keeping every other byte, with a
+datum feature symbol derived for each datum it adds; refusals,
 round trips and OpenCascade's reading of written files are pinned in
 `tests/fixtures/known_pmi_write.json`.
 

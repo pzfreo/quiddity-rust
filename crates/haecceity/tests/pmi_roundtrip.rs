@@ -3,7 +3,7 @@
 
 mod common;
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::io::Read;
 use std::path::{Path, PathBuf};
 
@@ -471,27 +471,20 @@ fn replace_all(
     panic!("refusals did not settle");
 }
 
-/// NIST's MBE PMI test models: `HAECCEITY_NIST_PMI`, else the AP242 track's download.
+/// NIST's MBE PMI test models: the `.stp` files of the directory `HAECCEITY_NIST_PMI` names
+/// (NIST's `NIST-PMI-STEP-Files`); none when it is not set, unless
+/// `HAECCEITY_NIST_PMI_REQUIRED` is.
 fn nist_files() -> Vec<PathBuf> {
-    let dir = std::env::var("HAECCEITY_NIST_PMI")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| {
-            PathBuf::from(
-                "/private/tmp/claude-501/-Users-paul-repos-quiddity-rust/\
-                 4f6aac0c-d5a0-4c82-bc67-2d2552947882/scratchpad/ap242-nist/x/NIST-PMI-STEP-Files",
-            )
-        });
-    if !dir.is_dir() {
+    let Some(dir) = std::env::var_os("HAECCEITY_NIST_PMI").map(PathBuf::from) else {
         assert!(
             std::env::var_os("HAECCEITY_NIST_PMI_REQUIRED").is_none(),
-            "NIST PMI files required but {} is missing",
-            dir.display()
+            "HAECCEITY_NIST_PMI_REQUIRED is set but HAECCEITY_NIST_PMI is not"
         );
-        eprintln!("NIST files skipped: {} is missing", dir.display());
+        eprintln!("HAECCEITY_NIST_PMI not set; NIST files skipped");
         return Vec::new();
-    }
+    };
     let mut out: Vec<PathBuf> = std::fs::read_dir(&dir)
-        .unwrap()
+        .unwrap_or_else(|e| panic!("{}: {e}", dir.display()))
         .map(|e| e.unwrap().path())
         .filter(|p| p.extension().is_some_and(|e| e == "stp"))
         .collect();
@@ -577,11 +570,17 @@ fn roundtrip(
             continue;
         };
         let doc = Document::parse(bytes).unwrap();
-        let r0 = pmi::read(&doc, &parts).unwrap();
         let mut entry = serde_json::Map::new();
+        entry.insert("sha256".into(), common::sha256_hex(doc.bytes()).into());
+        let r0 = pmi::read(&doc, &parts).unwrap();
         let o = replace_all(&doc, &parts, &r0, PresentationPolicy::RemovePresentation);
         if !o.refused.is_empty() {
             entry.insert("refused".into(), serde_json::to_value(&o.refused).unwrap());
+        }
+        // What the round trip leaves out, refused items and everything depending on them.
+        let left_out = left_out(&r0.parts, &o.written);
+        if !left_out.is_empty() {
+            entry.insert("left out".into(), serde_json::to_value(&left_out).unwrap());
         }
         match &o.result {
             Err(e) => {
@@ -622,6 +621,16 @@ fn roundtrip(
                     "presentation removed".into(),
                     report.presentation_removed.len().into(),
                 );
+                if let Some(file) = &report.edition_undetermined {
+                    entry.insert(
+                        "edition".into(),
+                        format!(
+                            "undetermined: {file} has no table; validated against {}",
+                            report.validated_against
+                        )
+                        .into(),
+                    );
+                }
                 // The same with policy Refuse: refused, naming the presentation, or written.
                 let pmi: Vec<(PartId, PartPmi)> = o
                     .written
@@ -660,9 +669,58 @@ fn roundtrip(
     }
 }
 
+/// Per kind, how many of the read items the written PMI lacks (all parts together).
+fn left_out(read: &[PartPmi], written: &[PartPmi]) -> BTreeMap<&'static str, usize> {
+    let mut out = BTreeMap::new();
+    for (r, w) in read.iter().zip(written) {
+        for (kind, a, b) in [
+            ("standards", r.standards.len(), w.standards.len()),
+            ("features", r.features.len(), w.features.len()),
+            (
+                "datum targets",
+                r.datum_targets.len(),
+                w.datum_targets.len(),
+            ),
+            ("datums", r.datums.len(), w.datums.len()),
+            ("dimensions", r.dimensions.len(), w.dimensions.len()),
+            ("tolerances", r.tolerances.len(), w.tolerances.len()),
+            (
+                "tolerance relations",
+                r.tolerance_relations.len(),
+                w.tolerance_relations.len(),
+            ),
+            ("general", r.general.len(), w.general.len()),
+            ("threads", r.threads.len(), w.threads.len()),
+            ("knurls", r.knurls.len(), w.knurls.len()),
+            ("notes", r.notes.len(), w.notes.len()),
+            ("attributes", r.attributes.len(), w.attributes.len()),
+            (
+                "material",
+                usize::from(r.material.is_some()),
+                usize::from(w.material.is_some()),
+            ),
+            (
+                "decimal places",
+                usize::from(r.decimal_places.is_some()),
+                usize::from(w.decimal_places.is_some()),
+            ),
+        ] {
+            if a > b {
+                *out.entry(kind).or_insert(0) += a - b;
+            }
+        }
+    }
+    out
+}
+
+/// Compares `actual` with the pins of `section`: each file's entry equal to its pin (the
+/// pin's sha256 is the file's, so a pin is never matched against another file of the same
+/// name), every key with a reason, and every pin `must_run` names actually run (no stale
+/// pins).
 fn compare_pins(
     section: &str,
     actual: &serde_json::Map<String, serde_json::Value>,
+    must_run: impl Fn(&str) -> bool,
     problems: &mut Vec<String>,
 ) {
     let pins = load_pins();
@@ -694,13 +752,21 @@ fn compare_pins(
             }
         }
     }
-    let _ = std::fs::write(
-        std::env::temp_dir().join(format!(
-            "pmi_write_{section}_{}.json",
-            actual.keys().next().map_or("none", String::as_str)
-        )),
-        serde_json::to_string_pretty(&serde_json::Value::Object(actual.clone())).unwrap(),
-    );
+    for stem in pinned.keys() {
+        if must_run(stem) && !actual.contains_key(stem) {
+            problems.push(format!("{section} {stem}: pinned but not run"));
+        }
+    }
+}
+
+/// The stems of the NIST models committed with the reader's fixtures.
+fn committed_nist() -> BTreeSet<String> {
+    std::fs::read_dir(common::fixtures().join("ap242/nist"))
+        .unwrap()
+        .map(|e| e.unwrap().path())
+        .filter(|p| p.to_string_lossy().ends_with(".stp.gz"))
+        .map(|p| stem(&p))
+        .collect()
 }
 
 #[test]
@@ -708,7 +774,13 @@ fn read_replace_read_keeps_specify_inputs_and_committed_nist_files() {
     let mut problems = Vec::new();
     let mut actual = serde_json::Map::new();
     roundtrip(&specify_files(), &mut problems, &mut actual);
-    compare_pins("roundtrip", &actual, &mut problems);
+    let committed = committed_nist();
+    compare_pins(
+        "roundtrip",
+        &actual,
+        |stem| !stem.contains("_asme1_ap242") || committed.contains(stem),
+        &mut problems,
+    );
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 
@@ -716,7 +788,15 @@ fn read_replace_read_keeps_specify_inputs_and_committed_nist_files() {
 fn read_replace_read_keeps_nist_files() {
     let mut problems = Vec::new();
     let mut actual = serde_json::Map::new();
-    roundtrip(&nist_files(), &mut problems, &mut actual);
-    compare_pins("roundtrip", &actual, &mut problems);
+    let files = nist_files();
+    let run = !files.is_empty();
+    roundtrip(&files, &mut problems, &mut actual);
+    // With NIST's directory, every NIST pin is of one of its files.
+    compare_pins(
+        "roundtrip",
+        &actual,
+        |stem| run && stem.contains("_asme1_ap242"),
+        &mut problems,
+    );
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
