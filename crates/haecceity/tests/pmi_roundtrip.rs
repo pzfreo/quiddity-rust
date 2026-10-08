@@ -506,6 +506,16 @@ fn specify_files() -> Vec<PathBuf> {
         .collect();
     out.sort();
     out.push(common::fixtures().join("ap242/assembly/assembly.step"));
+    // The NIST models committed with the reader's fixtures (one of them, STC-09, in edition
+    // 4, the target), so the round trip runs without the download too.
+    let nist = common::fixtures().join("ap242/nist");
+    let mut committed: Vec<PathBuf> = std::fs::read_dir(&nist)
+        .unwrap()
+        .map(|e| e.unwrap().path())
+        .filter(|p| p.to_string_lossy().ends_with(".stp.gz"))
+        .collect();
+    committed.sort();
+    out.extend(committed);
     out
 }
 
@@ -692,7 +702,7 @@ fn compare_pins(
 }
 
 #[test]
-fn read_replace_read_keeps_specify_inputs() {
+fn read_replace_read_keeps_specify_inputs_and_committed_nist_files() {
     let mut problems = Vec::new();
     let mut actual = serde_json::Map::new();
     roundtrip(&specify_files(), &mut problems, &mut actual);

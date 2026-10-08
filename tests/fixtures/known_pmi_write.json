@@ -158,6 +158,14 @@
     "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 2
    }
   },
+  "nist_stc_09_asme1_ap242-e4": {
+   "presentation removed": 839,
+   "refuse policy": "refused: 115 presentation blockers of 196",
+   "refused": {
+    "Attribute: \"\": N units of the file are named \"derived_unit\"; which one is not stated": 12,
+    "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 2
+   }
+  },
   "nist_stc_10_asme1_ap242-e2": {
    "presentation removed": 2459,
    "refuse policy": "refused: 135 presentation blockers of 135",

@@ -338,7 +338,7 @@ pub fn write(
                     }
                     Err(r) if r.emptied.is_empty() && !r.blockers.is_empty() => {
                         // Parts of a removed item's construct the reader does not list: its
-                        // `id_attribute`s (§5.1 Figure 4) and, under RemovePresentation, the
+                        // `id_attribute`s (§5.1 Figure 4) and edition 4 `uuid_attribute`s and, under RemovePresentation, the
                         // geometric validation properties of it (with their representation
                         // links). Anything else blocks.
                         let extra: Vec<u64> = r
@@ -347,6 +347,7 @@ pub fn write(
                             .map(|b| b.id)
                             .filter(|&b| {
                                 is_a(doc, b, "id_attribute")
+                                    || is_a(doc, b, "uuid_attribute")
                                     || (policy == PresentationPolicy::RemovePresentation
                                         && validation_property(doc, b, &seeds))
                             })
@@ -1178,10 +1179,16 @@ impl<'a> Emitter<'a> {
         let r = match found {
             Some(u) => self.reference(u)?,
             None => {
+                // A ratio unit with a name of its own (context dependent): the reader resolves
+                // a named unit by its leaves, and a lone RATIO_UNIT's internal mapping names
+                // none it knows.
                 let dims = self.dimensional_exponents("none")?;
                 self.instance(
-                    &["ratio_unit"],
-                    &[(("named_unit", "dimensions"), dims.a())],
+                    &["context_dependent_unit", "ratio_unit"],
+                    &[
+                        (("named_unit", "dimensions"), dims.a()),
+                        (("context_dependent_unit", "name"), s("ratio")),
+                    ],
                     &[],
                 )?
             }
