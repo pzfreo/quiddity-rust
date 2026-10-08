@@ -52,6 +52,8 @@ from quiddity.edge_open_prismatic_recesses import (  # noqa: E402
 )
 from quiddity.fillets import _discover_fillets  # noqa: E402
 from quiddity.flats import _discover_flats  # noqa: E402
+from quiddity.freeform_surfaces import _records as _freeform_records  # noqa: E402
+from quiddity.freeform_surfaces import recognise_freeform_surfaces  # noqa: E402
 from quiddity.grooves import _discover_grooves  # noqa: E402
 from quiddity.gussets import _discover_gusset_ribs  # noqa: E402
 from quiddity.holes import _discover_holes  # noqa: E402
@@ -98,7 +100,9 @@ from quiddity import (  # noqa: E402
     recognise_through_steps,
     recognise_turned_steps,
 )
+from OCP.BRep import BRep_Tool  # noqa: E402
 from OCP.BRepTools import BRepTools  # noqa: E402
+from OCP.Geom import Geom_BSplineSurface  # noqa: E402
 
 CORPUS = QUIDDITY / "tests" / "corpus"
 OUT = Path(__file__).resolve().parent.parent / "tests" / "fixtures" / "corpus.json"
@@ -148,6 +152,18 @@ def _kernel(part) -> dict:
             [a.index, b.index, graph.arc(a, b)] for a in graph.nodes for b in graph.neighbours(a)
         ],
     }
+
+
+def _discover_freeform(part, ledger) -> None:
+    """``freeform_surfaces._discover`` without the pipeline: each record claims its face."""
+
+    faces = tuple(part.faces())
+    if not any(isinstance(BRep_Tool.Surface_s(face.wrapped), Geom_BSplineSurface) for face in faces):
+        return  # recognise_freeform_surfaces' own shortcut: no native B-spline face, no record.
+    walls = tuple(_discover_thin_wall_bodies(part, graph=ledger.graph))
+    for record in _freeform_records(faces, ledger.graph, walls):
+        node = ledger.graph.require_node(faces[record.face])
+        ledger.writer.add_defining(record, (node,), family=FamilyId.FREEFORM_SURFACES)
 
 
 def _files():
@@ -250,6 +266,8 @@ def main() -> None:
                   lambda p, ledger, o: _discover_plates(p, writer=ledger.writer, **o))
         blends = (FamilyId.BLENDS, lambda p, o: recognise_blends(p),
                   lambda p, ledger, o: _discover_blends(p, graph=ledger.graph, writer=ledger.writer))
+        freeform = (FamilyId.FREEFORM_SURFACES, lambda p, o: recognise_freeform_surfaces(p),
+                    lambda p, ledger, o: _discover_freeform(p, ledger))
         entries.append(
             {
                 "file": str(path.relative_to(CORPUS)),
@@ -303,6 +321,9 @@ def main() -> None:
                         _run(part, "recognise_edge_open_prismatic_recesses", *open_prismatic, {})
                     ],
                     "recognise_blends": [_run(part, "recognise_blends", *blends, {})],
+                    "recognise_freeform_surfaces": [
+                        _run(part, "recognise_freeform_surfaces", *freeform, {})
+                    ],
                     "recognise_gusset_rib_patterns": [
                         {"options": {}, "result": _plain(recognise_gusset_rib_patterns(recognise_gusset_ribs(part)))}
                     ],

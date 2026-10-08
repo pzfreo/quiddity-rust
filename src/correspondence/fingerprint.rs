@@ -528,6 +528,37 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("path.center", Placement),
         ],
     },
+    FamilyFingerprint {
+        family: "freeform_surfaces",
+        members: None,
+        variants: false,
+        fields: &[
+            ("support_kind", Trait),
+            ("support.u_degree", Trait),
+            ("support.v_degree", Trait),
+            ("support.u_periodic", Trait),
+            ("support.v_periodic", Trait),
+            ("support.poles", Placement),
+            // The parameterisation: one surface has many.
+            ("support.weights", Ignored),
+            ("support.u_knots", Ignored),
+            ("support.v_knots", Ignored),
+            ("support.u_multiplicities", Ignored),
+            ("support.v_multiplicities", Ignored),
+            ("construction_kind", Trait),
+            // A parameter direction, not a direction in space.
+            ("construction_axis", Trait),
+            ("construction_vector", Placement),
+            ("continuity_links[].kind", Trait),
+            ("offset_distance", Size),
+            ("offset_basis", Trait),
+            // Face indices, which a revision renumbers.
+            ("face", Ignored),
+            ("continuity_group", Ignored),
+            ("continuity_links[].other_face", Ignored),
+            ("offset_partner", Ignored),
+        ],
+    },
 ];
 
 /// The fingerprint table of the family with this serde key.

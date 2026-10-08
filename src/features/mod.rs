@@ -26,6 +26,7 @@ pub mod edge_open_prismatic;
 pub mod evidence;
 pub mod fillets;
 pub mod flats;
+pub mod freeform_surfaces;
 pub mod graph;
 pub mod grooves;
 pub mod gussets;
@@ -93,6 +94,7 @@ pub struct Features {
     pub edge_open_circular_pockets: Vec<edge_open_circular::EdgeOpenCircularPocket>,
     pub edge_open_prismatic_recesses: Vec<edge_open_prismatic::EdgeOpenPrismaticRecess>,
     pub blends: Vec<blends::Blend>,
+    pub freeform_surfaces: Vec<freeform_surfaces::FreeformSurface>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole and gusset rib patterns) have none of their own: their members' faces are
     /// theirs ([`crate::correspondence`]).
@@ -112,6 +114,16 @@ pub fn recognise(part: &Part) -> Features {
     let holes = kept(&mut defining, "holes", holes::discover(&ctx, &seats));
     let countersinks = kept(&mut defining, "countersinks", seats);
     let gusset_ribs = kept(&mut defining, "gusset_ribs", gussets::discover(&ctx));
+    let thin_wall_bodies = kept(
+        &mut defining,
+        "thin_wall_bodies",
+        thin_walls::discover(&ctx),
+    );
+    let freeform_surfaces = kept(
+        &mut defining,
+        "freeform_surfaces",
+        freeform_surfaces::discover(&ctx, &thin_wall_bodies),
+    );
     Features {
         fillets: kept(
             &mut defining,
@@ -156,11 +168,7 @@ pub fn recognise(part: &Part) -> Features {
         gusset_rib_patterns: gussets::recognise_gusset_rib_patterns(&gusset_ribs),
         gusset_ribs,
         countersinks,
-        thin_wall_bodies: kept(
-            &mut defining,
-            "thin_wall_bodies",
-            thin_walls::discover(&ctx),
-        ),
+        thin_wall_bodies,
         interior_voids: kept(
             &mut defining,
             "interior_voids",
@@ -208,6 +216,7 @@ pub fn recognise(part: &Part) -> Features {
             edge_open_prismatic::discover(&ctx),
         ),
         blends: kept(&mut defining, "blends", blends::discover(&ctx)),
+        freeform_surfaces,
         defining,
     }
 }

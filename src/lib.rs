@@ -28,6 +28,9 @@ pub use features::edge_open_prismatic::{
 };
 pub use features::fillets::{Fillet, FilletOptions, recognise_fillets};
 pub use features::flats::{Flat, recognise_flats};
+pub use features::freeform_surfaces::{
+    BSplineSurfaceSupport, FreeformSurface, SurfaceContinuityLink, recognise_freeform_surfaces,
+};
 pub use features::grooves::{Groove, recognise_grooves};
 pub use features::gussets::{
     GussetRib, GussetRibPattern, recognise_gusset_rib_patterns, recognise_gusset_ribs,

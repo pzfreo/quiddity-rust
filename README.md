@@ -38,6 +38,7 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 | Edge-open circular pockets | `recognise_edge_open_circular_pockets` | 9/9 | 0 | 100/100 |
 | Edge-open prismatic recesses | `recognise_edge_open_prismatic_recesses` | 23/23 | 2 | 100/100 |
 | Blends | `recognise_blends` | 52/52 | 0 | 94/100 (6 known) |
+| Freeform surfaces | `recognise_freeform_surfaces` | 3/3 | 0 | CORPUS |
 
 *Captured test calls*: the Python suite's calls replayed by `tests/captured.rs`. *Not captured*:
 calls the suite makes that the capture could not record, outside the replay and pinned by it
@@ -159,6 +160,8 @@ src/
     blend_view.rs    native cylindrical blend chains, with the face graph readings they need:
                      paired edge occurrences, their solid ownership, a smooth join's side
     blends.rs
+    freeform_surfaces.rs  native B-spline supports as OpenCascade's reader holds them (closed
+                     pole rows made periodic), continuity links, thin-wall offset partners
     volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over haecceity's volume.rs
   frames.rs          part-relative recognition (`quiddity.frames`): the frame inferred from the
                      part's plane normals and cylinder axes, the part re-read into it, recognised
