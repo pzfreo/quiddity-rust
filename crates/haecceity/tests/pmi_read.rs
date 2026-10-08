@@ -2824,3 +2824,107 @@ fn unreferenced_datums_are_read_and_bad_references_are_findings() {
         }
     }
 }
+
+/// PMI on the assembly's own product definition shape, and on an occurrence (a
+/// `next_assembly_usage_occurrence`'s shape), is out of scope: each is a finding of its own kind,
+/// with no part, and no part consumes any of it. The assembly fixture: assembly definition #5
+/// (shape #4), plate occurrence #968 (shape #967), millimetre #28.
+#[test]
+fn assembly_and_occurrence_pmi_are_findings_not_part_pmi() {
+    let f = common::fixtures();
+    let base = file_bytes(&f.join("ap242/assembly/assembly.step"));
+    let text = String::from_utf8(base).unwrap();
+    let at = text.rfind("ENDSEC;").unwrap();
+    let extra = "#2000=SHAPE_ASPECT('top','',#4,.T.);
+#2001=LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(0.1),#28);
+#2002=FLATNESS_TOLERANCE('flat','',#2001,#2000);
+#2010=SHAPE_ASPECT('plate face','',#967,.T.);
+#2011=LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(0.2),#28);
+#2012=FLATNESS_TOLERANCE('flat','',#2011,#2010);
+#2013=DIMENSIONAL_SIZE(#2010,'thickness');
+";
+    let bytes = format!("{}{extra}{}", &text[..at], &text[at..]).into_bytes();
+    let (r, _) = read_doc(bytes);
+    assert!(
+        r.parts.iter().all(|p| p == &PartPmi::default()),
+        "no part holds assembly or occurrence PMI"
+    );
+    for p in &r.provenance.parts {
+        for id in 2000..=2013 {
+            assert!(!p.all().contains(&id), "#{id} consumed for a part");
+        }
+    }
+    let kind_of = |id: u64| {
+        r.findings
+            .iter()
+            .find(|f| f.ids[0] == id)
+            .unwrap_or_else(|| panic!("no finding for #{id}: {:?}", r.findings))
+    };
+    for id in [2000, 2002] {
+        let f = kind_of(id);
+        assert_eq!(
+            (f.kind, f.part),
+            (pmi::FindingKind::AssemblyPmi, None),
+            "{f:?}"
+        );
+    }
+    for id in [2010, 2012, 2013] {
+        let f = kind_of(id);
+        assert_eq!(
+            (f.kind, f.part),
+            (pmi::FindingKind::OccurrencePmi, None),
+            "{f:?}"
+        );
+    }
+}
+
+/// A count is read as the whole number it states (`1.2E1` is 12) and a fraction is refused, not
+/// truncated; a measure whose type and unit disagree is a nonconformance, not "unitless".
+#[test]
+fn counts_are_whole_and_measure_errors_are_typed() {
+    let knurl = |teeth: &str| {
+        with_pmi(&format!(
+            "#1100=TURNED_KNURL('k','straight');
+#1101=PRODUCT_DEFINITION_SHAPE('','',#1100);
+#1102=SHAPE_ASPECT('','',#1101,.T.);
+#1103=SHAPE_ASPECT('knurl face','',#4,.T.);
+#1104=GEOMETRIC_ITEM_SPECIFIC_USAGE('','',#1103,#10,#105);
+#1105=SHAPE_DEFINING_RELATIONSHIP('','applied shape',#1103,#1102);
+#1106=PROPERTY_DEFINITION('knurl','',#1100);
+#1110=(LENGTH_MEASURE_WITH_UNIT()MEASURE_REPRESENTATION_ITEM()MEASURE_WITH_UNIT(LENGTH_MEASURE(6.25),#400)REPRESENTATION_ITEM('major diameter'));
+#1111=(LENGTH_MEASURE_WITH_UNIT()MEASURE_REPRESENTATION_ITEM()MEASURE_WITH_UNIT(LENGTH_MEASURE(6.),#400)REPRESENTATION_ITEM('nominal diameter'));
+#1112=(LENGTH_MEASURE_WITH_UNIT()MEASURE_REPRESENTATION_ITEM()MEASURE_WITH_UNIT(LENGTH_MEASURE(1.),#400)REPRESENTATION_ITEM('diametral pitch'));
+#1012=DIMENSIONAL_EXPONENTS(0.,0.,0.,0.,0.,0.,0.);
+#1013=(NAMED_UNIT(#1012)RATIO_UNIT());
+#1114=(MEASURE_REPRESENTATION_ITEM()MEASURE_WITH_UNIT(COUNT_MEASURE({teeth}),#1013)REPRESENTATION_ITEM('number of teeth'));
+#1115=SHAPE_REPRESENTATION_WITH_PARAMETERS('',(#1110,#1111,#1112,#1114),#399);
+#1116=PROPERTY_DEFINITION_REPRESENTATION(#1106,#1115);"
+        ))
+    };
+    let r = knurl("1.2E1");
+    assert_eq!(
+        r.parts[0].knurls[0].number_of_teeth,
+        Some(pmi::Count(12)),
+        "{:?}",
+        r.findings
+    );
+    let r = knurl("12.7");
+    assert!(r.parts[0].knurls.is_empty());
+    assert!(
+        r.findings
+            .iter()
+            .any(|f| f.ids[0] == 1100 && f.detail.contains("not a whole count")),
+        "{:?}",
+        r.findings
+    );
+
+    // A flatness magnitude typed as a length in the radian unit #401.
+    let r = with_pmi(
+        "#1520=SHAPE_ASPECT('','',#4,.T.);
+#1521=GEOMETRIC_ITEM_SPECIFIC_USAGE('','',#1520,#10,#17);
+#1522=LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(0.2),#401);
+#1523=FLATNESS_TOLERANCE('','',#1522,#1520);",
+    );
+    let f = r.findings.iter().find(|f| f.ids[0] == 1522).unwrap();
+    assert_eq!(f.kind, pmi::FindingKind::Nonconformance, "{f:?}");
+}

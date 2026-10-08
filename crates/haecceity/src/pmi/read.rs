@@ -88,6 +88,32 @@ enum Measured {
     },
 }
 
+/// Why a measure or unit could not be read, with the kind of finding it is: `Unitless` when
+/// there is no unit to read (missing, dangling, not a unit), `Nonconformance` when what is
+/// stated is invalid or contradicts itself (a value whose type and unit disagree, a conversion
+/// whose name contradicts its factor, an unknown prefix, a value that is not a number).
+#[derive(Clone, Debug)]
+struct MeasureError {
+    kind: FindingKind,
+    why: String,
+}
+
+impl MeasureError {
+    fn unitless(why: String) -> Self {
+        MeasureError {
+            kind: FindingKind::Unitless,
+            why,
+        }
+    }
+
+    fn nonconformance(why: String) -> Self {
+        MeasureError {
+            kind: FindingKind::Nonconformance,
+            why,
+        }
+    }
+}
+
 struct Reader<'a> {
     doc: &'a Document,
     parts: &'a [PartDefinition],
@@ -95,7 +121,7 @@ struct Reader<'a> {
     /// `product_definition_shape` → part index.
     shape_part: HashMap<u64, usize>,
     findings: Vec<Finding>,
-    units: HashMap<u64, Result<Unit, String>>,
+    units: HashMap<u64, Result<Unit, MeasureError>>,
     slots: HashMap<String, Vec<(&'static str, &'static str)>>,
 }
 
@@ -498,33 +524,41 @@ impl<'a> Reader<'a> {
         tokens.get(found?).cloned()
     }
 
-    fn unit(&mut self, id: u64) -> Result<Unit, String> {
+    fn unit(&mut self, id: u64) -> Result<Unit, MeasureError> {
         if let Some(u) = self.units.get(&id) {
             return u.clone();
         }
-        self.units
-            .insert(id, Err(format!("unit #{id} refers to itself")));
+        self.units.insert(
+            id,
+            Err(MeasureError::unitless(format!(
+                "unit #{id} refers to itself"
+            ))),
+        );
         let u = self.resolve_unit(id);
         self.units.insert(id, u.clone());
         u
     }
 
-    fn resolve_unit(&mut self, id: u64) -> Result<Unit, String> {
+    fn resolve_unit(&mut self, id: u64) -> Result<Unit, MeasureError> {
         let names = self.names(id);
         if names.is_empty() {
-            return Err(format!("unit #{id} does not exist"));
+            return Err(MeasureError::unitless(format!("unit #{id} does not exist")));
         }
         let has = |n: &str| names.iter().any(|x| x == n);
         if has("si_unit") {
             let prefix = enum_value(self.get(id, "si_unit", "prefix")).map(str::to_ascii_uppercase);
             let name = enum_value(self.get(id, "si_unit", "name"))
                 .map(str::to_ascii_uppercase)
-                .ok_or_else(|| format!("si_unit #{id} has no name"))?;
+                .ok_or_else(|| MeasureError::unitless(format!("si_unit #{id} has no name")))?;
             let power = match prefix.as_deref() {
                 None => 0,
                 Some(p) => match si_prefix(p) {
                     Some(e) => e,
-                    None => return Err(format!("si_unit #{id} has unknown prefix {p}")),
+                    None => {
+                        return Err(MeasureError::nonconformance(format!(
+                            "si_unit #{id} has unknown prefix {p}"
+                        )));
+                    }
                 },
             };
             let full = format!(
@@ -553,7 +587,11 @@ impl<'a> Reader<'a> {
                 .unwrap_or_default();
             let factor = self
                 .get_ref(id, "conversion_based_unit", "conversion_factor")
-                .ok_or_else(|| format!("conversion_based_unit #{id} has no conversion factor"))?;
+                .ok_or_else(|| {
+                    MeasureError::unitless(format!(
+                        "conversion_based_unit #{id} has no conversion factor"
+                    ))
+                })?;
             let m = self.measure(factor)?;
             let lname = name.to_ascii_lowercase();
             return match m {
@@ -569,10 +607,10 @@ impl<'a> Reader<'a> {
                     if let Some(e) = expected
                         && e != unit
                     {
-                        return Err(format!(
+                        return Err(MeasureError::nonconformance(format!(
                             "conversion_based_unit #{id} is named {name:?} but its factor is {} {:?}",
                             l.value, l.unit
-                        ));
+                        )));
                     }
                     Ok(Unit::Length(unit))
                 }
@@ -587,15 +625,15 @@ impl<'a> Reader<'a> {
                             radians: a.value.clone(),
                         }
                     } else {
-                        return Err(format!(
+                        return Err(MeasureError::nonconformance(format!(
                             "conversion_based_unit #{id}: an angle factor in a unit other than radian"
-                        ));
+                        )));
                     };
                     if lname == "degree" && unit != AngleUnit::Degree {
-                        return Err(format!(
+                        return Err(MeasureError::nonconformance(format!(
                             "conversion_based_unit #{id} is named {name:?} but its factor is {} rad",
                             a.value
-                        ));
+                        )));
                     }
                     Ok(Unit::Angle(unit))
                 }
@@ -611,20 +649,23 @@ impl<'a> Reader<'a> {
             };
             return Ok(Unit::Other(name));
         }
-        Err(format!("#{id} ({}) is not a unit", names.join("+")))
+        Err(MeasureError::unitless(format!(
+            "#{id} ({}) is not a unit",
+            names.join("+")
+        )))
     }
 
     /// The measure of a `measure_with_unit` instance (simple or a complex with that leaf).
-    fn measure(&mut self, id: u64) -> Result<Measured, String> {
+    fn measure(&mut self, id: u64) -> Result<Measured, MeasureError> {
         if !self.is(id, "measure_with_unit") {
-            return Err(format!(
+            return Err(MeasureError::nonconformance(format!(
                 "#{id} ({}) is not a measure",
                 self.entity_label(id)
-            ));
+            )));
         }
         let value = self
             .get(id, "measure_with_unit", "value_component")
-            .ok_or_else(|| format!("measure #{id} has no value"))?;
+            .ok_or_else(|| MeasureError::nonconformance(format!("measure #{id} has no value")))?;
         let (type_name, inner) = match value {
             Attribute::Typed { type_name, value } => {
                 (Some(type_name.to_ascii_lowercase()), &**value)
@@ -632,15 +673,24 @@ impl<'a> Reader<'a> {
             v => (None, v),
         };
         let text = match inner {
-            Attribute::Real(_) | Attribute::Integer(_) => self
-                .real_text(id, inner)
-                .ok_or_else(|| format!("measure #{id}: the value's text could not be read"))?,
-            other => return Err(format!("measure #{id}: value {other:?} is not a number")),
+            Attribute::Real(_) | Attribute::Integer(_) => {
+                self.real_text(id, inner).ok_or_else(|| {
+                    MeasureError::nonconformance(format!(
+                        "measure #{id}: the value's text could not be read"
+                    ))
+                })?
+            }
+            other => {
+                return Err(MeasureError::nonconformance(format!(
+                    "measure #{id}: value {other:?} is not a number"
+                )));
+            }
         };
-        let decimal = Decimal::parse(&text).map_err(|e| format!("measure #{id}: {e}"))?;
+        let decimal = Decimal::parse(&text)
+            .map_err(|e| MeasureError::nonconformance(format!("measure #{id}: {e}")))?;
         let unit_id = self
             .get_ref(id, "measure_with_unit", "unit_component")
-            .ok_or_else(|| format!("measure #{id} has no unit instance"))?;
+            .ok_or_else(|| MeasureError::unitless(format!("measure #{id} has no unit instance")))?;
         let unit = self.unit(unit_id)?;
         let tn = type_name.as_deref().unwrap_or("");
         match tn {
@@ -667,10 +717,10 @@ impl<'a> Reader<'a> {
                 value: decimal,
                 unit: u,
             }),
-            u => Err(format!(
+            u => Err(MeasureError::nonconformance(format!(
                 "measure #{id}: a {} value in unit {u:?}",
                 if tn.is_empty() { "untyped" } else { tn }
-            )),
+            ))),
         }
     }
 
@@ -696,13 +746,8 @@ impl<'a> Reader<'a> {
     ) -> Option<Value> {
         let m = match self.measure(id) {
             Ok(m) => m,
-            Err(why) => {
-                let kind = if why.contains("unit") {
-                    FindingKind::Unitless
-                } else {
-                    FindingKind::Nonconformance
-                };
-                self.find(kind, Some(st.id), id, &[], why);
+            Err(e) => {
+                self.find(e.kind, Some(st.id), id, &[], e.why);
                 return None;
             }
         };
@@ -739,7 +784,27 @@ impl<'a> Reader<'a> {
             "qualified_measure",
         ) {
             consumed.push(mq);
-            qualifiers.extend(self.get_refs(mq, "measure_qualification", "qualifiers"));
+            for q in self.get_refs(mq, "measure_qualification", "qualifiers") {
+                if self.is(q, "value_format_type_qualifier") {
+                    qualifiers.push(q);
+                } else {
+                    // A measure_qualification's other qualifiers (NIST CTC-05:
+                    // TYPE_QUALIFIER('designed') on a dimension's deviations) say something
+                    // the model's value does not hold.
+                    let label = self.entity_label(q);
+                    let name = self.get_str(q, "type_qualifier", "name");
+                    self.find(
+                        FindingKind::NotModelled,
+                        Some(st.id),
+                        q,
+                        &[mq, id],
+                        format!(
+                            "qualifier {label}{} on a value (through a measure_qualification) is not held; the value is read without it",
+                            name.map_or(String::new(), |n| format!(" {n:?}"))
+                        ),
+                    );
+                }
+            }
         }
         for q in qualifiers {
             if self.is(q, "value_format_type_qualifier") {
@@ -2625,11 +2690,15 @@ impl<'a> Reader<'a> {
                 None
             }
         };
+        // ISO 286-1 defines the class by its letters: capitals are holes, lower case shafts, and
+        // the fundamental deviation's value depends on that case. zone_variance only restates
+        // it, so a zone_variance that disagrees is a nonconformance, not a conflict between two
+        // authorities: the letters are read as stated.
         if let Some(z) = zone_of
             && z != deviation.of
         {
             self.find(
-                FindingKind::Conflict,
+                FindingKind::Nonconformance,
                 part,
                 lf,
                 &[dim],
@@ -2806,7 +2875,19 @@ impl<'a> Reader<'a> {
             let m = match v.to_ascii_uppercase().as_str() {
                 "MAXIMUM_MATERIAL_CONDITION" => Some(ToleranceModifier::MaximumMaterialRequirement),
                 "LEAST_MATERIAL_CONDITION" => Some(ToleranceModifier::LeastMaterialRequirement),
-                "REGARDLESS_OF_FEATURE_SIZE" => None,
+                "REGARDLESS_OF_FEATURE_SIZE" => {
+                    // RFS is what a tolerance without a material modifier means (ISO 8015
+                    // independency; ASME Y14.5-2009 Rule #2), so the model has no modifier for
+                    // it; the file stated it, so it is reported, not dropped silently.
+                    self.find(
+                        FindingKind::NotModelled,
+                        part,
+                        id,
+                        &[],
+                        "limit_condition .REGARDLESS_OF_FEATURE_SIZE. is not held (it is the meaning of no material modifier); read without one",
+                    );
+                    None
+                }
                 _ => {
                     self.find(
                         FindingKind::Nonconformance,
@@ -3574,8 +3655,8 @@ impl<'a> Reader<'a> {
                             } else {
                                 match self.measure(item) {
                                     Ok(m) => ParamValue::Measure(m),
-                                    Err(why) => {
-                                        self.find(FindingKind::Unitless, part, item, &[def], why);
+                                    Err(e) => {
+                                        self.find(e.kind, part, item, &[def], e.why);
                                         bad = true;
                                         continue;
                                     }
@@ -4040,8 +4121,8 @@ impl<'a> Reader<'a> {
                             value,
                             unit,
                         },
-                        Err(why) => {
-                            self.find(FindingKind::Unitless, part, item, &[pdef], why);
+                        Err(e) => {
+                            self.find(e.kind, part, item, &[pdef], e.why);
                             return;
                         }
                     }
@@ -4184,11 +4265,16 @@ impl<'a> Reader<'a> {
                             match self.measure(ci) {
                                 Ok(Measured::Count(d)) => {
                                     if n == "number of decimal places" {
-                                        places = d
-                                            .as_str()
-                                            .split('.')
-                                            .next()
-                                            .and_then(|s| s.parse().ok());
+                                        places = whole(&d);
+                                        if places.is_none() {
+                                            self.find(
+                                                FindingKind::Nonconformance,
+                                                part,
+                                                ci,
+                                                &[table],
+                                                format!("'number of decimal places' {d} is not a whole count; the cell is kept as stated, the part's decimal places not set"),
+                                            );
+                                        }
                                     }
                                     CellValue::Count(d)
                                 }
@@ -4210,8 +4296,8 @@ impl<'a> Reader<'a> {
                                     );
                                     return;
                                 }
-                                Err(why) => {
-                                    self.find(FindingKind::Unitless, part, ci, &[table], why);
+                                Err(e) => {
+                                    self.find(e.kind, part, ci, &[table], e.why);
                                     return;
                                 }
                             }
@@ -4504,7 +4590,14 @@ impl<'a> Reader<'a> {
                 self.find(kind, part, id, &[], detail);
             }
         }
-        acc.reported = unconsumed.len();
+        // Counted from the findings as made, not assumed: an unconsumed instance no finding
+        // names leaves `consumed + reported` short of `semantic`.
+        let named: BTreeSet<u64> = self
+            .findings
+            .iter()
+            .flat_map(|f| f.ids.iter().copied())
+            .collect();
+        acc.reported = unconsumed.iter().filter(|id| named.contains(id)).count();
         acc
     }
 
@@ -4672,6 +4765,17 @@ enum Want {
     Any,
 }
 
+/// A count stated as a decimal (`count_measure` is a NUMBER) as the whole number it is: `60.`,
+/// `6.E1`; `None` for a fraction, a negative or an out-of-range value, never truncated.
+fn whole<T: TryFrom<u64>>(d: &Decimal) -> Option<T> {
+    let x: f64 = d.as_str().parse().ok()?;
+    if x.is_finite() && x >= 0.0 && x.fract() == 0.0 && x <= u64::MAX as f64 {
+        T::try_from(x as u64).ok()
+    } else {
+        None
+    }
+}
+
 fn dedup_anchors(mut a: Vec<Anchor>) -> Vec<Anchor> {
     let mut seen = BTreeSet::new();
     a.retain(|x| seen.insert(*x));
@@ -4804,13 +4908,11 @@ fn knurl_of(
     let need = |o: Option<Length>, n: &str| o.ok_or_else(|| format!("knurl without its {n:?}"));
     let number_of_teeth = match p.remove("number of teeth") {
         None => None,
-        Some((_, ParamValue::Measure(Measured::Count(d)))) => Some(Count(
-            d.as_str()
-                .split('.')
-                .next()
-                .and_then(|s| s.parse().ok())
-                .ok_or("'number of teeth' is not a whole count")?,
-        )),
+        Some((_, ParamValue::Measure(Measured::Count(d)))) => {
+            Some(Count(whole(&d).ok_or_else(|| {
+                format!("'number of teeth' {} is not a whole count", d)
+            })?))
+        }
         Some(_) => return Err("'number of teeth' is not a count_measure (WR3)".into()),
     };
     let helix_angle = match p.remove("helix angle") {

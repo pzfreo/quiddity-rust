@@ -2412,7 +2412,7 @@
   {
    "key": "bolt_thread_knurl part 0 requirement 0 thread [0] entity",
    "verdict": "rust-correct",
-   "reason": "Input defect, not a reader difference: specify-core writes the knurl as a 'manufacturing requirement' property (a note) and a 'pmi-assist' user defined attribute set, because OpenCascade has no turned_knurl class (the anti-requirement 'threads, knurls … appended as raw text'). The file has no TURNED_KNURL instance; the reader reads the note and the attribute set (compared above) and no knurl."
+   "reason": "Input defect, not a reader difference: specify-core writes the thread as a 'manufacturing requirement' property (a note) and a 'pmi-assist' user defined attribute set, because OpenCascade has no thread class (the anti-requirement 'threads, knurls … appended as raw text'). The file has no THREAD instance; the reader reads the note and the attribute set (compared above) and no thread."
   },
   {
    "key": "bolt_thread_knurl part 0 requirement 1 knurl [4] entity",
@@ -2542,7 +2542,7 @@
   {
    "key": "thumbwheel_thread_knurl part 0 requirement 0 thread [12] entity",
    "verdict": "rust-correct",
-   "reason": "Input defect, not a reader difference: specify-core writes the knurl as a 'manufacturing requirement' property (a note) and a 'pmi-assist' user defined attribute set, because OpenCascade has no turned_knurl class (the anti-requirement 'threads, knurls … appended as raw text'). The file has no TURNED_KNURL instance; the reader reads the note and the attribute set (compared above) and no knurl."
+   "reason": "Input defect, not a reader difference: specify-core writes the thread as a 'manufacturing requirement' property (a note) and a 'pmi-assist' user defined attribute set, because OpenCascade has no thread class (the anti-requirement 'threads, knurls … appended as raw text'). The file has no THREAD instance; the reader reads the note and the attribute set (compared above) and no thread."
   },
   {
    "key": "thumbwheel_thread_knurl part 0 requirement 2 knurl [9] entity",
@@ -2557,7 +2557,7 @@
   {
    "key": "thumbwheel_thread_knurl part 0 requirement 5 thread [2] entity",
    "verdict": "rust-correct",
-   "reason": "Input defect, not a reader difference: specify-core writes the knurl as a 'manufacturing requirement' property (a note) and a 'pmi-assist' user defined attribute set, because OpenCascade has no turned_knurl class (the anti-requirement 'threads, knurls … appended as raw text'). The file has no TURNED_KNURL instance; the reader reads the note and the attribute set (compared above) and no knurl."
+   "reason": "Input defect, not a reader difference: specify-core writes the thread as a 'manufacturing requirement' property (a note) and a 'pmi-assist' user defined attribute set, because OpenCascade has no thread class (the anti-requirement 'threads, knurls … appended as raw text'). The file has no THREAD instance; the reader reads the note and the attribute set (compared above) and no thread."
   },
   {
    "key": "nist_ctc_01_merge part 0 extra dimension 8",
