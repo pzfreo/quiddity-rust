@@ -500,6 +500,11 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected
     // drawing does not depend on how): the costliest first, so that none is left to the end.
     let mut order: Vec<usize> = (0..curves.len()).collect();
     order.sort_by_key(|&i| std::cmp::Reverse(curves[i].1.len() + cuts[i].len()));
+    let crack_free = |face: usize| {
+        part.edge_deviation(face)
+            .iter()
+            .all(|&(_, d)| d <= 1e-6 * scale)
+    };
     let judged = parallel(&order, |i| {
         let (_, points, on) = &curves[i];
         // An edge standing off its faces (within the file's tolerance) can start its ray just
@@ -545,6 +550,31 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected
                     let start =
                         clear_of_own_faces(part, &rays, *e, at, (view, reach, 1e-6 * scale), start);
                     Ok(hidden(at, start).ok_or(at)?)
+                }
+                // A hair off a hole's wall the ray can leave through the hole's mouth, where from
+                // the wall itself it runs into the material: from the face, any other face it
+                // meets (before the plane, in a section) stands in the way. Only on a face its
+                // edges lie on (within 1e-6 of the part's size): along the cracks a file leaves
+                // between faces, a neighbour's band would stop a ray that only passes it.
+                On::Silhouette(face) if !verdict && crack_free(*face) => {
+                    let surface = &part.faces[*face].surface;
+                    let Some(on_face) = surface
+                        .parameters(p, None)
+                        .map(|(u, v)| surface.value(u, v))
+                    else {
+                        return Ok(false);
+                    };
+                    let end = plane.map_or(reach, |plane| {
+                        let rate = -geom::dot(view.toward, plane.normal);
+                        if rate > 0.0 {
+                            (plane.distance(on_face) / rate).min(reach)
+                        } else {
+                            reach
+                        }
+                    });
+                    Ok(rays
+                        .hits(on_face, view.toward, end)
+                        .is_some_and(|hits| hits.iter().any(|h| h.face != *face && h.t > start)))
                 }
                 _ => Ok(verdict),
             }
