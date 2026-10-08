@@ -1,7 +1,7 @@
 # AP242 and semantic PMI in haecceity
 
-**Status:** stage 1 (foundations) integrated on branch `ap242`; no PMI is read or written yet.
-See [Status](#status).
+**Status:** stages 1–2 (foundations; model, reader, removal plan, rule checks) integrated on
+branch `ap242`; stage 3's writer on branch `ap242-writer`. See [Status](#status).
 
 haecceity reads STEP geometry today (`crates/haecceity/src/step.rs`, through step-io's typed
 model). This document adds what specify-core and draftwright still need OpenCascade for: reading
@@ -612,6 +612,127 @@ tested; `pmi::write` (and replace built from the removal plan) is the next stage
   rules, the writer needs a "no new violations among touched instances" form of the check. Not
   checked: general_datum_reference WR1–WR6, geometric_tolerance WR2/WR4,
   geometric_tolerance_relationship WR3.
+
+**Stage 3 (2026-10-08): the writer.** Delivered and tested on branch `ap242-writer`,
+datum feature symbols (decision 6) included.
+
+- **`pmi::write`** (`crates/haecceity/src/pmi/write.rs`, `tests/pmi_write.rs`,
+  `tests/pmi_roundtrip.rs`, `tests/fixtures/known_pmi_write.json`, `tests/fixtures/ap242/write/`):
+  `write(doc, parts, &[(PartId, PartPmi)], Mode::{Add, Replace, Remove}, PresentationPolicy)
+  -> (Edit, WriteReport)`, every part in one edit, deterministic. Every item the writer will not
+  write is refused at once, by part and item (`Refusal`, `ItemRef`), before anything is made.
+  Before returning, the edit is applied and every added or replaced instance validated against
+  the file's edition table, and `express_rules::check_all` of the result compared with the
+  original's by (instance, rule): a violation the edit introduces refuses it; the original's are
+  reported. `pmi::write::differences` compares two `PartPmi` by meaning (indices resolved,
+  collections as sets, values as quantities to 1e-12), `differences_as_stated` by value text and
+  unit too.
+- **Round trips** (read → replace every part with what was read → read, values as stated),
+  pinned per file in `known_pmi_write.json` "roundtrip" with the file's sha256 (a pin is never
+  matched against another file of the same name): equal for 18 of 21 files, the 7 specify-core
+  inputs and the assembly plus 10 of NIST's (nist_ctc_01, ctc_02, ctc_03, ftc_07, ftc_08-e2,
+  ftc_10, stc_06, stc_07, stc_09-e4, stc_10), with the refused items left out and pinned with a
+  reason, and the number of items left out per kind (refused items and everything depending on
+  them) pinned too; the policy `Refuse` result pinned for each. No instance the reader consumed
+  survives a replace (supplemental geometry excepted, below); no finding names a written
+  instance; every other finding is the original's. Refused by the removal plan, pinned:
+  nist_ftc_06, nist_ftc_09, nist_stc_08 (PMI of the part the reader did not read references what
+  the replace removes). Without `HAECCEITY_NIST_PMI` the 7 committed NIST models run; with it,
+  every NIST pin must be of a file in that directory (stale pins fail) and every file must be
+  pinned.
+- **NIST's set.** The pins are of the set the reader's fixtures record (`NIST-PMI-STEP-Files.zip`
+  sha256 `1fb91bb8…`, February 2026; per-file sha256 in `ap242/occt/*.json.gz`). nist.gov
+  serves an older zip from this machine (sha256 `8fa78429…`, files of 2022–2024), of which 11
+  files are byte-identical to that set; with the 7 committed models, 13 of its 17 files are
+  pinned. Not obtainable here, so not pinned: nist_ctc_04_asme1_ap242-e2,
+  nist_ctc_05_asme1_ap242-e1 (the served file of that name differs), nist_ftc_08_asme1_ap242-e4-tg
+  and nist_ftc_11_asme1_ap242-e3. A run with `HAECCEITY_NIST_PMI` naming the full set reports
+  these four as not pinned until they are run and pinned.
+- **Datum feature symbols** (decision 6): for each datum feature of a datum the writer adds, a
+  minimal symbol (the label boxed in Hershey single-stroke lettering, a stem to a triangle whose
+  apex is on the feature), derived from the model at write time: one tessellated callout
+  (`tessellated_curve_set` in a `tessellated_geometric_set` named 'datum', §8.2) in its own
+  annotation plane (§9.1), the planes in one `draughting_model` of the part related to its shape
+  representation by `mechanical_design_and_draughting_relationship`, each callout linked to its
+  datum feature by `draughting_model_item_association('PMI representation to presentation
+  link', …)` (§7.3). Laid out above the part in the plane of its two longest extents, each
+  symbol in the plane through its feature's point, sized to the part (1/30 of its diagonal).
+  Replace and remove take it with its datum (the removal plan's presentation removal under the
+  default `RemovePresentation`; under `Refuse` it is presentation like any other, and a replace
+  that would orphan it is refused, as the caller asked). A datum resolved to the file's own
+  (add) gets none. OpenCascade links each symbol to its datum as the datum's presentation, with
+  its annotation plane (`check_pmi_occt.py` records it; the test requires it for every datum).
+- **Anti-requirements**: each row has its test in `pmi_write.rs`, named after it (precedence on
+  the system; signed deviations; g6/f7; fits as `LIMITS_AND_FITS`; each value's own unit,
+  including millimetres into NIST STC-06's inch part; stated text; read PMI written back;
+  three-attribute runout zones; no untyped measure; simple form where it suffices; unreferenced
+  datums; datum A on both parts of the assembly, the other part's bytes untouched; THREAD,
+  TURNED_KNURL and the 'default tolerances' class read back, tables refused).
+- **Add** onto every NIST file and specify-core input keeps every original instance byte for
+  byte and `FILE_SCHEMA`, and the original PMI reads back unchanged beside the new.
+  **specify-core's intents** written onto the original corpus files (AP214 → AP242, each file
+  upgradable per `corpus_upgrade.json`) read back as written; against what specify-core wrote,
+  every difference matches a pinned pattern with a verdict (fits as deviations, text notes,
+  values in metres, threads as attribute sets: rust-correct; knurls: undetermined).
+  **OpenCascade** reads the written files (`tools/check_pmi_occt.py`): 6 differences, all
+  rust-correct (it does not read a feature identified by an `item_identified_representation_usage`
+  of a `set_representation_item`, the practice's §6.5.1 form; it gives a fit with stated limits
+  the limits' middle as its value).
+
+Settled by the implementation (where the design was open or silent):
+
+- *Editions.* An AP242 file keeps its `FILE_SCHEMA` whatever its edition (decision 1: an AP242
+  file stays AP242); the instances the writer makes are validated against that edition's table
+  where there is one (editions 1 and 4), else against the target's (editions 2 and 3), and the
+  report names the table (`validated_against`). For an edition 2 or 3 file, whether the written
+  instances are valid instances of the file's own edition is therefore undetermined: the report
+  says so (`edition_undetermined`) and the round-trip pins record it per file (8 NIST files). An AP214/AP203 file that gains PMI becomes `TARGET_SCHEMA` only when
+  every instance validates (refused otherwise, naming them). A replace or remove that adds
+  nothing keeps the schema.
+- *Supplemental geometry* is the part's geometry, not PMI: a replace keeps it (it is not a
+  seed of the removal plan) and what is written uses the file's item of equal value, so the
+  geometry is not duplicated; new geometry goes into one `constructive_geometry_representation`
+  ('supplemental geometry') of the part, related to its shape representation.
+- *Removal* (the caller's decisions `removal.rs` leaves open): under `RemovePresentation` a
+  presentation model the removal would empty is removed with what it held, and the
+  `id_attribute`s and edition 4 `uuid_attribute`s of removed items and their geometric validation
+  properties (by their description, which some files give free names) go with them; anything
+  else blocks the replace.
+- *Usages.* A feature of one item is a `geometric_item_specific_usage`; of several items in one
+  representation, an `item_identified_representation_usage` of a `set_representation_item`
+  (§6.5.1 example; the GISU redeclares its item as one `geometric_model_item`, and UR2 allows one
+  usage per aspect and representation). Features of equal items are one instance. Items several
+  features share (UR1: one usage per item and representation) are owned by one referenced
+  feature and the others are composed of it by `shape_aspect_relationship` (§6.5.2, read as
+  the same items); in add, items a kept plain shape aspect already identifies are composed of it.
+- *Datum features*: a datum feature on a pattern applying to each member is the group and the
+  datum feature in one complex instance (§6.5.2); a datum feature with exactly one size
+  dimension, not otherwise a tolerance's or attribute's feature, is the
+  `dimensional_size_with_datum_feature` (§6.5.3). A one-datum compartment carries its reference's
+  modifiers (the two are one thing; `common_datum_list` needs two elements). Datum systems are
+  named by their labels ('A|B|C'), made unique per part (`datum_system` UR1).
+- *Threads and knurls*: thread WR12 requires the 'partial area occurrence', so a thread without
+  one is refused; WR16's 'thread runout' aspect is always written. Their area (and a runout) is
+  an `applied_area` (`thread_runout`) instance; where those faces are a feature in their own
+  right it is a second instance composed of it. A knurl's area is its own faces (the model holds
+  no other). Ratios take a context-dependent unit 'ratio' with the ratio unit (the reader resolves
+  a named unit by its leaves), counts one named 'count'.
+- *Refused, by name* (beyond the design's datum targets and tolerance relations): notes
+  (decision 5), tables and the part's decimal places (decision 3), material density
+  (decision 2), groups of unstated kind, dimensions without a nominal value, tolerances on a
+  `shape_aspect_relationship` (the reader reads one from a feature as its composition), projected
+  zones without their end, the affected plane, thread/knurl parameter counts outside WR1/WR2,
+  booleans in attribute sets, attribute units the file does not name uniquely, and values that
+  are not Part 21 REALs (written verbatim, never rewritten).
+
+Reader gaps the writer found (`pmi/read.rs`, not changed here): a `boolean_representation_item`'s
+value is looked up as its own attribute (it is `boolean_literal.the_value`), so booleans never
+read; a bare 'thread runout' aspect (WR16, no runout feature) is reported unconsumed; a simple
+`RATIO_UNIT` is not resolved as a unit; a tolerance on a `shape_aspect_relationship` from a
+feature is read as that feature's composition.
+
+Not done in this stage: writing datum targets and tolerance relations (design: Out of scope);
+pinning the four NIST files of the reference set not obtainable here (above).
 
 ## Out of scope for now
 
