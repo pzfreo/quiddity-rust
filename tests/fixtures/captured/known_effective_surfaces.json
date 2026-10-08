@@ -3864,24 +3864,6 @@
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's adaptive rule (relative error 1e-9) agrees with the port's area."
   },
   {
-    "file": "cadgenbench/threaded_connector_109.step",
-    "field": "rot_zx_moved:fact",
-    "faces": [
-      125
-    ],
-    "verdict": "rust-wrong",
-    "reason": "recover.rs's fit depends on placement: this thread-flank face (a plane to 1e-11, see this file's fact entry) is recovered as a plane unmoved and refused when moved. Fixed on w3/q-kernel-boxes (0c6de9b, placement-invariant surface recovery): with this branch's effective_surfaces.rs on it, only cgb242 face 726 still differs under motion."
-  },
-  {
-    "file": "cadgenbench/threaded_connector_109.step",
-    "field": "rot_zx_moved:use",
-    "faces": [
-      125
-    ],
-    "verdict": "rust-wrong",
-    "reason": "Follows this face's rot_zx_moved fact entry: recover.rs's fit depends on placement: this thread-flank face (a plane to 1e-11, see this file's fact entry) is recovered as a plane unmoved and refused when moved. Fixed on w3/q-kernel-boxes (0c6de9b, placement-invariant surface recovery): with this branch's effective_surfaces.rs on it, only cgb242 face 726 still differs under motion."
-  },
-  {
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "field": "rot_zx_moved:fact",
     "faces": [

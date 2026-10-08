@@ -82,7 +82,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/known_sections.json` | `tests/sections.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/passages/known_divergences.json` | `tests/passages.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_section_recess_helpers.json` | `tests/section_recess_helpers.rs` | 4 | 0 | 4 | 0 | 0 | 0 |
-| `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 122 (2924 answers) | 98 | 12 | 0 | 9 | 3 |
+| `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 120 (2922 answers) | 98 | 10 | 0 | 9 | 3 |
 
 The undetermined entries are the backlog: differences not yet shown to be either side's error.
 The rust-wrong entries are known port defects.
@@ -146,7 +146,7 @@ mesh samples stray off the face or BRepCheck rejects cgb202's healed solid). Not
 certificates OpenCascade took over two minutes to mesh, 16 test shapes STEP export refuses,
 and test parts past the first three per test function. Every certificate the port issues also
 agrees with its face's own orientation, and the answers are unchanged under two rigid motions
-(2 listed kernel faces).
+(1 listed kernel face: cgb242 face 726).
 
 For draftwright-rust, the kernel draws a part's views without OpenCascade's hidden-line
 algorithm or booleans (`crates/haecceity/src/hlr.rs`): every visible and hidden edge and
