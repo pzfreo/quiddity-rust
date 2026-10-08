@@ -96,6 +96,10 @@ fn the_document_lists_each_feature_with_its_record_type_and_faces() {
             ("holes/1", "HoleRecord", &faces(&[11])),
             ("holes/2", "HoleRecord", &faces(&[12])),
             ("hole_patterns/0", "LinearArray", &faces(&[10, 11, 12])),
+            ("blends/0", "Blend", &faces(&[2])),
+            ("blends/1", "Blend", &faces(&[3])),
+            ("blends/2", "Blend", &faces(&[7])),
+            ("blends/3", "Blend", &faces(&[8])),
         ]
     );
     // The existing keys are kept: the records at the top level, the fingerprints beside them.
