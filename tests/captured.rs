@@ -34,12 +34,14 @@ fn load(name: &str) -> Value {
 /// counts are pinned: a change means the coverage changed and the README table with it.
 const SKIPPED: &[(&str, usize)] = &[
     ("recognise_circular_blind_steps", 2),
+    ("recognise_channels", 3),
     ("recognise_double_d_bores", 1),
     ("recognise_edge_open_prismatic_recesses", 2),
     ("recognise_grooves", 3),
     ("recognise_interior_voids", 2),
     ("recognise_oblique_through_steps", 1),
     ("recognise_plates", 4),
+    ("recognise_pockets", 1),
     ("recognise_rectangular_blind_slots", 1),
     ("recognise_round_bottom_blind_slots", 1),
     ("recognise_through_steps", 7),
@@ -297,4 +299,19 @@ fn edge_open_prismatic_recesses_match_python() {
 #[test]
 fn blends_match_python() {
     replay("recognise_blends");
+}
+
+#[test]
+fn slots_match_python() {
+    replay("recognise_slots");
+}
+
+#[test]
+fn pockets_match_python() {
+    replay("recognise_pockets");
+}
+
+#[test]
+fn channels_match_python() {
+    replay("recognise_channels");
 }

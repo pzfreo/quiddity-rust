@@ -583,6 +583,14 @@
   },
   {
     "file": "cadgenbench_inputs/cgb245.step",
+    "family": "recognise_slots",
+    "key": "{} records: 3 vs 3 records, fields {\"body_key\"}",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Same slots; only the body key differs: its volume and area follow this file's untraced B-spline mass difference (see its masses entry)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb245.step",
     "family": "recognise_thin_wall_bodies",
     "key": "{} records: 1 vs 1 records, fields {\"body_key\"}",
     "count": 1,
@@ -636,6 +644,14 @@
     "count": 1,
     "verdict": "undetermined",
     "reason": "A deliberately malformed corpus part (its shell is not orientable): OpenCascade's import yields no solid, the port reads the file's one solid. Masses are compared only when the solid counts agree, and face-indexed answers not at all here (the face types differ)."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "family": "recognise_pockets",
+    "key": "{} records: 2 vs 2 records, fields {\"body_key\"}",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Same two pockets; only the body key's volume differs (Python 0.0, the port 20257.0): OpenCascade's import of this deliberately malformed part yields no solid, so Python scans and signs the loose shell, whose volume it reports as 0, where the port reads and signs the file's one solid (see this file's solid count entry)."
   },
   {
     "file": "inventory_refusal/14052.step.gz",
@@ -782,6 +798,14 @@
     "reason": "Four r25 fillet anchors differ by 0.001 in z: OpenCascade sizes the face's v range from the pcurve it builds on import for a B-spline edge this file gives no usable B-spline pcurve for, and the true mid-point sits on a rounding boundary."
   },
   {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "family": "recognise_pockets",
+    "key": "{} records: 4 vs 4 records, fields {\"body_key\"}",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Same pockets; only the body key differs: its volume and area follow this file's untraced B-spline mass difference (see its masses entry)."
+  },
+  {
     "file": "nist/nist_ctc_03_asme1_rc.stp",
     "family": "inventory",
     "key": "edge count",
@@ -804,6 +828,14 @@
     "count": 3,
     "verdict": "equivalent",
     "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "family": "recognise_slots",
+    "key": "{} records: 1 vs 2 records, fields {}",
+    "count": 1,
+    "verdict": "rust-wrong",
+    "reason": "Python's second obround slot (walls 67 and 69, caps 66 and 68, 19.05 wide) is found only through its walls, whose void proof is the prism between them inset by 1e-6; the port's volume probe refuses that prism (its integration lines run microns above face 8, where the file's faces disagree: see this file's _recess_reduce entry in known_probes.json), so the candidate is not proved and dropped. The first slot is still found because the port recovers it from its end caps, which needs no probe."
   },
   {
     "file": "nist/nist_ctc_04_asme1_rd.stp",

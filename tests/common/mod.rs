@@ -99,6 +99,9 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
             json(quiddity::recognise_edge_open_prismatic_recesses(part))
         }
         "recognise_blends" => json(quiddity::recognise_blends(part)),
+        "recognise_slots" => json(quiddity::recognise_slots(part)),
+        "recognise_pockets" => json(quiddity::recognise_pockets(part)),
+        "recognise_channels" => json(quiddity::recognise_channels(part)),
         // Over a part: the patterns among the part's gusset ribs.
         "recognise_gusset_rib_patterns" => json(quiddity::recognise_gusset_rib_patterns(
             &quiddity::recognise_gusset_ribs(part),
@@ -194,6 +197,9 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
             quiddity::features::edge_open_prismatic::discover_verified(&ctx).map(faces)
         }
         "recognise_blends" => quiddity::features::blends::discover_verified(&ctx).map(faces),
+        "recognise_slots" => quiddity::features::slots::discover_verified(&ctx).map(faces),
+        "recognise_pockets" => quiddity::features::pockets::discover_verified(&ctx).map(faces),
+        "recognise_channels" => quiddity::features::channels::discover_verified(&ctx).map(faces),
         other => panic!("{other} has no evidence path"),
     };
     result.map_err(|e| e.to_string())

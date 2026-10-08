@@ -38,6 +38,9 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 | Edge-open circular pockets | `recognise_edge_open_circular_pockets` | 9/9 | 0 | 100/100 |
 | Edge-open prismatic recesses | `recognise_edge_open_prismatic_recesses` | 23/23 | 2 | 100/100 |
 | Blends | `recognise_blends` | 52/52 | 0 | 94/100 (6 known) |
+| Slots | `recognise_slots` | 42/42 | 0 | 98/100 (2 known) |
+| Pockets | `recognise_pockets` | 19/19 | 1 | 98/100 (2 known) |
+| Channels | `recognise_channels` | 44/45 (1 known divergence) | 3 | 100/100 |
 
 *Captured test calls*: the Python suite's calls replayed by `tests/captured.rs`. *Not captured*:
 calls the suite makes that the capture could not record, outside the replay and pinned by it
@@ -55,11 +58,11 @@ its verdict and reason in a verdict file:
 
 | Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
 |---|---|---|---|---|---|---|---|
-| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 131 (899 problems) | 72 | 11 | 14 | 34 | 0 |
-| `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 23 (24 calls) | 4 | 0 | 1 | 2 | 16 |
-| `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 9 | 0 | 9 | 0 | 0 | 0 |
+| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 135 (903 problems) | 72 | 12 | 14 | 37 | 0 |
+| `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 24 (25 calls) | 4 | 1 | 1 | 2 | 16 |
+| `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 25 | 0 | 25 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
-| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 19 | 4 | 15 | 0 | 0 | 0 |
+| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 31 | 4 | 27 | 0 | 0 | 0 |
 | `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 13 (28 probes) | 6 | 4 | 0 | 3 | 0 |
 | `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 64 | 13 | 0 | 0 | 51 | 0 |
 | `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 41 | 1 | 1 | 2 | 4 | 33 |
@@ -159,6 +162,21 @@ src/
     blend_view.rs    native cylindrical blend chains, with the face graph readings they need:
                      paired edge occurrences, their solid ownership, a smooth join's side
     blends.rs
+    solid_properties.rs  a solid's box, validity, volume and area (`_solid_properties`), read
+                     from the per-face values `Part` caches
+    recess_records.rs  the Slot, Pocket and Channel records, and `Recess`, what the reductions
+                     read of a slot or pocket
+    recess_faces.rs  the planar faces and principal cylinders the recess families pair, floor
+                     caps, side walls (`_recess_faces`)
+    recess_reduce.rs proposals with their faces: co-located merge, collinear arms rejoined,
+                     body keys (`_recess_reduce`)
+    recess_obround.rs  half-cylinder end caps: obround recesses recovered from them, wall-found
+                     ones extended to them (`_recess_obround`)
+    recess_radii.rs  the four-corner radius proof (`_recess_radii`)
+    wire_seed.rs     the neighbours on a face's inner wire (`_wire_seed`)
+    recess_core.rs   the wall-pair candidates, corner notches, and each family's per-solid scan
+                     (`_recess_core`)
+    slots.rs  pockets.rs  channels.rs
     volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over haecceity's volume.rs
   frames.rs          part-relative recognition (`quiddity.frames`): the frame inferred from the
                      part's plane normals and cylinder axes, the part re-read into it, recognised

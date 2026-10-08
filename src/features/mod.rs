@@ -15,6 +15,7 @@ pub mod blends;
 pub mod body;
 pub mod bosses;
 pub mod chamfers;
+pub mod channels;
 pub mod circular_blind_steps;
 pub mod circular_face_patterns;
 pub mod context;
@@ -38,18 +39,28 @@ pub mod oriented_chamfers;
 pub mod paired_ramp_steps;
 pub mod planes;
 pub mod plates;
+pub mod pockets;
 pub mod policy;
 pub mod probes;
 pub mod profiled_bores;
+pub mod recess_core;
+pub mod recess_faces;
+pub mod recess_obround;
+pub mod recess_radii;
+pub mod recess_records;
+pub mod recess_reduce;
 pub mod rectangular_blind_slots;
 pub mod regions;
 pub mod round_bottom_slots;
+pub mod slots;
+pub mod solid_properties;
 pub mod stacks;
 pub mod thin_walls;
 pub mod through_steps;
 pub mod turned;
 pub mod turned_steps;
 pub mod volume_probe;
+pub mod wire_seed;
 
 pub use context::Context;
 pub use evidence::{EvidenceError, Occurrence};
@@ -93,6 +104,9 @@ pub struct Features {
     pub edge_open_circular_pockets: Vec<edge_open_circular::EdgeOpenCircularPocket>,
     pub edge_open_prismatic_recesses: Vec<edge_open_prismatic::EdgeOpenPrismaticRecess>,
     pub blends: Vec<blends::Blend>,
+    pub slots: Vec<slots::Slot>,
+    pub pockets: Vec<pockets::Pocket>,
+    pub channels: Vec<channels::Channel>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole and gusset rib patterns) have none of their own: their members' faces are
     /// theirs ([`crate::correspondence`]).
@@ -208,6 +222,9 @@ pub fn recognise(part: &Part) -> Features {
             edge_open_prismatic::discover(&ctx),
         ),
         blends: kept(&mut defining, "blends", blends::discover(&ctx)),
+        slots: kept(&mut defining, "slots", slots::discover(&ctx)),
+        pockets: kept(&mut defining, "pockets", pockets::discover(&ctx)),
+        channels: kept(&mut defining, "channels", channels::discover(&ctx)),
         defining,
     }
 }

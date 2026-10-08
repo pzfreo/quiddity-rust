@@ -210,5 +210,14 @@
     "count": 1,
     "verdict": "not-applicable",
     "reason": "Solid.__and__ is monkeypatched to return fragments of volume 1 and 2, fabricating material inside the prism, so Python rejects the bore; the part itself is a true through double-D, which the port finds (as Python does in the unpatched variants of the test)."
+    },
+  {
+    "function": "recognise_channels",
+    "test": "tests/test_channel_attribution.py::test_open_shell_and_late_second_body_refuse_atomically",
+    "file": "f1be75de47eccbb6.step.gz",
+    "options": {},
+    "count": 1,
+    "verdict": "rust-wrong",
+    "reason": "The part is the channel fixture's faces exported as a shell-based surface model, with no solid. Python's recess families scan such a part as one source (`solids or [part]`, a documented record-only open-shell compatibility input) and publish the fixture's channel with body_key null; the port reads the faces without a solid and, like every ported family, scans solids only, so it finds nothing. Python's void proof there is vacuous (its probe intersects a box with a shell, which has no volume), so porting the path faithfully would publish recesses without a material proof; whether surface models should be recognised at all is a maintainer question. Python's evidence path refuses this part (no valid solid), as the port does."
   }
 ]

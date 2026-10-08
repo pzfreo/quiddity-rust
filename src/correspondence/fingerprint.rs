@@ -528,6 +528,67 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("path.center", Placement),
         ],
     },
+    FamilyFingerprint {
+        family: "slots",
+        members: None,
+        variants: false,
+        fields: &[
+            ("long_axis", Axis),
+            ("width", Size),
+            ("length", Size),
+            // Proved radii only; an unproved one is null and adds nothing.
+            ("end_radius", Size),
+            ("corner_radius", Size),
+            ("width_axis", Placement),
+            ("w_center", Placement),
+            ("lo", Placement),
+            ("hi", Placement),
+            ("d_lo", Placement),
+            ("d_hi", Placement),
+            ("body_key", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "pockets",
+        members: None,
+        variants: false,
+        fields: &[
+            ("long_axis", Axis),
+            ("width", Size),
+            ("length", Size),
+            ("depth", Size),
+            ("end_radius", Size),
+            ("corner_radius", Size),
+            ("edge_anchored", Trait),
+            ("width_axis", Placement),
+            ("w_center", Placement),
+            ("lo", Placement),
+            ("hi", Placement),
+            ("d_lo", Placement),
+            ("d_hi", Placement),
+            ("open_sign", Placement),
+            ("body_key", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "channels",
+        members: None,
+        variants: false,
+        fields: &[
+            ("long_axis", Axis),
+            ("width", Size),
+            ("width_axis", Placement),
+            ("w_center", Placement),
+            // Python's `length` and `depth` are differences of these published (two-decimal)
+            // coordinates, which a translation moves by a grid step: placements, not sizes.
+            ("lo", Placement),
+            ("hi", Placement),
+            ("d_lo", Placement),
+            ("d_hi", Placement),
+            ("open_sign", Placement),
+            ("body_key", Placement),
+        ],
+    },
 ];
 
 /// The fingerprint table of the family with this serde key.
