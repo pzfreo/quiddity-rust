@@ -531,8 +531,8 @@
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "face": 397,
     "check": "occ",
-    "verdict": "undetermined",
-    "reason": "The port gives 8.084128851; tools/face_area_evidence.py gives 8.084148605 (Green's theorem) and 8.08412885 (direct slices); OpenCascade gives face.area 8.088062341, adaptive 8.084112104, and 8.084097068 with the pcurves projected again from the edges. The answers spread beyond 1e-6 and none is confirmed.",
+    "verdict": "rust-correct",
+    "reason": "The port gives 8.084128851. tools/kernel_evidence.py faces (the exact surface integrated over the region the 3D edges bound by Green's theorem along the edges' foot points, 12-point Gauss-Lobatto panels) gives 8.084128744 (its 8-to-16-panel change 2.4e-6; the edges' tolerances reach 7.3e-3 mm), and tools/face_area_evidence.py's direct slices 8.08412885: the port to 1.3e-8 and 1e-10. Its polygon Green's theorem, 8.084148605, is the outlier (2.4e-6, its tabulated inner integral). OpenCascade gives face.area 8.088062341, adaptive 8.084112104 and 8.084097068 with the pcurves projected again from the edges (2e-6 to 5e-4 off).",
     "rust": 8.08412885145061
   },
   {
@@ -7403,8 +7403,8 @@
     "file": "cadgenbench_inputs/cgb203.step",
     "face": 117,
     "check": "occ",
-    "verdict": "undetermined",
-    "reason": "The port gives 24.2304171; tools/face_area_evidence.py gives 26.03506536 (Green's theorem); OpenCascade gives face.area 24.20589821, adaptive 24.20589821, and 24.2304171 with the pcurves projected again from the edges. The answers spread beyond 1e-6 and none is confirmed.",
+    "verdict": "rust-correct",
+    "reason": "A spherical lune: the face runs pole to pole between two great circles through the poles (each of its four arcs has the sphere's centre and radius 2), whose longitudes tools/kernel_evidence.py uv gives as -0.0193861 and 3.0094160, 3.0288021 apart; its area 2r²Δ = 8 x 3.0288021 = 24.2304171 is the port's 24.230417097, and tools/kernel_evidence.py faces gives 24.230417097002 (the port's to 1.3e-15). tools/face_area_evidence.py's 26.03506536 is the complementary lune, 8 x (2π - 3.0288021): it unwraps the longitude across the pole, where it is arbitrary. OpenCascade gives face.area and adaptive 24.20589821 (1e-3 off) and 24.2304171 with the pcurves projected again from the edges.",
     "rust": 24.230417097002057
   },
   {
@@ -8195,8 +8195,8 @@
     "file": "cadgenbench_inputs/cgb207.step",
     "face": 154,
     "check": "occ",
-    "verdict": "undetermined",
-    "reason": "The port gives 0.7055221749; tools/face_area_evidence.py gives 0.705562274 (Green's theorem); OpenCascade gives face.area 0.727092241, adaptive 0.727092241, and 0.727092241 with the pcurves projected again from the edges. The answers spread beyond 1e-6 and none is confirmed.",
+    "verdict": "rust-wrong",
+    "reason": "A planar face bounded by two lines and an ellipse arc (edge 360) whose vertices lie up to 0.012 mm off it. tools/kernel_evidence.py faces and tools/face_area_evidence.py give 0.7055622740 over the region the edges bound between their feet on the curves, and a 200001-point polygon in the plane the same to 1e-11. The port gives 0.7055221749, 4.0e-5 (5.7e-5 relative) less: crates/haecceity/src/geom.rs Curve::parameter reads an ellipse point's parameter as its eccentric angle, atan2(y/b, x/a), exact only on the ellipse; for the vertex 0.0119 mm off it that gives 3.987837 where the vertex's foot is at 3.988586 (OpenCascade's edge range), so the arc starts 7.5e-4 rad early and the gap to the line closes elsewhere. OpenCascade gives 0.727092241 with every rule (its pcurves).",
     "rust": 0.7055221748961624
   },
   {
@@ -9835,8 +9835,8 @@
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "face": 69,
     "check": "occ",
-    "verdict": "undetermined",
-    "reason": "The port gives 6.23700257; tools/face_area_evidence.py gives 6.236970847 (Green's theorem) and 6.23700257 (direct slices); OpenCascade gives face.area 6.237775961, adaptive 6.236954501, and 6.236955256 with the pcurves projected again from the edges. The answers spread beyond 1e-6 and none is confirmed.",
+    "verdict": "rust-correct",
+    "reason": "The port gives 6.23700257; tools/face_area_evidence.py's direct slices (no Green's theorem, no tabulation) give 6.23700257, the port's to 1e-10. tools/kernel_evidence.py faces gives 6.2370296, 6.2369907 and 6.2370074 with 8/16, 16/32 and 32/64 panels (the edges' tolerances reach 0.018 mm): its polynomial panels do not converge on this boundary, scattering by 4e-6 about the port's value, as tools/face_area_evidence.py's polygon Green's theorem (6.236970847) does. OpenCascade gives face.area 6.237775961, adaptive 6.236954501 and 6.236955256 with the pcurves projected again from the edges (7.6e-6 below).",
     "rust": 6.237002569737907
   },
   {
@@ -11811,8 +11811,8 @@
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "face": 790,
     "check": "occ",
-    "verdict": "undetermined",
-    "reason": "The port gives 1.728861107; tools/face_area_evidence.py gives 4.5543242 (Green's theorem); OpenCascade gives face.area 1.728857251, adaptive 1.728856813, and 1.728856813 with the pcurves projected again from the edges. The answers spread beyond 1e-6 and none is confirmed.",
+    "verdict": "rust-correct",
+    "reason": "Analytic: a quarter of a unit hemisphere (longitude π to 2π, latitude 0 to π/2) less the spherical triangle cut off by a great circle (its arc has the sphere's centre and radius) from the equator at longitude 3π/2 to the meridian at 2π, which it meets at latitude 1.4127315469 (the edge's end point). That point of the equator is the pole of the meridian's plane, so the triangle's angles are π/2, π/2 and 1.4127315469 and its area (Girard) is 1.4127315469: the face is π - 1.4127315469 = 1.7288611067, the port's 1.728861107 to 1e-12. tools/kernel_evidence.py faces gives the same to 1.3e-15. tools/face_area_evidence.py's 4.5543242 unwraps the longitude across the pole. OpenCascade gives face.area 1.728857251 and 1.728856813 adaptive and with the pcurves projected again (2.2e-6 to 2.5e-6 low).",
     "rust": 1.7288611067066677
   },
   {
@@ -11963,8 +11963,8 @@
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "face": 822,
     "check": "occ",
-    "verdict": "undetermined",
-    "reason": "The port gives 1.728861107; tools/face_area_evidence.py gives 4.5543242 (Green's theorem); OpenCascade gives face.area 1.728856893, adaptive 1.728856813, and 1.728856813 with the pcurves projected again from the edges. The answers spread beyond 1e-6 and none is confirmed.",
+    "verdict": "rust-correct",
+    "reason": "Analytic: face 790's mirror image on the sphere centred 17 mm away along x (the same quarter hemisphere of radius 1 less the triangle a great circle cuts off from the equator to latitude 1.4127315469), so π - 1.4127315469 = 1.7288611067, the port's 1.728861107 to 1e-12; tools/kernel_evidence.py faces gives the same to 5e-16. tools/face_area_evidence.py's 4.5543242 unwraps the longitude across the pole. OpenCascade gives face.area 1.728856893 and 1.728856813 adaptive and with the pcurves projected again (2.5e-6 low).",
     "rust": 1.728861106706667
   },
   {
@@ -12595,8 +12595,8 @@
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "face": 225,
     "check": "occ",
-    "verdict": "undetermined",
-    "reason": "The port gives 1456.702593; tools/face_area_evidence.py gives 1456.69016 (Green's theorem); OpenCascade gives face.area 1455.444739, adaptive 1456.697361, and 1456.69736 with the pcurves projected again from the edges. The answers spread beyond 1e-6 and none is confirmed.",
+    "verdict": "rust-correct",
+    "reason": "The port gives 1456.702593448; tools/kernel_evidence.py faces (Green's theorem along the edges' foot points, Gauss-Lobatto panels) gives 1456.702593447, 4.7e-13 apart (its 8-to-16-panel change 8e-11). tools/face_area_evidence.py's polygon Green's theorem, 1456.69016, is 8.5e-6 off (its tabulated inner integral on a face this large; its slices were not recorded for this face). OpenCascade gives face.area 1455.444739, adaptive 1456.697361 and 1456.69736 with the pcurves projected again from the edges (3.6e-6 low).",
     "rust": 1456.7025934478545
   },
   {
@@ -12611,16 +12611,16 @@
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "face": 233,
     "check": "occ",
-    "verdict": "undetermined",
-    "reason": "The port gives 1194.066369; tools/face_area_evidence.py gives 1194.056177 (Green's theorem); OpenCascade gives face.area 1193.035367, adaptive 1194.062166, and 1194.062079 with the pcurves projected again from the edges. The answers spread beyond 1e-6 and none is confirmed.",
+    "verdict": "rust-correct",
+    "reason": "The port gives 1194.066369150; tools/kernel_evidence.py faces gives 1194.066367891, 1.1e-9 apart (its 8-to-16-panel change 1.3e-6). tools/face_area_evidence.py's polygon Green's theorem, 1194.056177, is 8.5e-6 off (its tabulated inner integral; its slices were not recorded for this face). OpenCascade gives face.area 1193.035367, adaptive 1194.062166 and 1194.062079 with the pcurves projected again from the edges (3.5e-6 low).",
     "rust": 1194.0663691497723
   },
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "face": 234,
     "check": "occ",
-    "verdict": "undetermined",
-    "reason": "The port gives 1194.012578; tools/face_area_evidence.py gives 1194.010347 (Green's theorem); OpenCascade gives face.area 1194.290029, adaptive 1194.304844, and 1193.959579 with the pcurves projected again from the edges. The answers spread beyond 1e-6 and none is confirmed.",
+    "verdict": "rust-correct",
+    "reason": "The port gives 1194.012578; tools/kernel_evidence.py faces gives 1194.012565, 1.1e-8 apart, within its 8-to-16-panel change (3.4e-5). tools/face_area_evidence.py's polygon Green's theorem gives 1194.010347 (1.9e-6; its slices were not recorded for this face). OpenCascade gives face.area 1194.290029, adaptive 1194.304844 and 1193.959579 with the pcurves projected again from the edges (2.4e-4 and 4.5e-5 off).",
     "rust": 1194.0125778157665
   },
   {
@@ -12635,8 +12635,8 @@
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "face": 238,
     "check": "occ",
-    "verdict": "undetermined",
-    "reason": "The port gives 955.2531627; tools/face_area_evidence.py gives 955.2507191 (Green's theorem); OpenCascade gives face.area 954.1343023, adaptive 955.2454773, and 955.2454773 with the pcurves projected again from the edges. The answers spread beyond 1e-6 and none is confirmed.",
+    "verdict": "rust-correct",
+    "reason": "The port gives 955.2531626877; tools/kernel_evidence.py faces gives 955.2531626875, 1.5e-13 apart (its 8-to-16-panel change 7e-11). tools/face_area_evidence.py's polygon Green's theorem, 955.2507191, is 2.6e-6 off (its tabulated inner integral; its slices were not recorded for this face). OpenCascade gives face.area 954.1343023, adaptive 955.2454773 and 955.2454773 with the pcurves projected again from the edges (8.0e-6 low).",
     "rust": 955.253162687696
   },
   {
@@ -12683,8 +12683,8 @@
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "face": 337,
     "check": "occ",
-    "verdict": "undetermined",
-    "reason": "The port gives 201.3538126; tools/face_area_evidence.py gives 201.3533061 (Green's theorem); OpenCascade gives face.area 201.1174989, adaptive 201.3521879, and 201.352191 with the pcurves projected again from the edges. The answers spread beyond 1e-6 and none is confirmed.",
+    "verdict": "rust-correct",
+    "reason": "The port gives 201.3538125637; tools/kernel_evidence.py faces gives 201.3538125637, 2.8e-13 apart (its 8-to-16-panel change 1.3e-11). tools/face_area_evidence.py's polygon Green's theorem, 201.3533061, is 2.5e-6 off (its tabulated inner integral; its slices were not recorded for this face). OpenCascade gives face.area 201.1174989, adaptive 201.3521879 and 201.352191 with the pcurves projected again from the edges (8.1e-6 low).",
     "rust": 201.3538125637462
   },
   {
@@ -14163,8 +14163,8 @@
     "file": "nist/nist_ctc_05_asme1_rd.stp",
     "face": 79,
     "check": "occ",
-    "verdict": "undetermined",
-    "reason": "The port gives 3.707685937; tools/face_area_evidence.py gives 3.707672064 (Green's theorem) and 3.707685937 (direct slices); OpenCascade gives face.area 3.707306489, adaptive 3.707115934, and 2.060052229 with the pcurves projected again from the edges. The answers spread beyond 1e-6 and none is confirmed.",
+    "verdict": "rust-correct",
+    "reason": "The port gives 3.707685937; tools/face_area_evidence.py's direct slices give 3.707685937 (1e-10) and tools/kernel_evidence.py faces 3.707685791 (3.9e-8, its 8-to-16-panel change 1.5e-11), a residual far inside the strip the edges' tolerances (up to 0.026 mm) allow the boundary, which also has a 0.018 mm gap at a degenerate edge with distinct ends that each method closes straight in its own parameters. tools/face_area_evidence.py's polygon Green's theorem gives 3.707672064 (3.7e-6). OpenCascade gives face.area 3.707306489, adaptive 3.707115934 and 2.060052229 with the pcurves projected again from the edges.",
     "rust": 3.7076859369848574
   },
   {
