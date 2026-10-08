@@ -1,0 +1,17 @@
+[
+ {
+  "answers": {
+   "datum.A.flatness": "0.05",
+   "datum.B.control": "0.05",
+   "datum.C.control": "0.1",
+   "hole.function:hole_patterns.set:233.239.240": "clearance:M8",
+   "hole.function:hole_patterns.set:234.235.236": "clearance:M8",
+   "hole.position:hole_patterns.set:233.239.240": "0.2",
+   "hole.position:hole_patterns.set:234.235.236": "0.5",
+   "part.general_tolerance": "ISO 2768-m",
+   "part.locating": "position tolerances",
+   "part.material": "Aluminium 6061-T6"
+  },
+  "part": null
+ }
+]

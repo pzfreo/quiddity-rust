@@ -1,12 +1,14 @@
 //! Quiddity: deterministic, geometry-only feature recognition for STEP B-Rep — Rust port.
 //!
 //! The recognisers ([`features`]) stand on the geometry kernel, [`haecceity`], re-exported as
-//! [`kernel`].
+//! [`kernel`]. [`pmi_json`] is the versioned JSON form of the kernel's semantic PMI model, the
+//! `quiddity parts` / `quiddity pmi` process boundary.
 
 pub mod correspondence;
 pub mod features;
 pub mod framed_records;
 pub mod frames;
+pub mod pmi_json;
 pub mod recognition;
 pub mod serve;
 /// The geometry kernel, [`haecceity`], under the name the recognisers use.

@@ -84,9 +84,41 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/known_section_recess_helpers.json` | `tests/section_recess_helpers.rs` | 4 | 0 | 4 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 120 (2922 answers) | 98 | 10 | 0 | 9 | 3 |
 | `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 11 | 3 | 5 | 0 | 0 | 3 |
+| `tests/fixtures/known_face_sources.json` | `crates/haecceity/tests/face_sources.rs` | 137 | 93 | 0 | 0 | 43 | 1 |
+| `tests/fixtures/known_pmi.json` "nist" | `crates/haecceity/tests/pmi_read.rs` | 74 | 65 | 0 | 9 | 0 | 0 |
+| `tests/fixtures/known_pmi.json` "occt" | `crates/haecceity/tests/pmi_read.rs` | 403 | 402 | 1 | 0 | 0 | 0 |
+| `tests/fixtures/known_pmi.json` "specify" | `crates/haecceity/tests/pmi_read.rs` | 38 | 20 | 0 | 0 | 0 | 18 |
+| `tests/fixtures/known_pmi_draftwright.json` | `crates/haecceity/tests/pmi_draftwright.rs` | 117 | 111 | 0 | 0 | 0 | 6 |
+| `tests/fixtures/known_pmi_write.json` "occt" | `crates/haecceity/tests/pmi_write.rs` | 6 | 6 | 0 | 0 | 0 | 0 |
+| `tests/fixtures/known_pmi_write.json` "corpus" (patterns) | `crates/haecceity/tests/pmi_write.rs` | 9 | 7 | 0 | 0 | 2 | 0 |
 
 The undetermined entries are the backlog: differences not yet shown to be either side's error.
-The rust-wrong entries are known port defects.
+The rust-wrong entries are known port defects. The AP242 PMI lists are against NIST's expected PMI
+(`"nist"`), OpenCascade XCAF (`"occt"`, counted over the 7 committed NIST files and the
+specify-core outputs, plus the other 10 NIST files when `HAECCEITY_NIST_PMI` is set),
+specify-core's intent (`"specify"`) and draftwright's extraction; the PMI reader's own findings
+per file are pinned with a reason per kind in `tests/fixtures/ap242/read/findings.json`, and the
+AP242 schema's per-file violations in `tests/fixtures/ap242/express/known_nist_violations.json`
+and its named WHERE/UNIQUE rule violations in
+`tests/fixtures/ap242/rules/known_nist_rule_violations.json` (pins with a reason each, verdict
+`file-wrong`). `known_pmi_write.json` holds the writer's refusals and its differences from
+specify-core's files and from OpenCascade's reading of what it writes.
+
+For specify-core and draftwright, haecceity reads and writes AP242 semantic PMI without
+OpenCascade (design: `docs/step-ap242.md`): a lossless Part 21 document with byte-exact edits
+(`p21.rs`), the AP242 EXPRESS schema as data with a validator (`express.rs`), each face and edge's
+source instance (`step::read_part_definitions`), and a plain semantic PMI model with one reader
+(`pmi/`). The reader keeps every value as the file states it, in its own unit; reports what it
+does not read (`pmi::Finding`), never drops it; and records the instances behind every item
+(`pmi::Provenance`). A removal plan (`removal.rs`) works out what replacing a part's PMI removes,
+with its presentation or refusing; named EXPRESS WHERE and UNIQUE rules (`express_rules.rs`)
+back the writer. The writer (`pmi::write`) maps every part's PMI to one edit of the file
+(add, replace, remove) through a typed emission layer, keeping every other byte, with a
+datum feature symbol derived for each datum it adds; refusals, round trips and OpenCascade's
+reading of written files are pinned in `tests/fixtures/known_pmi_write.json`.
+specify-core and draftwright reach all of this through the `quiddity` command line, in a
+versioned JSON form of the model (`src/pmi_json.rs`): `quiddity parts`, `quiddity pmi read`,
+`quiddity pmi check` and `quiddity pmi write` (see [Running](#running)).
 
 Python's default inventory runs strictly and, when that refuses an unproved hole on a part whose
 solids are not all valid under BRepCheck, runs again with `local_degradation` set, where a
@@ -189,7 +221,9 @@ crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code
   src/               crate so draftwright-rust can share it; quiddity re-exports it as
                      `quiddity::kernel`
     step.rs          STEP → Part: assemblies flattened with placements, units, voids,
-                     reachable surface models, vertex loops, pcurve control polygons
+                     reachable surface models, vertex loops, pcurve control polygons; each
+                     face's and edge's source instance; read_part_definitions (the distinct
+                     parts, their faces and edges in specify-core's numbering, placements)
     brep.rs          Part: faces, loops, edges, solids in OpenCascade's traversal order;
                      cached neighbours, validity, face bounds, extents along any direction
     geom.rs          vectors, frames, Bounds, analytic surfaces and curves, Python rounding
@@ -222,6 +256,28 @@ crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code
                      across the faces
     py.rs            Python's numeric semantics: fsum, compensated sum, hypot, %, rounding,
                      tuple ordering — wherever results must agree to the bit
+    p21.rs           a lossless Part 21 document: every instance's record and byte range,
+                     edits (add, replace, remove, FILE_SCHEMA) written with every untouched
+                     byte copied; complex records sorted; strings escaped and decoded
+    express.rs       the AP242 EXPRESS schema (editions 1 and 4) as data: declarations, an
+                     instance and document validator, entity families (semantic PMI,
+                     presentation, validation property); express_table.rs is generated by
+                     tools/express_table.py
+    express_rules.rs named WHERE and UNIQUE rules the writer depends on (thread, knurl,
+                     tolerance table, datum, datum target, datum system, tolerance,
+                     plus_minus_tolerance, item_identified_representation_usage), each citing
+                     its schema label, three-valued
+    removal.rs       the removal plan: the instances a replace removes (seeds plus forward
+                     dependencies nothing kept holds), presentation removed or refused by
+                     policy, draughting models and views rewritten
+    pmi/             semantic PMI (docs/step-ap242.md): model.rs (the model: values as stated
+                     decimals in their own units, features of faces, edges and supplemental
+                     geometry, datums, targets, systems, dimensions, tolerances, relations,
+                     general tolerances, threads, knurls, material, notes, attributes, with
+                     their invariants), read.rs (the AP242 reader: findings, provenance,
+                     accounting), standards.rs (ISO 2768 classes, ISO 2768-1 Table 1),
+                     write.rs (the AP242 writer: typed emission, add/replace/remove, refusals
+                     by name, schema and rule backstops; differences() compares PMI by meaning)
 src/
   features/          the recognisers, one module per family, plus what they share
     context.rs       Context: one run over one part; box, classifier, cylinder inventory
@@ -313,6 +369,10 @@ src/
   correspondence/    revision matching (docs/correspondence.md): fingerprint.rs (features and
                      faces), align.rs (rigid alignment), assign.rs (Hungarian with an
                      unmatched option), faces.rs (seeded propagation), mod.rs (`correspond`)
+  pmi_json.rs        the versioned JSON form of haecceity's PartPmi, both directions: values
+                     as stated decimal text with their units, anchors as face and edge numbers
+                     bound to the file's sha256 and the reader version, enums as standard
+                     terms; refusals name the JSON path; a write's report
   recognition.rs     the versioned recognition document for draftwright (`quiddity-rust/
                      recognition/2`): the part's frame, and per feature its family, Python
                      record type, faces, record and the fields left in the frame
@@ -320,7 +380,10 @@ src/
                      request's id echoed, failures as structured errors
   bin/quiddity.rs    `quiddity part.step` → JSON with fingerprints and the document;
                      `quiddity correspond old new` → the correspondence as JSON;
-                     `quiddity serve` → serve.rs on stdin/stdout
+                     `quiddity serve` → serve.rs on stdin/stdout;
+                     `quiddity parts`, `quiddity pmi read`, `quiddity pmi check` → PMI JSON;
+                     `quiddity pmi write` → AP242 PMI added, replaced or removed, verified by
+                     reading the output back, and the write's report
 tests/
   captured.rs        replays every recogniser call the Python test suite makes
   corpus.rs          every ported recogniser over the shared 100-file STEP corpus
@@ -357,9 +420,16 @@ tests/
                      labels; over the corpus, moved and turned (carried back) and against
                      caller-space recognition (known_framed_document.json)
   cli.rs             the binary's usage, exit codes and refusal of broken STEP files
-                     (fixtures/broken/)
+                     (fixtures/broken/), for every subcommand
   serve.rs           `quiddity serve`: results equal to the CLI's, every error code, many
                      requests on one stream, the same bytes twice
+  pmi_cli.rs         `parts`, `pmi read`, `pmi check` and `pmi write` on the AP242 fixtures (and
+                     every NIST AP242 file with HAECCEITY_NIST_PMI): the JSON equals the reader's
+                     model, every read part round trips through JSON with stable bytes, inch
+                     values keep their text, deterministic output, refusals with the JSON path;
+                     read → write replace → read through the CLI against the writer's pins
+                     (known_pmi_write.json "roundtrip"), add then remove on a corpus part,
+                     refusals that create nothing
   common/parallel.rs the corpus loops' per-file work on every core, results in corpus order
   fixtures/          STEP parts and Python's recorded answers, shared by both crates
 crates/haecceity/tests/
@@ -374,6 +444,29 @@ crates/haecceity/tests/
   kernel.rs          kernel behaviour on real parts
   drawings.rs        projections and section views against OpenCascade's drawings
                      (tools/capture_hlr.py, tools/capture_section.py record them)
+  p21.rs             Part 21 documents byte for byte, edits confined to their spans, over the
+                     fixtures, the corpus and the NIST files
+  express.rs         the schema tables against their sources, hand-written valid and invalid
+                     instances, every NIST file's violations (pinned)
+  face_sources.rs    face and edge source instances against OpenCascade's, per part
+                     (known_face_sources.json)
+  pmi_read.rs        the PMI reader against NIST's expected PMI, OpenCascade's reading and
+                     specify-core's intent (known_pmi.json); every file read and accounted for
+                     (ap242/read/findings.json); inch values keep their text; assemblies;
+                     determinism; the model's invariants; threads, knurls, tables, material,
+                     standards and bad references on hand-built additions
+  pmi_draftwright.rs everything draftwright reads is in the model (known_pmi_draftwright.json)
+  removal.rs         the removal plan with both presentation policies on every NIST file
+                     (ap242/removal/: counts pinned, kept instances byte-identical) and a
+                     hand-made fixture
+  express_rules.rs   the named rules on hand-written valid and invalid files (ap242/rules/) and
+                     every NIST file's violations (known_nist_rule_violations.json)
+  pmi_write.rs       the PMI writer: one test per anti-requirement, add keeping every original
+                     byte, remove, refusals, determinism, specify-core's intents onto the
+                     original corpus files and OpenCascade's reading of written files
+                     (known_pmi_write.json, ap242/write/)
+  pmi_roundtrip.rs   read → replace → read over every NIST file and specify-core input, values
+                     as stated (known_pmi_write.json "roundtrip")
 crates/haecceity/examples/
   hlr_compare.rs     the drawings comparison, every score printed, with listings of the
                      curves either side draws differently
@@ -393,6 +486,15 @@ tools/
                      each corpus file's sha256 (_provenance.py; the capture tools record the
                      revision too)
   export_fixtures.py hand-built fillet evidence cases
+  express_table.py   generates crates/haecceity/src/express_table.rs from the AP242 long forms
+  capture_face_sources.py records OpenCascade's face and edge instances per part
+  nist_expected.py   NIST's expected PMI (tests/fixtures/ap242/nist/*.expected.json) from the
+                     STEP File Analyzer's spreadsheets
+  capture_pmi_occt.py records OpenCascade XCAF's PMI reading (tests/fixtures/ap242/occt/)
+  capture_pmi_draftwright.py records draftwright's PMI extraction (tests/fixtures/ap242/draftwright/)
+  make_specify_inputs.py runs specify-core on corpus parts (tests/fixtures/ap242/specify/)
+  check_pmi_occt.py  records OpenCascade XCAF's reading of the writer's files
+                     (tests/fixtures/ap242/write/)
   capture_revisions.py builds the revision pairs in build123d, with their expected classes
   capture_sections.py records the section helpers' calls in their Python tests, and their ring
                      proposals over those tests' parts, the golden fixtures and the corpus
@@ -419,14 +521,65 @@ cargo build --release
 ./target/release/quiddity part.step > part.json            # records, fingerprints, document
 ./target/release/quiddity correspond old.json new.json      # or two STEP files
 ./target/release/quiddity serve < requests.jsonl             # JSON lines, see below
+./target/release/quiddity parts part.step                   # distinct parts and the binding
+./target/release/quiddity pmi read part.step [--part N]     # semantic PMI and findings as JSON
+./target/release/quiddity pmi check part.step pmi.json      # a PMI document checked against the file
+./target/release/quiddity pmi write part.step pmi.json -o out.step [--mode add|replace|remove] \
+  [--presentation refuse|remove]                            # AP242 PMI written, verified, reported
 QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release
 # corpus tests read ../quiddity/tests/corpus or $QUIDDITY_CORPUS; without
 # QUIDDITY_CORPUS_REQUIRED=1 they pass by skipping when the corpus is missing
+HAECCEITY_NIST_PMI=<NIST-PMI-STEP-Files> HAECCEITY_NIST_PMI_REQUIRED=1 \
+  cargo test --release -p haecceity --test p21 --test express --test face_sources --test pmi_read \
+  --test pmi_write --test pmi_roundtrip
+# the AP242 tests read all 17 NIST AP242 test files from that directory (NIST's
+# NIST-PMI-STEP-Files.zip); without it they check the 7 committed ones; tests/pmi_cli.rs
+# reads it too
 ```
 
 `quiddity` exits 0 with the JSON on stdout; 1 with the error on stderr when a file cannot be
-read; 2 with the usage on stderr for bad arguments (`-h`/`--help` prints it on stdout and exits
-0). A STEP file is refused, never recognised as empty, when it does not parse (a cut-off
+read, a PMI document is refused, or a write is refused or does not verify; 2 with the usage on
+stderr for bad arguments (`-h`/`--help` prints it on stdout and exits 0).
+
+`pmi write` writes every part the document lists in one edit: `add` (the default) beside the
+part's PMI, `replace` in place of it (afterwards `pmi read` gives the document's PMI), `remove`
+(each part's `pmi` must be `{}`). Every byte the edit does not concern is kept; an AP214/AP203
+file that gains PMI becomes AP242 only if all its instances are valid AP242 (else refused,
+naming them). Replace and remove take the replaced PMI's presentation with it
+(`--presentation remove`, the default, each instance listed in the report) or refuse naming it
+(`--presentation refuse`). The output goes to a temporary file beside `out.step` (gzipped for a
+`.gz` name), is read back and compared semantically with what was written (add: the part's PMI
+before plus exactly the new items; replace, remove: exactly the document's, and nothing the
+reader consumed for the part survives; other parts and findings as before), and is renamed to
+`out.step` only then (an existing `out.step`, the input itself included, is then replaced in
+place, through a symbolic link to its target, keeping its permissions). In add, a standard the
+part already states is not written again; a feature equal to one the part has is written as a
+second shape aspect, which reads back as that feature; a second material is refused by the
+read-back (the reader finds two material names). The report (`"format": "quiddity-pmi-write"`) gives the parts written,
+the input's and the output's bindings (so the output can be read and written again), instance
+counts (added, replaced, removed), the presentation removed by id and type, the `FILE_SCHEMA`
+kept or changed, the datum feature symbols written, the edition table used, the original's
+schema and rule violations (reported, not repaired) and the findings of reading the output.
+Exit 1, creating nothing, for: a document bound to another file or reader, items the writer
+does not write (datum targets, tolerance relations, notes, general tolerance tables, material
+density, …, each named by part and item), a value that is not a Part 21 REAL (`62.`, not `62`),
+presentation blockers under `--presentation refuse`, an edition upgrade refused, or a read-back
+that differs.
+
+The PMI JSON (`src/pmi_json.rs` describes the form) is a document `{"format": "quiddity-pmi",
+"version": 1, "binding": {"sha256", "reader"}, "parts": [{"part", "name", "pmi"}],
+"findings": [...]}`. Every value is `{"value": "<decimal text as stated>", "unit": "mm"|"in"|
+"deg"|...}`, never a JSON number; anchors are `{"face": n}` / `{"edge": n}` in the numbering
+`quiddity parts` reports, from 0; references between items are indices into the part's lists;
+tolerance kinds are ISO 1101's names, fits `{"deviation": "H", "grade": "IT7"}`, schema
+enumerations their lower-case EXPRESS values; a size or location kind, zone form or qualifier the
+practice does not list is `{"other": "<name>"}`, so a misspelt standard term is refused rather
+than kept as a name. `binding.sha256` is the sha256 of the STEP text
+(after gunzip for a `.gz` file) and `binding.reader` the reader version: `pmi check` refuses a
+document bound to another file or reader, an unknown field or term, a key named twice, a face or edge the part
+does not have, or a violated model invariant, naming the JSON path. `pmi read --part N` keeps
+the findings of part N and those of no part. A tessellated-only file (no B-rep part to anchor
+PMI to) is refused, not read as empty. A STEP file is refused, never recognised as empty, when it does not parse (a cut-off
 write), has no solid or shell, has shape geometry or topology that is missing or that step-io
 dropped (a deleted face, a file cut at an entity and closed), or has a closed edge whose curve
 the kernel cannot resolve. A face or open edge whose geometry does not resolve is kept and
