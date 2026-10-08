@@ -336,3 +336,8 @@ fn pocket_patterns_match_python() {
 fn repeating_radial_profiles_match_python() {
     replay("recognise_repeating_radial_profiles");
 }
+
+#[test]
+fn freeform_surfaces_match_python() {
+    replay("recognise_freeform_surfaces");
+}

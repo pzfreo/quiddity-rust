@@ -45,6 +45,7 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 | Slot patterns | `recognise_slot_patterns` | 272/272 | 0 | 100/100 |
 | Pocket patterns | `recognise_pocket_patterns` | 58/58 | 0 | 100/100 |
 | Repeating radial profiles | `recognise_repeating_radial_profiles` | 59/60 (1 known divergence) | 1 | 100/100 |
+| Freeform surfaces | `recognise_freeform_surfaces` | 3/3 | 0 | 98/100 (2 known) |
 
 *Captured test calls*: the Python suite's calls replayed by `tests/captured.rs`. *Not captured*:
 calls the suite makes that the capture could not record, outside the replay and pinned by it
@@ -62,11 +63,11 @@ its verdict and reason in a verdict file:
 
 | Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
 |---|---|---|---|---|---|---|---|
-| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 137 (905 problems) | 72 | 12 | 15 | 38 | 0 |
+| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 139 (907 problems) | 73 | 12 | 15 | 39 | 0 |
 | `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 28 (29 calls) | 4 | 1 | 3 | 3 | 17 |
 | `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 23 | 0 | 23 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
-| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 30 | 4 | 26 | 0 | 0 | 0 |
+| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 36 | 9 | 27 | 0 | 0 | 0 |
 | `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 9 (23 probes) | 7 | 1 | 0 | 0 | 1 |
 | `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 64 | 13 | 0 | 0 | 51 | 0 |
 | `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 41 | 5 | 1 | 2 | 0 | 33 |
@@ -202,6 +203,8 @@ src/
     recess_patterns.rs  slot and pocket arrays and grids (`_recess_patterns`)
     repeating_profiles.rs  complete outer wires repeating under one sector rotation, measured
                      along each edge's exact arc length (`Edge.position_at`)
+    freeform_surfaces.rs  native B-spline supports as OpenCascade's reader holds them (closed
+                     pole rows made periodic), continuity links, thin-wall offset partners
     volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over haecceity's volume.rs
     sections.rs      canonical line/arc sections, run-local frames, body references and the
                      published occurrence shape (`_sections`), with Python's refusals

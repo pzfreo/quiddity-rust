@@ -116,6 +116,7 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
         "recognise_repeating_radial_profiles" => json(
             quiddity::recognise_repeating_radial_profiles(part, &options(kwargs)),
         ),
+        "recognise_freeform_surfaces" => json(quiddity::recognise_freeform_surfaces(part)),
         // Over a part: the patterns among the part's gusset ribs.
         "recognise_gusset_rib_patterns" => json(quiddity::recognise_gusset_rib_patterns(
             &quiddity::recognise_gusset_ribs(part),
@@ -219,6 +220,10 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
         "recognise_channels" => quiddity::features::channels::discover_verified(&ctx).map(faces),
         "recognise_repeating_radial_profiles" => {
             quiddity::features::repeating_profiles::discover_verified(&ctx).map(faces)
+        }
+        "recognise_freeform_surfaces" => {
+            let walls = quiddity::features::records(quiddity::features::thin_walls::discover(&ctx));
+            quiddity::features::freeform_surfaces::discover_verified(&ctx, &walls).map(faces)
         }
         other => panic!("{other} has no evidence path"),
     };

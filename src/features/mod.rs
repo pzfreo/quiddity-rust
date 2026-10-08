@@ -28,6 +28,7 @@ pub mod entry_treatments;
 pub mod evidence;
 pub mod fillets;
 pub mod flats;
+pub mod freeform_surfaces;
 pub mod graph;
 pub mod grooves;
 pub mod gussets;
@@ -119,6 +120,7 @@ pub struct Features {
     pub slot_patterns: Vec<recess_patterns::SlotPattern>,
     pub pocket_patterns: Vec<recess_patterns::PocketPattern>,
     pub repeating_radial_profiles: Vec<repeating_profiles::RepeatingRadialProfile>,
+    pub freeform_surfaces: Vec<freeform_surfaces::FreeformSurface>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole, gusset rib, slot and pocket patterns) have none of their own: their
     /// members' faces are theirs ([`crate::correspondence`]).
@@ -140,6 +142,16 @@ pub fn recognise(part: &Part) -> Features {
     let gusset_ribs = kept(&mut defining, "gusset_ribs", gussets::discover(&ctx));
     let slots = kept(&mut defining, "slots", slots::discover(&ctx));
     let pockets = kept(&mut defining, "pockets", pockets::discover(&ctx));
+    let thin_wall_bodies = kept(
+        &mut defining,
+        "thin_wall_bodies",
+        thin_walls::discover(&ctx),
+    );
+    let freeform_surfaces = kept(
+        &mut defining,
+        "freeform_surfaces",
+        freeform_surfaces::discover(&ctx, &thin_wall_bodies),
+    );
     Features {
         fillets: kept(
             &mut defining,
@@ -184,11 +196,7 @@ pub fn recognise(part: &Part) -> Features {
         gusset_rib_patterns: gussets::recognise_gusset_rib_patterns(&gusset_ribs),
         gusset_ribs,
         countersinks,
-        thin_wall_bodies: kept(
-            &mut defining,
-            "thin_wall_bodies",
-            thin_walls::discover(&ctx),
-        ),
+        thin_wall_bodies,
         interior_voids: kept(
             &mut defining,
             "interior_voids",
@@ -251,6 +259,7 @@ pub fn recognise(part: &Part) -> Features {
             "repeating_radial_profiles",
             repeating_profiles::discover(&ctx),
         ),
+        freeform_surfaces,
         defining,
     }
 }
