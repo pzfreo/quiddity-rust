@@ -77,7 +77,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
 | `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 36 | 10 | 26 | 0 | 0 | 0 |
 | `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 9 (23 probes) | 7 | 1 | 0 | 0 | 1 |
-| `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 63 | 56 | 2 | 0 | 1 | 4 |
+| `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 63 | 58 | 0 | 0 | 1 | 4 |
 | `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 41 | 5 | 1 | 2 | 0 | 33 |
 | `tests/fixtures/known_face_areas.json` | `crates/haecceity/tests/face_areas.rs` | 1831 | 1829 | 1 | 0 | 0 | 1 |
 | `tests/fixtures/captured/known_sections.json` | `tests/sections.rs` | 1 | 0 | 0 | 0 | 0 | 1 |
@@ -207,7 +207,9 @@ For draftwright-rust, the kernel draws a part's views without OpenCascade's hidd
 algorithm or booleans (`crates/haecceity/src/hlr.rs`): every visible and hidden edge and
 silhouette, and a section view's kept half and cut outline. `crates/haecceity/tests/drawings.rs` checks them
 against OpenCascade's drawings of the corpus: 85 parts in four views and 98 sections. The cut
-outlines agree on 95 of 99 parts, where the other four are OpenCascade boolean failures. The
+outlines agree on 95 of 99 parts, where the other four are OpenCascade boolean failures. Where
+faces lie in the cutting plane, the cut face is the material on both sides of it (lying in the
+plane decided within the classifier's 1e-6 tolerance). The
 views that differ by more than 1e-3 mm are listed in `tests/fixtures/known_drawings.json`.
 Most of them agree within 0.1 mm, where OpenCascade's hidden-line output approximates
 projected curves: each such entry carries that evidence (`approximation`), checked on every run

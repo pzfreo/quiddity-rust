@@ -464,9 +464,9 @@
     "file": "cadgenbench/threaded_connector_109.step",
     "view": "cut",
     "verdict": "rust-correct",
-    "reason": "OpenCascade's fuzzy boolean returns one cut face, the wall on one side of this turned part's axis; haecceity's section has both walls (twice the area, as the symmetric part requires).",
+    "reason": "OpenCascade's fuzzy boolean returns one cut face, the wall on one side of this turned part's axis; haecceity's section has both walls (twice the area, as the symmetric part requires). haecceity's wall at x > 0 was open where a 1.57 mm bead seam lies in the plane (edge 299, whose sides haecceity's classifier cannot call, so decided by its surface crossing the plane) and a 0.79 mm arc near z 348; closed, it bounds 5766.77 (5742.35 before), against the other wall's 5760.89, which OpenCascade's cut face (5760.88) matches; so the area error is 1.0012.",
     "min_score": 0.499,
-    "max_area_error": 0.999
+    "max_area_error": 1.0012
   },
   {
     "file": "cadgenbench/threaded_connector_109.step",
@@ -492,18 +492,18 @@
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "view": "cut",
-    "verdict": "rust-wrong",
-    "reason": "The cutting plane (y -1.13151198710) contains planar faces of the part (221, 230, 235, 2.5e-10 off it) and the joins of cylinders split along it. OpenCascade's boolean fails there: at every fuzzy value the cut returns the whole part uncut (least y -51.13; volume 298196.79 against the part's 297162.59) and the common with the kept side nothing. The true cut face, material on both sides of the plane, is 2197.99: what OpenCascade's own sections 1e-4 to either side (2199.73 and 2197.99) have in common, which haecceity's sections there match to 2e-6 (2199.7304, 2197.9843). haecceity's section exactly in the plane leaves 6.6 mm of that boundary out (five of OpenCascade's plane-section edges along faces 221, 230, 233 and 235, which haecceity's in-plane edge rule drops), so its outline is open and its even-odd area 2050.11, 6.7% short. A fix belongs in hlr.rs's cut (the faces lying in the plane), not made here.",
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's boolean is the one that is wrong. The cutting plane (y -1.13151198710) contains planar faces of the part (221, 230, 235, 2.5e-10 off it) and the joins of cylinders, cones and tori split along it; OpenCascade's cut fails there: at every fuzzy value (0, 1e-5, 1e-2) it returns the whole part uncut (least y -51.13; volume 298196.79 against the part's 297162.59) and the common with the kept side nothing. The true cut face, material on both sides of the plane, is 2197.9857: what OpenCascade's own sections 1e-4 to either side (2199.7320 and 2197.9858) have in common. haecceity's traced cut bounds 2197.9838 (8.6e-7 off it), and every 1e-3 mm of its 569.33 mm outline lies on OpenCascade's section of the plane itself, whose 3.56 mm more are the sides of faces 230, 221 and 235 that border no material (x 16.87 from z -47.38 to -48.50, z 37.50 from x 65.56 to 66.87, x -43.13 from z 48.87 to 50.00): a face lying in the plane has material on one side of it only, so it is outside the cut face (tools/drawing_evidence.py cut, with EVIDENCE_SECTION_OUT). Before hlr.rs decided faces and vertices lying in the plane within its ON_TOLERANCE, haecceity left 6.6 mm of the boundary out (an area of 2050.11).",
     "min_score": 0.0,
     "max_area_error": null,
     "reference_area": 2197.9857,
-    "max_reference_error": 0.0674
+    "max_reference_error": 1e-06
   },
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "view": "section",
-    "verdict": "rust-wrong",
-    "reason": "Follows from the cut: OpenCascade's boolean returns the part uncut, so its 'section view' draws the whole part (most of the difference), and haecceity's draws its cut outline with 6.6 mm of the boundary missing where faces lie in the plane (see the cut).",
+    "verdict": "rust-correct",
+    "reason": "Follows from the cut: OpenCascade's boolean returns the part uncut, so its 'section view' draws the whole part rather than the kept half, and that is the difference (visible 0.1168 and 0.1622, hidden ink 0.4195 and 0.8998, by crates/haecceity/examples/hlr_compare). haecceity draws the kept half with its cut outline complete (the cut face matches the reference to 8.6e-7); completing it left these scores where they were.",
     "min_score": 0.116
   },
   {
