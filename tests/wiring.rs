@@ -10,7 +10,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::path::PathBuf;
 
 use quiddity::correspondence::fingerprint::{FAMILIES, classify, family, fingerprint};
-use quiddity::features::{self, gussets};
+use quiddity::features::{self, gussets, recess_patterns};
 use serde_json::Value;
 
 /// Each leaf of *v* (a scalar or null) by its path: `a.b` into a nested record, `a[]` into a
@@ -165,6 +165,31 @@ fn families_are_wired_and_their_records_fingerprinted_field_by_field() {
         &serde_json::to_value(array).unwrap(),
         "",
         found.entry("gusset_rib_patterns".into()).or_default(),
+    );
+    // Nor is a slot grid or a pocket array.
+    let grid = recess_patterns::SlotPattern::SlotGrid {
+        slots: Vec::new(),
+        rows: 2,
+        cols: 2,
+        row_pitch: 10.0,
+        col_pitch: 10.0,
+        angle: 0.0,
+        center: [0.0; 3],
+    };
+    leaves(
+        &serde_json::to_value(grid).unwrap(),
+        "",
+        found.entry("slot_patterns".into()).or_default(),
+    );
+    let array = recess_patterns::PocketPattern::PocketArray {
+        pockets: Vec::new(),
+        pitch: 10.0,
+        direction: [1.0, 0.0, 0.0],
+    };
+    leaves(
+        &serde_json::to_value(array).unwrap(),
+        "",
+        found.entry("pocket_patterns".into()).or_default(),
     );
     let mut used: BTreeSet<(String, &str)> = BTreeSet::new();
     for (key, paths) in &found {
