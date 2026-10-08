@@ -1,28 +1,54 @@
-//! Output does not depend on hash order: two corpus parts whose reading and recognition go through
-//! `HashMap`s (the STEP reader's entity indices; circular face patterns on cgb203, thin walls on
-//! cgb241; the correspondence's face index) are read, recognised and corresponded with themselves
-//! twice in one process, where each map gets a fresh random hash seed, and the JSON the CLI would
-//! print must be the same byte for byte.
+//! Output does not depend on hash order: every corpus part (`corpus.json`'s files, as the corpus
+//! tests read them) is read, recognised and corresponded with itself twice in one process, where
+//! each `HashMap` gets a fresh random hash seed (the STEP reader's entity indices, the
+//! recognisers' maps, the correspondence's face index), and the JSON the CLI would print — the
+//! recognition with fingerprints, and `correspond` of the part with itself — must be the same
+//! byte for byte. Two parts are also held to the maps they were chosen for: circular face
+//! patterns on cgb203, thin walls on cgb241. A part whose runs differ is reported with the
+//! families (or correspondence fields) that differ.
 
 mod common;
 
 use quiddity::correspondence;
+use serde_json::Value;
 
-const PARTS: [&str; 2] = [
-    "cadgenbench_inputs/cgb203.step",
-    "cadgenbench_inputs/cgb241.step",
+/// Parts that must still exercise a family whose recogniser goes through a `HashMap`.
+const GUARDED: [(&str, &str); 2] = [
+    ("cadgenbench_inputs/cgb203.step", "circular_face_patterns"),
+    ("cadgenbench_inputs/cgb241.step", "thin_wall_bodies"),
 ];
 
-/// What `quiddity <file.step>` prints, then what `quiddity correspond <file> <file>` prints.
-fn outputs(path: &std::path::Path) -> (String, String) {
-    let part = quiddity::read_step_file(path).unwrap();
+/// What `quiddity <file.step>` prints, then what `quiddity correspond <file> <file>` prints, or
+/// the read error.
+fn outputs(path: &std::path::Path) -> Result<(String, String), String> {
+    let part = quiddity::read_step_file(path).map_err(|e| e.to_string())?;
     let recognition = correspondence::recognise(&part);
     let c =
         correspondence::correspond(&recognition.fingerprints, &recognition.fingerprints).unwrap();
-    (
+    Ok((
         serde_json::to_string_pretty(&recognition).unwrap(),
         serde_json::to_string_pretty(&c).unwrap(),
-    )
+    ))
+}
+
+/// The top-level keys whose values differ between two JSON documents.
+fn differing_keys(a: &str, b: &str) -> Vec<String> {
+    let (a, b): (Value, Value) = (
+        serde_json::from_str(a).unwrap(),
+        serde_json::from_str(b).unwrap(),
+    );
+    let (Some(a), Some(b)) = (a.as_object(), b.as_object()) else {
+        return vec!["(not an object)".to_owned()];
+    };
+    let mut keys: Vec<String> = a
+        .keys()
+        .chain(b.keys())
+        .filter(|k| a.get(*k) != b.get(*k))
+        .cloned()
+        .collect();
+    keys.sort();
+    keys.dedup();
+    keys
 }
 
 #[test]
@@ -35,28 +61,50 @@ fn recognition_json_is_the_same_twice_in_one_process() {
         eprintln!("corpus not found; set QUIDDITY_CORPUS");
         return;
     };
-    for name in PARTS {
-        let path = dir.join(name);
-        let first = outputs(&path);
-        let second = outputs(&path);
-        assert!(
-            first.0 == second.0,
-            "{name}: recognition JSON differs between runs"
-        );
-        assert!(
-            first.1 == second.1,
-            "{name}: correspondence JSON differs between runs"
-        );
-        // The parts exercise the maps they were chosen for.
-        let family = if name.ends_with("cgb203.step") {
-            "circular_face_patterns"
-        } else {
-            "thin_wall_bodies"
-        };
-        let json: serde_json::Value = serde_json::from_str(&first.0).unwrap();
-        assert!(
-            json[family].as_array().is_some_and(|a| !a.is_empty()),
-            "{name} no longer finds {family}"
-        );
+    let files: Vec<String> = common::load("corpus.json")["files"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|e| e["file"].as_str().unwrap().to_owned())
+        .collect();
+    // Each part twice, as two work items: the runs get fresh seeds and usually separate threads,
+    // and the slowest part's two runs overlap rather than ending two passes.
+    let runs: Vec<&String> = files.iter().flat_map(|name| [name, name]).collect();
+    let found = common::parallel::map(&runs, |name| outputs(&dir.join(name)));
+    let mut problems = Vec::new();
+    for (name, pair) in files.iter().zip(found.chunks(2)) {
+        match (&pair[0], &pair[1]) {
+            (Ok(first), Ok(second)) => {
+                if first.0 != second.0 {
+                    problems.push(format!(
+                        "{name}: recognition JSON differs between runs in {:?}",
+                        differing_keys(&first.0, &second.0)
+                    ));
+                }
+                if first.1 != second.1 {
+                    problems.push(format!(
+                        "{name}: correspondence JSON differs between runs in {:?}",
+                        differing_keys(&first.1, &second.1)
+                    ));
+                }
+            }
+            (Err(a), Err(b)) if a == b => {}
+            (a, b) => problems.push(format!(
+                "{name}: reading differs between runs: {:?} vs {:?}",
+                a.as_ref().err(),
+                b.as_ref().err()
+            )),
+        }
     }
+    for (guarded, family) in GUARDED {
+        let i = files.iter().position(|f| f == guarded);
+        let i = i.unwrap_or_else(|| panic!("{guarded} is not in corpus.json"));
+        let exercised = found[2 * i].as_ref().is_ok_and(|(recognition, _)| {
+            let json: Value = serde_json::from_str(recognition).unwrap();
+            json[family].as_array().is_some_and(|a| !a.is_empty())
+        });
+        assert!(exercised, "{guarded} no longer finds {family}");
+    }
+    eprintln!("{} corpus parts recognised twice", files.len());
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
