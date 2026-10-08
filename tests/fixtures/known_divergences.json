@@ -1,13 +1,5 @@
 [
   {
-    "file": "cadgenbench/flanged_spool_132.step",
-    "family": "kernel",
-    "key": "uv_bounds Cylinder (same range, another turn)",
-    "count": 1,
-    "verdict": "equivalent",
-    "reason": "The same angular range a whole turn apart: OpenCascade starts it where the file's pcurve does (negative u); the port in [0, 2π)."
-  },
-  {
     "file": "cadgenbench/threaded_connector_109.step",
     "family": "kernel",
     "key": "solid masses differ by up to 1e-7",
@@ -22,14 +14,6 @@
     "count": 3,
     "verdict": "rust-correct",
     "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
-  },
-  {
-    "file": "cadgenbench/threaded_connector_109.step",
-    "family": "kernel",
-    "key": "uv_bounds Cylinder (same range, another turn)",
-    "count": 12,
-    "verdict": "equivalent",
-    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
   },
   {
     "file": "cadgenbench/threaded_connector_109.step",
@@ -70,6 +54,14 @@
     "count": 4,
     "verdict": "rust-wrong",
     "reason": "Faces 1262, 1265, 1268, 1271: the port's v range starts at -4.648 where the face's edges (sampled densely and projected onto the cone) reach -4.958, which OpenCascade gives to 1e-14."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Cone (same range, another turn)",
+    "count": 1,
+    "verdict": "equivalent",
+    "reason": "The same parameter range a whole turn apart, on faces whose range is centred on the seam (its centre within 1e-9 of a turn): the port starts such a range so that its centre sits at 0, so the choice does not hang on round-off, while OpenCascade starts it where its own pcurves and round-off put it. Classified by the test, which compares angular directions modulo a turn."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -161,9 +153,9 @@
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "family": "kernel",
     "key": "uv_bounds Torus (same range, another turn)",
-    "count": 13,
+    "count": 27,
     "verdict": "equivalent",
-    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
+    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn. Also faces whose range is centred on the seam (within 1e-9 of a turn): the port starts those so that the centre sits at 0, so the choice does not hang on round-off, while OpenCascade's start follows its own pcurves and round-off."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -356,6 +348,14 @@
     "count": 7,
     "verdict": "rust-correct",
     "reason": "As for cgb203, and OpenCascade's import healing re-orients and re-parameterises some of this file's cone faces."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Torus (same range, another turn)",
+    "count": 4,
+    "verdict": "equivalent",
+    "reason": "The same parameter range a whole turn apart, on faces whose range is centred on the seam (its centre within 1e-9 of a turn): the port starts such a range so that its centre sits at 0, so the choice does not hang on round-off, while OpenCascade starts it where its own pcurves and round-off put it. Classified by the test, which compares angular directions modulo a turn."
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
@@ -792,6 +792,14 @@
   {
     "file": "nist/nist_ctc_02_asme1_rc.stp",
     "family": "kernel",
+    "key": "uv_bounds Cylinder (same range, another turn)",
+    "count": 1,
+    "verdict": "equivalent",
+    "reason": "The same parameter range a whole turn apart, on faces whose range is centred on the seam (its centre within 1e-9 of a turn): the port starts such a range so that its centre sits at 0, so the choice does not hang on round-off, while OpenCascade starts it where its own pcurves and round-off put it. Classified by the test, which compares angular directions modulo a turn."
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "family": "kernel",
     "key": "uv_bounds Freeform",
     "count": 28,
     "verdict": "rust-correct",
@@ -993,9 +1001,9 @@
     "file": "nist/nist_ftc_07_asme1_rd.stp",
     "family": "kernel",
     "key": "uv_bounds Cylinder (same range, another turn)",
-    "count": 14,
+    "count": 29,
     "verdict": "equivalent",
-    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
+    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn. Also faces whose range is centred on the seam (within 1e-9 of a turn): the port starts those so that the centre sits at 0, so the choice does not hang on round-off, while OpenCascade's start follows its own pcurves and round-off."
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
@@ -1049,9 +1057,9 @@
     "file": "nist/nist_ftc_09_asme1_rd.stp",
     "family": "kernel",
     "key": "uv_bounds Cylinder (same range, another turn)",
-    "count": 4,
+    "count": 5,
     "verdict": "equivalent",
-    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
+    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn. Also faces whose range is centred on the seam (within 1e-9 of a turn): the port starts those so that the centre sits at 0, so the choice does not hang on round-off, while OpenCascade's start follows its own pcurves and round-off."
   },
   {
     "file": "nist/nist_ftc_10_asme1_rb.stp",
@@ -1081,9 +1089,9 @@
     "file": "nist/nist_ftc_10_asme1_rb.stp",
     "family": "kernel",
     "key": "uv_bounds Cylinder (same range, another turn)",
-    "count": 19,
+    "count": 30,
     "verdict": "equivalent",
-    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
+    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn. Also faces whose range is centred on the seam (within 1e-9 of a turn): the port starts those so that the centre sits at 0, so the choice does not hang on round-off, while OpenCascade's start follows its own pcurves and round-off."
   },
   {
     "file": "nist/nist_ftc_10_asme1_rb.stp",

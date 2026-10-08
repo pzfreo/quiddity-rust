@@ -70,7 +70,7 @@ its verdict and reason in a verdict file:
 
 | Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
 |---|---|---|---|---|---|---|---|
-| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 140 (908 problems) | 77 | 18 | 18 | 27 | 0 |
+| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 141 (942 problems) | 77 | 18 | 19 | 27 | 0 |
 | `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 34 (35 calls) | 4 | 1 | 3 | 3 | 23 |
 | `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 23 | 0 | 23 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
