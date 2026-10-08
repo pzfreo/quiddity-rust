@@ -400,7 +400,10 @@ impl std::fmt::Display for Violation {
 
 /// The table for a `FILE_SCHEMA` identifier: the schema name and the version of the object
 /// identifier must be the edition's (`{ 1 0 10303 442 7 1 4 }` is edition 4). `None` for any
-/// other schema or edition.
+/// other schema or edition. In particular `{ 1 0 10303 442 5 1 4 }`, which NIST's STEP File
+/// Analyzer also reads as edition 4 (`sfa-step.tcl`) although it says edition 4 is identified
+/// by version 7 (`sfa-gen.tcl`), is not taken as edition 4 here: such a file is checked as an
+/// upgrade to the target, like editions 2 and 3.
 pub fn edition(file_schema: &str) -> Option<&'static Edition> {
     let id = object_id(file_schema)?;
     EDITIONS
@@ -683,16 +686,24 @@ fn cover(
     };
     let mut names = BTreeSet::new();
     sx_names(op, &mut names);
-    let avail: Vec<&'static str> = d.intersection(&names).copied().collect();
-    if avail.len() > 16 {
-        return false;
+    let mut others = covered.clone();
+    for o in rest {
+        sx_names(o, &mut others);
     }
-    (0u32..1 << avail.len()).any(|mask| {
-        let c: BTreeSet<&'static str> = avail
+    // Present names only this operand can contribute must be in its combination; only the
+    // names another operand could also contribute are a choice (none in the AP242 tables).
+    let (shared, forced): (Vec<&'static str>, Vec<&'static str>) = d
+        .intersection(&names)
+        .copied()
+        .partition(|n| others.contains(n));
+    let shared_subsets = 1u128.checked_shl(shared.len() as u32).unwrap_or(u128::MAX);
+    (0..shared_subsets).any(|mask| {
+        let c: BTreeSet<&'static str> = shared
             .iter()
             .enumerate()
             .filter(|(i, _)| mask & (1 << i) != 0)
             .map(|(_, n)| *n)
+            .chain(forced.iter().copied())
             .collect();
         if c.is_empty() {
             !all && cover(rest, d, covered, all)
@@ -955,8 +966,9 @@ impl<'a> Checker<'a> {
                     detail: "a value for an attribute redeclared as derived: `*` expected".into(),
                 }),
                 _ => {
-                    for ty in std::iter::once(slot.ty).chain(slot.redeclared.iter().copied()) {
-                        self.value(value, ty, "", &mut problems);
+                    self.value(value, slot.ty, "", &mut problems);
+                    for &ty in &slot.redeclared {
+                        self.narrowed(value, slot.ty, ty, &mut problems);
                     }
                 }
             }
@@ -971,18 +983,62 @@ impl<'a> Checker<'a> {
         out
     }
 
+    /// Check `v` against `ty`, a redeclaration narrowing the declared type `base`. The Part 21
+    /// encoding is the declaration's: a value of a defined type in a `base` SELECT is a typed
+    /// parameter even when `ty` is that defined type (ISO 10303-21 writes the attribute as its
+    /// declared type), so the typed parameter's type must be `ty` or a type defined from it.
+    fn narrowed(&mut self, v: &Param, base: Ty, ty: Ty, out: &mut Vec<Problem>) {
+        let Param::Typed { type_name, value } = v else {
+            return self.value(v, ty, "", out);
+        };
+        if self.select_of(base).is_none()
+            || self.select_of(ty).is_some()
+            || matches!(ty, Ty::Named(n) if self.ed.entity(n).is_some())
+        {
+            return self.value(v, ty, "", out);
+        }
+        let Ty::Named(narrow) = ty else {
+            return self.value(value, ty, "", out);
+        };
+        let mut t = type_name.to_ascii_lowercase();
+        loop {
+            if t == narrow {
+                return;
+            }
+            match self.ed.type_decl(&t).map(|d| &d.def) {
+                Some(TypeDef::Defined(Ty::Named(u))) => t = u.to_string(),
+                _ => break,
+            }
+        }
+        push(
+            out,
+            "",
+            Kind::Typed,
+            format!("{type_name}(…) is not {narrow}, the attribute's redeclared type"),
+        );
+    }
+
+    /// The SELECT a type is, through defined types that rename one (`TYPE a = b;` with `b` a
+    /// SELECT); `None` when it is not a SELECT.
+    fn select_of(&self, ty: Ty) -> Option<&'static str> {
+        let Ty::Named(mut n) = ty else { return None };
+        loop {
+            match self.ed.type_decl(n).map(|t| &t.def) {
+                Some(TypeDef::Select(_)) => return Some(n),
+                Some(TypeDef::Defined(Ty::Named(u))) => n = u,
+                _ => return None,
+            }
+        }
+    }
+
     /// Check `v` against `ty`; `at` locates it within the attribute (`[2][0]`).
     fn value(&mut self, v: &Param, ty: Ty, at: &str, out: &mut Vec<Problem>) {
         match (v, ty) {
             (Param::Unset, _) => push(out, at, Kind::Unset, "`$` inside a value".into()),
             (Param::Derived, _) => push(out, at, Kind::Derived, "`*` inside a value".into()),
-            (Param::Typed { .. }, Ty::Named(n))
-                if matches!(
-                    self.ed.type_decl(n).map(|t| &t.def),
-                    Some(TypeDef::Select(_))
-                ) =>
-            {
-                self.select(v, n, at, out);
+            (Param::Typed { .. }, Ty::Named(_)) if self.select_of(ty).is_some() => {
+                let select = self.select_of(ty).expect("checked");
+                self.select(v, select, at, out);
             }
             (Param::Typed { type_name, .. }, _) => push(
                 out,
@@ -1176,8 +1232,10 @@ impl<'a> Checker<'a> {
             for &m in *members {
                 if self.ed.entity(m).is_some() {
                     entities.insert(m);
-                } else if let Some(TypeDef::Select(_)) = self.ed.type_decl(m).map(|t| &t.def) {
-                    stack.push(m);
+                } else if let Some(s) = self.select_of(Ty::Named(m)) {
+                    // A SELECT, or a defined type renaming one: its members are this SELECT's
+                    // (ISO 10303-21 types only values of defined types that are not SELECTs).
+                    stack.push(s);
                 } else {
                     defined.insert(m);
                 }

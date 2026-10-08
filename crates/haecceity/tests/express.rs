@@ -746,3 +746,100 @@ fn every_edition_validates_its_own_hand_instances() {
         assert!(v.is_empty(), "{}: {v:?}", ed.file_schema);
     }
 }
+
+/// The kinds of the violations of the one DATA record of `data`, its references' types given.
+fn record_kinds(data: &str, targets: &[(u64, &str)]) -> Vec<(Kind, Option<String>)> {
+    let text = format!("{HEADER}{data}\nENDSEC;\nEND-ISO-10303-21;\n");
+    let g = parse_bytes(text.as_bytes()).unwrap();
+    let record = g.entities.values().next().unwrap();
+    let types = |id: u64| {
+        targets
+            .iter()
+            .find(|t| t.0 == id)
+            .map(|t| vec![t.1.to_string()])
+    };
+    TARGET
+        .validate(record, &types)
+        .into_iter()
+        .map(|v| (v.kind, v.attribute))
+        .collect()
+}
+
+#[test]
+fn redeclarations_narrowing_a_select_keep_its_typed_encoding() {
+    // compound_item_definition (a SELECT of two defined aggregates) narrowed to
+    // list_representation_item: the value is still a typed parameter, and must be that type.
+    let items = [(1, "representation_item"), (2, "representation_item")];
+    assert_eq!(
+        record_kinds(
+            "#20=ROW_REPRESENTATION_ITEM('',LIST_REPRESENTATION_ITEM((#1,#2)));",
+            &items
+        ),
+        []
+    );
+    let at = Some("compound_representation_item.item_element".to_string());
+    assert_eq!(
+        record_kinds(
+            "#20=ROW_REPRESENTATION_ITEM('',SET_REPRESENTATION_ITEM((#1,#2)));",
+            &items
+        ),
+        [(Kind::Typed, at.clone())]
+    );
+    assert_eq!(
+        record_kinds("#20=ROW_REPRESENTATION_ITEM('',(#1,#2));", &items),
+        [(Kind::Untyped, at)]
+    );
+    // measure_value narrowed to positive_length_measure: a positive length measure (or a type
+    // defined from one), typed; a wider length_measure or an untyped value is a violation.
+    let criterion = [(21, "non_manifold_at_triangle_vertex")];
+    let entity = "TSDQ_POSITIVE_LENGTH_MEASURE_FOR_NON_MANIFOLD_AT_TRIANGLE_VERTEX";
+    assert_eq!(
+        record_kinds(
+            &format!("#20={entity}('',#21,POSITIVE_LENGTH_MEASURE(0.1));"),
+            &criterion
+        ),
+        []
+    );
+    let at = Some("a3m_data_quality_criterion_specific_applied_value.applied_value".to_string());
+    assert_eq!(
+        record_kinds(
+            &format!("#20={entity}('',#21,LENGTH_MEASURE(0.1));"),
+            &criterion
+        ),
+        [(Kind::Typed, at.clone())]
+    );
+    assert_eq!(
+        record_kinds(&format!("#20={entity}('',#21,0.1);"), &criterion),
+        [(Kind::Untyped, at)]
+    );
+}
+
+#[test]
+fn a_select_member_renaming_a_select_contributes_its_entity_types() {
+    // experience_item has the member experience_type_classification_item = classification_item,
+    // a SELECT that includes product_definition: a plain reference to one is valid, and one
+    // to an application_context, in none of its SELECTs, is not.
+    let targets = [
+        (30, "experience"),
+        (31, "experience_role"),
+        (6, "product_definition"),
+        (7, "application_context"),
+    ];
+    assert_eq!(
+        record_kinds(
+            "#20=APPLIED_EXPERIENCE_ASSIGNMENT('','',$,#30,#31,(#6));",
+            &targets
+        ),
+        []
+    );
+    assert_eq!(
+        record_kinds(
+            "#20=APPLIED_EXPERIENCE_ASSIGNMENT('','',$,#30,#31,(#7));",
+            &targets
+        ),
+        [(
+            Kind::Reference,
+            Some("applied_experience_assignment.items".into())
+        )]
+    );
+}
