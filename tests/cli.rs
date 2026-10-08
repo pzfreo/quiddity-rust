@@ -43,6 +43,8 @@ fn help_prints_usage_and_succeeds() {
             "quiddity parts <file.step>",
             "quiddity pmi read <file.step> [--part N]",
             "quiddity pmi check <file.step> <pmi.json>",
+            "quiddity pmi write <file.step> <pmi.json> -o <out.step> [--mode add|replace|remove]",
+            "[--presentation refuse|remove]",
         ] {
             assert!(usage.contains(command), "{flag}: {usage}");
         }
@@ -66,6 +68,40 @@ fn bad_arguments_print_usage_and_fail() {
         &["pmi", "read", step, "--part", "-1"],
         &["pmi", "read", step, "--parts", "0"],
         &["pmi", "check", step],
+        &["pmi", "write", step, "pmi.json"],
+        &["pmi", "write", step, "-o", "out.step"],
+        &["pmi", "write", step, "pmi.json", "-o"],
+        &["pmi", "write", step, "pmi.json", "extra", "-o", "out.step"],
+        &[
+            "pmi", "write", step, "pmi.json", "-o", "a.step", "-o", "b.step",
+        ],
+        &[
+            "pmi", "write", step, "pmi.json", "-o", "out.step", "--mode", "merge",
+        ],
+        &["pmi", "write", step, "pmi.json", "-o", "out.step", "--mode"],
+        &[
+            "pmi",
+            "write",
+            step,
+            "pmi.json",
+            "-o",
+            "out.step",
+            "--presentation",
+            "keep",
+        ],
+        &[
+            "pmi",
+            "write",
+            step,
+            "pmi.json",
+            "-o",
+            "out.step",
+            "--presentation",
+            "remove",
+        ],
+        &[
+            "pmi", "write", step, "pmi.json", "-o", "out.step", "--force",
+        ],
         &["correspond"],
     ] {
         let out = quiddity(args);

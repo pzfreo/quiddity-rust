@@ -1,14 +1,18 @@
-//! `quiddity parts`, `quiddity pmi read` and `quiddity pmi check`, and the JSON form of the PMI
-//! model (`quiddity::pmi_json`), over the AP242 fixtures: the committed NIST models, the
-//! specify-core-written inputs and the two-part assembly, plus every NIST AP242 file when
-//! `HAECCEITY_NIST_PMI` names their directory (required when `HAECCEITY_NIST_PMI_REQUIRED=1`).
+//! `quiddity parts`, `quiddity pmi read`, `quiddity pmi check` and `quiddity pmi write`, and the
+//! JSON form of the PMI model (`quiddity::pmi_json`), over the AP242 fixtures: the committed NIST
+//! models, the specify-core-written inputs and the two-part assembly, plus every NIST AP242 file
+//! when `HAECCEITY_NIST_PMI` names their directory (required when
+//! `HAECCEITY_NIST_PMI_REQUIRED=1`), and a corpus part (`QUIDDITY_CORPUS`).
 
-use std::collections::BTreeSet;
+mod common;
+
+use std::collections::{BTreeMap, BTreeSet};
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
 use quiddity::kernel::p21::Document;
+use quiddity::kernel::pmi::write::differences_as_stated;
 use quiddity::kernel::pmi::{self, PmiRead};
 use quiddity::kernel::step::{PartDefinition, read_part_definitions};
 use quiddity::pmi_json::{self, Binding};
@@ -666,4 +670,628 @@ fn hand_written_pmi_is_accepted_in_the_documented_form() {
         err.contains("parts[0].pmi.general[0].class.standard: does not agree"),
         "{err}"
     );
+}
+
+// ---------------------------------------------------------------------------------------------
+// pmi write
+// ---------------------------------------------------------------------------------------------
+
+/// `pmi write <step> <label.json> -o <label.out.step> <extra>` with `doc` as the JSON; the
+/// output's path (removed first) and the process's output.
+fn write_cli(step: &str, doc: &Json, label: &str, extra: &[&str]) -> (PathBuf, Output) {
+    let json = scratch().join(format!("{label}.json"));
+    std::fs::write(&json, doc.to_string()).unwrap();
+    let out = scratch().join(format!("{label}.out.step"));
+    let _ = std::fs::remove_file(&out);
+    let mut args = vec![
+        "pmi",
+        "write",
+        step,
+        json.to_str().unwrap(),
+        "-o",
+        out.to_str().unwrap(),
+    ];
+    args.extend(extra);
+    let output = quiddity(&args);
+    (out, output)
+}
+
+/// A write that must be refused (exit 1, nothing on stdout, the output not created and no
+/// temporary file left beside it); its stderr.
+fn write_refused(out: &Path, output: &Output, label: &str) -> String {
+    let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+    assert_eq!(output.status.code(), Some(1), "{label}: {stderr}");
+    assert!(output.stdout.is_empty(), "{label} printed a result");
+    assert!(stderr.starts_with("quiddity: "), "{label}: {stderr}");
+    assert!(!out.exists(), "{label}: the output was created");
+    no_temporary_left(out, label);
+    stderr
+}
+
+/// No `.<name>.<pid>.tmp` beside `out`.
+fn no_temporary_left(out: &Path, label: &str) {
+    let name = out.file_name().unwrap().to_string_lossy().into_owned();
+    for e in std::fs::read_dir(out.parent().unwrap()).unwrap() {
+        let n = e.unwrap().file_name().to_string_lossy().into_owned();
+        assert!(
+            !(n.starts_with(&format!(".{name}.")) && n.ends_with(".tmp")),
+            "{label}: temporary {n} left"
+        );
+    }
+}
+
+/// A write that must succeed with empty stderr: its report and stdout.
+fn write_ok(output: &Output, label: &str) -> (Json, Vec<u8>) {
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert_eq!(output.status.code(), Some(0), "{label}: {stderr}");
+    assert!(stderr.is_empty(), "{label}: {stderr}");
+    let report: Json = serde_json::from_slice(&output.stdout).expect("the report is JSON");
+    assert_eq!(report["format"], pmi_json::WRITE_FORMAT, "{label}");
+    (report, output.stdout.clone())
+}
+
+/// The refusals a `write refused: not written: part P Item(i): why; part …` message lists:
+/// `(part, item kind, index, reason)`.
+fn refusals(stderr: &str) -> Vec<(usize, String, Option<usize>, String)> {
+    let Some((_, list)) = stderr.split_once("write refused: not written: ") else {
+        return Vec::new();
+    };
+    list.trim_end()
+        .split("; part ")
+        .map(|seg| {
+            let seg = seg.strip_prefix("part ").unwrap_or(seg);
+            let (part, rest) = seg.split_once(' ').unwrap();
+            let (item, why) = rest.split_once(": ").unwrap();
+            let (kind, index) = match item.split_once('(') {
+                Some((k, i)) => (k, Some(i.trim_end_matches(')').parse().unwrap())),
+                None => (item, None),
+            };
+            (
+                part.parse().unwrap(),
+                kind.to_string(),
+                index,
+                why.to_string(),
+            )
+        })
+        .collect()
+}
+
+/// A refusal's pin key, as `known_pmi_write.json` "roundtrip" "refused" writes it (the
+/// writer's `pmi_roundtrip.rs`): kind and reason, digits as `N`, a datum's label as `…`.
+fn refusal_key(kind: &str, why: &str) -> String {
+    let why = match why.strip_prefix("datum ").and_then(|r| r.split_once(' ')) {
+        Some((_, rest)) if kind == "Datum" => format!("datum … {rest}"),
+        _ => why.to_string(),
+    };
+    let why: String = why
+        .chars()
+        .map(|c| if c.is_ascii_digit() { 'N' } else { c })
+        .collect();
+    format!("{kind}: {why}")
+}
+
+/// The items no other item references (notes, tolerance relations, attribute sets), by their
+/// refusal kind and JSON list: a document without them keeps every other reference valid.
+const LEAF_ITEMS: [(&str, &str); 3] = [
+    ("Note", "notes"),
+    ("ToleranceRelation", "tolerance_relations"),
+    ("Attribute", "attributes"),
+];
+
+/// `doc` without the refused leaf items, or `None` when a refused item is not a leaf.
+fn without_refused_leaves(
+    doc: &Json,
+    refused: &[(usize, String, Option<usize>, String)],
+) -> Option<Json> {
+    let mut doc = doc.clone();
+    let mut gone: BTreeMap<(usize, &str), BTreeSet<usize>> = BTreeMap::new();
+    for (part, kind, index, _) in refused {
+        let (_, list) = LEAF_ITEMS.iter().find(|(k, _)| k == kind)?;
+        gone.entry((*part, list)).or_default().insert((*index)?);
+    }
+    for ((part, list), indices) in gone {
+        let entry = doc["parts"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|p| p["part"] == part)
+            .unwrap();
+        let pmi = entry["pmi"].as_object_mut().unwrap();
+        let kept: Vec<Json> = pmi[list]
+            .as_array()
+            .unwrap()
+            .iter()
+            .enumerate()
+            .filter(|(i, _)| !indices.contains(i))
+            .map(|(_, x)| x.clone())
+            .collect();
+        if kept.is_empty() {
+            pmi.remove(list);
+        } else {
+            pmi.insert(list.to_string(), Json::Array(kept));
+        }
+    }
+    Some(doc)
+}
+
+/// The stem `known_pmi_write.json` names a file by.
+fn stem(path: &Path) -> String {
+    name(path)
+        .trim_end_matches(".gz")
+        .trim_end_matches(".step")
+        .trim_end_matches(".stp")
+        .to_string()
+}
+
+/// Each written part of `doc` against the parts read back (`back`, a `pmi read` document), as
+/// stated: values' text and units included. The problems.
+fn read_back_differences(doc: &Json, back: &Json, label: &str) -> Vec<String> {
+    let written = pmi_json::document_from_json(doc).unwrap();
+    let back = pmi_json::document_from_json(back).unwrap();
+    let mut out = Vec::new();
+    for p in &written.parts {
+        let read = &back.parts[p.part.0];
+        assert_eq!(read.part, p.part);
+        for d in differences_as_stated(&p.pmi, &read.pmi) {
+            out.push(format!("{label} part {}: {d}", p.part.0));
+        }
+    }
+    out
+}
+
+/// read → write (replace, presentation removed) → read through the command line, for every
+/// fixture and NIST file, against the writer's own round trip pins (`known_pmi_write.json`
+/// "roundtrip", of the same file by sha256):
+///
+/// - The JSON `pmi read` printed is written back as it is. Where the writer refuses items, the
+///   write is refused (exit 1, nothing created), naming exactly the pinned refusals. Where those
+///   are all items no other item references (notes, tolerance relations, attribute sets), they
+///   are left out of the JSON and the write repeated.
+/// - A write the pin records as refused by the removal plan is refused so.
+/// - Otherwise the output reads back as the JSON written (by meaning, every value's text and
+///   unit as stated), with the pinned number of presentation instances removed and the pinned
+///   edition note; the read-back JSON written again reads back as the same JSON, byte for byte
+///   (a fixed point: the first round trip only merges features of equal items); and with
+///   `--presentation refuse` the write is refused naming the pinned number of presentation
+///   blockers, or written where the pin says so.
+#[test]
+fn pmi_write_replace_round_trips_through_the_command_line() {
+    let pins: Json = serde_json::from_str(
+        &std::fs::read_to_string(common::fixtures().join("known_pmi_write.json")).unwrap(),
+    )
+    .unwrap();
+    let mut files = fixtures();
+    let nist = nist_files();
+    let with_nist = !nist.is_empty();
+    // NIST's files that are not among the committed ones (by stem).
+    let committed: BTreeSet<String> = files.iter().map(|p| stem(p)).collect();
+    files.extend(nist.into_iter().filter(|p| !committed.contains(&stem(p))));
+    let results = common::parallel::map(&files, |path| roundtrip_cli(path, &pins["roundtrip"]));
+    let mut problems = Vec::new();
+    let mut written = 0;
+    for (p, w) in results {
+        problems.extend(p);
+        written += usize::from(w);
+    }
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+    // The assembly, six of the seven specify-core inputs (nist_ctc_01_merge has dimensions
+    // without a nominal value) and the committed NIST models whose refusals are leaves (ftc_07,
+    // stc_06, stc_09, stc_10); of NIST's set, also ftc_08 and stc_07.
+    assert_eq!(written, if with_nist { 13 } else { 11 }, "files written");
+}
+
+/// One file of [`pmi_write_replace_round_trips_through_the_command_line`]: its problems, and
+/// whether it was written.
+fn roundtrip_cli(path: &Path, pins: &Json) -> (Vec<String>, bool) {
+    let mut problems = Vec::new();
+    let stem = stem(path);
+    let p = path.to_str().unwrap();
+    let Some(pin) = pins.get(&stem) else {
+        return (vec![format!("{stem}: not pinned")], false);
+    };
+    let (doc, _) = ok(&["pmi", "read", p]);
+    if pin["sha256"] != doc["binding"]["sha256"] {
+        return (
+            vec![format!("{stem}: the pin is of another file of this name")],
+            false,
+        );
+    }
+    let replace = ["--mode", "replace", "--presentation", "remove"];
+    let (out, output) = write_cli(p, &doc, &format!("rt-{stem}"), &replace);
+    let mut doc = doc;
+    let mut output = output;
+    if let Some(refused) = pin.get("refused").and_then(|r| r.as_object()) {
+        let stderr = write_refused(&out, &output, &stem);
+        let listed = refusals(&stderr);
+        let mut keys: BTreeMap<String, u64> = BTreeMap::new();
+        for (_, kind, _, why) in &listed {
+            *keys.entry(refusal_key(kind, why)).or_insert(0) += 1;
+        }
+        let pinned: BTreeMap<String, u64> = refused
+            .iter()
+            .map(|(k, v)| (k.clone(), v.as_u64().unwrap()))
+            .collect();
+        if keys != pinned {
+            problems.push(format!(
+                "{stem}: refusals {keys:?}, pinned {pinned:?}\n  {stderr}"
+            ));
+            return (problems, false);
+        }
+        let Some(stripped) = without_refused_leaves(&doc, &listed) else {
+            return (problems, false);
+        };
+        doc = stripped;
+        output = write_cli(p, &doc, &format!("rt-{stem}"), &replace).1;
+    }
+    if let Some(e) = pin.get("error").and_then(|e| e.as_str()) {
+        let stderr = write_refused(&out, &output, &stem);
+        if !e.starts_with("removal refused") || !stderr.contains("removal refused") {
+            problems.push(format!("{stem}: pinned {e:?}, refused: {stderr}"));
+        }
+        return (problems, false);
+    }
+    if output.status.code() != Some(0) {
+        problems.push(format!(
+            "{stem}: not written: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+        return (problems, false);
+    }
+    let (report, _) = write_ok(&output, &stem);
+    if report["presentation_removed"].as_array().unwrap().len() as u64
+        != pin["presentation removed"].as_u64().unwrap()
+    {
+        problems.push(format!(
+            "{stem}: {} presentation instances removed, pinned {}",
+            report["presentation_removed"].as_array().unwrap().len(),
+            pin["presentation removed"]
+        ));
+    }
+    if report.get("edition_undetermined").is_some() != pin.get("edition").is_some() {
+        problems.push(format!("{stem}: the edition note is not the pinned one"));
+    }
+    let o = out.to_str().unwrap();
+    let (back, _) = ok(&["pmi", "read", o]);
+    if report["binding"] != back["binding"] {
+        problems.push(format!("{stem}: the report's binding is not the output's"));
+    }
+    problems.extend(read_back_differences(&doc, &back, &stem));
+
+    // A fixed point: the read-back JSON written again reads back as itself.
+    let (out2, output2) = write_cli(o, &back, &format!("rt2-{stem}"), &replace);
+    write_ok(&output2, &format!("{stem} again"));
+    let (back2, _) = ok(&["pmi", "read", out2.to_str().unwrap()]);
+    if back2["parts"] != back["parts"] {
+        problems.push(format!("{stem}: the second round trip changed the JSON"));
+    }
+
+    // Policy Refuse: refused naming the presentation, or written, as pinned.
+    let refuse = ["--mode", "replace", "--presentation", "refuse"];
+    let (out3, output3) = write_cli(p, &doc, &format!("rt3-{stem}"), &refuse);
+    match pin["refuse policy"].as_str().unwrap() {
+        "written" => {
+            write_ok(&output3, &format!("{stem} refuse"));
+        }
+        pinned => {
+            let stderr = write_refused(&out3, &output3, &format!("{stem} refuse"));
+            let presentation = stderr
+                .split("; #")
+                .filter(|b| b.contains(" (presentation) ") || b.contains(" (validation-property) "))
+                .count();
+            let n: usize = pinned
+                .strip_prefix("refused: ")
+                .and_then(|r| r.split(' ').next())
+                .and_then(|n| n.parse().ok())
+                .unwrap();
+            if !stderr.contains("removal refused (Refuse)") || presentation != n {
+                problems.push(format!(
+                    "{stem}: policy refuse: {presentation} presentation blockers named, pinned \
+                     {pinned:?}"
+                ));
+            }
+        }
+    }
+    (problems, true)
+}
+
+/// spool_fits' PMI as `pmi read` gives it, without its notes (which the writer refuses), and the
+/// STEP path.
+fn spool_writable() -> (Json, String) {
+    let (mut json, step) = spool();
+    json["parts"][0]["pmi"]
+        .as_object_mut()
+        .unwrap()
+        .remove("notes");
+    (json, step)
+}
+
+/// The same write twice gives the same bytes and the same report; a `.gz` output is the same
+/// text gzipped; the inch NIST fixtures' values keep their text through read → replace → read
+/// (every inch value read back is a REAL token of the written file and was in the JSON written).
+#[test]
+fn pmi_write_is_deterministic_and_keeps_inch_values_as_stated() {
+    let (doc, step) = spool_writable();
+    let args = ["--mode", "replace"];
+    let (out, o1) = write_cli(&step, &doc, "det", &args);
+    let (_, s1) = write_ok(&o1, "det");
+    let b1 = std::fs::read(&out).unwrap();
+    let (out, o2) = write_cli(&step, &doc, "det", &args);
+    let (_, s2) = write_ok(&o2, "det again");
+    assert_eq!(std::fs::read(&out).unwrap(), b1, "the same bytes");
+    assert_eq!(s1, s2, "the same report");
+    let gz = scratch().join("det.out.step.gz");
+    let json = scratch().join("det.json");
+    let output = quiddity(&[
+        "pmi",
+        "write",
+        &step,
+        json.to_str().unwrap(),
+        "-o",
+        gz.to_str().unwrap(),
+        "--mode",
+        "replace",
+    ]);
+    write_ok(&output, "gz");
+    assert_eq!(bytes(&gz), b1, "the gzipped output is the same text");
+
+    let mut inch_files = 0;
+    for path in fixtures() {
+        let n = name(&path);
+        let leaves_only = ["ftc_07", "stc_06", "stc_09"].iter().any(|s| n.contains(s));
+        if !leaves_only {
+            continue;
+        }
+        let p = path.to_str().unwrap();
+        let (mut doc, _) = ok(&["pmi", "read", p]);
+        for part in doc["parts"].as_array_mut().unwrap() {
+            let pmi = part["pmi"].as_object_mut().unwrap();
+            pmi.remove("tolerance_relations");
+            pmi.remove("attributes");
+        }
+        let (out, output) = write_cli(p, &doc, &format!("inch-{n}"), &args);
+        write_ok(&output, &n);
+        let (back, _) = ok(&["pmi", "read", out.to_str().unwrap()]);
+        let text = String::from_utf8_lossy(&bytes(&out)).into_owned();
+        let tokens = real_tokens(&text);
+        let (mut was, mut now) = (Vec::new(), Vec::new());
+        values(&doc["parts"], &mut was);
+        values(&back["parts"], &mut now);
+        let inch = |v: &[(&str, &Json)]| -> BTreeSet<String> {
+            v.iter()
+                .filter(|(_, u)| *u == "in")
+                .map(|(v, _)| v.to_string())
+                .collect()
+        };
+        let (was, now) = (inch(&was), inch(&now));
+        assert!(!now.is_empty(), "{n}: inch values");
+        assert_eq!(was, now, "{n}: the inch values' texts");
+        for v in &now {
+            assert!(tokens.contains(v.as_str()), "{n}: {v:?} is not in the file");
+        }
+        inch_files += 1;
+    }
+    assert_eq!(inch_files, 3);
+}
+
+/// Every refusal names its cause on stderr, exits 1, and creates nothing: a document bound to
+/// another file or reader version, a remove naming PMI to write, presentation in the way under
+/// `--presentation refuse`, items the writer does not write (datum targets), a value that is not
+/// a Part 21 REAL; an existing file at the destination is left as it was.
+#[test]
+fn pmi_write_refusals_name_the_cause_and_create_nothing() {
+    let (doc, step) = spool_writable();
+    let mut other = doc.clone();
+    other["binding"]["sha256"] = json!("0".repeat(64));
+    let (out, o) = write_cli(&step, &other, "another-file", &[]);
+    let err = write_refused(&out, &o, "another file");
+    assert!(err.contains("binding.sha256"), "{err}");
+    assert!(err.contains("numbered for another file"), "{err}");
+
+    let mut other = doc.clone();
+    other["binding"]["reader"] = json!("haecceity-pmi-read/0");
+    let (out, o) = write_cli(&step, &other, "another-reader", &["--mode", "replace"]);
+    let err = write_refused(&out, &o, "another reader");
+    assert!(err.contains("binding.reader"), "{err}");
+
+    let (out, o) = write_cli(&step, &doc, "remove-with-pmi", &["--mode", "remove"]);
+    let err = write_refused(&out, &o, "remove with PMI");
+    assert!(
+        err.contains("remove names part 0 with PMI to write"),
+        "{err}"
+    );
+
+    let refuse = ["--mode", "replace", "--presentation", "refuse"];
+    let (out, o) = write_cli(&step, &doc, "presentation", &refuse);
+    let err = write_refused(&out, &o, "presentation");
+    assert!(err.contains("removal refused (Refuse)"), "{err}");
+    assert!(
+        err.contains("draughting_model_item_association (presentation) references removed"),
+        "{err}"
+    );
+
+    let mut bad = doc.clone();
+    bad["parts"][0]["pmi"]["dimensions"][0]["nominal"]["value"] = json!("62");
+    let (out, o) = write_cli(&step, &bad, "not-real", &["--mode", "replace"]);
+    let err = write_refused(&out, &o, "not a REAL");
+    assert!(
+        err.contains("Dimension(0): value 62 is not a Part 21 REAL"),
+        "{err}"
+    );
+
+    let ctc02 = ap242().join("nist/nist_ctc_02_asme1_ap242-e2.stp.gz");
+    let p = ctc02.to_str().unwrap();
+    let (nist, _) = ok(&["pmi", "read", p]);
+    let (out, o) = write_cli(p, &nist, "datum-targets", &["--mode", "replace"]);
+    let err = write_refused(&out, &o, "datum targets");
+    assert!(
+        err.contains("DatumTarget(0): datum targets are read but not written yet"),
+        "{err}"
+    );
+
+    // An existing destination stays as it was.
+    let json = scratch().join("keep.json");
+    std::fs::write(&json, other.to_string()).unwrap();
+    let keep = scratch().join("keep.step");
+    std::fs::write(&keep, b"untouched").unwrap();
+    let o = quiddity(&[
+        "pmi",
+        "write",
+        &step,
+        json.to_str().unwrap(),
+        "-o",
+        keep.to_str().unwrap(),
+    ]);
+    assert_eq!(o.status.code(), Some(1));
+    assert_eq!(std::fs::read(&keep).unwrap(), b"untouched");
+    no_temporary_left(&keep, "keep");
+}
+
+/// Add of a standard the part already states (NIST FTC-07's ASME Y14.41-2003) is that standard:
+/// nothing is written, and the output is the input's text. Add of a second material (spool_fits
+/// already names one) is accepted by the writer but fails the read-back (the reader finds two
+/// material names): refused as not verifying, creating nothing.
+#[test]
+fn pmi_write_add_of_a_stated_standard_writes_nothing_and_a_second_material_does_not_verify() {
+    let ftc07 = ap242().join("nist/nist_ftc_07_asme1_ap242-e2.stp.gz");
+    let p = ftc07.to_str().unwrap();
+    let (mut doc, _) = ok(&["pmi", "read", p]);
+    let standards = doc["parts"][0]["pmi"]["standards"].clone();
+    assert!(
+        !standards.as_array().unwrap().is_empty(),
+        "FTC-07 states a standard"
+    );
+    doc["parts"][0]["pmi"] = json!({ "standards": standards });
+    let (out, o) = write_cli(p, &doc, "stated-standard", &[]);
+    let (report, _) = write_ok(&o, "stated standard");
+    assert_eq!(report["instances"]["added"], 0, "{report}");
+    assert_eq!(bytes(&out), bytes(&ftc07), "the output is the input's text");
+
+    let (mut doc, step) = spool_writable();
+    assert!(doc["parts"][0]["pmi"]["material"].is_object());
+    doc["parts"][0]["pmi"] = json!({ "material": { "id": "Steel" } });
+    let (out, o) = write_cli(&step, &doc, "second-material", &[]);
+    let err = write_refused(&out, &o, "second material");
+    assert!(
+        err.contains("not written: the output does not verify"),
+        "{err}"
+    );
+    assert!(err.contains("material only in the second"), "{err}");
+}
+
+/// A destination that exists is replaced in place when the write verifies: through a symbolic
+/// link to its target (the link stays a link), keeping the target's permissions.
+#[cfg(unix)]
+#[test]
+fn pmi_write_replaces_an_existing_destination_through_a_link_keeping_its_permissions() {
+    use std::os::unix::fs::PermissionsExt;
+    let (doc, step) = spool_writable();
+    let dir = scratch().join("link");
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("real")).unwrap();
+    let target = dir.join("real/out.step");
+    std::fs::write(&target, b"old").unwrap();
+    std::fs::set_permissions(&target, std::fs::Permissions::from_mode(0o640)).unwrap();
+    let link = dir.join("out.step");
+    std::os::unix::fs::symlink(&target, &link).unwrap();
+    let json = dir.join("doc.json");
+    std::fs::write(&json, doc.to_string()).unwrap();
+    let o = quiddity(&[
+        "pmi",
+        "write",
+        &step,
+        json.to_str().unwrap(),
+        "-o",
+        link.to_str().unwrap(),
+        "--mode",
+        "replace",
+    ]);
+    write_ok(&o, "through a link");
+    assert!(
+        std::fs::symlink_metadata(&link)
+            .unwrap()
+            .file_type()
+            .is_symlink()
+    );
+    let m = std::fs::metadata(&target).unwrap();
+    assert_eq!(m.permissions().mode() & 0o777, 0o640);
+    assert_ne!(std::fs::read(&target).unwrap(), b"old");
+    no_temporary_left(&target, "through a link");
+}
+
+/// Add onto a corpus part (AP214, no PMI): written as AP242 (decision 1), every item read back,
+/// a datum feature symbol for A; then remove: the part reads back as it did at first. An AP203
+/// file whose instances do not all validate against AP242 is refused, naming them.
+#[test]
+fn pmi_write_add_then_remove_returns_a_corpus_part_to_its_pmi() {
+    let Some(corpus) = common::corpus_dir() else {
+        assert!(
+            std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
+            "QUIDDITY_CORPUS_REQUIRED is set but the corpus was not found"
+        );
+        eprintln!("corpus not found; set QUIDDITY_CORPUS");
+        return;
+    };
+    let path = corpus.join("cadgenbench/flanged_spool_132.step");
+    let p = path.to_str().unwrap();
+    let (original, _) = ok(&["pmi", "read", p]);
+    let add = json!({
+        "format": "quiddity-pmi",
+        "version": 1,
+        "binding": original["binding"],
+        "parts": [{"part": 0, "pmi": {
+            "features": [{"items": [{"face": 69}]}, {"items": [{"face": 55}]}],
+            "datums": [{"label": "A", "feature": 0}],
+            "dimensions": [
+                {"kind": {"size": {"feature": 1, "kind": "diameter"}},
+                 "nominal": {"value": "62.", "unit": "mm"},
+                 "tolerance": {"fit": {"deviation": "H", "grade": "IT7"}}},
+            ],
+            "tolerances": [
+                {"kind": "flatness", "target": {"feature": 0},
+                 "magnitude": {"value": "0.02", "unit": "mm"}},
+                {"kind": "perpendicularity", "target": {"feature": 1},
+                 "magnitude": {"value": "0.05", "unit": "mm"},
+                 "zone": {"form": "cylindrical or circular"},
+                 "datums": [{"references": [{"datum": 0}]}]},
+            ],
+            "general": [{"class": {"text": "ISO 2768-mK"}}],
+            "material": {"id": "Aluminium 6082-T6"},
+        }}],
+    });
+    let (out, o) = write_cli(p, &add, "corpus-add", &[]);
+    let (report, _) = write_ok(&o, "add");
+    assert_eq!(report["mode"], "add");
+    assert_eq!(
+        report["file_schema"]["to"],
+        "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }"
+    );
+    assert_eq!(report["datum_symbols"], json!([{"part": 0, "labels": "A"}]));
+    let added = out.to_str().unwrap().to_string();
+    let (back, _) = ok(&["pmi", "read", &added]);
+    let d = read_back_differences(&add, &back, "add");
+    assert!(d.is_empty(), "{}", d.join("\n"));
+
+    let mut remove = back.clone();
+    remove["parts"] = json!([{"part": 0, "pmi": {}}]);
+    remove.as_object_mut().unwrap().remove("findings");
+    let (out, o) = write_cli(&added, &remove, "corpus-remove", &["--mode", "remove"]);
+    let (report, _) = write_ok(&o, "remove");
+    assert_eq!(report["mode"], "remove");
+    assert_eq!(report["instances"]["added"], 0);
+    let (after, _) = ok(&["pmi", "read", out.to_str().unwrap()]);
+    assert_eq!(after["parts"], original["parts"]);
+    assert_eq!(after["findings"], original["findings"]);
+
+    let ap203 = corpus.join("nist/nist_ctc_01_asme1_rd.stp");
+    let p = ap203.to_str().unwrap();
+    let (read, _) = ok(&["pmi", "read", p]);
+    let mut doc = read.clone();
+    doc["parts"] = json!([{"part": 0, "pmi": {"general": [{"class": {"text": "ISO 2768-m"}}]}}]);
+    let (out, o) = write_cli(p, &doc, "edition", &[]);
+    let err = write_refused(&out, &o, "edition");
+    assert!(
+        err.contains("cannot become AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF"),
+        "{err}"
+    );
+    assert!(err.contains("instances violate it: #"), "{err}");
 }

@@ -2338,6 +2338,138 @@ pub fn parts_json(parts: &[PartDefinition], binding: &Binding) -> Json {
     })
 }
 
+/// The format name of a write's report (`quiddity pmi write`).
+pub const WRITE_FORMAT: &str = "quiddity-pmi-write";
+
+/// The report of a verified write: the mode and presentation policy, the parts written, the
+/// input's and the output's bindings, instance counts (added; replaced, i.e. kept presentation
+/// containers rewritten without removed members; removed), the presentation removed by id and
+/// type, the `FILE_SCHEMA` kept or changed, the datums of an add that resolved to the part's
+/// own, the datum feature symbols written, the edition table the written instances were checked
+/// against, the original's schema and rule violations (reported, not repaired), the reader's
+/// findings about PMI of a replaced part that stays, and the findings of reading the output.
+#[must_use]
+pub fn write_report_json(
+    mode: write::Mode,
+    policy: write::PresentationPolicy,
+    parts: &[PartId],
+    input: &Binding,
+    output: &Binding,
+    report: &write::WriteReport,
+    findings: &[Finding],
+) -> Json {
+    let mode = match mode {
+        write::Mode::Add => "add",
+        write::Mode::Replace => "replace",
+        write::Mode::Remove => "remove",
+    };
+    let presentation = match policy {
+        write::PresentationPolicy::Refuse => "refuse",
+        write::PresentationPolicy::RemovePresentation => "remove",
+    };
+    let schema = match &report.schema {
+        write::SchemaChange::Kept(s) => json!({"kept": s}),
+        write::SchemaChange::Upgraded { from, to } => json!({"from": from, "to": to}),
+    };
+    let typed = |v: &[(u64, String)]| {
+        v.iter()
+            .map(|(id, entity)| json!({"id": id, "entity": entity}))
+            .collect::<Vec<_>>()
+    };
+    Out::new()
+        .put("format", json!(WRITE_FORMAT))
+        .put("version", json!(VERSION))
+        .put("mode", json!(mode))
+        .put("presentation", json!(presentation))
+        .put(
+            "parts",
+            json!(parts.iter().map(|p| p.0).collect::<Vec<_>>()),
+        )
+        .put(
+            "input",
+            json!({"sha256": input.sha256, "reader": input.reader}),
+        )
+        .put(
+            "binding",
+            json!({"sha256": output.sha256, "reader": output.reader}),
+        )
+        .put(
+            "instances",
+            json!({
+                "added": report.added,
+                "replaced": report.rewritten.len(),
+                "removed": report.removed.len(),
+            }),
+        )
+        .put(
+            "presentation_removed",
+            json!(typed(&report.presentation_removed)),
+        )
+        .put("left_unreferenced", json!(typed(&report.left_unreferenced)))
+        .put("file_schema", schema)
+        .put("validated_against", json!(report.validated_against))
+        .opt(
+            "edition_undetermined",
+            report.edition_undetermined.as_ref().map(|s| json!(s)),
+        )
+        .put(
+            "reused_datums",
+            json!(
+                report
+                    .reused_datums
+                    .iter()
+                    .map(|(p, label, id)| json!({"part": p.0, "label": label, "id": id}))
+                    .collect::<Vec<_>>()
+            ),
+        )
+        .put(
+            "datum_symbols",
+            json!(
+                report
+                    .datum_symbols
+                    .iter()
+                    .map(|(p, labels)| json!({"part": p.0, "labels": labels}))
+                    .collect::<Vec<_>>()
+            ),
+        )
+        .put(
+            "preexisting_violations",
+            json!(
+                report
+                    .preexisting_violations
+                    .iter()
+                    .map(|v| json!({"id": v.id, "entity": v.entity, "violation": v.to_string()}))
+                    .collect::<Vec<_>>()
+            ),
+        )
+        .put(
+            "preexisting_rule_violations",
+            json!(
+                report
+                    .preexisting_rule_violations
+                    .iter()
+                    .map(|v| json!({"id": v.id, "entity": v.entity, "rule": v.rule,
+                                    "message": v.message}))
+                    .collect::<Vec<_>>()
+            ),
+        )
+        .put(
+            "kept_unconsumed",
+            json!(
+                report
+                    .kept_unconsumed
+                    .iter()
+                    .map(finding_json)
+                    .collect::<Vec<_>>()
+            ),
+        )
+        .put(
+            "findings",
+            json!(findings.iter().map(finding_json).collect::<Vec<_>>()),
+        )
+        .done()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
