@@ -55,6 +55,7 @@ use crate::features::interior_voids::InteriorVoid;
 use crate::features::oblique_through_steps::ObliqueThroughStep;
 use crate::features::oriented_chamfers::OrientedChamfer;
 use crate::features::oriented_slots::{OrientedSlot, OrientedSlotPattern};
+use crate::features::pads::RaisedPad;
 use crate::features::paired_ramp_steps::PairedRampStep;
 use crate::features::passages::{
     PassageEnds, PassageFrame, PassageSection, PassageSectionVertex, SectionPassage,
@@ -423,6 +424,7 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
         prismatic_pockets,
         oriented_slots,
         oriented_slot_patterns,
+        pads,
         defining,
     } = features;
     let mut local = LocalFields::new();
@@ -527,6 +529,7 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
             oriented_slot_patterns,
             oriented_slot_pattern
         ),
+        pads: each!("pads", pads, raised_pad),
         // The working part's faces are the caller's, under the same indices.
         defining,
     };
@@ -1935,6 +1938,37 @@ fn oriented_slot_pattern(out: &mut Out, r: OrientedSlotPattern) -> OrientedSlotP
             pitch,
             direction: out.direction(direction),
         },
+    }
+}
+
+/// The pad's box is in the frame's axes, and `direction` the sign it rises in along `axis`.
+fn raised_pad(out: &mut Out, r: RaisedPad) -> RaisedPad {
+    let RaisedPad {
+        x0,
+        x1,
+        y0,
+        y1,
+        z0,
+        z1,
+        axis,
+        direction,
+    } = r;
+    let i = index_str(&axis);
+    let b = out.bounds(&[x0, y0, z0, x1, y1, z1], false, "x0");
+    if out.axes.is_none() {
+        for path in ["x1", "y0", "y1", "z0", "z1"] {
+            out.mark(path);
+        }
+    }
+    RaisedPad {
+        x0: b[0],
+        x1: b[3],
+        y0: b[1],
+        y1: b[4],
+        z0: b[2],
+        z1: b[5],
+        direction: out.sign(i, direction, "direction"),
+        axis: out.letter_string(axis, "axis"),
     }
 }
 

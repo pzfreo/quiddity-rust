@@ -12,6 +12,9 @@
 //! Python's `ValueError`s (a selected blend cycle whose bridges are not unique, and the evidence
 //! path's refusals) are [`PadError`]s with its messages. A part without solids has no pads: every
 //! proposal needs its top's material side, which only a valid solid certifies.
+//! Python reads such a part as one source (`solids or [part]`), so on the blended path it could
+//! still raise a collapse or bridge error before that check, where this returns nothing; no captured
+//! call or corpus part has a solidless shape to show it.
 
 use std::cmp::Ordering;
 use std::collections::BTreeSet;
