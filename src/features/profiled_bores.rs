@@ -203,7 +203,9 @@ fn recognise_one(
                 ],
             };
             let volume_tol = scan_tol.powi(3).max(prism.area() * (hi - lo) * 1e-6);
-            if common_volume(classifier, &Probe::Prism(prism)) > volume_tol {
+            // The claim is that the swept opening is clear; an unanswered probe does not show
+            // that, so it refuses the bore like material would.
+            if common_volume(classifier, &Probe::Prism(prism)).is_none_or(|v| v > volume_tol) {
                 continue;
             }
             let mut axis_vector = [0.0; 3];

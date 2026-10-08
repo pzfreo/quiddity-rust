@@ -420,5 +420,6 @@ pub fn empty_sweep(
                 .collect(),
         ],
     };
-    common_volume(solid, &Probe::Prism(prism)) == 0.0
+    // An unanswered probe proves no emptiness.
+    common_volume(solid, &Probe::Prism(prism)) == Some(0.0)
 }

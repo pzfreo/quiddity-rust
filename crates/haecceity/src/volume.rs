@@ -167,26 +167,31 @@ const MAX_DEPTH: usize = 5;
 /// or air that reaches no deeper than the coordinate tolerance is where the probe's boundary
 /// lies on the solid's within the file's own precision, and is what Python's 1e-6 insets exist
 /// to ignore. Anything between is measured on the probe itself.
-pub fn common_volume(solid: &Classifier<'_>, probe: &Probe<'_>) -> f64 {
-    let [material, air] = shared(solid, probe, COORD_FLOOR);
+///
+/// `None` when the question cannot be answered: a line the rays cannot resolve (a face they
+/// cannot intersect, or crossings whose parity stays odd), a probe clear of every face whose
+/// centre the classifier cannot place, or a solid probe whose own volume is unknown. An
+/// unanswered line is never read as air.
+pub fn common_volume(solid: &Classifier<'_>, probe: &Probe<'_>) -> Option<f64> {
+    let [material, air] = shared(solid, probe, COORD_FLOOR)?;
     if material == 0.0 {
-        0.0
+        Some(0.0)
     } else if air == 0.0 {
         probe_volume(probe)
     } else {
-        shared(solid, probe, 0.0)[0]
+        Some(shared(solid, probe, 0.0)?[0])
     }
 }
 
-/// The probe's own volume.
-pub fn probe_volume(probe: &Probe<'_>) -> f64 {
+/// The probe's own volume; `None` for a solid probe whose mass cannot be integrated.
+pub fn probe_volume(probe: &Probe<'_>) -> Option<f64> {
     match probe {
         Probe::Box(b) => {
             let s = geom::sub(b.max, b.min);
-            s[0] * s[1] * s[2]
+            Some(s[0] * s[1] * s[2])
         }
-        Probe::Solid(rays) => rays.part.solid_mass(0).map_or(0.0, |m| m.0),
-        Probe::Prism(prism) => prism.area() * (prism.hi - prism.lo),
+        Probe::Solid(rays) => rays.part.solid_mass(0).map(|m| m.0),
+        Probe::Prism(prism) => Some(prism.area() * (prism.hi - prism.lo)),
     }
 }
 
@@ -199,16 +204,17 @@ impl Probe<'_> {
         }
     }
 
-    /// The probe's intervals along a line that starts outside it.
-    fn intervals(&self, origin: V3, dir: V3, reach: f64) -> Vec<(f64, f64)> {
-        match self {
+    /// The probe's intervals along a line that starts outside it; `None` where a solid probe's
+    /// rays cannot resolve the line.
+    fn intervals(&self, origin: V3, dir: V3, reach: f64) -> Option<Vec<(f64, f64)>> {
+        Some(match self {
             Probe::Box(b) => {
                 // Slabs: the parameter range inside every axis's pair of planes.
                 let (mut lo, mut hi) = (0.0f64, reach);
                 for i in 0..3 {
                     if dir[i].abs() < 1e-300 {
                         if origin[i] < b.min[i] || origin[i] > b.max[i] {
-                            return Vec::new();
+                            return Some(Vec::new());
                         }
                         continue;
                     }
@@ -220,33 +226,31 @@ impl Probe<'_> {
                 }
                 if lo < hi { vec![(lo, hi)] } else { Vec::new() }
             }
-            Probe::Solid(rays) => intervals(rays, origin, dir, reach),
+            Probe::Solid(rays) => intervals(rays, origin, dir, reach)?,
             Probe::Prism(prism) => prism.intervals(origin, dir, reach),
-        }
+        })
     }
 
-    /// Where a straight segment p–q pierces the probe's faces.
-    fn pierce(&self, p: V3, q: V3) -> Vec<V3> {
+    /// Where a straight segment p–q pierces the probe's faces; `None` where a solid probe's
+    /// rays cannot resolve the segment.
+    fn pierce(&self, p: V3, q: V3) -> Option<Vec<V3>> {
         let Some(dir) = geom::unit(geom::sub(q, p)) else {
-            return Vec::new();
+            return Some(Vec::new());
         };
         let span = geom::dist(p, q);
         let ts: Vec<f64> = match self {
             Probe::Box(_) | Probe::Prism(_) => self
-                .intervals(p, dir, span)
+                .intervals(p, dir, span)?
                 .into_iter()
                 .flat_map(|(a, b)| [a, b])
                 .collect(),
-            Probe::Solid(rays) => rays
-                .hits(p, dir, span)
-                .unwrap_or_default()
-                .iter()
-                .map(|h| h.t)
-                .collect(),
+            Probe::Solid(rays) => rays.hits(p, dir, span)?.iter().map(|h| h.t).collect(),
         };
-        ts.into_iter()
-            .map(|t| geom::add(p, geom::scale(dir, t)))
-            .collect()
+        Some(
+            ts.into_iter()
+                .map(|t| geom::add(p, geom::scale(dir, t)))
+                .collect(),
+        )
     }
 }
 
@@ -382,19 +386,22 @@ impl<'a> Polyline<'a> {
     }
 }
 
-/// The material and the air shared with the probe drawn in by *inset* on every side.
-fn shared(solid: &Classifier<'_>, probe: &Probe<'_>, inset: f64) -> Pair {
+/// The material and the air shared with the probe drawn in by *inset* on every side, or
+/// `None` when a line through it, or the state of a probe clear of every face, is unresolved.
+fn shared(solid: &Classifier<'_>, probe: &Probe<'_>, inset: f64) -> Option<Pair> {
     let rays = solid.rays();
     let (sb, pb) = (rays.bounds(), probe.bounds());
-    let whole = probe_volume(probe);
+    let whole = probe_volume(probe)?;
     let Some(region) = overlap(&sb, &pb) else {
-        return [0.0, whole];
+        return Some([0.0, whole]);
     };
-    // A probe whose box meets no face's box is wholly inside or wholly outside.
+    // A probe whose box meets no face's box is wholly inside or wholly outside. Its centre lies
+    // clear of every face, so `On` there is as unresolved as `Unknown`.
     if !rays.any_face_box_meets(&pb) {
         return match solid.classify(pb.centre()) {
-            State::In => [whole, 0.0],
-            _ => [0.0, whole],
+            State::In => Some([whole, 0.0]),
+            State::Out => Some([0.0, whole]),
+            State::On | State::Unknown => None,
         };
     }
     let mine = Side::of_solid(rays, &region);
@@ -419,19 +426,27 @@ fn shared(solid: &Classifier<'_>, probe: &Probe<'_>, inset: f64) -> Pair {
         region.max[(z + 1) % 3] - inset,
     );
     if h1 <= h0 || across.1 <= across.0 {
-        return [0.0, 0.0];
+        return Some([0.0, 0.0]);
     }
     let y = (z + 2) % 3;
     let start = sb.min[y].min(pb.min[y]) - 1.0;
     let reach = sb.max[y].max(pb.max[y]) + 1.0 - start;
+    // The integrators take plain lengths: a line either shape cannot resolve is noted here, and
+    // the whole answer refused.
+    let unresolved = std::cell::Cell::new(false);
     let length = |h: f64, s: f64| {
         let origin = geom::add(
             geom::add(geom::scale(frame.z, h), geom::scale(frame.x, s)),
             geom::scale(frame.y, start),
         );
-        let material = intervals(rays, origin, frame.y, reach);
-        let inside: Vec<(f64, f64)> = probe
-            .intervals(origin, frame.y, reach)
+        let (Some(material), Some(probed)) = (
+            intervals(rays, origin, frame.y, reach),
+            probe.intervals(origin, frame.y, reach),
+        ) else {
+            unresolved.set(true);
+            return [0.0, 0.0];
+        };
+        let inside: Vec<(f64, f64)> = probed
             .into_iter()
             .map(|(a, b)| (a + inset, b - inset))
             .filter(|(a, b)| a < b)
@@ -456,15 +471,13 @@ fn shared(solid: &Classifier<'_>, probe: &Probe<'_>, inset: f64) -> Pair {
     }
     for e in mine.edges.iter().filter(|e| e.straight) {
         for w in e.points.windows(2) {
-            hs.extend(probe.pierce(w[0], w[1]).iter().map(|v| at(*v, frame.z)));
+            hs.extend(probe.pierce(w[0], w[1])?.iter().map(|v| at(*v, frame.z)));
         }
     }
     for e in theirs.edges.iter().filter(|e| e.straight) {
         for w in e.points.windows(2) {
             if let Some(dir) = geom::unit(geom::sub(w[1], w[0])) {
-                let hits = rays
-                    .hits(w[0], dir, geom::dist(w[0], w[1]))
-                    .unwrap_or_default();
+                let hits = rays.hits(w[0], dir, geom::dist(w[0], w[1]))?;
                 hs.extend(
                     hits.iter()
                         .map(|hit| at(geom::add(w[0], geom::scale(dir, hit.t)), frame.z)),
@@ -486,7 +499,8 @@ fn shared(solid: &Classifier<'_>, probe: &Probe<'_>, inset: f64) -> Pair {
         }
         integrate(&|s| length(h, s), across, ss, rule.per(h1 - h0))
     };
-    integrate(&area, (h0, h1), hs, rule)
+    let total = integrate(&area, (h0, h1), hs, rule);
+    (!unresolved.get()).then_some(total)
 }
 
 /// The point three planes `n · p = d` share, if they meet in one.
@@ -525,8 +539,9 @@ fn faces_meeting(rays: &RayCaster<'_>, region: &Bounds) -> Vec<usize> {
 
 /// The material intervals along a ray that starts outside the solid, by the parity of its
 /// crossings. Crossings closer than the kernel can tell apart are one (a ray through an edge
-/// meets both faces there); a line still left odd (a graze) is nudged off it.
-fn intervals(rays: &RayCaster<'_>, origin: V3, dir: V3, reach: f64) -> Vec<(f64, f64)> {
+/// meets both faces there); a line still left odd (a graze) is nudged off it. `None` when a
+/// face the line meets cannot be intersected, or the parity is still odd after the nudges.
+fn intervals(rays: &RayCaster<'_>, origin: V3, dir: V3, reach: f64) -> Option<Vec<(f64, f64)>> {
     for nudge in 0..4 {
         let o = geom::add(
             origin,
@@ -536,9 +551,7 @@ fn intervals(rays: &RayCaster<'_>, origin: V3, dir: V3, reach: f64) -> Vec<(f64,
                 3e-9 * nudge as f64,
             ],
         );
-        let Some(hits) = rays.trimmed_hits(o, dir, reach) else {
-            return Vec::new();
-        };
+        let hits = rays.trimmed_hits(o, dir, reach)?;
         let mut ts: Vec<f64> = Vec::new();
         for h in hits {
             if ts.last().is_none_or(|&last| h.t - last > 1e-9) {
@@ -546,10 +559,10 @@ fn intervals(rays: &RayCaster<'_>, origin: V3, dir: V3, reach: f64) -> Vec<(f64,
             }
         }
         if ts.len().is_multiple_of(2) {
-            return ts.chunks(2).map(|c| (c[0], c[1])).collect();
+            return Some(ts.chunks(2).map(|c| (c[0], c[1])).collect());
         }
     }
-    Vec::new()
+    None
 }
 
 /// The total length the two sets of intervals share. A shared stretch shorter than a nanometre

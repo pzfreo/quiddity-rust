@@ -26,5 +26,19 @@
     "family": "grooves",
     "verdict": "rust-wrong",
     "reason": "A groove's walls are its immediate neighbours in s_lo order, which is not symmetric when bands overlap. This shaft has 60 bands, many split or partial (face 1905 spans -109..149.5); unmoved, the floor (face 2074, Ø180, -164.5..-110.5) has a Ø210 band ending at -169.5 below it and face 1905 starting at -109 above. rot_z90 turns the y axis onto -x, the canonical direction flips the axial coordinate, and the band sorted just below the floor becomes one ending 15 mm short of it, so the floor is not joined and no groove is found. Python behaves the same (checked: recognise_grooves on the part rotated 90° about z returns []). Choosing each wall as the band nearest the floor's end, rather than by s_lo order, would make it symmetric; that is a change to the specification."
+  },
+  {
+    "file": "mfcadpp/10255.step",
+    "motion": "rot_z90",
+    "family": "edge_open_prismatic_recesses",
+    "verdict": "rust-wrong",
+    "reason": "Unmoved, the recess's open-end volume probe is refused (lines along x graze the tangent of its radius-1 wall and keep an odd crossing count; see the corpus entry for this file); moved, the integration lines fall differently against the wall, the probe answers and the recess is found, as Python finds it. The moved answer is the right one."
+  },
+  {
+    "file": "mfcadpp/10255.step",
+    "motion": "rot_x90",
+    "family": "edge_open_prismatic_recesses",
+    "verdict": "rust-wrong",
+    "reason": "Unmoved, the recess's open-end volume probe is refused (lines along x graze the tangent of its radius-1 wall and keep an odd crossing count; see the corpus entry for this file); moved, the integration lines fall differently against the wall, the probe answers and the recess is found, as Python finds it. The moved answer is the right one."
   }
 ]

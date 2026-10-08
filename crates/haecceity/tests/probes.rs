@@ -38,42 +38,58 @@ fn probes_match_python() {
     }
     let known: Vec<Value> = serde_json::from_value(common::load("known_probes.json")).unwrap();
     common::check_verdicts("known_probes.json", &known);
-    let mut problems = Vec::new();
+    // A problem is keyed exactly: its file, its caller, and its index among that file's probes
+    // in `probes.json.gz` order.
+    let mut problems: Vec<Problem> = Vec::new();
     for (file, asked) in by_file {
         let part = read_step_file(&dir.join(&file)).unwrap();
         let solids: Vec<Classifier<'_>> = (0..part.solids.len())
             .map(|s| Classifier::for_solid(&part, s))
             .collect();
-        for p in asked {
-            let (ok, report) = check(&p, &solids);
+        for (index, p) in asked.iter().enumerate() {
+            let (ok, report) = check(p, &solids);
             if !ok {
-                problems.push(format!("{file} {} {report}", p["caller"]));
+                let caller = p["caller"].as_str().unwrap().to_string();
+                problems.push((file.clone(), caller, index, report));
             }
         }
     }
-    let listed = |problem: &str, k: &Value| {
-        problem.starts_with(&format!("{} ", k["file"].as_str().unwrap()))
-            && problem.contains(k["contains"].as_str().unwrap())
+    // An entry names the probes it covers; each must still be a problem, and each problem must
+    // be covered by exactly one entry.
+    let listed = |(file, caller, index, _): &Problem, k: &Value| {
+        k["file"].as_str() == Some(file.as_str())
+            && k["caller"].as_str() == Some(caller.as_str())
+            && k["probes"]
+                .as_array()
+                .is_some_and(|ps| ps.iter().any(|i| i.as_u64() == Some(*index as u64)))
     };
-    let unexpected: Vec<&String> = problems
-        .iter()
-        .filter(|p| !known.iter().any(|k| listed(p, k)))
-        .collect();
-    let stale: Vec<&Value> = known
-        .iter()
-        .filter(|k| !problems.iter().any(|p| listed(p, k)))
-        .collect();
+    let mut failures = Vec::new();
+    for problem in &problems {
+        let n = known.iter().filter(|k| listed(problem, k)).count();
+        if n != 1 {
+            let (file, caller, index, report) = problem;
+            failures.push(format!(
+                "{n} entries for {file} {caller} #{index}: {report}"
+            ));
+        }
+    }
+    for k in &known {
+        let want = k["probes"].as_array().map_or(0, |ps| ps.len());
+        let got = problems.iter().filter(|p| listed(p, k)).count();
+        if want == 0 || got != want {
+            failures.push(format!("entry matches {got} of its {want} probes: {k}"));
+        }
+    }
     assert!(
-        unexpected.is_empty() && stale.is_empty(),
-        "{} unexpected:\n{}\nstale: {stale:?}",
-        unexpected.len(),
-        unexpected
-            .iter()
-            .map(|s| s.as_str())
-            .collect::<Vec<_>>()
-            .join("\n")
+        failures.is_empty(),
+        "{} failures:\n{}",
+        failures.len(),
+        failures.join("\n")
     );
 }
+
+/// A probe the port answers differently: file, caller, index in the file, report.
+type Problem = (String, String, usize, String);
 
 /// Whether the port agrees with Python's answer (empty, full or the fraction), and a report.
 fn check(p: &Value, solids: &[Classifier<'_>]) -> (bool, String) {
@@ -89,19 +105,25 @@ fn check(p: &Value, solids: &[Classifier<'_>]) -> (bool, String) {
         probe_part = read_step(p["step"].as_str().unwrap().as_bytes()).unwrap();
         (Probe::Solid(RayCaster::for_solid(&probe_part, 0)), "solid")
     };
-    let got: f64 = p["solids"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .map(|s| common_volume(&solids[s.as_u64().unwrap() as usize], &probe))
-        .sum();
     // Each side as a fraction of its own measure of the probe: the two kernels' probe volumes
     // agree only to about 1e-9.
     let (want, pv) = (
         p["volume"].as_f64().unwrap(),
         p["probe_volume"].as_f64().unwrap(),
     );
-    let rpv = probe_volume(&probe);
+    // A refusal is always a difference: Python answered every probe here.
+    let got: Option<f64> = p["solids"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|s| common_volume(&solids[s.as_u64().unwrap() as usize], &probe))
+        .sum();
+    let (Some(got), Some(rpv)) = (got, probe_volume(&probe)) else {
+        return (
+            false,
+            format!("{shape}: python {want} of {pv}, rust refused"),
+        );
+    };
     let kind = if want == 0.0 {
         "empty"
     } else if (want - pv).abs() <= 1e-9 * pv {

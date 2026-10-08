@@ -74,7 +74,7 @@ impl<'a> Context<'a> {
 
     /// The volume *face* moved by *offset* and swept along *sweep* shares with one solid
     /// (`probe_volume` of a `Solid.extrude` of the face), or `None` when the face cannot be
-    /// swept exactly (see [`extrude_face`]).
+    /// swept exactly (see [`extrude_face`]) or the volume probe cannot answer.
     pub fn swept_face_volume(
         &self,
         solid: usize,
@@ -84,12 +84,13 @@ impl<'a> Context<'a> {
     ) -> Option<f64> {
         let prism = extrude_face(self.part, face, offset, sweep)?;
         let probe = Probe::Solid(RayCaster::for_solid(&prism, 0));
-        Some(common_volume(self.solid_classifier(solid), &probe))
+        common_volume(self.solid_classifier(solid), &probe)
     }
 
     /// The fraction of that swept face's own volume one solid's material fills
     /// (`material_fraction` of a `Solid.extrude` of the face), or `None` when the face cannot be
-    /// swept exactly or sweeps to no volume (Python divides by zero there and refuses).
+    /// swept exactly or sweeps to no volume (Python divides by zero there and refuses), or the
+    /// volume probe cannot answer.
     pub fn swept_face_fraction(
         &self,
         solid: usize,
@@ -99,7 +100,7 @@ impl<'a> Context<'a> {
     ) -> Option<f64> {
         let prism = extrude_face(self.part, face, offset, sweep)?;
         let probe = Probe::Solid(RayCaster::for_solid(&prism, 0));
-        let whole = probe_volume(&probe);
-        (whole > 0.0).then(|| common_volume(self.solid_classifier(solid), &probe) / whole)
+        let whole = probe_volume(&probe).filter(|&w| w > 0.0)?;
+        Some(common_volume(self.solid_classifier(solid), &probe)? / whole)
     }
 }
