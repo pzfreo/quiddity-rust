@@ -129,8 +129,9 @@ pub struct Features {
     pub freeform_surfaces: Vec<freeform_surfaces::FreeformSurface>,
     pub polygonal_bosses: Vec<polygonal_bosses::PolygonalBoss>,
     pub polygonal_stock: Vec<polygonal_bosses::PolygonalStock>,
-    /// Python's `RecognitionResult.section_passages`: every section passage, through slots
-    /// included (Python's aggregate reconciles them; this does not).
+    /// Python's legacy inventory field (`_LegacyRecognitionResult.section_passages`): every
+    /// section passage, through slots included (Python's aggregate reconciles them; this does
+    /// not).
     pub section_passages: Vec<passages::SectionPassage>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole, gusset rib, slot and pocket patterns) have none of their own: their

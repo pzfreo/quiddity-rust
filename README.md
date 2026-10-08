@@ -71,7 +71,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 34 (35 calls) | 4 | 1 | 3 | 3 | 23 |
 | `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 23 | 0 | 23 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
-| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 36 | 9 | 27 | 0 | 0 | 0 |
+| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 36 | 10 | 26 | 0 | 0 | 0 |
 | `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 9 (23 probes) | 7 | 1 | 0 | 0 | 1 |
 | `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 64 | 13 | 0 | 0 | 51 | 0 |
 | `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 41 | 5 | 1 | 2 | 0 | 33 |
@@ -110,7 +110,9 @@ Python); `recognise` panics with the message, as Python's aggregate raises. `tes
 replays the entry calls and, on 359 parts (the calls' parts, the section tests' parts, every
 golden fixture, the corpus), every ring, the legacy roster's walls, the records and defining
 walls, and 274 compatibility calls (`tools/capture_passages.py`): all agree. `Features` carries
-them as `section_passages`, Python's `RecognitionResult` field, unreconciled with through slots.
+them as `section_passages`, the field of Python's legacy inventory (`_LegacyRecognitionResult`;
+the public `RecognitionResult` publishes passages through `section_recess`), unreconciled with
+through slots.
 Open question for the maintainer: Python 0.4 publishes passages through the unified
 `section_recess` projection rather than as a family of their own; whether the recognition
 document should keep `section_passages` as a family (as now) or wait for that projection is not
