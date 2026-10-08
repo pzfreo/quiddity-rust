@@ -1,4 +1,5 @@
-//! The `quiddity` command line: usage, and honest failure on broken STEP files.
+//! The `quiddity` command line: usage, its output (the recognition document beside the records
+//! and fingerprints), and honest failure on broken STEP files.
 //!
 //! The broken files under `tests/fixtures/broken/` are derived from `rejected_cylinder.step`
 //! (a three-face cylinder): an empty DATA section, a write cut off mid-entity, a file cut at an
@@ -56,6 +57,53 @@ fn a_sound_file_is_recognised() {
     assert!(out.stderr.is_empty());
     let json: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
     assert!(json.get("fingerprints").is_some());
+    let document = &json["document"];
+    assert_eq!(
+        document["schema_version"],
+        quiddity::recognition::SCHEMA_VERSION
+    );
+    assert!(document["records"].is_array());
+}
+
+#[test]
+fn the_document_lists_each_feature_with_its_record_type_and_faces() {
+    let path =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/filleted_plate_with_holes.step");
+    let out = quiddity(&[path.to_str().unwrap()]);
+    assert!(out.status.success());
+    let json: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+    let records: Vec<(&str, &str, &serde_json::Value)> = json["document"]["records"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|r| {
+            (
+                r["id"].as_str().unwrap(),
+                r["record_type"].as_str().unwrap(),
+                &r["faces"],
+            )
+        })
+        .collect();
+    let faces = |v: &[usize]| serde_json::json!(v);
+    assert_eq!(
+        records,
+        [
+            ("fillets/0", "Fillet", &faces(&[2])),
+            ("fillets/1", "Fillet", &faces(&[3])),
+            ("fillets/2", "Fillet", &faces(&[7])),
+            ("fillets/3", "Fillet", &faces(&[8])),
+            ("holes/0", "HoleRecord", &faces(&[10])),
+            ("holes/1", "HoleRecord", &faces(&[11])),
+            ("holes/2", "HoleRecord", &faces(&[12])),
+            ("hole_patterns/0", "LinearArray", &faces(&[10, 11, 12])),
+        ]
+    );
+    // The existing keys are kept: the records at the top level, the fingerprints beside them.
+    assert_eq!(
+        json["fillets"][0],
+        json["document"]["records"][0]["parameters"]
+    );
+    assert!(json["fingerprints"]["features"].is_array());
 }
 
 #[test]

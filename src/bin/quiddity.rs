@@ -1,5 +1,7 @@
-//! `quiddity <file.step>`: recognise a STEP file's features and print them, with their
-//! fingerprints, as JSON.
+//! `quiddity <file.step>`: recognise a STEP file's features and print them as JSON: each
+//! family's records at the top level, their `fingerprints`, and the versioned recognition
+//! `document` (`quiddity::recognition`: per feature its family, Python record type, defining
+//! faces and record).
 //!
 //! `quiddity correspond <old> <new>`: match two revisions and print the correspondence as JSON.
 //! Each revision is a recognition result written by `quiddity <file.step>`, or a STEP file
@@ -13,9 +15,19 @@
 use std::path::Path;
 use std::process::ExitCode;
 
-use quiddity::correspondence::{self, Fingerprints};
+use quiddity::correspondence::{self, Fingerprints, Recognition};
+use quiddity::recognition::{self, RecognitionDocument};
+use serde::Serialize;
 
-const USAGE: &str = "usage: quiddity <file.step>\n       quiddity correspond <old.json|old.step> <new.json|new.step>";
+const USAGE: &str = "usage: quiddity <file.step>\n       quiddity correspond <old.json|old.step> <new.json|new.step>\n\n`quiddity <file.step>` prints JSON: each family's records, their `fingerprints`, and the\nversioned recognition `document`.";
+
+/// What `quiddity <file.step>` prints.
+#[derive(Serialize)]
+struct Output {
+    #[serde(flatten)]
+    recognition: Recognition,
+    document: RecognitionDocument,
+}
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -60,7 +72,12 @@ fn read_part(path: &str) -> Result<quiddity::kernel::Part, String> {
 fn recognise(path: &str) -> Result<String, String> {
     let part = read_part(path)?;
     let recognition = correspondence::recognise(&part);
-    Ok(serde_json::to_string_pretty(&recognition).expect("records serialise"))
+    let document = recognition::document(&recognition, part.faces.len());
+    let output = Output {
+        recognition,
+        document,
+    };
+    Ok(serde_json::to_string_pretty(&output).expect("records serialise"))
 }
 
 /// A revision's fingerprints: from a recognition result's `fingerprints` (or a bare fingerprints

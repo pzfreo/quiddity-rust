@@ -156,7 +156,9 @@ src/
   correspondence/    revision matching (docs/correspondence.md): fingerprint.rs (features and
                      faces), align.rs (rigid alignment), assign.rs (Hungarian with an
                      unmatched option), faces.rs (seeded propagation), mod.rs (`correspond`)
-  bin/quiddity.rs    `quiddity part.step` → JSON with fingerprints;
+  recognition.rs     the versioned recognition document for draftwright (`quiddity-rust/
+                     recognition/1`): per feature its family, Python record type, faces, record
+  bin/quiddity.rs    `quiddity part.step` → JSON with fingerprints and the document;
                      `quiddity correspond old new` → the correspondence as JSON
 tests/
   captured.rs        replays every recogniser call the Python test suite makes
@@ -171,6 +173,7 @@ tests/
                      process (fresh hash seeds)
   wiring.rs          every family's defining faces wired, and every record field given a role
                      in the fingerprint table, over the fixtures and the corpus
+  recognition.rs     the document: a record type for every family, order, faces, round trip
   cli.rs             the binary's usage, exit codes and refusal of broken STEP files
                      (fixtures/broken/)
   common/parallel.rs the corpus loops' per-file work on every core, results in corpus order
@@ -211,7 +214,7 @@ tools/
 
 ```
 cargo build --release
-./target/release/quiddity part.step > part.json            # records and fingerprints
+./target/release/quiddity part.step > part.json            # records, fingerprints, document
 ./target/release/quiddity correspond old.json new.json      # or two STEP files
 QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release
 # corpus tests read ../quiddity/tests/corpus or $QUIDDITY_CORPUS; without
