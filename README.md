@@ -102,14 +102,15 @@ polygonal bosses, sheet metal, thin walls, pads and oblique through steps, among
 reach their check. Ported: the holes' degraded evidence path
 (`holes::discover_locally_degraded`), which skips 13975's hole as Python does and publishes
 14052's on a solid it calls valid (rust-wrong), and the pockets' one
-(`pockets::discover_locally_degraded`), which skips 13975's two pockets as Python does. Not ported: the retry itself (the port's
-`recognise` checks no family's evidence, so there is no refusal to retry on; whether it should
-panic or carry a refusal is an open maintainer question), the fillet and plate skips (in
-`fillets.rs` and `plates.rs`), and Python's admission of an invalid solid with at most three
-bad faces, which needs a per-face geometric validity check the kernel does not have.
-`tests/local_degradation.rs` compares which parts retry and every skip against the port's
-evidence paths, with each difference's verdict in `captured/local_degradation/known.json`, and
-checks the degraded holes and pockets under two rigid motions.
+(`pockets::discover_locally_degraded`), which skips 13975's two pockets as Python does. Not
+ported: the retry itself (the port's `recognise` checks no family's evidence, so there is no
+refusal to retry on; whether it should panic or carry a refusal is an open maintainer
+question), the fillet and plate skips (in `fillets.rs` and `plates.rs`), and Python's admission
+of an invalid solid with at most three bad faces, which needs a per-face geometric validity
+check the kernel does not have. `tests/local_degradation.rs` compares which parts retry and
+every skip against the port's evidence paths, with each difference's verdict in
+`captured/local_degradation/known.json`, and checks the degraded holes and pockets under two
+rigid motions.
 
 The kernel also answers the questions the unported families ask of OpenCascade's booleans,
 checked against every one Python asks over the corpus: the volume a probe shares with a solid
