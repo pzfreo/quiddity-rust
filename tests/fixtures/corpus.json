@@ -1,7 +1,9 @@
 {
+ "quiddity_revision": "6d544e060cd0eeb4442d2196e5df757b5a15ea55",
  "files": [
   {
    "file": "cadgenbench/flanged_spool_132.step",
+   "sha256": "58dfe8a594a5afe64652ea127807ad6141812e2e1d2556d429f6a42e4ec46747",
    "inventory": [
     {
      "type": "CYLINDER",
@@ -6377,6 +6379,7 @@
   },
   {
    "file": "cadgenbench/threaded_connector_109.step",
+   "sha256": "301cb3ce914fa28c68e3cc324d22a9b6e8ee119c7c76797e7d7052de7bccdcff",
    "inventory": [
     {
      "type": "BSPLINE",
@@ -21507,6 +21510,7 @@
   },
   {
    "file": "cadgenbench_inputs/cgb202.step.gz",
+   "sha256": "b933428be9151d702b564d5520727a32332be63e4ba66cf354eb2780f6377f7f",
    "inventory": [
     {
      "type": "TORUS",
@@ -119039,6 +119043,7 @@
   },
   {
    "file": "cadgenbench_inputs/cgb203.step",
+   "sha256": "2a029868cd4517774379695ec5c5928a98a7d10ff999520c0dbce6c3cf79935e",
    "inventory": [
     {
      "type": "BSPLINE",
@@ -126520,6 +126525,7 @@
   },
   {
    "file": "cadgenbench_inputs/cgb207.step",
+   "sha256": "0b2c689b1ec09c362c334a9b6c9714a5e4d658295f7f16078f5588472721dd26",
    "inventory": [
     {
      "type": "BSPLINE",
@@ -141312,6 +141318,7 @@
   },
   {
    "file": "cadgenbench_inputs/cgb217.step.gz",
+   "sha256": "5156ed29690080bb9a9aa59ac1b727b3871b83e9af81178a119841d10b29ccc0",
    "inventory": [
     {
      "type": "CONE",
@@ -158583,6 +158590,7 @@
   },
   {
    "file": "cadgenbench_inputs/cgb241.step",
+   "sha256": "80fb0fbffea33913b71ac99af89b14bc2930b0f8d3cd9d454aea54d986213a7d",
    "inventory": [
     {
      "type": "CYLINDER",
@@ -161836,6 +161844,7 @@
   },
   {
    "file": "cadgenbench_inputs/cgb242.step.gz",
+   "sha256": "74c48cccaa9fbbb14c4708c7a7290da109da29205cb5c6853faf63f364ff3144",
    "inventory": [
     {
      "type": "TORUS",
@@ -203802,6 +203811,7 @@
   },
   {
    "file": "cadgenbench_inputs/cgb243.step.gz",
+   "sha256": "347489379f940cf5157d5252115b08cf1f6d0038b842c490f7ac4d74799dcd5e",
    "inventory": [
     {
      "type": "TORUS",
@@ -233208,6 +233218,7 @@
   },
   {
    "file": "cadgenbench_inputs/cgb245.step",
+   "sha256": "034d4dec7b699002d09eb45de66bd5e6971a91304589e67b105df0cbb7e40084",
    "inventory": [
     {
      "type": "CYLINDER",
@@ -257148,6 +257159,7 @@
   },
   {
    "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
+   "sha256": "b4d455810969ee6644e73f3ee0576b43dc0937eeb2589a4383c931d126b6d285",
    "inventory": [
     {
      "type": "PLANE",
@@ -258164,6 +258176,7 @@
   },
   {
    "file": "gramel/GRM-05_depth_lock_bolt.step",
+   "sha256": "73c7ee3e136a78cfb4acf42e8bbfdc75e949ea4d9f55be10ce05441595e13892",
    "inventory": [
     {
      "type": "CYLINDER",
@@ -258876,6 +258889,7 @@
   },
   {
    "file": "gramel/string_post.step",
+   "sha256": "7b7f1a4bf407ef7599d58e126e43e95f50d165212ed21bf6b2fc716d14bfdf85",
    "inventory": [
     {
      "type": "CYLINDER",
@@ -260346,6 +260360,7 @@
   },
   {
    "file": "inventory_refusal/13975.step.gz",
+   "sha256": "c3936be1348c5b4b3a0f10eade3b2ec443d65673eee474fc81ef62b021de8ce2",
    "inventory": [
     {
      "type": "CYLINDER",
@@ -261333,6 +261348,7 @@
   },
   {
    "file": "inventory_refusal/14052.step.gz",
+   "sha256": "f90ce552752607579c55866a2015d42c371c3984e39d2cc6faf3034505bf08e5",
    "inventory": [
     {
      "type": "PLANE",
@@ -262715,6 +262731,7 @@
   },
   {
    "file": "mfcadpp/1000.step",
+   "sha256": "669d2c5e678a84b216eb877101f87875a32d3cb9869d473391f85d57099ea180",
    "inventory": [
     {
      "type": "PLANE",
@@ -265428,6 +265445,7 @@
   },
   {
    "file": "mfcadpp/10000.step",
+   "sha256": "5c37a23fd7b9f680d789246802a5bf2de15b7533abb42eec1e37b16494afaa56",
    "inventory": [
     {
      "type": "PLANE",
@@ -267017,6 +267035,7 @@
   },
   {
    "file": "mfcadpp/10007.step",
+   "sha256": "ad95c3b0af77116dcc223cd67747767380f8f705194f9bcc3d004f67467cad59",
    "inventory": [
     {
      "type": "PLANE",
@@ -268983,6 +269002,7 @@
   },
   {
    "file": "mfcadpp/10020.step",
+   "sha256": "88310a9fa7901ff2eff93ce8467f29e7298c86315d8f8b1f76b741c0f90f2087",
    "inventory": [
     {
      "type": "PLANE",
@@ -271974,6 +271994,7 @@
   },
   {
    "file": "mfcadpp/10033.step",
+   "sha256": "d3501c8c991affa2393435a2aecdcae20f151d0b584089bbc25d191a16868bc6",
    "inventory": [
     {
      "type": "PLANE",
@@ -273409,6 +273430,7 @@
   },
   {
    "file": "mfcadpp/10038.step",
+   "sha256": "23517c641de281f5ec22c016ef006e00ffc77a3b28b0cb6bd7a8fea57701a90f",
    "inventory": [
     {
      "type": "PLANE",
@@ -276300,6 +276322,7 @@
   },
   {
    "file": "mfcadpp/1004.step",
+   "sha256": "5a7cfcf49a1d175262c7ae9598574da08ca5e2d86317acc331d628701e137b54",
    "inventory": [
     {
      "type": "PLANE",
@@ -277872,6 +277895,7 @@
   },
   {
    "file": "mfcadpp/10046.step",
+   "sha256": "fc891f27e0be19cccbccfc405646074871ea4e1e8eaaa758e2254656c552567c",
    "inventory": [
     {
      "type": "PLANE",
@@ -279726,6 +279750,7 @@
   },
   {
    "file": "mfcadpp/10047.step",
+   "sha256": "c92969cd4eac72e5e9efb2ee8e8bf0d62a3571a77a1413a77387253d466e7f86",
    "inventory": [
     {
      "type": "PLANE",
@@ -281547,6 +281572,7 @@
   },
   {
    "file": "mfcadpp/10049.step",
+   "sha256": "9b831e372dbe2890bed04cadd1b2f6ea4f732ddd4a6b7545a410eeab67d9779f",
    "inventory": [
     {
      "type": "PLANE",
@@ -283430,6 +283456,7 @@
   },
   {
    "file": "mfcadpp/10060.step",
+   "sha256": "a1b36cacf4225411aac4f190e60ef7e2425c398dea12856b6a546b22d4345f23",
    "inventory": [
     {
      "type": "PLANE",
@@ -285269,6 +285296,7 @@
   },
   {
    "file": "mfcadpp/10063.step",
+   "sha256": "b3c3ca453dc2e3b49e0c6a452ac2b34635e4d89f8e874de94158a3909468759b",
    "inventory": [
     {
      "type": "PLANE",
@@ -287476,6 +287504,7 @@
   },
   {
    "file": "mfcadpp/1007.step",
+   "sha256": "9164edc860b394b7a3c9eef4ebd205badfce8fd0b03d2626dceaa2c578684dd2",
    "inventory": [
     {
      "type": "PLANE",
@@ -289130,6 +289159,7 @@
   },
   {
    "file": "mfcadpp/10077.step",
+   "sha256": "511a84d59a1eaf72303d8f9d150a7c3b043ac6f93ff9fac14d4618fcd3e92ee4",
    "inventory": [
     {
      "type": "PLANE",
@@ -290662,6 +290692,7 @@
   },
   {
    "file": "mfcadpp/1008.step",
+   "sha256": "246adf991192a4c4290932007860fb4e04b9720aba793eb3ac6a949b7e947bd8",
    "inventory": [
     {
      "type": "PLANE",
@@ -291683,6 +291714,7 @@
   },
   {
    "file": "mfcadpp/10092.step",
+   "sha256": "b9470b92ad910bc9eb37bea723737cfe29dc29a7d2b90ccf115ed246d499d461",
    "inventory": [
     {
      "type": "PLANE",
@@ -293626,6 +293658,7 @@
   },
   {
    "file": "mfcadpp/10096.step",
+   "sha256": "0dd4b33b42c69db9442b27ee49f160cbd054dc7ea9fbfdc2024cd14c6907c074",
    "inventory": [
     {
      "type": "PLANE",
@@ -295769,6 +295802,7 @@
   },
   {
    "file": "mfcadpp/10098.step",
+   "sha256": "4069220db61e503e17d24f045d7f26dd89522be59534f16bd0765a32bd3fc590",
    "inventory": [
     {
      "type": "PLANE",
@@ -297737,6 +297771,7 @@
   },
   {
    "file": "mfcadpp/10101.step",
+   "sha256": "4071566f601d289e9987213a8fd56c4281506b3f44c78a171d02939f86c91f49",
    "inventory": [
     {
      "type": "PLANE",
@@ -299598,6 +299633,7 @@
   },
   {
    "file": "mfcadpp/10103.step",
+   "sha256": "d165fab2c375af9e3ddd73f95fc7d8094954db6e45967f1d0ee503a2b6a7baed",
    "inventory": [
     {
      "type": "PLANE",
@@ -302009,6 +302045,7 @@
   },
   {
    "file": "mfcadpp/10119.step",
+   "sha256": "4273d2baaba4402420370bef6ebd34a4fc03b78506295581a57aa8a37218d97d",
    "inventory": [
     {
      "type": "PLANE",
@@ -303856,6 +303893,7 @@
   },
   {
    "file": "mfcadpp/10127.step",
+   "sha256": "477412d7adc7c5a61048c6485bb3f42396dd44aca23761c60b3215470e67f5d8",
    "inventory": [
     {
      "type": "PLANE",
@@ -305600,6 +305638,7 @@
   },
   {
    "file": "mfcadpp/1013.step",
+   "sha256": "cf60fc55069e7a70590d7328808169723930faef1b9c7060717ff4b8060e435e",
    "inventory": [
     {
      "type": "PLANE",
@@ -307781,6 +307820,7 @@
   },
   {
    "file": "mfcadpp/10131.step",
+   "sha256": "90e9260ef6847751b9285314229bc18b593c44f9dfaff154604efe96e90c84cc",
    "inventory": [
     {
      "type": "PLANE",
@@ -308930,6 +308970,7 @@
   },
   {
    "file": "mfcadpp/10138.step",
+   "sha256": "1f3ee4cdb9690bbae4635a5b976550295d38c40687905d95d8022b55b91c456e",
    "inventory": [
     {
      "type": "PLANE",
@@ -310788,6 +310829,7 @@
   },
   {
    "file": "mfcadpp/10146.step",
+   "sha256": "8b6a5959e000ff25de9bcf97025b8552e6f54609eb21d0ccd567ad1509697ad2",
    "inventory": [
     {
      "type": "PLANE",
@@ -312538,6 +312580,7 @@
   },
   {
    "file": "mfcadpp/10155.step",
+   "sha256": "dfcd4d15c66f08c3483ccdb73119104ea815acb9e28f1273950e59682bc8aac3",
    "inventory": [
     {
      "type": "PLANE",
@@ -314609,6 +314652,7 @@
   },
   {
    "file": "mfcadpp/10156.step",
+   "sha256": "7a4593094940f4afda1bb9f25855d33e24ce0f6f0739f56f4dd8a12b26eddc11",
    "inventory": [
     {
      "type": "PLANE",
@@ -316456,6 +316500,7 @@
   },
   {
    "file": "mfcadpp/10163.step",
+   "sha256": "1985e7ec6b8bc83f39af670155b2659b2b3f10bfccf76d438c8f08bb0402f491",
    "inventory": [
     {
      "type": "PLANE",
@@ -318586,6 +318631,7 @@
   },
   {
    "file": "mfcadpp/10167.step",
+   "sha256": "fa26ed75ac96518c1d8964799321270b48b709fbc43afd396452bd9867bd7d89",
    "inventory": [
     {
      "type": "PLANE",
@@ -320950,6 +320996,7 @@
   },
   {
    "file": "mfcadpp/1017.step",
+   "sha256": "8740d288d9031af4756159d61bb8c179e5be18c07ae07c059205cfb17469202c",
    "inventory": [
     {
      "type": "PLANE",
@@ -322285,6 +322332,7 @@
   },
   {
    "file": "mfcadpp/10170.step",
+   "sha256": "aa34b9b5ba6bb45bcb176dfccc4f9d94c01914142e35421eee6a4552a7490dbd",
    "inventory": [
     {
      "type": "PLANE",
@@ -323714,6 +323762,7 @@
   },
   {
    "file": "mfcadpp/10190.step",
+   "sha256": "25f752ce3fb1477b1db2df5d036075cc14fe26a6c9cc96a0d12599a6aea3cda0",
    "inventory": [
     {
      "type": "PLANE",
@@ -325765,6 +325814,7 @@
   },
   {
    "file": "mfcadpp/10212.step",
+   "sha256": "20de40173fe108277fcd5c5c4ee4d8486d2470d036aeadd9e4f31aaa8d9ce2ff",
    "inventory": [
     {
      "type": "PLANE",
@@ -327459,6 +327509,7 @@
   },
   {
    "file": "mfcadpp/10224.step",
+   "sha256": "4d383baf1d39ae90f6959b744c58607ece15126bd26a9c039c1c42b5a5218a7d",
    "inventory": [
     {
      "type": "PLANE",
@@ -329173,6 +329224,7 @@
   },
   {
    "file": "mfcadpp/10245.step",
+   "sha256": "c8f384c54ae25dc537028bd493c7347fa67d298d5954e3dccf94b3d2b0dd0f3a",
    "inventory": [
     {
      "type": "PLANE",
@@ -330889,6 +330941,7 @@
   },
   {
    "file": "mfcadpp/10247.step",
+   "sha256": "5252edd399055ef7b16c7bcd0a47fe3063dc161c9306446f73372ee6e7814a76",
    "inventory": [
     {
      "type": "PLANE",
@@ -332759,6 +332812,7 @@
   },
   {
    "file": "mfcadpp/10252.step",
+   "sha256": "da44c719d3343fb824a2f39af75c794fe4ec4698bc911acd6a1faa1daec198c7",
    "inventory": [
     {
      "type": "PLANE",
@@ -334219,6 +334273,7 @@
   },
   {
    "file": "mfcadpp/10255.step",
+   "sha256": "324d912c89adbe25a94669454d756c8fbbaa0aa37d76b90333d4f9e8e84160d9",
    "inventory": [
     {
      "type": "PLANE",
@@ -336590,6 +336645,7 @@
   },
   {
    "file": "mfcadpp/10278.step",
+   "sha256": "2e974154e0f285c18c5aeb8761841e025e8c02c4c94eb8bd364398b8f202b777",
    "inventory": [
     {
      "type": "PLANE",
@@ -337967,6 +338023,7 @@
   },
   {
    "file": "mfcadpp_holdout/118.step",
+   "sha256": "c300e6f91742d1f811fba99cb6640da33683e98e420df8147141f5c171cc785e",
    "inventory": [
     {
      "type": "PLANE",
@@ -340464,6 +340521,7 @@
   },
   {
    "file": "mfcadpp_holdout/119.step",
+   "sha256": "3ede6a86f773f2ef4218c6d0881f16049f2a165cdb1eb0b3ab90f7da57e41ab4",
    "inventory": [
     {
      "type": "PLANE",
@@ -341937,6 +341995,7 @@
   },
   {
    "file": "mfcadpp_holdout/163.step",
+   "sha256": "af3b6fef1ff0a6a08fcb765e11e26171f47cbba2a2a2335eb2eda2b57b14750e",
    "inventory": [
     {
      "type": "PLANE",
@@ -344051,6 +344110,7 @@
   },
   {
    "file": "mfcadpp_holdout/16943.step",
+   "sha256": "fa2723e9a094d0d07ce588be2924c7005f875e90fa7b6c79e5c6d63e67a7c4b0",
    "inventory": [
     {
      "type": "PLANE",
@@ -345946,6 +346006,7 @@
   },
   {
    "file": "mfcadpp_holdout/18016.step",
+   "sha256": "267afb3d42dc146a389934719bc1de18b438fdf95c2f8e9dd24f4a3ffef50b64",
    "inventory": [
     {
      "type": "PLANE",
@@ -347027,6 +347088,7 @@
   },
   {
    "file": "mfcadpp_holdout/181.step",
+   "sha256": "a76cd50002206153709b892ba65e0be2c3474fc7df38e33521be345a5f10fac7",
    "inventory": [
     {
      "type": "PLANE",
@@ -348674,6 +348736,7 @@
   },
   {
    "file": "mfcadpp_holdout/182.step",
+   "sha256": "cf1a0bf3164d071cfd102a0a1f3efe60e3ef0ebcc03184a7eaae65a78e7052dd",
    "inventory": [
     {
      "type": "PLANE",
@@ -349824,6 +349887,7 @@
   },
   {
    "file": "mfcadpp_holdout/183.step",
+   "sha256": "16d92b1693827ffa31c01c2204378e9fb51c647cd15d6288bb4b1ad0c568322f",
    "inventory": [
     {
      "type": "PLANE",
@@ -351577,6 +351641,7 @@
   },
   {
    "file": "mfcadpp_holdout/196.step",
+   "sha256": "6f496f7981be0c8c84bdccf707b0ad63145761b95799d793c012e2e5866fab04",
    "inventory": [
     {
      "type": "PLANE",
@@ -353909,6 +353974,7 @@
   },
   {
    "file": "mfcadpp_holdout/200.step",
+   "sha256": "6e2873fe7eeae0cf27178117b3de0436d03464c5897ee251e78801bc4410a7d0",
    "inventory": [
     {
      "type": "PLANE",
@@ -355126,6 +355192,7 @@
   },
   {
    "file": "mfcadpp_holdout/20273.step",
+   "sha256": "c4684e5b6ee29431cadf4c5584f30c2ea6b421903dfda04260b30316ccef1ac8",
    "inventory": [
     {
      "type": "PLANE",
@@ -356840,6 +356907,7 @@
   },
   {
    "file": "mfcadpp_holdout/203.step",
+   "sha256": "9f82025b516c8eb37910c5c05ba842f6a924e6dddd8422d1b57bb3f4fb266686",
    "inventory": [
     {
      "type": "PLANE",
@@ -358328,6 +358396,7 @@
   },
   {
    "file": "mfcadpp_holdout/205.step",
+   "sha256": "1fa118bec6073df2463ab8bf07800a2f524447c93a4fb5b9786e4a4ec210abf9",
    "inventory": [
     {
      "type": "PLANE",
@@ -359311,6 +359380,7 @@
   },
   {
    "file": "mfcadpp_holdout/229.step",
+   "sha256": "83e252b9d4e936268124a976dd3e605995c0b798bbd3441ab46c2cb623c85c74",
    "inventory": [
     {
      "type": "PLANE",
@@ -360744,6 +360814,7 @@
   },
   {
    "file": "mfcadpp_holdout/238.step",
+   "sha256": "723abca859b3564c1614d49519f6eedab68eb633af296103d6573ec797030849",
    "inventory": [
     {
      "type": "PLANE",
@@ -362105,6 +362176,7 @@
   },
   {
    "file": "mfcadpp_holdout/244.step",
+   "sha256": "053ae89dd4b9d20115229a05e86a3c199ecb44dd22c995dab39b72676c19712b",
    "inventory": [
     {
      "type": "PLANE",
@@ -363345,6 +363417,7 @@
   },
   {
    "file": "mfcadpp_holdout/257.step",
+   "sha256": "327b93792b6ff7961ee923d5d7ab9c8f098d8efc601d871bb08f035145a54eb3",
    "inventory": [
     {
      "type": "PLANE",
@@ -365059,6 +365132,7 @@
   },
   {
    "file": "mfcadpp_holdout/265.step",
+   "sha256": "236d20f2bccd93353006f1a08835446aef03ed48a656ecead73ea730a9586605",
    "inventory": [
     {
      "type": "PLANE",
@@ -367061,6 +367135,7 @@
   },
   {
    "file": "mfcadpp_holdout/274.step",
+   "sha256": "9fc6dd58170a1b75575182e9f882791e87c35a7a2ee4f71e60df06b8dfd473ef",
    "inventory": [
     {
      "type": "PLANE",
@@ -368688,6 +368763,7 @@
   },
   {
    "file": "mfcadpp_holdout/275.step",
+   "sha256": "18a1e1fc58a1da7db47491f0c0ff297d5c2887377294849f6147c3a4db6ac2ae",
    "inventory": [
     {
      "type": "PLANE",
@@ -370971,6 +371047,7 @@
   },
   {
    "file": "mfcadpp_holdout/317.step",
+   "sha256": "827385f00aa992faed2925956f7a5459c0868720d3567be52a4b511b91422e71",
    "inventory": [
     {
      "type": "PLANE",
@@ -372804,6 +372881,7 @@
   },
   {
    "file": "mfcadpp_holdout/340.step",
+   "sha256": "9f83718ddcb45234efdf1013010180079303454b7d2a33d2c1850afa4124f5e0",
    "inventory": [
     {
      "type": "PLANE",
@@ -374122,6 +374200,7 @@
   },
   {
    "file": "mfcadpp_holdout/363.step",
+   "sha256": "f2395c4933b21a7e65e889737c0c683abd825336881cd8c227352bfe64e87bdc",
    "inventory": [
     {
      "type": "PLANE",
@@ -375898,6 +375977,7 @@
   },
   {
    "file": "mfcadpp_holdout/388.step",
+   "sha256": "83ab0e7a04b1fae5c55251aa60f1d7a2ee6b08c049c3483dd1ac240ae13386cf",
    "inventory": [
     {
      "type": "PLANE",
@@ -378076,6 +378156,7 @@
   },
   {
    "file": "mfcadpp_holdout/408.step",
+   "sha256": "0b8a39b594b3533461788a2755e84b8b56545133f77da279f0f57b18b1a182ee",
    "inventory": [
     {
      "type": "PLANE",
@@ -379773,6 +379854,7 @@
   },
   {
    "file": "mfcadpp_holdout/419.step",
+   "sha256": "d4356c584a02d33f8b9edcd601dbd51f0078ab3b2e11e16f85e145d3d59c6ea9",
    "inventory": [
     {
      "type": "PLANE",
@@ -381669,6 +381751,7 @@
   },
   {
    "file": "mfcadpp_holdout/464.step",
+   "sha256": "c63186c9e2d05cc1647de0ac56799e8bac428daf3f334feb21109f06b4c67854",
    "inventory": [
     {
      "type": "PLANE",
@@ -384005,6 +384088,7 @@
   },
   {
    "file": "mfcadpp_holdout/467.step",
+   "sha256": "13cbdce2f410e033d0341fb14206a4e2f47a821574d0e4f0de9559400ba03268",
    "inventory": [
     {
      "type": "PLANE",
@@ -386759,6 +386843,7 @@
   },
   {
    "file": "mfcadpp_holdout/471.step",
+   "sha256": "fb52b6ed8638989bfcb8de5e80a4a852ea42218b2665b96de917404210c7a5c6",
    "inventory": [
     {
      "type": "PLANE",
@@ -388373,6 +388458,7 @@
   },
   {
    "file": "mfcadpp_holdout/483.step",
+   "sha256": "b30a1b3af604ca03100e9090b0e638302db5b90f39a58ccb520fbd6364bde222",
    "inventory": [
     {
      "type": "PLANE",
@@ -390273,6 +390359,7 @@
   },
   {
    "file": "mfcadpp_holdout/498.step",
+   "sha256": "d906582aa4adbdd3870cb5fd51676a548f5f1a62ce236c861de9c6d2c9b305e0",
    "inventory": [
     {
      "type": "PLANE",
@@ -392064,6 +392151,7 @@
   },
   {
    "file": "mfcadpp_holdout/520.step",
+   "sha256": "f63dd97d11972bd6e855dc0b518df24432ab710a71246cca8163a0ede23d9ea0",
    "inventory": [
     {
      "type": "PLANE",
@@ -394193,6 +394281,7 @@
   },
   {
    "file": "mfcadpp_holdout/808.step",
+   "sha256": "ce530623be12b4a9c79316830039999a80dd9d547665005e25d3fc8532948e0c",
    "inventory": [
     {
      "type": "PLANE",
@@ -396684,6 +396773,7 @@
   },
   {
    "file": "mfcadpp_regressions/11512.step",
+   "sha256": "5dc3ff1ba7307846c534650ac0c0c2ae1442cd51f29fb0a028a63a1ecd041e67",
    "inventory": [
     {
      "type": "PLANE",
@@ -398782,6 +398872,7 @@
   },
   {
    "file": "nist/nist_ctc_01_asme1_rd.stp",
+   "sha256": "e081d518484d5c708c6729353237f94a7d97da2b74a10d60d4c0d146d67a5855",
    "inventory": [
     {
      "type": "PLANE",
@@ -406496,6 +406587,7 @@
   },
   {
    "file": "nist/nist_ctc_02_asme1_rc.stp",
+   "sha256": "e6df6d0ed68fd8a91bd3f8360c7047f2af3d61068b89050d84423fe8ddb93bcf",
    "inventory": [
     {
      "type": "PLANE",
@@ -438171,6 +438263,7 @@
   },
   {
    "file": "nist/nist_ctc_03_asme1_rc.stp",
+   "sha256": "95a775b1acdbc34de11319cb83b4cf6c6fdd7de8cbfc4af2d0afe5d3565cfdf8",
    "inventory": [
     {
      "type": "PLANE",
@@ -447181,6 +447274,7 @@
   },
   {
    "file": "nist/nist_ctc_04_asme1_rd.stp",
+   "sha256": "cdb59a085a3364941b881f96b511265a7cb5f6e94180c4426bdc3025481f405a",
    "inventory": [
     {
      "type": "CONE",
@@ -473708,6 +473802,7 @@
   },
   {
    "file": "nist/nist_ctc_05_asme1_rd.stp",
+   "sha256": "5140b8f41fa1d0a069ea978e28c92a597f47220d0a11e667b79ff5f7c7243b86",
    "inventory": [
     {
      "type": "PLANE",
@@ -484549,6 +484644,7 @@
   },
   {
    "file": "nist/nist_ftc_06_asme1_rd.stp",
+   "sha256": "5e30f0903f9470c14a98e70395ca005fe90bcd3fb704c381a80a69958838f169",
    "inventory": [
     {
      "type": "PLANE",
@@ -492097,6 +492193,7 @@
   },
   {
    "file": "nist/nist_ftc_07_asme1_rd.stp",
+   "sha256": "a0bc551656780b26d7a0ee1beedbc07d43f41efa092f74f3c2d8383417f04481",
    "inventory": [
     {
      "type": "TORUS",
@@ -505279,6 +505376,7 @@
   },
   {
    "file": "nist/nist_ftc_08_asme1_rc.stp",
+   "sha256": "4b7011b0b86cf6301058aa954b76a9587d23478b6dee2660f4a80caf0dfe8b73",
    "inventory": [
     {
      "type": "CYLINDER",
@@ -519413,6 +519511,7 @@
   },
   {
    "file": "nist/nist_ftc_09_asme1_rd.stp",
+   "sha256": "e29c09bd2d454601ff1a0d77c4c4ffaf2ed78eee71031ce49f7b7bb5a6d1d4e8",
    "inventory": [
     {
      "type": "PLANE",
@@ -528784,6 +528883,7 @@
   },
   {
    "file": "nist/nist_ftc_10_asme1_rb.stp",
+   "sha256": "2bd726f9fe86aeb96ab517ce876e5696e7951310df5c4fbca36276d65879067b",
    "inventory": [
     {
      "type": "CYLINDER",
@@ -540455,6 +540555,7 @@
   },
   {
    "file": "ttt_inputs/sm-hanger.step",
+   "sha256": "8247dc2eb7ed6f423fba35b177cc1abeb6358922dab54a486050bfa0ba857f6b",
    "inventory": [
     {
      "type": "PLANE",

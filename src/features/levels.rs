@@ -201,14 +201,25 @@ fn level_proposals(
 
 /// `recognise_face_levels`.
 pub fn recognise_face_levels(part: &Part, opts: &FaceLevelOptions) -> Vec<FaceLevel> {
+    face_levels_with_faces(part, opts)
+        .into_iter()
+        .map(|(level, _)| level)
+        .collect()
+}
+
+/// `recognise_face_levels`' levels, each with the faces it was read from (not an evidence
+/// path: the invariance test compares them).
+pub fn face_levels_with_faces(
+    part: &Part,
+    opts: &FaceLevelOptions,
+) -> Vec<(FaceLevel, Vec<usize>)> {
     let ctx = Context::new(part);
     let tol = opts.tol.unwrap_or(TOL);
-    let mut out: Vec<FaceLevel> = scopes(&ctx)
+    let mut out: Vec<(FaceLevel, Vec<usize>)> = scopes(&ctx)
         .iter()
         .flat_map(|scope| level_proposals(part, scope, tol, opts.min_area_frac))
-        .map(|(level, _)| level)
         .collect();
-    out.sort_by(|a, b| a.order(b));
+    out.sort_by(|a, b| a.0.order(&b.0));
     out
 }
 
@@ -224,17 +235,25 @@ fn body_levels(part: &Part, scope: &Scope, tol: f64) -> Vec<FaceLevel> {
 
 /// `recognise_risers`.
 pub fn recognise_risers(part: &Part, opts: &RiserOptions) -> Vec<RiserEvidence> {
+    risers_with_faces(part, opts)
+        .into_iter()
+        .map(|(riser, _)| riser)
+        .collect()
+}
+
+/// `recognise_risers`' risers, each with the faces it was read from (not an evidence path: the
+/// invariance test compares them).
+pub fn risers_with_faces(part: &Part, opts: &RiserOptions) -> Vec<(RiserEvidence, Vec<usize>)> {
     let ctx = Context::new(part);
     let tol = opts.tol.unwrap_or(TOL);
-    let mut out: Vec<RiserEvidence> = scopes(&ctx)
+    let mut out: Vec<(RiserEvidence, Vec<usize>)> = scopes(&ctx)
         .iter()
         .flat_map(|scope| {
             let levels = body_levels(part, scope, tol);
             riser_proposals(part, scope, opts.min_area_frac, tol, levels)
         })
-        .map(|(riser, _)| riser)
         .collect();
-    out.sort_by(|a, b| a.order(b));
+    out.sort_by(|a, b| a.0.order(&b.0));
     out
 }
 

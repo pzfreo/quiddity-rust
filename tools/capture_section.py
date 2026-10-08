@@ -110,7 +110,8 @@ def main() -> None:
         if capture_hlr.kept(record):
             parts.append(record)
             print(record["file"], len(view["edges"]), len(cut_faces), file=sys.stderr)
-    text = json.dumps({"parts": parts}, allow_nan=False) + "\n"
+    revision = capture_hlr.revision(capture_hlr.QUIDDITY)
+    text = json.dumps({"quiddity_revision": revision, "parts": parts}, allow_nan=False) + "\n"
     OUT.write_bytes(gzip.compress(text.encode(), mtime=0))
 
 

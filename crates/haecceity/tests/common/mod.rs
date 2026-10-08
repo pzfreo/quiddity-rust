@@ -4,6 +4,8 @@
 #![allow(dead_code)]
 
 pub mod drawing;
+#[path = "../../../../tests/common/parallel.rs"]
+pub mod parallel;
 
 use std::path::{Path, PathBuf};
 

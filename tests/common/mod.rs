@@ -3,6 +3,8 @@
 
 #![allow(dead_code)]
 
+pub mod parallel;
+
 use std::path::{Path, PathBuf};
 
 use quiddity::Part;
