@@ -281,8 +281,6 @@ impl Part {
             })
             .collect();
         let centre = |b: &[f64; 4]| (0.5 * (b[0] + b[1]), 0.5 * (b[2] + b[3]));
-        let into_period =
-            |c: f64, periodic: bool| if periodic { c.rem_euclid(TAU) - c } else { 0.0 };
         let first: Vec<(f64, f64)> = boxes
             .iter()
             .map(|b| {
@@ -1072,6 +1070,19 @@ fn round_seam(value: f64) -> f64 {
     }
 }
 
+/// The whole-turn shift that puts a loop's box centre `c` in `[0, 2π)` (none if not periodic).
+/// A loop centred on the seam (a range symmetric about 0) has a centre a few ulps either side of
+/// it, which libm round-off decides; within 1e-9 of a turn it counts as on the seam and is kept
+/// at 0, not moved to 2π.
+fn into_period(c: f64, periodic: bool) -> f64 {
+    if periodic {
+        let c = c + 1e-9;
+        c.rem_euclid(TAU) - c
+    } else {
+        0.0
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1108,6 +1119,23 @@ mod tests {
         let d = domain(vec![ring(0.0), ring(5.0)], (true, false));
         assert!(d.contains(1.0, 2.0) && d.contains(6.0, 2.0) && d.contains(-1.0, 2.0));
         assert!(!d.contains(1.0, -1.0) && !d.contains(1.0, 6.0));
+    }
+
+    #[test]
+    fn seam_centred_loop_placed_regardless_of_round_off() {
+        // cgb202 torus face 1840: v spans ±1.186 about the seam, its centre ~1e-16 either side
+        // of 0 by platform; both signs (and a centre just below 2π) place the range at -1.186.
+        let half = 1.186;
+        for c in [1e-16, -1e-16, 0.0, TAU - 1e-16, -TAU + 1e-16] {
+            let lo = c - half + into_period(c, true);
+            assert!(
+                (lo + half).abs() < 1e-12,
+                "centre {c:e}: range starts at {lo}"
+            );
+        }
+        assert_eq!(into_period(-1e-16, false), 0.0);
+        assert!((into_period(3.0, true)).abs() < 1e-12);
+        assert!((into_period(-3.0, true) - TAU).abs() < 1e-12);
     }
 
     #[test]
