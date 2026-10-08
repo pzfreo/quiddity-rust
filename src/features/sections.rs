@@ -174,15 +174,17 @@ impl SectionVertex {
     }
 }
 
+/// The circle of a bulged edge (`_Arc`): its centre, radius, start angle and signed sweep.
 #[derive(Clone, Copy, Debug)]
-struct Arc {
-    centre: V2,
-    radius: f64,
-    start: f64,
-    sweep: f64,
+pub(crate) struct Arc {
+    pub(crate) centre: V2,
+    pub(crate) radius: f64,
+    pub(crate) start: f64,
+    pub(crate) sweep: f64,
 }
 
-fn arc(a: &SectionVertex, b: &SectionVertex) -> Checked<Option<Arc>> {
+/// The arc from *a* to *b* (`_arc`): `None` for a straight edge.
+pub(crate) fn arc(a: &SectionVertex, b: &SectionVertex) -> Checked<Option<Arc>> {
     let bulge = a.bulge;
     if bulge == 0.0 {
         return Ok(None);

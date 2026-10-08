@@ -83,8 +83,9 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/known_sections.json` | `tests/sections.rs` | 1 | 0 | 0 | 0 | 0 | 1 |
 | `tests/fixtures/captured/passages/known_divergences.json` | `tests/passages.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_section_recess_helpers.json` | `tests/section_recess_helpers.rs` | 4 | 0 | 4 | 0 | 0 | 0 |
-| `tests/fixtures/captured/known_section_geometry.json` | `tests/section_geometry.rs` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `tests/fixtures/captured/section_recess/known_differences.json` | `tests/section_recess.rs` | 4 | 0 | 0 | 0 | 0 | 4 |
+| `tests/fixtures/captured/section_recess_geometry/known_differences.json` | `tests/section_recess_geometry.rs` | 10 | 0 | 8 | 1 | 0 | 1 |
+| `tests/fixtures/captured/known_section_geometry.json` | `tests/section_geometry.rs` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 118 (2920 answers) | 98 | 8 | 0 | 9 | 3 |
 | `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 9 | 3 | 3 | 0 | 0 | 3 |
 | `tests/fixtures/captured/reconcile/known.json` | `tests/reconcile.rs` | 26 (0 decisions, 26 motions) | 0 | 4 | 0 | 0 | 22 |
@@ -223,8 +224,25 @@ strings, negative indices, wrongly sized tuples, which Python refuses by type). 
 also built under the invariance motions and geometries on a principal run under the
 translation (1060 moved records); 4 channel values whose cylinder centroid height is a
 three-decimal rounding tie disagree with their shifted interval once moved, as in Python
-(not-applicable). Section recesses remain pending: their provers (`_section_recess_geometry`)
-and `recognise_section_recesses` are not ported.
+(not-applicable).
+Their provers and projections (`_section_recess_geometry`) and the discovery that numbers them
+(`_section_recess_discovery`) are ported too (`src/features/section_recess_geometry.rs`,
+`section_recess_discovery.rs`, `tests/section_recess_geometry.rs`,
+`tools/capture_section_recess_geometry.py`): on 138 parts the Python tests hand `_candidates`
+or `has_physical_planar_floor`, the two golden fixtures and the corpus, `_candidates` (240
+calls), the obround, polygonal and mixed floor readers asked of every planar face on its own
+(17157 calls), the seat, cylindrical-pocket, cylindrical-passage and plane-envelope projections
+of Python's own proofs (13, 22, 33 and 11 calls), 22 `has_physical_planar_floor` questions, and
+`cylindrical_channel_geometry` of the 35 channel proofs `tests/section_geometry.rs` replays.
+All agree but 9: three tilted mixed pockets the kernel's volume probe cannot measure and the
+malformed 14052's triangular pocket Python refuses on BRepCheck validity (rust-wrong), and one
+passage origin on a three-decimal rounding tie (equivalent). The candidates are unchanged under
+the invariance motions (re-expressed in the moved run's canonical frame) but one translated
+pocket whose publication bound Python's projection also exceeds there (not-applicable). Not
+captured: 16 test shapes STEP export refuses, 86 test parts where Python finds nothing (2 per
+test are kept), and cgb203's floor questions (its projection passed 600 s). Section recesses
+remain pending: `recognise_section_recesses` / `build_section_recess_document` (Python's
+aggregate reconciliation) and the family's wiring into recognition are not ported.
 The effective-surface query the rectangular pads, cylindrical channels, pockets and passages
 and section recesses read (`_effective_surfaces`: each face's native or recovered analytic fact
 or typed refusal, `recovery_nominal` / `recovery_tolerance`, and surface uses with a
@@ -413,6 +431,9 @@ src/
     cylindrical_end_surface.rs  a cylinder branch as a section end's height over the section
     plane_envelope_passages.rs  polygonal passages through a convex two-plane roof
     section_recess.rs  the section-recess records and their validation (`_section_recess`)
+    section_recess_geometry.rs  section-recess candidates from seats, intact floors and the
+                     cylindrical and plane-envelope proofs, and their published geometry
+    section_recess_discovery.rs  the candidates numbered as section-recess records
     cylindrical_channels.rs  three-support channels ending on a native bore, and the exact
                      cell (a polygon swept between planes or cylinder branches) the three
                      cylindrical proofs build and probe
@@ -467,6 +488,8 @@ tests/
                      Python's captured calls, and the proofs under the invariance motions
   section_recess.rs  every captured section-recess record construction rebuilt (dictionary or
                      refusal), and the geometric records moved
+  section_recess_geometry.rs  section-recess candidates, floor readings, projections and floor
+                     questions against Python's captured calls, and under rigid motion
   prismatic_pockets.rs  prismatic pocket walls and consulted floors on Python's evidence-test
                      parts
   local_degradation.rs  which corpus parts take Python's local-degradation retry and what it
@@ -572,6 +595,8 @@ tools/
                      calls (captured/section_recess_helpers/)
   capture_section_recess.py records every section-recess record construction in the
                      section-recess tests and the corpus documents (captured/section_recess/)
+  capture_section_recess_geometry.py records the section-recess candidates, floor readers,
+                     projections and floor questions (captured/section_recess_geometry/)
   capture_effective_surfaces.py records `_effective_surfaces`'s answers for every face of its
                      consumers' test parts, the golden fixtures and the corpus
                      (captured/effective_surfaces/)
