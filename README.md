@@ -60,7 +60,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 18 | 3 | 15 | 0 | 0 | 0 |
 | `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 28 (53 probes) | 6 | 12 | 0 | 10 | 0 |
 | `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 64 | 13 | 0 | 0 | 51 | 0 |
-| `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 45 | 1 | 5 | 2 | 4 | 33 |
+| `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 42 | 1 | 2 | 2 | 4 | 33 |
 | `tests/fixtures/known_face_areas.json` | `crates/haecceity/tests/face_areas.rs` | 1831 | 1791 | 27 | 0 | 12 | 1 |
 
 The undetermined entries are the backlog: differences not yet shown to be either side's error.
