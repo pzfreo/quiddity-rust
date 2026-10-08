@@ -528,6 +528,29 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("path.center", Placement),
         ],
     },
+    FamilyFingerprint {
+        family: "sheet_metal_bodies",
+        members: None,
+        variants: false,
+        fields: &[
+            ("thickness", Size),
+            ("flanges", Count("flanges")),
+            ("bends", Count("bends")),
+            ("formed_features", Count("formed_features")),
+            ("flat_pattern_status", Trait),
+            ("body_key", Placement),
+            // Face and body indices, which a revision renumbers.
+            ("body_index", Ignored),
+            ("first_side_faces", Ignored),
+            ("second_side_faces", Ignored),
+            ("cut_edge_faces", Ignored),
+            ("edge_treatments", Ignored),
+            // How well the faces pair, and the development laid out in the base flange's frame
+            // (its triangulation is the kernel's).
+            ("paired_area_fraction", Ignored),
+            ("flat_pattern", Ignored),
+        ],
+    },
 ];
 
 /// The fingerprint table of the family with this serde key.

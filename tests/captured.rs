@@ -298,3 +298,8 @@ fn edge_open_prismatic_recesses_match_python() {
 fn blends_match_python() {
     replay("recognise_blends");
 }
+
+#[test]
+fn sheet_metal_bodies_match_python() {
+    replay("recognise_sheet_metal_bodies");
+}

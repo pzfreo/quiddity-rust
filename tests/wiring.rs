@@ -166,6 +166,12 @@ fn families_are_wired_and_their_records_fingerprinted_field_by_field() {
         "",
         found.entry("gusset_rib_patterns".into()).or_default(),
     );
+    // Nor is a sheet with formed features (local forming beside the flanges).
+    leaves(
+        &serde_json::json!({"formed_features": [{"faces": [0, 1], "paired_faces": [0]}]}),
+        "",
+        found.entry("sheet_metal_bodies".into()).or_default(),
+    );
     let mut used: BTreeSet<(String, &str)> = BTreeSet::new();
     for (key, paths) in &found {
         for path in paths {

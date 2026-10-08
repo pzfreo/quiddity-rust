@@ -51,6 +51,7 @@ pub use features::rectangular_blind_slots::{
     RectangularBlindSlot, recognise_rectangular_blind_slots,
 };
 pub use features::round_bottom_slots::{RoundBottomBlindSlot, recognise_round_bottom_blind_slots};
+pub use features::sheet_metal::{SheetMetalBody, SheetMetalOptions, recognise_sheet_metal_bodies};
 pub use features::thin_walls::{ThinWallBody, recognise_thin_wall_bodies};
 pub use features::through_steps::{ThroughStep, recognise_through_steps};
 pub use features::turned::TurnedProfileKey;
