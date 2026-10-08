@@ -1,0 +1,14 @@
+[
+ {
+  "answers": {
+   "datum.A.flatness": "0.01",
+   "hole.function:holes:17.19": "tapped:M2",
+   "hole.function:holes:5": "clearance:M1.6",
+   "hole.position:holes:17.19": "0.1",
+   "hole.position:holes:5": "0.1",
+   "part.general_tolerance": "ISO 2768-f",
+   "part.material": "Brass CW614N"
+  },
+  "part": null
+ }
+]

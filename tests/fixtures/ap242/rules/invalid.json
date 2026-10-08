@@ -1,0 +1,313 @@
+{
+ "about": "The violations check_all must report for invalid.stp, exactly: one or more instance sets per rule, each failing the rules listed for it.",
+ "violations": [
+  {
+   "id": 300,
+   "rule": "thread.WR1"
+  },
+  {
+   "id": 310,
+   "rule": "thread.WR10"
+  },
+  {
+   "id": 310,
+   "rule": "thread.WR11"
+  },
+  {
+   "id": 310,
+   "rule": "thread.WR15"
+  },
+  {
+   "id": 310,
+   "rule": "thread.WR2"
+  },
+  {
+   "id": 310,
+   "rule": "thread.WR3"
+  },
+  {
+   "id": 310,
+   "rule": "thread.WR4"
+  },
+  {
+   "id": 310,
+   "rule": "thread.WR5"
+  },
+  {
+   "id": 310,
+   "rule": "thread.WR6"
+  },
+  {
+   "id": 310,
+   "rule": "thread.WR7"
+  },
+  {
+   "id": 310,
+   "rule": "thread.WR8"
+  },
+  {
+   "id": 330,
+   "rule": "thread.WR12"
+  },
+  {
+   "id": 330,
+   "rule": "thread.WR13"
+  },
+  {
+   "id": 330,
+   "rule": "thread.WR14"
+  },
+  {
+   "id": 330,
+   "rule": "thread.WR16"
+  },
+  {
+   "id": 330,
+   "rule": "thread.WR9"
+  },
+  {
+   "id": 400,
+   "rule": "turned_knurl.WR1"
+  },
+  {
+   "id": 400,
+   "rule": "turned_knurl.WR2"
+  },
+  {
+   "id": 410,
+   "rule": "turned_knurl.WR10"
+  },
+  {
+   "id": 410,
+   "rule": "turned_knurl.WR11"
+  },
+  {
+   "id": 410,
+   "rule": "turned_knurl.WR12"
+  },
+  {
+   "id": 410,
+   "rule": "turned_knurl.WR3"
+  },
+  {
+   "id": 410,
+   "rule": "turned_knurl.WR4"
+  },
+  {
+   "id": 410,
+   "rule": "turned_knurl.WR5"
+  },
+  {
+   "id": 410,
+   "rule": "turned_knurl.WR6"
+  },
+  {
+   "id": 410,
+   "rule": "turned_knurl.WR7"
+  },
+  {
+   "id": 410,
+   "rule": "turned_knurl.WR8"
+  },
+  {
+   "id": 410,
+   "rule": "turned_knurl.WR9"
+  },
+  {
+   "id": 500,
+   "rule": "default_tolerance_table.WR1"
+  },
+  {
+   "id": 500,
+   "rule": "default_tolerance_table.WR2"
+  },
+  {
+   "id": 501,
+   "rule": "default_tolerance_table_cell.WR2"
+  },
+  {
+   "id": 501,
+   "rule": "default_tolerance_table_cell.WR3"
+  },
+  {
+   "id": 501,
+   "rule": "default_tolerance_table_cell.WR4"
+  },
+  {
+   "id": 501,
+   "rule": "default_tolerance_table_cell.WR5"
+  },
+  {
+   "id": 520,
+   "rule": "default_tolerance_table_cell.WR1"
+  },
+  {
+   "id": 600,
+   "rule": "datum.WR1"
+  },
+  {
+   "id": 600,
+   "rule": "datum.WR3"
+  },
+  {
+   "id": 600,
+   "rule": "datum.WR4"
+  },
+  {
+   "id": 610,
+   "rule": "datum.UR1"
+  },
+  {
+   "id": 610,
+   "rule": "datum.WR2"
+  },
+  {
+   "id": 620,
+   "rule": "datum.UR1"
+  },
+  {
+   "id": 630,
+   "rule": "datum_feature.WR1"
+  },
+  {
+   "id": 630,
+   "rule": "datum_feature.WR2"
+  },
+  {
+   "id": 640,
+   "rule": "datum_target.WR1"
+  },
+  {
+   "id": 640,
+   "rule": "datum_target.WR2"
+  },
+  {
+   "id": 640,
+   "rule": "datum_target.WR3"
+  },
+  {
+   "id": 640,
+   "rule": "datum_target.WR4"
+  },
+  {
+   "id": 640,
+   "rule": "datum_target.WR5"
+  },
+  {
+   "id": 651,
+   "rule": "datum_target.UR1"
+  },
+  {
+   "id": 652,
+   "rule": "datum_target.UR1"
+  },
+  {
+   "id": 660,
+   "rule": "datum_target.WR5"
+  },
+  {
+   "id": 660,
+   "rule": "placed_datum_target_feature.WR1"
+  },
+  {
+   "id": 660,
+   "rule": "placed_datum_target_feature.WR2"
+  },
+  {
+   "id": 660,
+   "rule": "placed_datum_target_feature.WR3"
+  },
+  {
+   "id": 670,
+   "rule": "datum_target.WR5"
+  },
+  {
+   "id": 700,
+   "rule": "datum_system.WR1"
+  },
+  {
+   "id": 710,
+   "rule": "datum_system.UR1"
+  },
+  {
+   "id": 711,
+   "rule": "datum_system.UR1"
+  },
+  {
+   "id": 720,
+   "rule": "datum_reference_compartment.owner"
+  },
+  {
+   "id": 721,
+   "rule": "datum_reference_compartment.owner"
+  },
+  {
+   "id": 802,
+   "rule": "geometric_tolerance.WR1"
+  },
+  {
+   "id": 814,
+   "rule": "geometric_tolerance.WR3"
+  },
+  {
+   "id": 820,
+   "rule": "geometric_tolerance.WR5"
+  },
+  {
+   "id": 830,
+   "rule": "geometric_tolerance_with_datum_reference.WR1"
+  },
+  {
+   "id": 840,
+   "rule": "flatness_tolerance.WR1"
+  },
+  {
+   "id": 841,
+   "rule": "straightness_tolerance.WR1"
+  },
+  {
+   "id": 842,
+   "rule": "roundness_tolerance.WR1"
+  },
+  {
+   "id": 843,
+   "rule": "cylindricity_tolerance.WR1"
+  },
+  {
+   "id": 851,
+   "rule": "geometric_tolerance_relationship.WR1"
+  },
+  {
+   "id": 861,
+   "rule": "geometric_tolerance_relationship.WR2"
+  },
+  {
+   "id": 873,
+   "rule": "plus_minus_tolerance.UR1"
+  },
+  {
+   "id": 874,
+   "rule": "plus_minus_tolerance.UR1"
+  },
+  {
+   "id": 881,
+   "rule": "item_identified_representation_usage.UR1"
+  },
+  {
+   "id": 881,
+   "rule": "item_identified_representation_usage.UR2"
+  },
+  {
+   "id": 882,
+   "rule": "item_identified_representation_usage.UR1"
+  },
+  {
+   "id": 883,
+   "rule": "item_identified_representation_usage.UR2"
+  },
+  {
+   "id": 885,
+   "rule": "item_identified_representation_usage.WR1"
+  }
+ ]
+}

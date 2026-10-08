@@ -1,0 +1,589 @@
+{
+ "differences": [
+  {
+   "key": "assembly_plate_pin record dimension:0:1:4:16 dimension diameter ø6 - ø0.012",
+   "verdict": "rust-correct",
+   "reason": "draftwright's extraction record comes from OpenCascade, which drops both-below-nominal deviations and garbles the value (known misread, capture known_misreads); the file states TOLERANCE_VALUE deviations, which the reader reads (specify comparison checks them against the intent)."
+  },
+  {
+   "key": "bolt_thread_knurl requirement #444 shape aspects",
+   "verdict": "not-applicable",
+   "reason": "Presentation-only association: draftwright joins specify-core's 'manufacturing requirement' property to a shape aspect by matching draughting callout names (read_manufacturing_requirements); the file relates the property to the product definition only, so the reader's note is on the part."
+  },
+  {
+   "key": "bolt_thread_knurl requirement #475 shape aspects",
+   "verdict": "not-applicable",
+   "reason": "Presentation-only association: draftwright joins specify-core's 'manufacturing requirement' property to a shape aspect by matching draughting callout names (read_manufacturing_requirements); the file relates the property to the product definition only, so the reader's note is on the part."
+  },
+  {
+   "key": "nist_ctc_01_asme1_ap242-e1 record dimension:0:1:4:27 dimension location 0",
+   "verdict": "rust-correct",
+   "reason": "The file's #126 and #127 are DIMENSIONAL_SIZE 'diameter' with no dimensional_characteristic_representation (no value); the reader reads them as diameters without a nominal (reported); OpenCascade, and draftwright's record from it, give Location_None 0."
+  },
+  {
+   "key": "nist_ctc_01_asme1_ap242-e1 record dimension:0:1:4:28 dimension location 0",
+   "verdict": "rust-correct",
+   "reason": "The file's #126 and #127 are DIMENSIONAL_SIZE 'diameter' with no dimensional_characteristic_representation (no value); the reader reads them as diameters without a nominal (reported); OpenCascade, and draftwright's record from it, give Location_None 0."
+  },
+  {
+   "key": "nist_ctc_01_merge record dimension:0:1:4:27 dimension location 0",
+   "verdict": "rust-correct",
+   "reason": "The file's #126 and #127 are DIMENSIONAL_SIZE 'diameter' with no dimensional_characteristic_representation (no value); the reader reads them as diameters without a nominal (reported); OpenCascade, and draftwright's record from it, give Location_None 0."
+  },
+  {
+   "key": "nist_ctc_01_merge record dimension:0:1:4:28 dimension location 0",
+   "verdict": "rust-correct",
+   "reason": "The file's #126 and #127 are DIMENSIONAL_SIZE 'diameter' with no dimensional_characteristic_representation (no value); the reader reads them as diameters without a nominal (reported); OpenCascade, and draftwright's record from it, give Location_None 0."
+  },
+  {
+   "key": "nist_ctc_02_asme1_ap242-e2 record geometric_tolerance:0:1:4:3 geometric_tolerance profile_surface profile_surface 2.5",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: OpenCascade lists datum A and B once per datum target (A1-A3, B1-B4) and the record repeats them; the file's datum system cites A, B, C once each, as the reader reads."
+  },
+  {
+   "key": "nist_ctc_02_asme1_ap242-e2 record geometric_tolerance:0:1:4:12 geometric_tolerance profile_surface profile_surface 2.5",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: OpenCascade lists datum A and B once per datum target (A1-A3, B1-B4) and the record repeats them; the file's datum system cites A, B, C once each, as the reader reads."
+  },
+  {
+   "key": "nist_ctc_02_asme1_ap242-e2 record geometric_tolerance:0:1:4:21 geometric_tolerance profile_surface profile_surface 2.5",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: OpenCascade lists datum A and B once per datum target (A1-A3, B1-B4) and the record repeats them; the file's datum system cites A, B, C once each, as the reader reads."
+  },
+  {
+   "key": "nist_ctc_02_asme1_ap242-e2 record geometric_tolerance:0:1:4:58 geometric_tolerance profile_surface profile_surface 0.75",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: OpenCascade lists datum A and B once per datum target (A1-A3, B1-B4) and the record repeats them; the file's datum system cites A, B, C once each, as the reader reads."
+  },
+  {
+   "key": "nist_ctc_02_asme1_ap242-e2 record geometric_tolerance:0:1:4:80 geometric_tolerance profile_line profile_line 0.25",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: OpenCascade lists datum A and B once per datum target (A1-A3, B1-B4) and the record repeats them; the file's datum system cites A, B, C once each, as the reader reads."
+  },
+  {
+   "key": "nist_ctc_02_asme1_ap242-e2 record geometric_tolerance:0:1:4:89 geometric_tolerance position position 1.5",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: OpenCascade lists datum A and B once per datum target (A1-A3, B1-B4) and the record repeats them; the file's datum system cites A, B, C once each, as the reader reads."
+  },
+  {
+   "key": "nist_ctc_02_asme1_ap242-e2 record geometric_tolerance:0:1:4:98 geometric_tolerance position position 1",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: OpenCascade lists datum A and B once per datum target (A1-A3, B1-B4) and the record repeats them; the file's datum system cites A, B, C once each, as the reader reads."
+  },
+  {
+   "key": "nist_ftc_07_asme1_ap242-e2 record dimension:0:1:4:101 dimension radius R0.4318 - R0.5588",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value and bounds come from OpenCascade, which takes the nominal (#16185, 0.017 in) as the lower bound; the file's 'lower limit' is #16184 0.012 in, which the reader reads."
+  },
+  {
+   "key": "nist_ftc_10_asme1_ap242-e2 tolerance #19372 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #19372; its magnitude #19369 = LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(0.0),#3) states it, and the reader reads it."
+  },
+  {
+   "key": "nist_ftc_10_asme1_ap242-e2 tolerance #19741 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #19741; its magnitude #19740 = LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(0.0),#3) states it, and the reader reads it."
+  },
+  {
+   "key": "nist_ftc_10_asme1_ap242-e2 datum occurrence #19248 ",
+   "verdict": "rust-correct",
+   "reason": "draftwright reports the compartment with a common datum list (COMMON_DATUM_LIST of datum_reference_elements, §6.9.8) as an occurrence with no letter; the reader reads the compartment's datums E, F, G (each with its modifier)."
+  },
+  {
+   "key": "nist_stc_09_asme1_ap242-e4 datum #8806 faces",
+   "verdict": "rust-correct",
+   "reason": "Datum #8806's datum feature is a group of edition 4 hole occurrences identified through ITEM_IDENTIFIED_REPRESENTATION_USAGE with SET_REPRESENTATION_ITEM (faces and the hole's mapped item); draftwright finds no faces, the reader reads the occurrences' faces {2970, 2994, 3036, 3060}."
+  },
+  {
+   "key": "nist_stc_09_asme1_ap242-e4 datum #8838 faces",
+   "verdict": "rust-correct",
+   "reason": "Datum #8838's datum feature is a group of edition 4 hole occurrences identified through ITEM_IDENTIFIED_REPRESENTATION_USAGE with SET_REPRESENTATION_ITEM (faces and the hole's mapped item); draftwright finds no faces, the reader reads the occurrences' faces {1796, 1820, 1862, 1886, 1928, 1952, 2192, 2216}."
+  },
+  {
+   "key": "nist_stc_09_asme1_ap242-e4 dimension #9866 faces",
+   "verdict": "rust-correct",
+   "reason": "Dimension #9866 applies to a composite group of hole occurrences (e.g. #9866 → #9512, members #9514, #8626, #8635); draftwright's association gives one member's faces, the reader all members' faces {1400, 1424, 1466, 1490, 3812, 3836}."
+  },
+  {
+   "key": "nist_stc_09_asme1_ap242-e4 dimension #9889 faces",
+   "verdict": "rust-correct",
+   "reason": "Dimension #9889 applies to a composite group of hole occurrences (e.g. #9866 → #9512, members #9514, #8626, #8635); draftwright's association gives one member's faces, the reader all members' faces {1994, 2018, 2060, 2084, 2126, 2150}."
+  },
+  {
+   "key": "nist_stc_09_asme1_ap242-e4 dimension #10063 faces",
+   "verdict": "rust-correct",
+   "reason": "Dimension #10063 applies to a composite group of hole occurrences (e.g. #9866 → #9512, members #9514, #8626, #8635); draftwright's association gives one member's faces, the reader all members' faces {1796, 1820, 1862, 1886, 1928, 1952, 2192, 2216}."
+  },
+  {
+   "key": "nist_stc_09_asme1_ap242-e4 dimension #10191 faces",
+   "verdict": "rust-correct",
+   "reason": "Dimension #10191 applies to a composite group of hole occurrences (e.g. #9866 → #9512, members #9514, #8626, #8635); draftwright's association gives one member's faces, the reader all members' faces {1532, 1556, 1598, 1622, 3362, 3386}."
+  },
+  {
+   "key": "nist_stc_09_asme1_ap242-e4 dimension #10215 faces",
+   "verdict": "rust-correct",
+   "reason": "Dimension #10215 applies to a composite group of hole occurrences (e.g. #9866 → #9512, members #9514, #8626, #8635); draftwright's association gives one member's faces, the reader all members' faces {362, 386, 4382, 4400}."
+  },
+  {
+   "key": "nist_stc_09_asme1_ap242-e4 dimension #10239 faces",
+   "verdict": "rust-correct",
+   "reason": "Dimension #10239 applies to a composite group of hole occurrences (e.g. #9866 → #9512, members #9514, #8626, #8635); draftwright's association gives one member's faces, the reader all members' faces {1664, 1688, 1730, 1754, 3168, 3192}."
+  },
+  {
+   "key": "nist_stc_09_asme1_ap242-e4 dimension #10287 faces",
+   "verdict": "rust-correct",
+   "reason": "Dimension #10287 applies to a composite group of hole occurrences (e.g. #9866 → #9512, members #9514, #8626, #8635); draftwright's association gives one member's faces, the reader all members' faces {2970, 2994, 3036, 3060}."
+  },
+  {
+   "key": "nist_stc_09_asme1_ap242-e4 dimension #10311 faces",
+   "verdict": "rust-correct",
+   "reason": "Dimension #10311 applies to a composite group of hole occurrences (e.g. #9866 → #9512, members #9514, #8626, #8635); draftwright's association gives one member's faces, the reader all members' faces {1268, 1292, 1334, 1358, 3878, 3902, 3944, 3968}."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #83 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #83; its magnitude #468 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.1),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #84 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #84; its magnitude #481 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.1),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #91 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #91; its magnitude #444 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.5),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #96 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #96; its magnitude #442 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.2),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #97 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #97; its magnitude #441 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(1.),#11938) QUALIFI states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #98 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #98; its magnitude #465 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.),#11938) QUALIFI states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #99 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #99; its magnitude #482 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.),#11938) QUALIFI states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #107 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #107; its magnitude #427 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.25),#11938) QUALI states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #108 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #108; its magnitude #435 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.25),#11938) QUALI states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #109 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #109; its magnitude #448 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.1),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #110 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #110; its magnitude #458 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.12),#11938) QUALI states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #111 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #111; its magnitude #466 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.12),#11938) QUALI states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #112 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #112; its magnitude #467 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.12),#11938) QUALI states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #122 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #122; its magnitude #424 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.2),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #163 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #163; its magnitude #422 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.65),#11938) QUALI states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #164 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #164; its magnitude #426 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.75),#11938) QUALI states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #165 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #165; its magnitude #428 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.5),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #166 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #166; its magnitude #434 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.8),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #167 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #167; its magnitude #436 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.8),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #168 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #168; its magnitude #447 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(1.),#11938) QUALIFI states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #169 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #169; its magnitude #451 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.8),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #170 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #170; its magnitude #456 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.8),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #171 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #171; its magnitude #459 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.8),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #172 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #172; its magnitude #460 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.8),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #173 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #173; its magnitude #464 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.8),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #174 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #174; its magnitude #471 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.8),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #175 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #175; its magnitude #472 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.8),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #176 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #176; its magnitude #475 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.8),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #483 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #483; its magnitude #419 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(1.2),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #484 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #484; its magnitude #437 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(1.5),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #485 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #485; its magnitude #443 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(1.75),#11938) QUALI states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #486 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #486; its magnitude #445 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(1.2),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #487 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #487; its magnitude #446 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.2),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #488 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #488; its magnitude #452 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(1.),#11938) QUALIFI states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #489 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #489; its magnitude #453 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.12),#11938) QUALI states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #490 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #490; its magnitude #469 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(1.2),#11938) QUALIF states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 tolerance #491 value",
+   "verdict": "rust-correct",
+   "reason": "draftwright's Part 21 tolerance reader gives no value for #491; its magnitude #470 = ( LENGTH_MEASURE_WITH_UNIT() MEASURE_REPRESENTATION_ITEM() MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(0.15),#11938) QUALI states it, and the reader reads it."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 datum #492 faces",
+   "verdict": "rust-correct",
+   "reason": "Datum #492's DATUM_FEATURE identifies its faces through a SHAPE_ASPECT_RELATIONSHIP 'datum feature' to a member shape aspect (e.g. #113 → #2857 for datum A; the pre-4.0.6 form, §6.5.2); draftwright follows no member, the reader reads the member's faces {6993}."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 datum #493 faces",
+   "verdict": "rust-correct",
+   "reason": "Datum #493's DATUM_FEATURE identifies its faces through a SHAPE_ASPECT_RELATIONSHIP 'datum feature' to a member shape aspect (e.g. #113 → #2857 for datum A; the pre-4.0.6 form, §6.5.2); draftwright follows no member, the reader reads the member's faces {7230}."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 datum #494 faces",
+   "verdict": "rust-correct",
+   "reason": "Datum #494's DATUM_FEATURE identifies its faces through a SHAPE_ASPECT_RELATIONSHIP 'datum feature' to a member shape aspect (e.g. #113 → #2857 for datum A; the pre-4.0.6 form, §6.5.2); draftwright follows no member, the reader reads the member's faces {7009}."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 datum #495 faces",
+   "verdict": "rust-correct",
+   "reason": "Datum #495's DATUM_FEATURE identifies its faces through a SHAPE_ASPECT_RELATIONSHIP 'datum feature' to a member shape aspect (e.g. #113 → #2857 for datum A; the pre-4.0.6 form, §6.5.2); draftwright follows no member, the reader reads the member's faces {6987, 6990, 7032}."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 datum #496 faces",
+   "verdict": "rust-correct",
+   "reason": "Datum #496's DATUM_FEATURE identifies its faces through a SHAPE_ASPECT_RELATIONSHIP 'datum feature' to a member shape aspect (e.g. #113 → #2857 for datum A; the pre-4.0.6 form, §6.5.2); draftwright follows no member, the reader reads the member's faces {7071}."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 datum #497 faces",
+   "verdict": "rust-correct",
+   "reason": "Datum #497's DATUM_FEATURE identifies its faces through a SHAPE_ASPECT_RELATIONSHIP 'datum feature' to a member shape aspect (e.g. #113 → #2857 for datum A; the pre-4.0.6 form, §6.5.2); draftwright follows no member, the reader reads the member's faces {7070}."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 datum #498 faces",
+   "verdict": "rust-correct",
+   "reason": "Datum #498's DATUM_FEATURE identifies its faces through a SHAPE_ASPECT_RELATIONSHIP 'datum feature' to a member shape aspect (e.g. #113 → #2857 for datum A; the pre-4.0.6 form, §6.5.2); draftwright follows no member, the reader reads the member's faces {7048}."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 datum #499 faces",
+   "verdict": "rust-correct",
+   "reason": "Datum #499's DATUM_FEATURE identifies its faces through a SHAPE_ASPECT_RELATIONSHIP 'datum feature' to a member shape aspect (e.g. #113 → #2857 for datum A; the pre-4.0.6 form, §6.5.2); draftwright follows no member, the reader reads the member's faces {7022}."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 datum #500 faces",
+   "verdict": "rust-correct",
+   "reason": "Datum #500's DATUM_FEATURE identifies its faces through a SHAPE_ASPECT_RELATIONSHIP 'datum feature' to a member shape aspect (e.g. #113 → #2857 for datum A; the pre-4.0.6 form, §6.5.2); draftwright follows no member, the reader reads the member's faces {7023, 7027}."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 datum occurrence #166 ",
+   "verdict": "rust-correct",
+   "reason": "draftwright reports the compartment with a common datum list (COMMON_DATUM_LIST of datum_reference_elements, §6.9.8) as an occurrence with no letter; the reader reads the compartment's datums E, F, G (each with its modifier)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:1 geometric_tolerance cylindricity cylindricity",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:2 geometric_tolerance cylindricity cylindricity",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:3 geometric_tolerance symmetry symmetry",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:6 geometric_tolerance position position",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:20 geometric_tolerance perpendicularity perpendicularity",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:22 geometric_tolerance perpendicularity perpendicularity",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:24 geometric_tolerance perpendicularity perpendicularity",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:26 geometric_tolerance perpendicularity perpendicularity",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:28 geometric_tolerance perpendicularity perpendicularity",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:30 geometric_tolerance perpendicularity perpendicularity",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:32 geometric_tolerance flatness flatness",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:33 geometric_tolerance position position",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:37 geometric_tolerance position position",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:41 geometric_tolerance position position",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:44 geometric_tolerance position position",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:49 geometric_tolerance position position",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:53 geometric_tolerance position position",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:57 geometric_tolerance position position",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:61 geometric_tolerance position position",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:65 geometric_tolerance position position",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:69 geometric_tolerance position position",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:73 geometric_tolerance position position",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:77 geometric_tolerance position position",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:81 geometric_tolerance position position",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:85 geometric_tolerance position position",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:114 geometric_tolerance profile_surface profile_surface",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:118 geometric_tolerance profile_surface profile_surface",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:122 geometric_tolerance profile_surface profile_surface",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:126 geometric_tolerance profile_surface profile_surface",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:130 geometric_tolerance profile_surface profile_surface",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:132 geometric_tolerance profile_surface profile_surface",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:136 geometric_tolerance profile_surface profile_surface",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:138 geometric_tolerance profile_surface profile_surface",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "nist_stc_10_asme1_ap242-e2 record geometric_tolerance:0:1:4:142 geometric_tolerance profile_surface profile_surface",
+   "verdict": "rust-correct",
+   "reason": "Inherited OpenCascade misread: the record's value comes from OpenCascade, which reads 0 for a magnitude held in a complex instance (capture known_misreads); the file states the magnitude the reader reads (the Part 21 fact for the same tolerance is compared above)."
+  },
+  {
+   "key": "spool_fits record dimension:0:1:4:3 dimension diameter ø130 - ø0.039",
+   "verdict": "rust-correct",
+   "reason": "draftwright's extraction record comes from OpenCascade, which drops both-below-nominal deviations and garbles the value (known misread, capture known_misreads); the file states TOLERANCE_VALUE deviations, which the reader reads (specify comparison checks them against the intent)."
+  },
+  {
+   "key": "spool_fits record dimension:0:1:4:4 dimension diameter ø130 - ø0.039",
+   "verdict": "rust-correct",
+   "reason": "draftwright's extraction record comes from OpenCascade, which drops both-below-nominal deviations and garbles the value (known misread, capture known_misreads); the file states TOLERANCE_VALUE deviations, which the reader reads (specify comparison checks them against the intent)."
+  },
+  {
+   "key": "spool_fits record dimension:0:1:4:5 dimension diameter ø70 - ø0.06",
+   "verdict": "rust-correct",
+   "reason": "draftwright's extraction record comes from OpenCascade, which drops both-below-nominal deviations and garbles the value (known misread, capture known_misreads); the file states TOLERANCE_VALUE deviations, which the reader reads (specify comparison checks them against the intent)."
+  },
+  {
+   "key": "string_post_tapped requirement #3157 shape aspects",
+   "verdict": "not-applicable",
+   "reason": "Presentation-only association: draftwright joins specify-core's 'manufacturing requirement' property to a shape aspect by matching draughting callout names (read_manufacturing_requirements); the file relates the property to the product definition only, so the reader's note is on the part."
+  },
+  {
+   "key": "thumbwheel_thread_knurl requirement #689 shape aspects",
+   "verdict": "not-applicable",
+   "reason": "Presentation-only association: draftwright joins specify-core's 'manufacturing requirement' property to a shape aspect by matching draughting callout names (read_manufacturing_requirements); the file relates the property to the product definition only, so the reader's note is on the part."
+  },
+  {
+   "key": "thumbwheel_thread_knurl requirement #722 shape aspects",
+   "verdict": "not-applicable",
+   "reason": "Presentation-only association: draftwright joins specify-core's 'manufacturing requirement' property to a shape aspect by matching draughting callout names (read_manufacturing_requirements); the file relates the property to the product definition only, so the reader's note is on the part."
+  },
+  {
+   "key": "thumbwheel_thread_knurl requirement #749 shape aspects",
+   "verdict": "not-applicable",
+   "reason": "Presentation-only association: draftwright joins specify-core's 'manufacturing requirement' property to a shape aspect by matching draughting callout names (read_manufacturing_requirements); the file relates the property to the product definition only, so the reader's note is on the part."
+  },
+  {
+   "key": "thumbwheel_thread_knurl record dimension:0:1:4:1 dimension diameter ø10 - ø0.028",
+   "verdict": "rust-correct",
+   "reason": "draftwright's extraction record comes from OpenCascade, which drops both-below-nominal deviations and garbles the value (known misread, capture known_misreads); the file states TOLERANCE_VALUE deviations, which the reader reads (specify comparison checks them against the intent)."
+  }
+ ]
+}

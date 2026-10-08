@@ -1,0 +1,26 @@
+{
+ "case": "thumbwheel_thread_knurl",
+ "command": "specify-core analyse [--part N]; specify-core write --accept-defaults --intent",
+ "input": "corpus:gramel/GRM-03_thumbwheel_drive_screw.step",
+ "input_sha256": "b4d455810969ee6644e73f3ee0576b43dc0937eeb2589a4383c931d126b6d285",
+ "not_byte_for_byte": "the STEP header FILE_NAME time stamp",
+ "specify_core": "cc341dd6eaea84428d9bcf34915a7bffd78fecdb",
+ "write_report": {
+  "not_written": [],
+  "warnings": [],
+  "written": [
+   "datum A",
+   "datum B",
+   "internal thread M2x0.4-6H on holes:12.13",
+   "position 0.1 on holes:12.13",
+   "diamond knurl on turned_steps:9",
+   "Ø10 f7 on turned_steps:3",
+   "runout 0.02 on turned_steps:3",
+   "external thread M5x0.8-6g on turned_steps:2",
+   "material Stainless steel 303",
+   "general tolerance ISO 2768-f",
+   "surface finish Ra 3.2",
+   "edges Break sharp edges 0.2 max"
+  ]
+ }
+}

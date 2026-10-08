@@ -1,0 +1,24 @@
+{
+ "case": "bolt_thread_knurl",
+ "command": "specify-core analyse [--part N]; specify-core write --accept-defaults --intent",
+ "input": "corpus:gramel/GRM-05_depth_lock_bolt.step",
+ "input_sha256": "73c7ee3e136a78cfb4acf42e8bbfdc75e949ea4d9f55be10ce05441595e13892",
+ "not_byte_for_byte": "the STEP header FILE_NAME time stamp",
+ "specify_core": "cc341dd6eaea84428d9bcf34915a7bffd78fecdb",
+ "write_report": {
+  "not_written": [],
+  "warnings": [],
+  "written": [
+   "datum A",
+   "datum B",
+   "external thread M10x1.5-6g on turned_steps:0",
+   "straight knurl on turned_steps:4",
+   "Ø6 h6 on turned_steps:6",
+   "runout 0.05 on turned_steps:6",
+   "material Steel C45",
+   "general tolerance ISO 2768-m",
+   "surface finish Ra 3.2",
+   "edges Break sharp edges 0.2 max"
+  ]
+ }
+}

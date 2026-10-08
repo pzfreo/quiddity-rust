@@ -1,0 +1,353 @@
+{
+  "_comment": [
+    "Schema violations of the NIST MBE PMI AP242 test files (HAECCEITY_NIST_PMI), grouped by",
+    "entity, kind and attribute. 'own': against the table of the file's own edition (null when",
+    "there is none: editions 2 and 3); 'upgrade': against the target edition 4, as if its",
+    "FILE_SCHEMA were changed to it (null for edition 4 files). Verdicts: file-wrong (the file",
+    "violates the schema text cited), edition-difference (valid in its own edition, not in the",
+    "target), undetermined. Line numbers are of 242_mim_lf.exp (edition 4) unless stated."
+  ],
+  "files": {
+    "nist_ctc_01_asme1_ap242-e1.stp": {
+      "edition": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 1 1 4 }",
+      "file_schema": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 1 1 4 }",
+      "own": [
+        {
+          "entity": "integer_representation_item",
+          "kind": "value-type",
+          "attribute": "literal_number.the_value",
+          "count": 21,
+          "verdict": "file-wrong",
+          "reason": "INTEGER_REPRESENTATION_ITEM('part user attributes',3.): a REAL token where int_literal redeclares SELF\\literal_number.the_value : INTEGER (editions 1 and 4 alike); Part 21 writes an INTEGER without a decimal point"
+        }
+      ],
+      "upgrade": [
+        {
+          "entity": "integer_representation_item",
+          "kind": "value-type",
+          "attribute": "literal_number.the_value",
+          "count": 21,
+          "verdict": "file-wrong",
+          "reason": "INTEGER_REPRESENTATION_ITEM('part user attributes',3.): a REAL token where int_literal redeclares SELF\\literal_number.the_value : INTEGER (editions 1 and 4 alike); Part 21 writes an INTEGER without a decimal point"
+        }
+      ]
+    },
+    "nist_ctc_02_asme1_ap242-e2.stp": {
+      "edition": null,
+      "file_schema": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 }",
+      "own": null,
+      "upgrade": [
+        {
+          "entity": "integer_representation_item",
+          "kind": "value-type",
+          "attribute": "literal_number.the_value",
+          "count": 61,
+          "verdict": "file-wrong",
+          "reason": "INTEGER_REPRESENTATION_ITEM('part user attributes',3.): a REAL token where int_literal redeclares SELF\\literal_number.the_value : INTEGER (editions 1 and 4 alike); Part 21 writes an INTEGER without a decimal point"
+        }
+      ]
+    },
+    "nist_ctc_03_asme1_ap242-e2.stp": {
+      "edition": null,
+      "file_schema": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 }",
+      "own": null,
+      "upgrade": [
+        {
+          "entity": "integer_representation_item",
+          "kind": "value-type",
+          "attribute": "literal_number.the_value",
+          "count": 44,
+          "verdict": "file-wrong",
+          "reason": "INTEGER_REPRESENTATION_ITEM('part user attributes',3.): a REAL token where int_literal redeclares SELF\\literal_number.the_value : INTEGER (editions 1 and 4 alike); Part 21 writes an INTEGER without a decimal point"
+        }
+      ]
+    },
+    "nist_ctc_04_asme1_ap242-e2.stp": {
+      "edition": null,
+      "file_schema": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 }",
+      "own": null,
+      "upgrade": [
+        {
+          "entity": "integer_representation_item",
+          "kind": "value-type",
+          "attribute": "literal_number.the_value",
+          "count": 71,
+          "verdict": "file-wrong",
+          "reason": "INTEGER_REPRESENTATION_ITEM('part user attributes',3.): a REAL token where int_literal redeclares SELF\\literal_number.the_value : INTEGER (editions 1 and 4 alike); Part 21 writes an INTEGER without a decimal point"
+        }
+      ]
+    },
+    "nist_ctc_05_asme1_ap242-e1.stp": {
+      "edition": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 1 1 4 }",
+      "file_schema": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF {1 0 10303 442 1 1 4 }",
+      "own": [
+        {
+          "entity": "datum_reference_element",
+          "kind": "unset",
+          "attribute": "shape_aspect.name",
+          "count": 2,
+          "verdict": "file-wrong",
+          "reason": "DATUM_REFERENCE_ELEMENT($,$,$,.F.,#1161,$): shape_aspect.name : label is not OPTIONAL"
+        },
+        {
+          "entity": "datum_reference_element",
+          "kind": "unset",
+          "attribute": "shape_aspect.of_shape",
+          "count": 2,
+          "verdict": "file-wrong",
+          "reason": "DATUM_REFERENCE_ELEMENT($,$,$,.F.,#1161,$): shape_aspect.of_shape : product_definition_shape is not OPTIONAL"
+        },
+        {
+          "entity": "integer_representation_item",
+          "kind": "value-type",
+          "attribute": "literal_number.the_value",
+          "count": 4,
+          "verdict": "file-wrong",
+          "reason": "INTEGER_REPRESENTATION_ITEM('part user attributes',3.): a REAL token where int_literal redeclares SELF\\literal_number.the_value : INTEGER (editions 1 and 4 alike); Part 21 writes an INTEGER without a decimal point"
+        },
+        {
+          "entity": "over_riding_styled_item",
+          "kind": "unset",
+          "attribute": "over_riding_styled_item.over_ridden_style",
+          "count": 2,
+          "verdict": "file-wrong",
+          "reason": "OVER_RIDING_STYLED_ITEM('ANNOTATION_OCCURRENCE',(…),#1202,$): over_ridden_style : styled_item is not OPTIONAL (edition 1 line 14962, edition 4 line 25945)"
+        },
+        {
+          "entity": "presentation_style_assignment",
+          "kind": "unset",
+          "attribute": "presentation_style_assignment.styles",
+          "count": 1,
+          "verdict": "file-wrong",
+          "reason": "PRESENTATION_STYLE_ASSIGNMENT($): styles : SET [1 : ?] OF presentation_style_select is not OPTIONAL"
+        },
+        {
+          "entity": "styled_item",
+          "kind": "bound",
+          "attribute": "styled_item.styles",
+          "count": 1,
+          "verdict": "file-wrong",
+          "reason": "STYLED_ITEM('',(),#1180): edition 1 declares styles : SET [1 : ?] OF presentation_style_assignment; edition 4 relaxed it to SET [0 : ?], so the upgrade has no such violation"
+        }
+      ],
+      "upgrade": [
+        {
+          "entity": "datum_reference_element",
+          "kind": "unset",
+          "attribute": "shape_aspect.name",
+          "count": 2,
+          "verdict": "file-wrong",
+          "reason": "DATUM_REFERENCE_ELEMENT($,$,$,.F.,#1161,$): shape_aspect.name : label is not OPTIONAL"
+        },
+        {
+          "entity": "datum_reference_element",
+          "kind": "unset",
+          "attribute": "shape_aspect.of_shape",
+          "count": 2,
+          "verdict": "file-wrong",
+          "reason": "DATUM_REFERENCE_ELEMENT($,$,$,.F.,#1161,$): shape_aspect.of_shape : product_definition_shape is not OPTIONAL"
+        },
+        {
+          "entity": "integer_representation_item",
+          "kind": "value-type",
+          "attribute": "literal_number.the_value",
+          "count": 4,
+          "verdict": "file-wrong",
+          "reason": "INTEGER_REPRESENTATION_ITEM('part user attributes',3.): a REAL token where int_literal redeclares SELF\\literal_number.the_value : INTEGER (editions 1 and 4 alike); Part 21 writes an INTEGER without a decimal point"
+        },
+        {
+          "entity": "over_riding_styled_item",
+          "kind": "unset",
+          "attribute": "over_riding_styled_item.over_ridden_style",
+          "count": 2,
+          "verdict": "file-wrong",
+          "reason": "OVER_RIDING_STYLED_ITEM('ANNOTATION_OCCURRENCE',(…),#1202,$): over_ridden_style : styled_item is not OPTIONAL (edition 1 line 14962, edition 4 line 25945)"
+        },
+        {
+          "entity": "presentation_style_assignment",
+          "kind": "unset",
+          "attribute": "presentation_style_assignment.styles",
+          "count": 1,
+          "verdict": "file-wrong",
+          "reason": "PRESENTATION_STYLE_ASSIGNMENT($): styles : SET [1 : ?] OF presentation_style_select is not OPTIONAL"
+        }
+      ]
+    },
+    "nist_ftc_06_asme1_ap242-e2.stp": {
+      "edition": null,
+      "file_schema": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 }",
+      "own": null,
+      "upgrade": [
+        {
+          "entity": "integer_representation_item",
+          "kind": "value-type",
+          "attribute": "literal_number.the_value",
+          "count": 77,
+          "verdict": "file-wrong",
+          "reason": "INTEGER_REPRESENTATION_ITEM('part user attributes',3.): a REAL token where int_literal redeclares SELF\\literal_number.the_value : INTEGER (editions 1 and 4 alike); Part 21 writes an INTEGER without a decimal point"
+        }
+      ]
+    },
+    "nist_ftc_07_asme1_ap242-e2.stp": {
+      "edition": null,
+      "file_schema": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 }",
+      "own": null,
+      "upgrade": [
+        {
+          "entity": "integer_representation_item",
+          "kind": "value-type",
+          "attribute": "literal_number.the_value",
+          "count": 146,
+          "verdict": "file-wrong",
+          "reason": "INTEGER_REPRESENTATION_ITEM('part user attributes',3.): a REAL token where int_literal redeclares SELF\\literal_number.the_value : INTEGER (editions 1 and 4 alike); Part 21 writes an INTEGER without a decimal point"
+        }
+      ]
+    },
+    "nist_ftc_08_asme1_ap242-e2.stp": {
+      "edition": null,
+      "file_schema": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 }",
+      "own": null,
+      "upgrade": [
+        {
+          "entity": "descriptive_representation_item",
+          "kind": "unset",
+          "attribute": "descriptive_representation_item.description",
+          "count": 5,
+          "verdict": "file-wrong",
+          "reason": "DESCRIPTIVE_REPRESENTATION_ITEM('',$): description : text is not OPTIONAL (edition 4 line 13798; edition 1 the same)"
+        }
+      ]
+    },
+    "nist_ftc_08_asme1_ap242-e4-tg.stp": {
+      "edition": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
+      "file_schema": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF {1 0 10303 442 7 1 4 }",
+      "own": [
+        {
+          "entity": "integer_representation_item",
+          "kind": "value-type",
+          "attribute": "literal_number.the_value",
+          "count": 129,
+          "verdict": "file-wrong",
+          "reason": "INTEGER_REPRESENTATION_ITEM('part user attributes',3.): a REAL token where int_literal redeclares SELF\\literal_number.the_value : INTEGER (editions 1 and 4 alike); Part 21 writes an INTEGER without a decimal point"
+        }
+      ],
+      "upgrade": null
+    },
+    "nist_ftc_09_asme1_ap242-e1.stp": {
+      "edition": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 1 1 4 }",
+      "file_schema": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF {1 0 10303 442 1 1 4 }",
+      "own": [],
+      "upgrade": []
+    },
+    "nist_ftc_10_asme1_ap242-e2.stp": {
+      "edition": null,
+      "file_schema": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 }",
+      "own": null,
+      "upgrade": []
+    },
+    "nist_ftc_11_asme1_ap242-e3.stp": {
+      "edition": null,
+      "file_schema": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 4 1 4 }",
+      "own": null,
+      "upgrade": []
+    },
+    "nist_stc_06_asme1_ap242-e3.stp": {
+      "edition": null,
+      "file_schema": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 4 1 4 }",
+      "own": null,
+      "upgrade": [
+        {
+          "entity": "integer_representation_item",
+          "kind": "value-type",
+          "attribute": "literal_number.the_value",
+          "count": 130,
+          "verdict": "file-wrong",
+          "reason": "INTEGER_REPRESENTATION_ITEM('part user attributes',3.): a REAL token where int_literal redeclares SELF\\literal_number.the_value : INTEGER (editions 1 and 4 alike); Part 21 writes an INTEGER without a decimal point"
+        }
+      ]
+    },
+    "nist_stc_07_asme1_ap242-e3.stp": {
+      "edition": null,
+      "file_schema": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF  {1 0 10303 442 4 1 4}",
+      "own": null,
+      "upgrade": [
+        {
+          "entity": "(characterized_object characterized_representation draughting_model representation)",
+          "kind": "derived",
+          "attribute": "characterized_object.description",
+          "count": 4,
+          "verdict": "file-wrong",
+          "reason": "as for characterized_object.name: characterized_representation derives SELF\\characterized_object.description (edition 4 line 10862), written `*`"
+        },
+        {
+          "entity": "(characterized_object characterized_representation draughting_model representation)",
+          "kind": "derived",
+          "attribute": "characterized_object.name",
+          "count": 4,
+          "verdict": "file-wrong",
+          "reason": "(CHARACTERIZED_OBJECT('','') CHARACTERIZED_REPRESENTATION() DRAUGHTING_MODEL() REPRESENTATION(…)): characterized_representation redeclares SELF\\characterized_object.name in DERIVE (edition 4 line 10861), so it is written `*`, as the PMI practice's own saved view examples write CHARACTERIZED_OBJECT(*,*) (§9.3.4, §10.2.2.3)"
+        },
+        {
+          "entity": "annotation_plane",
+          "kind": "bound",
+          "attribute": "annotation_plane.elements",
+          "count": 2,
+          "verdict": "file-wrong",
+          "reason": "ANNOTATION_PLANE('MBD_A_NOTES',(#13969),#13967,()): elements : OPTIONAL SET [1 : ?] OF annotation_plane_element; an empty set is not allowed, `$` states none"
+        },
+        {
+          "entity": "integer_representation_item",
+          "kind": "value-type",
+          "attribute": "literal_number.the_value",
+          "count": 95,
+          "verdict": "file-wrong",
+          "reason": "INTEGER_REPRESENTATION_ITEM('part user attributes',3.): a REAL token where int_literal redeclares SELF\\literal_number.the_value : INTEGER (editions 1 and 4 alike); Part 21 writes an INTEGER without a decimal point"
+        }
+      ]
+    },
+    "nist_stc_08_asme1_ap242-e3.stp": {
+      "edition": null,
+      "file_schema": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 4 1 4 }",
+      "own": null,
+      "upgrade": [
+        {
+          "entity": "annotation_to_model_leader_line",
+          "kind": "bound",
+          "attribute": "annotation_placeholder_leader_line.geometric_elements",
+          "count": 14,
+          "verdict": "file-wrong",
+          "reason": "ANNOTATION_TO_MODEL_LEADER_LINE('',(#711)): geometric_elements : LIST [2 : ?] OF UNIQUE des_apll_point_select; a leader line of one point"
+        },
+        {
+          "entity": "integer_representation_item",
+          "kind": "value-type",
+          "attribute": "literal_number.the_value",
+          "count": 82,
+          "verdict": "file-wrong",
+          "reason": "INTEGER_REPRESENTATION_ITEM('part user attributes',3.): a REAL token where int_literal redeclares SELF\\literal_number.the_value : INTEGER (editions 1 and 4 alike); Part 21 writes an INTEGER without a decimal point"
+        }
+      ]
+    },
+    "nist_stc_09_asme1_ap242-e4.stp": {
+      "edition": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
+      "file_schema": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF  { 1 0 10303 442 7 1 4 }",
+      "own": [],
+      "upgrade": null
+    },
+    "nist_stc_10_asme1_ap242-e2.stp": {
+      "edition": null,
+      "file_schema": "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 }",
+      "own": null,
+      "upgrade": [
+        {
+          "entity": "integer_representation_item",
+          "kind": "value-type",
+          "attribute": "literal_number.the_value",
+          "count": 5,
+          "verdict": "file-wrong",
+          "reason": "INTEGER_REPRESENTATION_ITEM('part user attributes',3.): a REAL token where int_literal redeclares SELF\\literal_number.the_value : INTEGER (editions 1 and 4 alike); Part 21 writes an INTEGER without a decimal point"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,480 @@
+{
+ "coverage": [
+  [
+   "flatness_tolerance",
+   "1"
+  ],
+  [
+   "parallelism_tolerance",
+   "1"
+  ],
+  [
+   "perpendicularity_tolerance",
+   "1"
+  ],
+  [
+   "position_tolerance",
+   "10"
+  ],
+  [
+   "surface_profile_tolerance",
+   "12"
+  ],
+  [
+   "tolerance zone diameter",
+   "13"
+  ],
+  [
+   "tolerance zone within a cylinder",
+   "11"
+  ],
+  [
+   "all_over",
+   "1"
+  ],
+  [
+   "projected",
+   "4"
+  ],
+  [
+   "tolerance with max value",
+   "2"
+  ],
+  [
+   "unit-basis tolerance",
+   "1"
+  ],
+  [
+   "composite tolerance",
+   "6"
+  ],
+  [
+   "dimensions",
+   "17"
+  ],
+  [
+   "dimensional location",
+   "5"
+  ],
+  [
+   "dimensional size",
+   "12"
+  ],
+  [
+   "repetitive dimensions",
+   "10"
+  ],
+  [
+   "dimension association to geometric tolerance",
+   "11"
+  ],
+  [
+   "bilateral tolerance",
+   "8"
+  ],
+  [
+   "non-bilateral tolerance",
+   "8"
+  ],
+  [
+   "value range",
+   "1"
+  ],
+  [
+   "diameter",
+   "11"
+  ],
+  [
+   "radius",
+   "1"
+  ],
+  [
+   "datum",
+   "5"
+  ],
+  [
+   "datum features",
+   "5"
+  ],
+  [
+   "datum system",
+   "23"
+  ],
+  [
+   "datum feature association to geometric tolerance",
+   "7"
+  ],
+  [
+   "maximum_material_requirement",
+   "4"
+  ],
+  [
+   "statistical_dimension",
+   "1"
+  ],
+  [
+   "statistical_tolerance",
+   "1"
+  ],
+  [
+   "saved views",
+   "4"
+  ]
+ ],
+ "model": "nist_ftc_07",
+ "rows": [
+  {
+   "cells": {
+    "A": "datum_system",
+    "B": "A"
+   },
+   "row": 1
+  },
+  {
+   "cells": {
+    "A": "datum_system",
+    "B": "A | B"
+   },
+   "row": 2
+  },
+  {
+   "cells": {
+    "A": "datum_system",
+    "B": "A | B | C"
+   },
+   "row": 3
+  },
+  {
+   "cells": {
+    "A": "datum_system",
+    "B": "D | B | C"
+   },
+   "row": 4
+  },
+  {
+   "cells": {
+    "A": "datum_system",
+    "B": "E | B | C"
+   },
+   "row": 5
+  },
+  {
+   "cells": {
+    "A": "dimensional_characteristic_representation",
+    "B": "⌀.250  +.003\n               -.000"
+   },
+   "row": 6
+  },
+  {
+   "cells": {
+    "A": "dimensional_characteristic_representation",
+    "B": "⌀.250  +.003\n               -.000"
+   },
+   "row": 7
+  },
+  {
+   "cells": {
+    "A": "dimensional_characteristic_representation",
+    "B": "2X ⌀.250  +.003\n               -.000"
+   },
+   "row": 8
+  },
+  {
+   "cells": {
+    "A": "dimensional_characteristic_representation",
+    "B": ".30 ± .02"
+   },
+   "row": 9
+  },
+  {
+   "cells": {
+    "A": "dimensional_characteristic_representation",
+    "B": ".30 ± .02"
+   },
+   "row": 10
+  },
+  {
+   "cells": {
+    "A": "dimensional_characteristic_representation",
+    "B": ".30 ± .02"
+   },
+   "row": 11
+  },
+  {
+   "cells": {
+    "A": "dimensional_characteristic_representation",
+    "B": ".30 ± .02"
+   },
+   "row": 12
+  },
+  {
+   "cells": {
+    "A": "dimensional_characteristic_representation",
+    "B": ".30 ± .02"
+   },
+   "row": 13
+  },
+  {
+   "cells": {
+    "A": "dimensional_characteristic_representation",
+    "B": "2X ⌀.594  +.012\n               -.002"
+   },
+   "row": 14
+  },
+  {
+   "cells": {
+    "A": "dimensional_characteristic_representation",
+    "B": "2X ⌀.594  +.012\n               -.002"
+   },
+   "row": 15
+  },
+  {
+   "cells": {
+    "A": "dimensional_characteristic_representation",
+    "B": "3X ⌀.875 ± .010"
+   },
+   "row": 16
+  },
+  {
+   "cells": {
+    "A": "dimensional_characteristic_representation",
+    "B": "3X ⌀.875 ± .020 <ST>"
+   },
+   "row": 17
+  },
+  {
+   "cells": {
+    "A": "dimensional_characteristic_representation",
+    "B": "4X ⌀.173  +.005\n               -.001"
+   },
+   "row": 18
+  },
+  {
+   "cells": {
+    "A": "dimensional_characteristic_representation",
+    "B": "4X ⌀.250  +.003\n               -.001"
+   },
+   "row": 19
+  },
+  {
+   "cells": {
+    "A": "dimensional_characteristic_representation",
+    "B": "4X ⌀.281  +.006\n               -.001"
+   },
+   "row": 20
+  },
+  {
+   "cells": {
+    "A": "dimensional_characteristic_representation",
+    "B": "4X ⌀.438 ± .010"
+   },
+   "row": 21
+  },
+  {
+   "cells": {
+    "A": "dimensional_characteristic_representation",
+    "B": "32X R.012-.022"
+   },
+   "row": 22
+  },
+  {
+   "cells": {
+    "A": "flatness_tolerance",
+    "B": "▱ | .01 / ⌀1.00"
+   },
+   "row": 23
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (geometric_tolerance_with_modifiers)\n   (position_tolerance)",
+    "B": "2X ⌀.594  +.012\n               -.002\n⌖ | ⌀.040 Ⓜ | ⌀.045 MAX | A | B | C"
+   },
+   "row": 24
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (geometric_tolerance_with_modifiers)\n   (position_tolerance)",
+    "B": "2X ⌀.594  +.012\n               -.002\n⌖ | ⌀.040 Ⓜ | ⌀.045 MAX | A | B | C"
+   },
+   "row": 25
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (geometric_tolerance_with_modifiers)\n   (position_tolerance)",
+    "B": "4X ⌀.281  +.006\n               -.001\n⌖ | ⌀.020 Ⓜ | E | B | C\n(composite)"
+   },
+   "row": 26
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (geometric_tolerance_with_modifiers)\n   (position_tolerance)",
+    "B": "4X ⌀.281  +.006\n               -.001\n⌖ | ⌀.060 Ⓜ | E | B | C"
+   },
+   "row": 27
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (position_tolerance)",
+    "B": "⌀.250  +.003\n               -.000\n⌖ | ⌀.020 Ⓟ .425 | A | B \n   ▽\n   ⎹\n   [C]"
+   },
+   "row": 28
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (position_tolerance)",
+    "B": "2X ⌀.250  +.003\n               -.000\n⌖ | ⌀.023 Ⓟ .425 | A | B | C"
+   },
+   "row": 29
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (position_tolerance)",
+    "B": "3X ⌀.875 ± .020 <ST>\n⌖ | ⌀.050 <ST> | A | B | C"
+   },
+   "row": 30
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (position_tolerance)",
+    "B": "4X ⌀.173  +.005\n               -.001\n⌖ | ⌀.015 | A\n(composite)"
+   },
+   "row": 31
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (position_tolerance)",
+    "B": "4X ⌀.173  +.005\n               -.001\n⌖ | ⌀.060 | A | B | C"
+   },
+   "row": 32
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (position_tolerance)",
+    "B": "4X ⌀.250  +.003\n               -.001\n⌖ | ⌀.023 Ⓟ .150 | D | B | C"
+   },
+   "row": 33
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (surface_profile_tolerance)",
+    "B": "⌓ | .005 | A | B | C\n(composite)"
+   },
+   "row": 34
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (surface_profile_tolerance)",
+    "B": "⌓ | .006 | A | B | C"
+   },
+   "row": 35
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (surface_profile_tolerance)",
+    "B": "⌓ | .01 | A \n   ▽\n   ⎹\n   [D]\n(composite)"
+   },
+   "row": 36
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (surface_profile_tolerance)",
+    "B": "⌓ | .015 | A \n   ▽\n   ⎹\n   [E]\n(composite)"
+   },
+   "row": 37
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (surface_profile_tolerance)",
+    "B": "⌓ | .015 | A\n(composite)"
+   },
+   "row": 38
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (surface_profile_tolerance)",
+    "B": "⌓ | .03 | A | B | C"
+   },
+   "row": 39
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (surface_profile_tolerance)",
+    "B": "⌓ | .04 | A | B | C \n   ▽\n   ⎹\n   [D]"
+   },
+   "row": 40
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (surface_profile_tolerance)",
+    "B": "⌓ | .06 | A | B | C"
+   },
+   "row": 41
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (surface_profile_tolerance)",
+    "B": "⌓ | .07 | A | B | C"
+   },
+   "row": 42
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (surface_profile_tolerance)",
+    "B": "⌓ | .07 | A | B | C \n   ▽\n   ⎹\n   [E]"
+   },
+   "row": 43
+  },
+  {
+   "cells": {
+    "A": "(geometric_tolerance_with_datum_reference)\n   (surface_profile_tolerance)",
+    "B": "⭩◎ | ⌓ | .06 | A | B | C"
+   },
+   "row": 44
+  },
+  {
+   "cells": {
+    "A": "parallelism_tolerance",
+    "B": "⫽ | .03 | A"
+   },
+   "row": 45
+  },
+  {
+   "cells": {
+    "A": "perpendicularity_tolerance",
+    "B": "⌀.250  +.003\n               -.000\n⏊ | ⌀.015 Ⓟ .425| A \n   ▽\n   ⎹\n   [B]"
+   },
+   "row": 46
+  },
+  {
+   "cells": {
+    "A": "surface_profile_tolerance",
+    "B": "⌓ | .015 \n   ▽\n   ⎹\n   [A]"
+   },
+   "row": 47
+  }
+ ],
+ "source": {
+  "embedded": "SFA-NIST-files.zip",
+  "embedded_offset": 4492140,
+  "embedded_sha256": "5701884ac696f87bd5342d2bf099c15b01802b55d54829d0b355bc464175d1a1",
+  "executable": "STEP-File-Analyzer.exe",
+  "executable_sha256": "5bfa13823d5c104b2229c3d5dff4fd47f9f30cb17f1e9bbea78b749dc5104ba6",
+  "reader": "sfa-nist.tcl nistReadExpectedPMI: columns A (type) and B (PMI) of sheet 1",
+  "release": "SFA-5.51.zip",
+  "release_sha256": "d7d06e2454c8cc9d6a41049b25d38eeb7822226660861af41e62613238d1a13c",
+  "spreadsheet": "SFA-PMI-nist_ftc_07.xlsx",
+  "spreadsheet_sha256": "5c29f98563198d2dafd4ad7f8e3aac595a6a79a99760dfd81a2da7ac58b36227"
+ },
+ "step_file": "nist_ftc_07_asme1_ap242-e2.stp",
+ "step_sha256": "aa8115c12e12a99cc439477cbfd222916f9ec629fbb3c9002b18e0c264c9a892",
+ "units": {
+  "drawing": "nist_ftc_07_asme1_rd.pdf",
+  "drawing_note": "UNITS: INCHES",
+  "length_measure_units": {
+   "conversion_based_unit 'INCH'": 19
+  },
+  "unit_context_length_units": {
+   "conversion_based_unit 'INCH'": 1
+  }
+ }
+}

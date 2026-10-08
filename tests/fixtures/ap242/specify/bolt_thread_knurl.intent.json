@@ -1,0 +1,130 @@
+{
+ "schema": 1,
+ "rules_version": 1,
+ "binding": {
+  "source_sha256": "73c7ee3e136a78cfb4acf42e8bbfdc75e949ea4d9f55be10ce05441595e13892",
+  "face_count": 9,
+  "loader_version": 2,
+  "part": 0
+ },
+ "part": {
+  "material": "Steel C45",
+  "general_tolerance": "ISO 2768-m",
+  "surface_finish": "Ra 3.2",
+  "edges": "Break sharp edges 0.2 max"
+ },
+ "datums": [
+  {
+   "letter": "A",
+   "faces": [
+    2
+   ],
+   "question": "datum.A"
+  },
+  {
+   "letter": "B",
+   "faces": [
+    0
+   ],
+   "question": "datum.B"
+  }
+ ],
+ "requirements": [
+  {
+   "kind": "thread",
+   "feature": "turned_steps:0",
+   "faces": [
+    0
+   ],
+   "side": "external",
+   "designation": "M10",
+   "pitch": 1.5,
+   "spec": "M10x1.5",
+   "class": "6g",
+   "hand": "RH",
+   "length": 14.0,
+   "nominal": 10.0,
+   "question": "diameter.fit:turned_steps:0"
+  },
+  {
+   "kind": "knurl",
+   "feature": "turned_steps:4",
+   "faces": [
+    4
+   ],
+   "pattern": "straight",
+   "pitch": 1.0,
+   "diameter": 6.25,
+   "question": "diameter.fit:turned_steps:4"
+  },
+  {
+   "kind": "size",
+   "feature": "turned_steps:6",
+   "faces": [
+    6
+   ],
+   "nominal": 6.0,
+   "fit": "h6",
+   "upper": 0.0,
+   "lower": -0.008,
+   "question": "diameter.fit:turned_steps:6"
+  },
+  {
+   "kind": "runout",
+   "feature": "turned_steps:6",
+   "faces": [
+    6
+   ],
+   "tolerance": 0.05,
+   "datums": [
+    "A",
+    "B"
+   ],
+   "question": "diameter.runout:turned_steps:6"
+  }
+ ],
+ "general": [
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    3
+   ],
+   "reference": [
+    2
+   ],
+   "distance": 14.0,
+   "upper": 0.2,
+   "lower": -0.2,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    5
+   ],
+   "reference": [
+    2
+   ],
+   "distance": 5.0,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    8
+   ],
+   "reference": [
+    2
+   ],
+   "distance": 18.0,
+   "upper": 0.2,
+   "lower": -0.2,
+   "general": true
+  }
+ ]
+}
