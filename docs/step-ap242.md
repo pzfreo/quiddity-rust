@@ -526,8 +526,7 @@ reading of the result with verdicts; determinism (same input, same bytes, fresh 
 
 ## Status
 
-**Stage 1 (2026-10-08): foundations.** Delivered and tested; the semantic model, `pmi::read`
-and `pmi::write` are the next stages.
+**Stage 1 (2026-10-08): foundations.** Delivered and tested.
 
 - **`p21`** (`crates/haecceity/src/p21.rs`, `tests/p21.rs`): the lossless Part 21 document of
   [Architecture](#architecture) step 1. Every instance's id, record and byte range, checked
@@ -562,6 +561,57 @@ and `pmi::write` are the next stages.
   material practice (Release 2.1). The expected PMI is SFA's display notation, which the reader
   stage must parse to compare. The OpenCascade captures do not yet record angular units, which
   part a material is set on, or OpenCascade's own reader errors.
+
+**Stage 2 (2026-10-08): semantic model, reader, removal plan, rule checks.** Delivered and
+tested; `pmi::write` (and replace built from the removal plan) is the next stage.
+
+- **Semantic model and reader** (`crates/haecceity/src/pmi/{mod,model,read,standards}.rs`,
+  `tests/pmi_read.rs`, `tests/pmi_draftwright.rs`): `pmi::read(doc, &parts)` returns
+  `PmiRead { parts, findings, provenance, accounting }`. Values are kept as stated with their own
+  units; features anchor to faces and edges by `#N` or hold supplemental geometry by value;
+  invariants are enforced by constructors and `PartPmi::validate`. Every semantic-PMI instance
+  is consumed by a part or named by a finding (kinds include not-modelled, nonconformance,
+  unitless-measure, conflict, assembly-pmi, occurrence-pmi); measure and unit errors are typed.
+  All 17 NIST AP242 files are read and fully accounted for, with findings pinned per file in
+  `tests/fixtures/ap242/read/findings.json`. Verdicts (`tests/fixtures/known_pmi.json`,
+  `known_pmi_draftwright.json`): NIST expected PMI 74 (65 rust-correct, 9 equivalent);
+  OpenCascade 403 (402 rust-correct, 1 rust-wrong: ftc_08's tessellated-only part has no B-rep
+  anchor); specify-core intent 38 (20 rust-correct, 18 not-applicable); draftwright 117 (111
+  rust-correct, 6 not-applicable). PMI on an assembly's own shape or on an occurrence is a
+  finding, never part PMI (tested).
+  The model departs from [Semantic model](#semantic-model) above, on NIST and draftwright
+  evidence, and those sections are not yet rewritten: `standards` is a `Vec`;
+  `Dimension.nominal` is optional and there is `Dimension.principle`; `Anchor::Geometry` and
+  `PartPmi.geometry`; `Note.kind` and `NoteOwner`; `Material` has `id` and `name`;
+  `ProjectedZone.end` is optional; `TargetShape::Curve`; `GroupKind::Unstated`;
+  `GeometricTolerance.auxiliary` and `.description`. Reported, not held: the affected-plane
+  zone, a derived feature's explicit geometry, hole definition parameters, datum-system axis
+  placement, material on a sub-shape, material as a product. Open: what a thread's 'number of
+  threads' counts (kept as stated; no pitch derived).
+- **Removal plan** (`crates/haecceity/src/removal.rs`, `tests/removal.rs`): `plan(doc, seeds,
+  PresentationPolicy::{Refuse, RemovePresentation})` and `RemovalPlan::into_edit`. Removes the
+  least fixpoint of the seeds plus forward dependencies no kept instance holds; never removes
+  shared infrastructure (units, contexts, product structure, topology, part shape
+  representations) or presentation representations; `Refuse` names every blocker,
+  `RemovePresentation` removes presentation and validation-property blockers and rewrites
+  draughting models, views and groups, refusing an emptied `items` set. Checked on all 17 NIST
+  files with both policies (counts pinned; kept instances byte-identical; parts and faces
+  unchanged) and a hand-made fixture. nist_ctc_01 under `RemovePresentation` is a pinned refusal
+  (its PMI draughting model would be emptied); removing emptied models instead is undecided. The
+  tests' seed stand-in includes id/uuid attributes, property definitions on PMI items and UDA
+  associations; the writer's provenance must include these or replace will be refused.
+- **Named EXPRESS rule checks** (`crates/haecceity/src/express_rules.rs`,
+  `tests/express_rules.rs`): `check_all(doc)` over a public `RULES` table (thread, knurl,
+  tolerance table, datum, datum target, datum system, tolerance, compartment single owner,
+  plus_minus_tolerance UR1, IIRU UR1/UR2/WR1), three-valued (UNKNOWN is not a violation), each
+  rule citing its schema label. `valid.stp` passes all; `invalid.stp` gives exactly the pinned
+  violations; NIST violations are pinned in `known_nist_rule_violations.json`. Two are
+  schema/practice conflicts rather than faulty files: datum_target WR5 against
+  placed_datum_target_feature WR1, and IIRU UR1/UR2 against the n:m draughting associations of
+  PMI practice §7.3 (the pins still say file-wrong). Because existing NIST files already violate
+  rules, the writer needs a "no new violations among touched instances" form of the check. Not
+  checked: general_datum_reference WR1–WR6, geometric_tolerance WR2/WR4,
+  geometric_tolerance_relationship WR3.
 
 ## Out of scope for now
 
