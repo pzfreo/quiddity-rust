@@ -19,8 +19,9 @@ use super::blend_view::{
 };
 use super::cylinders::{canonical_axis_direction, coaxial_axis_lines};
 use super::evidence::{self, EvidenceError, Occurrence, common_valid_solid};
+use super::policy::length_tol;
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{self, SMOOTH_ARC_GAP, Surface, V3, length_tol};
+use crate::kernel::geom::{self, SMOOTH_ARC_GAP, Surface, V3};
 use crate::kernel::py;
 
 /// One straight rolling path: a point on the cylinder axis (the area centre projected onto
