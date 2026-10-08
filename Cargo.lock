@@ -125,6 +125,7 @@ dependencies = [
 name = "quiddity"
 version = "0.1.0"
 dependencies = [
+ "flate2",
  "haecceity",
  "serde",
  "serde_json",
