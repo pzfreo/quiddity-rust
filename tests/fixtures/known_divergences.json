@@ -4,8 +4,8 @@
     "family": "kernel",
     "key": "solid masses differ by up to 1e-7",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
+    "verdict": "rust-correct",
+    "reason": "The port gives volume 2008493.1165292 and area 319596.0957014. tools/kernel_evidence.py solids (each face's exact surface integrated over the region its 3D edges bound, by Green's theorem, summed about the port's centre) gives 2008493.1165282 and 319596.0957014: 4.9e-13 and 3.3e-14 apart, within the tool's own change from 8 to 16 panels (1.3e-7 mm³, 7.2e-9 mm²). OpenCascade's adaptive integration (Eps 1e-10 and 1e-12 alike) gives 2008493.1087482 and 319596.0955570, 3.9e-9 and 4.5e-10 off; the captured 2008493.1781306 and 319596.0961981 are its fixed Gauss rule (3.1e-8, 1.6e-9). No face of this file has a known area defect. By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the port's."
   },
   {
     "file": "cadgenbench/threaded_connector_109.step",
@@ -44,8 +44,8 @@
     "family": "kernel",
     "key": "solid masses differ by up to 1e-3",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Area rust-correct, volume undetermined. The port's volume, 4382309.3945, is unchanged by any placement (it gave 4382320.555 in place and 4382375.138 / 4382301.960 moved: the shell's residual outward area vector, (0.29, -0.78, -0.12) mm², made a flux from the origin depend on where the part is; mass.rs now measures it from the solid's mean vertex use, as OpenCascade does). Against OpenCascade's adaptive integration (4382356.32, area 800065.50) the port is 1.1e-5 off in volume and 4.2e-6 in area (800062.147); the captured values (4381850.216, 800052.939) are its fixed rule. The area difference is the sum of the face differences tests/face_areas.rs lists, every one rust-correct (the independent integrations of tools/face_area_evidence.py over the 3D edges agree with the port) except B-spline face 397, undetermined, 1.7e-5 mm² of the 3.35. The volume (47 mm³ from the adaptive rule) is integrated over the same boundaries but has no independent check, so which side it favours is not shown."
+    "verdict": "rust-correct",
+    "reason": "The port gives volume 4382309.3945117 and area 800062.1469852, unchanged by any placement (it measures the flux from the solid's mean vertex use, as OpenCascade does, since the shell's residual outward area vector, (0.29, -0.78, -0.12) mm², would otherwise make it depend on where the part is). tools/kernel_evidence.py solids, about that centre, gives 4382309.3946856 and 800062.1469808 (4.0e-11, 5.4e-12) after integrating again with 32 and 64 panels the 282 faces whose 8-to-16-panel change exceeded 1e-7 (what remains: 2.1e-3 mm³, 1.3e-4 mm²), the nine faces through a pole included. B-spline face 397, the file's one unconfirmed face, is now rust-correct in tests/fixtures/known_face_areas.json. OpenCascade's adaptive integration (Eps 1e-10 and 1e-12) gives 4382356.327 and 800065.499 (1.1e-5, 4.2e-6 off, over its pcurves); the captured 4381850.216 and 800052.939 are its fixed Gauss rule. By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the port's."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -82,8 +82,8 @@
       1721
     ],
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "The port's v range ends 5.8e-5 short of the face's edges' 67.73142 (sampled at 401 points per edge and projected onto the surface) and OpenCascade's 8.7e-5 beyond it; neither is the edges' range and the difference was not traced further."
+    "verdict": "rust-correct",
+    "reason": "tools/kernel_evidence.py uv (2001 samples per edge, each extreme refined by a bounded Brent search; a cylinder's v is the point's axial coordinate, in closed form) gives the face's edges a v range up to 67.731421158, reached inside B-spline edge 1478, which dips 5.8e-5 beyond the vertex at 67.731362986 it shares with line edge 4490. The port gives that vertex's 67.731362986: crates/haecceity/src/uv.rs compute_uv_bounds misses the edge's interior extreme, 5.8e-5 short, 8.6e-7 relative, within the comparison's 1e-6 agreement. OpenCascade gives 67.731507910, 8.7e-5 beyond (1.3e-6): the box of its pcurves, which itself reaches only 67.7313974 on that edge. The u range agrees."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -121,8 +121,8 @@
       1465
     ],
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Both kernels end the v range at 0.99402 (1.1e-6 apart) where the face's edges, sampled at 401 points per edge and projected onto the surface, reach v = 1; not traced whether the sampled edge really reaches v = 1 or the projection snaps to the boundary."
+    "verdict": "rust-correct",
+    "reason": "tools/kernel_evidence.py uv (2001 samples per edge, each extreme refined by a bounded Brent search over the edge's parameter, every point placed by GeomAPI_ProjectPointOnSurf) gives the edges' v maximum 0.99401666914, at a point 8.2e-6 off the surface; the earlier reading of v = 1 was 401 coarse samples snapping to the boundary. The port's 0.99401662814 is 4.1e-8 short (it takes the range of the edges' samples); OpenCascade's 0.99401769032 is 1.0e-6 beyond, outside the comparison's 1e-6 agreement. The other three sides agree."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -146,8 +146,8 @@
     "family": "kernel",
     "key": "uv_bounds Sphere",
     "count": 9,
-    "verdict": "undetermined",
-    "reason": "Faces 119, 162, 600, 809, 885, 889, 993, 1027 and 1111 pass through a pole and differ in longitude by up to 0.04, where the pole makes the edges' own longitude range undefined and neither answer is shown right."
+    "verdict": "rust-correct",
+    "reason": "Faces 119, 162, 600, 809, 885, 889, 993, 1027 and 1111 each reach a pole, where the longitude is arbitrary. tools/kernel_evidence.py uv gives the longitude range of every edge point off the pole (2001 samples per edge, extremes refined by Brent; samples within 1e-6 of the pole do not bound it): face 119 [4.7123890, 6.2831853], 162 the same, 600 [3.3454021, 3.5018479], 809 [2.8855986, 3.0420445], 885 and 889 [4.7123890, 5.4953619], 993 [3.9294161, 4.7123890], 1027 [4.7123890, 6.7522529], 1111 [5.9143774, 6.0708233], each the port's to 1e-8, and the latitude ranges agree. OpenCascade's ranges reach up to 0.04 further (6.3228121 on faces 119 and 162, 2.8684524 on 809, 5.4977871 on 885 and 889, 3.9269908 on 993, 6.7640726 on 1027) from its pcurves: those of the edges running into the pole turn in u as they reach it (face 119's from 6.2831853 to 6.3228121), where the 3D edges keep their longitude, and the degenerate edge's pcurve spans that stretch along the pole line, which is one point of the surface. The trimmed domain's range off the pole is the port's."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -234,8 +234,8 @@
     "family": "kernel",
     "key": "solid masses differ by up to 1e-2",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
+    "verdict": "rust-correct",
+    "reason": "The port gives volume 3150295.645875 and area 419862.494726; tools/kernel_evidence.py solids gives 3150295.639413 and 419862.494750 (2.1e-9, 5.6e-11) after integrating again with 32 and 64 panels the 78 faces whose 8-to-16-panel change exceeded 1e-7; what it leaves, 2.0e-2 mm³ and 1.8e-4 mm², is chiefly the twelve B-spline faces of 11857.7 mm² (2.6e-3 mm³ each), and the volume gap is inside it and closing: face 108 with 64 and 128 panels moves from 9.2e-4 to -1.8e-4 mm³ from the port's term. Spherical face 117, a lune whose area is the port's to 1e-15 (tests/fixtures/known_face_areas.json, now rust-correct), was this file's one unconfirmed face. OpenCascade's adaptive integration (Eps 1e-10 and 1e-12) gives 3150323.436 and 419873.500 (8.8e-6, 2.6e-5 off, over its pcurves), and the captured 3142322.551 and 418944.645 are its fixed Gauss rule (2.5e-3, 2.2e-3). By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the port's."
   },
   {
     "file": "cadgenbench_inputs/cgb203.step",
@@ -274,8 +274,8 @@
     "family": "kernel",
     "key": "solid masses differ by up to 1e-3",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
+    "verdict": "rust-wrong",
+    "reason": "The port gives volume 111690.350090 and area 73707.384605; tools/kernel_evidence.py solids gives 111690.350113 and 73707.384592 (2.1e-10, 1.8e-10) after integrating again with 32 and 64 panels the 37 faces whose 8-to-16-panel change exceeded 1e-7 (what remains: 1.4e-4 mm³, 1.3e-5 mm²). That closeness is two known face defects of tests/fixtures/known_face_areas.json cancelling: B-spline face 125, 4.95e-5 mm² over and 2.33e-4 mm³ under (crates/haecceity/src/mass.rs's boundary walk), and planar face 154, 4.01e-5 mm² short and 1.85e-4 mm³ over, where crates/haecceity/src/geom.rs Curve::parameter takes an ellipse point's eccentric angle, not its foot, for a vertex 0.012 mm off the ellipse, so edge 360 starts 7.5e-4 rad early. The same mechanism moves planar face 245 by 6.0e-6 mm² (its ellipse edge 498 starts at 3.986509 against the foot's 3.986793; 1.3e-7, inside the face check's 1e-6). Each shifts the masses' twelfth figure. OpenCascade's adaptive integration gives 111692.922495 and 73707.664106 (2.3e-5, 3.8e-6 off, over its pcurves); the captured 111664.728 and 73704.855 are its fixed Gauss rule. By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the known defects make it rust-wrong."
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -314,8 +314,8 @@
     "family": "recognise_freeform_surfaces",
     "key": "{} records: 88 vs 88 records, fields {\"offset_distance\"}",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Same records and offset partners. The offset distance of faces 120 and 185 is their thin-wall pair's thickness, 3.0021547 against Python's 3.0021501, which differs as this file's recognise_thin_wall_bodies entry explains (probes at fractions of each face's parameter range, which the port takes from the exact edges)."
+    "verdict": "rust-correct",
+    "reason": "Same records and offset partners. The offset distance of faces 120 and 185 is their thin-wall pair's thickness, 3.0021547 against Python's 3.0021501, probed at fractions of each face's parameter range (this file's recognise_thin_wall_bodies entry). Those ranges are the port's: tools/kernel_evidence.py uv (each edge sampled at 2001 points, every extreme refined by a bounded Brent search) gives v min 0.00606768778440152 on face 120 and 0.0059565570048051 on face 185, the port's to 1e-16, where Python's are 0.0086850042 and 0.0059611650 (2.6e-3 and 4.6e-6 off), so the port probes the points the definition names."
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
@@ -330,8 +330,8 @@
     "family": "kernel",
     "key": "solid masses differ by up to 1e-3",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "The port gives volume 223473.964 and area 52556.575 (unchanged by any placement); OpenCascade's fixed rule 223533.796 and 52563.707 (the captured values), its adaptive rule 223478.913 and 52555.861. The area difference is exactly the sum of the face differences tests/face_areas.rs lists for this file, 96 of them rust-correct (chiefly cylinders 315, 331, 333, ... at 0.03 each, where an independent Green's-theorem integration over the 3D edges agrees with the port to 1e-13 and OpenCascade integrates its pcurves) and one rust-wrong (B-spline face 34, 5e-5 mm² of the 7.13), so the area is mostly OpenCascade's error but carries a known port defect. The volume (5 mm³, 2.2e-5, from the adaptive rule) has no independent check. Face 29, a B-spline face whose own seam is not its closed surface's seam, used to be refused (so the solid had no mass); the boundary walk now unwraps across the surface's seam and gives 49.929583, which two independent integrations confirm (49.929581)."
+    "verdict": "rust-wrong",
+    "reason": "The port gives volume 223473.963793 and area 52556.574659, unchanged by any placement; tools/kernel_evidence.py solids gives 223473.964367 and 52556.574708 (2.6e-9, 9.3e-10) after integrating again with 32 and 64 panels the faces whose 8-to-16-panel change exceeded 1e-7 (what remains: 5.1e-5 mm³, 5.3e-6 mm²). All but 1e-6 mm² and 1e-5 mm³ of the gap is B-spline face 34: 4.99e-5 mm² and 5.74e-4 mm³ short (28.16978113 against 28.16983106, the evidence's own change there 5e-8), the known defect of tests/fixtures/known_face_areas.json, in crates/haecceity/src/mass.rs's boundary walk (its path does not close in v on edge 89, where the edge dips 1.6e-3 mm into the face). Face 29, whose own seam is not its closed surface's seam, agrees (49.929583). OpenCascade's adaptive integration (Eps 1e-10 and 1e-12) gives 223478.913 and 52555.861 (2.2e-5, 1.4e-5 off, over its pcurves; chiefly cylinders 315, 331, 333, ... at 0.03 mm² each); the captured 223533.796 and 52563.707 are its fixed Gauss rule. By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), face 34 makes it rust-wrong."
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
@@ -434,16 +434,16 @@
     "family": "kernel",
     "key": "arcs",
     "count": 4,
-    "verdict": "undetermined",
-    "reason": "Face 16 (B-spline) meets its neighbours almost tangentially (normals 0.06° apart, an approximated blend); the side the turn falls is within each kernel's approximation."
+    "verdict": "equivalent",
+    "reason": "Pairs 16-17 and 16-484 (each both ways): Python says convex, the port concave. tools/kernel_evidence.py arcs reads the fold at 9 points along each shared edge: the outward normals at the edge point's feet are 0.020 to 0.060 degrees apart on 16-17 and 0.0015 to 0.058 on 16-484, but the fold about the edge, (n_a x n_b) . t, is 0 to round-off at every point (and so is d_a . n_b for the inward step at 1e-3 and 1e-2): the normals differ by a tilt along the edge, from the edge lying up to 3.5e-3 mm (16-17) and 4.1e-4 mm (16-484) off the surfaces, not by a turn across it. The faces are tangent along these edges. Both kernels call the pair not smooth because 1 - cos of that tilt (5e-8 to 5.5e-7) exceeds SMOOTH_ARC_GAP (1e-9), then take the sign of (n_a x walk) . n_b, which is the vanishing fold: each label is round-off of one tangent geometry, neither better supported."
   },
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "family": "kernel",
     "key": "solid masses differ by up to 1e-4",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "B-spline and torus faces: OpenCascade integrates over its pcurves, which stray from the 3D edges (within their tolerance) and leave gaps the port closes; tests/face_areas.rs lists each face whose area differs, most confirmed by an independent integration over the 3D edges. Not traced to the solid total."
+    "verdict": "rust-correct",
+    "reason": "The port gives volume 410951.883851 and area 99421.196853; tools/kernel_evidence.py solids gives 410951.884248 and 99421.196834 (9.7e-10, 1.9e-10) after integrating again with 32 and 64 panels the 65 faces whose 8-to-16-panel change exceeded 1e-7, within what remains of it (1.0e-3 mm³, 5.9e-5 mm²; chiefly B-spline faces 9, 35, 47, 69 and 104, whose edges stray from the surface). The one known face defect, sliver 483 (5.5e-8 mm², rust-wrong in tests/fixtures/known_face_areas.json), is 5.5e-13 of the area, below the twelfth figure, and faces 69, 790 and 822, unconfirmed before, are now rust-correct there. OpenCascade's adaptive integration (Eps 1e-10 and 1e-12) gives 410956.260 and 99421.785 (1.1e-5, 5.9e-6 off, over its pcurves, which stray from the 3D edges within their tolerance and leave gaps the port closes); the captured 410927.635 and 99420.478 are its fixed Gauss rule. By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the port's."
   },
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
@@ -586,8 +586,8 @@
     "family": "kernel",
     "key": "solid masses differ by up to 1e-5",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
+    "verdict": "rust-correct",
+    "reason": "The port gives volume 121083.3066955 and area 127538.9199071; tools/kernel_evidence.py solids gives 121083.3066924 and 127538.9199065 (2.5e-11, 4.7e-12, within its 8-to-16-panel change of 1.3e-5 mm³ and 2.5e-6 mm², chiefly B-spline faces 416 and 418) and OpenCascade's adaptive integration (Eps 1e-10 and 1e-12) 121083.3066944 and 127538.9199072 (9.0e-12, 5.7e-13). The captured 121083.5949309 and 127539.0140874 are its fixed Gauss rule (2.4e-6, 7.4e-7 off). No face of this file has a known area defect. By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the port's."
   },
   {
     "file": "cadgenbench_inputs/cgb245.step",
@@ -602,8 +602,8 @@
     "family": "recognise_slots",
     "key": "{} records: 3 vs 3 records, fields {\"body_key\"}",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Same slots; only the body key differs: its volume and area follow this file's untraced B-spline mass difference (see its masses entry)."
+    "verdict": "rust-correct",
+    "reason": "Same slots; only the body key differs, in its volume and area, which are the solid's masses: the port's 121083.306695 and 127538.919907 agree with tools/kernel_evidence.py's independent integration over the 3D edges (2.5e-11, 4.7e-12) and OpenCascade's adaptive integration (9.0e-12, 5.7e-13), where Python's 121083.594931 and 127539.014087 are OpenCascade's fixed Gauss rule (this file's solid masses entry). The box agrees."
   },
   {
     "file": "cadgenbench_inputs/cgb245.step",
@@ -626,8 +626,8 @@
     "family": "kernel",
     "key": "solid masses differ by up to 1e-4",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
+    "verdict": "rust-correct",
+    "reason": "The port gives volume 250.1888512136 and area 359.3628010990; tools/kernel_evidence.py solids gives 250.1888512136 and 359.3628010990 (6.1e-15, 9.6e-15; its 8-to-16-panel change 1.2e-12 mm³, 2.6e-12 mm²). OpenCascade's adaptive integration (Eps 1e-10 and 1e-12) gives 250.1888522229 and 359.3628022050 (4.0e-9, 3.1e-9 off, integrating its pcurves); the captured 250.1861312 and 359.3604785 are its fixed Gauss rule (1.1e-5, 6.5e-6). No face of this file has a known area defect. By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the port's."
   },
   {
     "file": "gramel/string_post.step",
@@ -666,16 +666,16 @@
     "family": "kernel",
     "key": "solid count",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "A deliberately malformed corpus part (its shell is not orientable): OpenCascade's import yields no solid, the port reads the file's one solid. Masses are compared only when the solid counts agree, and face-indexed answers not at all here (the face types differ)."
+    "verdict": "equivalent",
+    "reason": "The file declares one MANIFOLD_SOLID_BREP, a CLOSED_SHELL of 17 faces, which is no solid: edge 15 is used by one face only (face 3) and edge 4 twice in the same direction (faces 1 and 3), so the shell is neither closed nor orientable. The port reads the declared solid and reports it invalid (solid_is_valid false); OpenCascade's import heals the faces into a shell and yields no solid. Both say the same of one malformed file: there is no valid solid in it. Masses are compared only when the solid counts agree."
   },
   {
     "file": "inventory_refusal/13975.step.gz",
     "family": "recognise_pockets",
     "key": "{} records: 2 vs 2 records, fields {\"body_key\"}",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Same two pockets; only the body key's volume differs (Python 0.0, the port 20257.0): OpenCascade's import of this deliberately malformed part yields no solid, so Python scans and signs the loose shell, whose volume it reports as 0, where the port reads and signs the file's one solid (see this file's solid count entry)."
+    "verdict": "not-applicable",
+    "reason": "Same two pockets; only the body key's volume and area differ. Volume: Python 0.0, the port 20234.6028364. The shell bounds no volume: edge 15 is used by one face only and edge 4 twice in the same direction (this file's solid count entry), so the region is not closed and one of faces 1 and 3 is inside out. Python signs the loose shell OpenCascade's import leaves, whose volume it reports as 0; the port signs the declared solid it reports invalid, with the flux its faces give as oriented. Neither number is a volume of the part. Area: Python 6276.2577521, the port 6276.26066835; the 0.0029 is all on the port's B-spline face 1 (OpenCascade's face 15), where tools/kernel_evidence.py faces gives 4.7915914828 over the region its 3D edges bound, the port's 4.7915914828 to 2e-13, and OpenCascade 4.7886752 with every rule, so the key's area is the port's. With no volume to be right about, the key as a whole is not comparable; whether a body key should be refused for an invalid solid is a maintainer question."
   },
   {
     "file": "inventory_refusal/14052.step.gz",
@@ -698,8 +698,8 @@
     "family": "kernel",
     "key": "solid masses differ by up to 1e-2",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "A deliberately malformed part. All the area difference is planar face 1 (port 147.604, OpenCascade 150.609 at any accuracy): its boundary has a full circle of three arcs crossing the line that closes its outer loop, so the face's region is ambiguous. The port's volume (2619.571) is invariant under translation; OpenCascade's (2628.781) is integrated over a healed shell its BRepCheck calls unorientable."
+    "verdict": "rust-correct",
+    "reason": "A deliberately malformed part. The port gives volume 2619.5708144 and area 1878.1326890 (unchanged under translation). tools/kernel_evidence.py solids, about the port's centre, gives 2629.3944944 and 1881.1376912, and agrees with the port face by face to 1.4e-11 mm³ and 5.5e-12 mm² except on planar face 1, where it follows OpenCascade's loops: 150.6086142 against the port's 147.6036120, twice the triangular hole's 1.5025 (its loop is oriented as an outer boundary), and a volume term 9.8237 larger, twice the triangle's (its area times the plane's distance 9.807 from the centre, over 3). Face 1's area is rust-correct analytically (the plate's dimensions give 147.6036119780; tests/fixtures/known_face_areas.json), so the port's masses are the solid's. OpenCascade's 2628.7805144 and 1881.1376912 (fixed and adaptive rules alike) carry the triangle, and its volume differs from the independent sum by a further 0.61 mm³ because, with the triangle added, the shell's area vector no longer vanishes (3.005 mm² along face 1's normal) and its flux depends on the centre it is taken from."
   },
   {
     "file": "inventory_refusal/14052.step.gz",
@@ -738,24 +738,24 @@
     "family": "kernel",
     "key": "solid masses differ by up to 1e-8",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually."
+    "verdict": "rust-correct",
+    "reason": "The port gives volume 33424.08204695521 and area 8252.905065931343; tools/kernel_evidence.py solids gives 33424.08204695507 and 8252.90506593135 (3.9e-15, 8.8e-16) and OpenCascade's adaptive integration (Eps 1e-10 and 1e-12) 33424.08204695642 and 8252.905065929763 (3.6e-14, 1.9e-13). The captured 33424.08209670 and 8252.90501957 are OpenCascade's fixed Gauss rule (1.5e-9, 5.6e-9 off): its pcurves on these planar faces are not at fault, since its adaptive rule over them agrees. By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the port's."
   },
   {
     "file": "mfcadpp/10156.step",
     "family": "kernel",
     "key": "solid masses differ by up to 1e-8",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually."
+    "verdict": "rust-correct",
+    "reason": "The port gives volume 32434.30198421330 and area 8140.716869060030; tools/kernel_evidence.py solids gives 32434.30198421331 and 8140.716869060070 (5.6e-16, 4.9e-15) and OpenCascade's adaptive integration (Eps 1e-10 and 1e-12) 32434.30198423186 and 8140.716869036410 (5.7e-13, 2.9e-12). The captured 32434.30199461586 and 8140.716835510332 are OpenCascade's fixed Gauss rule (3.2e-10, 4.1e-9 off). By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the port's."
   },
   {
     "file": "mfcadpp_regressions/11512.step",
     "family": "kernel",
     "key": "solid masses differ by up to 1e-8",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually."
+    "verdict": "rust-correct",
+    "reason": "The port gives volume 8591.248202969868 and area 4156.339267346671; tools/kernel_evidence.py solids gives 8591.248202969897 and 4156.339267346639 (3.4e-15, 7.7e-15) and OpenCascade's adaptive integration (Eps 1e-10 and 1e-12) 8591.248202986733 and 4156.339267359047 (2.0e-12, 3.0e-12). The captured 8591.248195426330 and 4156.339277398050 are OpenCascade's fixed Gauss rule (8.8e-10, 2.4e-9 off). By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the port's."
   },
   {
     "file": "nist/nist_ctc_01_asme1_rd.stp",
@@ -778,8 +778,8 @@
     "family": "kernel",
     "key": "solid masses differ by up to 1e-5",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
+    "verdict": "rust-correct",
+    "reason": "The port gives volume 47100306.90179 and area 2481839.936727; tools/kernel_evidence.py solids gives 47100306.90185 and 2481839.936726 (1.2e-12, 1.4e-13; its 8-to-16-panel change 6.4e-5 mm³, 6.6e-7 mm²). OpenCascade's adaptive integration (Eps 1e-10 and 1e-12) gives 47100608.41708 and 2481842.353512 (6.4e-6, 9.7e-7 off: it integrates the faces' pcurves, which on this file's B-spline faces stray from the 3D edges), and the captured 47100535.49281 and 2481842.142083 are its fixed Gauss rule (4.9e-6, 8.9e-7). No face of this file has a known area defect. By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the port's."
   },
   {
     "file": "nist/nist_ctc_02_asme1_rc.stp",
@@ -834,8 +834,8 @@
     "family": "recognise_pockets",
     "key": "{} records: 4 vs 4 records, fields {\"body_key\"}",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Same pockets; only the body key differs: its volume and area follow this file's untraced B-spline mass difference (see its masses entry)."
+    "verdict": "rust-correct",
+    "reason": "Same pockets; only the body key differs, in its volume and area, which are the solid's masses: the port's 47100306.9018 and 2481839.93673 agree with tools/kernel_evidence.py's independent integration over the 3D edges to 1.2e-12 and 1.4e-13, where Python's 47100535.4928 and 2481842.14208 are OpenCascade's fixed Gauss rule over its pcurves (this file's solid masses entry). The box agrees."
   },
   {
     "file": "nist/nist_ctc_03_asme1_rc.stp",
@@ -874,8 +874,8 @@
     "family": "kernel",
     "key": "solid masses differ by up to 1e-7",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually."
+    "verdict": "rust-correct",
+    "reason": "The port gives volume 17519087.924944 and area 1023049.677615; tools/kernel_evidence.py solids gives 17519087.924945 and 1023049.677615 (7.5e-14, 1.2e-14; its 8-to-16-panel change 8.8e-7 mm³, 6.4e-8 mm², the fifteen half cones with an apex included). OpenCascade's adaptive integration (Eps 1e-10 and 1e-12) gives 17519087.915593 and 1023049.677948 (5.3e-10, 3.3e-10 off, over its pcurves); the captured 17519087.701368 and 1023049.723801 are its fixed Gauss rule (1.3e-8, 4.5e-8). No face of this file has a known area defect. By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the port's."
   },
   {
     "file": "nist/nist_ctc_04_asme1_rd.stp",
@@ -906,8 +906,8 @@
     "family": "kernel",
     "key": "solid masses differ by up to 1e-6",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
+    "verdict": "rust-correct",
+    "reason": "The port gives volume 12694912.355411 and area 861242.958028; tools/kernel_evidence.py solids gives 12694912.355406 and 861242.958028 (3.7e-13, 1.7e-13; its 8-to-16-panel change 4.4e-7 mm³, 1.8e-8 mm²). OpenCascade's adaptive integration (Eps 1e-10 and 1e-12) gives 12694921.719971 and 861242.945213 (7.4e-7, 1.5e-8 off, integrating its pcurves), close to the captured fixed-rule 12694921.730096 and 861242.945579. The one face of this file not yet confirmed, B-spline face 79, is now rust-correct in tests/fixtures/known_face_areas.json. By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the port's."
   },
   {
     "file": "nist/nist_ctc_05_asme1_rd.stp",
@@ -978,16 +978,16 @@
     "family": "kernel",
     "key": "arcs",
     "count": 2,
-    "verdict": "undetermined",
-    "reason": "Faces 91 and 161 (B-splines) are tangent across their shared edge: the fold about the edge, (n_a x n_b) . walk, is 1e-15 to 1e-17 all along it (round-off), while the normals differ by up to 0.35 degrees about an axis across the edge because the edge lies up to 3e-3 mm off the surfaces. The pair is geometrically smooth; convex and concave are each kernel's round-off, as on cgb242's face 16."
+    "verdict": "equivalent",
+    "reason": "Pair 91-161 both ways: Python says convex, the port concave. tools/kernel_evidence.py arcs reads the fold at 9 points along the shared edge: the outward normals at the edge point's feet are 0.003 to 0.35 degrees apart, but the fold about the edge, (n_a x n_b) . t, is at most 1e-14 (round-off) at every point: the normals differ by a tilt along the edge, which lies up to 2.9e-3 mm off face 91's surface, not by a turn across it. The faces are tangent along the edge. Both kernels call the pair not smooth because 1 - cos of that tilt (1e-9 to 1.9e-5) exceeds SMOOTH_ARC_GAP, then take the sign of the vanishing fold: each label is round-off of one tangent geometry, as on cgb242's face 16."
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
     "family": "kernel",
     "key": "solid masses differ by up to 1e-6",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Area rust-correct, volume undetermined. The port's volume, 1726247.1200, is unchanged by any placement (it used to change under translation, from the shell's residual area vector; see nist_ctc_01). OpenCascade's adaptive integration gives 1726247.5795 (2.7e-7) and area 391371.3474 against the port's 391371.3811 (8.7e-8). The area difference is the sum of face differences that tests/face_areas.rs lists, all rust-correct: chiefly the vertex-blend spheres 49, 50, 51 and 53, each a spherical triangle of three great-circle arcs whose area by Girard's theorem, 14.268931992720, is the port's to 1e-14 (OpenCascade gives 14.26622 with every rule, its pcurves rebuilt too), and B-spline faces 90, 91, 95, 102, 103, 106 and 125, whose edges lie up to 3e-3 mm off their surfaces. The volume is integrated over the same boundaries but has no independent check."
+    "verdict": "rust-correct",
+    "reason": "The port's volume 1726247.1200172 and area 391371.3811461 are unchanged by any placement. tools/kernel_evidence.py solids, about the port's centre (OpenCascade's import splits this file's closed edges, so its own vertex uses differ), gives 1726247.1200167 and 391371.3811461 (2.8e-13, 1.5e-15; faces with an 8-to-16-panel change over 1e-7 integrated again with 32 and 64 panels, leaving 1.3e-5 mm³ and 3.5e-7 mm²). OpenCascade's adaptive integration (Eps 1e-10 and 1e-12) gives 1726247.5794746 and 391371.3474052 (2.7e-7, 8.6e-8 off), the captured values its fixed rule. Its area difference is the face differences tests/face_areas.rs lists, all rust-correct: chiefly the vertex-blend spheres 49, 50, 51 and 53, spherical triangles of three great-circle arcs whose area by Girard's theorem, 14.268931992720, is the port's to 1e-14 (OpenCascade 14.26622 with every rule), and B-spline faces 90, 91, 95, 102, 103, 106 and 125, whose edges lie up to 3e-3 mm off their surfaces. By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the port's."
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
@@ -1130,8 +1130,8 @@
     "family": "kernel",
     "key": "arcs",
     "count": 2,
-    "verdict": "undetermined",
-    "reason": "Faces 11 and 12 meet folded back on themselves (outward normals opposite), so convex or concave is undefined; each kernel's round-off picks one."
+    "verdict": "rust-wrong",
+    "reason": "Pair 11-12 both ways: Python says concave, the port convex. Faces 11 and 12 are quarter cylinders of radius 7 on parallel axes 14 apart (x = 7 and x = -7) that touch along the shared line x = 0, their outward normals exactly opposite (1 - cos = 2). There the first-order test, the sign of (n_a x walk) . n_b, is round-off. The second order decides (tools/kernel_evidence.py arcs, lift@h): stepping h along either face and placing the point on its surface lifts it n_b . (q - p) = +7.14e-8 at h = 1e-3 (h²/2r), to the outside of the other face, at all 9 points and both ways round, so the material fills everything round the edge but a zero-angle notch: concave. OpenCascade's solid classifier agrees: points 0.01 and 0.1 along the faces' common tangent are OUT, and 1e-3 to either side of them IN. Cause: crates/haecceity/src/brep.rs arc_at decides convex or concave by the first-order sign alone, which vanishes when the outward normals are opposite."
   },
   {
     "file": "ttt_inputs/sm-hanger.step",
