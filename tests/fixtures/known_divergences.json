@@ -750,6 +750,14 @@
     "reason": "The port gives volume 32434.30198421330 and area 8140.716869060030; tools/kernel_evidence.py solids gives 32434.30198421331 and 8140.716869060070 (5.6e-16, 4.9e-15) and OpenCascade's adaptive integration (Eps 1e-10 and 1e-12) 32434.30198423186 and 8140.716869036410 (5.7e-13, 2.9e-12). The captured 32434.30199461586 and 8140.716835510332 are OpenCascade's fixed Gauss rule (3.2e-10, 4.1e-9 off). By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the port's."
   },
   {
+    "file": "mfcadpp_holdout/363.step",
+    "family": "kernel",
+    "key": "arcs",
+    "count": 2,
+    "verdict": "rust-correct",
+    "reason": "Pair 18-20 both ways: Python says concave, the port convex. Plane 18 (y = 4.550384) touches cylinder 20 (radius 4.550384, axis x = 33.316331, y = 0 along z) along the line x = 33.316331, y = 4.550384, their outward normals exactly opposite (tools/kernel_evidence.py arcs: 1 - cos = 2, fold -6.1e-17 at all 9 points), so the first-order turn is round-off and Python takes its sign. The port reads the second order (crates/haecceity/src/brep.rs arc_at): stepping off the edge into each face, the cylinder curves h²/2r towards the plane's material side, so the material between them is a zero-angle knife. OpenCascade's classifier agrees: on a circle of radius 0.01 about the edge's middle, in 7200 directions, the solid is IN only at 89.95 degrees (the cusp, 0.01²/2r = 1.1e-5 mm wide there, about 0.06 degrees) and OUT in every other; at radius 1e-3 and 1e-2 all 24 of 24 directions are OUT. Convex, as the port says."
+  },
+  {
     "file": "mfcadpp_regressions/11512.step",
     "family": "kernel",
     "key": "solid masses differ by up to 1e-8",
@@ -1124,14 +1132,6 @@
     "count": 1,
     "verdict": "rust-correct",
     "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
-  },
-  {
-    "file": "ttt_inputs/sm-hanger.step",
-    "family": "kernel",
-    "key": "arcs",
-    "count": 2,
-    "verdict": "rust-wrong",
-    "reason": "Pair 11-12 both ways: Python says concave, the port convex. Faces 11 and 12 are quarter cylinders of radius 7 on parallel axes 14 apart (x = 7 and x = -7) that touch along the shared line x = 0, their outward normals exactly opposite (1 - cos = 2). There the first-order test, the sign of (n_a x walk) . n_b, is round-off. The second order decides (tools/kernel_evidence.py arcs, lift@h): stepping h along either face and placing the point on its surface lifts it n_b . (q - p) = +7.14e-8 at h = 1e-3 (h²/2r), to the outside of the other face, at all 9 points and both ways round, so the material fills everything round the edge but a zero-angle notch: concave. OpenCascade's solid classifier agrees: points 0.01 and 0.1 along the faces' common tangent are OUT, and 1e-3 to either side of them IN. Cause: crates/haecceity/src/brep.rs arc_at decides convex or concave by the first-order sign alone, which vanishes when the outward normals are opposite."
   },
   {
     "file": "ttt_inputs/sm-hanger.step",

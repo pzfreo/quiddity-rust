@@ -425,7 +425,44 @@ impl Part {
                 direction = geom::scale(direction, -1.0);
             }
         }
-        if geom::dot(geom::cross(na, direction), nb) < 0.0 {
+        let into_a = geom::cross(na, direction);
+        let first = geom::dot(into_a, nb);
+        // (Faces tangent but for a tilt along the edge, normals nearly equal, also leave the
+        // first order at round-off; they keep its sign, as OpenCascade's reading does.)
+        if first.abs() > geom::SMOOTH_ARC_GAP || geom::dot(na, nb) > 0.0 {
+            return if first < 0.0 {
+                Arc::Convex
+            } else {
+                Arc::Concave
+            };
+        }
+        // Outward normals opposite (two surfaces kissing): the first order is round-off, so
+        // read the second. Both faces leave the edge along `into_a`; step h along each, place
+        // the point on its surface, and measure how far it has moved along the other face's
+        // normal from the edge point's own foot (an edge may lie off its surfaces within
+        // tolerance). A positive sum puts *a* on the outside of *b*: the material fills all
+        // round the edge but a zero-angle notch (concave); a negative one leaves it a
+        // zero-angle knife (convex).
+        let step = 1e-4 * self.face_bounds(a).diagonal().max(1e-9);
+        let lift = |face: usize, other: V3| {
+            let surface = &self.faces[face].surface;
+            let (u0, v0) = surface.parameters(point, None)?;
+            let off = geom::add(point, geom::scale(into_a, step));
+            let (u, v) = surface.parameters(off, Some((u0, v0)))?;
+            let moved = geom::sub(surface.value(u, v), surface.value(u0, v0));
+            self.domain(face)?
+                .contains(u, v)
+                .then(|| geom::dot(moved, other))
+        };
+        let (Some(la), Some(lb)) = (lift(a, nb), lift(b, na)) else {
+            return Arc::Unknown;
+        };
+        // Below this the lifts are round-off in the placed points (coplanar faces back to back).
+        let floor = 1e-12 * point.iter().fold(1.0f64, |m, c| m.max(c.abs()));
+        let sum = la + lb;
+        if sum.abs() <= floor {
+            Arc::Unknown
+        } else if sum < 0.0 {
             Arc::Convex
         } else {
             Arc::Concave
