@@ -36,16 +36,64 @@ fn help_prints_usage_and_succeeds() {
     for flag in ["-h", "--help"] {
         let out = quiddity(&[flag]);
         assert!(out.status.success(), "{flag}");
-        assert!(String::from_utf8_lossy(&out.stdout).starts_with("usage: quiddity"));
+        let usage = String::from_utf8_lossy(&out.stdout);
+        assert!(usage.starts_with("usage: quiddity"));
+        for command in [
+            "quiddity correspond",
+            "quiddity parts <file.step>",
+            "quiddity pmi read <file.step> [--part N]",
+            "quiddity pmi check <file.step> <pmi.json>",
+        ] {
+            assert!(usage.contains(command), "{flag}: {usage}");
+        }
         assert!(out.stderr.is_empty());
     }
 }
 
 #[test]
 fn bad_arguments_print_usage_and_fail() {
-    let out = quiddity(&[]);
-    assert_eq!(out.status.code(), Some(2));
-    assert!(String::from_utf8_lossy(&out.stderr).starts_with("usage: quiddity"));
+    let step = broken("../rejected_cylinder.step");
+    let step = step.to_str().unwrap();
+    for args in [
+        &[][..],
+        &["parts"],
+        &["parts", step, "extra"],
+        &["pmi"],
+        &["pmi", step],
+        &["pmi", "read"],
+        &["pmi", "write", step],
+        &["pmi", "read", step, "--part"],
+        &["pmi", "read", step, "--part", "-1"],
+        &["pmi", "read", step, "--parts", "0"],
+        &["pmi", "check", step],
+        &["correspond"],
+    ] {
+        let out = quiddity(args);
+        assert_eq!(out.status.code(), Some(2), "{args:?}");
+        assert!(out.stdout.is_empty(), "{args:?}");
+        assert!(
+            String::from_utf8_lossy(&out.stderr).contains("usage: quiddity"),
+            "{args:?}"
+        );
+    }
+}
+
+#[test]
+fn parts_and_pmi_read_refuse_a_broken_file() {
+    for name in ["truncated.step", "deleted_face.step"] {
+        let path = broken(name);
+        let path = path.to_str().unwrap();
+        for args in [&["parts", path][..], &["pmi", "read", path]] {
+            let out = quiddity(args);
+            assert_eq!(out.status.code(), Some(1), "{args:?}");
+            assert!(out.stdout.is_empty(), "{args:?}");
+            let err = String::from_utf8_lossy(&out.stderr);
+            assert!(err.starts_with("quiddity: "), "{args:?}: {err}");
+        }
+    }
+    let missing = broken("no_such_file.step");
+    let out = quiddity(&["pmi", "read", missing.to_str().unwrap()]);
+    assert_eq!(out.status.code(), Some(1));
 }
 
 #[test]
