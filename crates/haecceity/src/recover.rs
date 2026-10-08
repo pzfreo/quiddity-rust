@@ -11,10 +11,14 @@
 // Small dense matrix code reads best by index.
 #![allow(clippy::needless_range_loop)]
 
-use super::brep::Part;
+use super::brep::{Part, holds};
 use super::geom::{self, COORD_FLOOR, Frame, Surface, V3};
 
 const RECOVERY_REL: f64 = 1e-6;
+/// A fit's gap is certified with the rounding of its own evaluation: this many ulps of the
+/// largest distance it measures from the fit's centre, apex or axis point. A near-flat face fits
+/// a cylinder or sphere of radius ~1e19, whose measured gap is round-off (0.0 in one placement).
+const ROUNDING: f64 = 16.0 * f64::EPSILON;
 /// Grid lines across the face's parameter range, each way.
 const GRID: usize = 16;
 
@@ -48,13 +52,15 @@ fn recover(part: &Part, face: usize) -> Option<Surface> {
         .into_iter()
         .flat_map(|e| part.edges[e].samples.iter().copied())
         .collect();
-    // Interior points with their normals.
+    // Interior points with their normals: those the face holds a neighbourhood of, as the grid's
+    // outer lines run along the face's boundary, where whether a point is inside is round-off.
     let mut grid: Vec<(V3, V3)> = Vec::new();
+    let h = (1e-6 * (u1 - u0), 1e-6 * (v1 - v0));
     for i in 0..=GRID {
         for j in 0..=GRID {
             let u = u0 + (u1 - u0) * i as f64 / GRID as f64;
             let v = v0 + (v1 - v0) * j as f64 / GRID as f64;
-            if !domain.contains(u, v) {
+            if !holds(domain, u, v, h) {
                 continue;
             }
             let (p, du, dv) = surface.value_and_partials(u, v);
@@ -122,7 +128,7 @@ fn fit_plane(points: &[V3]) -> Option<(Surface, f64)> {
     let gap = points
         .iter()
         .map(|p| geom::dot(geom::sub(*p, c), n).abs())
-        .fold(0.0, f64::max);
+        .fold(0.0, worst);
     Some((Surface::Plane { frame: frame(c, n) }, gap))
 }
 
@@ -134,21 +140,19 @@ fn fit_cylinder(points: &[V3], grid: &[(V3, V3)]) -> Option<(Surface, f64)> {
         return None;
     }
     let axis = vectors[0];
-    let f = frame([0.0; 3], axis);
+    // Fitted about the points' centroid, so the arithmetic does not follow the placement.
+    let c = centroid(points);
+    let f = frame(c, axis);
     let flat: Vec<(f64, f64)> = points
         .iter()
-        .map(|p| (geom::dot(*p, f.x), geom::dot(*p, f.y)))
+        .map(|p| {
+            let q = geom::sub(*p, c);
+            (geom::dot(q, f.x), geom::dot(q, f.y))
+        })
         .collect();
     let (cx, cy, r) = fit_circle(&flat)?;
-    let along = geom::dot(centroid(points), axis);
-    let origin = geom::add(
-        geom::add(geom::scale(f.x, cx), geom::scale(f.y, cy)),
-        geom::scale(axis, along),
-    );
-    let gap = points
-        .iter()
-        .map(|p| (radial(*p, origin, axis) - r).abs())
-        .fold(0.0, f64::max);
+    let origin = geom::add(c, geom::add(geom::scale(f.x, cx), geom::scale(f.y, cy)));
+    let gap = certified(points, origin, |p| (radial(p, origin, axis) - r).abs());
     Some((
         Surface::Cylinder {
             frame: frame(origin, axis),
@@ -164,17 +168,21 @@ fn fit_cone(points: &[V3], grid: &[(V3, V3)]) -> Option<(Surface, f64)> {
     let normals: Vec<V3> = grid.iter().map(|g| g.1).collect();
     let mean = centroid(&normals);
     let (values, vectors) = eigen(scatter(normals.iter().map(|n| geom::sub(*n, mean))));
-    if values[1] <= 1e-9 * values[2].max(f64::MIN_POSITIVE) {
+    // Normals that vary by less than ~1e-6 rad are a plane's: its apex is round-off.
+    if values[1] <= 1e-9 * values[2].max(f64::MIN_POSITIVE)
+        || values[2] <= 1e-12 * normals.len() as f64
+    {
         return None;
     }
     let mut axis = vectors[0];
-    // The apex: every point's tangent plane passes through it.
+    // The apex: every point's tangent plane passes through it. Solved about the points'
+    // centroid, so the arithmetic does not follow the placement.
+    let c = centroid(points);
     let m = scatter(normals.iter().copied());
     let rhs = grid.iter().fold([0.0; 3], |acc, (p, n)| {
-        geom::add(acc, geom::scale(*n, geom::dot(*n, *p)))
+        geom::add(acc, geom::scale(*n, geom::dot(*n, geom::sub(*p, c))))
     });
-    let apex = solve3(m, rhs)?;
-    let c = centroid(points);
+    let apex = geom::add(c, solve3(m, rhs)?);
     if geom::dot(geom::sub(c, apex), axis) < 0.0 {
         axis = geom::scale(axis, -1.0);
     }
@@ -190,15 +198,12 @@ fn fit_cone(points: &[V3], grid: &[(V3, V3)]) -> Option<(Surface, f64)> {
     if !(1e-4..std::f64::consts::FRAC_PI_2 - 1e-4).contains(&semi) {
         return None;
     }
-    let gap = points
-        .iter()
-        .map(|p| {
-            let q = geom::sub(*p, apex);
-            let t = geom::dot(q, axis);
-            let rho = geom::norm(geom::sub(q, geom::scale(axis, t)));
-            (rho * semi.cos() - t * semi.sin()).abs()
-        })
-        .fold(0.0, f64::max);
+    let gap = certified(points, apex, |p| {
+        let q = geom::sub(p, apex);
+        let t = geom::dot(q, axis);
+        let rho = geom::norm(geom::sub(q, geom::scale(axis, t)));
+        (rho * semi.cos() - t * semi.sin()).abs()
+    });
     // Placed at the points' mean height, where its radius is t·tan(α).
     let t = geom::dot(geom::sub(c, apex), axis);
     let origin = geom::add(apex, geom::scale(axis, t));
@@ -218,11 +223,14 @@ fn fit_sphere(points: &[V3], grid: &[(V3, V3)]) -> Option<(Surface, f64)> {
     if values[0] <= 1e-9 * values[2] {
         return None;
     }
+    // Fitted about the points' centroid, so the arithmetic does not follow the placement.
+    let o = centroid(points);
     let mut a = [[0.0; 4]; 4];
     let mut b = [0.0; 4];
     for p in points {
+        let p = geom::sub(*p, o);
         let row = [2.0 * p[0], 2.0 * p[1], 2.0 * p[2], 1.0];
-        let y = geom::dot(*p, *p);
+        let y = geom::dot(p, p);
         for i in 0..4 {
             for j in 0..4 {
                 a[i][j] += row[i] * row[j];
@@ -233,14 +241,12 @@ fn fit_sphere(points: &[V3], grid: &[(V3, V3)]) -> Option<(Surface, f64)> {
     let x = solve4(a, b)?;
     let c = [x[0], x[1], x[2]];
     let r2 = x[3] + geom::dot(c, c);
+    let c = geom::add(o, c);
     if !(r2.is_finite() && r2 > 0.0) {
         return None;
     }
     let r = r2.sqrt();
-    let gap = points
-        .iter()
-        .map(|p| (geom::dist(*p, c) - r).abs())
-        .fold(0.0, f64::max);
+    let gap = certified(points, c, |p| (geom::dist(p, c) - r).abs());
     Some((
         Surface::Sphere {
             frame: frame(c, [0.0, 0.0, 1.0]),
@@ -290,6 +296,26 @@ fn fit_circle(points: &[(f64, f64)]) -> Option<(f64, f64, f64)> {
         }
     }
     (r.is_finite() && r > 0.0).then_some((cx, cy, r))
+}
+
+/// The largest of *gap* over the points (NaN if any is), plus the rounding of evaluating it
+/// at distances from *centre* (`ROUNDING`).
+fn certified(points: &[V3], centre: V3, gap: impl Fn(V3) -> f64) -> f64 {
+    let measured = points.iter().map(|p| gap(*p)).fold(0.0, worst);
+    let reach = points
+        .iter()
+        .map(|p| geom::dist(*p, centre))
+        .fold(0.0, worst);
+    measured + ROUNDING * reach
+}
+
+/// `f64::max` that keeps a NaN: a gap that could not be measured is no fit.
+fn worst(a: f64, b: f64) -> f64 {
+    if a.is_nan() || b.is_nan() {
+        f64::NAN
+    } else {
+        a.max(b)
+    }
 }
 
 fn radial(p: V3, origin: V3, axis: V3) -> f64 {

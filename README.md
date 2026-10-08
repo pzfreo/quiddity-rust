@@ -57,9 +57,9 @@ its verdict and reason in a verdict file:
 |---|---|---|---|---|---|---|---|
 | `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 131 (899 problems) | 72 | 11 | 14 | 34 | 0 |
 | `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 23 (24 calls) | 4 | 0 | 1 | 2 | 16 |
-| `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 9 | 0 | 9 | 0 | 0 | 0 |
+| `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
-| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 19 | 4 | 15 | 0 | 0 | 0 |
+| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 18 | 4 | 14 | 0 | 0 | 0 |
 | `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 13 (28 probes) | 6 | 4 | 0 | 3 | 0 |
 | `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 64 | 13 | 0 | 0 | 51 | 0 |
 | `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 41 | 1 | 1 | 2 | 4 | 33 |

@@ -157,18 +157,6 @@
   },
   {
     "test": "invariance",
-    "file": "cadgenbench/threaded_connector_109.step",
-    "motion": "rot_zx_moved",
-    "verdict": "rust-wrong",
-    "reason": "Kernel surface recovery (recover.rs) is not motion invariant here: a B-spline face next to the boss and a turned step is recovered as a plane in the unmoved part and not in this placement, so its type in the two features' neighbourhoods (and in its neighbours' adjacency) changes from plane to bspline. The features are still matched to themselves, as adapted. The fix belongs in recover.rs (a placement-independent fit tolerance).",
-    "features": [
-      "bosses/0",
-      "turned_steps/6"
-    ],
-    "faces": 4
-  },
-  {
-    "test": "invariance",
     "file": "nist/nist_ctc_05_asme1_rd.stp",
     "motion": "translate",
     "verdict": "rust-wrong",
