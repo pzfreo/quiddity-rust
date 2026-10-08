@@ -7,8 +7,11 @@
 //! inventory, the point classifier, the part's box — lives in the context so a run computes it
 //! once however many families ask.
 
+pub mod analytic_surfaces;
 pub mod angled_steps;
 pub mod bevel;
+pub mod blend_view;
+pub mod blends;
 pub mod body;
 pub mod bosses;
 pub mod chamfers;
@@ -87,6 +90,7 @@ pub struct Features {
     pub double_d_bores: Vec<profiled_bores::DoubleDBore>,
     pub edge_open_circular_pockets: Vec<edge_open_circular::EdgeOpenCircularPocket>,
     pub edge_open_prismatic_recesses: Vec<edge_open_prismatic::EdgeOpenPrismaticRecess>,
+    pub blends: Vec<blends::Blend>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole and gusset rib patterns) have none of their own: their members' faces are
     /// theirs ([`crate::correspondence`]).
@@ -201,6 +205,7 @@ pub fn recognise(part: &Part) -> Features {
             "edge_open_prismatic_recesses",
             edge_open_prismatic::discover(&ctx),
         ),
+        blends: kept(&mut defining, "blends", blends::discover(&ctx)),
         defining,
     }
 }

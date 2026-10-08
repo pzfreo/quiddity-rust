@@ -205,6 +205,14 @@
     "reason": "OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid and Python refuses evidence for it."
   },
   {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "recognise_blends",
+    "key": "{} records: 69 vs 0 records, fields {}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Python refuses every blend component here (all 681 BlendCollapseIndex results are ownership-unproven, and the 342 torus components fail common_valid_solid) because OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid (as for this file's other families' evidence entries). With SolidProperties.is_valid forced true, Python's recognise_blends publishes the same 69 records, 65 identical and 4 straight anchors differing by 0.001 to 0.006 mm; for the largest (face 1461, at z -64.022 against -64.028) an independent integration of the face (its rulings and end curves sampled at 20001 points, r dz dθ integrated) gives the centroid z -64.21562 the port uses, as does BRepGProp with eps 1e-9 (-64.21562), where the default precision Python uses gives -64.22163. The other three were not checked face by face."
+  },
+  {
     "file": "cadgenbench_inputs/cgb203.step",
     "family": "kernel",
     "key": "solid masses differ by up to 1e-2",
@@ -275,6 +283,14 @@
     "count": 1,
     "verdict": "undetermined",
     "reason": "Same wall pairs. Pair thicknesses differ in the sixth figure because the probes sit at fractions of each face's parameter range, which the port takes from the exact edges (see this file's uv_bounds entry); the body key and paired area fraction follow this file's untraced B-spline area difference (see its masses entry)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "family": "recognise_blends",
+    "key": "{} records: 7 vs 7 records, fields {\"path\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "A straight path's anchor is its faces' area centre projected onto the cylinder axis (_straight_path_anchor). Python takes the centre from BRepGProp.SurfaceProperties at its default precision, which on this face is off; the port's boundary quadrature gives the centre BRepGProp gives at eps 1e-9: face 208's anchor (48.529, 0.201) against Python's (48.531, 0.199); BRepGProp at eps 1e-9 gives (48.5289, 0.2013), its default (48.5305, 0.1993)."
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
@@ -373,6 +389,14 @@
     "reason": "Same wall pairs and thicknesses; the body key and paired area fraction come from face areas, where OpenCascade integrates a planar face over pcurves 1% off its 3D B-spline edges (traced; see this file's masses entry)."
   },
   {
+    "file": "cadgenbench_inputs/cgb241.step",
+    "family": "recognise_blends",
+    "key": "{} records: 6 vs 6 records, fields {\"path\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "A straight path's anchor is its faces' area centre projected onto the cylinder axis (_straight_path_anchor). Python takes the centre from BRepGProp.SurfaceProperties at its default precision, which on this face is off; the port's boundary quadrature gives the centre BRepGProp gives at eps 1e-9 on all four differing paths (faces 25, 39, 19, 27: z -78.600, 16.793, 18.695, -58.775 against Python's -78.601, 16.792, 18.703, -58.798; BRepGProp at eps 1e-9 -78.5996, 16.7925, 18.6952, -58.7752)."
+  },
+  {
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "family": "kernel",
     "key": "arcs",
@@ -435,6 +459,14 @@
     "count": 1,
     "verdict": "rust-correct",
     "reason": "A Ø22 through hole open at both ends, Ø102 at one and Ø110 at the other. By Python's own rule the wider end is the opening, but at the Ø110 end the bore and the Ø110 segment end level and Python takes whichever comes first in face order as the end's segment (the Ø22 bore), so it drills from the Ø102 end; turned over, Python itself drills from the Ø110 end. The port takes the widest segment reaching an end (the mouth) and answers the same in every orientation."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "family": "recognise_blends",
+    "key": "{} records: 26 vs 26 records, fields {\"path\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "A straight path's anchor is its faces' area centre projected onto the cylinder axis (_straight_path_anchor). Python takes the centre from BRepGProp.SurfaceProperties at its default precision, which on this face is off; the port's boundary quadrature gives face 555's centroid (-27.0232283, 34.8986471, 13.3296302), which an independent integration of the face (its rulings and B-spline end curves sampled at 20001 points, r dz dθ integrated over the angle) reproduces to 3e-9; Python's (-26.648, 34.385) against the port's (-26.649, 34.384) is that difference across a rounding boundary."
   },
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
@@ -507,6 +539,14 @@
     "count": 1,
     "verdict": "undetermined",
     "reason": "Same void faces and openings; the sample counts differ by about 1%: the void grid is a sampling instrument anchored at the solid's box, and OpenCascade's box is padded (by 1e-7 on this part's faces) where the port's is exact, so the two grids sit a fraction of a micron apart and cells whose centres fall on a face flip, and the body key follows this file's mass difference."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "family": "recognise_blends",
+    "key": "{} records: 10 vs 10 records, fields {\"path\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "A straight path's anchor is its faces' area centre projected onto the cylinder axis (_straight_path_anchor). Python takes the centre from BRepGProp.SurfaceProperties at its default precision, which on this face is off; the port's boundary quadrature gives face 540's area 0.5028945 and centroid z -17.6765036, which an independent integration of the face (its rulings and B-spline end curves sampled at 20001 points) reproduces to 1e-11; OpenCascade gives area 0.5031827 and z -17.6763201 at both its default precision and eps 1e-9, so the anchor rounds to -17.677 against Python's -17.676."
   },
   {
     "file": "cadgenbench_inputs/cgb245.step",
@@ -915,6 +955,14 @@
     "count": 1,
     "verdict": "rust-correct",
     "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "family": "recognise_blends",
+    "key": "{} records: 8 vs 8 records, fields {\"path\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "A straight path's anchor is its faces' area centre projected onto the cylinder axis (_straight_path_anchor). Python takes the centre from BRepGProp.SurfaceProperties at its default precision, which on this face is off; the port's boundary quadrature gives faces 88's and 164's area 138.7383133 and centroid y -45.2544775, which an independent integration of each face (two rulings and two elliptical ends sampled at 20001 points, r dz dθ integrated) reproduces to 1e-10; OpenCascade gives area 138.7365697 and y -45.2552058 at both its default precision and eps 1e-9, so both anchors round to y -45.226 against Python's -45.227."
   },
   {
     "file": "nist/nist_ftc_08_asme1_rc.stp",

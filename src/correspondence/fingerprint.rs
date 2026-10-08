@@ -512,6 +512,22 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("section.opening.end", Derived),
         ],
     },
+    FamilyFingerprint {
+        family: "blends",
+        members: None,
+        variants: false,
+        fields: &[
+            ("radius", Size),
+            ("side", Trait),
+            // A straight path's cylinder axis, or a circular path's torus axis: the one present.
+            ("path.direction", Axis),
+            ("path.normal", Axis),
+            // A circular path's centre-line radius; a straight path has none.
+            ("path.radius", Size),
+            ("path.at", Placement),
+            ("path.center", Placement),
+        ],
+    },
 ];
 
 /// The fingerprint table of the family with this serde key.
