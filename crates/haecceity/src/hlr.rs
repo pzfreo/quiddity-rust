@@ -672,8 +672,11 @@ fn clear_of_own_faces(
 /// the next item left; the results in the items' order as numbers, not as listed.
 fn parallel<R: Send>(items: &[usize], f: impl Fn(usize) -> R + Sync) -> Vec<R> {
     use std::sync::atomic::{AtomicUsize, Ordering};
+    // HAECCEITY_THREADS caps the threads (benchmarks: 1 times HLR as wasm32 runs it).
+    let cap = std::env::var("HAECCEITY_THREADS").ok().and_then(|v| v.parse().ok());
     let threads = std::thread::available_parallelism()
         .map_or(1, |n| n.get())
+        .min(cap.unwrap_or(usize::MAX))
         .min(items.len());
     // One thread, or none to be had (wasm32-unknown-unknown spawns none): work here, in order.
     if threads <= 1 {
