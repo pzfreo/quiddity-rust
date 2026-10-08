@@ -303,10 +303,29 @@ fn pmi_write(w: &WriteArgs) -> Result<String, String> {
     let step = &w.step;
     let doc = p21::Document::parse(bytes).map_err(|e| format!("{step}: {e}"))?;
     let before = quiddity::kernel::pmi::read(&doc, &defs).map_err(|e| format!("{step}: {e}"))?;
+    // A standard is a set member, not an item: adding one the part already states (or stating
+    // one twice) is that standard, so it is not written again.
     let pmi: Vec<(PartId, PartPmi)> = document
         .parts
         .iter()
-        .map(|p| (p.part, p.pmi.clone()))
+        .map(|p| {
+            let mut pmi = p.pmi.clone();
+            if w.mode == Mode::Add {
+                let mut stated = before
+                    .parts
+                    .get(p.part.0)
+                    .map(|old| old.standards.clone())
+                    .unwrap_or_default();
+                pmi.standards.retain(|s| {
+                    let new = !stated.contains(s);
+                    if new {
+                        stated.push(s.clone());
+                    }
+                    new
+                });
+            }
+            (p.part, pmi)
+        })
         .collect();
     let (edit, report) = quiddity::kernel::pmi::write(&doc, &defs, &pmi, w.mode, w.policy)
         .map_err(|e| format!("{step}: write refused: {e}"))?;
@@ -316,12 +335,20 @@ fn pmi_write(w: &WriteArgs) -> Result<String, String> {
 
     // Written beside the destination, read back from there, and renamed only when it verifies.
     let out = &w.out;
+    // An existing destination is replaced in place: through a symbolic link to its target, and
+    // keeping its permissions.
     let dest = Path::new(out);
-    let name = dest
+    let target: PathBuf = match std::fs::symlink_metadata(dest) {
+        Ok(m) if m.file_type().is_symlink() => {
+            std::fs::canonicalize(dest).map_err(|e| format!("{out}: {e}"))?
+        }
+        _ => dest.to_path_buf(),
+    };
+    let name = target
         .file_name()
         .ok_or_else(|| format!("{out}: not a file name"))?
         .to_string_lossy();
-    let tmp: PathBuf = dest.with_file_name(format!(".{name}.{}.tmp", std::process::id()));
+    let tmp: PathBuf = target.with_file_name(format!(".{name}.{}.tmp", std::process::id()));
     let verified = (|| -> Result<(Binding, Vec<quiddity::kernel::pmi::Finding>), String> {
         let gz = gzipped(out);
         let file_bytes = if gz {
@@ -359,7 +386,13 @@ fn pmi_write(w: &WriteArgs) -> Result<String, String> {
             ));
         }
     };
-    if let Err(e) = std::fs::rename(&tmp, dest) {
+    if let Ok(m) = std::fs::metadata(&target)
+        && let Err(e) = std::fs::set_permissions(&tmp, m.permissions())
+    {
+        let _ = std::fs::remove_file(&tmp);
+        return Err(format!("{out}: {e}"));
+    }
+    if let Err(e) = std::fs::rename(&tmp, &target) {
         let _ = std::fs::remove_file(&tmp);
         return Err(format!("{out}: {e}"));
     }
@@ -379,7 +412,8 @@ fn item_keys(p: &PartPmi) -> Vec<String> {
 
 /// Checks the output read back (`after`) against the input read (`before`) and what was
 /// written: each written part reads back as written (replace, remove) or as its PMI before plus
-/// exactly the items written (add; a feature or datum equal to one the part has is that one),
+/// exactly the items written (add; a feature or datum equal to one the part has is that one;
+/// standards already stated are not written),
 /// and for replace and remove nothing the reader consumed for it survives (its supplemental
 /// geometry excepted, which is the part's); every other part reads as before; the parts and
 /// their faces and edges are unchanged; and no finding is new.

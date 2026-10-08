@@ -701,7 +701,8 @@ and `ap242-cli-read`.
   document in one `pmi::write`, refusing a document bound to another file or reader. The output
   goes to a temporary file beside the destination, is read back with `pmi::read` and compared by
   meaning, values as stated (add: the part's PMI before plus exactly the items written, a feature
-  or datum equal to one the part has being that one; replace and remove: exactly the items
+  or datum equal to one the part has being that one, and a standard it already states not
+  written again; replace and remove: exactly the items
   written, and no instance the reader consumed for the part survives, supplemental geometry
   excepted; other parts and every finding as before), and renamed only then; a refusal creates
   nothing. The report is JSON (`quiddity-pmi-write`). Through the CLI, read → replace → read
@@ -765,9 +766,13 @@ feature is read as that feature's composition.
 
 Not done in this stage: writing datum targets and tolerance relations (design: Out of scope);
 pinning the four NIST files of the reference set not obtainable here (above); knurls from
-specify-core intents (the intent lacks parameters `turned_knurl` requires; undetermined). The stage 1 and 2 suites `p21.rs`, `express_rules.rs` and
-`removal.rs` still fall back to a hard-coded scratch directory for the NIST files when
-`HAECCEITY_NIST_PMI` is unset; the stage 3 suites use the variable only.
+specify-core intents (the intent lacks parameters `turned_knurl` requires; undetermined). The
+stage 1 and 2 suites `p21.rs`, `express_rules.rs` and `removal.rs` still fall back to a
+hard-coded scratch directory for the NIST files when `HAECCEITY_NIST_PMI` is unset; the stage 3
+suites use the variable only. Writer behaviour the command line's read-back catches (in
+`pmi/write.rs`, not changed here): add of a material to a part that has one is written, and
+refused only because the output reads back with two material names; add of a feature equal to
+one the part has writes a second shape aspect for it.
 
 ## Out of scope for now
 

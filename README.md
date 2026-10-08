@@ -342,7 +342,11 @@ naming them). Replace and remove take the replaced PMI's presentation with it
 `.gz` name), is read back and compared semantically with what was written (add: the part's PMI
 before plus exactly the new items; replace, remove: exactly the document's, and nothing the
 reader consumed for the part survives; other parts and findings as before), and is renamed to
-`out.step` only then. The report (`"format": "quiddity-pmi-write"`) gives the parts written,
+`out.step` only then (an existing `out.step`, the input itself included, is then replaced in
+place, through a symbolic link to its target, keeping its permissions). In add, a standard the
+part already states is not written again; a feature equal to one the part has is written as a
+second shape aspect, which reads back as that feature; a second material is refused by the
+read-back (the reader finds two material names). The report (`"format": "quiddity-pmi-write"`) gives the parts written,
 the input's and the output's bindings (so the output can be read and written again), instance
 counts (added, replaced, removed), the presentation removed by id and type, the `FILE_SCHEMA`
 kept or changed, the datum feature symbols written, the edition table used, the original's

@@ -1146,6 +1146,78 @@ fn pmi_write_refusals_name_the_cause_and_create_nothing() {
     no_temporary_left(&keep, "keep");
 }
 
+/// Add of a standard the part already states (NIST FTC-07's ASME Y14.41-2003) is that standard:
+/// nothing is written, and the output is the input's text. Add of a second material (spool_fits
+/// already names one) is accepted by the writer but fails the read-back (the reader finds two
+/// material names): refused as not verifying, creating nothing.
+#[test]
+fn pmi_write_add_of_a_stated_standard_writes_nothing_and_a_second_material_does_not_verify() {
+    let ftc07 = ap242().join("nist/nist_ftc_07_asme1_ap242-e2.stp.gz");
+    let p = ftc07.to_str().unwrap();
+    let (mut doc, _) = ok(&["pmi", "read", p]);
+    let standards = doc["parts"][0]["pmi"]["standards"].clone();
+    assert!(
+        !standards.as_array().unwrap().is_empty(),
+        "FTC-07 states a standard"
+    );
+    doc["parts"][0]["pmi"] = json!({ "standards": standards });
+    let (out, o) = write_cli(p, &doc, "stated-standard", &[]);
+    let (report, _) = write_ok(&o, "stated standard");
+    assert_eq!(report["instances"]["added"], 0, "{report}");
+    assert_eq!(bytes(&out), bytes(&ftc07), "the output is the input's text");
+
+    let (mut doc, step) = spool_writable();
+    assert!(doc["parts"][0]["pmi"]["material"].is_object());
+    doc["parts"][0]["pmi"] = json!({ "material": { "id": "Steel" } });
+    let (out, o) = write_cli(&step, &doc, "second-material", &[]);
+    let err = write_refused(&out, &o, "second material");
+    assert!(
+        err.contains("not written: the output does not verify"),
+        "{err}"
+    );
+    assert!(err.contains("material only in the second"), "{err}");
+}
+
+/// A destination that exists is replaced in place when the write verifies: through a symbolic
+/// link to its target (the link stays a link), keeping the target's permissions.
+#[cfg(unix)]
+#[test]
+fn pmi_write_replaces_an_existing_destination_through_a_link_keeping_its_permissions() {
+    use std::os::unix::fs::PermissionsExt;
+    let (doc, step) = spool_writable();
+    let dir = scratch().join("link");
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("real")).unwrap();
+    let target = dir.join("real/out.step");
+    std::fs::write(&target, b"old").unwrap();
+    std::fs::set_permissions(&target, std::fs::Permissions::from_mode(0o640)).unwrap();
+    let link = dir.join("out.step");
+    std::os::unix::fs::symlink(&target, &link).unwrap();
+    let json = dir.join("doc.json");
+    std::fs::write(&json, doc.to_string()).unwrap();
+    let o = quiddity(&[
+        "pmi",
+        "write",
+        &step,
+        json.to_str().unwrap(),
+        "-o",
+        link.to_str().unwrap(),
+        "--mode",
+        "replace",
+    ]);
+    write_ok(&o, "through a link");
+    assert!(
+        std::fs::symlink_metadata(&link)
+            .unwrap()
+            .file_type()
+            .is_symlink()
+    );
+    let m = std::fs::metadata(&target).unwrap();
+    assert_eq!(m.permissions().mode() & 0o777, 0o640);
+    assert_ne!(std::fs::read(&target).unwrap(), b"old");
+    no_temporary_left(&target, "through a link");
+}
+
 /// Add onto a corpus part (AP214, no PMI): written as AP242 (decision 1), every item read back,
 /// a datum feature symbol for A; then remove: the part reads back as it did at first. An AP203
 /// file whose instances do not all validate against AP242 is refused, naming them.
