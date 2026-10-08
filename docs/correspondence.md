@@ -127,7 +127,8 @@ JSON-lines and MCP surface beside recognition.
 ## Implementation
 
 `src/correspondence/` (2026-10-07). `quiddity part.step` now writes each family's records as
-before plus a top-level `fingerprints`; `quiddity correspond old new` takes two such results (or
+before plus a top-level `fingerprints` (and, since then, the recognition `document`,
+`src/recognition.rs`); `quiddity correspond old new` takes two such results (or
 two STEP files) and writes the `Correspondence`. In the library: `correspondence::recognise`,
 `fingerprint`, `correspond` and `correspond_with` (explicit `Thresholds`).
 
