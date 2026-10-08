@@ -865,7 +865,13 @@ fn joint_edges(
 /// `_flat_pattern_plan`: the flanges unfolded about their bends into the base (largest)
 /// flange's plane, as a tree from it; each flange face triangulated and each bend pair's strip
 /// laid out, overlaps between them witnessed. `None` when the bends do not form a tree over
-/// the flanges, a joint cannot be read, or an unfolded point leaves the base plane.
+/// the flanges, a joint cannot be read, an unfolded point leaves the base plane, or the port's
+/// own triangulation of a flange face fails (`triangulate_plane`). That last is not one of
+/// Python's outcomes (OpenCascade's mesher triangulates the face), yet `body` treats it as it
+/// does the others: the sheet's status becomes `not_proven` (the bend count already matched),
+/// or, with no edge treatment and no formed-feature fallback that proves a blank, the body is
+/// not read. No corpus or captured part reaches it. Refusing it instead needs a refusal
+/// `recognise` can carry: the open panic-versus-carried-refusal question.
 fn flat_pattern_plan(
     s: &Sheet<'_>,
     flanges: &[SheetFlange],
@@ -1171,7 +1177,8 @@ fn segments_cross(p: V2, q: V2, a: V2, b: V2) -> bool {
 
 /// Ear clipping of an anticlockwise polygon (vertex indices; a bridge repeats two of them). An
 /// ear is a convex corner whose triangle holds no other polygon vertex; when none is left (round-
-/// off on nearly straight runs) the flattest convex corner goes, then any corner.
+/// off on nearly straight runs) the flattest convex or straight corner goes. `None` when every
+/// remaining corner is reflex: there is no further fallback.
 fn ear_clip(flat: &[V2], mut polygon: Vec<usize>) -> Option<Vec<[usize; 3]>> {
     let mut out = Vec::new();
     while polygon.len() > 3 {

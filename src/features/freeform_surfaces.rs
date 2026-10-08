@@ -250,7 +250,13 @@ fn records(part: &Part, walls: &[ThinWallBody]) -> Vec<FreeformSurface> {
                 continue;
             };
             // Python compares OpenCascade's surface handles; equal supports are the same
-            // surface however the file shares it.
+            // surface however the file shares it. Verdict rust-correct, with no corpus or
+            // captured link to list it against (neither has a `same_support` link): through
+            // STEP, Python never reports one, since OpenCascade's reader gives every face its
+            // own handle even where faces share one surface entity. Probed on a NURBS box
+            // whose top face is split by an edge (OCP, OpenCascade 7.9.3): the two halves'
+            // supports are equal value for value, and Python links them `G1`, whether the
+            // file writes the surface twice or once; the port links them `same_support`.
             let kind = if own == theirs {
                 "same_support"
             } else if part.arc(index, other) == Some(Arc::Smooth) {
@@ -407,5 +413,47 @@ mod tests {
             read(&unclamped, &[1, 2, 2, 2, 2, 1], false),
             (false, unclamped.to_vec(), vec![1, 2, 2, 2, 2, 1], 7)
         );
+    }
+
+    /// The reader applies the same rule in v: each form above, written through STEPControl
+    /// once closed along u and once along v, read back with the same periodicity, knots,
+    /// multiplicities and pole count in the closed direction (OpenCascade 7.9.3 through OCP).
+    #[test]
+    fn closed_columns_are_read_periodic_in_v_as_rows_are_in_u() {
+        let k = std::f64::consts::TAU / 3.0;
+        // The unclamped form above, as a flat knot vector.
+        let knots = [-k, 0.0, k, 2.0 * k, 3.0 * k, 4.0 * k];
+        let flat: Vec<f64> = knots
+            .iter()
+            .zip([1, 2, 2, 2, 2, 1])
+            .flat_map(|(&knot, m)| std::iter::repeat_n(knot, m))
+            .collect();
+        let rows = direction(&[], &[], true).poles;
+        let along_u = NurbsSurface::new(
+            2,
+            1,
+            rows.clone(),
+            vec![vec![1.0; 2]; 7],
+            flat.clone(),
+            vec![0.0, 0.0, 12.0, 12.0],
+        )
+        .expect("a well-formed surface");
+        let along_v = NurbsSurface::new(
+            1,
+            2,
+            transpose(&rows),
+            vec![vec![1.0; 7]; 2],
+            vec![0.0, 0.0, 12.0, 12.0],
+            flat,
+        )
+        .expect("a well-formed surface");
+        let (u, v) = (support(&along_u), support(&along_v));
+        assert!(u.u_periodic && !u.v_periodic);
+        assert!(v.v_periodic && !v.u_periodic);
+        assert_eq!(
+            (u.u_knots, u.u_multiplicities, u.poles.len()),
+            (v.v_knots, v.v_multiplicities, v.poles[0].len())
+        );
+        assert_eq!(u.poles, transpose(&v.poles));
     }
 }

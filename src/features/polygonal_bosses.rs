@@ -592,8 +592,16 @@ fn recognise_one(
         }
         // A zero component's sign is the plane's representation, not its geometry, but it moves
         // `atan2` between -π and π and with it where the ring starts: read as +0.0, a side facing
-        // straight back along the first transverse axis comes last, as OpenCascade's normals
-        // (which carry +0.0 there on the corpus) put it.
+        // straight back along the first transverse axis comes last. Python reads the sign
+        // OpenCascade's `normal_at` gives, which is either: over the corpus its rings carry 217
+        // exact zeros as -0.0 and 156 as +0.0, and in 61 rings the start moves when -0.0 is read
+        // as +0.0, but none of those rings is a record (Python's records are unchanged with every
+        // -0.0 read as +0.0). The one record that turns on the sign, nist_ftc_07's squares, has
+        // +0.0 in Python and -0.0 in this kernel, and differs without this rule. Verdict
+        // equivalent where Python would carry -0.0 on a record's ring: the same sides in the same
+        // turn, Python's `flat_directions` and `flat_centres` starting at the backward-facing
+        // side and the port's at the next; no corpus or captured record does (the captured
+        // calls match with or without this rule).
         let heading = |f: usize| {
             let n = graph.normal(f).expect("side faces have normals");
             (

@@ -425,7 +425,8 @@ missing or changed. After re-exporting at a new revision, update the `ref:` in
 The corpus tests spread their parts over every core (`tests/common/parallel.rs`) and report in
 corpus order. Pins that depend on float round-off across a threshold (`faces_at_most` in
 `known_correspondence.json`) are set so CI's Linux job passes: Linux is the reference platform
-for them, and macOS may give a different count within the bound.
+for them, and macOS may give a different count within the bound. CI runs the suite on macOS as
+well, so the bounds must hold there too.
 
 ## How a family is ported
 

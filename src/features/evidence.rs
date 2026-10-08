@@ -19,6 +19,11 @@ pub enum EvidenceError {
     SharedEvidence,
     /// One turned profile key would identify two valid solids.
     AmbiguousProfile,
+    /// Two obround cap clusters compete for one end of a slot or pocket, so which faces end it
+    /// is undecided.
+    CompetingCaps,
+    /// A pocket found from opposed walls or obround caps has no floor faces to consult.
+    MissingFloor,
 }
 
 impl std::fmt::Display for EvidenceError {
@@ -33,6 +38,10 @@ impl std::fmt::Display for EvidenceError {
             EvidenceError::AmbiguousProfile => {
                 write!(f, "turned profile key identifies multiple valid solids")
             }
+            EvidenceError::CompetingCaps => {
+                write!(f, "multiple obround cap clusters compete for one endpoint")
+            }
+            EvidenceError::MissingFloor => write!(f, "pocket floor faces are unavailable"),
         }
     }
 }
