@@ -21,6 +21,7 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+from types import SimpleNamespace
 
 QUIDDITY = Path(os.environ.get("QUIDDITY", "../quiddity")).resolve()
 sys.path[:0] = [str(QUIDDITY), str(QUIDDITY / "tests"), str(QUIDDITY / "src")]
@@ -69,6 +70,8 @@ from quiddity.round_bottom_slots import (  # noqa: E402
     _discover_round_bottom_blind_slots,
     recognise_round_bottom_blind_slots,
 )
+from quiddity.sheet_metal import _discover as _discover_sheet_metal  # noqa: E402
+from quiddity.sheet_metal import recognise_sheet_metal_bodies  # noqa: E402
 from quiddity.thin_walls import _claim_records as _claim_walls  # noqa: E402
 from quiddity.thin_walls import _discover_thin_wall_bodies  # noqa: E402
 from quiddity.through_steps import _discover_through_steps  # noqa: E402
@@ -134,6 +137,16 @@ def _run(part, function, family, recognise, discover, options: dict) -> dict:
         "result": _plain(recognise(part, options)),
         **_evidence(part, family, lambda ledger: discover(part, ledger, options)),
     }
+
+
+def _sheet_metal_evidence(part, ledger, options):
+    """``sheet_metal._discover`` as the recognition run calls it, over the part's thin-wall
+    bodies."""
+
+    walls = _discover_thin_wall_bodies(part, graph=ledger.graph)
+    services = SimpleNamespace(context=SimpleNamespace(part=part, graph=ledger.graph),
+                               writer=ledger.writer)
+    return _discover_sheet_metal(services, SimpleNamespace(records=lambda family, kind: walls))
 
 
 def _kernel(part) -> dict:
@@ -250,6 +263,8 @@ def main() -> None:
                   lambda p, ledger, o: _discover_plates(p, writer=ledger.writer, **o))
         blends = (FamilyId.BLENDS, lambda p, o: recognise_blends(p),
                   lambda p, ledger, o: _discover_blends(p, graph=ledger.graph, writer=ledger.writer))
+        sheet_metal = (FamilyId.SHEET_METAL_BODIES, lambda p, o: recognise_sheet_metal_bodies(p, **o),
+                       _sheet_metal_evidence)
         entries.append(
             {
                 "file": str(path.relative_to(CORPUS)),
@@ -303,6 +318,9 @@ def main() -> None:
                         _run(part, "recognise_edge_open_prismatic_recesses", *open_prismatic, {})
                     ],
                     "recognise_blends": [_run(part, "recognise_blends", *blends, {})],
+                    "recognise_sheet_metal_bodies": [
+                        _run(part, "recognise_sheet_metal_bodies", *sheet_metal, {})
+                    ],
                     "recognise_gusset_rib_patterns": [
                         {"options": {}, "result": _plain(recognise_gusset_rib_patterns(recognise_gusset_ribs(part)))}
                     ],

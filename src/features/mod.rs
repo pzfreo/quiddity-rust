@@ -44,6 +44,7 @@ pub mod profiled_bores;
 pub mod rectangular_blind_slots;
 pub mod regions;
 pub mod round_bottom_slots;
+pub mod sheet_metal;
 pub mod stacks;
 pub mod thin_walls;
 pub mod through_steps;
@@ -93,6 +94,7 @@ pub struct Features {
     pub edge_open_circular_pockets: Vec<edge_open_circular::EdgeOpenCircularPocket>,
     pub edge_open_prismatic_recesses: Vec<edge_open_prismatic::EdgeOpenPrismaticRecess>,
     pub blends: Vec<blends::Blend>,
+    pub sheet_metal_bodies: Vec<sheet_metal::SheetMetalBody>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole and gusset rib patterns) have none of their own: their members' faces are
     /// theirs ([`crate::correspondence`]).
@@ -208,6 +210,11 @@ pub fn recognise(part: &Part) -> Features {
             edge_open_prismatic::discover(&ctx),
         ),
         blends: kept(&mut defining, "blends", blends::discover(&ctx)),
+        sheet_metal_bodies: kept(
+            &mut defining,
+            "sheet_metal_bodies",
+            sheet_metal::discover(&ctx),
+        ),
         defining,
     }
 }

@@ -183,7 +183,7 @@ fn within(a: V3, m: V3, b: V3, deflection: f64) -> bool {
 }
 
 /// The edge's samples thinned (Douglas–Peucker) to those the deflections need, appended.
-fn thin(samples: &[V3], deflection: f64, out: &mut Vec<V3>) {
+pub fn thin(samples: &[V3], deflection: f64, out: &mut Vec<V3>) {
     fn split(s: &[V3], deflection: f64, out: &mut Vec<V3>) {
         if s.len() <= 2 {
             return;

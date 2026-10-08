@@ -573,6 +573,14 @@
     "reason": "Only the body key differs: its volume and area follow this file's untraced B-spline mass difference (see its masses entry)."
   },
   {
+    "file": "cadgenbench_inputs/cgb245.step",
+    "family": "recognise_sheet_metal_bodies",
+    "key": "{} records: 1 vs 1 records, fields {\"body_key\", \"flanges\"}",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Same skins, cut faces, 26 flanges, 31 bends, 102 edge treatments and defining faces (status non_tree). The body key's volume is the thin-wall body's (this file's untraced B-spline mass difference; see its thin-wall entry); flange 4's area is face 53's, rust-correct per tests/fixtures/known_face_areas.json (OpenCascade's own integration driven to 1e-9 gives the port's 24749.46851; face.area's fixed Gauss rule 24749.5601)."
+  },
+  {
     "file": "gramel/string_post.step",
     "family": "kernel",
     "key": "solid masses differ by up to 1e-4",
@@ -1059,5 +1067,13 @@
     "count": 1,
     "verdict": "undetermined",
     "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually."
+  },
+  {
+    "file": "ttt_inputs/sm-hanger.step",
+    "family": "recognise_sheet_metal_bodies",
+    "key": "{} records: 1 vs 1 records, fields {\"flat_pattern\"}",
+    "count": 1,
+    "verdict": "equivalent",
+    "reason": "Only the triangulation-dependent parts of the flat pattern differ; flanges, bends, strips, tree, status, the four overlap witnesses' face/strip pairs and the defining faces agree. The flat faces are two triangulations of one region (the port ear-clips each face's boundary thinned to deflection 0.1 and 0.1 rad; Python takes OpenCascade's mesh, with more points): faces 0, 34, 64, 66 (exact areas 1628.969, 2532.213, 12439.677, 231.272) are covered by the port's triangles to 1628.845, 2532.342, 12440.182, 231.364 and by Python's to 1628.938, 2532.247, 12439.807, 231.292, both within the deflection asked for. A witness's area is the largest overlap of one triangle pair, so it follows the triangulation (port 21.13/21.78/64.47/28.24, Python 21.84/21.84/55.91/55.91)."
   }
 ]

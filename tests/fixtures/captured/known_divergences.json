@@ -210,5 +210,34 @@
     "count": 1,
     "verdict": "not-applicable",
     "reason": "Solid.__and__ is monkeypatched to return fragments of volume 1 and 2, fabricating material inside the prism, so Python rejects the bore; the part itself is a true through double-D, which the port finds (as Python does in the unpatched variants of the test)."
+  },
+  {
+    "function": "recognise_sheet_metal_bodies",
+    "test": "tests/test_sheet_metal.py::test_formed_bracket_has_reconstructible_bend_plan",
+    "file": "01ccef11b95667da.step.gz",
+    "options": {
+      "k_factor": 0.4
+    },
+    "count": 1,
+    "verdict": "equivalent",
+    "reason": "Only the flat faces' triangles differ: each flange face is the same 40 x 100 rectangle with the same four unfolded vertices on both sides, split into two triangles across the other diagonal (the port ear-clips the face's boundary; Python takes OpenCascade's mesh). Flanges, bend, strips, tree and the overlap-free blank agree."
+  },
+  {
+    "function": "recognise_sheet_metal_bodies",
+    "test": "tests/test_sheet_metal.py::test_ttt_hanger_step_has_main_blank_and_formed_tabs",
+    "file": "876837d9cf19ff05.step.gz",
+    "options": {},
+    "count": 1,
+    "verdict": "equivalent",
+    "reason": "Only the triangulation-dependent parts of the flat pattern differ: flanges, bends, strips, tree, status and the four overlap witnesses' face/strip pairs agree. The flat faces are two triangulations of one region (the port ear-clips the boundary thinned to deflection 0.1 and 0.1 rad, 37-101 vertices per curved face against OpenCascade's 69-176): against the exact face areas (face.area 1628.969, 2532.213, 12439.677, 231.272 for faces 0, 34, 64, 66) the port's triangles cover 1628.845, 2532.342, 12440.182, 231.364 and Python's 1628.938, 2532.247, 12439.807, 231.292, both within the 0.1 mm deflection asked for (Python's, with more points, is closer). A witness's area is the largest overlap of one triangle pair, so it follows the triangulation (port 21.13/21.78/64.47/28.24, Python 21.84/21.84/55.91/55.91)."
+  },
+  {
+    "function": "recognise_sheet_metal_bodies",
+    "test": "tests/test_sheet_metal.py::test_cgb245_rounded_cut_edges_keep_flange_and_bend_evidence",
+    "file": "11ee4708f7675eb9.step.gz",
+    "options": {},
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Same skins, cut faces, 26 flanges, 31 bends and 102 edge treatments (status non_tree). Two fields differ: the body key's volume, inherited from the thin-wall body (this file's untraced B-spline mass difference; see the corpus thin-wall entry for cgb245), and flange 4's area, which is face 53's: rust-correct per tests/fixtures/known_face_areas.json (OpenCascade's own integration driven to 1e-9 gives the port's 24749.46851; face.area's fixed Gauss rule gives 24749.5601)."
   }
 ]
