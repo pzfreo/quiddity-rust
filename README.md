@@ -167,8 +167,11 @@ src/
                      unmatched option), faces.rs (seeded propagation), mod.rs (`correspond`)
   recognition.rs     the versioned recognition document for draftwright (`quiddity-rust/
                      recognition/1`): per feature its family, Python record type, faces, record
+  serve.rs           `quiddity serve`: recognise and correspond as a JSON-lines service, each
+                     request's id echoed, failures as structured errors
   bin/quiddity.rs    `quiddity part.step` → JSON with fingerprints and the document;
-                     `quiddity correspond old new` → the correspondence as JSON
+                     `quiddity correspond old new` → the correspondence as JSON;
+                     `quiddity serve` → serve.rs on stdin/stdout
 tests/
   captured.rs        replays every recogniser call the Python test suite makes
   corpus.rs          every ported recogniser over the shared 100-file STEP corpus
@@ -188,6 +191,8 @@ tests/
   recognition.rs     the document: a record type for every family, order, faces, round trip
   cli.rs             the binary's usage, exit codes and refusal of broken STEP files
                      (fixtures/broken/)
+  serve.rs           `quiddity serve`: results equal to the CLI's, every error code, many
+                     requests on one stream, the same bytes twice
   common/parallel.rs the corpus loops' per-file work on every core, results in corpus order
   fixtures/          STEP parts and Python's recorded answers, shared by both crates
 crates/haecceity/tests/
@@ -231,6 +236,7 @@ tools/
 cargo build --release
 ./target/release/quiddity part.step > part.json            # records, fingerprints, document
 ./target/release/quiddity correspond old.json new.json      # or two STEP files
+./target/release/quiddity serve < requests.jsonl             # JSON lines, see below
 QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release
 # corpus tests read ../quiddity/tests/corpus or $QUIDDITY_CORPUS; without
 # QUIDDITY_CORPUS_REQUIRED=1 they pass by skipping when the corpus is missing
@@ -246,6 +252,22 @@ recorded (`Part::unresolved_faces`, `unresolved_edges`): its solid is not valid,
 features are not recognised, `hlr` refuses to draw the part, and the CLI warns on stderr. Python
 (OpenCascade) reads a file with a deleted face as a loose shell, and resolves hyperbolas and
 offset surfaces, which this kernel does not model.
+
+`quiddity serve` reads one JSON request per line on stdin and writes one response line per
+request on stdout, in order, until stdin ends (`src/serve.rs` has the protocol):
+
+```
+{"id": 1, "op": "recognise", "step": "part.step"}
+{"id": 2, "op": "correspond", "old": "old.step", "new": {...a recognise result...}}
+```
+
+A success is `{"id": …, "result": …}`, the result being exactly what `quiddity part.step` or
+`quiddity correspond` writes (with `"warnings"` when geometry did not resolve). A failure is
+`{"id": …, "error": {"code": …, "message": …}}`, with codes `bad_json`, `bad_request`,
+`missing_field`, `unknown_op`, `unreadable`, `broken_step` (the CLI's STEP refusals),
+`bad_document` and `internal` (a panic, caught; the server keeps serving). Python quiddity has
+no such service; its correspondence API (opaque receipts) differs in shape, and the Rust
+documents are kept.
 
 The corpus must be quiddity's at the revision `tests/fixtures/corpus.json` records
 (`quiddity_revision`), which CI checks out; `tests/corpus_files.rs` fails on any file added,

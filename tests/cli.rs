@@ -43,6 +43,23 @@ fn help_prints_usage_and_succeeds() {
 }
 
 #[test]
+fn the_usage_lists_serve() {
+    let out = quiddity(&["--help"]);
+    assert!(String::from_utf8_lossy(&out.stdout).contains("quiddity serve"));
+}
+
+#[test]
+fn serve_on_an_empty_input_succeeds_silently() {
+    let out = Command::new(env!("CARGO_BIN_EXE_quiddity"))
+        .arg("serve")
+        .stdin(std::process::Stdio::null())
+        .output()
+        .expect("quiddity runs");
+    assert!(out.status.success());
+    assert!(out.stdout.is_empty() && out.stderr.is_empty());
+}
+
+#[test]
 fn bad_arguments_print_usage_and_fail() {
     let out = quiddity(&[]);
     assert_eq!(out.status.code(), Some(2));
