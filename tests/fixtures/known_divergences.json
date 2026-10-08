@@ -75,9 +75,19 @@
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "family": "kernel",
     "key": "uv_bounds Cylinder",
-    "count": 2,
+    "faces": [1535],
+    "count": 1,
+    "verdict": "rust-wrong",
+    "reason": "The port's v range ends at -115.0759 where the face's edges (sampled at 401 points per edge and projected onto the surface) reach -115.0652, which OpenCascade gives to 3.5e-5."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Cylinder",
+    "faces": [1721],
+    "count": 1,
     "verdict": "undetermined",
-    "reason": "Two faces, one each way: on face 1535 the port's v range ends at -115.0759 where the edges reach -115.0652 (OpenCascade -115.0652, rust-wrong); on face 1721 the port ends 6e-5 short of the edges' 67.73142 and OpenCascade 9e-5 beyond it."
+    "reason": "The port's v range ends 5.8e-5 short of the face's edges' 67.73142 (sampled at 401 points per edge and projected onto the surface) and OpenCascade's 8.7e-5 beyond it; neither is the edges' range and the difference was not traced further."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -91,17 +101,44 @@
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "family": "kernel",
     "key": "uv_bounds Freeform",
-    "count": 123,
+    "count": 120,
+    "verdict": "rust-correct",
+    "reason": "120 of the 123 B-spline faces (the three below are listed separately): the port matches the face's edges (sampled at 401 points per edge and projected onto the surface) within 2e-7 and OpenCascade overshoots by up to 1.2e-3, its pcurves' control polygons."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Freeform",
+    "faces": [1428, 1448],
+    "count": 2,
+    "verdict": "rust-wrong",
+    "reason": "The port's box is wider than the face's edges (sampled at 401 points per edge and projected onto the surface): on 1428 its v range starts 1.6e-3 below them, on 1448 its u range 5.6e-6 below; OpenCascade matches the edges within 2e-5 and 1.6e-10. The port boxes these B-spline pcurves by their poles."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Freeform",
+    "faces": [1465],
+    "count": 1,
     "verdict": "undetermined",
-    "reason": "123 B-spline faces. On 120 the port matches the face's edges (sampled densely and projected onto the surface) within 2e-7 and OpenCascade overshoots by up to 1.2e-3, its pcurves' control polygons (rust-correct). On face 1428 the port's v range starts 1.6e-3 below the edges (its own pole boxing of a B-spline pcurve), on 1448 5.6e-6 off, and on 1465 both are 6e-3 short of the edges' v = 1."
+    "reason": "Both kernels end the v range at 0.99402 (1.1e-6 apart) where the face's edges, sampled at 401 points per edge and projected onto the surface, reach v = 1; not traced whether the sampled edge really reaches v = 1 or the projection snaps to the boundary."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "family": "kernel",
     "key": "uv_bounds Sphere",
-    "count": 16,
+    "faces": [47, 80, 85, 733, 748, 752, 1451],
+    "count": 7,
+    "verdict": "rust-correct",
+    "reason": "The latitude range differs: the port matches the face's edges (sampled at 401 points per edge and projected onto the surface) within 2e-5 and OpenCascade overshoots by 3e-4 to 6e-4, its pcurves' control polygons."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Sphere",
+    "count": 9,
     "verdict": "undetermined",
-    "reason": "16 faces. On the 7 whose latitude range differs (47, 80, 85, 733, 748, 752, 1451) the port matches the edges (sampled densely and projected) within 2e-5 and OpenCascade overshoots by 3e-4 to 6e-4, its pcurves' control polygons (rust-correct). The other 9 (119, 162, 600, 809, 885, 889, 993, 1027, 1111) pass through a pole and differ in longitude by up to 0.04, where the pole makes the edges' own longitude range undefined and neither answer is shown right."
+    "reason": "Faces 119, 162, 600, 809, 885, 889, 993, 1027 and 1111 pass through a pole and differ in longitude by up to 0.04, where the pole makes the edges' own longitude range undefined and neither answer is shown right."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -412,8 +449,8 @@
     "family": "kernel",
     "key": "uv_bounds Cone",
     "count": 13,
-    "verdict": "undetermined",
-    "reason": "On its cones the port boxes the file's B-spline pcurves by their poles where OpenCascade's own pcurve is exact."
+    "verdict": "rust-wrong",
+    "reason": "All 13 faces: OpenCascade's range is the face's edges' (sampled at 401 points per edge and projected onto the surface) within 1.5e-3 (12 faces within 4e-6), the port's is not. On 12 the port's v range collapses to [0, 0] where the edges run from 0 to -1.458 or -2.917; on face 19 its u range starts at 2.989 where the edges start at pi (it boxes the file's B-spline pcurve by its poles)."
   },
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",

@@ -41,14 +41,20 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 *Captured test calls*: the Python suite's calls replayed by `tests/captured.rs`. *Not captured*:
 calls the suite makes that the capture could not record, outside the replay and pinned by it
 (`tools/capture_plugin.py` now lists each with its test and reason; the counts here predate
-that). *Corpus runs*: runs whose records match Python's over the 100-file
+that: the committed `calls.json` still holds them as counts per function, all
+`capture failed: RuntimeError`, and a capture run carries them over unchanged for every function
+it does not recapture). Open question for the maintainer: re-running the whole capture to give
+them test ids changes the call content, not only the skips (4210 calls against 2482, 685 of the
+old call identities gone, 5 shared calls with different Python answers), so it needs every
+family re-verified; whether to do that or to recapture family by family over each family's own
+test files is not decided. *Corpus runs*: runs whose records match Python's over the 100-file
 corpus in `tests/corpus.rs` (one per file and option set; face levels and risers are not in the
 corpus export). Every difference, in records, defining faces or kernel answers, is listed with
 its verdict and reason in a verdict file:
 
 | Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
 |---|---|---|---|---|---|---|---|
-| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 123 (895 problems) | 62 | 14 | 13 | 34 | 0 |
+| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 127 (895 problems) | 64 | 17 | 13 | 33 | 0 |
 | `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 23 (24 calls) | 4 | 0 | 1 | 2 | 16 |
 | `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 4 | 0 | 4 | 0 | 0 | 0 |
 | `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 19 | 3 | 16 | 0 | 0 | 0 |
@@ -211,8 +217,9 @@ QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release
    `#[test]` in `tests/captured.rs`, the family in `tests/invariance.rs`, and a row in the table
    above.
 4. **Explain every difference** that remains in the relevant `known_divergences.json`. An entry
-   names its difference exactly (the corpus: file, family and problem key; captured calls: test
-   node, file and options) with how many problems it covers; the tests fail on any unexplained
+   names its difference exactly (the corpus: file, family and problem key, optionally limited to
+   listed faces when one key's faces need different verdicts; captured calls: test node, file
+   and options) with how many problems it covers; the tests fail on any unexplained
    difference, on a count that changed, and on two entries for one difference, and a failing
    run prints the entries it needs (the formats are described at the top of `tests/corpus.rs`
    and `tests/captured.rs`).
@@ -252,8 +259,9 @@ an exact repeat measures 0, as in Python; on parts whose copies are parameterise
 its point counts happen to divide by the pattern count.
 
 The corpus test also checks kernel answers directly against OpenCascade on every file: every
-solid's volume and area (to 1e-9; a file that differs records its worst difference as a power
-of ten) and, wherever the faces align with OpenCascade's (99 of 100 files; 13975's are
+solid's volume and area wherever the solid counts agree (99 of 100 files; 13975 reads as one
+solid where OpenCascade's import gives none, recorded as a `solid count` difference), to 1e-9
+(a file that differs records its worst difference as a power of ten), and, wherever the faces align with OpenCascade's (99 of 100 files; 13975's are
 reordered by its healing), every face's `BRepTools::UVBounds` and the arc between every pair of
 neighbours.
 

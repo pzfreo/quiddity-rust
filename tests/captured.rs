@@ -46,11 +46,17 @@ const SKIPPED: &[(&str, usize)] = &[
     ("recognise_turned_steps", 18),
 ];
 
-/// The calls of *function* that the capture skipped: entries `{function, test, reason}`, or, in
-/// a capture made before the plugin kept test ids, counts keyed `"<function>: <reason>"`.
+/// The calls of *function* that the capture skipped: entries `{function, test, reason}` (one per
+/// call), entries carried over from a capture made before the plugin kept test ids
+/// `{function, test: null, reason, count}`, or that older capture's own form, counts keyed
+/// `"<function>: <reason>"`.
 fn skipped(function: &str) -> usize {
     match &load("calls.json")["skipped"] {
-        Value::Array(all) => all.iter().filter(|s| s["function"] == function).count(),
+        Value::Array(all) => all
+            .iter()
+            .filter(|s| s["function"] == function)
+            .map(|s| s.get("count").map_or(1, |n| n.as_u64().unwrap() as usize))
+            .sum(),
         Value::Object(counts) => counts
             .iter()
             .filter(|(k, _)| k.split(':').next() == Some(function))

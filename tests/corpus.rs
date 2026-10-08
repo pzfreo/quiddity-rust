@@ -23,6 +23,12 @@
 //! on two entries with one identity (a problem must have one explanation). A failure prints each
 //! unlisted problem group as the entry it needs (verdict and reason to be added), with the first
 //! few details.
+//!
+//! When the problems of one identity need different verdicts, the per-face `kernel` keys
+//! (`uv_bounds ...` and `arcs`) can be split by face: an entry with `"faces": [1428, 1448]` (face
+//! indices; for `arcs`, pairs as `"361-362"`) names only those faces' problems, and the entry for
+//! that identity without `faces`, if any, names the rest. Two entries listing one face, or two
+//! without `faces`, fail as two explanations of one problem.
 
 mod common;
 
@@ -38,6 +44,8 @@ struct Problem {
     file: String,
     family: String,
     key: String,
+    /// The face (`"12"`) or neighbour pair (`"3-7"`) of a per-face kernel problem.
+    face: Option<String>,
     detail: String,
 }
 
@@ -47,14 +55,23 @@ impl Problem {
             file: file.to_owned(),
             family: family.to_owned(),
             key: key.into(),
+            face: None,
             detail: detail.into(),
         }
+    }
+
+    fn on(mut self, face: String) -> Self {
+        self.face = Some(face);
+        self
     }
 
     fn id(&self) -> (&str, &str, &str) {
         (&self.file, &self.family, &self.key)
     }
 }
+
+/// A known divergence: file, family, key, the faces it is limited to, and its count.
+type Entry = (String, String, String, Option<Vec<String>>, u64);
 
 #[test]
 fn corpus_matches_python() {
@@ -72,7 +89,7 @@ fn corpus_matches_python() {
         .as_array()
         .unwrap()
         .clone();
-    let (mut kernel_runs, mut per_face_runs) = (0, 0);
+    let (mut kernel_runs, mut mass_runs, mut per_face_runs) = (0, 0, 0);
     for entry in &files {
         let name = entry["file"].as_str().unwrap();
         let part = match read_step_file(&dir.join(name)) {
@@ -91,6 +108,8 @@ fn corpus_matches_python() {
         // types); edge counts and boxes may differ (seams OpenCascade's healing adds).
         check_kernel(name, &part, &entry["kernel"], aligned, &mut problems);
         kernel_runs += 1;
+        mass_runs +=
+            usize::from(entry["kernel"]["solids"].as_array().unwrap().len() == part.solids.len());
         per_face_runs += usize::from(aligned);
         for (function, runs) in entry["results"].as_object().unwrap() {
             for run in runs.as_array().unwrap() {
@@ -121,12 +140,13 @@ fn corpus_matches_python() {
         eprintln!("{function}: {ok} runs match, {bad} differ");
     }
     eprintln!(
-        "kernel checks ran on {kernel_runs} of {} files (per-face answers on {per_face_runs})",
+        "kernel checks ran on {kernel_runs} of {} files (masses compared on {mass_runs}, \
+         per-face answers on {per_face_runs})",
         files.len()
     );
     let known: Vec<Value> = serde_json::from_value(common::load("known_divergences.json")).unwrap();
     common::check_verdicts("known_divergences.json", &known);
-    let id = |d: &Value| -> (String, String, String, u64) {
+    let entry = |d: &Value| -> Entry {
         let field = |k: &str| {
             d[k].as_str()
                 .unwrap_or_else(|| panic!("known_divergences.json: entry without {k}: {d}"))
@@ -135,28 +155,54 @@ fn corpus_matches_python() {
         let count = d["count"]
             .as_u64()
             .unwrap_or_else(|| panic!("known_divergences.json: entry without count: {d}"));
-        (field("file"), field("family"), field("key"), count)
+        let faces = d.get("faces").map(|faces| {
+            faces
+                .as_array()
+                .unwrap_or_else(|| panic!("known_divergences.json: `faces` not a list: {d}"))
+                .iter()
+                .map(|f| match f {
+                    Value::String(pair) => pair.clone(),
+                    face => face.to_string(),
+                })
+                .collect::<Vec<_>>()
+        });
+        (field("file"), field("family"), field("key"), faces, count)
     };
-    let known: Vec<_> = known.iter().map(id).collect();
+    let known: Vec<Entry> = known.iter().map(entry).collect();
     let mut seen = std::collections::BTreeSet::new();
-    for (file, family, key, _) in &known {
-        assert!(
-            seen.insert((file, family, key)),
-            "known_divergences.json: two entries for {file} {family} {key:?}"
-        );
+    for (file, family, key, faces, _) in &known {
+        let subjects = match faces {
+            Some(faces) => faces.iter().map(Some).collect(),
+            None => vec![None],
+        };
+        for face in subjects {
+            assert!(
+                seen.insert((file, family, key, face)),
+                "known_divergences.json: two entries for {file} {family} {key:?} {face:?}"
+            );
+        }
     }
-    let mut found = BTreeMap::<(&str, &str, &str), Vec<&Problem>>::new();
-    for p in &problems {
-        found.entry(p.id()).or_default().push(p);
-    }
-    let listed = |id: (&str, &str, &str)| {
-        known
-            .iter()
-            .any(|(f, fam, k, _)| (f.as_str(), fam.as_str(), k.as_str()) == id)
+    // The entry that names a problem: the one listing its face, else the one without faces.
+    let named = |p: &Problem| -> Option<usize> {
+        let same = |e: &Entry| (e.0.as_str(), e.1.as_str(), e.2.as_str()) == p.id();
+        let listed = known.iter().position(|e| {
+            same(e)
+                && e.3
+                    .as_ref()
+                    .is_some_and(|faces| p.face.as_ref().is_some_and(|f| faces.contains(f)))
+        });
+        listed.or_else(|| known.iter().position(|e| same(e) && e.3.is_none()))
     };
-    let unexpected: Vec<String> = found
+    let mut matched = vec![0u64; known.len()];
+    let mut unlisted = BTreeMap::<(&str, &str, &str), Vec<&Problem>>::new();
+    for p in &problems {
+        match named(p) {
+            Some(i) => matched[i] += 1,
+            None => unlisted.entry(p.id()).or_default().push(p),
+        }
+    }
+    let unexpected: Vec<String> = unlisted
         .iter()
-        .filter(|(id, _)| !listed(**id))
         .map(|((file, family, key), ps)| {
             let entry = serde_json::json!({
                 "file": file, "family": family, "key": key, "count": ps.len()
@@ -167,12 +213,10 @@ fn corpus_matches_python() {
         .collect();
     let miscounted: Vec<String> = known
         .iter()
-        .filter_map(|(file, family, key, count)| {
-            let n = found
-                .get(&(file.as_str(), family.as_str(), key.as_str()))
-                .map_or(0, Vec::len);
-            (n as u64 != *count)
-                .then(|| format!("{file} {family} {key:?}: {count} listed, {n} found"))
+        .zip(&matched)
+        .filter(|((.., count), n)| *n != count)
+        .map(|((file, family, key, faces, count), n)| {
+            format!("{file} {family} {key:?} {faces:?}: {count} listed, {n} found")
         })
         .collect();
     assert!(
@@ -304,12 +348,15 @@ fn check_kernel(
                 }
                 _ => format!("uv_bounds {kind:?}"),
             };
-            problems.push(Problem::new(
-                name,
-                "kernel",
-                key,
-                format!("face {face} ({kind:?}) {got_json} vs {want:?}"),
-            ));
+            problems.push(
+                Problem::new(
+                    name,
+                    "kernel",
+                    key,
+                    format!("face {face} ({kind:?}) {got_json} vs {want:?}"),
+                )
+                .on(face.to_string()),
+            );
         }
     }
     for pair in kernel["arcs"].as_array().unwrap() {
@@ -319,12 +366,15 @@ fn check_kernel(
         );
         let got = part.arc(a, b).map(|arc| format!("{arc:?}").to_lowercase());
         if got.as_deref() != pair[2].as_str() {
-            problems.push(Problem::new(
-                name,
-                "kernel",
-                "arcs",
-                format!("faces {a}-{b} {got:?} vs {}", pair[2]),
-            ));
+            problems.push(
+                Problem::new(
+                    name,
+                    "kernel",
+                    "arcs",
+                    format!("faces {a}-{b} {got:?} vs {}", pair[2]),
+                )
+                .on(format!("{a}-{b}")),
+            );
         }
     }
 }

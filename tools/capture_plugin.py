@@ -228,18 +228,27 @@ def pytest_sessionfinish(session, exitstatus):
         if not (c["function"] in TARGETS and c["test"].split("::")[0] in _rerun_files)
     ]
     merged = kept + _calls
-    # Skipped calls are replaced the same way. The old form (counts keyed by function and
-    # exception type, no test) cannot be merged per test file, so it must be wholly replaced.
+    # Skipped calls are replaced the same way. The old form (counts keyed
+    # "<function>: <reason>", no test) cannot be split per test file: a function being
+    # recaptured drops its old counts, and every other function's are carried over unchanged as
+    # entries {function, test: null, reason, count}. captured.rs pins the per-family totals, so a
+    # partial recapture that loses old skips shows up there.
     previous_skipped = previous.get("skipped", [])
     if isinstance(previous_skipped, dict):
-        stale = sorted({k.split(":")[0] for k in previous_skipped} - set(TARGETS))
-        if stale:
-            raise RuntimeError(f"recapture these too; their skips predate test ids: {stale}")
+        legacy = previous_skipped
         previous_skipped = []
+        for key, count in legacy.items():
+            function, reason = key.split(":", 1)
+            previous_skipped.append(
+                {"function": function, "test": None, "reason": reason.strip(), "count": count}
+            )
     skipped = [
         s
         for s in previous_skipped
-        if not (s["function"] in TARGETS and s["test"].split("::")[0] in _rerun_files)
+        if not (
+            s["function"] in TARGETS
+            and (s["test"] is None or s["test"].split("::")[0] in _rerun_files)
+        )
     ] + _skipped
     manifest.write_text(
         json.dumps({"calls": merged, "skipped": skipped}, indent=1, allow_nan=False) + "\n"
