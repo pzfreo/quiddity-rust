@@ -7,39 +7,56 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 
 **Status: prototype.** Ported so far, each checked against Python call by call:
 
-| Family | Python entry point | Captured test calls | Corpus |
-|---|---|---|---|
-| Fillets | `recognise_fillets` | 108/109 match (1 known divergence) | see below |
-| Holes | `recognise_holes` | 211/214 match (3 known divergences) | see below |
-| Chamfers | `recognise_chamfers` | 107/107 | see below |
-| Countersinks | `recognise_countersinks` | 77/77 | see below |
-| Angled steps | `recognise_angled_steps` | 105/105 | see below |
-| Flats | `recognise_flats` | 88/88 | see below |
-| Paired ramp steps | `recognise_paired_ramp_steps` | 109/109 | see below |
-| Bosses | `recognise_bosses` | 133/133 | see below |
-| Hole patterns | `recognise_hole_patterns` | 470/470 | see below |
-| Oriented chamfers | `recognise_oriented_chamfers` | 15/15 | see below |
-| Face levels | `recognise_face_levels` | 36/36 | — |
-| Risers | `recognise_risers` | 66/66 | — |
-| Circular face patterns | `recognise_circular_face_patterns` | 5/5 | see below |
-| Thin-wall bodies | `recognise_thin_wall_bodies` | 10/14 (4 known divergences) | see below |
-| Interior voids | `recognise_interior_voids` | 6/6 | see below |
-| Through steps | `recognise_through_steps` | 141/141 | see below |
-| Oblique through steps | `recognise_oblique_through_steps` | 10/10 | see below |
-| Circular blind steps | `recognise_circular_blind_steps` | 36/36 | see below |
-| Turned steps | `recognise_turned_steps` | 286/287 (1 known divergence) | see below |
-| Round-bottom blind slots | `recognise_round_bottom_blind_slots` | 25/27 (2 known divergences) | see below |
-| Rectangular blind slots | `recognise_rectangular_blind_slots` | 21/23 (2 known divergences) | see below |
-| Gusset ribs | `recognise_gusset_ribs` | 26/26 | see below |
-| Gusset rib patterns | `recognise_gusset_rib_patterns` | 18/18 | see below |
-| Grooves | `recognise_grooves` | 71/72 (1 known divergence) | see below |
-| Plates | `recognise_plates` | 175/178 (3 known divergences) | see below |
-| Double-D bores | `recognise_double_d_bores` | 71/78 (7 known divergences) | see below |
-| Edge-open circular pockets | `recognise_edge_open_circular_pockets` | 9/9 | see below |
-| Edge-open prismatic recesses | `recognise_edge_open_prismatic_recesses` | 23/23 | see below |
+| Family | Python entry point | Captured test calls | Not captured | Corpus runs |
+|---|---|---|---|---|
+| Fillets | `recognise_fillets` | 108/109 match (1 known divergence) | 0 | 199/200 (1 known) |
+| Holes | `recognise_holes` | 211/214 match (3 known divergences) | 0 | 190/200 (10 known) |
+| Chamfers | `recognise_chamfers` | 107/107 | 0 | 200/200 |
+| Countersinks | `recognise_countersinks` | 77/77 | 0 | 100/100 |
+| Angled steps | `recognise_angled_steps` | 105/105 | 0 | 100/100 |
+| Flats | `recognise_flats` | 88/88 | 0 | 99/100 (1 known) |
+| Paired ramp steps | `recognise_paired_ramp_steps` | 109/109 | 0 | 100/100 |
+| Bosses | `recognise_bosses` | 133/133 | 0 | 100/100 |
+| Hole patterns | `recognise_hole_patterns` | 470/470 | 0 | 99/100 (1 known) |
+| Oriented chamfers | `recognise_oriented_chamfers` | 15/15 | 0 | 100/100 |
+| Face levels | `recognise_face_levels` | 36/36 | 0 | — |
+| Risers | `recognise_risers` | 66/66 | 0 | — |
+| Circular face patterns | `recognise_circular_face_patterns` | 5/5 | 0 | 99/100 (1 known) |
+| Thin-wall bodies | `recognise_thin_wall_bodies` | 10/14 (4 known divergences) | 0 | 97/100 (3 known) |
+| Interior voids | `recognise_interior_voids` | 6/6 | 2 | 98/100 (2 known) |
+| Through steps | `recognise_through_steps` | 141/141 | 7 | 100/100 |
+| Oblique through steps | `recognise_oblique_through_steps` | 10/10 | 1 | 100/100 |
+| Circular blind steps | `recognise_circular_blind_steps` | 36/36 | 2 | 100/100 |
+| Turned steps | `recognise_turned_steps` | 286/287 (1 known divergence) | 18 | 98/100 (2 known) |
+| Round-bottom blind slots | `recognise_round_bottom_blind_slots` | 25/27 (2 known divergences) | 1 | 100/100 |
+| Rectangular blind slots | `recognise_rectangular_blind_slots` | 21/23 (2 known divergences) | 1 | 100/100 |
+| Gusset ribs | `recognise_gusset_ribs` | 26/26 | 0 | 100/100 |
+| Gusset rib patterns | `recognise_gusset_rib_patterns` | 18/18 | 0 | 100/100 |
+| Grooves | `recognise_grooves` | 71/72 (1 known divergence) | 3 | 99/100 (1 known) |
+| Plates | `recognise_plates` | 175/178 (3 known divergences) | 4 | 98/100 (2 known) |
+| Double-D bores | `recognise_double_d_bores` | 71/78 (7 known divergences) | 1 | 100/100 |
+| Edge-open circular pockets | `recognise_edge_open_circular_pockets` | 9/9 | 0 | 100/100 |
+| Edge-open prismatic recesses | `recognise_edge_open_prismatic_recesses` | 23/23 | 2 | 100/100 |
 
-Known divergences are listed, with reasons, in `tests/fixtures/captured/known_divergences.json`
-(captured calls) and `tests/fixtures/known_divergences.json` (corpus).
+*Captured test calls*: the Python suite's calls replayed by `tests/captured.rs`. *Not captured*:
+calls the suite makes that the capture could not record, outside the replay and pinned by it
+(`tools/capture_plugin.py` now lists each with its test and reason; the counts here predate
+that). *Corpus runs*: runs whose records match Python's over the 100-file
+corpus in `tests/corpus.rs` (one per file and option set; face levels and risers are not in the
+corpus export). Every difference, in records, defining faces or kernel answers, is listed with
+its verdict and reason in a verdict file:
+
+| Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
+|---|---|---|---|---|---|---|---|
+| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 123 (895 problems) | 62 | 14 | 13 | 34 | 0 |
+| `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 23 (24 calls) | 4 | 0 | 1 | 2 | 16 |
+| `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 4 | 0 | 4 | 0 | 0 | 0 |
+| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 19 | 3 | 16 | 0 | 0 | 0 |
+| `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 23 | 6 | 0 | 0 | 17 | 0 |
+| `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 65 | 13 | 0 | 0 | 52 | 0 |
+
+The undetermined entries are the backlog: differences not yet shown to be either side's error.
+The rust-wrong entries are known port defects.
 
 The kernel also answers the questions the unported families ask of OpenCascade's booleans,
 checked against every one Python asks over the corpus: the volume a probe shares with a solid
@@ -193,8 +210,12 @@ QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release
    match arms in `tests/common/mod.rs` (`recognise`, and `defining` for an evidence path), a
    `#[test]` in `tests/captured.rs`, the family in `tests/invariance.rs`, and a row in the table
    above.
-4. **Explain every difference** that remains in the relevant `known_divergences.json`; the
-   tests fail on any unexplained difference and on any listed one that has disappeared.
+4. **Explain every difference** that remains in the relevant `known_divergences.json`. An entry
+   names its difference exactly (the corpus: file, family and problem key; captured calls: test
+   node, file and options) with how many problems it covers; the tests fail on any unexplained
+   difference, on a count that changed, and on two entries for one difference, and a failing
+   run prints the entries it needs (the formats are described at the top of `tests/corpus.rs`
+   and `tests/captured.rs`).
 
 Float comparison: values must agree to one part in a million (sub-micron at part scale);
 Python-rounded fields agree exactly. Below that the kernels' parameter-range arithmetic
@@ -202,11 +223,11 @@ differs in its last digits.
 
 ## Beyond parity
 
-Matching Python is a stepping stone; the goal is the right answer. Every listed difference
-(`known_divergences.json` in both fixture directories, and `known_invariance.json`) carries a
-`verdict`: `rust-correct` (the port has the true geometry, and the reason gives the evidence),
-`rust-wrong` (a port limitation), `equivalent` (one geometry, two representations),
-`undetermined`, or `not-applicable`. The tests refuse an entry without one.
+Matching Python is a stepping stone; the goal is the right answer. Every listed difference (the
+verdict files in the table above) carries a `verdict`: `rust-correct` (the port has the true
+geometry, and the reason gives the evidence), `rust-wrong` (a port limitation), `equivalent`
+(one geometry, two representations), `undetermined`, or `not-applicable`. The tests refuse an
+entry without one.
 
 `tests/invariance.rs` checks what Python cannot vouch for: every corpus part is re-read moved by
 a translation and right-angle rotations (`read_step_placed`), and each family must find the same
@@ -230,10 +251,11 @@ an exact repeat measures 0, as in Python; on parts whose copies are parameterise
 (and so is not part of the pattern) is decided exactly: Python's mesh test answers by whether
 its point counts happen to divide by the pattern count.
 
-The corpus test also checks kernel answers directly against OpenCascade: every face's
-`BRepTools::UVBounds`, the arc between every pair of neighbours, and every solid's volume and
-area (to 1e-9; the files that differ all have B-spline geometry, and each records its worst
-difference as a power of ten).
+The corpus test also checks kernel answers directly against OpenCascade on every file: every
+solid's volume and area (to 1e-9; a file that differs records its worst difference as a power
+of ten) and, wherever the faces align with OpenCascade's (99 of 100 files; 13975's are
+reordered by its healing), every face's `BRepTools::UVBounds` and the arc between every pair of
+neighbours.
 
 ## Notes on matching OpenCascade
 
