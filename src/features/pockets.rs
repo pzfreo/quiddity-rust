@@ -39,8 +39,9 @@ fn occurrence(proposal: Proposal<Pocket>) -> (Occurrence<Pocket>, Vec<usize>) {
     (found, members.into_iter().collect())
 }
 
-/// Every pocket with its faces, in (width, centre) order. Competing caps at one end leave the
-/// record unextended here, as `recognise_pockets` does.
+/// Every pocket with its faces, in (width, centre) order. Competing caps at one end do not
+/// refuse here: the record is extended from the first matching cap cluster at each end and
+/// keeps only those clusters, as `recognise_pockets` does (`strict_cap_ambiguity=False`).
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Pocket>> {
     body_scoped(ctx, |ctx, solid| pocket_proposals(ctx, solid, false))
         .unwrap_or_else(|_| unreachable!("only a strict scan refuses"))
@@ -55,11 +56,11 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Pocket>> {
 /// published once.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<Pocket>>, EvidenceError> {
     let proposals = body_scoped(ctx, |ctx, solid| pocket_proposals(ctx, solid, true))
-        .map_err(|_| EvidenceError::SharedEvidence)?;
+        .map_err(|_| EvidenceError::CompetingCaps)?;
     let mut pending: Vec<(Occurrence<Pocket>, Vec<usize>, usize)> = Vec::new();
     for proposal in proposals {
         if !proposal.record.edge_anchored && proposal.floors.is_empty() {
-            return Err(EvidenceError::NoValidSolid);
+            return Err(EvidenceError::MissingFloor);
         }
         let (found, members) = occurrence(proposal);
         if found.defining.is_empty() {

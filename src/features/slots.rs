@@ -24,8 +24,9 @@ fn occurrence(proposal: Proposal<Slot>) -> Occurrence<Slot> {
     }
 }
 
-/// Every slot with its walls and caps, in (width, centre) order. Competing caps at one end
-/// leave the record unextended here, as `recognise_slots` does.
+/// Every slot with its walls and caps, in (width, centre) order. Competing caps at one end do
+/// not refuse here: the record is extended from the first matching cap cluster at each end and
+/// keeps only those clusters, as `recognise_slots` does (`strict_cap_ambiguity=False`).
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Slot>> {
     body_scoped(ctx, |ctx, solid| slot_proposals(ctx, solid, false))
         .unwrap_or_else(|_| unreachable!("only a strict scan refuses"))
@@ -39,7 +40,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Slot>> {
 /// found twice from the same faces is published once.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<Slot>>, EvidenceError> {
     let proposals = body_scoped(ctx, |ctx, solid| slot_proposals(ctx, solid, true))
-        .map_err(|_| EvidenceError::SharedEvidence)?;
+        .map_err(|_| EvidenceError::CompetingCaps)?;
     let mut pending: Vec<(Occurrence<Slot>, usize)> = Vec::new();
     for proposal in proposals {
         let found = occurrence(proposal);
