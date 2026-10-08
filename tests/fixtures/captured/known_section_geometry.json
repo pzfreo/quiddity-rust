@@ -1,0 +1,15 @@
+[
+  {
+    "case": "pockets",
+    "file": "parts/ad6b2e8c83c0d1ab.step.gz",
+    "verdict": "rust-wrong",
+    "reason": "test_tiny_source_axis_tilt_cannot_exceed_public_displacement_budget: a 1.6e6-long cylinder tilted 5e-9 rad, cut by a 1.2e6-long pocket. Python proves the end; the port refuses it because one wall of the original faces fails to cover the cell's side: the end wall at x = 600000 has its crest vertex at z = 20.0, 0.003 below its own two circle edges (circle origin z 0.003000000048, radius 20, so the crest is at 20.003), which OpenCascade's vertex tolerance absorbs. haecceity pins edge samples to their vertices, so the wall's sampled boundary dips 0.003 at the crest and leaves about 3e-4 of the exactly built side uncovered (above covered_patch's 1e-9 of the area). The cell's own geometry agrees with the file's other edges to 1e-12; the difference is the kernel reading an off-curve vertex, not the proof."
+  },
+  {
+    "case": "pocket_call",
+    "file": "parts/ad6b2e8c83c0d1ab.step.gz",
+    "floor": 7,
+    "verdict": "rust-wrong",
+    "reason": "The same refusal as this part's `pockets` entry, asked of floor 7 on its own: the end wall's crest vertex lies 0.003 below its own circle edges (OpenCascade's vertex tolerance), haecceity pins the wall's samples to it, and the wall then leaves part of the exactly built cell side uncovered."
+  }
+]
