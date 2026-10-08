@@ -1,0 +1,13 @@
+[
+ {
+  "answers": {
+   "diameter.fit:turned_steps:0": "thread:M10",
+   "diameter.fit:turned_steps:4": "knurl:straight",
+   "diameter.fit:turned_steps:6": "h6",
+   "diameter.runout:turned_steps:6": "0.05",
+   "part.general_tolerance": "ISO 2768-m",
+   "part.material": "Steel C45"
+  },
+  "part": null
+ }
+]

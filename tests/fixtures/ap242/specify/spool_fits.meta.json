@@ -1,0 +1,30 @@
+{
+ "case": "spool_fits",
+ "command": "specify-core analyse [--part N]; specify-core write --accept-defaults --intent",
+ "input": "corpus:cadgenbench/flanged_spool_132.step",
+ "input_sha256": "58dfe8a594a5afe64652ea127807ad6141812e2e1d2556d429f6a42e4ec46747",
+ "not_byte_for_byte": "the STEP header FILE_NAME time stamp",
+ "specify_core": "cc341dd6eaea84428d9bcf34915a7bffd78fecdb",
+ "write_report": {
+  "not_written": [],
+  "warnings": [],
+  "written": [
+   "datum A",
+   "datum B",
+   "Ø62 H7 on holes:34.55",
+   "Ø10 H11 on hole_patterns.bolt_circle:0.16.17.18.20.21",
+   "position 0.2 MMC on hole_patterns.bolt_circle:0.16.17.18.20.21",
+   "Ø130 g6 on turned_steps:87",
+   "Ø130 g6 on turned_steps:70",
+   "runout 0.02 on turned_steps:87",
+   "runout 0.02 on turned_steps:70",
+   "Ø70 f7 on turned_steps:89",
+   "flatness 0.02 on [69]",
+   "perpendicularity 0.05 on datum B",
+   "material Aluminium 6082-T6",
+   "general tolerance ISO 2768-m",
+   "surface finish Ra 3.2",
+   "edges Break sharp edges 0.2 max"
+  ]
+ }
+}

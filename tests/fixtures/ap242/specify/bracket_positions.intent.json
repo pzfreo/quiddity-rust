@@ -1,0 +1,559 @@
+{
+ "schema": 1,
+ "rules_version": 1,
+ "binding": {
+  "source_sha256": "0b2c689b1ec09c362c334a9b6c9714a5e4d658295f7f16078f5588472721dd26",
+  "face_count": 286,
+  "loader_version": 2,
+  "part": 0
+ },
+ "part": {
+  "material": "Aluminium 6061-T6",
+  "general_tolerance": "ISO 2768-m",
+  "surface_finish": "Ra 3.2",
+  "edges": "Break sharp edges 0.2 max"
+ },
+ "datums": [
+  {
+   "letter": "A",
+   "faces": [
+    268
+   ],
+   "question": "datum.A"
+  },
+  {
+   "letter": "B",
+   "faces": [
+    238
+   ],
+   "question": "datum.B"
+  },
+  {
+   "letter": "C",
+   "faces": [
+    262
+   ],
+   "question": "datum.C"
+  }
+ ],
+ "requirements": [
+  {
+   "kind": "size",
+   "feature": "hole_patterns.set:233.239.240",
+   "faces": [
+    239,
+    233,
+    240
+   ],
+   "nominal": 10.0,
+   "fit": "H11",
+   "upper": 0.09,
+   "lower": 0.0,
+   "clearance_for": "M8",
+   "question": "hole.function:hole_patterns.set:233.239.240"
+  },
+  {
+   "kind": "location",
+   "feature": "holes:239",
+   "faces": [
+    239
+   ],
+   "reference": [
+    268
+   ],
+   "distance": 15.0,
+   "basic": true,
+   "question": "hole.position:hole_patterns.set:233.239.240"
+  },
+  {
+   "kind": "location",
+   "feature": "holes:239",
+   "faces": [
+    239
+   ],
+   "reference": [
+    262
+   ],
+   "distance": 130.830965,
+   "basic": true,
+   "question": "hole.position:hole_patterns.set:233.239.240"
+  },
+  {
+   "kind": "location",
+   "feature": "holes:233",
+   "faces": [
+    233
+   ],
+   "reference": [
+    268
+   ],
+   "distance": 33.511884,
+   "basic": true,
+   "question": "hole.position:hole_patterns.set:233.239.240"
+  },
+  {
+   "kind": "location",
+   "feature": "holes:233",
+   "faces": [
+    233
+   ],
+   "reference": [
+    262
+   ],
+   "distance": 91.431242,
+   "basic": true,
+   "question": "hole.position:hole_patterns.set:233.239.240"
+  },
+  {
+   "kind": "location",
+   "feature": "holes:240",
+   "faces": [
+    240
+   ],
+   "reference": [
+    268
+   ],
+   "distance": 15.0,
+   "basic": true,
+   "question": "hole.position:hole_patterns.set:233.239.240"
+  },
+  {
+   "kind": "location",
+   "feature": "holes:240",
+   "faces": [
+    240
+   ],
+   "reference": [
+    262
+   ],
+   "distance": 53.581352,
+   "basic": true,
+   "question": "hole.position:hole_patterns.set:233.239.240"
+  },
+  {
+   "kind": "position",
+   "feature": "hole_patterns.set:233.239.240",
+   "faces": [
+    239,
+    233,
+    240
+   ],
+   "tolerance": 0.2,
+   "diametral": true,
+   "datums": [
+    "A",
+    "B",
+    "C"
+   ],
+   "mmc": true,
+   "question": "hole.position:hole_patterns.set:233.239.240"
+  },
+  {
+   "kind": "size",
+   "feature": "hole_patterns.set:234.235.236",
+   "faces": [
+    234,
+    235,
+    236
+   ],
+   "nominal": 10.0,
+   "fit": "H11",
+   "upper": 0.09,
+   "lower": 0.0,
+   "clearance_for": "M8",
+   "question": "hole.function:hole_patterns.set:234.235.236"
+  },
+  {
+   "kind": "location",
+   "feature": "holes:234",
+   "faces": [
+    234
+   ],
+   "reference": [
+    268
+   ],
+   "distance": 74.942704,
+   "basic": true,
+   "question": "hole.position:hole_patterns.set:234.235.236"
+  },
+  {
+   "kind": "location",
+   "feature": "holes:234",
+   "faces": [
+    234
+   ],
+   "reference": [
+    262
+   ],
+   "distance": 10.0,
+   "basic": true,
+   "question": "hole.position:hole_patterns.set:234.235.236"
+  },
+  {
+   "kind": "location",
+   "feature": "holes:235",
+   "faces": [
+    235
+   ],
+   "reference": [
+    268
+   ],
+   "distance": 39.968788,
+   "basic": true,
+   "question": "hole.position:hole_patterns.set:234.235.236"
+  },
+  {
+   "kind": "location",
+   "feature": "holes:235",
+   "faces": [
+    235
+   ],
+   "reference": [
+    262
+   ],
+   "distance": 10.0,
+   "basic": true,
+   "question": "hole.position:hole_patterns.set:234.235.236"
+  },
+  {
+   "kind": "location",
+   "feature": "holes:236",
+   "faces": [
+    236
+   ],
+   "reference": [
+    268
+   ],
+   "distance": 60.770641,
+   "basic": true,
+   "question": "hole.position:hole_patterns.set:234.235.236"
+  },
+  {
+   "kind": "location",
+   "feature": "holes:236",
+   "faces": [
+    236
+   ],
+   "reference": [
+    262
+   ],
+   "distance": 98.816351,
+   "basic": true,
+   "question": "hole.position:hole_patterns.set:234.235.236"
+  },
+  {
+   "kind": "position",
+   "feature": "hole_patterns.set:234.235.236",
+   "faces": [
+    234,
+    235,
+    236
+   ],
+   "tolerance": 0.5,
+   "diametral": true,
+   "datums": [
+    "A",
+    "B",
+    "C"
+   ],
+   "mmc": true,
+   "question": "hole.position:hole_patterns.set:234.235.236"
+  },
+  {
+   "kind": "flatness",
+   "faces": [
+    268
+   ],
+   "tolerance": 0.05,
+   "question": "datum.A.flatness"
+  },
+  {
+   "kind": "perpendicularity",
+   "feature": "datum B",
+   "faces": [
+    238
+   ],
+   "tolerance": 0.05,
+   "diametral": false,
+   "datums": [
+    "A"
+   ],
+   "question": "datum.B.control"
+  },
+  {
+   "kind": "perpendicularity",
+   "feature": "datum C",
+   "faces": [
+    262
+   ],
+   "tolerance": 0.1,
+   "diametral": false,
+   "datums": [
+    "A",
+    "B"
+   ],
+   "question": "datum.C.control"
+  }
+ ],
+ "general": [
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    149
+   ],
+   "reference": [
+    238
+   ],
+   "distance": 3.0,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    267,
+    269
+   ],
+   "reference": [
+    238
+   ],
+   "distance": 5.0,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    171,
+    173
+   ],
+   "reference": [
+    238
+   ],
+   "distance": 8.0,
+   "upper": 0.2,
+   "lower": -0.2,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    237
+   ],
+   "reference": [
+    238
+   ],
+   "distance": 30.0,
+   "upper": 0.2,
+   "lower": -0.2,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    148
+   ],
+   "reference": [
+    238
+   ],
+   "distance": 33.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    247,
+    250
+   ],
+   "reference": [
+    238
+   ],
+   "distance": 50.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    156,
+    273
+   ],
+   "reference": [
+    238
+   ],
+   "distance": 53.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    251,
+    270,
+    271,
+    272
+   ],
+   "reference": [
+    238
+   ],
+   "distance": 65.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    154
+   ],
+   "reference": [
+    245
+   ],
+   "distance": 3.0,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    159
+   ],
+   "reference": [
+    252
+   ],
+   "distance": 3.0,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    161
+   ],
+   "reference": [
+    255
+   ],
+   "distance": 3.0,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    162
+   ],
+   "reference": [
+    257
+   ],
+   "distance": 3.0,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    165
+   ],
+   "reference": [
+    260
+   ],
+   "distance": 3.0,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    167
+   ],
+   "reference": [
+    262
+   ],
+   "distance": 3.0,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    168
+   ],
+   "reference": [
+    263
+   ],
+   "distance": 3.0,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    169
+   ],
+   "reference": [
+    264
+   ],
+   "distance": 3.0,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    170
+   ],
+   "reference": [
+    265
+   ],
+   "distance": 3.0,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    172
+   ],
+   "reference": [
+    268
+   ],
+   "distance": 3.0,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  }
+ ]
+}

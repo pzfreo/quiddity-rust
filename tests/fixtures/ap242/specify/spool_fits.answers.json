@@ -1,0 +1,18 @@
+[
+ {
+  "answers": {
+   "datum.A.flatness": "0.02",
+   "datum.B.control": "0.05",
+   "diameter.fit:turned_steps:87": "g6",
+   "diameter.fit:turned_steps:89": "f7",
+   "diameter.runout:turned_steps:87": "0.02",
+   "hole.function:hole_patterns.bolt_circle:0.16.17.18.20.21": "clearance:M8",
+   "hole.function:holes:34.55": "fit:H7",
+   "hole.position:hole_patterns.bolt_circle:0.16.17.18.20.21": "0.2",
+   "part.general_tolerance": "ISO 2768-m",
+   "part.locating": "position tolerances",
+   "part.material": "Aluminium 6082-T6"
+  },
+  "part": null
+ }
+]

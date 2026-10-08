@@ -1,0 +1,10 @@
+[
+ {
+  "answers": {
+   "datum.B.control": "0.05",
+   "part.general_tolerance": "ISO 2768-m",
+   "part.material": "Aluminium 6082-T6"
+  },
+  "part": null
+ }
+]
