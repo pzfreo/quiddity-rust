@@ -366,7 +366,7 @@ never a silent fix):
    unsupported PMI entities (by id and type), nonconformances read through and how (NIST
    FTC-10's `LIMITS_AND_FITS('G6','hole','','')`), unresolved references, unitless measures,
    PMI on an assembly product definition or an occurrence path (out of scope, never
-   misattributed), and constructs whose practice is undetermined (material). `provenance` lists,
+   misattributed), and constructs in a form the reader does not know. `provenance` lists,
    per part and per model item, the instance ids it consumed. Accounting: every
    semantic-PMI-family instance of the file is consumed or in a finding. Presentation is counted
    as presentation, not interpreted. A part placed twice is one part, read once.
