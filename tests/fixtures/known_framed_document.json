@@ -1174,5 +1174,341 @@
     "verdict": "equivalent",
     "reason": "Equivalent: only flat-face triangulation vertices of the flat pattern differ (by up to 0.06 mm), and the same happens between placements of the part (this file's translate, rot_zx_moved and generic_framed entries): the kernel's plane triangulation samples the curved boundary at placement-dependent points; the development itself is the same. The fingerprint ignores flat_pattern for this reason.",
     "max_differing": 1
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/1000.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp/10000.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10020.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp/10033.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10038.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/1004.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10046.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10047.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10049.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10063.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/1007.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10098.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10103.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10127.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10138.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10146.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10167.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/1017.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10170.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10190.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10212.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10245.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10278.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/118.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 4
+  },
+  {
+    "file": "mfcadpp_holdout/16943.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/181.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/196.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/200.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp_holdout/20273.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/203.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp_holdout/205.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/229.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/244.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/257.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/265.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/274.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/317.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 4
+  },
+  {
+    "file": "mfcadpp_holdout/340.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/464.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/467.step",
+    "check": "caller_space",
+    "family": "oriented_slots",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same slot. Its source passage's frame (run sense, u and v) is chosen canonically by the dominant component of the run, and its width and long directions by their largest component, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the width direction are the same geometry expressed with the other senses (as this part's section_passages entry).",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/808.step",
+    "check": "caller_space",
+    "family": "prismatic_pockets",
+    "verdict": "equivalent",
+    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
+    "max_differing": 1
   }
 ]
