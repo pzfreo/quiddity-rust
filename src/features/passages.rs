@@ -12,8 +12,9 @@
 //! body, a serialisation that moves the geometry, an irreproducible legacy value): here those are
 //! [`PassageError`] refusals, never a silent drop. Python's `ledger` argument to
 //! `recognise_passages` is retired there (`PassageCompatibilityError`) and has no counterpart.
-//! Python's opt-in `local_degradation` graph mode, which skips proposals without a common valid
-//! solid on the evidence path, is not ported: no captured call or corpus part runs in it.
+//! Python's `local_degradation` graph mode, which skips proposals without a common valid solid
+//! on the evidence path, is not ported: the default inventory retries in it on three corpus
+//! parts, and this family's check of the flag is reached on none of them (`tests/local_degradation.rs`).
 
 use std::fmt;
 

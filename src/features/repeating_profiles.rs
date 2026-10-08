@@ -9,8 +9,8 @@
 //! exact curve.
 //!
 //! Python's `local_degradation` path (an occurrence without one valid solid skipped rather than
-//! refused) is not ported: only `quiddity.document` turns it on, and no captured call or corpus
-//! run reaches it.
+//! refused) is not ported: the default inventory retries degraded on three corpus parts, and
+//! this family's check of the flag is reached on none of them (`tests/local_degradation.rs`).
 
 use std::cmp::Ordering;
 use std::collections::BTreeSet;

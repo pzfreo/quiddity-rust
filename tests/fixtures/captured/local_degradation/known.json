@@ -1,0 +1,133 @@
+[
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "kind": "retry",
+    "reason": "Python retries because its strict hole evidence refuses on a solid BRepCheck calls invalid. OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid (on face 1654, the capture's bad_face_status) after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid, as for this file's evidence entries in known_divergences.json (recognise_holes, recognise_fillets, rust-correct).",
+    "rust": false,
+    "verdict": "rust-correct"
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "kind": "retry",
+    "reason": "A deliberately malformed corpus part: OpenCascade's BRepCheck reports BRepCheck_BadOrientationOfSubshape on face 1 (the capture's bad_face_status), a geometric fault the port's topological validity check (closed, orientable) does not look for, as for this file's hole, boss and plate entries in known_divergences.json (rust-wrong). The port calls the solid valid, its strict hole evidence passes, and it does not reach the retry.",
+    "rust": false,
+    "verdict": "rust-wrong"
+  },
+  {
+    "faces": [
+      698,
+      2091,
+      2092
+    ],
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "function": "_discover_fillets",
+    "kind": "skip",
+    "module": "fillets",
+    "reason": "Python skips this fillet because it touches the bad-face region (unsafe faces 700, 1217, 1653, 1654, 2087, 2091) of a solid it admits as locally degraded; the port publishes it on a solid it calls valid. OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid (on face 1654, the capture's bad_face_status) after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid, as for this file's evidence entries in known_divergences.json (recognise_holes, recognise_fillets, rust-correct).",
+    "rust": "published",
+    "verdict": "rust-correct"
+  },
+  {
+    "faces": [
+      1627,
+      2091,
+      2139
+    ],
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "function": "_discover_fillets",
+    "kind": "skip",
+    "module": "fillets",
+    "reason": "Python skips this fillet because it touches the bad-face region (unsafe faces 700, 1217, 1653, 1654, 2087, 2091) of a solid it admits as locally degraded; the port publishes it on a solid it calls valid. OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid (on face 1654, the capture's bad_face_status) after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid, as for this file's evidence entries in known_divergences.json (recognise_holes, recognise_fillets, rust-correct).",
+    "rust": "published",
+    "verdict": "rust-correct"
+  },
+  {
+    "faces": [
+      8,
+      9,
+      10
+    ],
+    "file": "inventory_refusal/13975.step.gz",
+    "function": "_discover_pockets",
+    "kind": "skip",
+    "module": "_recess_features",
+    "reason": "Python's degraded run skips the two pockets (OpenCascade's import of this non-orientable shell yields no solid, so no face is owned by exactly one solid) and the inventory completes; the port reads the file's one solid, finds it not orientable, and its strict pocket evidence path refuses every pocket, since pockets.rs has no locally degraded path. Neither side vouches for these pockets; the port refuses where Python skips. Porting the skip needs src/features/pockets.rs, which unmerged w3/q-hygiene-r6 changes.",
+    "rust": "refused",
+    "verdict": "rust-wrong"
+  },
+  {
+    "faces": [
+      11,
+      12,
+      13
+    ],
+    "file": "inventory_refusal/13975.step.gz",
+    "function": "_discover_pockets",
+    "kind": "skip",
+    "module": "_recess_features",
+    "reason": "Python's degraded run skips the two pockets (OpenCascade's import of this non-orientable shell yields no solid, so no face is owned by exactly one solid) and the inventory completes; the port reads the file's one solid, finds it not orientable, and its strict pocket evidence path refuses every pocket, since pockets.rs has no locally degraded path. Neither side vouches for these pockets; the port refuses where Python skips. Porting the skip needs src/features/pockets.rs, which unmerged w3/q-hygiene-r6 changes.",
+    "rust": "refused",
+    "verdict": "rust-wrong"
+  },
+  {
+    "faces": [
+      2
+    ],
+    "file": "inventory_refusal/13975.step.gz",
+    "function": "_discover_risers",
+    "kind": "skip",
+    "module": "levels",
+    "reason": "Python's levels skip this face level or riser in the degraded run (its face is one of the loose shell's, which OpenCascade's import leaves without a solid). The port's face levels and risers are measurements with no evidence path and are not in the corpus export, so there is no record to compare.",
+    "rust": "no evidence path",
+    "verdict": "not-applicable"
+  },
+  {
+    "faces": [
+      8
+    ],
+    "file": "inventory_refusal/13975.step.gz",
+    "function": "_discover_step_levels",
+    "kind": "skip",
+    "module": "levels",
+    "reason": "Python's levels skip this face level or riser in the degraded run (its face is one of the loose shell's, which OpenCascade's import leaves without a solid). The port's face levels and risers are measurements with no evidence path and are not in the corpus export, so there is no record to compare.",
+    "rust": "no evidence path",
+    "verdict": "not-applicable"
+  },
+  {
+    "faces": [
+      11
+    ],
+    "file": "inventory_refusal/13975.step.gz",
+    "function": "_discover_step_levels",
+    "kind": "skip",
+    "module": "levels",
+    "reason": "Python's levels skip this face level or riser in the degraded run (its face is one of the loose shell's, which OpenCascade's import leaves without a solid). The port's face levels and risers are measurements with no evidence path and are not in the corpus export, so there is no record to compare.",
+    "rust": "no evidence path",
+    "verdict": "not-applicable"
+  },
+  {
+    "faces": [
+      8,
+      18
+    ],
+    "file": "inventory_refusal/14052.step.gz",
+    "function": "_discover_holes",
+    "kind": "skip",
+    "module": "holes",
+    "reason": "Python skips this hole because it touches face 1's bad-face region in a solid it admits as locally degraded; the port publishes it. A deliberately malformed corpus part: OpenCascade's BRepCheck reports BRepCheck_BadOrientationOfSubshape on face 1 (the capture's bad_face_status), a geometric fault the port's topological validity check (closed, orientable) does not look for, as for this file's hole, boss and plate entries in known_divergences.json (rust-wrong). Python's admission of a solid with at most three bad faces needs a per-face geometric validity check the kernel does not have.",
+    "rust": "published",
+    "verdict": "rust-wrong"
+  },
+  {
+    "faces": [
+      6
+    ],
+    "file": "inventory_refusal/14052.step.gz",
+    "function": "_discover_plates",
+    "kind": "skip",
+    "module": "plates",
+    "reason": "Python skips this plate because face 6 touches face 1's bad-face region in a solid it admits as locally degraded; the port publishes it. A deliberately malformed corpus part: OpenCascade's BRepCheck reports BRepCheck_BadOrientationOfSubshape on face 1 (the capture's bad_face_status), a geometric fault the port's topological validity check (closed, orientable) does not look for, as for this file's hole, boss and plate entries in known_divergences.json (rust-wrong).",
+    "rust": "published",
+    "verdict": "rust-wrong"
+  }
+]
