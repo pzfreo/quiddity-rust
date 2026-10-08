@@ -87,6 +87,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/section_recess/known_differences.json` | `tests/section_recess.rs` | 4 | 0 | 0 | 0 | 0 | 4 |
 | `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 118 (2920 answers) | 98 | 8 | 0 | 9 | 3 |
 | `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 9 | 3 | 3 | 0 | 0 | 3 |
+| `tests/fixtures/captured/reconcile/known.json` | `tests/reconcile.rs` | 26 (0 decisions, 26 motions) | 0 | 4 | 0 | 0 | 22 |
 | `tests/fixtures/known_face_sources.json` | `crates/haecceity/tests/face_sources.rs` | 137 | 93 | 0 | 0 | 43 | 1 |
 | `tests/fixtures/known_pmi.json` "nist" | `crates/haecceity/tests/pmi_read.rs` | 74 | 65 | 0 | 9 | 0 | 0 |
 | `tests/fixtures/known_pmi.json` "occt" | `crates/haecceity/tests/pmi_read.rs` | 403 | 402 | 1 | 0 | 0 | 0 |
@@ -145,6 +146,21 @@ check the kernel does not have. `tests/local_degradation.rs` compares which part
 every skip against the port's evidence paths, with each difference's verdict in
 `captured/local_degradation/known.json`, and checks the degraded holes and pockets under two
 rigid motions.
+
+The aggregate's cross-family reconciliation (`_reconcile_existing`: recess precedence, bevels,
+circular-step fillets, blends, Double-D bores, bosses and turned steps, steps and grooves,
+oriented-slot passages, thin walls) is ported as decisions (`src/features/reconcile.rs`), not yet
+applied: `recognise` still returns every family's records. `tools/capture_reconcile.py` records
+every disposition Python's default inventory makes over the corpus, local-degradation retry
+included (`captured/reconcile/capture.json.gz`): 261 decisions on 62 of 100 parts (127 blends
+superseded by fillets, 27 bosses by turned steps, 27 rings by pockets, 24 fillets by circular
+blind steps, 13 chamfers by angled steps, 10 risers, 9 bosses and 1 plate by thin walls, 10
+pockets by passages, 6 step/groove relations, 7 other recess decisions). `tests/reconcile.rs`
+compares the port's decisions part by part, keyed by family and defining faces, with outcome,
+reason and winners: all 261 agree. Thirteen synthetic scenarios run through Python's own
+`_reconcile_existing` (`captured/reconcile/scenarios.json`) cover the branches the corpus never
+reaches, including a candidate two rules decide, which Python refuses; all agree. Risers, which
+`recognise` does not run, are found for the thin-wall rule with the aggregate's options.
 
 The kernel also answers the questions the unported families ask of OpenCascade's booleans,
 checked against every one Python asks over the corpus: the volume a probe shares with a solid
@@ -338,6 +354,8 @@ src/
     oblique_through_steps.rs  circular_blind_steps.rs
     turned_steps.rs  round_bottom_slots.rs  rectangular_blind_slots.rs  gussets.rs
     grooves.rs  plates.rs  profiled_bores.rs
+    reconcile.rs     the aggregate's cross-family reconciliation decisions (`_reconcile_existing`),
+                     ported but not yet applied to `recognise`'s output
     edge_open.rs     what the two edge-open recess families share: `_rings.SPAN_EPS`, principal
                      planes, the mouth capping a wall chain, and the floor proof by swept-face
                      probes
@@ -453,6 +471,8 @@ tests/
                      parts
   local_degradation.rs  which corpus parts take Python's local-degradation retry and what it
                      skips there, against the port's evidence paths, and under rigid motion
+  reconcile.rs       every reconciliation decision Python's inventory makes over the corpus and
+                     13 synthetic scenarios, against the port's decisions, and under rigid motion
   pads.rs            each pad's top and four walls on Python's evidence-test parts and the golden
                      fixture; tolerances the capture cannot record (NaN, infinity)
   corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity
@@ -557,6 +577,8 @@ tools/
                      (captured/effective_surfaces/)
   capture_local_degradation.py records which corpus parts take Python's local-degradation retry
                      and every record it skips there (captured/local_degradation/)
+  capture_reconcile.py records every disposition Python's default inventory makes over the
+                     corpus, and synthetic scenarios (captured/reconcile/)
   capture_frames.py  records Python's part frames (captured/frames.json, the built parts as
                      STEP in captured/frames/); --compare runs a Python recogniser on a corpus
                      part's framed working part, as read and turned

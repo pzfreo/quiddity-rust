@@ -215,8 +215,8 @@ fn check_known(found: Vec<Value>, list: &str) {
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 
-/// The capture is of this corpus, at the revision `corpus.json` records, and every rule's
-/// reason appears in it.
+/// The capture is of this corpus, at the revision `corpus.json` records (every file and its
+/// sha256).
 #[test]
 fn capture_covers_the_corpus() {
     let capture = capture();
