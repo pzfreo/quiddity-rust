@@ -104,8 +104,8 @@ pub fn compare_views(record: &Value, part: &Part) -> Vec<Compared> {
         }
         let started = std::time::Instant::now();
         let ours = match &plane {
-            Some(plane) => project_section(part, &view, plane),
-            None => project(part, &view),
+            Some(plane) => project_section(part, &view, plane).unwrap(),
+            None => project(part, &view).unwrap(),
         };
         let seconds = started.elapsed().as_secs_f64();
         let mut theirs: Lines = [Vec::new(), Vec::new()];
@@ -142,6 +142,7 @@ pub fn compare_views(record: &Value, part: &Part) -> Vec<Compared> {
 pub fn compare_cut(record: &Value, part: &Part) -> Option<(Vec<Seg>, Vec<Seg>)> {
     let plane = plane(record)?;
     let mine: Vec<Seg> = section(part, &plane)
+        .unwrap()
         .iter()
         .flat_map(|c| {
             c.windows(2)

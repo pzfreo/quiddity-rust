@@ -4,6 +4,11 @@
 //! `quiddity correspond <old> <new>`: match two revisions and print the correspondence as JSON.
 //! Each revision is a recognition result written by `quiddity <file.step>`, or a STEP file
 //! (recognised on the spot).
+//!
+//! Exit status: 0 with the JSON on stdout; 1 with the error on stderr when a file cannot be
+//! read (an unreadable, truncated, incomplete or unsupported STEP file is refused, never
+//! recognised as empty); 2 with the usage on stderr for bad arguments. `-h`/`--help` prints the
+//! usage on stdout and exits 0.
 
 use std::path::Path;
 use std::process::ExitCode;
@@ -15,6 +20,10 @@ const USAGE: &str = "usage: quiddity <file.step>\n       quiddity correspond <ol
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let result = match args.as_slice() {
+        [flag] if flag == "-h" || flag == "--help" => {
+            println!("{USAGE}");
+            return ExitCode::SUCCESS;
+        }
         [command, old, new] if command == "correspond" => correspond(old, new),
         [path] if path != "correspond" => recognise(path),
         _ => {
@@ -34,8 +43,22 @@ fn main() -> ExitCode {
     }
 }
 
-fn recognise(path: &str) -> Result<String, String> {
+/// A STEP file's part, warning on stderr of geometry that did not resolve: the solids holding
+/// it are not valid, so their features are not recognised.
+fn read_part(path: &str) -> Result<quiddity::kernel::Part, String> {
     let part = quiddity::read_step_file(Path::new(path)).map_err(|e| format!("{path}: {e}"))?;
+    let (faces, edges) = (part.unresolved_faces(), part.unresolved_edges());
+    if !faces.is_empty() || !edges.is_empty() {
+        eprintln!(
+            "quiddity: {path}: warning: geometry did not resolve (faces {faces:?}, edges \
+             {edges:?}); the solids holding it are not recognised"
+        );
+    }
+    Ok(part)
+}
+
+fn recognise(path: &str) -> Result<String, String> {
+    let part = read_part(path)?;
     let recognition = correspondence::recognise(&part);
     Ok(serde_json::to_string_pretty(&recognition).expect("records serialise"))
 }
@@ -48,7 +71,7 @@ fn fingerprints(path: &str) -> Result<Fingerprints, String> {
         .iter()
         .any(|e| lower.ends_with(e));
     if step {
-        let part = quiddity::read_step_file(Path::new(path)).map_err(|e| format!("{path}: {e}"))?;
+        let part = read_part(path)?;
         return Ok(correspondence::recognise(&part).fingerprints);
     }
     let text = std::fs::read_to_string(path).map_err(|e| format!("{path}: {e}"))?;

@@ -17,6 +17,9 @@ use super::sampling::sample_edge;
 pub enum StepError {
     Parse(String),
     Unsupported(String),
+    /// The file parses but its shapes are not all there: no solid or shell at all, or
+    /// geometry or topology step-io dropped (missing, malformed or of an unknown type).
+    Incomplete(String),
 }
 
 impl std::fmt::Display for StepError {
@@ -24,6 +27,7 @@ impl std::fmt::Display for StepError {
         match self {
             StepError::Parse(s) => write!(f, "STEP parse error: {s}"),
             StepError::Unsupported(s) => write!(f, "unsupported STEP content: {s}"),
+            StepError::Incomplete(s) => write!(f, "incomplete STEP geometry: {s}"),
         }
     }
 }
@@ -128,9 +132,10 @@ impl Reader<'_> {
         self.frame3(*id)
     }
 
-    fn surface(&self, face: &StepFace<'_>) -> Surface {
+    /// The face's surface, or `None` when no form of it resolves.
+    fn surface(&self, face: &StepFace<'_>) -> Option<Surface> {
         let mm = self.to_mm;
-        let resolved = match face.surface().kind() {
+        match face.surface().kind() {
             SurfaceKind::Plane(p) => self
                 .placement(&p.position)
                 .map(|frame| Surface::Plane { frame }),
@@ -167,8 +172,7 @@ impl Reader<'_> {
             SurfaceKind::LinearExtrusion(_) => self.freeform(face, "EXTRUSION"),
             SurfaceKind::Revolution(_) => self.freeform(face, "REVOLUTION"),
             _ => self.freeform(face, "OTHER"),
-        };
-        resolved.unwrap_or(Surface::Other { kind: "UNRESOLVED" })
+        }
     }
 
     /// The point of a `VERTEX_LOOP` bound, if that is what this bound is.
@@ -437,12 +441,13 @@ impl Reader<'_> {
         }
     }
 
-    /// *vertex_id* numbers the vertices of the instance being read.
+    /// *vertex_id* numbers the vertices of the instance being read. The flag is `false` when
+    /// the edge's curve did not resolve and its chord stands in for it.
     fn edge(
         &self,
         edge: &StepEdge<'_>,
         vertex_id: &mut impl FnMut(m::EntityKey) -> usize,
-    ) -> Result<Edge, StepError> {
+    ) -> Result<(Edge, bool), StepError> {
         let vertex = |v: Option<step_io::scene::geometry::Vertex<'_>>| -> Option<V3> {
             let p = v?.point()?.xyz();
             Some(self.place_point(geom::scale(p, self.to_mm)))
@@ -468,12 +473,30 @@ impl Reader<'_> {
                 .collect();
             NurbsCurve::new(n.degree, points, n.weights, n.knots).map(Curve::Nurbs)
         };
+        let raw = raw_edge_curve(self.model, edge);
         let curve = self
-            .curve(&raw_edge_curve(self.model, edge))
+            .curve(&raw)
             .or_else(|| edge.curve().to_nurbs().and_then(to_curve))
             .or_else(|| edge.to_nurbs().and_then(to_curve));
-        // A curve no form resolves is replaced by its chord, which keeps the loop closed where
-        // dropping the edge would open it.
+        let resolved = curve.is_some();
+        // A closed edge has no chord to stand in for its curve.
+        if !resolved && vertices.0 == vertices.1 {
+            let model = self.model;
+            let kind = format!(
+                "{:?}",
+                match &raw {
+                    m::CurveRef::SurfaceCurve(i) => &model.surface_curve_arena.get(i.0).curve_3d,
+                    m::CurveRef::SeamCurve(i) => &model.seam_curve_arena.get(i.0).curve_3d,
+                    other => other,
+                }
+            );
+            let kind = kind.split('(').next().unwrap_or_default();
+            return Err(StepError::Unsupported(format!(
+                "a closed edge's curve ({kind}) does not resolve"
+            )));
+        }
+        // An open edge's curve no form resolves is replaced by its chord, which keeps the loop
+        // closed where dropping the edge would open it; the part records the substitution.
         let curve = curve.unwrap_or(Curve::Line {
             origin: start,
             dir: geom::sub(end, start),
@@ -485,14 +508,15 @@ impl Reader<'_> {
             edge.same_sense(),
             vertices.0 == vertices.1,
         );
-        Ok(Edge {
+        let edge = Edge {
             curve,
             start,
             end,
             vertices,
             same_sense: edge.same_sense(),
             samples,
-        })
+        };
+        Ok((edge, resolved))
     }
 }
 
@@ -681,7 +705,8 @@ pub fn read_step_placed(bytes: &[u8], outer: &Placement) -> Result<Part, StepErr
             "outer placement must be a proper rotation".into(),
         ));
     }
-    let (model, _report) = step_io::read(bytes).map_err(|e| StepError::Parse(e.to_string()))?;
+    let (model, report) = step_io::read(bytes).map_err(|e| StepError::Parse(e.to_string()))?;
+    refuse_dropped_shapes(bytes, &report)?;
     let scene = model.scene();
     let units = scene.units();
     let mut reader = Reader {
@@ -755,6 +780,7 @@ pub fn read_step_placed(bytes: &[u8], outer: &Placement) -> Result<Part, StepErr
     }
 
     let (mut out_faces, mut edges_out, mut solids) = (Vec::new(), Vec::new(), Vec::new());
+    let (mut unresolved_faces, mut unresolved_edges) = (Vec::new(), Vec::new());
     let mut vertex_count = 0;
     for (is_solid, placement, faces) in shells {
         reader.placement = placement;
@@ -774,7 +800,11 @@ pub fn read_step_placed(bytes: &[u8], outer: &Placement) -> Result<Part, StepErr
                     let index = match edge_index.get(&edge.key()) {
                         Some(&i) => i,
                         None => {
-                            edges_out.push(reader.edge(&edge, &mut vertex_id)?);
+                            let (read, resolved) = reader.edge(&edge, &mut vertex_id)?;
+                            if !resolved {
+                                unresolved_edges.push(edges_out.len());
+                            }
+                            edges_out.push(read);
                             edge_index.insert(edge.key(), edges_out.len() - 1);
                             edges_out.len() - 1
                         }
@@ -795,7 +825,11 @@ pub fn read_step_placed(bytes: &[u8], outer: &Placement) -> Result<Part, StepErr
                 loops.push(Loop { edges, vertex });
             }
             members.push(out_faces.len());
-            let surface = reader.surface(&face);
+            // A surface no form resolves stays in the part, unevaluable, and is recorded.
+            let surface = reader.surface(&face).unwrap_or_else(|| {
+                unresolved_faces.push(out_faces.len());
+                Surface::Other { kind: "UNRESOLVED" }
+            });
             close_cone_at_apex(&surface, &mut loops, &edges_out);
             let pcurves = reader.pcurves(&face, &surface, &edge_index, &edges_out);
             out_faces.push(Face {
@@ -812,7 +846,130 @@ pub fn read_step_placed(bytes: &[u8], outer: &Placement) -> Result<Part, StepErr
             solids.push(Solid { faces: members });
         }
     }
-    Ok(Part::new(out_faces, edges_out, solids))
+    if out_faces.is_empty() {
+        return Err(StepError::Incomplete("no solid or shell with faces".into()));
+    }
+    Ok(Part::new(out_faces, edges_out, solids).with_unresolved(unresolved_faces, unresolved_edges))
+}
+
+/// Refuses a file whose shapes lost entities when step-io read it: an entity a shape
+/// representation reaches through its items that is missing from the file or was dropped
+/// (malformed, or of a type step-io does not model), or a shape representation dropped itself.
+/// Entities no shape reaches (presentation, PMI) may be dropped without harm.
+fn refuse_dropped_shapes(bytes: &[u8], report: &step_io::Report) -> Result<(), StepError> {
+    use std::collections::{BTreeSet, HashSet};
+    use step_io::parser::{Attribute, RawEntity};
+
+    fn refs(a: &Attribute, out: &mut Vec<u64>) {
+        match a {
+            Attribute::EntityRef(n) => out.push(*n),
+            Attribute::List(l) => l.iter().for_each(|x| refs(x, out)),
+            Attribute::Typed { value, .. } => refs(value, out),
+            _ => {}
+        }
+    }
+    fn name(e: &RawEntity) -> String {
+        match e {
+            RawEntity::Simple { name, .. } => name.clone(),
+            RawEntity::Complex { parts, .. } => {
+                let names: Vec<&str> = parts.iter().map(|p| p.name.as_str()).collect();
+                format!("({})", names.join(" "))
+            }
+        }
+    }
+
+    if report.dropped.is_empty() {
+        return Ok(());
+    }
+    let graph = step_io::parser::parse_bytes(bytes).map_err(|e| StepError::Parse(e.to_string()))?;
+    let dropped: HashMap<u64, &step_io::DropReason> =
+        report.dropped.iter().map(|(id, r)| (*id, r)).collect();
+    let (mut lost, mut missing) = (BTreeSet::new(), BTreeSet::new());
+    let mut stack = Vec::new();
+    for (&id, entity) in &graph.entities {
+        // A representation's items, not its context: units and tolerances are not shapes.
+        let items = match entity {
+            RawEntity::Simple {
+                name, attributes, ..
+            } if name.ends_with("SHAPE_REPRESENTATION") => attributes.get(1),
+            RawEntity::Complex { parts, .. }
+                if parts
+                    .iter()
+                    .any(|p| p.name.ends_with("SHAPE_REPRESENTATION")) =>
+            {
+                parts
+                    .iter()
+                    .find(|p| p.name == "REPRESENTATION")
+                    .and_then(|p| p.attributes.get(1))
+            }
+            _ => continue,
+        };
+        if dropped.contains_key(&id) {
+            lost.insert(id);
+        }
+        if let Some(items) = items {
+            refs(items, &mut stack);
+        }
+    }
+    let mut seen = HashSet::new();
+    while let Some(id) = stack.pop() {
+        if !seen.insert(id) {
+            continue;
+        }
+        let Some(entity) = graph.entities.get(&id) else {
+            missing.insert(id);
+            continue;
+        };
+        if dropped.contains_key(&id) {
+            lost.insert(id);
+        }
+        match entity {
+            RawEntity::Simple { attributes, .. } => {
+                attributes.iter().for_each(|a| refs(a, &mut stack))
+            }
+            RawEntity::Complex { parts, .. } => parts
+                .iter()
+                .flat_map(|p| &p.attributes)
+                .for_each(|a| refs(a, &mut stack)),
+        }
+    }
+    if lost.is_empty() && missing.is_empty() {
+        return Ok(());
+    }
+    // Name the causes: the missing entities, and the dropped ones not dropped merely because
+    // something they refer to was.
+    let mut causes: Vec<String> = missing
+        .iter()
+        .map(|id| format!("#{id} is referenced but not in the file"))
+        .collect();
+    causes.extend(lost.iter().filter_map(|id| {
+        let reason = dropped[id];
+        (reason.kind != step_io::DropKind::Cascade).then(|| {
+            format!(
+                "#{id} {} was dropped ({:?}: {})",
+                name(&graph.entities[id]),
+                reason.kind,
+                reason.key
+            )
+        })
+    }));
+    if causes.is_empty() {
+        causes.extend(
+            lost.iter()
+                .map(|id| format!("#{id} {} was dropped", name(&graph.entities[id]))),
+        );
+    }
+    let shown = causes.len().min(5);
+    let more = if causes.len() > shown {
+        format!(" and {} more", causes.len() - shown)
+    } else {
+        String::new()
+    };
+    Err(StepError::Incomplete(format!(
+        "{}{more} ({} shape entities lost)",
+        causes[..shown].join("; "),
+        lost.len()
+    )))
 }
 
 /// A cone face bounded by a single loop running round the axis (a drill point written as just
@@ -903,4 +1060,69 @@ fn step_file_bytes(path: &std::path::Path) -> std::io::Result<Vec<u8>> {
         bytes
     };
     Ok(bytes)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::hlr::{Plane, Unresolved, View, project, section};
+
+    fn fixture(name: &str) -> std::path::PathBuf {
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../tests/fixtures")
+            .join(name)
+    }
+
+    /// `rejected_cylinder.step` with its top plane written as an `OFFSET_SURFACE`, which the
+    /// kernel does not model: the face is kept and recorded, its solid is not valid, and a
+    /// drawing of the part is refused.
+    #[test]
+    fn an_unresolved_surface_is_recorded() {
+        let part = read_step_file(&fixture("broken/unresolved_surface.step")).unwrap();
+        assert_eq!(part.faces.len(), 3);
+        assert_eq!(part.unresolved_faces(), [1]);
+        assert!(part.unresolved_edges().is_empty());
+        assert!(matches!(part.faces[1].surface, Surface::Other { .. }));
+        assert!(!part.solid_is_valid(0));
+        let refused = Unresolved {
+            faces: vec![1],
+            edges: Vec::new(),
+        };
+        let view = View::new([0.0, -1.0, 0.0], [0.0, 0.0, 1.0]).unwrap();
+        assert_eq!(project(&part, &view).unwrap_err(), refused);
+        let plane = Plane::new([0.0; 3], [0.0, 1.0, 0.0]).unwrap();
+        assert_eq!(section(&part, &plane).unwrap_err(), refused);
+    }
+
+    /// The same cylinder with its seam line written as a hyperbola: the open edge's chord stands
+    /// in for it, recorded, and the solid is not valid.
+    #[test]
+    fn an_unresolved_open_edge_is_recorded() {
+        let part = read_step_file(&fixture("broken/unresolved_open_curve.step")).unwrap();
+        assert!(part.unresolved_faces().is_empty());
+        assert_eq!(part.unresolved_edges(), [1]);
+        assert!(!part.solid_is_valid(0));
+        let view = View::new([0.0, -1.0, 0.0], [0.0, 0.0, 1.0]).unwrap();
+        assert_eq!(project(&part, &view).unwrap_err().edges, [1]);
+    }
+
+    /// The unbroken cylinder records nothing, stays valid and is drawn.
+    #[test]
+    fn a_resolved_part_records_nothing() {
+        let part = read_step_file(&fixture("rejected_cylinder.step")).unwrap();
+        assert!(part.unresolved_faces().is_empty() && part.unresolved_edges().is_empty());
+        assert!(part.solid_is_valid(0));
+        let view = View::new([0.0, -1.0, 0.0], [0.0, 0.0, 1.0]).unwrap();
+        assert!(!project(&part, &view).unwrap().is_empty());
+    }
+
+    #[test]
+    fn broken_files_are_refused() {
+        let error = |name: &str| read_step_file(&fixture(name)).unwrap_err().to_string();
+        assert!(error("broken/empty_data.step").contains("no solid or shell"));
+        assert!(error("broken/truncated.step").contains("parse error"));
+        assert!(error("broken/truncated_closed.step").contains("#105 is referenced"));
+        assert!(error("broken/deleted_face.step").contains("#109 is referenced"));
+        assert!(error("broken/unresolved_closed_curve.step").contains("closed edge's curve"));
+    }
 }

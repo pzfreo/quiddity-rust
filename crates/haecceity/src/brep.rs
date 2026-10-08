@@ -142,6 +142,8 @@ pub struct Part {
     pub(super) cache: Vec<FaceCache>,
     edge_faces: OnceLock<Vec<Vec<usize>>>,
     valid_solids: OnceLock<Vec<bool>>,
+    unresolved_faces: Vec<usize>,
+    unresolved_edges: Vec<usize>,
 }
 
 impl Part {
@@ -154,7 +156,28 @@ impl Part {
             cache,
             edge_faces: OnceLock::new(),
             valid_solids: OnceLock::new(),
+            unresolved_faces: Vec::new(),
+            unresolved_edges: Vec::new(),
         }
+    }
+
+    /// Records the faces whose surface (`Surface::Other`, unevaluable) and the edges whose curve
+    /// (its chord stands in) the reader could not resolve.
+    pub(super) fn with_unresolved(mut self, faces: Vec<usize>, edges: Vec<usize>) -> Self {
+        self.unresolved_faces = faces;
+        self.unresolved_edges = edges;
+        self
+    }
+
+    /// The faces whose surface did not resolve: they carry `Surface::Other`, which evaluates
+    /// to NaN and meets no ray.
+    pub fn unresolved_faces(&self) -> &[usize] {
+        &self.unresolved_faces
+    }
+
+    /// The edges whose curve did not resolve: each carries its chord in its place.
+    pub fn unresolved_edges(&self) -> &[usize] {
+        &self.unresolved_edges
     }
 
     /// The face's axis-aligned box: its boundary plus any interior axis extremes.
@@ -422,6 +445,9 @@ impl Part {
     /// whichever way it is run, so its recorded direction is not evidence. OpenCascade writes
     /// some toroidal faces' circles the wrong way round and re-derives the direction from the
     /// parameter-space curves on reading.
+    ///
+    /// A solid with a face or edge whose geometry did not resolve is not valid: its shape is
+    /// not known.
     pub fn solid_is_valid(&self, solid: usize) -> bool {
         self.valid_solids.get_or_init(|| {
             (0..self.solids.len())
@@ -431,8 +457,12 @@ impl Part {
     }
 
     fn check_solid(&self, solid: usize) -> bool {
+        let faces = &self.solids[solid].faces;
+        if faces.iter().any(|f| self.unresolved_faces.contains(f)) {
+            return false;
+        }
         let mut uses: std::collections::BTreeMap<usize, Vec<(usize, bool)>> = Default::default();
-        for &f in &self.solids[solid].faces {
+        for &f in faces {
             for lp in &self.faces[f].loops {
                 for &(e, forward) in &lp.edges {
                     uses.entry(e).or_default().push((f, forward));
@@ -440,6 +470,7 @@ impl Part {
             }
         }
         !uses.is_empty()
+            && !uses.keys().any(|e| self.unresolved_edges.contains(e))
             && uses.iter().all(|(&e, u)| match u.as_slice() {
                 [(fa, da), (fb, db)] => fa == fb || da != db || self.edges[e].is_closed(),
                 _ => false,
