@@ -1,0 +1,632 @@
+[
+  {
+    "file": "corpus/cadgenbench/flanged_spool_132.step",
+    "key": "part 0 edges",
+    "count": 12,
+    "verdict": "undetermined",
+    "reason": "The same 228 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/cadgenbench/threaded_connector_109.step",
+    "key": "part 0 edges",
+    "count": 48,
+    "verdict": "undetermined",
+    "reason": "The same 871 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/cadgenbench_inputs/cgb202.step.gz",
+    "key": "part 0 edges",
+    "count": 5219,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 477 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/cadgenbench_inputs/cgb203.step",
+    "key": "part 0 edges",
+    "count": 373,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 20 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges)."
+  },
+  {
+    "file": "corpus/cadgenbench_inputs/cgb207.step",
+    "key": "part 0 edges",
+    "count": 701,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 33 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/cadgenbench_inputs/cgb217.step.gz",
+    "key": "part 0 edges",
+    "count": 856,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 9 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/cadgenbench_inputs/cgb241.step",
+    "key": "part 0 edges",
+    "count": 10,
+    "verdict": "undetermined",
+    "reason": "The same 156 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/cadgenbench_inputs/cgb242.step.gz",
+    "key": "part 0 edges",
+    "count": 1079,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 95 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/cadgenbench_inputs/cgb243.step.gz",
+    "key": "part 0 edges",
+    "count": 1451,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 79 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/cadgenbench_inputs/cgb245.step",
+    "key": "part 0 edges",
+    "count": 340,
+    "verdict": "undetermined",
+    "reason": "The same 1112 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/inventory_refusal/13975.step.gz",
+    "key": "part 0 edges",
+    "count": 38,
+    "verdict": "undetermined",
+    "reason": "The same 42 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/inventory_refusal/13975.step.gz",
+    "key": "part 0 faces",
+    "count": 16,
+    "verdict": "undetermined",
+    "reason": "A deliberately malformed corpus part (its shell is not orientable). OpenCascade's import healing rebuilds and reorders its faces (see known_divergences.json); the same 17 ADVANCED_FACEs are numbered in file order by haecceity and in the healed order by OpenCascade."
+  },
+  {
+    "file": "corpus/inventory_refusal/14052.step.gz",
+    "key": "part 0 edges",
+    "count": 60,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 6 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 2 EDGE_CURVEs (#142, #272) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/mfcadpp/1007.step",
+    "key": "part 0 edges",
+    "count": 2,
+    "verdict": "undetermined",
+    "reason": "The same 71 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/mfcadpp/10077.step",
+    "key": "part 0 edges",
+    "count": 2,
+    "verdict": "undetermined",
+    "reason": "The same 65 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/mfcadpp/1008.step",
+    "key": "part 0 edges",
+    "count": 2,
+    "verdict": "undetermined",
+    "reason": "The same 39 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/mfcadpp/1013.step",
+    "key": "part 0 edges",
+    "count": 2,
+    "verdict": "undetermined",
+    "reason": "The same 108 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/mfcadpp/10146.step",
+    "key": "part 0 edges",
+    "count": 2,
+    "verdict": "undetermined",
+    "reason": "The same 75 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/mfcadpp/10163.step",
+    "key": "part 0 edges",
+    "count": 2,
+    "verdict": "undetermined",
+    "reason": "The same 111 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/mfcadpp/1017.step",
+    "key": "part 0 edges",
+    "count": 2,
+    "verdict": "undetermined",
+    "reason": "The same 57 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/mfcadpp/10278.step",
+    "key": "part 0 edges",
+    "count": 2,
+    "verdict": "undetermined",
+    "reason": "The same 51 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/mfcadpp_holdout/183.step",
+    "key": "part 0 edges",
+    "count": 2,
+    "verdict": "undetermined",
+    "reason": "The same 93 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/mfcadpp_holdout/363.step",
+    "key": "part 0 edges",
+    "count": 2,
+    "verdict": "undetermined",
+    "reason": "The same 78 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/mfcadpp_holdout/408.step",
+    "key": "part 0 edges",
+    "count": 2,
+    "verdict": "undetermined",
+    "reason": "The same 80 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_01_asme1_rd.stp",
+    "key": "part 0 edges",
+    "count": 200,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 26 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 6 EDGE_CURVEs (#2009, #2010, #2011, #2012, ...) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_01_asme1_rd.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name 'nist_ctc_01_asme1_rd'. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_02_asme1_rc.stp",
+    "key": "part 0 edges",
+    "count": 1618,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'SOLID' (1642 edges), 'SHELL' (4 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_02_asme1_rc.stp",
+    "key": "part 0 faces",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'SOLID' (663 faces), 'SHELL' (1 faces); positions differ where those parts begin."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_02_asme1_rc.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name 'NIST_CTC_02_ASME1_RC'. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_02_asme1_rc.stp",
+    "key": "part count",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "One product definition (#20768, 'NIST_CTC_02_ASME1_RC') whose shape representation holds a solid and shell (a shell-based surface model). OpenCascade's XCAF makes each representation item a sub-shape label, and specify-core counts each as a part (SOLID, SHELL); the part is the product definition (its PMI's shape aspects name its one product_definition_shape), so haecceity reads one part: the solid's faces numbered as OpenCascade numbers the solid, the other items' faces after them."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_03_asme1_rc.stp",
+    "key": "part 0 edges",
+    "count": 363,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 25 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 5 EDGE_CURVEs (#1870, #1913, #1922, #2046, ...) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_03_asme1_rc.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name 'nist_ctc_03_asme1_rc'. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_04_asme1_rd.stp",
+    "key": "part 0 edges",
+    "count": 1270,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'SOLID' (1270 edges), 'SHELL' (2 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_04_asme1_rd.stp",
+    "key": "part 0 faces",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'SOLID' (517 faces), 'SHELL' (1 faces); positions differ where those parts begin."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_04_asme1_rd.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name ''. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_04_asme1_rd.stp",
+    "key": "part count",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "One product definition (#13, '') whose shape representation holds a solid and shell (a shell-based surface model). OpenCascade's XCAF makes each representation item a sub-shape label, and specify-core counts each as a part (SOLID, SHELL); the part is the product definition (its PMI's shape aspects name its one product_definition_shape), so haecceity reads one part: the solid's faces numbered as OpenCascade numbers the solid, the other items' faces after them."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_05_asme1_rd.stp",
+    "key": "part 0 edges",
+    "count": 376,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'SOLID' (531 edges), 'SHELL' (4 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_05_asme1_rd.stp",
+    "key": "part 0 faces",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'SOLID' (208 faces), 'SHELL' (1 faces); positions differ where those parts begin."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_05_asme1_rd.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name 'NIST_CTC_05_ASME1_RD'. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_05_asme1_rd.stp",
+    "key": "part count",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "One product definition (#6617, 'NIST_CTC_05_ASME1_RD') whose shape representation holds a solid and shell (a shell-based surface model). OpenCascade's XCAF makes each representation item a sub-shape label, and specify-core counts each as a part (SOLID, SHELL); the part is the product definition (its PMI's shape aspects name its one product_definition_shape), so haecceity reads one part: the solid's faces numbered as OpenCascade numbers the solid, the other items' faces after them."
+  },
+  {
+    "file": "corpus/nist/nist_ftc_06_asme1_rd.stp",
+    "key": "part 0 edges",
+    "count": 363,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 92 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 21 EDGE_CURVEs (#1779, #1787, #1788, #1789, ...) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/nist/nist_ftc_06_asme1_rd.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name 'nist_ftc_06_asme1_rd'. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+  },
+  {
+    "file": "corpus/nist/nist_ftc_07_asme1_rd.stp",
+    "key": "part 0 edges",
+    "count": 193,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 51 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 4 EDGE_CURVEs (#5821, #5832, #5843, #5854) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/nist/nist_ftc_08_asme1_rc.stp",
+    "key": "part 0 edges",
+    "count": 379,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 20 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/nist/nist_ftc_08_asme1_rc.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "PRODUCT.name is empty in the file; haecceity reports it as written. OpenCascade substitutes the product's id ('NIST PMI FTC 08 ASME1', PRODUCT.id) for the missing name."
+  },
+  {
+    "file": "corpus/nist/nist_ftc_09_asme1_rd.stp",
+    "key": "part 0 edges",
+    "count": 158,
+    "verdict": "undetermined",
+    "reason": "The same 454 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/nist/nist_ftc_09_asme1_rd.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name 'NIST_FTC_09_ASME1_RD'. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+  },
+  {
+    "file": "corpus/nist/nist_ftc_10_asme1_rb.stp",
+    "key": "part 0 edges",
+    "count": 469,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 70 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 6 EDGE_CURVEs (#5463, #5504, #5545, #5615, ...) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "corpus/ttt_inputs/sm-hanger.step",
+    "key": "part 0 edges",
+    "count": 66,
+    "verdict": "undetermined",
+    "reason": "The same 297 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "nist-pmi/nist_ctc_01_asme1_ap242-e1.stp",
+    "key": "part 0 edges",
+    "count": 108,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 4 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges)."
+  },
+  {
+    "file": "nist-pmi/nist_ctc_01_asme1_ap242-e1.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name 'NIST Complex Test Case 1'. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+  },
+  {
+    "file": "nist-pmi/nist_ctc_02_asme1_ap242-e2.stp",
+    "key": "part 0 edges",
+    "count": 1579,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'SOLID' (1586 edges), 'SHELL' (2 edges), 'SHELL' (4 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+  },
+  {
+    "file": "nist-pmi/nist_ctc_02_asme1_ap242-e2.stp",
+    "key": "part 0 faces",
+    "count": 2,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'SOLID' (635 faces), 'SHELL' (1 faces), 'SHELL' (1 faces); positions differ where those parts begin."
+  },
+  {
+    "file": "nist-pmi/nist_ctc_02_asme1_ap242-e2.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name 'Test Case 2 Baseline'. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+  },
+  {
+    "file": "nist-pmi/nist_ctc_02_asme1_ap242-e2.stp",
+    "key": "part count",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "One product definition (#22305, 'Test Case 2 Baseline') whose shape representation holds a solid and shell (a shell-based surface model). OpenCascade's XCAF makes each representation item a sub-shape label, and specify-core counts each as a part (SOLID, SHELL, SHELL); the part is the product definition (its PMI's shape aspects name its one product_definition_shape), so haecceity reads one part: the solid's faces numbered as OpenCascade numbers the solid, the other items' faces after them."
+  },
+  {
+    "file": "nist-pmi/nist_ctc_03_asme1_ap242-e2.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name 'Test Case 3 Baseline'. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+  },
+  {
+    "file": "nist-pmi/nist_ctc_04_asme1_ap242-e2.stp",
+    "key": "part 0 edges",
+    "count": 1174,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'SOLID' (1174 edges), 'SHELL' (2 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+  },
+  {
+    "file": "nist-pmi/nist_ctc_04_asme1_ap242-e2.stp",
+    "key": "part 0 faces",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'SOLID' (483 faces), 'SHELL' (1 faces); positions differ where those parts begin."
+  },
+  {
+    "file": "nist-pmi/nist_ctc_04_asme1_ap242-e2.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name 'NIST PMI Test Case 4 Complex Model'. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+  },
+  {
+    "file": "nist-pmi/nist_ctc_04_asme1_ap242-e2.stp",
+    "key": "part count",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "One product definition (#11, 'NIST PMI Test Case 4 Complex Model') whose shape representation holds a solid and shell (a shell-based surface model). OpenCascade's XCAF makes each representation item a sub-shape label, and specify-core counts each as a part (SOLID, SHELL); the part is the product definition (its PMI's shape aspects name its one product_definition_shape), so haecceity reads one part: the solid's faces numbered as OpenCascade numbers the solid, the other items' faces after them."
+  },
+  {
+    "file": "nist-pmi/nist_ctc_05_asme1_ap242-e1.stp",
+    "key": "part 0 edges",
+    "count": 317,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 75 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 9 EDGE_CURVEs (#2781, #2835, #2836, #2837, ...) that healing split or replaced are not in OpenCascade's numbering; OpenCascade numbers 9 wireframe curves of the part's shape representation (TRIMMED_CURVE #3891, #3892, #3893, ..., members of a GEOMETRIC_CURVE_SET, bounding no face) as edges; the part's edges are its B-rep's EDGE_CURVEs."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_06_asme1_ap242-e2.stp",
+    "key": "part 0 edges",
+    "count": 476,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 14 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges)."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_06_asme1_ap242-e2.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name 'NIST PMI FTC 06 ASME1'. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_07_asme1_ap242-e2.stp",
+    "key": "part 0 edges",
+    "count": 838,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'SOLID' (896 edges), 'COMPOUND' (6 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_07_asme1_ap242-e2.stp",
+    "key": "part 0 faces",
+    "count": 2,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'SOLID' (304 faces), 'COMPOUND' (2 faces); positions differ where those parts begin."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_07_asme1_ap242-e2.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name 'nist_ftc_07_asme1'. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_07_asme1_ap242-e2.stp",
+    "key": "part count",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "One product definition (#14, 'nist_ftc_07_asme1') whose shape representation holds a solid and compound (curves and surfaces). OpenCascade's XCAF makes each representation item a sub-shape label, and specify-core counts each as a part (SOLID, COMPOUND); the part is the product definition (its PMI's shape aspects name its one product_definition_shape), so haecceity reads one part: the solid's faces numbered as OpenCascade numbers the solid, the other items' faces after them."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_08_asme1_ap242-e2.stp",
+    "key": "part 0 edges",
+    "count": 508,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 48 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 4 EDGE_CURVEs (#3642, #3643, #3644, #3645) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_08_asme1_ap242-e2.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name 'nist_ftc_08_asme1_rc'. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_08_asme1_ap242-e4-tg.stp",
+    "key": "read",
+    "count": 1,
+    "verdict": "not-applicable",
+    "reason": "The part is written only as tessellated geometry (TESSELLATED_SHELL / TRIANGULATED_FACE, AP242 edition 4), which OpenCascade imports as triangulated faces; haecceity reads exact B-rep and refuses the file as having no solid or shell with faces rather than numbering something else."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_09_asme1_ap242-e1.stp",
+    "key": "read",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "specify-core refuses the file (\"nist_ftc_09_asme1_ap242-e1.stp: expected one part, found 4 free shapes\": XCAF finds several free shapes and specify-core's loader takes exactly one root). The file has 4 PRODUCTs and no assembly structure; haecceity reads the 2 product definitions whose shapes hold faces as 2 parts, each numbered on its own shape."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_10_asme1_ap242-e2.stp",
+    "key": "part 0 edges",
+    "count": 823,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'SOLID' (815 edges), 'COMPOUND' (158 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_10_asme1_ap242-e2.stp",
+    "key": "part 0 faces",
+    "count": 18,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'SOLID' (264 faces), 'COMPOUND' (18 faces); positions differ where those parts begin."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_10_asme1_ap242-e2.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name 'nist_ftc_10_asme1'. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_10_asme1_ap242-e2.stp",
+    "key": "part count",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "One product definition (#11, 'nist_ftc_10_asme1') whose shape representation holds a solid and compound (curves and surfaces). OpenCascade's XCAF makes each representation item a sub-shape label, and specify-core counts each as a part (SOLID, COMPOUND); the part is the product definition (its PMI's shape aspects name its one product_definition_shape), so haecceity reads one part: the solid's faces numbered as OpenCascade numbers the solid, the other items' faces after them."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_11_asme1_ap242-e3.stp",
+    "key": "part 0 edges",
+    "count": 92,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 10 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 2 EDGE_CURVEs (#881, #899) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "nist-pmi/nist_stc_06_asme1_ap242-e3.stp",
+    "key": "part 0 edges",
+    "count": 215,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 70 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 10 EDGE_CURVEs (#1723, #1840, #1936, #1962, ...) that healing split or replaced are not in OpenCascade's numbering; OpenCascade numbers 19 wireframe curves of the part's shape representation (TRIMMED_CURVE #4473, #4486, #4495, ..., members of a GEOMETRIC_CURVE_SET, bounding no face) as edges; the part's edges are its B-rep's EDGE_CURVEs; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "nist-pmi/nist_stc_06_asme1_ap242-e3.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "PRODUCT.name is empty in the file; haecceity reports it as written. OpenCascade substitutes the product's id ('nist_stc_06_asme1', PRODUCT.id) for the missing name."
+  },
+  {
+    "file": "nist-pmi/nist_stc_07_asme1_ap242-e3.stp",
+    "key": "part 0 edges",
+    "count": 871,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'COMPOUND' (6 edges), 'SOLID' (881 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+  },
+  {
+    "file": "nist-pmi/nist_stc_07_asme1_ap242-e3.stp",
+    "key": "part 0 faces",
+    "count": 306,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'COMPOUND' (2 faces), 'SOLID' (304 faces); positions differ where those parts begin."
+  },
+  {
+    "file": "nist-pmi/nist_stc_07_asme1_ap242-e3.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name 'nist_ftc_07_asme1'. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('COMPOUND'), which specify-core reports as the part's name."
+  },
+  {
+    "file": "nist-pmi/nist_stc_07_asme1_ap242-e3.stp",
+    "key": "part count",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "One product definition (#10, 'nist_ftc_07_asme1') whose shape representation holds a solid and compound (curves and surfaces). OpenCascade's XCAF makes each representation item a sub-shape label, and specify-core counts each as a part (COMPOUND, SOLID); the part is the product definition (its PMI's shape aspects name its one product_definition_shape), so haecceity reads one part: the solid's faces numbered as OpenCascade numbers the solid, the other items' faces after them."
+  },
+  {
+    "file": "nist-pmi/nist_stc_08_asme1_ap242-e3.stp",
+    "key": "part 0 edges",
+    "count": 381,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'SOLID' (725 edges), 'SHELL' (4 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+  },
+  {
+    "file": "nist-pmi/nist_stc_08_asme1_ap242-e3.stp",
+    "key": "part 0 faces",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'SOLID' (270 faces), 'SHELL' (1 faces); positions differ where those parts begin."
+  },
+  {
+    "file": "nist-pmi/nist_stc_08_asme1_ap242-e3.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name ''. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+  },
+  {
+    "file": "nist-pmi/nist_stc_08_asme1_ap242-e3.stp",
+    "key": "part count",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "One product definition (#11549, '') whose shape representation holds a solid and shell (a shell-based surface model). OpenCascade's XCAF makes each representation item a sub-shape label, and specify-core counts each as a part (SOLID, SHELL); the part is the product definition (its PMI's shape aspects name its one product_definition_shape), so haecceity reads one part: the solid's faces numbered as OpenCascade numbers the solid, the other items' faces after them."
+  },
+  {
+    "file": "nist-pmi/nist_stc_09_asme1_ap242-e4.stp",
+    "key": "part 0 edges",
+    "count": 526,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 274 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); OpenCascade numbers 16 wireframe curves of the part's shape representation (TRIMMED_CURVE #6519, #7678, #7699, ..., members of a GEOMETRIC_CURVE_SET, bounding no face) as edges; the part's edges are its B-rep's EDGE_CURVEs; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "nist-pmi/nist_stc_09_asme1_ap242-e4.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "PRODUCT.name is empty in the file; haecceity reports it as written. OpenCascade substitutes the product's id ('NIST PMI FTC 09 ASME1', PRODUCT.id) for the missing name."
+  },
+  {
+    "file": "nist-pmi/nist_stc_10_asme1_ap242-e2.stp",
+    "key": "part 0 edges",
+    "count": 524,
+    "verdict": "rust-correct",
+    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 94 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 12 EDGE_CURVEs (#4772, #4773, #4782, #4783, ...) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+  },
+  {
+    "file": "nist-pmi/nist_stc_10_asme1_ap242-e2.stp",
+    "key": "part 0 name",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "haecceity names the part by its product, PRODUCT.name 'nist_stc_10_asme1'. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+  }
+]

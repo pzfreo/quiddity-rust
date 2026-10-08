@@ -6,9 +6,10 @@
 use std::collections::HashMap;
 
 use step_io::generated::model as m;
+use step_io::parser::{Attribute, RawEntity};
 use step_io::scene::geometry::{Edge as StepEdge, Face as StepFace, SurfaceKind};
 
-use super::brep::{Edge, Face, Loop, Part, Pcurve, Solid};
+use super::brep::{Edge, Face, Loop, Part, Pcurve, Solid, Source};
 use super::geom::{self, Curve, Frame, Surface, V3};
 use super::nurbs::{NurbsCurve, NurbsSurface};
 use super::sampling::sample_edge;
@@ -643,21 +644,26 @@ fn surface_model_owners(
     owners
 }
 
-/// Every solid reachable from an assembly definition, with its accumulated placement.
+/// Every solid reachable from an assembly definition, with its accumulated placement and the
+/// index in *placed* of the placed definition it belongs to.
 fn collect_instances<'m>(
     def: step_io::scene::product::ProductDef<'m>,
     placement: Placement,
     to_mm: f64,
-    out: &mut Vec<(step_io::scene::geometry::Solid<'m>, Placement)>,
-    placed: &mut Vec<(m::EntityKey, Placement)>,
+    out: &mut Vec<(
+        step_io::scene::geometry::Solid<'m>,
+        Placement,
+        Option<usize>,
+    )>,
+    placed: &mut Vec<(step_io::scene::product::ProductDef<'m>, Placement)>,
     depth: usize,
 ) {
     if depth > 64 {
         return;
     }
-    placed.push((def.key(), placement));
+    placed.push((def, placement));
     for solid in def.solids() {
-        out.push((solid, placement));
+        out.push((solid, placement, Some(placed.len() - 1)));
     }
     for occurrence in def.occurrences() {
         let Some(child) = occurrence.definition() else {
@@ -687,6 +693,485 @@ fn raw_edge_curve(model: &m::StepModel, edge: &StepEdge<'_>) -> m::CurveRef {
     model.edge_curve_arena.get(id.0).edge_geometry.clone()
 }
 
+/// The file instance (`#N`) behind each face, edge and product definition step-io read.
+///
+/// step-io keeps no instance ids: it fills each arena of a simple entity type in ascending id
+/// order over the instances it keeps, so arena index *k* of a type is the *k*-th kept instance
+/// of that type (kept: not in the report's dropped list; the only instances its normalization
+/// adds are `COLOUR`s, numbered after every instance of the file). The map is rebuilt from the
+/// raw graph on that basis and every face and edge is checked against its record before its id
+/// is given out (see [`FileIds::face`], [`FileIds::edge`]); a disagreement is an error, never a
+/// guess.
+struct FileIds<'a> {
+    graph: &'a std::collections::BTreeMap<u64, step_io::parser::RawEntity>,
+    model: &'a m::StepModel,
+    /// Kept instances of each simple type below, in ascending id order: arena index → `#N`.
+    by_type: HashMap<&'static str, Vec<u64>>,
+    /// Faces and edges already checked.
+    checked: HashMap<m::EntityKey, u64>,
+}
+
+/// The entity types whose instance ids the reader gives out.
+const ID_TYPES: [&str; 6] = [
+    "ADVANCED_FACE",
+    "FACE_SURFACE",
+    "EDGE_CURVE",
+    "PRODUCT_DEFINITION",
+    "PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS",
+    "PRODUCT_DEFINITION_SHAPE",
+];
+
+impl<'a> FileIds<'a> {
+    fn new(
+        graph: &'a step_io::parser::Graph,
+        model: &'a m::StepModel,
+        report: &step_io::Report,
+    ) -> Self {
+        let dropped: std::collections::HashSet<u64> =
+            report.dropped.iter().map(|(id, _)| *id).collect();
+        let mut by_type: HashMap<&'static str, Vec<u64>> = HashMap::new();
+        for (&id, entity) in &graph.entities {
+            if let step_io::parser::RawEntity::Simple { name, .. } = entity
+                && let Some(&kind) = ID_TYPES.iter().find(|&&t| t == name)
+                && !dropped.contains(&id)
+            {
+                by_type.entry(kind).or_default().push(id);
+            }
+        }
+        FileIds {
+            graph: &graph.entities,
+            model,
+            by_type,
+            checked: HashMap::new(),
+        }
+    }
+
+    /// The `#N` of a face, edge, product definition or product definition shape.
+    fn id(&self, key: m::EntityKey) -> Result<u64, StepError> {
+        let (kind, index) = match key {
+            m::EntityKey::AdvancedFace(i) => ("ADVANCED_FACE", i.0),
+            m::EntityKey::FaceSurface(i) => ("FACE_SURFACE", i.0),
+            m::EntityKey::EdgeCurve(i) => ("EDGE_CURVE", i.0),
+            m::EntityKey::ProductDefinition(i) => ("PRODUCT_DEFINITION", i.0),
+            m::EntityKey::ProductDefinitionWithAssociatedDocuments(i) => {
+                ("PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS", i.0)
+            }
+            m::EntityKey::ProductDefinitionShape(i) => ("PRODUCT_DEFINITION_SHAPE", i.0),
+            other => {
+                return Err(StepError::Unsupported(format!(
+                    "no file instance is kept for {}",
+                    step_name(other)
+                )));
+            }
+        };
+        self.by_type
+            .get(kind)
+            .and_then(|ids| ids.get(index))
+            .copied()
+            .ok_or_else(|| {
+                StepError::Unsupported(format!("{kind} {index} read has no instance in the file"))
+            })
+    }
+
+    /// The `#N` of a face, checked against its record: entity type, bound count, the surface's
+    /// entity type, `same_sense`, the surface's location point (its placement's, an axis's, or a
+    /// B-spline's first control point) and the `EDGE_CURVE`s of its loops.
+    fn face(&mut self, face: &StepFace<'_>) -> Result<u64, StepError> {
+        let key = face.key();
+        if let Some(&id) = self.checked.get(&key) {
+            return Ok(id);
+        }
+        let id = self.id(key)?;
+        self.check_face(face, id).map_err(|why| {
+            StepError::Unsupported(format!(
+                "face {} read as #{id} does not match that instance: {why}",
+                step_name(key)
+            ))
+        })?;
+        self.checked.insert(key, id);
+        Ok(id)
+    }
+
+    /// The `#N` of an edge, checked against its record: the vertices' and the curve's entity
+    /// types, `same_sense` and both vertices' coordinates.
+    fn edge(&mut self, edge: &StepEdge<'_>) -> Result<u64, StepError> {
+        let key = edge.key();
+        if let Some(&id) = self.checked.get(&key) {
+            return Ok(id);
+        }
+        let id = self.id(key)?;
+        self.check_edge(edge, id).map_err(|why| {
+            StepError::Unsupported(format!(
+                "EDGE_CURVE read as #{id} does not match that instance: {why}"
+            ))
+        })?;
+        self.checked.insert(key, id);
+        Ok(id)
+    }
+
+    /// The `product_definition_shape` a part's shape is represented through: the one of its
+    /// definition a `shape_definition_representation` uses. Its id is checked to name the
+    /// definition it is read for.
+    fn definition_shape(
+        &self,
+        def: &step_io::scene::product::ProductDef<'_>,
+        rg: &step_io::RefGraph,
+    ) -> Result<u64, String> {
+        let me = def.key();
+        let mut found = Vec::new();
+        for r in rg.referrers(me) {
+            let m::EntityKey::ProductDefinitionShape(i) = *r else {
+                continue;
+            };
+            let pds = self.model.product_definition_shape_arena.get(i.0);
+            let names_me = match pds.definition {
+                m::CharacterizedDefinitionRef::ProductDefinition(d) => {
+                    m::EntityKey::ProductDefinition(d) == me
+                }
+                m::CharacterizedDefinitionRef::ProductDefinitionWithAssociatedDocuments(d) => {
+                    m::EntityKey::ProductDefinitionWithAssociatedDocuments(d) == me
+                }
+                _ => false,
+            };
+            let represented = rg
+                .referrers(*r)
+                .iter()
+                .any(|s| matches!(s, m::EntityKey::ShapeDefinitionRepresentation(_)));
+            if names_me && represented {
+                found.push(*r);
+            }
+        }
+        let [shape] = found[..] else {
+            return Err(format!(
+                "{} product_definition_shapes with a shape representation",
+                found.len()
+            ));
+        };
+        let (id, definition) = (
+            self.id(shape).map_err(|e| e.to_string())?,
+            self.id(me).map_err(|e| e.to_string())?,
+        );
+        match self.attribute(id, 2) {
+            Some(Attribute::EntityRef(d)) if *d == definition => Ok(id),
+            _ => Err(format!(
+                "#{id} read as the shape of #{definition} does not name it"
+            )),
+        }
+    }
+
+    /// Attribute *index* of simple instance *id*.
+    fn attribute(&self, id: u64, index: usize) -> Option<&'a Attribute> {
+        match self.graph.get(&id)? {
+            RawEntity::Simple { attributes, .. } => attributes.get(index),
+            RawEntity::Complex { .. } => None,
+        }
+    }
+
+    /// The entity type of instance *id*, `COMPLEX` for a complex instance.
+    fn kind(&self, id: u64) -> Option<&'a str> {
+        Some(match self.graph.get(&id)? {
+            RawEntity::Simple { name, .. } => name,
+            RawEntity::Complex { .. } => "COMPLEX",
+        })
+    }
+
+    /// The instance attribute *index* of *id* refers to.
+    fn reference(&self, id: u64, index: usize) -> Option<u64> {
+        match self.attribute(id, index)? {
+            Attribute::EntityRef(r) => Some(*r),
+            _ => None,
+        }
+    }
+
+    /// A `CARTESIAN_POINT`'s coordinates as written.
+    fn raw_point(&self, id: u64) -> Option<Vec<f64>> {
+        if self.kind(id)? != "CARTESIAN_POINT" {
+            return None;
+        }
+        let Attribute::List(coordinates) = self.attribute(id, 1)? else {
+            return None;
+        };
+        coordinates
+            .iter()
+            .map(|c| match c {
+                Attribute::Real(x) => Some(*x),
+                Attribute::Integer(n) => Some(*n as f64),
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// The location point of surface instance *id* as written (see [`FileIds::face`]).
+    fn raw_location(&self, id: u64) -> Option<Vec<f64>> {
+        let first_pole = |list: &Attribute| match list {
+            Attribute::List(rows) => match rows.first()? {
+                Attribute::List(row) => match row.first()? {
+                    Attribute::EntityRef(p) => self.raw_point(*p),
+                    _ => None,
+                },
+                _ => None,
+            },
+            _ => None,
+        };
+        match self.graph.get(&id)? {
+            RawEntity::Simple { name, .. } => match name.as_str() {
+                "PLANE"
+                | "CYLINDRICAL_SURFACE"
+                | "CONICAL_SURFACE"
+                | "SPHERICAL_SURFACE"
+                | "TOROIDAL_SURFACE"
+                | "DEGENERATE_TOROIDAL_SURFACE" => {
+                    let axis = self.reference(id, 1)?;
+                    self.raw_point(self.reference(axis, 1)?)
+                }
+                "SURFACE_OF_REVOLUTION" => {
+                    let axis = self.reference(id, 2)?;
+                    self.raw_point(self.reference(axis, 1)?)
+                }
+                "B_SPLINE_SURFACE"
+                | "B_SPLINE_SURFACE_WITH_KNOTS"
+                | "BEZIER_SURFACE"
+                | "UNIFORM_SURFACE"
+                | "QUASI_UNIFORM_SURFACE" => first_pole(self.attribute(id, 3)?),
+                _ => None,
+            },
+            RawEntity::Complex { parts, .. } => {
+                let part = parts.iter().find(|p| p.name == "B_SPLINE_SURFACE")?;
+                first_pole(part.attributes.get(2)?)
+            }
+        }
+    }
+
+    fn typed_point(&self, r: &m::CartesianPointRef) -> Option<Vec<f64>> {
+        let m::CartesianPointRef::CartesianPoint(i) = r else {
+            return None;
+        };
+        Some(
+            self.model
+                .cartesian_point_arena
+                .get(i.0)
+                .coordinates
+                .clone(),
+        )
+    }
+
+    /// The location point of a face's surface as step-io read it.
+    fn typed_location(&self, face: &StepFace<'_>) -> Option<Vec<f64>> {
+        let model = self.model;
+        let placed = |r: &m::Axis2Placement3dRef| {
+            let m::Axis2Placement3dRef::Axis2Placement3d(i) = r;
+            self.typed_point(&model.axis2_placement3d_arena.get(i.0).location)
+        };
+        let first =
+            |rows: &Vec<Vec<m::CartesianPointRef>>| self.typed_point(rows.first()?.first()?);
+        match face.surface().kind() {
+            SurfaceKind::Plane(s) => placed(&s.position),
+            SurfaceKind::Cylindrical(s) => placed(&s.position),
+            SurfaceKind::Conical(s) => placed(&s.position),
+            SurfaceKind::Spherical(s) => placed(&s.position),
+            SurfaceKind::Toroidal(s) => placed(&s.position),
+            SurfaceKind::Revolution(s) => {
+                let m::Axis1PlacementRef::Axis1Placement(i) = &s.axis_position;
+                self.typed_point(&model.axis1_placement_arena.get(i.0).location)
+            }
+            SurfaceKind::BSpline(s) => first(&s.control_points_list),
+            SurfaceKind::BSplineWithKnots(s) => first(&s.control_points_list),
+            SurfaceKind::QuasiUniform(s) => first(&s.control_points_list),
+            SurfaceKind::Uniform(s) => first(&s.control_points_list),
+            SurfaceKind::Bezier(s) => first(&s.control_points_list),
+            SurfaceKind::LinearExtrusion(_) | SurfaceKind::Other(_) => match face.surface().key() {
+                m::EntityKey::DegenerateToroidalSurface(i) => {
+                    placed(&model.degenerate_toroidal_surface_arena.get(i.0).position)
+                }
+                m::EntityKey::ComplexUnit(i) => model
+                    .complex_unit_arena
+                    .get(i.0)
+                    .parts
+                    .iter()
+                    .find_map(|p| match p {
+                        m::UnitPart::BSplineSurface {
+                            control_points_list,
+                            ..
+                        } => first(control_points_list),
+                        _ => None,
+                    }),
+                _ => None,
+            },
+        }
+    }
+
+    fn check_face(&self, face: &StepFace<'_>, id: u64) -> Result<(), String> {
+        let (bounds, surface, same_sense) = match face.key() {
+            m::EntityKey::AdvancedFace(i) => {
+                let f = self.model.advanced_face_arena.get(i.0);
+                (f.bounds.len(), f.face_geometry.entity_key(), f.same_sense)
+            }
+            m::EntityKey::FaceSurface(i) => {
+                let f = self.model.face_surface_arena.get(i.0);
+                (f.bounds.len(), f.face_geometry.entity_key(), f.same_sense)
+            }
+            other => return Err(format!("a face of type {}", step_name(other))),
+        };
+        let kind = self.kind(id).unwrap_or("nothing");
+        if kind != step_name(face.key()) {
+            return Err(format!("it is {kind}"));
+        }
+        match self.attribute(id, 1) {
+            Some(Attribute::List(l)) if l.len() == bounds => {}
+            _ => return Err(format!("its bound count is not {bounds}")),
+        }
+        let surface_id = self.reference(id, 2).ok_or("no surface reference")?;
+        let surface_kind = self.kind(surface_id).unwrap_or("nothing");
+        if surface_kind != step_name(surface) {
+            return Err(format!(
+                "its surface #{surface_id} is {surface_kind}, not {}",
+                step_name(surface)
+            ));
+        }
+        if logical(self.attribute(id, 3)) != Some(same_sense) {
+            return Err(format!("its same_sense is not {same_sense}"));
+        }
+        if !same_point(
+            self.raw_location(surface_id).as_deref(),
+            self.typed_location(face).as_deref(),
+        ) {
+            return Err(format!(
+                "its surface #{surface_id} is not where it was read"
+            ));
+        }
+        // The EDGE_CURVEs of its EDGE_LOOPs, as written and as read.
+        let mut written = Vec::new();
+        if let Some(Attribute::List(list)) = self.attribute(id, 1) {
+            for bound in list {
+                let Attribute::EntityRef(bound) = bound else {
+                    continue;
+                };
+                if !matches!(self.kind(*bound), Some("FACE_BOUND" | "FACE_OUTER_BOUND")) {
+                    continue;
+                }
+                let Some(lp) = self.reference(*bound, 1) else {
+                    continue;
+                };
+                if self.kind(lp) != Some("EDGE_LOOP") {
+                    continue;
+                }
+                let Some(Attribute::List(oriented)) = self.attribute(lp, 1) else {
+                    continue;
+                };
+                for oe in oriented {
+                    let Attribute::EntityRef(oe) = oe else {
+                        continue;
+                    };
+                    if self.kind(*oe) != Some("ORIENTED_EDGE") {
+                        continue;
+                    }
+                    if let Some(edge) = self.reference(*oe, 3)
+                        && self.kind(edge) == Some("EDGE_CURVE")
+                    {
+                        written.push(edge);
+                    }
+                }
+            }
+        }
+        let read = face
+            .bounds()
+            .flat_map(|b| b.edges().collect::<Vec<_>>())
+            .map(|e| self.id(e.key()).map_err(|e| e.to_string()))
+            .collect::<Result<Vec<u64>, String>>()?;
+        if written != read {
+            return Err("its loops' edges are not the edges read".into());
+        }
+        Ok(())
+    }
+
+    fn check_edge(&self, edge: &StepEdge<'_>, id: u64) -> Result<(), String> {
+        let m::EntityKey::EdgeCurve(i) = edge.key() else {
+            return Err(format!("an edge of type {}", step_name(edge.key())));
+        };
+        let e = self.model.edge_curve_arena.get(i.0);
+        let kind = self.kind(id).unwrap_or("nothing");
+        if kind != "EDGE_CURVE" {
+            return Err(format!("it is {kind}"));
+        }
+        for (index, vertex) in [(1, &e.edge_start), (2, &e.edge_end)] {
+            let written = self.reference(id, index).ok_or("no vertex reference")?;
+            let typed = vertex.entity_key();
+            if self.kind(written) != Some(&step_name(typed)) {
+                return Err(format!("vertex #{written} is not {}", step_name(typed)));
+            }
+            let read = match vertex {
+                m::VertexRef::VertexPoint(v) => {
+                    match &self.model.vertex_point_arena.get(v.0).vertex_geometry {
+                        m::PointRef::CartesianPoint(c) => Some(
+                            self.model
+                                .cartesian_point_arena
+                                .get(c.0)
+                                .coordinates
+                                .clone(),
+                        ),
+                        _ => None,
+                    }
+                }
+                _ => None,
+            };
+            let written_point = (self.kind(written) == Some("VERTEX_POINT"))
+                .then(|| self.reference(written, 1).and_then(|p| self.raw_point(p)))
+                .flatten();
+            if !same_point(written_point.as_deref(), read.as_deref()) {
+                return Err(format!("vertex #{written} is not where it was read"));
+            }
+        }
+        let curve = self.reference(id, 3).ok_or("no curve reference")?;
+        let typed = e.edge_geometry.entity_key();
+        if self.kind(curve) != Some(&step_name(typed)) {
+            return Err(format!("curve #{curve} is not {}", step_name(typed)));
+        }
+        if logical(self.attribute(id, 4)) != Some(e.same_sense) {
+            return Err(format!("its same_sense is not {}", e.same_sense));
+        }
+        Ok(())
+    }
+}
+
+/// A BOOLEAN attribute (`.T.` / `.F.`).
+fn logical(a: Option<&Attribute>) -> Option<bool> {
+    match a? {
+        Attribute::Enum(e) if e == "T" => Some(true),
+        Attribute::Enum(e) if e == "F" => Some(false),
+        _ => None,
+    }
+}
+
+/// Points exactly equal: step-io's typed coordinates are the same parsed REAL tokens (an
+/// INTEGER written where a REAL belongs converts exactly), so any difference means the two are
+/// not the same instance. Equal as numbers, not bit for bit: step-io reads a written `-0.0` as
+/// `0.0` (NIST CTC-04, FTC-07 and FTC-10, edition 2).
+fn same_point(written: Option<&[f64]>, read: Option<&[f64]>) -> bool {
+    match (written, read) {
+        (Some(a), Some(b)) => a.len() == b.len() && a.iter().zip(b).all(|(x, y)| x == y),
+        (None, None) => true,
+        _ => false,
+    }
+}
+
+/// The STEP entity type of a typed key (`BSplineSurfaceWithKnots` → `B_SPLINE_SURFACE_WITH_KNOTS`),
+/// `COMPLEX` for a complex instance.
+fn step_name(key: m::EntityKey) -> String {
+    let debug = format!("{key:?}");
+    let variant = debug.split('(').next().unwrap_or_default();
+    if variant == "ComplexUnit" {
+        return "COMPLEX".into();
+    }
+    let mut out = String::new();
+    for (i, c) in variant.chars().enumerate() {
+        if c.is_ascii_uppercase() && i > 0 {
+            out.push('_');
+        }
+        out.push(c.to_ascii_uppercase());
+    }
+    out
+}
+
 /// Read a STEP file's bytes into a [`Part`].
 pub fn read_step(bytes: &[u8]) -> Result<Part, StepError> {
     read_step_placed(bytes, &IDENTITY)
@@ -695,6 +1180,33 @@ pub fn read_step(bytes: &[u8]) -> Result<Part, StepError> {
 /// Read a STEP file's bytes into a [`Part`] moved by *outer*, a proper rigid motion applied
 /// above every instance placement, as if the file's roots were placed by it.
 pub fn read_step_placed(bytes: &[u8], outer: &Placement) -> Result<Part, StepError> {
+    read_placed(bytes, outer).map(|read| read.part)
+}
+
+/// A product definition the reader placed (an assembly or a part), as file instances.
+struct PlacedDefinition {
+    /// The `#N` of its `product_definition` (or the `_with_associated_documents` subtype).
+    definition: u64,
+    /// The `#N` of the `product_definition_shape` its shape is represented through, or why
+    /// there is not exactly one.
+    shape: Result<u64, String>,
+    /// Its product's name.
+    name: String,
+    placement: Placement,
+}
+
+/// A part read with what placed each of its instances.
+struct Read {
+    part: Part,
+    /// Per instance ([`Source::instance`]), the index in `placed` of the definition placed
+    /// there, if a product definition holds it.
+    instances: Vec<Option<usize>>,
+    placed: Vec<PlacedDefinition>,
+    /// Per face, its `same_sense` as written.
+    same_sense: Vec<bool>,
+}
+
+fn read_placed(bytes: &[u8], outer: &Placement) -> Result<Read, StepError> {
     let r = outer.map(|row| [row[0], row[1], row[2]]);
     let det = r[0][0] * (r[1][1] * r[2][2] - r[1][2] * r[2][1])
         - r[0][1] * (r[1][0] * r[2][2] - r[1][2] * r[2][0])
@@ -706,7 +1218,9 @@ pub fn read_step_placed(bytes: &[u8], outer: &Placement) -> Result<Part, StepErr
         ));
     }
     let (model, report) = step_io::read(bytes).map_err(|e| StepError::Parse(e.to_string()))?;
-    refuse_dropped_shapes(bytes, &report)?;
+    let graph = step_io::parser::parse_bytes(bytes).map_err(|e| StepError::Parse(e.to_string()))?;
+    refuse_dropped_shapes(&graph, &report)?;
+    let mut ids = FileIds::new(&graph, &model, &report);
     let scene = model.scene();
     let units = scene.units();
     let mut reader = Reader {
@@ -728,38 +1242,44 @@ pub fn read_step_placed(bytes: &[u8], outer: &Placement) -> Result<Part, StepErr
     };
 
     // Shells in the order OpenCascade's explorer meets them: placed solid instances, then open
-    // shells.
+    // shells. Each is read as one instance (a placed solid, or a placement of a surface model),
+    // with the placed definition it belongs to.
     let mut shells = Vec::new();
+    let mut instance_of: Vec<Option<usize>> = Vec::new();
     let (mut instances, mut placed) = (Vec::new(), Vec::new());
     for root in scene.root_definitions() {
         collect_instances(root, *outer, reader.to_mm, &mut instances, &mut placed, 0);
     }
     if instances.is_empty() {
-        instances = scene.all_solids().map(|s| (s, *outer)).collect();
+        instances = scene.all_solids().map(|s| (s, *outer, None)).collect();
     }
-    for (solid, placement) in instances {
+    for (solid, placement, def) in instances {
         // The outer shell, then each void shell (whose faces face inward, hence the flip).
         let mut faces: Vec<(StepFace<'_>, bool)> = solid.faces().map(|f| (f, false)).collect();
         let flips = void_orientations(&model, &solid);
         for (void, flip) in solid.voids().into_iter().zip(flips) {
             faces.extend(void.into_iter().map(|f| (f, flip)));
         }
-        shells.push((true, placement, faces));
+        shells.push((true, placement, faces, instance_of.len()));
+        instance_of.push(def);
     }
     let rg = model.ref_graph();
     for index in reachable_surface_models(&model, &rg) {
         let sbsm = model.shell_based_surface_model_arena.get(index);
         // Placed like the assembly instances of the product that owns it, once per instance.
         let owners = surface_model_owners(&model, &rg, index);
-        let mut placements: Vec<Placement> = placed
+        let mut placements: Vec<(Placement, Option<usize>)> = placed
             .iter()
-            .filter(|(def, _)| owners.contains(def))
-            .map(|(_, p)| *p)
+            .enumerate()
+            .filter(|(_, (def, _))| owners.contains(&def.key()))
+            .map(|(i, (_, p))| (*p, Some(i)))
             .collect();
         if placements.is_empty() {
-            placements.push(*outer);
+            placements.push((*outer, None));
         }
-        for placement in placements {
+        for (placement, def) in placements {
+            let instance = instance_of.len();
+            instance_of.push(def);
             for shell in &sbsm.sbsm_boundary {
                 let faces = match shell {
                     m::ShellRef::OpenShell(i) => &model.open_shell_arena.get(i.0).cfs_faces,
@@ -774,6 +1294,7 @@ pub fn read_step_placed(bytes: &[u8], outer: &Placement) -> Result<Part, StepErr
                         .filter_map(&face_of)
                         .map(|f| (f, false))
                         .collect(),
+                    instance,
                 ));
             }
         }
@@ -781,8 +1302,9 @@ pub fn read_step_placed(bytes: &[u8], outer: &Placement) -> Result<Part, StepErr
 
     let (mut out_faces, mut edges_out, mut solids) = (Vec::new(), Vec::new(), Vec::new());
     let (mut unresolved_faces, mut unresolved_edges) = (Vec::new(), Vec::new());
+    let (mut face_sources, mut edge_sources, mut same_sense) = (Vec::new(), Vec::new(), Vec::new());
     let mut vertex_count = 0;
-    for (is_solid, placement, faces) in shells {
+    for (is_solid, placement, faces, instance) in shells {
         reader.placement = placement;
         // Edges are shared within one placed shell only; another instance gets its own copies.
         let mut edge_index: HashMap<m::EntityKey, usize> = HashMap::new();
@@ -805,6 +1327,10 @@ pub fn read_step_placed(bytes: &[u8], outer: &Placement) -> Result<Part, StepErr
                                 unresolved_edges.push(edges_out.len());
                             }
                             edges_out.push(read);
+                            edge_sources.push(Source {
+                                entity: ids.edge(&edge)?,
+                                instance,
+                            });
                             edge_index.insert(edge.key(), edges_out.len() - 1);
                             edges_out.len() - 1
                         }
@@ -839,6 +1365,11 @@ pub fn read_step_placed(bytes: &[u8], outer: &Placement) -> Result<Part, StepErr
                 solid: is_solid.then_some(solids.len()),
                 pcurves,
             });
+            face_sources.push(Source {
+                entity: ids.face(&face)?,
+                instance,
+            });
+            same_sense.push(face.same_sense());
         }
         drop(vertex_id);
         vertex_count += vertex_index.len();
@@ -849,14 +1380,167 @@ pub fn read_step_placed(bytes: &[u8], outer: &Placement) -> Result<Part, StepErr
     if out_faces.is_empty() {
         return Err(StepError::Incomplete("no solid or shell with faces".into()));
     }
-    Ok(Part::new(out_faces, edges_out, solids).with_unresolved(unresolved_faces, unresolved_edges))
+    let placed = placed
+        .into_iter()
+        .map(|(def, placement)| {
+            Ok(PlacedDefinition {
+                definition: ids.id(def.key())?,
+                shape: ids.definition_shape(&def, &rg),
+                name: def.product().map_or("", |p| p.name()).to_string(),
+                placement,
+            })
+        })
+        .collect::<Result<_, StepError>>()?;
+    let part = Part::new(out_faces, edges_out, solids)
+        .with_unresolved(unresolved_faces, unresolved_edges)
+        .with_sources(face_sources, edge_sources);
+    Ok(Read {
+        part,
+        instances: instance_of,
+        placed,
+        same_sense,
+    })
+}
+
+/// One distinct part of a file: a product definition whose shape holds faces, with the numbering
+/// of its faces and edges that PMI anchors to (specify-core's: OpenCascade's `TopExp::MapShapes`
+/// over the part's own shape, not over a placed instance).
+#[derive(Clone, Debug)]
+pub struct PartDefinition {
+    /// The `#N` of its `product_definition` (or `product_definition_with_associated_documents`).
+    pub product_definition: u64,
+    /// The `#N` of the `product_definition_shape` its shape is represented through, which the
+    /// part's shape aspects name as `of_shape`.
+    pub shape: u64,
+    /// Its product's name (`PRODUCT.name`).
+    pub name: String,
+    /// Face index → the `#N` of the `ADVANCED_FACE` (or `FACE_SURFACE`) it was read from.
+    pub faces: Vec<u64>,
+    /// Edge index → the `#N` of its `EDGE_CURVE`.
+    pub edges: Vec<u64>,
+    /// Where each instance of the part is placed, in the reader's order.
+    pub placements: Vec<PartPlacement>,
+    face_index: HashMap<u64, usize>,
+    edge_index: HashMap<u64, usize>,
+}
+
+/// One placement of a part: rows of `[R | t]` with `t` in millimetres, and the instances of the
+/// [`Part`] read with it ([`crate::brep::Source::instance`]): one per solid or surface model of
+/// the part.
+#[derive(Clone, Debug)]
+pub struct PartPlacement {
+    pub placement: Placement,
+    pub instances: Vec<usize>,
+}
+
+impl PartDefinition {
+    /// The index of the face read from `ADVANCED_FACE` *entity*, if it is one of this part's.
+    pub fn face_index(&self, entity: u64) -> Option<usize> {
+        self.face_index.get(&entity).copied()
+    }
+
+    /// The index of the edge read from `EDGE_CURVE` *entity*, if it is one of this part's.
+    pub fn edge_index(&self, entity: u64) -> Option<usize> {
+        self.edge_index.get(&entity).copied()
+    }
+}
+
+/// The distinct parts of a STEP file, in specify-core's order (depth first through the assembly
+/// from its roots, each part where it is first placed; a part placed twice is one part with two
+/// placements), each with its faces and edges numbered as in its own shape. Refused when a shape
+/// with faces belongs to no product definition (nothing to anchor its PMI to), or a part's
+/// product definition has not exactly one represented `product_definition_shape`.
+pub fn read_part_definitions(bytes: &[u8]) -> Result<Vec<PartDefinition>, StepError> {
+    let Read {
+        part,
+        instances,
+        placed,
+        same_sense,
+    } = read_placed(bytes, &IDENTITY)?;
+    if let Some(orphan) = instances.iter().position(Option::is_none) {
+        return Err(StepError::Unsupported(format!(
+            "instance {orphan} of the file's shapes belongs to no product definition"
+        )));
+    }
+    let mut parts: Vec<PartDefinition> = Vec::new();
+    for (index, def) in placed.iter().enumerate() {
+        let mine: Vec<usize> = (0..instances.len())
+            .filter(|&i| instances[i] == Some(index))
+            .collect();
+        if mine.is_empty() {
+            continue;
+        }
+        let placement = PartPlacement {
+            placement: def.placement,
+            instances: mine.clone(),
+        };
+        if let Some(known) = parts
+            .iter_mut()
+            .find(|p| p.product_definition == def.definition)
+        {
+            known.placements.push(placement);
+            continue;
+        }
+        let shape = def.shape.clone().map_err(|why| {
+            StepError::Unsupported(format!("part #{} ({}): {why}", def.definition, def.name))
+        })?;
+        let ours: Vec<usize> = (0..part.faces.len())
+            .filter(|&f| {
+                part.face_source(f)
+                    .is_some_and(|s| mine.contains(&s.instance))
+            })
+            .collect();
+        let faces: Vec<u64> = ours
+            .iter()
+            .filter_map(|&f| part.face_source(f).map(|s| s.entity))
+            .collect();
+        // Edges as OpenCascade's explorer meets them: face by face, loop by loop, a loop's edges
+        // in the order the file lists them, backwards when the bound's orientation differs from
+        // the face's `same_sense` (a loop's edges here are already backwards when its bound is
+        // used reversed); an edge two faces or two of the part's solids share is one edge.
+        let mut edges: Vec<u64> = Vec::new();
+        let mut edge_index = HashMap::new();
+        for &f in &ours {
+            let in_order = |l: &Loop| -> Vec<usize> {
+                let order = l.edges.iter().map(|&(e, _)| e);
+                if same_sense[f] {
+                    order.collect()
+                } else {
+                    order.rev().collect()
+                }
+            };
+            for e in part.faces[f].loops.iter().flat_map(in_order) {
+                if let Some(s) = part.edge_source(e)
+                    && !edge_index.contains_key(&s.entity)
+                {
+                    edge_index.insert(s.entity, edges.len());
+                    edges.push(s.entity);
+                }
+            }
+        }
+        let face_index = faces.iter().enumerate().map(|(i, &f)| (f, i)).collect();
+        parts.push(PartDefinition {
+            product_definition: def.definition,
+            shape,
+            name: def.name.clone(),
+            faces,
+            edges,
+            placements: vec![placement],
+            face_index,
+            edge_index,
+        });
+    }
+    Ok(parts)
 }
 
 /// Refuses a file whose shapes lost entities when step-io read it: an entity a shape
 /// representation reaches through its items that is missing from the file or was dropped
 /// (malformed, or of a type step-io does not model), or a shape representation dropped itself.
 /// Entities no shape reaches (presentation, PMI) may be dropped without harm.
-fn refuse_dropped_shapes(bytes: &[u8], report: &step_io::Report) -> Result<(), StepError> {
+fn refuse_dropped_shapes(
+    graph: &step_io::parser::Graph,
+    report: &step_io::Report,
+) -> Result<(), StepError> {
     use std::collections::{BTreeSet, HashSet};
     use step_io::parser::{Attribute, RawEntity};
 
@@ -881,7 +1565,6 @@ fn refuse_dropped_shapes(bytes: &[u8], report: &step_io::Report) -> Result<(), S
     if report.dropped.is_empty() {
         return Ok(());
     }
-    let graph = step_io::parser::parse_bytes(bytes).map_err(|e| StepError::Parse(e.to_string()))?;
     let dropped: HashMap<u64, &step_io::DropReason> =
         report.dropped.iter().map(|(id, r)| (*id, r)).collect();
     let (mut lost, mut missing) = (BTreeSet::new(), BTreeSet::new());
@@ -1114,6 +1797,84 @@ mod tests {
         assert!(part.solid_is_valid(0));
         let view = View::new([0.0, -1.0, 0.0], [0.0, 0.0, 1.0]).unwrap();
         assert!(!project(&part, &view).unwrap().is_empty());
+    }
+
+    /// The id map is checked against the records, not only against entity types: two planar
+    /// faces of one loop each, with the same sense, swapped in the map, pass every type check
+    /// and are refused on where their planes are; likewise two edges on one kind of curve on where
+    /// their vertices are.
+    #[test]
+    fn a_permuted_instance_map_is_refused() {
+        let bytes = std::fs::read(fixture("prismatic.step")).unwrap();
+        let (model, report) = step_io::read(&bytes).unwrap();
+        let graph = step_io::parser::parse_bytes(&bytes).unwrap();
+        let scene = model.scene();
+        let faces: Vec<StepFace<'_>> = scene.all_faces().collect();
+        let edges: Vec<StepEdge<'_>> = faces
+            .iter()
+            .flat_map(|f| {
+                f.bounds()
+                    .flat_map(|b| b.edges().collect::<Vec<_>>())
+                    .collect::<Vec<_>>()
+            })
+            .collect();
+        let mut ids = FileIds::new(&graph, &model, &report);
+        for f in &faces {
+            ids.face(f).unwrap();
+        }
+        for e in &edges {
+            ids.edge(e).unwrap();
+        }
+
+        let index = |key: m::EntityKey| match key {
+            m::EntityKey::AdvancedFace(i) => i.0,
+            m::EntityKey::EdgeCurve(i) => i.0,
+            _ => unreachable!(),
+        };
+        let planar = |f: &&StepFace<'_>| {
+            matches!(f.surface().kind(), SurfaceKind::Plane(_)) && f.bounds().count() == 1
+        };
+        // Planes at different points (the edge check alone would catch planes at one point).
+        let location = |f: &StepFace<'_>| {
+            let id = ids.id(f.key()).unwrap();
+            ids.raw_location(ids.reference(id, 2).unwrap())
+        };
+        let (a, b) = faces
+            .iter()
+            .filter(planar)
+            .flat_map(|a| faces.iter().filter(planar).map(move |b| (a, b)))
+            .find(|(a, b)| a.same_sense() == b.same_sense() && location(a) != location(b))
+            .expect("two planar one-loop faces of one sense");
+        let mut permuted = FileIds::new(&graph, &model, &report);
+        permuted
+            .by_type
+            .get_mut("ADVANCED_FACE")
+            .unwrap()
+            .swap(index(a.key()), index(b.key()));
+        let (ia, ib) = (permuted.id(a.key()).unwrap(), permuted.id(b.key()).unwrap());
+        assert_eq!(permuted.kind(ia), permuted.kind(ib));
+        let surface = |id| permuted.kind(permuted.reference(id, 2).unwrap());
+        assert_eq!(surface(ia), Some("PLANE"));
+        assert_eq!(surface(ia), surface(ib));
+        let error = permuted.face(a).unwrap_err().to_string();
+        assert!(error.contains("is not where it was read"), "{error}");
+
+        let curve = |e: &StepEdge<'_>| step_name(raw_edge_curve(&model, e).entity_key());
+        let (c, d) = edges
+            .iter()
+            .flat_map(|c| edges.iter().map(move |d| (c, d)))
+            .find(|(c, d)| {
+                c.key() != d.key() && c.same_sense() == d.same_sense() && curve(c) == curve(d)
+            })
+            .expect("two edges on one kind of curve, of one sense");
+        let mut permuted = FileIds::new(&graph, &model, &report);
+        permuted
+            .by_type
+            .get_mut("EDGE_CURVE")
+            .unwrap()
+            .swap(index(c.key()), index(d.key()));
+        let error = permuted.edge(c).unwrap_err().to_string();
+        assert!(error.contains("is not where it was read"), "{error}");
     }
 
     #[test]

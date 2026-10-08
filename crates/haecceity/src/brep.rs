@@ -134,6 +134,21 @@ impl Edge {
     }
 }
 
+/// The file instance a face or edge of a [`Part`] was read from: the `#N` of its
+/// `ADVANCED_FACE` (or `FACE_SURFACE`) or `EDGE_CURVE`, and the placed instance it belongs to.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct Source {
+    /// The instance id (`#N`) in the file.
+    pub entity: u64,
+    /// Which placed instance of a shape the face or edge is part of: the reader's placed solids,
+    /// numbered in reading order (a solid's instance number is its index in [`Part::solids`]),
+    /// then each placement of a surface model.
+    pub instance: usize,
+}
+
+pub type FaceSource = Source;
+pub type EdgeSource = Source;
+
 #[derive(Debug)]
 pub struct Part {
     pub faces: Vec<Face>,
@@ -144,6 +159,8 @@ pub struct Part {
     valid_solids: OnceLock<Vec<bool>>,
     unresolved_faces: Vec<usize>,
     unresolved_edges: Vec<usize>,
+    face_sources: Vec<Source>,
+    edge_sources: Vec<Source>,
 }
 
 impl Part {
@@ -158,7 +175,28 @@ impl Part {
             valid_solids: OnceLock::new(),
             unresolved_faces: Vec::new(),
             unresolved_edges: Vec::new(),
+            face_sources: Vec::new(),
+            edge_sources: Vec::new(),
         }
+    }
+
+    /// Records, for every face and every edge in index order, the instance it was read from.
+    pub(super) fn with_sources(mut self, faces: Vec<Source>, edges: Vec<Source>) -> Self {
+        assert_eq!(faces.len(), self.faces.len());
+        assert_eq!(edges.len(), self.edges.len());
+        self.face_sources = faces;
+        self.edge_sources = edges;
+        self
+    }
+
+    /// The file instance face *face* was read from; `None` for a part not read from a file.
+    pub fn face_source(&self, face: usize) -> Option<FaceSource> {
+        self.face_sources.get(face).copied()
+    }
+
+    /// The file instance edge *edge* was read from; `None` for a part not read from a file.
+    pub fn edge_source(&self, edge: usize) -> Option<EdgeSource> {
+        self.edge_sources.get(edge).copied()
     }
 
     /// Records the faces whose surface (`Surface::Other`, unevaluable) and the edges whose curve
