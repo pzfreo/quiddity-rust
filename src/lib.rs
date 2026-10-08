@@ -5,6 +5,7 @@
 
 pub mod correspondence;
 pub mod features;
+pub mod frames;
 /// The geometry kernel, [`haecceity`], under the name the recognisers use.
 pub use haecceity as kernel;
 

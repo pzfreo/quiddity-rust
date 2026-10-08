@@ -980,6 +980,87 @@ impl Part {
             area_vector: [nx, ny, nz].map(|c| sense * c * area.signum()),
         })
     }
+
+    /// The volume and centre of mass of all the part's solids together (`BRepGProp::
+    /// VolumeProperties` of the solids), or `None` where a face cannot be integrated; a void's
+    /// faces subtract, as in [`Part::solid_mass`].
+    ///
+    /// About a point c, the volume is ⅓∯ (p − c)·n dA and ∭ (p − c) dV is ¼∯ (p − c)((p − c)·n) dA
+    /// (the divergence of (p − c)((p − c)·e) is 4(p − c)·e). Both fields turn with the part, so
+    /// what the faces leave out where they do not quite close (cracks between B-spline faces)
+    /// turns with it too, and depends on c only through c's place in the part: c is taken as
+    /// the centroid itself, the fixed point of c ↦ c + moment(c)/volume(c), found from one pass
+    /// over the faces (the moments about any c are a quadratic in c), and the volume is the one
+    /// about it. The centroid then moves with the part: over the corpus and the fixtures, to 1e-9
+    /// of the part's size under a generic rotation (`tests/frames.rs`), where measured about a
+    /// fixed point it moved by up to 0.08 mm on parts with such cracks.
+    pub fn volume_centroid(&self) -> Option<(f64, V3)> {
+        // Integrated about c0 (the box centre, inside the part) for conditioning: with
+        // q = p − c0, s = ∯ q·n, m = ∯ n, a[i][j] = ∯ qᵢ nⱼ, b = ∯ q (q·n).
+        let c0 = self.bounds().centre();
+        let (mut s, mut m, mut a, mut b) = (0.0, [0.0; 3], [[0.0; 3]; 3], [0.0; 3]);
+        for solid in &self.solids {
+            for &face in &solid.faces {
+                let fc = &self.faces[face];
+                let surface = &fc.surface;
+                let sense = if fc.reversed { -1.0 } else { 1.0 };
+                if let Surface::Sphere { frame, radius } = surface
+                    && self.whole_sphere(face)
+                {
+                    // A closed ball of signed volume v: s = 3v, m = 0, a = v I, b = 4v (centre − c0).
+                    let direct = if frame.direct() { 1.0 } else { -1.0 };
+                    let v = sense * direct * 4.0 / 3.0 * std::f64::consts::PI * radius.powi(3);
+                    s += 3.0 * v;
+                    for i in 0..3 {
+                        a[i][i] += v;
+                        b[i] += 4.0 * v * (frame.origin[i] - c0[i]);
+                    }
+                    continue;
+                }
+                // The area density first: it steers the refinement, as in `face_moments`.
+                let f = self.face_integral(face, |u, v| {
+                    let (p, su, sv) = point_and_partials(surface, u, v);
+                    let n = geom::cross(su, sv);
+                    let q = geom::sub(p, c0);
+                    let qn = geom::dot(q, n);
+                    let mut out = [0.0; 17];
+                    out[0] = geom::norm(n);
+                    out[1] = qn;
+                    for i in 0..3 {
+                        out[2 + i] = n[i];
+                        out[14 + i] = q[i] * qn;
+                        for j in 0..3 {
+                            out[5 + 3 * i + j] = q[i] * n[j];
+                        }
+                    }
+                    out
+                })?;
+                s += sense * f[1];
+                for i in 0..3 {
+                    m[i] += sense * f[2 + i];
+                    b[i] += sense * f[14 + i];
+                    for j in 0..3 {
+                        a[i][j] += sense * f[5 + 3 * i + j];
+                    }
+                }
+            }
+        }
+        // About c = c0 + d: volume (s − d·m)/3, moment (b − a d − s d + d (d·m))/4.
+        let volume = |d: V3| (s - geom::dot(d, m)) / 3.0;
+        let moment = |d: V3| {
+            let (dm, ad) = (geom::dot(d, m), [0, 1, 2].map(|i| geom::dot(a[i], d)));
+            [0, 1, 2].map(|i| (b[i] - ad[i] - s * d[i] + d[i] * dm) / 4.0)
+        };
+        let mut d = [0.0; 3];
+        for _ in 0..50 {
+            let step = moment(d).map(|x| x / volume(d));
+            d = geom::add(d, step);
+            if geom::norm(step) <= 1e-15 * (1.0 + geom::norm(d)) {
+                break;
+            }
+        }
+        Some((volume(d), geom::add(c0, d)))
+    }
 }
 
 #[cfg(test)]
