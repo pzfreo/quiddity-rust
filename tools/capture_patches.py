@@ -27,6 +27,7 @@ import quiddity  # noqa: E402
 import quiddity._support_patches as support_patches  # noqa: E402
 import quiddity.interior_voids as interior_voids  # noqa: E402
 import quiddity.thin_walls as thin_walls  # noqa: E402
+from _provenance import revision  # noqa: E402
 from quiddity import import_step_geometry  # noqa: E402
 from quiddity.result import build_recognition_result  # noqa: E402
 
@@ -92,7 +93,7 @@ def main() -> None:
         except Exception as error:  # noqa: BLE001
             print("recognition failed", path, error, file=sys.stderr)
         print(_current["file"], len(_records) - before, file=sys.stderr)
-    text = json.dumps({"patches": _records}, allow_nan=False) + "\n"
+    text = json.dumps({"quiddity_revision": revision(QUIDDITY), "patches": _records}, allow_nan=False) + "\n"
     OUT.write_bytes(gzip.compress(text.encode(), mtime=0))
 
 

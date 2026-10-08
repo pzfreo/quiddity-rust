@@ -2,12 +2,14 @@
 
     QUIDDITY=../quiddity ../quiddity/.venv/bin/python tools/export_corpus.py
 
-Writes ``tests/fixtures/corpus.json``: per corpus file, a face inventory (proves the Rust reader
-walks faces in OpenCascade's order), the kernel answers the recognisers lean on (each face's
-``BRepTools::UVBounds`` and the arc between each pair of neighbours) and, per recogniser and
-option set, Python's records. The
+Writes ``tests/fixtures/corpus.json``: the quiddity revision it ran at and, per corpus file, its
+sha256, a face inventory (proves the Rust reader walks faces in OpenCascade's order), the kernel
+answers the recognisers lean on (each face's ``BRepTools::UVBounds`` and the arc between each
+pair of neighbours) and, per recogniser and option set, Python's records. The
 corpus itself stays in the quiddity checkout; ``tests/corpus.rs`` finds it through
-``QUIDDITY_CORPUS`` or ``../quiddity/tests/corpus``.
+``QUIDDITY_CORPUS`` or ``../quiddity/tests/corpus``, and ``tests/corpus_files.rs`` checks it is
+the corpus these answers are for. Pin CI's checkout (``.github/workflows/ci.yml``) to the
+recorded revision.
 """
 
 from __future__ import annotations
@@ -24,6 +26,7 @@ QUIDDITY = Path(os.environ.get("QUIDDITY", "../quiddity")).resolve()
 sys.path[:0] = [str(QUIDDITY), str(QUIDDITY / "tests"), str(QUIDDITY / "src")]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from _provenance import revision, sha256  # noqa: E402
 from export_fixtures import _face_index, _inventory  # noqa: E402
 
 from quiddity._adjacency import FaceGraph  # noqa: E402
@@ -247,6 +250,7 @@ def main() -> None:
         entries.append(
             {
                 "file": str(path.relative_to(CORPUS)),
+                "sha256": sha256(path),
                 "inventory": _inventory(part),
                 "kernel": _kernel(part),
                 "results": {
@@ -305,7 +309,10 @@ def main() -> None:
             }
         )
         print(entries[-1]["file"], {k: [len(r["result"]) for r in v] for k, v in entries[-1]["results"].items()}, file=sys.stderr)
-    OUT.write_text(json.dumps({"files": entries}, indent=1, allow_nan=False) + "\n")
+    OUT.write_text(
+        json.dumps({"quiddity_revision": revision(QUIDDITY), "files": entries}, indent=1, allow_nan=False)
+        + "\n"
+    )
 
 
 if __name__ == "__main__":

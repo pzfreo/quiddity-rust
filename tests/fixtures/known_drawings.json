@@ -3,384 +3,451 @@
     "file": "inventory_refusal/14052.step.gz",
     "view": "front",
     "verdict": "undetermined",
-    "reason": "A deliberately malformed corpus part (its shell is not orientable) that OpenCascade heals on import; the two are not drawing the same solid."
+    "reason": "A deliberately malformed corpus part (its shell is not orientable) that OpenCascade heals on import; the two are not drawing the same solid.",
+    "min_score": 0.981
   },
   {
     "file": "inventory_refusal/14052.step.gz",
     "view": "iso",
     "verdict": "undetermined",
-    "reason": "A deliberately malformed corpus part (its shell is not orientable) that OpenCascade heals on import; the two are not drawing the same solid."
+    "reason": "A deliberately malformed corpus part (its shell is not orientable) that OpenCascade heals on import; the two are not drawing the same solid.",
+    "min_score": 0.867
   },
   {
     "file": "inventory_refusal/14052.step.gz",
     "view": "plan",
     "verdict": "undetermined",
-    "reason": "A deliberately malformed corpus part (its shell is not orientable) that OpenCascade heals on import; the two are not drawing the same solid."
+    "reason": "A deliberately malformed corpus part (its shell is not orientable) that OpenCascade heals on import; the two are not drawing the same solid.",
+    "min_score": 0.661
   },
   {
     "file": "mfcadpp/10000.step",
     "view": "iso",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.985
   },
   {
     "file": "mfcadpp/10000.step",
     "view": "side",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.969
   },
   {
     "file": "mfcadpp/10096.step",
     "view": "iso",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.975
   },
   {
     "file": "mfcadpp/10098.step",
     "view": "front",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.96
   },
   {
     "file": "mfcadpp/10098.step",
     "view": "iso",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.977
   },
   {
     "file": "mfcadpp/10098.step",
     "view": "side",
     "verdict": "rust-correct",
-    "reason": "A through hole's near rim (an ellipse on an inclined face) projects onto its far rim's circle: OpenCascade's visible curve for it lies up to 0.053 mm inside that circle, haecceity's on it."
+    "reason": "A through hole's near rim (an ellipse on an inclined face) projects onto its far rim's circle: OpenCascade's visible curve for it lies up to 0.053 mm inside that circle, haecceity's on it.",
+    "min_score": 0.947
   },
   {
     "file": "mfcadpp/10119.step",
     "view": "front",
     "verdict": "rust-correct",
-    "reason": "A through hole's far rim, seen along its axis, lies under its near rim: OpenCascade's hidden copy dips to radius 2.736 against the true 2.806 (haecceity's lies exactly under the visible rim)."
+    "reason": "A through hole's far rim, seen along its axis, lies under its near rim: OpenCascade's hidden copy dips to radius 2.736 against the true 2.806 (haecceity's lies exactly under the visible rim).",
+    "min_score": 0.925
   },
   {
     "file": "mfcadpp/10119.step",
     "view": "iso",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.954
   },
   {
     "file": "mfcadpp/10119.step",
     "view": "plan",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.929
   },
   {
     "file": "mfcadpp/10127.step",
     "view": "iso",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.957
   },
   {
     "file": "mfcadpp/10127.step",
     "view": "plan",
     "verdict": "rust-correct",
-    "reason": "OpenCascade's hidden ellipse (a cylinder meeting an inclined plane) strays up to 0.0195 mm from the true ellipse; haecceity's lies on both faces within 4e-12."
+    "reason": "OpenCascade's hidden ellipse (a cylinder meeting an inclined plane) strays up to 0.0195 mm from the true ellipse; haecceity's lies on both faces within 4e-12.",
+    "min_score": 0.93
   },
   {
     "file": "mfcadpp/10127.step",
     "view": "side",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.935
   },
   {
     "file": "mfcadpp/10138.step",
     "view": "front",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.976
   },
   {
     "file": "mfcadpp/10138.step",
     "view": "side",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.986
   },
   {
     "file": "mfcadpp/10155.step",
     "view": "front",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.986
   },
   {
     "file": "mfcadpp/10155.step",
     "view": "iso",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.989
   },
   {
     "file": "mfcadpp/10155.step",
     "view": "plan",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.977
   },
   {
     "file": "mfcadpp/10156.step",
     "view": "front",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.876
   },
   {
     "file": "mfcadpp/10156.step",
     "view": "iso",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.967
   },
   {
     "file": "mfcadpp/10156.step",
     "view": "plan",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.95
   },
   {
     "file": "mfcadpp/10190.step",
     "view": "front",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.983
   },
   {
     "file": "mfcadpp/10224.step",
     "view": "front",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.977
   },
   {
     "file": "mfcadpp/10224.step",
     "view": "iso",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.982
   },
   {
     "file": "mfcadpp/10224.step",
     "view": "side",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.914
   },
   {
     "file": "mfcadpp_holdout/183.step",
     "view": "front",
     "verdict": "rust-correct",
-    "reason": "OpenCascade's curves for a hole's rims stray up to 0.033 mm (visible) and 0.008 mm (hidden) from haecceity's, whose edges lie on their faces within 1.1e-11."
+    "reason": "OpenCascade's curves for a hole's rims stray up to 0.033 mm (visible) and 0.008 mm (hidden) from haecceity's, whose edges lie on their faces within 1.1e-11.",
+    "min_score": 0.936
   },
   {
     "file": "mfcadpp_holdout/183.step",
     "view": "iso",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.98
   },
   {
     "file": "mfcadpp_holdout/183.step",
     "view": "plan",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.98
   },
   {
     "file": "mfcadpp_holdout/238.step",
     "view": "front",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.938
   },
   {
     "file": "mfcadpp_holdout/238.step",
     "view": "iso",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.975
   },
   {
     "file": "mfcadpp_holdout/238.step",
     "view": "plan",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.984
   },
   {
     "file": "mfcadpp_holdout/388.step",
     "view": "front",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.982
   },
   {
     "file": "mfcadpp_holdout/388.step",
     "view": "plan",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.977
   },
   {
     "file": "mfcadpp_holdout/464.step",
     "view": "plan",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.985
   },
   {
     "file": "mfcadpp_regressions/11512.step",
     "view": "front",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.927
   },
   {
     "file": "mfcadpp_regressions/11512.step",
     "view": "iso",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.979
   },
   {
     "file": "mfcadpp_regressions/11512.step",
     "view": "plan",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.96
   },
   {
     "file": "nist/nist_ctc_01_asme1_rd.stp",
     "view": "front",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.978
   },
   {
     "file": "nist/nist_ctc_01_asme1_rd.stp",
     "view": "side",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.982
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
     "view": "front",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.986
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
     "view": "iso",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.961
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
     "view": "plan",
     "verdict": "rust-correct",
-    "reason": "OpenCascade's hidden rims of a cylinder seen along its axis dip to radius 7.352 against the true 7.541; haecceity's lie on their faces within 1e-13."
+    "reason": "OpenCascade's hidden rims of a cylinder seen along its axis dip to radius 7.352 against the true 7.541; haecceity's lie on their faces within 1e-13.",
+    "min_score": 0.954
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
     "view": "side",
     "verdict": "rust-correct",
-    "reason": "OpenCascade's hidden rims of a cylinder seen along its axis dip to radius 10.834 against the true 11.1125; haecceity's lie on their faces within 6e-14."
+    "reason": "OpenCascade's hidden rims of a cylinder seen along its axis dip to radius 10.834 against the true 11.1125; haecceity's lie on their faces within 6e-14.",
+    "min_score": 0.933
   },
   {
     "file": "cadgenbench/threaded_connector_109.step",
     "view": "cut",
     "verdict": "rust-correct",
-    "reason": "OpenCascade's fuzzy boolean returns one cut face, the wall on one side of this turned part's axis; haecceity's section has both walls (twice the area, as the symmetric part requires)."
+    "reason": "OpenCascade's fuzzy boolean returns one cut face, the wall on one side of this turned part's axis; haecceity's section has both walls (twice the area, as the symmetric part requires).",
+    "min_score": 0.499,
+    "max_area_error": 0.999
   },
   {
     "file": "cadgenbench/threaded_connector_109.step",
     "view": "section",
     "verdict": "rust-correct",
-    "reason": "Follows from the cut: OpenCascade's boolean lost one wall's cut face, so its section view draws a different solid."
+    "reason": "Follows from the cut: OpenCascade's boolean lost one wall's cut face, so its section view draws a different solid.",
+    "min_score": 0.187
   },
   {
     "file": "cadgenbench_inputs/cgb203.step",
     "view": "section",
     "verdict": "rust-correct",
-    "reason": "OpenCascade draws a 76 mm outline where no face of the kept half has a silhouette (the faces there face the viewer, |n·y| about 0.92); the rest agrees within 0.03 mm."
+    "reason": "OpenCascade draws a 76 mm outline where no face of the kept half has a silhouette (the faces there face the viewer, |n·y| about 0.92); the rest agrees within 0.03 mm.",
+    "min_score": 0.964
   },
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "view": "section",
     "verdict": "undetermined",
-    "reason": "Hidden tangent edges haecceity draws are partly missing from OpenCascade's section (as in nist_ctc_02's), and one 12 mm edge differs in visibility; not diagnosed further."
+    "reason": "Hidden tangent edges haecceity draws are partly missing from OpenCascade's section (as in nist_ctc_02's), and one 12 mm edge differs in visibility; not diagnosed further.",
+    "min_score": 0.975
   },
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "view": "cut",
     "verdict": "undetermined",
-    "reason": "OpenCascade's boolean returns no cut face (draftwright skips this section); haecceity's cut has not been checked against another reference."
+    "reason": "OpenCascade's boolean returns no cut face (draftwright skips this section); haecceity's cut has not been checked against another reference.",
+    "min_score": 0.0,
+    "max_area_error": null
   },
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "view": "section",
     "verdict": "undetermined",
-    "reason": "OpenCascade's boolean returns no cut face, so its section view is of a failed cut; haecceity's has not been checked against another reference."
+    "reason": "OpenCascade's boolean returns no cut face, so its section view is of a failed cut; haecceity's has not been checked against another reference.",
+    "min_score": 0.116
   },
   {
     "file": "gramel/string_post.step",
     "view": "section",
     "verdict": "rust-correct",
-    "reason": "OpenCascade draws part of a V-groove's bottom circle visible, though the cut face's material stands between it and the viewer; haecceity draws it hidden."
+    "reason": "OpenCascade draws part of a V-groove's bottom circle visible, though the cut face's material stands between it and the viewer; haecceity draws it hidden.",
+    "min_score": 0.895
   },
   {
     "file": "inventory_refusal/14052.step.gz",
     "view": "cut",
     "verdict": "undetermined",
-    "reason": "A deliberately malformed corpus part (its shell is not orientable) that OpenCascade heals on import; the two are not drawing the same solid."
+    "reason": "A deliberately malformed corpus part (its shell is not orientable) that OpenCascade heals on import; the two are not drawing the same solid.",
+    "min_score": 0.0,
+    "max_area_error": null
   },
   {
     "file": "inventory_refusal/14052.step.gz",
     "view": "section",
     "verdict": "undetermined",
-    "reason": "A deliberately malformed corpus part (its shell is not orientable) that OpenCascade heals on import; the two are not drawing the same solid."
+    "reason": "A deliberately malformed corpus part (its shell is not orientable) that OpenCascade heals on import; the two are not drawing the same solid.",
+    "min_score": 0.649
   },
   {
     "file": "mfcadpp/10155.step",
     "view": "section",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.986
   },
   {
     "file": "mfcadpp/10156.step",
     "view": "section",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.872
   },
   {
     "file": "mfcadpp/10167.step",
     "view": "section",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.986
   },
   {
     "file": "mfcadpp/10190.step",
     "view": "section",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.982
   },
   {
     "file": "mfcadpp/10224.step",
     "view": "section",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.972
   },
   {
     "file": "mfcadpp_holdout/183.step",
     "view": "section",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.981
   },
   {
     "file": "mfcadpp_holdout/388.step",
     "view": "section",
     "verdict": "undetermined",
-    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually."
+    "reason": "Agrees within 0.03 mm but not 1e-3: every case of this signature examined (mfcadpp/10127 plan, mfcadpp/10156 front, nist_ctc_01) was OpenCascade's hidden-line output approximating a projected curve, up to 0.02 mm off the true ellipse or arc, where haecceity's curve is exact (on both its faces within 4e-12); not examined individually.",
+    "min_score": 0.984
   },
   {
     "file": "nist/nist_ctc_01_asme1_rd.stp",
     "view": "section",
     "verdict": "rust-correct",
-    "reason": "OpenCascade's arcs for two fillet mitres stray up to 0.016 mm from the true circle (haecceity's are exact); and a hexagonal pocket's far rim, seen through the cut along the open top's plane, OpenCascade calls hidden where it is visible."
+    "reason": "OpenCascade's arcs for two fillet mitres stray up to 0.016 mm from the true circle (haecceity's are exact); and a hexagonal pocket's far rim, seen through the cut along the open top's plane, OpenCascade calls hidden where it is visible.",
+    "min_score": 0.988
   },
   {
     "file": "nist/nist_ctc_02_asme1_rc.stp",
     "view": "section",
     "verdict": "rust-correct",
-    "reason": "Plane–cylinder tangent edges in the kept half, which OpenCascade draws in its plain views, are missing from its section view; haecceity draws them in both."
+    "reason": "Plane–cylinder tangent edges in the kept half, which OpenCascade draws in its plain views, are missing from its section view; haecceity draws them in both.",
+    "min_score": 0.985
   },
   {
     "file": "ttt_inputs/sm-hanger.step",
     "view": "section",
     "verdict": "rust-correct",
-    "reason": "An edge at the top of a slot's far wall lies behind material at the cut (OpenCascade's own cut face covers the point in front of it), so it is hidden; OpenCascade draws it visible."
+    "reason": "An edge at the top of a slot's far wall lies behind material at the cut (OpenCascade's own cut face covers the point in front of it), so it is hidden; OpenCascade draws it visible.",
+    "min_score": 0.915
   }
 ]

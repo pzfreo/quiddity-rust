@@ -2,20 +2,15 @@
 //! re-read under rigid motions that keep principal axes principal (a translation and right-angle
 //! rotations), and every family must find the same features on the same faces. Python is not
 //! consulted; differences it shares are still failures here. Explained exceptions live in
-//! `tests/fixtures/known_invariance.json`.
+//! `tests/fixtures/known_invariance.json`, each with the most occurrences it may differ by
+//! (`max_differing`), so a listed difference that grows still fails.
 
 mod common;
 
 use std::collections::BTreeMap;
 
 use quiddity::Part;
-use quiddity::features::{
-    Context, Occurrence, angled_steps, bosses, chamfers, circular_blind_steps,
-    circular_face_patterns, countersinks, edge_open_circular, edge_open_prismatic, fillets, flats,
-    grooves, gussets, holes, interior_voids, oblique_through_steps, oriented_chamfers,
-    paired_ramp_steps, plates, profiled_bores, rectangular_blind_slots, round_bottom_slots,
-    thin_walls, through_steps, turned_steps,
-};
+use quiddity::features::{self, levels};
 use quiddity::kernel::step::{IDENTITY, Placement, read_step_file_placed};
 
 /// A non-round translation (so rounding grids are not trivially aligned) and five rotations with
@@ -61,14 +56,14 @@ fn placement(r: &[[f64; 3]; 3], t: &[f64; 3]) -> Placement {
     [0, 1, 2].map(|i| [r[i][0], r[i][1], r[i][2], t[i]])
 }
 
-/// Each family's occurrences as a sorted list of sorted defining-face sets: what was found, and
+/// Each family's occurrences (`features::recognise`'s defining faces, under its field names), and
+/// face levels' and risers' faces, as a sorted list of sorted face sets: what was found, and
 /// where, independent of the record's coordinates.
 fn signature(part: &Part) -> BTreeMap<&'static str, Vec<Vec<usize>>> {
-    fn faces<R>(found: Vec<Occurrence<R>>) -> Vec<Vec<usize>> {
+    fn sorted(found: impl IntoIterator<Item = Vec<usize>>) -> Vec<Vec<usize>> {
         let mut out: Vec<Vec<usize>> = found
             .into_iter()
-            .map(|o| {
-                let mut f = o.defining;
+            .map(|mut f| {
                 f.sort_unstable();
                 f
             })
@@ -76,68 +71,29 @@ fn signature(part: &Part) -> BTreeMap<&'static str, Vec<Vec<usize>>> {
         out.sort();
         out
     }
-    let ctx = Context::new(part);
-    let seats = countersinks::discover(&ctx);
-    let holes = holes::discover(&ctx, &seats);
-    BTreeMap::from([
-        (
-            "fillets",
-            faces(fillets::discover(&ctx, &Default::default())),
-        ),
-        (
-            "chamfers",
-            faces(chamfers::discover(&ctx, &Default::default())),
-        ),
-        ("bosses", faces(bosses::discover(&ctx))),
-        ("angled_steps", faces(angled_steps::discover(&ctx))),
-        ("flats", faces(flats::discover(&ctx))),
-        (
-            "paired_ramp_steps",
-            faces(paired_ramp_steps::discover(&ctx)),
-        ),
-        (
-            "oriented_chamfers",
-            faces(oriented_chamfers::discover(&ctx, &Default::default())),
-        ),
-        (
-            "circular_face_patterns",
-            faces(circular_face_patterns::discover(&ctx)),
-        ),
-        ("thin_walls", faces(thin_walls::discover(&ctx))),
-        ("interior_voids", faces(interior_voids::discover(&ctx))),
-        ("through_steps", faces(through_steps::discover(&ctx))),
-        (
-            "oblique_through_steps",
-            faces(oblique_through_steps::discover(&ctx)),
-        ),
-        (
-            "circular_blind_steps",
-            faces(circular_blind_steps::discover(&ctx)),
-        ),
-        ("turned_steps", faces(turned_steps::discover(&ctx))),
-        (
-            "round_bottom_blind_slots",
-            faces(round_bottom_slots::discover(&ctx)),
-        ),
-        (
-            "rectangular_blind_slots",
-            faces(rectangular_blind_slots::discover(&ctx)),
-        ),
-        ("gusset_ribs", faces(gussets::discover(&ctx))),
-        ("grooves", faces(grooves::discover(&ctx))),
-        ("plates", faces(plates::discover(&ctx, &Default::default()))),
-        ("double_d_bores", faces(profiled_bores::discover(&ctx))),
-        (
-            "edge_open_circular_pockets",
-            faces(edge_open_circular::discover(&ctx)),
-        ),
-        (
-            "edge_open_prismatic_recesses",
-            faces(edge_open_prismatic::discover(&ctx)),
-        ),
-        ("countersinks", faces(seats)),
-        ("holes", faces(holes)),
-    ])
+    let mut out: BTreeMap<_, _> = features::recognise(part)
+        .defining
+        .into_iter()
+        .map(|(family, found)| (family, sorted(found)))
+        .collect();
+    let found = levels::face_levels_with_faces(part, &Default::default());
+    out.insert("face_levels", sorted(found.into_iter().map(|(_, f)| f)));
+    let found = levels::risers_with_faces(part, &Default::default());
+    out.insert("risers", sorted(found.into_iter().map(|(_, f)| f)));
+    out
+}
+
+/// Families read along world Z by specification (`quiddity.levels`: the levels of a part's
+/// horizontal planes, and the risers between them), so compared only under motions that keep the
+/// Z axis vertical (translate, rot_z90, rot_y180): under the others the part's horizontal faces
+/// are other faces, in Python as here.
+const WORLD_Z: [&str; 2] = ["face_levels", "risers"];
+
+/// A family whose occurrences differ under a motion: how many differ, and which.
+struct Difference {
+    family: &'static str,
+    count: usize,
+    text: String,
 }
 
 #[test]
@@ -153,44 +109,81 @@ fn recognition_is_invariant_under_rigid_motion() {
     let known = common::load("known_invariance.json");
     let known = known.as_array().unwrap();
     common::check_verdicts("known_invariance.json", known);
-    let known: Vec<(String, String, String)> = known
+    let known: Vec<((String, String, String), usize)> = known
         .iter()
         .map(|k| {
             let s = |f: &str| k[f].as_str().unwrap().to_string();
-            (s("file"), s("motion"), s("family"))
+            let most = k["max_differing"]
+                .as_u64()
+                .unwrap_or_else(|| panic!("an entry gives max_differing: {k}"));
+            ((s("file"), s("motion"), s("family")), most as usize)
         })
         .collect();
+    let files: Vec<String> = common::load("corpus.json")["files"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|e| e["file"].as_str().unwrap().to_string())
+        .collect();
+    // Every part unmoved, then every part under every motion, each spread over every core; the
+    // differences come back in corpus order, motion by motion.
+    let unmoved = common::parallel::map(&files, |name| {
+        let base = read_step_file_placed(&dir.join(name), &IDENTITY).ok()?;
+        Some((base.faces.len(), signature(&base)))
+    });
+    let cases: Vec<(usize, &Motion)> = (0..files.len())
+        .filter(|&i| unmoved[i].is_some()) // the corpus test reports read failures
+        .flat_map(|i| MOTIONS.iter().map(move |m| (i, m)))
+        .collect();
+    let found = common::parallel::map(&cases, |&(i, (motion, r, t))| {
+        let name = &files[i];
+        let (faces, expected) = unmoved[i].as_ref().unwrap();
+        let moved = read_step_file_placed(&dir.join(name), &placement(r, t)).unwrap();
+        assert_eq!(moved.faces.len(), *faces, "{name} {motion}");
+        let mut out = Vec::new();
+        for (family, got) in signature(&moved) {
+            if WORLD_Z.contains(&family) && r[2][2].abs() != 1.0 {
+                continue;
+            }
+            if got != expected[family] {
+                let differing = symmetric_difference(&expected[family], &got);
+                out.push(Difference {
+                    family,
+                    count: differing.len(),
+                    text: format!(
+                        "{} occurrences, {} unmoved; differing: {differing:?}",
+                        got.len(),
+                        expected[family].len(),
+                    ),
+                });
+            }
+        }
+        out
+    });
     let mut problems = Vec::new();
     let mut seen = Vec::new();
-    for entry in common::load("corpus.json")["files"].as_array().unwrap() {
-        let name = entry["file"].as_str().unwrap();
-        let path = dir.join(name);
-        let Ok(base) = read_step_file_placed(&path, &IDENTITY) else {
-            continue; // the corpus test reports read failures
-        };
-        let expected = signature(&base);
-        for (motion, r, t) in &MOTIONS {
-            let moved = read_step_file_placed(&path, &placement(r, t)).unwrap();
-            assert_eq!(moved.faces.len(), base.faces.len(), "{name} {motion}");
-            for (family, got) in signature(&moved) {
-                if got == expected[family] {
-                    continue;
-                }
-                let key = (name.to_string(), motion.to_string(), family.to_string());
-                if known.contains(&key) {
+    for (&(i, (motion, _, _)), differences) in cases.iter().zip(found) {
+        let name = &files[i];
+        for d in differences {
+            let key = (name.clone(), motion.to_string(), d.family.to_string());
+            match known.iter().find(|k| k.0 == key) {
+                Some((_, most)) => {
+                    if d.count > *most {
+                        problems.push(format!(
+                            "{name} {motion} {} is listed with at most {most} differing, now {}: {}",
+                            d.family, d.count, d.text
+                        ));
+                    }
                     seen.push(key);
-                    continue;
                 }
-                problems.push(format!(
-                    "{name} {motion} {family}: {} occurrences, {} unmoved; differing: {:?}",
-                    got.len(),
-                    expected[family].len(),
-                    symmetric_difference(&expected[family], &got),
-                ));
+                None => problems.push(format!(
+                    "{name} {motion} {}: {} differing, {}",
+                    d.family, d.count, d.text
+                )),
             }
         }
     }
-    for key in &known {
+    for (key, _) in &known {
         if !seen.contains(key) {
             problems.push(format!("{key:?} is listed but now invariant: remove it"));
         }

@@ -4,41 +4,55 @@
     "motion": "rot_x90",
     "family": "holes",
     "verdict": "rust-wrong",
-    "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same."
+    "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same.",
+    "max_differing": 8
   },
   {
     "file": "nist/nist_ftc_10_asme1_rb.stp",
     "motion": "rot_y180",
     "family": "holes",
     "verdict": "rust-wrong",
-    "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same."
+    "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same.",
+    "max_differing": 8
   },
   {
     "file": "mfcadpp_regressions/11512.step",
     "motion": "rot_y180",
     "family": "interior_voids",
     "verdict": "rust-wrong",
-    "reason": "The void grid is anchored at the box's minimum corner with its cell count rounded up, so turned over its cells sit elsewhere on the part, and a void whose widening is two cells deep (faces 17, 30, 31) passes the throat test in one orientation only. Python's grid is anchored the same way. A grid centred on the box would map onto itself under these motions; a decision that does not rest on the grid's phase would fix it outright."
+    "reason": "The void grid is anchored at the box's minimum corner with its cell count rounded up, so turned over its cells sit elsewhere on the part, and a void whose widening is two cells deep (faces 17, 30, 31) passes the throat test in one orientation only. Python's grid is anchored the same way. A grid centred on the box would map onto itself under these motions; a decision that does not rest on the grid's phase would fix it outright.",
+    "max_differing": 2
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "motion": "rot_z90",
     "family": "grooves",
     "verdict": "rust-wrong",
-    "reason": "A groove's walls are its immediate neighbours in s_lo order, which is not symmetric when bands overlap. This shaft has 60 bands, many split or partial (face 1905 spans -109..149.5); unmoved, the floor (face 2074, Ø180, -164.5..-110.5) has a Ø210 band ending at -169.5 below it and face 1905 starting at -109 above. rot_z90 turns the y axis onto -x, the canonical direction flips the axial coordinate, and the band sorted just below the floor becomes one ending 15 mm short of it, so the floor is not joined and no groove is found. Python behaves the same (checked: recognise_grooves on the part rotated 90° about z returns []). Choosing each wall as the band nearest the floor's end, rather than by s_lo order, would make it symmetric; that is a change to the specification."
+    "reason": "A groove's walls are its immediate neighbours in s_lo order, which is not symmetric when bands overlap. This shaft has 60 bands, many split or partial (face 1905 spans -109..149.5); unmoved, the floor (face 2074, Ø180, -164.5..-110.5) has a Ø210 band ending at -169.5 below it and face 1905 starting at -109 above. rot_z90 turns the y axis onto -x, the canonical direction flips the axial coordinate, and the band sorted just below the floor becomes one ending 15 mm short of it, so the floor is not joined and no groove is found. Python behaves the same (checked: recognise_grooves on the part rotated 90° about z returns []). Choosing each wall as the band nearest the floor's end, rather than by s_lo order, would make it symmetric; that is a change to the specification.",
+    "max_differing": 1
+  },
+  {
+    "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
+    "motion": "translate",
+    "family": "risers",
+    "verdict": "rust-wrong",
+    "reason": "A wall (face 7, the plane x = 0.5) lies exactly the level tolerance (0.5 mm) inside the part's envelope (x from 0), on the boundary of the riser's interior test `bb.min + tol < position`, so round-off from the placement decides whether it is a riser: unmoved it is, translated it is not. The recogniser's threshold, not the kernel, is at fault; Python behaves the same (recognise_risers gives 2 risers unmoved, 1 translated by (123.456, -78.9, 41.3)).",
+    "max_differing": 1
   },
   {
     "file": "mfcadpp/10255.step",
     "motion": "rot_z90",
     "family": "edge_open_prismatic_recesses",
     "verdict": "rust-wrong",
-    "reason": "Unmoved, the recess's open-end volume probe is refused (lines along x graze the tangent of its radius-1 wall and keep an odd crossing count; see the corpus entry for this file); moved, the integration lines fall differently against the wall, the probe answers and the recess is found, as Python finds it. The moved answer is the right one."
+    "reason": "Unmoved, the recess's open-end volume probe is refused (lines along x graze the tangent of its radius-1 wall and keep an odd crossing count; see the corpus entry for this file); moved, the integration lines fall differently against the wall, the probe answers and the recess is found, as Python finds it. The moved answer is the right one.",
+    "max_differing": 1
   },
   {
     "file": "mfcadpp/10255.step",
     "motion": "rot_x90",
     "family": "edge_open_prismatic_recesses",
     "verdict": "rust-wrong",
-    "reason": "Unmoved, the recess's open-end volume probe is refused (lines along x graze the tangent of its radius-1 wall and keep an odd crossing count; see the corpus entry for this file); moved, the integration lines fall differently against the wall, the probe answers and the recess is found, as Python finds it. The moved answer is the right one."
+    "reason": "Unmoved, the recess's open-end volume probe is refused (lines along x graze the tangent of its radius-1 wall and keep an odd crossing count; see the corpus entry for this file); moved, the integration lines fall differently against the wall, the probe answers and the recess is found, as Python finds it. The moved answer is the right one.",
+    "max_differing": 1
   }
 ]

@@ -159,6 +159,11 @@ tests/
   invariance.rs      every corpus part moved and turned: each family must find the same faces
   correspondence.rs  every corpus part corresponds with itself moved, everything carried; the
                      build123d revision pairs get their expected classes
+  corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity
+                     revision, every file and its sha256)
+  determinism.rs     recognition and correspondence JSON byte for byte the same twice in one
+                     process (fresh hash seeds)
+  common/parallel.rs the corpus loops' per-file work on every core, results in corpus order
   fixtures/          STEP parts and Python's recorded answers, shared by both crates
 crates/haecceity/tests/
   patches.rs         every covered_patch question Python asks over the corpus, answered by
@@ -182,7 +187,9 @@ tools/
   capture_hlr.py     records OpenCascade's hidden-line projection of every corpus part
   capture_section.py records draftwright's section view of every corpus part
   capture_plugin.py  pytest plugin that records the Python suite's recogniser calls
-  export_corpus.py   records Python's answers over the corpus
+  export_corpus.py   records Python's answers over the corpus, with the quiddity revision and
+                     each corpus file's sha256 (_provenance.py; the capture tools record the
+                     revision too)
   export_fixtures.py hand-built fillet evidence cases
   capture_revisions.py builds the revision pairs in build123d, with their expected classes
 ```
@@ -209,6 +216,16 @@ features are not recognised, `hlr` refuses to draw the part, and the CLI warns o
 (OpenCascade) reads a file with a deleted face as a loose shell, and resolves hyperbolas and
 offset surfaces, which this kernel does not model.
 
+The corpus must be quiddity's at the revision `tests/fixtures/corpus.json` records
+(`quiddity_revision`), which CI checks out; `tests/corpus_files.rs` fails on any file added,
+missing or changed. After re-exporting at a new revision, update the `ref:` in
+`.github/workflows/ci.yml` to match.
+
+The corpus tests spread their parts over every core (`tests/common/parallel.rs`) and report in
+corpus order. Pins that depend on float round-off across a threshold (`faces_at_most` in
+`known_correspondence.json`) are set so CI's Linux job passes: Linux is the reference platform
+for them, and macOS may give a different count within the bound.
+
 ## How a family is ported
 
 1. **Capture Python's behaviour.** From the quiddity checkout, run its tests for the family
@@ -231,8 +248,8 @@ offset surfaces, which this kernel does not model.
 3. **Wire it in**: the module in `src/features/mod.rs` (and, for a family with occurrences,
    a `Features` field filled in `recognise`), the entry point re-exported from `src/lib.rs`,
    match arms in `tests/common/mod.rs` (`recognise`, and `defining` for an evidence path), a
-   `#[test]` in `tests/captured.rs`, the family in `tests/invariance.rs`, and a row in the table
-   above.
+   `#[test]` in `tests/captured.rs`, and a row in the table above. `tests/invariance.rs` and
+   `tests/correspondence.rs` take the family from `Features`.
 4. **Explain every difference** that remains in the relevant `known_divergences.json`. An entry
    names its difference exactly (the corpus: file, family and problem key, optionally limited to
    listed faces when one key's faces need different verdicts; captured calls: test node, file
@@ -255,7 +272,9 @@ entry without one.
 
 `tests/invariance.rs` checks what Python cannot vouch for: every corpus part is re-read moved by
 a translation and right-angle rotations (`read_step_placed`), and each family must find the same
-features on the same faces. Arbitrary rotations are left to the frame normalisation Python does
+features on the same faces (every `Features` family by its defining faces, and face levels and
+risers, which are read along world Z, by the faces each is read from under the motions that keep
+Z vertical). Each listed exception pins the most occurrences it may differ by. Arbitrary rotations are left to the frame normalisation Python does
 before recognising (not yet ported); reflections are refused by the reader for now, which rebuilds
 frames right-handed.
 

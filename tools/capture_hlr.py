@@ -36,6 +36,7 @@ from OCP.TopAbs import TopAbs_EDGE  # noqa: E402
 from OCP.TopExp import TopExp_Explorer  # noqa: E402
 from OCP.TopoDS import TopoDS  # noqa: E402
 
+from _provenance import revision  # noqa: E402
 from quiddity import import_step_geometry  # noqa: E402
 
 CORPUS = QUIDDITY / "tests" / "corpus"
@@ -186,7 +187,7 @@ def main() -> None:
         if kept(record):
             parts.append(record)
             print(record["file"], {k: len(v["edges"]) for k, v in views.items()}, file=sys.stderr)
-    text = json.dumps({"parts": parts}, allow_nan=False) + "\n"
+    text = json.dumps({"quiddity_revision": revision(QUIDDITY), "parts": parts}, allow_nan=False) + "\n"
     OUT.write_bytes(gzip.compress(text.encode(), mtime=0))
 
 

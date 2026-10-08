@@ -17,13 +17,19 @@ jobs:
       QUIDDITY_CORPUS_REQUIRED: "1"
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-      # The corpus lives in the Python repository; the toolchain comes from rust-toolchain.toml.
+      # The corpus lives in the Python repository, pinned to the revision tests/fixtures/corpus.json
+      # was exported at (its quiddity_revision; tests/corpus_files.rs checks the files' digests).
+      # The toolchain comes from rust-toolchain.toml.
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           repository: pzfreo/quiddity
+          ref: 6d544e060cd0eeb4442d2196e5df757b5a15ea55
           path: quiddity
           sparse-checkout: tests/corpus
       - run: rustup toolchain install
       - run: cargo fmt --all --check
       - run: cargo clippy --workspace --all-targets --release -- -D warnings
+      # This job (Linux) is the reference platform for pins that depend on float round-off, such
+      # as known_correspondence.json's faces_at_most: they must hold here; whether macOS must
+      # hold them too is an open question for the maintainer (docs/review-2026-10-08.md, H1).
       - run: cargo test --workspace --release
