@@ -10,6 +10,17 @@
 //! file's (Python's are in a working frame it reports); faces are the file's own indices
 //! (Python's `caller_index`). The input's sha256 is not carried: hashing needs a new dependency,
 //! a maintainer question (docs/review-2026-10-08.md); the face count is.
+//!
+//! Version 2 (the maintainer's decision on review M8): the part is recognised in its own frame
+//! and the records reported in the file's coordinates ([`crate::framed_records`]). `frame` says
+//! where the records were found: the inferred frame (origin and axes in the file's coordinates,
+//! and its gauge), the reason none could be inferred (the part was then recognised as placed in
+//! the file, so its records depend on that placement), or `caller-space` for a part recognised in
+//! memory without one. Each record's `local` lists the parameters, by path (`a.b` a nested
+//! field, `a[]` each item of a list), that no file axis corresponds to and so are left in the
+//! frame: an axis letter names the frame's axis, and a coordinate along it is measured from the
+//! frame's origin. It is empty wherever the frame's axes are the file's axes up to order and
+//! sign. Version 1 had neither field, and every axis letter named a file axis.
 
 use std::collections::BTreeMap;
 
@@ -22,9 +33,10 @@ use crate::features::Features;
 use crate::features::gussets::GussetRibPattern;
 use crate::features::hole_patterns::HolePattern;
 use crate::features::recess_patterns::{PocketPattern, SlotPattern};
+use crate::frames::RecordFrame;
 
 /// Bumped whenever the document's shape or a field's meaning changes; a reader refuses another.
-pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/1";
+pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/2";
 
 /// One part's recognition, as draftwright reads it.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -32,8 +44,11 @@ pub struct RecognitionDocument {
     pub schema_version: String,
     /// The recogniser: `quiddity-rust` and its crate version.
     pub package: Package,
-    /// Coordinates in the records are the STEP file's (`file`), not a working frame's.
+    /// Coordinates in the records are the STEP file's (`file`), not a working frame's, except
+    /// the fields each record lists in `local`.
     pub coordinate_space: String,
+    /// Where the records were found: the part's own frame, or why none could be inferred.
+    pub frame: RecordFrame,
     /// The part's face count: faces are indexed `0..face_count` in the file's order, as in
     /// the fingerprints.
     pub face_count: usize,
@@ -60,6 +75,9 @@ pub struct Record {
     pub faces: Vec<usize>,
     /// The record as the family serialises it.
     pub parameters: Map<String, Value>,
+    /// The parameters left in the document's `frame` (no file axis corresponds to them), by
+    /// path; empty when every parameter is in the file's coordinates.
+    pub local: Vec<String>,
 }
 
 /// Python's record class names for each family's records, in [`Features`]' order: one, or one
@@ -206,6 +224,7 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
             records.push(Record {
                 record_type: record_type(&recognition.features, &family, n).into(),
                 faces: faces.to_vec(),
+                local: recognition.local.get(&id).cloned().unwrap_or_default(),
                 id,
                 family: family.clone(),
                 parameters,
@@ -219,6 +238,7 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
             version: env!("CARGO_PKG_VERSION").into(),
         },
         coordinate_space: "file".into(),
+        frame: recognition.frame.clone(),
         face_count,
         records,
     }

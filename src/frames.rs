@@ -1,12 +1,17 @@
 //! Part-relative recognition with an explicit caller-space frame (`quiddity.frames`).
 //!
-//! [`recognise`](crate::features::recognise) stays caller-space, as Python's entry points do.
-//! Framed recognition infers a frame from the part's own geometry ([`infer_part_frame`]),
-//! re-reads the part placed in that frame, and recognises it there: the records are in the
-//! frame's local coordinates, and the frame says how to read them back in caller space. The
-//! working part is the same STEP read with the normalisation composed onto the caller's
-//! placement, so its faces are the caller part's faces under the same indices (Python pairs them
-//! by `IsSame`; here they are one read order).
+//! [`recognise`](crate::features::recognise) and the per-family entry points stay caller-space,
+//! as Python's entry points do (the parity tests compare them with Python). Framed recognition
+//! infers a frame from the part's own geometry ([`infer_part_frame`]), re-reads the part placed
+//! in that frame, and recognises it there: the records are in the frame's local coordinates, and
+//! the frame says how to read them back in caller space. The working part is the same STEP read
+//! with the normalisation composed onto the caller's placement, so its faces are the caller
+//! part's faces under the same indices (Python pairs them by `IsSame`; here they are one read
+//! order, which `tests/frames.rs` checks face by face on every corpus part).
+//!
+//! The default recognition ([`crate::correspondence::recognise_placed`], used by the CLI, the
+//! service and the recognition document) is framed, its records carried back to the file's
+//! coordinates by [`crate::framed_records`] (the maintainer's decision on review M8).
 //!
 //! The origin is the centroid of the part's solids ([`Part::volume_centroid`]), where Python
 //! takes `BRepGProp::VolumeProperties` of the whole imported shape at its default rule: that also
@@ -17,7 +22,7 @@
 //! Python's evidence projection onto caller faces (`_project_recognition_evidence`) is not
 //! ported: the face indices already are the caller's.
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::features::{self, Features};
 use crate::kernel::brep::Part;
@@ -36,7 +41,7 @@ const COMPONENT_EPS: f64 = 1e-12;
 /// ordered basis. `Orthogonal`: two perpendicular direction lines, with a sign or an interchange
 /// unobservable. `Axial`: one direction line, roll about it unobservable. In the latter two the
 /// axes are representatives of the gauge, not material directions.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum FrameGauge {
     Full,
@@ -47,7 +52,7 @@ pub enum FrameGauge {
 /// `FrameRefusalReason`, plus `UnmeasuredFace` (the port only): the kernel cannot integrate a
 /// plane or cylinder face's area, or a solid's volume, where OpenCascade always returns a
 /// number.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum FrameRefusal {
     NoMaterial,
@@ -70,7 +75,7 @@ impl FrameRefusal {
 
 /// `PartFrame`: the caller-space placement of the local recognition coordinates. A caller-space
 /// point `p` is `(dot(p - origin, x), dot(p - origin, y), dot(p - origin, z))` locally.
-#[derive(Clone, Copy, Debug, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PartFrame {
     pub origin: V3,
     pub x: V3,
@@ -352,13 +357,40 @@ pub type Read<'a> = &'a dyn Fn(&Placement) -> Result<Part, Box<dyn std::error::E
 pub fn prepare_framed(read: Read<'_>, placement: &Placement) -> Result<FramedPart, FramedError> {
     let caller = read(placement).map_err(FramedError::Read)?;
     let frame = infer_part_frame(&caller).map_err(FramedError::Frame)?;
-    let part = read(&then(placement, &frame.normalisation())).map_err(FramedError::Read)?;
+    let part = working_part(read, placement, &caller, &frame).map_err(FramedError::Read)?;
+    Ok(FramedPart { frame, part })
+}
+
+/// The working part of *caller*, the part *read* gives under *placement*, for *frame* (inferred
+/// on *caller*): read again with the frame's normalisation composed on.
+pub fn working_part(
+    read: Read<'_>,
+    placement: &Placement,
+    caller: &Part,
+    frame: &PartFrame,
+) -> Result<Part, Box<dyn std::error::Error>> {
+    let part = read(&then(placement, &frame.normalisation()))?;
     assert_eq!(
         part.faces.len(),
         caller.faces.len(),
         "a placement does not change what is read"
     );
-    Ok(FramedPart { frame, part })
+    Ok(part)
+}
+
+/// Where a recognition's records were found, as the recognition document reports it.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "status", rename_all = "kebab-case")]
+pub enum RecordFrame {
+    /// Recognised in the part's own frame ([`infer_part_frame`]) and carried back to the file's
+    /// coordinates; fields no file axis corresponds to are left in this frame and labelled.
+    Inferred(PartFrame),
+    /// No frame could be inferred, so the part was recognised as placed in the file: records
+    /// depend on that placement (review M8), as caller-space recognition's do.
+    Refused { reason: FrameRefusal },
+    /// Recognised as placed by the caller, no frame inferred
+    /// ([`crate::correspondence::recognise`] on a part in memory).
+    CallerSpace,
 }
 
 /// [`prepare_framed`] for a STEP file's bytes.

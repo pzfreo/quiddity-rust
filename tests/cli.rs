@@ -80,6 +80,29 @@ fn a_sound_file_is_recognised() {
         quiddity::recognition::SCHEMA_VERSION
     );
     assert!(document["records"].is_array());
+    // Recognised in its own frame, reported in the file's coordinates.
+    assert_eq!(document["coordinate_space"], "file");
+    assert_eq!(document["frame"]["status"], "inferred");
+}
+
+/// A part with no plane or cylinder has no frame: it is recognised as placed in the file, and
+/// says so on stderr and in the document.
+#[test]
+fn a_part_without_a_frame_is_recognised_as_placed_with_a_warning() {
+    let path =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/captured/frames/sphere.step");
+    let out = quiddity(&[path.to_str().unwrap()]);
+    assert!(out.status.success());
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    assert!(
+        stderr.contains("warning: no part frame (no-analytic-direction); recognised as placed"),
+        "{stderr}"
+    );
+    let json: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(
+        json["document"]["frame"],
+        serde_json::json!({"status": "refused", "reason": "no-analytic-direction"})
+    );
 }
 
 #[test]
@@ -102,23 +125,25 @@ fn the_document_lists_each_feature_with_its_record_type_and_faces() {
         })
         .collect();
     let faces = |v: &[usize]| serde_json::json!(v);
+    // Records are in the part's frame's order (its x is the file's z, its z the file's -x),
+    // which does not depend on where the part is placed.
     assert_eq!(
         records,
         [
-            ("fillets/0", "Fillet", &faces(&[2])),
-            ("fillets/1", "Fillet", &faces(&[3])),
-            ("fillets/2", "Fillet", &faces(&[7])),
-            ("fillets/3", "Fillet", &faces(&[8])),
+            ("fillets/0", "Fillet", &faces(&[7])),
+            ("fillets/1", "Fillet", &faces(&[2])),
+            ("fillets/2", "Fillet", &faces(&[8])),
+            ("fillets/3", "Fillet", &faces(&[3])),
             ("holes/0", "HoleRecord", &faces(&[10])),
             ("holes/1", "HoleRecord", &faces(&[11])),
             ("holes/2", "HoleRecord", &faces(&[12])),
             ("hole_patterns/0", "LinearArray", &faces(&[10, 11, 12])),
             // recognise_blends finds the fillets' faces too, as Python's does (4 blends); Python's
             // aggregate preference of Fillet over Blend for one chain is not ported.
-            ("blends/0", "Blend", &faces(&[2])),
-            ("blends/1", "Blend", &faces(&[3])),
-            ("blends/2", "Blend", &faces(&[7])),
-            ("blends/3", "Blend", &faces(&[8])),
+            ("blends/0", "Blend", &faces(&[7])),
+            ("blends/1", "Blend", &faces(&[2])),
+            ("blends/2", "Blend", &faces(&[8])),
+            ("blends/3", "Blend", &faces(&[3])),
         ]
     );
     // The existing keys are kept: the records at the top level, the fingerprints beside them.

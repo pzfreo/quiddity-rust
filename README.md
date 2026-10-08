@@ -261,11 +261,14 @@ src/
     plane_envelope_passages.rs  polygonal passages through a convex two-plane roof
   frames.rs          part-relative recognition (`quiddity.frames`): the frame inferred from the
                      part's plane normals and cylinder axes, the part re-read into it, recognised
+  framed_records.rs  records found in the frame carried back to the file's coordinates, fields
+                     with no file axis left in the frame and labelled
   correspondence/    revision matching (docs/correspondence.md): fingerprint.rs (features and
                      faces), align.rs (rigid alignment), assign.rs (Hungarian with an
                      unmatched option), faces.rs (seeded propagation), mod.rs (`correspond`)
   recognition.rs     the versioned recognition document for draftwright (`quiddity-rust/
-                     recognition/1`): per feature its family, Python record type, faces, record
+                     recognition/2`): the part's frame, and per feature its family, Python
+                     record type, faces, record and the fields left in the frame
   serve.rs           `quiddity serve`: recognise and correspond as a JSON-lines service, each
                      request's id echoed, failures as structured errors
   bin/quiddity.rs    `quiddity part.step` → JSON with fingerprints and the document;
@@ -279,7 +282,8 @@ tests/
                      and under a generic rotation, recognised in its own frame; repeating
                      radial profiles (none in the corpus) on their captured parts
   frames.rs          the frames Python derives (fixtures, corpus, Python's frame-test parts),
-                     as read and under a generic rotation, and the frame moving with the part
+                     as read and under a generic rotation, the frame moving with the part, and
+                     the re-read part's faces being the caller's
   correspondence.rs  every corpus part corresponds with itself moved, everything carried; the
                      build123d revision pairs get their expected classes
   sections.rs        the section helpers' captured calls (values, covered patches, ring
@@ -291,11 +295,14 @@ tests/
                      Python's captured calls, and the proofs under the invariance motions
   corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity
                      revision, every file and its sha256)
-  determinism.rs     every corpus part's recognition and correspondence JSON byte for byte the
-                     same twice in one process (fresh hash seeds)
+  determinism.rs     every corpus part's recognition (what the CLI prints, document included) and
+                     correspondence JSON byte for byte the same twice in one process (fresh
+                     hash seeds)
   wiring.rs          every family's defining faces wired, and every record field given a role
                      in the fingerprint table, over the fixtures and the corpus
-  recognition.rs     the document: a record type for every family, order, faces, round trip
+  recognition.rs     the document: a record type for every family, order, faces, round trip,
+                     labels; over the corpus, moved and turned (carried back) and against
+                     caller-space recognition (known_framed_document.json)
   cli.rs             the binary's usage, exit codes and refusal of broken STEP files
                      (fixtures/broken/)
   serve.rs           `quiddity serve`: results equal to the CLI's, every error code, many
@@ -445,16 +452,30 @@ risers, which are read along world Z, by the faces each is read from under the m
 Z vertical). Each listed exception pins the most occurrences it may differ by. Reflections are
 refused by the reader for now, which rebuilds frames right-handed.
 
-A part turned by a generic rotation (37° about (1, 2, 3)) is recognised in its own frame
-(`src/frames.rs`, Python's `quiddity.frames`; `recognise` stays caller-space, as Python's entry
-points do): the frame is inferred from the part's plane normals and cylinder axes, ranked by
-area and by where the faces sit about the part's centroid, and the part is re-read placed in it.
-`tests/frames.rs` checks the frame against Python's on every fixture and corpus part, as read and
-turned, and that it moves with the part; `tests/invariance.rs` checks that every family, face
-levels and risers included, finds the same faces on the corpus part turned as unmoved, each in
-its frame (4 listed exceptions: two recogniser thresholds Python shares, two kernel face-box
-defects). Caller-space recognition does not survive that rotation (the same test prints by how
-much; review M8).
+Recognition by default is in the part's own frame and reported in the file's coordinates (the
+maintainer's decision on review M8): `correspondence::recognise_placed`, which the CLI, `quiddity
+serve` and the recognition document use, infers the frame (`src/frames.rs`, Python's
+`quiddity.frames`) from the part's plane normals and cylinder axes, ranked by area and by where
+the faces sit about the part's centroid, re-reads the part placed in it, recognises it there,
+and carries every record back (`src/framed_records.rs`): points by the frame, directions by its
+rotation, axis letters and coordinates along them exactly where the frame's axes are the file's
+up to order and sign. Where they are not, those fields stay in the frame and the document lists
+them per record (`local`), with the frame itself (`quiddity-rust/recognition/2`). A part with no
+frame (no plane or cylinder, no material) is recognised as placed, with a warning.
+
+Parity is still checked where Python's entry points work: `features::recognise` and every
+`recognise_<family>` stay caller-space, as Python's do, and the parity tests (`corpus.rs`,
+`captured.rs`, `invariance.rs`) call them. `tests/frames.rs` checks the frame against Python's on
+every fixture and corpus part, as read and turned, that it moves with the part, and that the
+re-read part's faces are the caller's under the same indices; `tests/invariance.rs` checks that
+every family, face levels and risers included, finds the same faces on the corpus part turned by
+a generic rotation (37° about (1, 2, 3)) as unmoved, each in its frame (4 listed exceptions: two
+recogniser thresholds Python shares, two kernel face-box defects). Caller-space recognition does
+not survive that rotation (the same test prints by how much). `tests/recognition.rs` checks the
+default document itself: under every invariance motion and the generic rotation, carried back,
+it finds the same features on the same faces with the same values, and on the corpus as read it
+is compared with caller-space recognition, every difference listed with a verdict in
+`tests/fixtures/known_framed_document.json`.
 
 ## What parity means
 
