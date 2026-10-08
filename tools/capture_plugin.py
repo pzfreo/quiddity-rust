@@ -8,7 +8,9 @@ are a part plus plain keyword options is recorded: the part is exported to STEP,
 through ``import_step_geometry`` and recognised again there — the Rust port only ever sees the
 STEP file — and both answers are kept so a STEP round trip that changes the Python answer is
 visible. Calls with richer arguments (precomputed inventories, injected dependencies) are
-recorded by name only, so the port's coverage of them can be reported honestly.
+recorded by name only, so the port's coverage of them can be reported honestly. A call that
+cannot be recorded at all (its part fails to export, or its arguments have another shape) is
+listed under ``skipped`` with its test node id and the reason.
 """
 
 from __future__ import annotations
@@ -28,7 +30,8 @@ import pytest
 TARGETS = [t for t in os.environ.get("QUIDDITY_CAPTURE", "").split(",") if t]
 OUT = Path(os.environ.get("QUIDDITY_CAPTURE_OUT", "captured")).resolve()
 _calls: list[dict] = []
-_skipped: dict[str, int] = {}
+#: Calls that could not be recorded: function, test node and why, one entry per call.
+_skipped: list[dict] = []
 _active = False
 
 
@@ -97,9 +100,7 @@ def _wrap(name, real):
         try:
             _record(name, real, args, kwargs, result)
         except Exception as error:  # noqa: BLE001 -- capture must never break the suite
-            _skipped[f"{name}: capture failed: {type(error).__name__}"] = (
-                _skipped.get(f"{name}: capture failed: {type(error).__name__}", 0) + 1
-            )
+            _skip(name, f"capture failed: {type(error).__name__}: {error}")
         finally:
             _active = False
         return result
@@ -128,7 +129,7 @@ def _record(name, real, args, kwargs, result):
         if _plain(kwargs["csinks"]) == _plain(_real(quiddity, "recognise_countersinks")(args[0])):
             rich.remove("csinks")
             simple["csinks"] = "auto"
-    test = os.environ.get("PYTEST_CURRENT_TEST", "?").split(" ")[0]
+    test = _test()
     if args and _is_part(args[0]) and len(args) == 1:
         part = args[0]
         with tempfile.TemporaryDirectory() as tmp:
@@ -172,8 +173,17 @@ def _record(name, real, args, kwargs, result):
             }
         )
     else:
-        key = f"{name}: unsupported call shape"
-        _skipped[key] = _skipped.get(key, 0) + 1
+        _skip(name, "unsupported call shape")
+
+
+def _test() -> str:
+    """The running test's node id."""
+
+    return os.environ.get("PYTEST_CURRENT_TEST", "?").split(" ")[0]
+
+
+def _skip(name: str, reason: str) -> None:
+    _skipped.append({"function": name, "test": _test(), "reason": reason})
 
 
 def pytest_configure(config):
@@ -218,13 +228,19 @@ def pytest_sessionfinish(session, exitstatus):
         if not (c["function"] in TARGETS and c["test"].split("::")[0] in _rerun_files)
     ]
     merged = kept + _calls
-    # Skip counts of functions this run did not capture are kept as they were.
-    skipped = {
-        k: v
-        for k, v in previous.get("skipped", {}).items()
-        if k.split(":")[0] not in TARGETS
-    }
-    skipped.update(_skipped)
+    # Skipped calls are replaced the same way. The old form (counts keyed by function and
+    # exception type, no test) cannot be merged per test file, so it must be wholly replaced.
+    previous_skipped = previous.get("skipped", [])
+    if isinstance(previous_skipped, dict):
+        stale = sorted({k.split(":")[0] for k in previous_skipped} - set(TARGETS))
+        if stale:
+            raise RuntimeError(f"recapture these too; their skips predate test ids: {stale}")
+        previous_skipped = []
+    skipped = [
+        s
+        for s in previous_skipped
+        if not (s["function"] in TARGETS and s["test"].split("::")[0] in _rerun_files)
+    ] + _skipped
     manifest.write_text(
         json.dumps({"calls": merged, "skipped": skipped}, indent=1, allow_nan=False) + "\n"
     )
