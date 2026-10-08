@@ -154,7 +154,7 @@ fn curve_cuts(surface: &Surface, curve: &Curve, t0: f64, t1: f64) -> Vec<f64> {
 
 /// A B-spline surface's side of constant u, and of constant v, that collapses to a single
 /// point (as at the tip of a surface closing like a cone), if any.
-fn collapsed_sides(surface: &Surface) -> (Option<f64>, Option<f64>) {
+pub(crate) fn collapsed_sides(surface: &Surface) -> (Option<f64>, Option<f64>) {
     let Surface::Freeform { surface, .. } = surface else {
         return (None, None);
     };

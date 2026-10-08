@@ -50,14 +50,6 @@
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "family": "kernel",
-    "key": "uv_bounds Cone",
-    "count": 4,
-    "verdict": "rust-wrong",
-    "reason": "Faces 1262, 1265, 1268, 1271: the port's v range starts at -4.648 where the face's edges (sampled densely and projected onto the cone) reach -4.958, which OpenCascade gives to 1e-14."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb202.step.gz",
-    "family": "kernel",
     "key": "uv_bounds Cone (same range, another turn)",
     "count": 1,
     "verdict": "equivalent",
@@ -68,22 +60,22 @@
     "family": "kernel",
     "key": "uv_bounds Cylinder",
     "faces": [
-      1535
+      1721
     ],
     "count": 1,
-    "verdict": "rust-wrong",
-    "reason": "The port's v range ends at -115.0759 where the face's edges (sampled at 401 points per edge and projected onto the surface) reach -115.0652, which OpenCascade gives to 3.5e-5."
+    "verdict": "rust-correct",
+    "reason": "tools/kernel_evidence.py uv (2001 samples per edge, each extreme refined by a bounded Brent search) gives the face's edges a v range up to 67.731421158, reached inside B-spline edge 1478, which dips 5.8e-5 beyond the vertex at 67.731362986 it shares with line edge 4490. The port gives 67.731421158 (crates/haecceity/src/uv.rs takes each edge's exact extremes along a cylinder's axis). OpenCascade gives 67.731507910, 8.7e-5 beyond (1.3e-6 relative): the box of its pcurves, which itself reaches only 67.7313974 on that edge. The u range agrees."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "family": "kernel",
     "key": "uv_bounds Cylinder",
     "faces": [
-      1721
+      1703
     ],
     "count": 1,
     "verdict": "rust-correct",
-    "reason": "tools/kernel_evidence.py uv (2001 samples per edge, each extreme refined by a bounded Brent search; a cylinder's v is the point's axial coordinate, in closed form) gives the face's edges a v range up to 67.731421158, reached inside B-spline edge 1478, which dips 5.8e-5 beyond the vertex at 67.731362986 it shares with line edge 4490. The port gives that vertex's 67.731362986: crates/haecceity/src/uv.rs compute_uv_bounds misses the edge's interior extreme, 5.8e-5 short, 8.6e-7 relative, within the comparison's 1e-6 agreement. OpenCascade gives 67.731507910, 8.7e-5 beyond (1.3e-6): the box of its pcurves, which itself reaches only 67.7313974 on that edge. The u range agrees."
+    "reason": "tools/kernel_evidence.py uv (2001 samples per edge, each extreme refined by a bounded Brent search) gives the face's edges a v range up to 67.383462697, reached inside one of its B-spline edges; the port gives it to 1e-12 (it takes each edge's exact extremes along a cylinder's axis, where its samples alone gave 67.383332322). OpenCascade's 67.383332322 is 1.3e-4 short (1.9e-6 relative): its pcurves' box. The u range agrees."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -99,19 +91,18 @@
     "key": "uv_bounds Freeform",
     "count": 120,
     "verdict": "rust-correct",
-    "reason": "120 of the 123 B-spline faces (the three below are listed separately): the port matches the face's edges (sampled at 401 points per edge and projected onto the surface) within 2e-7 and OpenCascade overshoots by up to 1.2e-3, its pcurves' control polygons."
+    "reason": "120 of the 123 B-spline faces (1428 and 1465 are listed separately; 1448 agrees): the port matches the face's edges (sampled at 401 points per edge and projected onto the surface) within 2e-7, but for face 1446, 7.7e-6 inside them (its samples miss two interior extremes), and OpenCascade overshoots by up to 1.2e-3, its pcurves' control polygons."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "family": "kernel",
     "key": "uv_bounds Freeform",
     "faces": [
-      1428,
-      1448
+      1428
     ],
-    "count": 2,
-    "verdict": "rust-wrong",
-    "reason": "The port's box is wider than the face's edges (sampled at 401 points per edge and projected onto the surface): on 1428 its v range starts 1.6e-3 below them, on 1448 its u range 5.6e-6 below; OpenCascade matches the edges within 2e-5 and 1.6e-10. The port boxes these B-spline pcurves by their poles."
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "tools/kernel_evidence.py uv (2001 samples per edge, each extreme refined by a bounded Brent search) gives the face's edges a v minimum of 0.0059785966 (at a point 8.8e-5 off the surface); the port gives 0.0059786364, 4.0e-8 above, from its edges' samples, and OpenCascade 0.0059586768, 2.0e-5 below. The port's range once started at 0.0043292 from the edges' shared vertex, which stands 0.02 mm off their ends (its tolerance is 0.0203): crates/haecceity/src/uv.rs now places each edge's ends on its curve. The other three sides agree."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -139,7 +130,7 @@
     ],
     "count": 7,
     "verdict": "rust-correct",
-    "reason": "The latitude range differs: the port matches the face's edges (sampled at 401 points per edge and projected onto the surface) within 2e-5 and OpenCascade overshoots by 3e-4 to 6e-4, its pcurves' control polygons."
+    "reason": "The latitude range differs: tools/kernel_evidence.py uv (2001 samples per edge, each extreme refined by a bounded Brent search) gives the face's edges' latitude range, which the port matches within 1e-8 (it takes each edge's exact extremes along the sphere's axis) and OpenCascade overshoots by 2.7e-4 to 6.0e-4 (faces 47, 733, 748 and 752 down to -0.913226 where the edges reach -0.912952; 80 and 85 up to 0.928487 where they reach 0.927884; 1451 to 0.325966 where they reach 0.325690), its pcurves' control polygons."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -240,6 +231,14 @@
   {
     "file": "cadgenbench_inputs/cgb203.step",
     "family": "kernel",
+    "key": "uv_bounds Cylinder",
+    "count": 6,
+    "verdict": "rust-correct",
+    "reason": "Faces 70, 82, 94, 106, 118 and 141: tools/kernel_evidence.py uv (2001 samples per edge, each extreme refined by a bounded Brent search) gives the edges' u range reaching 1.571121851 (faces 70, 82, 94, 141; 106 and 118 start at 1.570470803), the port's to 3.3e-9. OpenCascade stops 8.49e-4 short, at the end of the file's pcurve of the B-spline edge there: the pcurve strays from its edge, and the range holds the edge (crates/haecceity/src/uv.rs widens by an edge's samples as well as its pcurve's poles). The v range agrees."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "family": "kernel",
     "key": "uv_bounds Freeform",
     "count": 14,
     "verdict": "rust-correct",
@@ -336,18 +335,10 @@
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "family": "kernel",
-    "key": "uv_bounds Cone",
-    "count": 5,
-    "verdict": "rust-correct",
-    "reason": "As for cgb203, and OpenCascade's import healing re-orients and re-parameterises some of this file's cone faces."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "family": "kernel",
     "key": "uv_bounds Freeform",
     "count": 7,
     "verdict": "rust-correct",
-    "reason": "As for cgb203, and OpenCascade's import healing re-orients and re-parameterises some of this file's cone faces."
+    "reason": "As for cgb203, and OpenCascade's import healing re-orients and re-parameterises some of this file's faces."
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
@@ -448,8 +439,16 @@
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "family": "kernel",
+    "key": "uv_bounds Cylinder",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Face 558: tools/kernel_evidence.py uv (2001 samples per edge, each extreme refined by a bounded Brent search) gives the edges' u range starting at -0.000152313098, the port's to 3e-10; OpenCascade starts at 0.000412937, 5.65e-4 inside, at the end of the file's pcurve of the B-spline edge there, which strays from its edge (the range holds the edge). The v range agrees."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "family": "kernel",
     "key": "uv_bounds Freeform",
-    "count": 50,
+    "count": 48,
     "verdict": "rust-correct",
     "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
   },
@@ -513,9 +512,9 @@
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "family": "kernel",
     "key": "uv_bounds Cone",
-    "count": 13,
-    "verdict": "rust-wrong",
-    "reason": "All 13 faces: OpenCascade's range is the face's edges' (sampled at 401 points per edge and projected onto the surface) within 1.5e-3 (12 faces within 4e-6), the port's is not. On 12 the port's v range collapses to [0, 0] where the edges run from 0 to -1.458 or -2.917; on face 19 its u range starts at 2.989 where the edges start at pi (it boxes the file's B-spline pcurve by its poles)."
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Face 527: tools/kernel_evidence.py uv (2001 samples per edge, each extreme refined by a bounded Brent search) gives the edges' u range ending at pi, the port's; OpenCascade ends at 3.155263677, the box of the file's straight pcurve of a ruling edge, whose pole at the apex sits at that u (any u is the apex). A pole at the apex bounds v alone in the port. The v range agrees."
   },
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
@@ -529,7 +528,7 @@
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "family": "kernel",
     "key": "uv_bounds Freeform",
-    "count": 12,
+    "count": 11,
     "verdict": "rust-correct",
     "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
   },
@@ -889,9 +888,9 @@
     "file": "nist/nist_ctc_04_asme1_rd.stp",
     "family": "kernel",
     "key": "uv_bounds Cylinder",
-    "count": 9,
+    "count": 8,
     "verdict": "rust-correct",
-    "reason": "All 9 faces: the port's axial range is the face's edges' (within 2.5e-6, sampled densely and projected onto the cylinder); OpenCascade's overshoots by 8e-6 to 4.9e-3, from pcurves it approximates on import."
+    "reason": "All 8 faces: the port's axial range is the face's edges' (within 2.5e-6, sampled densely and projected onto the cylinder); OpenCascade's overshoots by 8e-6 to 4.9e-3, from pcurves it approximates on import."
   },
   {
     "file": "nist/nist_ctc_04_asme1_rd.stp",
@@ -938,8 +937,8 @@
     "family": "kernel",
     "key": "uv_bounds Freeform",
     "count": 1,
-    "verdict": "rust-wrong",
-    "reason": "Face 79 (B-spline): the port's u range ends at 0.89627 where the face's edges (sampled densely and projected onto the surface) reach 0.90306, which OpenCascade gives exactly; OpenCascade's v range overshoots by 4.5e-4."
+    "verdict": "rust-correct",
+    "reason": "Face 79 (B-spline): tools/kernel_evidence.py uv (2001 samples per edge, each extreme refined by a bounded Brent search) gives the edges' v range ending at 0.702970866; the port ends 4.6e-6 short (its edges' samples miss the interior extreme), OpenCascade 4.45e-4 beyond (its pcurves' poles). The u range agrees (the port's u range once ended at 0.89627, beside the vertex that stands off the end of a B-spline edge's curve (at 0.90306) within its 0.026 tolerance: crates/haecceity/src/uv.rs now places each edge's ends on its curve)."
   },
   {
     "file": "nist/nist_ctc_05_asme1_rd.stp",
@@ -1012,14 +1011,6 @@
     "count": 29,
     "verdict": "equivalent",
     "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn. Also faces whose range is centred on the seam (within 1e-9 of a turn): the port starts those so that the centre sits at 0, so the choice does not hang on round-off, while OpenCascade's start follows its own pcurves and round-off."
-  },
-  {
-    "file": "nist/nist_ftc_07_asme1_rd.stp",
-    "family": "kernel",
-    "key": "uv_bounds Sphere",
-    "count": 15,
-    "verdict": "rust-wrong",
-    "reason": "All 15 faces: the port's latitude range runs to the pole (+-pi/2) where the face's edges stop at +-1.553343, which OpenCascade gives to 1e-14: the port takes these patches as reaching the pole."
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",

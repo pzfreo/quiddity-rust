@@ -659,3 +659,106 @@ fn surface_recovery_moves_with_the_part() {
         }
     }
 }
+
+/// A face's parameter range is the range its boundary edges reach on its surface, each value
+/// from tools/kernel_evidence.py uv (2001 samples per edge, extremes refined by Brent):
+/// cone faces running to their apex, along an edge (cgb202 1262) or to a vertex loop (cgb243
+/// 21, 104); a cylinder whose file pcurve stops 0.0107 short of its B-spline edge (cgb202
+/// 1535) and one whose edge bulges between samples (1721); B-spline faces whose shared vertex
+/// stands 0.02 mm off their edges' ends (1428, 1448); sphere patches whose edges stop a degree
+/// from the pole (nist_ftc_07 49, 51); a cone pcurve running to the apex at another u (cgb243
+/// 19); a B-spline edge whose samples missed its end (nist_ctc_05 79, cgb242 558); and a
+/// B-spline face whose surface collapses at a corner of it, where v is arbitrary (cgb242 289,
+/// to its samples' 2.4e-6). A pcurve constant in v fixes the edge's v (cgb217 106: the bore's
+/// B-spline rim strays 0.0187 above the plane its pcurve, v = 24.5, gives).
+#[test]
+fn uv_bounds_are_the_range_of_the_boundary_edges() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    const PI: f64 = std::f64::consts::PI;
+    // (file, face, side (u0, u1, v0, v1 as 0..4), value, tolerance)
+    let cases: [(&str, usize, usize, f64, f64); 14] = [
+        (
+            "cadgenbench_inputs/cgb202.step.gz",
+            1262,
+            2,
+            -4.958191942,
+            1e-8,
+        ),
+        (
+            "cadgenbench_inputs/cgb202.step.gz",
+            1535,
+            3,
+            -115.0652464,
+            1e-6,
+        ),
+        (
+            "cadgenbench_inputs/cgb202.step.gz",
+            1721,
+            3,
+            67.731421158,
+            1e-8,
+        ),
+        (
+            "cadgenbench_inputs/cgb202.step.gz",
+            1428,
+            2,
+            0.00597859658,
+            1e-7,
+        ),
+        (
+            "cadgenbench_inputs/cgb202.step.gz",
+            1448,
+            0,
+            0.005941117131,
+            1e-9,
+        ),
+        (
+            "cadgenbench_inputs/cgb243.step.gz",
+            21,
+            2,
+            -1.458291747,
+            1e-8,
+        ),
+        (
+            "cadgenbench_inputs/cgb243.step.gz",
+            104,
+            2,
+            -2.916583493,
+            1e-8,
+        ),
+        ("cadgenbench_inputs/cgb243.step.gz", 19, 0, PI, 1e-9),
+        ("nist/nist_ftc_07_asme1_rd.stp", 49, 3, 1.553343034, 1e-8),
+        ("nist/nist_ftc_07_asme1_rd.stp", 51, 2, -1.553343034, 1e-8),
+        ("nist/nist_ctc_05_asme1_rd.stp", 79, 1, 0.9030627005, 1e-9),
+        (
+            "cadgenbench_inputs/cgb242.step.gz",
+            289,
+            2,
+            0.0058682224,
+            3e-6,
+        ),
+        (
+            "cadgenbench_inputs/cgb242.step.gz",
+            558,
+            0,
+            -0.0001523131,
+            1e-9,
+        ),
+        ("cadgenbench_inputs/cgb217.step.gz", 106, 3, 24.5, 1e-9),
+    ];
+    let mut parts = std::collections::BTreeMap::new();
+    for (file, face, side, want, tol) in cases {
+        let part = parts
+            .entry(file)
+            .or_insert_with(|| read_step_file(&dir.join(file)).unwrap());
+        let (u0, u1, v0, v1) = part.uv_bounds(face).unwrap();
+        let got = [u0, u1, v0, v1][side];
+        assert!(
+            (got - want).abs() <= tol,
+            "{file} face {face} side {side}: {got} vs {want}"
+        );
+    }
+}

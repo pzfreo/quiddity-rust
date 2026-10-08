@@ -70,7 +70,7 @@ its verdict and reason in a verdict file:
 
 | Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
 |---|---|---|---|---|---|---|---|
-| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 141 (940 problems) | 101 | 17 | 22 | 0 | 1 |
+| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 140 (906 problems) | 106 | 11 | 22 | 0 | 1 |
 | `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 34 (35 calls) | 4 | 1 | 3 | 3 | 23 |
 | `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 23 | 0 | 23 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
@@ -594,7 +594,8 @@ reader reproduces:
   loops a seamless torus band lies — files written by OpenCascade always have the seam).
 - A placement without a reference direction takes `gp_Ax2`'s default x axis.
 - Face UV ranges include the control polygons of B-spline pcurves that span their edge,
-  because OpenCascade boxes pcurves by their poles.
+  because OpenCascade boxes pcurves by their poles; they also hold the edges themselves (a
+  file's pcurve may stray from its edge), except where a pcurve holds a parameter constant.
 - Closed edges (full circles) are exempt from the orientability check: their recorded
   direction is not evidence.
 
