@@ -6451,6 +6451,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -21658,6 +21670,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -119227,6 +119251,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -126743,6 +126779,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -141708,6 +141756,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -159763,6 +159823,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -163167,6 +163239,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -205690,6 +205774,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -235324,6 +235420,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -264609,6 +264717,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -265661,6 +265781,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -266408,6 +266540,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -267957,6 +268101,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -269032,6 +269188,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -270450,6 +270618,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -273590,6 +273770,18 @@
        ]
       ]
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -275246,6 +275438,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -277248,6 +277452,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -280370,6 +280586,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -281840,6 +282068,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -284894,6 +285134,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -286534,6 +286786,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -288456,6 +288720,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -290403,6 +290679,18 @@
         7
        ]
       ]
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -292416,6 +292704,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -294354,6 +294654,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -296690,6 +297002,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -298380,6 +298704,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -299948,6 +300284,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -301068,6 +301416,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -303106,6 +303466,18 @@
         20
        ]
       ]
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -305348,6 +305720,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -307384,6 +307768,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -309312,6 +309708,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -311882,6 +312290,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -313918,6 +314338,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -315697,6 +316129,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -317977,6 +318421,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -319193,6 +319649,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -321115,6 +321583,18 @@
        ]
       ]
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -323022,6 +323502,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -325162,6 +325654,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -327044,6 +327548,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -329242,6 +329758,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -331643,6 +332171,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -333013,6 +333553,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -334478,6 +335030,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -336684,6 +337248,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -338475,6 +339051,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -340285,6 +340873,18 @@
         11
        ]
       ]
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -342131,6 +342731,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -344070,6 +344682,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -345565,6 +346189,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -347973,6 +348609,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -349385,6 +350033,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -351982,6 +352642,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -353553,6 +354225,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -355736,6 +356420,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -357750,6 +358446,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -358887,6 +359595,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -360571,6 +361291,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -361788,6 +362520,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -363577,6 +364321,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -365978,6 +366734,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -367292,6 +368060,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -369096,6 +369876,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -370653,6 +371445,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -371671,6 +372475,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -373205,6 +374021,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -374602,6 +375430,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -375910,6 +376750,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -377660,6 +378512,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -379793,6 +380657,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -381532,6 +382408,18 @@
         19
        ]
       ]
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -383884,6 +384772,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -385875,6 +386775,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -387260,6 +388172,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -389099,6 +390023,18 @@
         19
        ]
       ]
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -391314,6 +392250,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -393046,6 +393994,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -395005,6 +395965,18 @@
         10
        ]
       ]
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -397559,6 +398531,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -400438,6 +401422,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -402087,6 +403083,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -404024,6 +405032,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -405877,6 +406897,18 @@
         22
        ]
       ]
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -408042,6 +409074,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -410713,6 +411757,18 @@
        ]
       ]
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -412846,6 +413902,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -421639,6 +422707,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -454235,6 +455315,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -464059,6 +465151,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -491259,6 +492363,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -502649,6 +503765,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -510768,6 +511896,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -524140,6 +525280,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -538931,6 +540083,18 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
     ]
    }
   },
@@ -548898,6 +550062,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -560756,6 +561932,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }
@@ -576638,6 +577826,18 @@
       "options": {},
       "result": [],
       "defining": []
+     }
+    ],
+    "recognise_slot_patterns": [
+     {
+      "options": {},
+      "result": []
+     }
+    ],
+    "recognise_pocket_patterns": [
+     {
+      "options": {},
+      "result": []
      }
     ]
    }

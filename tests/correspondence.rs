@@ -82,8 +82,12 @@ fn invariance_problems(
 ) -> Problems {
     let skipped = |id: &str| {
         let family = id.split('/').next().unwrap();
-        skip.iter()
-            .any(|s| family == s || (s == "holes" && family == "hole_patterns"))
+        skip.iter().any(|s| {
+            family == s
+                || (s == "holes" && family == "hole_patterns")
+                || (s == "slots" && family == "slot_patterns")
+                || (s == "pockets" && family == "pocket_patterns")
+        })
     };
     let mut out = Problems {
         features: Vec::new(),

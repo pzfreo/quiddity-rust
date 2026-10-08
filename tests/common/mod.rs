@@ -106,6 +106,13 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
         "recognise_slots" => json(quiddity::recognise_slots(part)),
         "recognise_pockets" => json(quiddity::recognise_pockets(part)),
         "recognise_channels" => json(quiddity::recognise_channels(part)),
+        // Over a part: the patterns among the part's slots or pockets.
+        "recognise_slot_patterns" => json(quiddity::recognise_slot_patterns(
+            &quiddity::recognise_slots(part),
+        )),
+        "recognise_pocket_patterns" => json(quiddity::recognise_pocket_patterns(
+            &quiddity::recognise_pockets(part),
+        )),
         // Over a part: the patterns among the part's gusset ribs.
         "recognise_gusset_rib_patterns" => json(quiddity::recognise_gusset_rib_patterns(
             &quiddity::recognise_gusset_ribs(part),
@@ -227,6 +234,15 @@ pub fn recognise_records(function: &str, arguments: &Value) -> Value {
             let ribs: Vec<quiddity::GussetRib> =
                 serde_json::from_value(arguments[0].clone()).unwrap();
             json(quiddity::recognise_gusset_rib_patterns(&ribs))
+        }
+        "recognise_slot_patterns" => {
+            let slots: Vec<quiddity::Slot> = serde_json::from_value(arguments[0].clone()).unwrap();
+            json(quiddity::recognise_slot_patterns(&slots))
+        }
+        "recognise_pocket_patterns" => {
+            let pockets: Vec<quiddity::Pocket> =
+                serde_json::from_value(arguments[0].clone()).unwrap();
+            json(quiddity::recognise_pocket_patterns(&pockets))
         }
         other => panic!("{other} takes a part"),
     }

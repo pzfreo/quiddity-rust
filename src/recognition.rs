@@ -21,6 +21,7 @@ use crate::correspondence::Recognition;
 use crate::features::Features;
 use crate::features::gussets::GussetRibPattern;
 use crate::features::hole_patterns::HolePattern;
+use crate::features::recess_patterns::{PocketPattern, SlotPattern};
 
 /// Bumped whenever the document's shape or a field's meaning changes; a reader refuses another.
 pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/1";
@@ -106,6 +107,8 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
     ("slots", &["Slot"]),
     ("pockets", &["Pocket"]),
     ("channels", &["Channel"]),
+    ("slot_patterns", &["SlotGrid", "SlotArray"]),
+    ("pocket_patterns", &["PocketGrid", "PocketArray"]),
 ];
 
 /// The record class names a family's records can have.
@@ -128,6 +131,14 @@ pub fn record_type(features: &Features, family: &str, n: usize) -> &'static str 
         "gusset_rib_patterns" => match &features.gusset_rib_patterns[n] {
             GussetRibPattern::Array { .. } => "GussetRibArray",
             GussetRibPattern::MirrorPair { .. } => "GussetRibMirrorPair",
+        },
+        "slot_patterns" => match &features.slot_patterns[n] {
+            SlotPattern::SlotGrid { .. } => "SlotGrid",
+            SlotPattern::SlotArray { .. } => "SlotArray",
+        },
+        "pocket_patterns" => match &features.pocket_patterns[n] {
+            PocketPattern::PocketGrid { .. } => "PocketGrid",
+            PocketPattern::PocketArray { .. } => "PocketArray",
         },
         _ => match record_types(family) {
             Some([one]) => one,

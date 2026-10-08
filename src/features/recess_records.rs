@@ -1,7 +1,7 @@
 //! The records slots, pockets and channels publish (`quiddity._recess_records`), and what the
 //! recess reductions read of a slot or pocket through [`Recess`].
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use super::body::BodyKey;
 use crate::kernel::geom::V3;
@@ -24,7 +24,7 @@ pub fn third_axis(a: usize, b: usize) -> usize {
 /// separation along `width_axis`, `lo`/`hi` the ends along `long_axis`, `d_lo`/`d_hi` the
 /// extent on the third (depth) axis. `body_key` is the source solid's key (`None` when it is
 /// ambiguous); `end_radius` and `corner_radius` are `None` when unproved, never "square".
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Slot {
     pub width_axis: char,
     pub long_axis: char,
@@ -43,7 +43,7 @@ pub struct Slot {
 /// A bounded blind recess: a slot capped by a floor, so with a `depth` (`d_hi - d_lo`) and the
 /// side it opens to along the depth axis (`open_sign`). `edge_anchored` marks a corner notch,
 /// located by the two envelope edges it touches.
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Pocket {
     pub width_axis: char,
     pub long_axis: char,
