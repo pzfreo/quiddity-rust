@@ -1,413 +1,1023 @@
 [
   {
-    "file": "cadgenbench_inputs/cgb202.step.gz",
-    "reason": "OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid and Python refuses evidence for it.",
-    "contains": "evidence",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "nist/nist_ctc_02_asme1_rc.stp",
-    "reason": "Four r25 fillet anchors differ by 0.001 in z: OpenCascade sizes the face's v range from the pcurve it builds on import for a B-spline edge this file gives no usable B-spline pcurve for, and the true mid-point sits on a rounding boundary.",
-    "contains": [
-      "recognise_fillets",
-      "fields {\"at\"}"
-    ],
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "inventory_refusal/13975.step.gz",
-    "reason": "A deliberately malformed corpus part (its shell is not orientable). OpenCascade's import healing rebuilds and reorders its faces, so face indices no longer line up with the file's shell order the port reads; it has no fillets either way.",
-    "contains": "is OTHER",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb202.step.gz",
-    "reason": "Face 1870's B-spline boundary edge lies up to 0.012 mm off its torus (within the edge's tolerance); OpenCascade's face box follows the surface, the port's follows the edge.",
-    "contains": "bounds",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "nist/nist_ftc_07_asme1_rd.stp",
-    "contains": [
-      "recognise_holes",
-      "fields {\"location\"}"
-    ],
-    "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge.",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "contains": [
-      "recognise_holes",
-      "fields {\"location\"}"
-    ],
-    "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge.",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "contains": [
-      "recognise_hole_patterns",
-      "fields {\"center\", \"holes\"}"
-    ],
-    "reason": "The grid's member holes carry the opening-location difference recorded for this file's recognise_holes.",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "inventory_refusal/14052.step.gz",
-    "contains": "edges, Python has",
-    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus.",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "nist/nist_ctc_01_asme1_rd.stp",
-    "contains": "edges, Python has",
-    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus.",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "nist/nist_ctc_03_asme1_rc.stp",
-    "contains": "edges, Python has",
-    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus.",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "nist/nist_ftc_06_asme1_rd.stp",
-    "contains": "edges, Python has",
-    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus.",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "nist/nist_ftc_07_asme1_rd.stp",
-    "contains": "edges, Python has",
-    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus.",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "contains": "edges, Python has",
-    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus.",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "inventory_refusal/14052.step.gz",
-    "contains": ": evidence",
-    "reason": "A deliberately malformed corpus part: OpenCascade's BRepCheck finds geometric faults the port's topological validity check (closed, orientable) does not look for, so Python refuses hole, boss and plate evidence and the port publishes it.",
-    "verdict": "rust-wrong"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb242.step.gz",
-    "contains": [
-      "recognise_flats",
-      "fields {\"at\"}"
-    ],
-    "reason": "Flat anchors are planar face centroids. build123d's Face.center() calls BRepGProp::SurfaceProperties at its default accuracy, which is off by ~1.4e-3 mm on face 123 (40.52111 vs 40.52252 at eps=1e-9); the port integrates the exact boundary (40.52252), and the difference crosses the 0.001 rounding grid.",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "cadgenbench/threaded_connector_109.step",
-    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree.",
-    "contains": "uv_bounds differ",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb203.step",
-    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree.",
-    "contains": "uv_bounds differ",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb207.step",
-    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree.",
-    "contains": "uv_bounds differ",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb241.step",
-    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree.",
-    "contains": "uv_bounds differ",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb242.step.gz",
-    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree.",
-    "contains": "uv_bounds differ",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb243.step.gz",
-    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree. On its cones the port boxes the file's B-spline pcurves by their poles where OpenCascade's own pcurve is exact.",
-    "contains": "uv_bounds differ",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb245.step",
-    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree.",
-    "contains": "uv_bounds differ",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "reason": "As for cgb203, and OpenCascade's import healing re-orients and re-parameterises some of this file's cone faces.",
-    "contains": "uv_bounds differ",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "nist/nist_ctc_02_asme1_rc.stp",
-    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree.",
-    "contains": "uv_bounds differ",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "nist/nist_ctc_04_asme1_rd.stp",
-    "reason": "Sphere and cylinder ranges differ in the fifth digit: OpenCascade bounds them from approximated pcurves; the port from the exact edges.",
-    "contains": "uv_bounds differ",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "nist/nist_ctc_05_asme1_rd.stp",
-    "reason": "As nist_ctc_04: sphere ranges from approximated pcurves near a pole.",
-    "contains": "uv_bounds differ",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "nist/nist_ftc_08_asme1_rc.stp",
-    "reason": "A cylinder's axial range differs by 5e-5: OpenCascade bounds it by the control polygon of a B-spline pcurve it builds on import.",
-    "contains": "uv_bounds differ",
-    "verdict": "rust-correct"
-  },
-  {
     "file": "cadgenbench/flanged_spool_132.step",
-    "reason": "The same angular range a whole turn apart: OpenCascade starts it where the file's pcurve does (negative u); the port in [0, 2π).",
-    "contains": "uv_bounds differ",
-    "verdict": "equivalent"
-  },
-  {
-    "file": "nist/nist_ftc_09_asme1_rd.stp",
-    "reason": "Cone ranges a whole turn apart (the same faces): OpenCascade starts them where the file's pcurves do.",
-    "contains": "uv_bounds differ",
-    "verdict": "equivalent"
-  },
-  {
-    "file": "ttt_inputs/sm-hanger.step",
-    "reason": "Faces 11 and 12 meet folded back on themselves (outward normals opposite), so convex or concave is undefined; each kernel's round-off picks one.",
-    "contains": "arcs differ",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb242.step.gz",
-    "reason": "Face 16 (B-spline) meets its neighbours almost tangentially (normals 0.06° apart, an approximated blend); the side the turn falls is within each kernel's approximation.",
-    "contains": "arcs differ",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "reason": "A countersink cone meets its bore in a convex edge; OpenCascade's import healing re-orients faces of this solid, which flips its reading.",
-    "contains": "arcs differ",
-    "verdict": "rust-correct"
+    "family": "kernel",
+    "key": "uv_bounds Cylinder (same range, another turn)",
+    "count": 1,
+    "verdict": "equivalent",
+    "reason": "The same angular range a whole turn apart: OpenCascade starts it where the file's pcurve does (negative u); the port in [0, 2π)."
   },
   {
     "file": "cadgenbench/threaded_connector_109.step",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
-    "contains": "solid masses differ by up to 1e-7",
-    "verdict": "undetermined"
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-7",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
   },
   {
-    "file": "cadgenbench_inputs/cgb203.step",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
-    "contains": "solid masses differ by up to 1e-2",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb207.step",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
-    "contains": "solid masses differ by up to 1e-3",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
-    "contains": "solid masses differ by up to 1e-2",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb241.step",
-    "reason": "Traced: a planar face's area is 1% apart because OpenCascade integrates it over the file's pcurves, which disagree with the 3D B-spline edges the port integrates (exact geometry policy).",
-    "contains": "solid masses differ by up to 1e-1",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb242.step.gz",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
-    "contains": "solid masses differ by up to 1e-3",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb243.step.gz",
-    "reason": "Traced: the helical thread face (B-spline) has area 193.57 in the port and 210.36 in OpenCascade, whose result follows its pcurve approximation of the helix boundary.",
-    "contains": "solid masses differ by up to 1e-3",
-    "verdict": "rust-correct"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb245.step",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
-    "contains": "solid masses differ by up to 1e-5",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "gramel/string_post.step",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
-    "contains": "solid masses differ by up to 1e-4",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "mfcadpp/10138.step",
-    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually.",
-    "contains": "solid masses differ by up to 1e-8",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "mfcadpp/10156.step",
-    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually.",
-    "contains": "solid masses differ by up to 1e-8",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "mfcadpp_regressions/11512.step",
-    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually.",
-    "contains": "solid masses differ by up to 1e-8",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "nist/nist_ctc_02_asme1_rc.stp",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
-    "contains": "solid masses differ by up to 1e-5",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "nist/nist_ctc_04_asme1_rd.stp",
-    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually.",
-    "contains": "solid masses differ by up to 1e-7",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "nist/nist_ctc_05_asme1_rd.stp",
-    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off.",
-    "contains": "solid masses differ by up to 1e-6",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "ttt_inputs/sm-hanger.step",
-    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually.",
-    "contains": "solid masses differ by up to 1e-8",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb203.step",
-    "reason": "Same pattern (7 copies, same axis and pitch). fit_error is sampling noise here: the copies are B-spline faces parameterised differently, so Python measures OpenCascade's mesh points (0.884) and the port its own mesh-density samples of the exact surfaces (0.326). Neither is a property of the geometry.",
-    "contains": "recognise_circular_face_patterns {}: records differ: 1 vs 1 records, fields {\"fit_error\"}",
-    "verdict": "undetermined"
-  },
-  {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "contains": [
-      "recognise_holes",
-      "fields {\"spotface\"}"
-    ],
+    "file": "cadgenbench/threaded_connector_109.step",
+    "family": "kernel",
+    "key": "uv_bounds Cone",
+    "count": 3,
     "verdict": "rust-correct",
-    "reason": "Python reports a Ø80×4 spotface on this Ø50×5 blind hole, but the Ø80 cylinder runs from 0.5 mm inside the mouth to 0.5 mm short of the bottom: an internal groove, not a spotface at the opening. Python orders segments by their high end even when drilling from the low end, so it calls the groove a spotface in this orientation and not when the part is turned over; the port orders by the end nearest the opening and gives one answer in every orientation (tests/invariance.rs)."
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
   },
   {
-    "file": "cadgenbench_inputs/cgb243.step.gz",
-    "contains": [
-      "recognise_holes",
-      "fields {\"spotface\"}"
-    ],
+    "file": "cadgenbench/threaded_connector_109.step",
+    "family": "kernel",
+    "key": "uv_bounds Cylinder (same range, another turn)",
+    "count": 12,
+    "verdict": "equivalent",
+    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
+  },
+  {
+    "file": "cadgenbench/threaded_connector_109.step",
+    "family": "kernel",
+    "key": "uv_bounds Freeform",
+    "count": 71,
     "verdict": "rust-correct",
-    "reason": "As cgb217: Python's Ø61.62 spotface is a cylinder starting 0.47 mm inside the Ø60 hole's mouth, found only in this orientation because Python orders segments by their high end in both drilling directions."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb242.step.gz",
-    "contains": [
-      "recognise_holes",
-      "fields {\"axis\", \"cbore\", \"location\", \"spotface\"}"
-    ],
-    "verdict": "rust-correct",
-    "reason": "A Ø22 through hole open at both ends, Ø102 at one and Ø110 at the other. By Python's own rule the wider end is the opening, but at the Ø110 end the bore and the Ø110 segment end level and Python takes whichever comes first in face order as the end's segment (the Ø22 bore), so it drills from the Ø102 end; turned over, Python itself drills from the Ø110 end. The port takes the widest segment reaching an end (the mouth) and answers the same in every orientation."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb207.step",
-    "contains": "recognise_thin_wall_bodies",
-    "verdict": "undetermined",
-    "reason": "Same wall pairs. Pair thicknesses differ in the sixth figure because the probes sit at fractions of each face's parameter range, which the port takes from the exact edges (see this file's uv_bounds entry); the body key and paired area fraction follow this file's untraced B-spline area difference (see its masses entry)."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb241.step",
-    "contains": "recognise_thin_wall_bodies",
-    "verdict": "rust-correct",
-    "reason": "Same wall pairs and thicknesses; the body key and paired area fraction come from face areas, where OpenCascade integrates a planar face over pcurves 1% off its 3D B-spline edges (traced; see this file's masses entry)."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb245.step",
-    "contains": "recognise_thin_wall_bodies",
-    "verdict": "undetermined",
-    "reason": "Only the body key differs: its volume and area follow this file's untraced B-spline mass difference (see its masses entry)."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "contains": "recognise_interior_voids",
-    "verdict": "undetermined",
-    "reason": "Same void faces and openings; the sample counts (and so the estimated volume) differ by about 2%: the void grid is a sampling instrument anchored at the solid's box, and OpenCascade's box is padded (by 1e-7 on this part's faces) where the port's is exact, so the two grids sit a fraction of a micron apart and cells whose centres fall on a face flip, and the body key follows this file's mass difference."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb243.step.gz",
-    "contains": "recognise_interior_voids",
-    "verdict": "undetermined",
-    "reason": "Same void faces and openings; the sample counts differ by about 1%: the void grid is a sampling instrument anchored at the solid's box, and OpenCascade's box is padded (by 1e-7 on this part's faces) where the port's is exact, so the two grids sit a fraction of a micron apart and cells whose centres fall on a face flip, and the body key follows this file's mass difference."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "contains": [
-      "recognise_turned_steps",
-      "fields {\"profile\"}"
-    ],
-    "verdict": "undetermined",
-    "reason": "Same five steps (positions and diameters) and the same defining faces; only the profile's body key differs, because it carries the solid's volume and area and this file's masses differ (listed above: OpenCascade integrates its approximated B-spline pcurves, the port the exact curves). The body box agrees within OpenCascade's 1e-7 tolerance padding."
-  },
-  {
-    "file": "gramel/string_post.step",
-    "contains": [
-      "recognise_turned_steps",
-      "fields {\"profile\"}"
-    ],
-    "verdict": "undetermined",
-    "reason": "Same four steps (the rungs the Python test pins: 3.4, 5, 6, 7.5) and the same defining faces; only the profile's body key differs, because it carries the solid's volume and area and this file's masses differ by up to 1e-4 (listed above: OpenCascade integrates its approximated B-spline pcurves, the port the exact curves)."
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
-    "contains": [
-      "recognise_grooves",
-      "fields {\"profile\"}"
-    ],
+    "family": "inventory",
+    "key": "face bounds",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Face 1870's B-spline boundary edge lies up to 0.012 mm off its torus (within the edge's tolerance); OpenCascade's face box follows the surface, the port's follows the edge."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "kernel",
+    "key": "arcs",
+    "count": 2,
+    "verdict": "rust-correct",
+    "reason": "Faces 1257 and 1731 (B-splines) meet almost tangentially along one edge. Read orientation-free at nine points along it (each face's inward direction by UV classification, each outward normal by ray parity), the fold is convex wherever it can be decided, 0.003-0.14 degrees, as the port says; OpenCascade gives the same normals (the port's turn values agree to all printed digits). Python reads concave because it projects the edge midpoint with tolerance 1e-6, where the fold is 0.0033 degrees (1-cos 1.7e-9, just over SMOOTH_ARC_GAP): at that tolerance the sign of the turn flips (-1.5e-7); projected at 1e-12 OpenCascade also reads convex (+2.4e-7)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-1",
+    "count": 1,
+    "verdict": "rust-wrong",
+    "reason": "The port's sphere-face areas are wrong (H2 in docs/review-2026-10-08.md): faces 772, 994, 1021, 957 give 80.45, 55.34, 55.34, 55.34 where OpenCascade gives 15.48, 6.26, 6.26, 6.26, and faces 854, 838, 869, 832, 388, 372 give negative areas; the solid's area is 798840.82 against OpenCascade's 800065.50 (adaptive). The volume is not invariant under translation (4329644.59 in place, 4311070.28 and 4320116.71 moved), against OpenCascade's 4382356.32 (adaptive)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Cone",
+    "count": 4,
+    "verdict": "rust-wrong",
+    "reason": "Faces 1262, 1265, 1268, 1271: the port's v range starts at -4.648 where the face's edges (sampled densely and projected onto the cone) reach -4.958, which OpenCascade gives to 1e-14."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Cylinder",
+    "faces": [1535],
+    "count": 1,
+    "verdict": "rust-wrong",
+    "reason": "The port's v range ends at -115.0759 where the face's edges (sampled at 401 points per edge and projected onto the surface) reach -115.0652, which OpenCascade gives to 3.5e-5."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Cylinder",
+    "faces": [1721],
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "The port's v range ends 5.8e-5 short of the face's edges' 67.73142 (sampled at 401 points per edge and projected onto the surface) and OpenCascade's 8.7e-5 beyond it; neither is the edges' range and the difference was not traced further."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Cylinder (same range, another turn)",
+    "count": 2,
+    "verdict": "equivalent",
+    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Freeform",
+    "count": 120,
+    "verdict": "rust-correct",
+    "reason": "120 of the 123 B-spline faces (the three below are listed separately): the port matches the face's edges (sampled at 401 points per edge and projected onto the surface) within 2e-7 and OpenCascade overshoots by up to 1.2e-3, its pcurves' control polygons."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Freeform",
+    "faces": [1428, 1448],
+    "count": 2,
+    "verdict": "rust-wrong",
+    "reason": "The port's box is wider than the face's edges (sampled at 401 points per edge and projected onto the surface): on 1428 its v range starts 1.6e-3 below them, on 1448 its u range 5.6e-6 below; OpenCascade matches the edges within 2e-5 and 1.6e-10. The port boxes these B-spline pcurves by their poles."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Freeform",
+    "faces": [1465],
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Both kernels end the v range at 0.99402 (1.1e-6 apart) where the face's edges, sampled at 401 points per edge and projected onto the surface, reach v = 1; not traced whether the sampled edge really reaches v = 1 or the projection snaps to the boundary."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Sphere",
+    "faces": [47, 80, 85, 733, 748, 752, 1451],
+    "count": 7,
+    "verdict": "rust-correct",
+    "reason": "The latitude range differs: the port matches the face's edges (sampled at 401 points per edge and projected onto the surface) within 2e-5 and OpenCascade overshoots by 3e-4 to 6e-4, its pcurves' control polygons."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Sphere",
+    "count": 9,
+    "verdict": "undetermined",
+    "reason": "Faces 119, 162, 600, 809, 885, 889, 993, 1027 and 1111 pass through a pole and differ in longitude by up to 0.04, where the pole makes the edges' own longitude range undefined and neither answer is shown right."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Torus (same range, another turn)",
+    "count": 13,
+    "verdict": "equivalent",
+    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "recognise_bosses",
+    "key": "{} evidence refused by Python only",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid and Python refuses evidence for it."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "recognise_fillets",
+    "key": "{\"include_cylindrical\":false} evidence refused by Python only",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid and Python refuses evidence for it."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "recognise_fillets",
+    "key": "{\"include_cylindrical\":true} evidence refused by Python only",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid and Python refuses evidence for it."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "recognise_flats",
+    "key": "{} evidence refused by Python only",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid and Python refuses evidence for it."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "recognise_grooves",
+    "key": "{} records: 1 vs 1 records, fields {\"profile\"}",
+    "count": 1,
     "verdict": "rust-correct",
     "reason": "Same groove (Ø180, width 54, on face 2074). Only the profile's body key differs: Python has none because OpenCascade's BRepCheck calls this solid unorientable after its import healing (see this file's evidence entry), and for the same reason Python refuses the groove's evidence; the port keys the valid solid. Its body box also differs by OpenCascade's 1e-7 tolerance padding."
   },
   {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "recognise_holes",
+    "key": "{\"csinks\":\"auto\"} evidence refused by Python only",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid and Python refuses evidence for it."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "recognise_holes",
+    "key": "{} evidence refused by Python only",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid and Python refuses evidence for it."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-2",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "family": "kernel",
+    "key": "uv_bounds Freeform",
+    "count": 14,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "family": "kernel",
+    "key": "uv_bounds Plane",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "family": "kernel",
+    "key": "uv_bounds Sphere",
+    "count": 2,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "family": "recognise_circular_face_patterns",
+    "key": "{} records: 1 vs 1 records, fields {\"fit_error\"}",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Same pattern (7 copies, same axis and pitch). fit_error is sampling noise here: the copies are B-spline faces parameterised differently, so Python measures OpenCascade's mesh points (0.884) and the port its own mesh-density samples of the exact surfaces (0.326). Neither is a property of the geometry."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-3",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "family": "kernel",
+    "key": "uv_bounds Freeform",
+    "count": 36,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "family": "kernel",
+    "key": "uv_bounds Plane",
+    "count": 3,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "family": "recognise_thin_wall_bodies",
+    "key": "{} records: 1 vs 1 records, fields {\"body_key\", \"face_pairs\", \"paired_area_fraction\"}",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Same wall pairs. Pair thicknesses differ in the sixth figure because the probes sit at fractions of each face's parameter range, which the port takes from the exact edges (see this file's uv_bounds entry); the body key and paired area fraction follow this file's untraced B-spline area difference (see its masses entry)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "family": "kernel",
+    "key": "arcs",
+    "count": 6,
+    "verdict": "rust-wrong",
+    "reason": "Cone 361 (a countersink), its bore cylinder 362 and the cross-bore cylinder 363. Read orientation-free, all three pairs are concave, as Python says: a point in the 121-degree wedge between 361 and 362 is outside the solid by ray parity in both kernels (OpenCascade's intersector, the port's classifier; 3 points, 2 offsets), and OpenCascade's parity reading (inward directions by UV classification, outward normals by parity) is concave at every decidable point of all three edges. The port walks face 361's loop the other way from OpenCascade (normals agree), so its turn has the opposite sign; the earlier rust-correct verdict (OpenCascade's healing re-orienting faces) does not survive this check. Not traced further (the reader's loop orientation is the step-honesty stream's)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-2",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Cone",
+    "count": 5,
+    "verdict": "rust-correct",
+    "reason": "As for cgb203, and OpenCascade's import healing re-orients and re-parameterises some of this file's cone faces."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Freeform",
+    "count": 7,
+    "verdict": "rust-correct",
+    "reason": "As for cgb203, and OpenCascade's import healing re-orients and re-parameterises some of this file's cone faces."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "family": "recognise_holes",
+    "key": "{\"csinks\":\"auto\"} records: 19 vs 19 records, fields {\"spotface\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Python reports a Ø80×4 spotface on this Ø50×5 blind hole, but the Ø80 cylinder runs from 0.5 mm inside the mouth to 0.5 mm short of the bottom: an internal groove, not a spotface at the opening. Python orders segments by their high end even when drilling from the low end, so it calls the groove a spotface in this orientation and not when the part is turned over; the port orders by the end nearest the opening and gives one answer in every orientation (tests/invariance.rs)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "family": "recognise_holes",
+    "key": "{} records: 19 vs 19 records, fields {\"spotface\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Python reports a Ø80×4 spotface on this Ø50×5 blind hole, but the Ø80 cylinder runs from 0.5 mm inside the mouth to 0.5 mm short of the bottom: an internal groove, not a spotface at the opening. Python orders segments by their high end even when drilling from the low end, so it calls the groove a spotface in this orientation and not when the part is turned over; the port orders by the end nearest the opening and gives one answer in every orientation (tests/invariance.rs)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "family": "recognise_interior_voids",
+    "key": "{} records: 1 vs 1 records, fields {\"air_samples\", \"body_key\", \"enclosed_samples\", \"estimated_volume\"}",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Same void faces and openings; the sample counts (and so the estimated volume) differ by about 2%: the void grid is a sampling instrument anchored at the solid's box, and OpenCascade's box is padded (by 1e-7 on this part's faces) where the port's is exact, so the two grids sit a fraction of a micron apart and cells whose centres fall on a face flip, and the body key follows this file's mass difference."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "family": "recognise_turned_steps",
+    "key": "{} records: 5 vs 5 records, fields {\"profile\"}",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Same five steps (positions and diameters) and the same defining faces; only the profile's body key differs, because it carries the solid's volume and area and this file's masses differ (listed above: OpenCascade integrates its approximated B-spline pcurves, the port the exact curves). The body box agrees within OpenCascade's 1e-7 tolerance padding."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb241.step",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-1",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Traced: a planar face's area is 1% apart because OpenCascade integrates it over the file's pcurves, which disagree with the 3D B-spline edges the port integrates (exact geometry policy)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb241.step",
+    "family": "kernel",
+    "key": "uv_bounds Freeform",
+    "count": 5,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb241.step",
+    "family": "kernel",
+    "key": "uv_bounds Plane",
+    "count": 6,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb241.step",
+    "family": "recognise_thin_wall_bodies",
+    "key": "{} records: 1 vs 1 records, fields {\"body_key\", \"paired_area_fraction\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Same wall pairs and thicknesses; the body key and paired area fraction come from face areas, where OpenCascade integrates a planar face over pcurves 1% off its 3D B-spline edges (traced; see this file's masses entry)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "family": "kernel",
+    "key": "arcs",
+    "count": 4,
+    "verdict": "undetermined",
+    "reason": "Face 16 (B-spline) meets its neighbours almost tangentially (normals 0.06° apart, an approximated blend); the side the turn falls is within each kernel's approximation."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-3",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Freeform",
+    "count": 50,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Plane",
+    "count": 5,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Sphere",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "family": "recognise_flats",
+    "key": "{} records: 5 vs 5 records, fields {\"at\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Flat anchors are planar face centroids. build123d's Face.center() calls BRepGProp::SurfaceProperties at its default accuracy, which is off by ~1.4e-3 mm on face 123 (40.52111 vs 40.52252 at eps=1e-9); the port integrates the exact boundary (40.52252), and the difference crosses the 0.001 rounding grid."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "family": "recognise_holes",
+    "key": "{\"csinks\":\"auto\"} records: 11 vs 11 records, fields {\"axis\", \"cbore\", \"location\", \"spotface\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "A Ø22 through hole open at both ends, Ø102 at one and Ø110 at the other. By Python's own rule the wider end is the opening, but at the Ø110 end the bore and the Ø110 segment end level and Python takes whichever comes first in face order as the end's segment (the Ø22 bore), so it drills from the Ø102 end; turned over, Python itself drills from the Ø110 end. The port takes the widest segment reaching an end (the mouth) and answers the same in every orientation."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "family": "recognise_holes",
+    "key": "{} records: 11 vs 11 records, fields {\"axis\", \"cbore\", \"location\", \"spotface\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "A Ø22 through hole open at both ends, Ø102 at one and Ø110 at the other. By Python's own rule the wider end is the opening, but at the Ø110 end the bore and the Ø110 segment end level and Python takes whichever comes first in face order as the end's segment (the Ø22 bore), so it drills from the Ø102 end; turned over, Python itself drills from the Ø110 end. The port takes the widest segment reaching an end (the mouth) and answers the same in every orientation."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-3",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Traced: the helical thread face (B-spline) has area 193.57 in the port and 210.36 in OpenCascade, whose result follows its pcurve approximation of the helix boundary."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Cone",
+    "count": 13,
+    "verdict": "rust-wrong",
+    "reason": "All 13 faces: OpenCascade's range is the face's edges' (sampled at 401 points per edge and projected onto the surface) within 1.5e-3 (12 faces within 4e-6), the port's is not. On 12 the port's v range collapses to [0, 0] where the edges run from 0 to -1.458 or -2.917; on face 19 its u range starts at 2.989 where the edges start at pi (it boxes the file's B-spline pcurve by its poles)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Cylinder",
+    "count": 4,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Freeform",
+    "count": 12,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Plane",
+    "count": 3,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "family": "kernel",
+    "key": "uv_bounds Sphere",
+    "count": 8,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "family": "recognise_holes",
+    "key": "{\"csinks\":\"auto\"} records: 47 vs 47 records, fields {\"spotface\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "As cgb217: Python's Ø61.62 spotface is a cylinder starting 0.47 mm inside the Ø60 hole's mouth, found only in this orientation because Python orders segments by their high end in both drilling directions."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "family": "recognise_holes",
+    "key": "{} records: 47 vs 47 records, fields {\"spotface\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "As cgb217: Python's Ø61.62 spotface is a cylinder starting 0.47 mm inside the Ø60 hole's mouth, found only in this orientation because Python orders segments by their high end in both drilling directions."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "family": "recognise_interior_voids",
+    "key": "{} records: 1 vs 1 records, fields {\"air_samples\", \"body_key\", \"enclosed_samples\", \"estimated_volume\"}",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Same void faces and openings; the sample counts differ by about 1%: the void grid is a sampling instrument anchored at the solid's box, and OpenCascade's box is padded (by 1e-7 on this part's faces) where the port's is exact, so the two grids sit a fraction of a micron apart and cells whose centres fall on a face flip, and the body key follows this file's mass difference."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb245.step",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-5",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb245.step",
+    "family": "kernel",
+    "key": "uv_bounds Freeform",
+    "count": 4,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb245.step",
+    "family": "recognise_thin_wall_bodies",
+    "key": "{} records: 1 vs 1 records, fields {\"body_key\"}",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Only the body key differs: its volume and area follow this file's untraced B-spline mass difference (see its masses entry)."
+  },
+  {
+    "file": "gramel/string_post.step",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-4",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
+  },
+  {
+    "file": "gramel/string_post.step",
+    "family": "recognise_turned_steps",
+    "key": "{} records: 4 vs 4 records, fields {\"profile\"}",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Same four steps (the rungs the Python test pins: 3.4, 5, 6, 7.5) and the same defining faces; only the profile's body key differs, because it carries the solid's volume and area and this file's masses differ by up to 1e-4 (listed above: OpenCascade integrates its approximated B-spline pcurves, the port the exact curves)."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "family": "inventory",
+    "key": "edge count",
+    "count": 9,
+    "verdict": "undetermined",
+    "reason": "A deliberately malformed corpus part (its shell is not orientable). OpenCascade's import healing rebuilds and reorders its faces, so face indices no longer line up with the file's shell order the port reads; it has no fillets either way."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "family": "inventory",
+    "key": "face bounds",
+    "count": 14,
+    "verdict": "undetermined",
+    "reason": "A deliberately malformed corpus part (its shell is not orientable). OpenCascade's import healing rebuilds and reorders its faces, so face indices no longer line up with the file's shell order the port reads; it has no fillets either way."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "family": "inventory",
+    "key": "face type",
+    "count": 2,
+    "verdict": "undetermined",
+    "reason": "A deliberately malformed corpus part (its shell is not orientable). OpenCascade's import healing rebuilds and reorders its faces, so face indices no longer line up with the file's shell order the port reads; it has no fillets either way."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "family": "kernel",
+    "key": "solid count",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "A deliberately malformed corpus part (its shell is not orientable): OpenCascade's import yields no solid, the port reads the file's one solid. Masses are compared only when the solid counts agree, and face-indexed answers not at all here (the face types differ)."
+  },
+  {
     "file": "inventory_refusal/14052.step.gz",
-    "contains": [
-      "recognise_plates",
-      "fields {\"body_key\"}"
-    ],
+    "family": "inventory",
+    "key": "edge count",
+    "count": 3,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "family": "kernel",
+    "key": "arcs",
+    "count": 6,
+    "verdict": "rust-correct",
+    "reason": "Planar face 1 meets planar walls 9, 10 and 11 at right angles. OpenCascade's healed shell uses each of these edges in the same direction in both faces (FORWARD/FORWARD, the unorientable shell its BRepCheck reports), so Python's walk direction, and with it its 'concave', is not evidence. A point in the 90-degree wedge between the faces is inside the solid by ray parity (three directions, OpenCascade's intersector, at 1-9 and 1-10; the port's classifier at all three pairs, 3 points each): convex, as the port says."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-2",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "A deliberately malformed part. All the area difference is planar face 1 (port 147.604, OpenCascade 150.609 at any accuracy): its boundary has a full circle of three arcs crossing the line that closes its outer loop, so the face's region is ambiguous. The port's volume (2619.571) is invariant under translation; OpenCascade's (2628.781) is integrated over a healed shell its BRepCheck calls unorientable."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "family": "recognise_bosses",
+    "key": "{} evidence refused by Python only",
+    "count": 1,
+    "verdict": "rust-wrong",
+    "reason": "A deliberately malformed corpus part: OpenCascade's BRepCheck finds geometric faults the port's topological validity check (closed, orientable) does not look for, so Python refuses hole, boss and plate evidence and the port publishes it."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "family": "recognise_holes",
+    "key": "{\"csinks\":\"auto\"} evidence refused by Python only",
+    "count": 1,
+    "verdict": "rust-wrong",
+    "reason": "A deliberately malformed corpus part: OpenCascade's BRepCheck finds geometric faults the port's topological validity check (closed, orientable) does not look for, so Python refuses hole, boss and plate evidence and the port publishes it."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "family": "recognise_holes",
+    "key": "{} evidence refused by Python only",
+    "count": 1,
+    "verdict": "rust-wrong",
+    "reason": "A deliberately malformed corpus part: OpenCascade's BRepCheck finds geometric faults the port's topological validity check (closed, orientable) does not look for, so Python refuses hole, boss and plate evidence and the port publishes it."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "family": "recognise_plates",
+    "key": "{} records: 1 vs 1 records, fields {\"body_key\"}",
+    "count": 1,
     "verdict": "rust-wrong",
     "reason": "Same plate. Python's body key is None, and it refuses the plate's evidence, because OpenCascade's BRepCheck finds geometric faults in this deliberately malformed part that the port's topological validity check does not look for (see this file's evidence entry)."
   },
   {
-    "file": "nist/nist_ftc_07_asme1_rd.stp",
-    "contains": [
-      "recognise_plates",
-      "fields {\"body_key\"}"
-    ],
+    "file": "mfcadpp/10138.step",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-8",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually."
+  },
+  {
+    "file": "mfcadpp/10156.step",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-8",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually."
+  },
+  {
+    "file": "mfcadpp_regressions/11512.step",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-8",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually."
+  },
+  {
+    "file": "nist/nist_ctc_01_asme1_rd.stp",
+    "family": "inventory",
+    "key": "edge count",
+    "count": 13,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus."
+  },
+  {
+    "file": "nist/nist_ctc_01_asme1_rd.stp",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-7",
+    "count": 1,
     "verdict": "rust-wrong",
-    "reason": "Same five plates, centres and defining faces; only the body key's mass terms differ: the port's solid volume 1730910.905 and area 391075.864 against OpenCascade's 1726247.579 and 391371.347, which its adaptive integration confirms (1726247.579, 391371.347). The port's solid mass is wrong on this file (its face_mass gives 0 area on face 209, the haecceity fix stream F addresses; the inventory also differs by the seams OpenCascade's healing adds, so the corpus test's mass check never runs here)."
+    "reason": "The port's volume is not invariant under translation, so its own integral is wrong: read moved by (250, -130, 75) and (-40, 10, 300) it gives 14642823.153 and 14642824.017, against 14642823.717 in place; OpenCascade's adaptive integration (eps 1e-9 and 1e-12 agree) gives 14642823.505. Area is invariant and agrees with OpenCascade's adaptive area to 4e-12. This file stores periodic faces without seams (its edge-count entry); the flux integral across a seamless face is the likely fault (not traced; mass.rs is the face-mass stream's)."
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-5",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "family": "kernel",
+    "key": "uv_bounds Cylinder",
+    "count": 22,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "family": "kernel",
+    "key": "uv_bounds Freeform",
+    "count": 28,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "family": "kernel",
+    "key": "uv_bounds Plane",
+    "count": 2,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "family": "kernel",
+    "key": "uv_bounds Sphere",
+    "count": 4,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "family": "recognise_fillets",
+    "key": "{\"include_cylindrical\":true} records: 21 vs 21 records, fields {\"at\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Four r25 fillet anchors differ by 0.001 in z: OpenCascade sizes the face's v range from the pcurve it builds on import for a B-spline edge this file gives no usable B-spline pcurve for, and the true mid-point sits on a rounding boundary."
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "family": "inventory",
+    "key": "edge count",
+    "count": 18,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus."
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-6",
+    "count": 1,
+    "verdict": "rust-wrong",
+    "reason": "The port's volume is not invariant under translation, so its own integral is wrong: read moved by (250, -130, 75) and (-40, 10, 300) it gives 331938.328 and 331938.222, against 331938.218 in place; OpenCascade's adaptive integration (eps 1e-9 and 1e-12 agree) gives 331938.272. Area is invariant and agrees with OpenCascade's to 3e-15. This file stores periodic faces without seams (its edge-count entry); the flux integral across a seamless face is the likely fault (not traced; mass.rs is the face-mass stream's)."
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "family": "kernel",
+    "key": "uv_bounds Cylinder (same range, another turn)",
+    "count": 3,
+    "verdict": "equivalent",
+    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-7",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually."
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "family": "kernel",
+    "key": "uv_bounds Cylinder",
+    "count": 9,
+    "verdict": "rust-correct",
+    "reason": "All 9 faces: the port's axial range is the face's edges' (within 2.5e-6, sampled densely and projected onto the cylinder); OpenCascade's overshoots by 8e-6 to 4.9e-3, from pcurves it approximates on import."
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "family": "kernel",
+    "key": "uv_bounds Plane",
+    "count": 2,
+    "verdict": "rust-correct",
+    "reason": "Faces 393 and 400: the port's range is the face's edges' (within 1e-9, sampled densely and projected onto the plane); OpenCascade's u range overshoots by 0.105, the box of a pcurve it builds on import."
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "family": "kernel",
+    "key": "uv_bounds Sphere",
+    "count": 4,
+    "verdict": "rust-correct",
+    "reason": "Sphere and cylinder ranges differ in the fifth digit: OpenCascade bounds them from approximated pcurves; the port from the exact edges."
+  },
+  {
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-6",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "B-spline surfaces and edges: OpenCascade integrates over its approximated pcurves where the port integrates the exact 3D curves (exact geometry policy). Not traced individually; on B-spline faces with known exact areas (80π, 40π) the port is within 1e-10 and OpenCascade 0.3% off."
+  },
+  {
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "family": "kernel",
+    "key": "uv_bounds Cone (same range, another turn)",
+    "count": 1,
+    "verdict": "equivalent",
+    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
+  },
+  {
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "family": "kernel",
+    "key": "uv_bounds Cylinder (same range, another turn)",
+    "count": 1,
+    "verdict": "equivalent",
+    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
+  },
+  {
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "family": "kernel",
+    "key": "uv_bounds Freeform",
+    "count": 1,
+    "verdict": "rust-wrong",
+    "reason": "Face 79 (B-spline): the port's u range ends at 0.89627 where the face's edges (sampled densely and projected onto the surface) reach 0.90306, which OpenCascade gives exactly; OpenCascade's v range overshoots by 4.5e-4."
+  },
+  {
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "family": "kernel",
+    "key": "uv_bounds Sphere",
+    "count": 4,
+    "verdict": "rust-correct",
+    "reason": "As nist_ctc_04: sphere ranges from approximated pcurves near a pole."
+  },
+  {
+    "file": "nist/nist_ftc_06_asme1_rd.stp",
+    "family": "inventory",
+    "key": "edge count",
+    "count": 51,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus."
+  },
+  {
+    "file": "nist/nist_ftc_06_asme1_rd.stp",
+    "family": "kernel",
+    "key": "uv_bounds Cylinder (same range, another turn)",
+    "count": 4,
+    "verdict": "equivalent",
+    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
+  },
+  {
+    "file": "nist/nist_ftc_06_asme1_rd.stp",
+    "family": "kernel",
+    "key": "uv_bounds Torus (same range, another turn)",
+    "count": 6,
+    "verdict": "equivalent",
+    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "family": "inventory",
+    "key": "edge count",
+    "count": 36,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus."
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "family": "kernel",
+    "key": "arcs",
+    "count": 2,
+    "verdict": "undetermined",
+    "reason": "Faces 91 and 161 (B-splines) are tangent across their shared edge: the fold about the edge, (n_a x n_b) . walk, is 1e-15 to 1e-17 all along it (round-off), while the normals differ by up to 0.35 degrees about an axis across the edge because the edge lies up to 3e-3 mm off the surfaces. The pair is geometrically smooth; convex and concave are each kernel's round-off, as on cgb242's face 16."
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-5",
+    "count": 1,
+    "verdict": "rust-wrong",
+    "reason": "The port's volume is not invariant under translation, so its own integral is wrong: read moved by (250, -130, 75) and (-40, 10, 300) it gives 1726243.568 and 1726248.877, against 1726245.165 in place; OpenCascade's adaptive integration (eps 1e-9 and 1e-12 agree) gives 1726247.579. Area is invariant (391371.435 against OpenCascade's 391371.347 adaptive, the difference on B-spline faces 90, 91, 95, 102, 103, 106, 125 whose edges lie up to 3e-3 mm off their surfaces). This file stores periodic faces without seams (its edge-count entry); the flux integral across a seamless face is the likely fault (not traced; mass.rs is the face-mass stream's)."
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "family": "kernel",
+    "key": "uv_bounds Cylinder",
+    "count": 23,
+    "verdict": "rust-correct",
+    "reason": "All 23 faces: the port's axial range is the face's edges' exactly (sampled densely and projected onto the cylinder); OpenCascade's overshoots by 1.8e-3 to 2.7e-3, the control polygons of the B-spline pcurves it builds on import (as for this file's hole locations)."
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "family": "kernel",
+    "key": "uv_bounds Cylinder (same range, another turn)",
+    "count": 14,
+    "verdict": "equivalent",
+    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "family": "kernel",
+    "key": "uv_bounds Sphere",
+    "count": 15,
+    "verdict": "rust-wrong",
+    "reason": "All 15 faces: the port's latitude range runs to the pole (+-pi/2) where the face's edges stop at +-1.553343, which OpenCascade gives to 1e-14: the port takes these patches as reaching the pole."
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "family": "recognise_holes",
+    "key": "{\"csinks\":\"auto\"} records: 23 vs 23 records, fields {\"location\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "family": "recognise_holes",
+    "key": "{} records: 23 vs 23 records, fields {\"location\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
+  },
+  {
+    "file": "nist/nist_ftc_07_asme1_rd.stp",
+    "family": "recognise_plates",
+    "key": "{} records: 5 vs 5 records, fields {\"body_key\"}",
+    "count": 1,
+    "verdict": "rust-wrong",
+    "reason": "Same five plates, centres and defining faces; only the body key's mass terms differ: the port's solid volume 1726245.165 and area 391371.435 against OpenCascade's 1726247.579 and 391371.347. The port's volume is wrong on this file (see its solid masses entry: it changes when the part is translated)."
+  },
+  {
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "family": "kernel",
+    "key": "uv_bounds Cylinder",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "A cylinder's axial range differs by 5e-5: OpenCascade bounds it by the control polygon of a B-spline pcurve it builds on import."
+  },
+  {
+    "file": "nist/nist_ftc_09_asme1_rd.stp",
+    "family": "kernel",
+    "key": "uv_bounds Cone (same range, another turn)",
+    "count": 4,
+    "verdict": "equivalent",
+    "reason": "Cone ranges a whole turn apart (the same faces): OpenCascade starts them where the file's pcurves do."
+  },
+  {
+    "file": "nist/nist_ftc_09_asme1_rd.stp",
+    "family": "kernel",
+    "key": "uv_bounds Cylinder (same range, another turn)",
+    "count": 4,
+    "verdict": "equivalent",
+    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "family": "inventory",
+    "key": "edge count",
+    "count": 50,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's import healing (ShapeFix FixMissingSeam) adds a seam edge to periodic faces this file stores without one, splitting any closed circle the new seam crosses, so these faces have extra edges; no recognised record depends on it in this corpus."
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-6",
+    "count": 1,
+    "verdict": "rust-wrong",
+    "reason": "The port's volume is not invariant under translation, so its own integral is wrong: read moved by (250, -130, 75) and (-40, 10, 300) it gives 188318.381 and 188318.228, against 188318.074 in place; OpenCascade's adaptive integration (eps 1e-9 and 1e-12 agree) gives 188318.053. Area is invariant (48531.249 against OpenCascade's 48531.240 adaptive: these cylinders' boundary edges have no exact pcurves, see the uv_bounds entry). This file stores periodic faces without seams (its edge-count entry); the flux integral across a seamless face is the likely fault (not traced; mass.rs is the face-mass stream's)."
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "family": "kernel",
+    "key": "uv_bounds Cylinder",
+    "count": 15,
+    "verdict": "rust-correct",
+    "reason": "All 15 faces: the port's axial range is the face's edges' exactly (sampled densely and projected onto the cylinder); OpenCascade's overshoots by 2.4e-3, the control polygons of the B-spline pcurves it builds on import (as for this file's hole locations)."
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "family": "kernel",
+    "key": "uv_bounds Cylinder (same range, another turn)",
+    "count": 19,
+    "verdict": "equivalent",
+    "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "family": "kernel",
+    "key": "uv_bounds Sphere",
+    "count": 8,
+    "verdict": "rust-correct",
+    "reason": "All 8 faces: the port's latitude range is the face's edges' (within 1e-14, sampled densely and projected); OpenCascade's overshoots by 6.0e-4, the control polygon of a pcurve it builds on import."
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "family": "recognise_hole_patterns",
+    "key": "{\"csinks\":\"auto\"} records: 7 vs 7 records, fields {\"center\", \"holes\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "The grid's member holes carry the opening-location difference recorded for this file's recognise_holes."
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "family": "recognise_holes",
+    "key": "{\"csinks\":\"auto\"} records: 30 vs 30 records, fields {\"location\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "family": "recognise_holes",
+    "key": "{} records: 30 vs 30 records, fields {\"location\"}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
+  },
+  {
+    "file": "ttt_inputs/sm-hanger.step",
+    "family": "kernel",
+    "key": "arcs",
+    "count": 2,
+    "verdict": "undetermined",
+    "reason": "Faces 11 and 12 meet folded back on themselves (outward normals opposite), so convex or concave is undefined; each kernel's round-off picks one."
+  },
+  {
+    "file": "ttt_inputs/sm-hanger.step",
+    "family": "kernel",
+    "key": "solid masses differ by up to 1e-8",
+    "count": 1,
+    "verdict": "undetermined",
+    "reason": "Planar faces bounded by B-spline edges: OpenCascade integrates their pcurve approximations, the port the exact 3D curves (exact geometry policy). Not traced individually."
   }
 ]

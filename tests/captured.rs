@@ -1,6 +1,17 @@
 //! Replays every recogniser call the Python test suite makes (captured by
 //! `tools/capture_plugin.py` into `tests/fixtures/captured/calls.json`) and compares the port's
 //! answer with Python's, call by call. One test per recogniser, so a regression names its family.
+//!
+//! A difference is listed in `tests/fixtures/captured/known_divergences.json` by the exact call it
+//! explains and how many such calls diverge:
+//!
+//! ```json
+//! {"function": "recognise_holes", "test": "tests/test_x.py::test_y[1]", "file": "abcd.step.gz",
+//!  "options": {}, "count": 1, "verdict": "rust-correct", "reason": "..."}
+//! ```
+//!
+//! (`file` is `null` for a call on records.) A failure prints each unlisted call as the entry it
+//! needs.
 
 mod common;
 
@@ -18,18 +29,69 @@ fn load(name: &str) -> Value {
     serde_json::from_str(&std::fs::read_to_string(dir().join(name)).unwrap()).unwrap()
 }
 
+/// Calls the Python suite makes that the capture could not record (`skipped` in `calls.json`,
+/// each with its test node and reason), per recogniser. They are outside every replay, so the
+/// counts are pinned: a change means the coverage changed and the README table with it.
+const SKIPPED: &[(&str, usize)] = &[
+    ("recognise_circular_blind_steps", 2),
+    ("recognise_double_d_bores", 1),
+    ("recognise_edge_open_prismatic_recesses", 2),
+    ("recognise_grooves", 3),
+    ("recognise_interior_voids", 2),
+    ("recognise_oblique_through_steps", 1),
+    ("recognise_plates", 4),
+    ("recognise_rectangular_blind_slots", 1),
+    ("recognise_round_bottom_blind_slots", 1),
+    ("recognise_through_steps", 7),
+    ("recognise_turned_steps", 18),
+];
+
+/// The calls of *function* that the capture skipped: entries `{function, test, reason}` (one per
+/// call), entries carried over from a capture made before the plugin kept test ids
+/// `{function, test: null, reason, count}`, or that older capture's own form, counts keyed
+/// `"<function>: <reason>"`.
+fn skipped(function: &str) -> usize {
+    match &load("calls.json")["skipped"] {
+        Value::Array(all) => all
+            .iter()
+            .filter(|s| s["function"] == function)
+            .map(|s| s.get("count").map_or(1, |n| n.as_u64().unwrap() as usize))
+            .sum(),
+        Value::Object(counts) => counts
+            .iter()
+            .filter(|(k, _)| k.split(':').next() == Some(function))
+            .map(|(_, n)| n.as_u64().unwrap() as usize)
+            .sum(),
+        other => panic!("calls.json: unreadable `skipped`: {other}"),
+    }
+}
+
+/// What a listed difference names: one captured call's test node, file (or `null` for a call on
+/// records) and options, and how many calls with that identity diverge (a test may make the same
+/// call more than once). Each diverging call must be named by exactly one entry, and each entry
+/// must name exactly `count` diverging calls.
+fn identity(d: &Value) -> (&Value, &Value, &Value) {
+    for k in ["test", "file", "options", "count"] {
+        assert!(
+            d.get(k).is_some(),
+            "captured/known_divergences.json: entry without {k}: {d}"
+        );
+    }
+    (&d["test"], &d["file"], &d["options"])
+}
+
 fn replay(function: &str) {
     let calls = load("calls.json");
     let known: Vec<Value> = serde_json::from_value(load("known_divergences.json")).unwrap();
     common::check_verdicts("captured/known_divergences.json", &known);
     let known: Vec<&Value> = known.iter().filter(|d| d["function"] == function).collect();
-    // An entry names a test, optionally narrowed to one file and one option set.
-    let covers = |d: &Value, c: &Value| {
-        d["test"] == c["test"]
-            && d.get("file").is_none_or(|f| *f == c["file"])
-            && d.get("options").is_none_or(|o| *o == c["options"])
-    };
-    let mut used = vec![false; known.len()];
+    for (i, d) in known.iter().enumerate() {
+        assert!(
+            known[..i].iter().all(|e| identity(e) != identity(d)),
+            "captured/known_divergences.json: two entries for one call: {d}"
+        );
+    }
+    let mut used = vec![0; known.len()];
     let mut parts: BTreeMap<String, Part> = BTreeMap::new();
     let (mut passed, mut expected, mut failures) = (0, 0, Vec::new());
     let calls: Vec<&Value> = calls["calls"]
@@ -49,32 +111,43 @@ fn replay(function: &str) {
             }
             None => common::recognise_records(function, &c["arguments"]),
         };
-        let test = c["test"].as_str().unwrap();
         if common::same(&got, &c["result"]) {
             passed += 1;
-        } else if let Some(i) = known.iter().position(|d| covers(d, c)) {
-            used[i] = true;
+        } else if let Some(i) = known
+            .iter()
+            .position(|d| identity(d) == (&c["test"], &c["file"], &c["options"]))
+        {
+            used[i] += 1;
             expected += 1;
         } else {
-            failures.push(format!(
-                "{test} [{}] {}\n  rust   {got}\n  python {}",
-                c["file"], c["options"], c["result"]
-            ));
+            let entry = serde_json::json!({
+                "function": function, "test": c["test"], "file": c["file"],
+                "options": c["options"], "count": 1
+            });
+            failures.push(format!("{entry}\n  rust   {got}\n  python {}", c["result"]));
         }
     }
+    let skipped = skipped(function);
     eprintln!(
-        "{function}: {passed} match, {expected} known divergences, {} unexpected",
+        "{function}: {passed} match, {expected} known divergences, {} unexpected, {skipped} not \
+         captured",
         failures.len()
     );
-    let stale: Vec<&Value> = known
+    let miscounted: Vec<String> = known
         .iter()
         .zip(&used)
-        .filter(|(_, u)| !**u)
-        .map(|(d, _)| *d)
+        .filter(|(d, n)| d["count"].as_u64() != Some(**n as u64))
+        .map(|(d, n)| format!("{n} found: {d}"))
         .collect();
+    let pinned = SKIPPED
+        .iter()
+        .find(|(f, _)| *f == function)
+        .map_or(0, |(_, n)| *n);
     assert!(
-        failures.is_empty() && stale.is_empty(),
-        "{} of {} calls differ:\n{}\nknown divergences that no longer differ: {stale:?}",
+        failures.is_empty() && miscounted.is_empty() && skipped == pinned,
+        "{} of {} calls differ (as entries, verdict and reason to be added):\n{}\nknown \
+         divergences whose count changed: {miscounted:#?}\ncalls Python made that the capture \
+         could not record: {skipped}, pinned {pinned}",
         failures.len(),
         calls.len(),
         failures.join("\n")

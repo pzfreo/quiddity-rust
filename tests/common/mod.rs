@@ -229,15 +229,17 @@ fn type_name(t: SurfaceType) -> &'static str {
 /// The reader must walk faces in OpenCascade's order with the same surfaces and extents. The
 /// extents are a fingerprint, not a parity target: OpenCascade's optimal boxes overshoot curved
 /// B-spline boundaries by a few microns, hence the 5e-3 band.
-pub fn check_inventory(name: &str, part: &Part, inventory: &[Value], problems: &mut Vec<String>) {
+///
+/// Every problem is reported, one per face, as `(key, detail)`; the key (`face count`,
+/// `face type`, `edge count`, `face bounds`) is what a known divergence names. The flag says
+/// whether the faces align (same count, same types), so that answers kept per face index can be
+/// compared.
+pub fn inventory_problems(part: &Part, inventory: &[Value]) -> (bool, Vec<(&'static str, String)>) {
     if part.faces.len() != inventory.len() {
-        problems.push(format!(
-            "{name}: {} faces, Python has {}",
-            part.faces.len(),
-            inventory.len()
-        ));
-        return;
+        let detail = format!("{} faces, Python has {}", part.faces.len(), inventory.len());
+        return (false, vec![("face count", detail)]);
     }
+    let (mut aligned, mut problems) = (true, Vec::new());
     for (i, expected) in inventory.iter().enumerate() {
         let want = expected["type"].as_str().unwrap();
         let got = type_name(part.faces[i].surface.kind());
@@ -245,16 +247,19 @@ pub fn check_inventory(name: &str, part: &Part, inventory: &[Value], problems: &
             && !(got == "OTHER"
                 && !["PLANE", "CYLINDER", "CONE", "SPHERE", "TORUS"].contains(&want))
         {
-            problems.push(format!("{name}: face {i} is {got}, Python has {want}"));
-            return;
+            problems.push(("face type", format!("face {i} is {got}, Python has {want}")));
+            aligned = false;
+            continue;
         }
         let edges = part.face_edges(i).len() as u64;
         if Some(edges) != expected["edges"].as_u64() {
-            problems.push(format!(
-                "{name}: face {i} has {edges} edges, Python has {}",
-                expected["edges"]
+            problems.push((
+                "edge count",
+                format!(
+                    "face {i} has {edges} edges, Python has {}",
+                    expected["edges"]
+                ),
             ));
-            return;
         }
         let b = part.face_bounds(i);
         let close = |got: [f64; 3], want: &Value| {
@@ -263,13 +268,26 @@ pub fn check_inventory(name: &str, part: &Part, inventory: &[Value], problems: &
         // Sphere patches through a pole get approximate interior extremes (see README).
         let fingerprinted = got != "OTHER" && got != "SPHERE";
         if fingerprinted && (!close(b.min, &expected["min"]) || !close(b.max, &expected["max"])) {
-            problems.push(format!(
-                "{name}: face {i} ({got}) bounds {:?}..{:?}, Python {}..{}",
-                b.min, b.max, expected["min"], expected["max"]
+            problems.push((
+                "face bounds",
+                format!(
+                    "face {i} ({got}) bounds {:?}..{:?}, Python {}..{}",
+                    b.min, b.max, expected["min"], expected["max"]
+                ),
             ));
-            return;
         }
     }
+    (aligned, problems)
+}
+
+/// [`inventory_problems`] as messages naming the part.
+pub fn check_inventory(name: &str, part: &Part, inventory: &[Value], problems: &mut Vec<String>) {
+    let (_, found) = inventory_problems(part, inventory);
+    problems.extend(
+        found
+            .into_iter()
+            .map(|(_, detail)| format!("{name}: {detail}")),
+    );
 }
 
 /// The records only one side has, and — when both sides have the same count — the fields that
@@ -285,6 +303,20 @@ pub fn diff(got: &Value, want: &Value) -> String {
             .map(|x| x.to_string())
             .collect()
     };
+    format!(
+        "{}\n  only rust   {}\n  only python {}",
+        diff_summary(got, want),
+        only(g, w).join("\n              "),
+        only(w, g).join("\n              ")
+    )
+}
+
+/// The head of [`diff`]: the record counts and, when they are equal, the fields that differ
+/// (`3 vs 3 records, fields {"location"}`).
+pub fn diff_summary(got: &Value, want: &Value) -> String {
+    let (Some(g), Some(w)) = (got.as_array(), want.as_array()) else {
+        return "not record lists".to_owned();
+    };
     let mut fields = std::collections::BTreeSet::new();
     if g.len() == w.len() {
         for (x, y) in g.iter().zip(w) {
@@ -297,13 +329,7 @@ pub fn diff(got: &Value, want: &Value) -> String {
             }
         }
     }
-    format!(
-        "{} vs {} records, fields {fields:?}\n  only rust   {}\n  only python {}",
-        g.len(),
-        w.len(),
-        only(g, w).join("\n              "),
-        only(w, g).join("\n              ")
-    )
+    format!("{} vs {} records, fields {fields:?}", g.len(), w.len())
 }
 
 pub fn fixtures() -> PathBuf {

@@ -2,138 +2,212 @@
   {
     "function": "recognise_fillets",
     "test": "tests/test_fillet_attribution.py::test_unavailable_torus_alternative_routes_use_bounded_real_face_mutations[two_bands]",
-    "reason": "The test monkeypatches the fillet module's neighbour query to fabricate a second band; the captured answer reflects that patch, not the part.",
-    "verdict": "not-applicable"
+    "file": "7a0c25ea430dc5d3.step.gz",
+    "options": {
+      "face_edges": null,
+      "include_cylindrical": false,
+      "max_radius_frac": 0.45,
+      "min_radius": null
+    },
+    "count": 1,
+    "verdict": "not-applicable",
+    "reason": "The test monkeypatches the fillet module's neighbour query to fabricate a second band; the captured answer reflects that patch, not the part."
   },
   {
     "function": "recognise_holes",
     "test": "tests/test_separated_coaxial_bores.py::test_oblique_cross_drilling_preserves_the_complete_bore[1-False-45-0]",
-    "reason": "A 45-degree Ø8 bore through a cube corner: its exit edges lie exactly at the end-partner margin (min(0.45·length, d/2) = 4.000 mm). Python's arithmetic lands a few ulps outside and finds no partner ('unknown'); the port's lands inside and reads the exit planes ('through').",
-    "verdict": "rust-correct"
+    "file": "a0ce437bd4b63e33.step.gz",
+    "options": {},
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "A 45-degree Ø8 bore through a cube corner: its exit edges lie exactly at the end-partner margin (min(0.45·length, d/2) = 4.000 mm). Python's arithmetic lands a few ulps outside and finds no partner ('unknown'); the port's lands inside and reads the exit planes ('through')."
   },
   {
     "function": "recognise_holes",
     "test": "tests/test_separated_coaxial_bores.py::test_oblique_cross_drilling_preserves_the_complete_bore[1-False-45-2]",
-    "reason": "A 45-degree Ø8 bore through a cube corner: its exit edges lie exactly at the end-partner margin (min(0.45·length, d/2) = 4.000 mm). Python's arithmetic lands a few ulps outside and finds no partner ('unknown'); the port's lands inside and reads the exit planes ('through').",
-    "verdict": "rust-correct"
+    "file": "5ceda47ce22aa0d2.step.gz",
+    "options": {},
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "A 45-degree Ø8 bore through a cube corner: its exit edges lie exactly at the end-partner margin (min(0.45·length, d/2) = 4.000 mm). Python's arithmetic lands a few ulps outside and finds no partner ('unknown'); the port's lands inside and reads the exit planes ('through')."
   },
   {
-    "test": "tests/test_thin_walls.py::test_degenerate_wall_ray_normal_discards_only_unproved_evidence",
     "function": "recognise_thin_wall_bodies",
+    "test": "tests/test_thin_walls.py::test_degenerate_wall_ray_normal_discards_only_unproved_evidence",
+    "file": "64126b8e8abc3752.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "not-applicable",
     "reason": "The test monkeypatches the wall-ray function to raise; the captured answer reflects that patch, not the part."
   },
   {
+    "function": "recognise_thin_wall_bodies",
     "test": "tests/test_thin_walls.py::test_public_cadgenbench_shell_inputs_keep_imported_wall_evidence[cgb207-0.87-45]",
-    "function": "recognise_thin_wall_bodies",
+    "file": "cdbb50ecd934508f.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "undetermined",
     "reason": "As the corpus entry for cgb207: same wall pairs; thicknesses differ in the sixth figure with the probe placement, and the body key and paired area fraction follow the untraced B-spline area difference."
   },
   {
+    "function": "recognise_thin_wall_bodies",
     "test": "tests/test_thin_walls.py::test_cgb207_joint_rounds_are_paired_and_every_remainder_is_classified",
-    "function": "recognise_thin_wall_bodies",
+    "file": "cdbb50ecd934508f.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "undetermined",
     "reason": "As the corpus entry for cgb207: same wall pairs; thicknesses differ in the sixth figure with the probe placement, and the body key and paired area fraction follow the untraced B-spline area difference."
   },
   {
-    "test": "tests/test_freeform_surfaces.py::test_cgb241_outer_skins_have_rebuildable_support_and_inner_offset_links",
     "function": "recognise_thin_wall_bodies",
+    "test": "tests/test_freeform_surfaces.py::test_cgb241_outer_skins_have_rebuildable_support_and_inner_offset_links",
+    "file": "8443bc2e5a9d6ca9.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "rust-correct",
     "reason": "As the corpus entry for cgb241: same pairs and thicknesses; the body key and paired area fraction follow OpenCascade's planar face area, 1% off its own B-spline edges (traced)."
   },
   {
-    "test": "tests/test_hole_attribution.py::test_recovered_hole_end_plane_refusal_cannot_claim_through",
     "function": "recognise_holes",
+    "test": "tests/test_hole_attribution.py::test_recovered_hole_end_plane_refusal_cannot_claim_through",
+    "file": "94808d39431b4f19.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "not-applicable",
     "reason": "The test monkeypatches Python's material-side certification of recovered planes to refuse, so its answer ('unknown' bottom) reflects the patch; the part is a plain through hole, which the port reads from the recovered end planes' own orientation."
   },
   {
-    "test": "tests/test_turned_thread_shoulders.py::test_certified_nurbs_planes_still_establish_shoulders",
     "function": "recognise_turned_steps",
+    "test": "tests/test_turned_thread_shoulders.py::test_certified_nurbs_planes_still_establish_shoulders",
+    "file": "9af1f99c3f98ddff.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "not-applicable",
     "reason": "Python is handed a precomputed face_surfaces query (a rich argument), so the capture records no answer on the re-read STEP to compare with. The port's answer matches the captured in-memory answer (body-key mass terms agree to ~1e-10 relative, within tolerance): two steps, 0-40 at 30 and 40-70 at 16, their shoulder found on the certified B-spline plane."
   },
   {
-    "test": "tests/test_round_bottom_slots.py::test_helper_refusal_boundaries_are_total_and_fail_closed",
     "function": "recognise_round_bottom_blind_slots",
+    "test": "tests/test_round_bottom_slots.py::test_helper_refusal_boundaries_are_total_and_fail_closed",
+    "file": "4e090fe361c883ac.step.gz",
+    "options": {},
+    "count": 2,
     "verdict": "not-applicable",
     "reason": "Both calls run with _same_span or _region_face monkeypatched to refuse, so Python's empty answer reflects the patch; the part is the plain slot the other tests on the same file (4e090fe361c883ac) find, and the port finds it."
   },
   {
-    "test": "tests/test_groove_exclusions.py::test_cones_elsewhere_on_the_part_are_not_lead_ins",
     "function": "recognise_grooves",
+    "test": "tests/test_groove_exclusions.py::test_cones_elsewhere_on_the_part_are_not_lead_ins",
+    "file": "288d594fd180689a.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "rust-correct",
     "reason": "Same groove (Ø24, width 5, at z 15.5); only the profile's body key and box differ. The cross boss meets the shaft along B-spline intersection edges: OpenCascade's default mass integration gives volume 40082.4153 and area 7917.3889, its adaptive integration (BRepGProp eps 1e-12) 40082.3492618 and 7917.3772167, which the port's 40082.3492619 and 7917.3772168 agree with. The box differs only by OpenCascade's 1e-7 tolerance padding."
   },
   {
-    "test": "tests/test_benchmark_plate_body_locality.py::test_disabled_arm_recreates_only_the_whole_compound_plate_projection",
     "function": "recognise_plates",
+    "test": "tests/test_benchmark_plate_body_locality.py::test_disabled_arm_recreates_only_the_whole_compound_plate_projection",
+    "file": "b723b799525aa55d.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "not-applicable",
     "reason": "The second call runs with _plate_scopes monkeypatched to treat the two-solid compound as one body, so its answer (two whole-compound plates) reflects the patch; the first call on the same part, unpatched, matches."
   },
   {
-    "test": "tests/test_plate_attribution.py::test_axis_alignment_gate_below_equal_and_above[0.989999-False]",
     "function": "recognise_plates",
+    "test": "tests/test_plate_attribution.py::test_axis_alignment_gate_below_equal_and_above[0.989999-False]",
+    "file": "ecafad7c9184d591.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "not-applicable",
     "reason": "The test monkeypatches Face.normal_at to report a dominant normal component of 0.989999, just under the alignment gate, so Python's empty answer reflects the patch; the part's true normals are axis-aligned and the port finds its plates (as Python does at 0.99 and 0.990001)."
   },
   {
-    "test": "tests/test_plate_attribution.py::test_two_body_plates_survive_nested_compounds_and_arbitrary_framed_motion",
     "function": "recognise_plates",
+    "test": "tests/test_plate_attribution.py::test_two_body_plates_survive_nested_compounds_and_arbitrary_framed_motion",
+    "file": "762710e6a9e266f2.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "equivalent",
     "reason": "Same four plates (axes, lo, hi and body keys; centres within 1e-9). The two y plates tie on (axis, lo, hi) and on u (16.363636363640 on both bodies), so their order falls to u's last bits: Python's face centroids put the +70 body's first by 7e-15, the port's (accurate to ~1e-10 after the framed motion) the other. Either order lists the same plates."
   },
   {
-    "test": "tests/test_rectangular_blind_slots.py::test_failed_material_proof_refuses_the_candidate[_common_convex_context]",
     "function": "recognise_rectangular_blind_slots",
+    "test": "tests/test_rectangular_blind_slots.py::test_failed_material_proof_refuses_the_candidate[_common_convex_context]",
+    "file": "7edb959cec898e4b.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "not-applicable",
     "reason": "The call runs with _common_convex_context monkeypatched to refuse, so Python's empty answer reflects the patch; the part is the plain slot the other tests on the same file (7edb959cec898e4b) find, and the port finds it."
   },
   {
-    "test": "tests/test_rectangular_blind_slots.py::test_failed_material_proof_refuses_the_candidate[_empty_sweep]",
     "function": "recognise_rectangular_blind_slots",
+    "test": "tests/test_rectangular_blind_slots.py::test_failed_material_proof_refuses_the_candidate[_empty_sweep]",
+    "file": "7edb959cec898e4b.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "not-applicable",
     "reason": "The call runs with _empty_sweep monkeypatched to refuse, so Python's empty answer reflects the patch; the part is the plain slot the other tests on the same file (7edb959cec898e4b) find, and the port finds it."
   },
   {
+    "function": "recognise_double_d_bores",
     "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[ValueError]",
-    "function": "recognise_double_d_bores",
+    "file": "571fd1c6434b6881.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "not-applicable",
     "reason": "Solid.extrude is monkeypatched to raise, so Python cannot build the void-proof prism and drops the bore; the empty answer reflects the patch. Unpatched, the same part's one bore matches (the test's first call)."
   },
   {
+    "function": "recognise_double_d_bores",
     "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[Standard_Failure]",
-    "function": "recognise_double_d_bores",
+    "file": "571fd1c6434b6881.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "not-applicable",
     "reason": "Solid.extrude is monkeypatched to raise, so Python cannot build the void-proof prism and drops the bore; the empty answer reflects the patch. Unpatched, the same part's one bore matches (the test's first call)."
   },
   {
+    "function": "recognise_double_d_bores",
     "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[Standard_ConstructionError]",
-    "function": "recognise_double_d_bores",
+    "file": "571fd1c6434b6881.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "not-applicable",
     "reason": "Solid.extrude is monkeypatched to raise, so Python cannot build the void-proof prism and drops the bore; the empty answer reflects the patch. Unpatched, the same part's one bore matches (the test's first call)."
   },
   {
+    "function": "recognise_double_d_bores",
     "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[Standard_DomainError]",
-    "function": "recognise_double_d_bores",
+    "file": "571fd1c6434b6881.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "not-applicable",
     "reason": "Solid.extrude is monkeypatched to raise, so Python cannot build the void-proof prism and drops the bore; the empty answer reflects the patch. Unpatched, the same part's one bore matches (the test's first call)."
   },
   {
+    "function": "recognise_double_d_bores",
     "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[RuntimeError]",
-    "function": "recognise_double_d_bores",
+    "file": "571fd1c6434b6881.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "not-applicable",
     "reason": "Solid.extrude is monkeypatched to raise, so Python cannot build the void-proof prism and drops the bore; the empty answer reflects the patch. Unpatched, the same part's one bore matches (the test's first call)."
   },
   {
+    "function": "recognise_double_d_bores",
     "test": "tests/test_geometry_failure_boundaries.py::test_double_d_prism_failure_boundary[StdFail_NotDone]",
-    "function": "recognise_double_d_bores",
+    "file": "571fd1c6434b6881.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "not-applicable",
     "reason": "Solid.extrude is monkeypatched to raise, so Python cannot build the void-proof prism and drops the bore; the empty answer reflects the patch. Unpatched, the same part's one bore matches (the test's first call)."
   },
   {
-    "test": "tests/test_geometry_failure_boundaries.py::test_double_d_boolean_fragments_are_measured_not_hidden_as_attribute_errors[volumes2-False]",
     "function": "recognise_double_d_bores",
+    "test": "tests/test_geometry_failure_boundaries.py::test_double_d_boolean_fragments_are_measured_not_hidden_as_attribute_errors[volumes2-False]",
+    "file": "571fd1c6434b6881.step.gz",
+    "options": {},
+    "count": 1,
     "verdict": "not-applicable",
     "reason": "Solid.__and__ is monkeypatched to return fragments of volume 1 and 2, fabricating material inside the prism, so Python rejects the bore; the part itself is a true through double-D, which the port finds (as Python does in the unpatched variants of the test)."
   }
