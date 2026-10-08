@@ -3917,7 +3917,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 132.0095124, 5e-08 from the port's 132.0095185; face.area gives 132.0582924.",
-    "rust": 132.00951851044033
+    "rust": 132.00951851044036
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5357,7 +5357,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 575.8913596, 3e-08 from the port's 575.8913431; face.area gives 575.8956703.",
-    "rust": 575.8913430629038
+    "rust": 575.8913430629037
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5365,7 +5365,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 575.8913596, 3e-08 from the port's 575.8913431; face.area gives 575.8956703.",
-    "rust": 575.8913430639386
+    "rust": 575.8913430639384
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5373,7 +5373,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 575.8913596, 3e-08 from the port's 575.8913431; face.area gives 575.8956703.",
-    "rust": 575.8913430633714
+    "rust": 575.8913430633716
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5429,7 +5429,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 575.8913493, 3e-08 from the port's 575.8913328; face.area gives 575.8956605.",
-    "rust": 575.8913328341373
+    "rust": 575.8913328341371
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5501,7 +5501,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 575.8913489, 3e-08 from the port's 575.8913324; face.area gives 575.8956601.",
-    "rust": 575.8913323977898
+    "rust": 575.8913323977899
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5565,7 +5565,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 575.8913546, 3e-08 from the port's 575.8913381; face.area gives 575.8956656.",
-    "rust": 575.8913381106811
+    "rust": 575.891338110681
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5573,7 +5573,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 575.8913546, 3e-08 from the port's 575.8913381; face.area gives 575.8956656.",
-    "rust": 575.8913381099294
+    "rust": 575.8913381099295
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5645,7 +5645,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 575.8913062, 3e-08 from the port's 575.8912897; face.area gives 575.8956231.",
-    "rust": 575.8912896781608
+    "rust": 575.891289678161
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5653,7 +5653,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 575.8913062, 3e-08 from the port's 575.8912897; face.area gives 575.8956231.",
-    "rust": 575.8912896806061
+    "rust": 575.891289680606
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5789,7 +5789,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 575.8913408, 3e-08 from the port's 575.8913243; face.area gives 575.8956559.",
-    "rust": 575.8913242915512
+    "rust": 575.8913242915513
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5805,7 +5805,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 575.8913408, 3e-08 from the port's 575.8913243; face.area gives 575.8956559.",
-    "rust": 575.891324293647
+    "rust": 575.8913242936469
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -5821,7 +5821,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 453.0038529, 1e-07 from the port's 453.003807; face.area gives 453.0044281.",
-    "rust": 453.00380703310424
+    "rust": 453.0038070331042
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -6221,7 +6221,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "face.area's fixed Gauss rule is coarse here: OpenCascade's own integration of the same face driven to a relative error of 1e-9 gives 460.9769349, 1e-09 from the port's 460.9769354; face.area gives 460.9792315.",
-    "rust": 460.976935411705
+    "rust": 460.97693541170497
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -14493,7 +14493,7 @@
     "check": "occ",
     "verdict": "rust-correct",
     "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 138.0631521 (Green's theorem), within 8e-15 of the port's 138.0631521. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 138.0614085, adaptive 138.0614085, and 138.0631521 with the pcurves projected again from the edges. The difference from face.area, 0.0017, is within the strip the edges' tolerances allow the boundary (0.0037).",
-    "rust": 138.06315209447348
+    "rust": 138.06315209447345
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
@@ -14532,8 +14532,8 @@
     "face": 164,
     "check": "occ",
     "verdict": "rust-correct",
-    "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 138.7383133 (Green's theorem), within 6e-14 of the port's 138.7383133. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 138.7365697, adaptive 138.7365697, and 138.7383133 with the pcurves projected again from the edges. The difference from face.area, 0.0017, is within the strip the edges' tolerances allow the boundary (0.0026).",
-    "rust": 138.7383132577888
+    "reason": "The port integrates the region the face's 3D edge curves bound; tools/face_area_evidence.py gives 138.7383133 (Green's theorem), within 5e-14 of the port's 138.7383133. OpenCascade integrates the face's pcurves, approximations of those edges: face.area 138.7365697, adaptive 138.7365697, and 138.7383133 with the pcurves projected again from the edges. The difference from face.area, 0.0017, is within the strip the edges' tolerances allow the boundary (0.0026).",
+    "rust": 138.73831325778875
   },
   {
     "file": "nist/nist_ftc_10_asme1_rb.stp",
