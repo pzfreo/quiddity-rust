@@ -26,6 +26,7 @@ pub mod cylindrical_seats;
 pub mod edge_open;
 pub mod edge_open_circular;
 pub mod edge_open_prismatic;
+pub mod effective_surfaces;
 pub mod entry_treatments;
 pub mod evidence;
 pub mod experimental_geometry;
