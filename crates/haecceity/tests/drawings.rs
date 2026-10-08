@@ -28,9 +28,9 @@ use serde_json::Value;
 const AGREE: f64 = 0.99;
 const AREA: f64 = 1e-3;
 /// Drawn with exact curves, of every `exact_curves_follow_their_points` edge stretch: the share
-/// measured when the floor was set (30,293 of 33,464 over every part, once zero-length stretches
-/// were no longer drawn), so fewer exact curves fail.
-const EXACT_SHARE: f64 = 0.9052;
+/// measured when the floor was set (30,228 of 33,272 over every part at c06efb6, 0.90851), so
+/// fewer exact curves fail.
+const EXACT_SHARE: f64 = 0.9085;
 
 /// A view or cut that does not agree: its lowest score, its cut area's relative error, and a
 /// description.
