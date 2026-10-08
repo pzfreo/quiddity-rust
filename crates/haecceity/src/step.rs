@@ -775,7 +775,11 @@ impl<'a> FileIds<'a> {
 
     /// The `#N` of a face, checked against its record: entity type, bound count, the surface's
     /// entity type, `same_sense`, the surface's location point (its placement's, an axis's, or a
-    /// B-spline's first control point) and the `EDGE_CURVE`s of its loops.
+    /// B-spline's first control point) and the `EDGE_CURVE`s of its loops. A surface with no
+    /// location point of its own (`SURFACE_OF_LINEAR_EXTRUSION`, `OFFSET_SURFACE`,
+    /// `RECTANGULAR_TRIMMED_SURFACE` and other kinds `raw_location` does not name) has no
+    /// position check: there the loops' `EDGE_CURVE`s, whose vertices [`FileIds::edge`] checks
+    /// by position, are what tells two such faces apart.
     fn face(&mut self, face: &StepFace<'_>) -> Result<u64, StepError> {
         let key = face.key();
         if let Some(&id) = self.checked.get(&key) {
@@ -1403,8 +1407,13 @@ fn read_placed(bytes: &[u8], outer: &Placement) -> Result<Read, StepError> {
 }
 
 /// One distinct part of a file: a product definition whose shape holds faces, with the numbering
-/// of its faces and edges that PMI anchors to (specify-core's: OpenCascade's `TopExp::MapShapes`
-/// over the part's own shape, not over a placed instance).
+/// of its faces and edges that PMI anchors to. Faces are numbered as specify-core numbers them
+/// (OpenCascade's `TopExp::MapShapes` over the part's own shape, not over a placed instance).
+/// Edges are haecceity's own numbering, one per `EDGE_CURVE`, in the order the faces' loops give
+/// them: it is not specify-core's, whose edges come after OpenCascade's healing (which adds seam
+/// and split edges, and reverses some loops on geometric grounds), so an edge index from
+/// specify-core does not carry over; anchor edges by their `#N`
+/// (`tests/fixtures/known_face_sources.json` lists every file where the two differ).
 #[derive(Clone, Debug)]
 pub struct PartDefinition {
     /// The `#N` of its `product_definition` (or `product_definition_with_associated_documents`).

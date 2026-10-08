@@ -1,178 +1,241 @@
 [
   {
     "file": "corpus/cadgenbench/flanged_spool_132.step",
-    "key": "part 0 edges",
-    "count": 12,
+    "key": "part 0 edges order",
+    "count": 6,
     "verdict": "undetermined",
-    "reason": "The same 228 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "6 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/cadgenbench/threaded_connector_109.step",
-    "key": "part 0 edges",
-    "count": 48,
+    "key": "part 0 edges order",
+    "count": 47,
     "verdict": "undetermined",
-    "reason": "The same 871 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "47 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/cadgenbench_inputs/cgb202.step.gz",
-    "key": "part 0 edges",
-    "count": 5219,
+    "key": "part 0 edges OpenCascade made",
+    "count": 477,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 477 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "477 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "corpus/cadgenbench_inputs/cgb202.step.gz",
+    "key": "part 0 edges order",
+    "count": 39,
+    "verdict": "undetermined",
+    "reason": "39 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/cadgenbench_inputs/cgb203.step",
-    "key": "part 0 edges",
-    "count": 373,
+    "key": "part 0 edges OpenCascade made",
+    "count": 20,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 20 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges)."
+    "reason": "20 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
   },
   {
     "file": "corpus/cadgenbench_inputs/cgb207.step",
-    "key": "part 0 edges",
-    "count": 701,
+    "key": "part 0 edges OpenCascade made",
+    "count": 33,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 33 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "33 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "corpus/cadgenbench_inputs/cgb207.step",
+    "key": "part 0 edges order",
+    "count": 3,
+    "verdict": "undetermined",
+    "reason": "3 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/cadgenbench_inputs/cgb217.step.gz",
-    "key": "part 0 edges",
-    "count": 856,
+    "key": "part 0 edges OpenCascade made",
+    "count": 9,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 9 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "9 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "corpus/cadgenbench_inputs/cgb217.step.gz",
+    "key": "part 0 edges order",
+    "count": 8,
+    "verdict": "undetermined",
+    "reason": "8 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/cadgenbench_inputs/cgb241.step",
-    "key": "part 0 edges",
-    "count": 10,
+    "key": "part 0 edges order",
+    "count": 7,
     "verdict": "undetermined",
-    "reason": "The same 156 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "7 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/cadgenbench_inputs/cgb242.step.gz",
-    "key": "part 0 edges",
-    "count": 1079,
+    "key": "part 0 edges OpenCascade made",
+    "count": 95,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 95 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "95 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "corpus/cadgenbench_inputs/cgb242.step.gz",
+    "key": "part 0 edges order",
+    "count": 161,
+    "verdict": "undetermined",
+    "reason": "161 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/cadgenbench_inputs/cgb243.step.gz",
-    "key": "part 0 edges",
-    "count": 1451,
+    "key": "part 0 edges OpenCascade made",
+    "count": 79,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 79 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "79 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "corpus/cadgenbench_inputs/cgb243.step.gz",
+    "key": "part 0 edges order",
+    "count": 66,
+    "verdict": "undetermined",
+    "reason": "66 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/cadgenbench_inputs/cgb245.step",
-    "key": "part 0 edges",
-    "count": 340,
+    "key": "part 0 edges order",
+    "count": 293,
     "verdict": "undetermined",
-    "reason": "The same 1112 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "293 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/inventory_refusal/13975.step.gz",
-    "key": "part 0 edges",
-    "count": 38,
+    "key": "part 0 edges order",
+    "count": 23,
     "verdict": "undetermined",
-    "reason": "The same 42 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "23 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/inventory_refusal/13975.step.gz",
-    "key": "part 0 faces",
-    "count": 16,
+    "key": "part 0 faces order",
+    "count": 8,
     "verdict": "undetermined",
-    "reason": "A deliberately malformed corpus part (its shell is not orientable). OpenCascade's import healing rebuilds and reorders its faces (see known_divergences.json); the same 17 ADVANCED_FACEs are numbered in file order by haecceity and in the healed order by OpenCascade."
+    "reason": "A deliberately malformed corpus part (its shell is not orientable). OpenCascade's import healing rebuilds and reorders its faces (see known_divergences.json); the same 17 ADVANCED_FACEs are numbered in file order by haecceity and in the healed order by OpenCascade; 8 of them are out of order."
   },
   {
     "file": "corpus/inventory_refusal/14052.step.gz",
-    "key": "part 0 edges",
-    "count": 60,
+    "key": "part 0 edges OpenCascade made",
+    "count": 6,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 6 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 2 EDGE_CURVEs (#142, #272) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "6 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "corpus/inventory_refusal/14052.step.gz",
+    "key": "part 0 edges haecceity only",
+    "count": 2,
+    "verdict": "rust-correct",
+    "reason": "2 EDGE_CURVEs of the part (#142, #272) that OpenCascade's healing split or replaced, so its numbering has no edge read from them: measured with specify-core's venv (scratch script, OpenCascade 7.9.3.1), on both faces that use each of them OpenCascade's edges with no file instance reach both its vertices (the file's coordinates, scaled to mm). They are edges of the file's solid and PMI may name them; haecceity keeps them."
+  },
+  {
+    "file": "corpus/inventory_refusal/14052.step.gz",
+    "key": "part 0 edges order",
+    "count": 2,
+    "verdict": "undetermined",
+    "reason": "2 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/mfcadpp/1007.step",
-    "key": "part 0 edges",
-    "count": 2,
+    "key": "part 0 edges order",
+    "count": 1,
     "verdict": "undetermined",
-    "reason": "The same 71 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/mfcadpp/10077.step",
-    "key": "part 0 edges",
-    "count": 2,
+    "key": "part 0 edges order",
+    "count": 1,
     "verdict": "undetermined",
-    "reason": "The same 65 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/mfcadpp/1008.step",
-    "key": "part 0 edges",
-    "count": 2,
+    "key": "part 0 edges order",
+    "count": 1,
     "verdict": "undetermined",
-    "reason": "The same 39 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/mfcadpp/1013.step",
-    "key": "part 0 edges",
-    "count": 2,
+    "key": "part 0 edges order",
+    "count": 1,
     "verdict": "undetermined",
-    "reason": "The same 108 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/mfcadpp/10146.step",
-    "key": "part 0 edges",
-    "count": 2,
+    "key": "part 0 edges order",
+    "count": 1,
     "verdict": "undetermined",
-    "reason": "The same 75 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/mfcadpp/10163.step",
-    "key": "part 0 edges",
-    "count": 2,
+    "key": "part 0 edges order",
+    "count": 1,
     "verdict": "undetermined",
-    "reason": "The same 111 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/mfcadpp/1017.step",
-    "key": "part 0 edges",
-    "count": 2,
+    "key": "part 0 edges order",
+    "count": 1,
     "verdict": "undetermined",
-    "reason": "The same 57 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/mfcadpp/10278.step",
-    "key": "part 0 edges",
-    "count": 2,
+    "key": "part 0 edges order",
+    "count": 1,
     "verdict": "undetermined",
-    "reason": "The same 51 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/mfcadpp_holdout/183.step",
-    "key": "part 0 edges",
-    "count": 2,
+    "key": "part 0 edges order",
+    "count": 1,
     "verdict": "undetermined",
-    "reason": "The same 93 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/mfcadpp_holdout/363.step",
-    "key": "part 0 edges",
-    "count": 2,
+    "key": "part 0 edges order",
+    "count": 1,
     "verdict": "undetermined",
-    "reason": "The same 78 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/mfcadpp_holdout/408.step",
-    "key": "part 0 edges",
-    "count": 2,
+    "key": "part 0 edges order",
+    "count": 1,
     "verdict": "undetermined",
-    "reason": "The same 80 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/nist/nist_ctc_01_asme1_rd.stp",
-    "key": "part 0 edges",
-    "count": 200,
+    "key": "part 0 edges OpenCascade made",
+    "count": 26,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 26 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 6 EDGE_CURVEs (#2009, #2010, #2011, #2012, ...) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "26 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_01_asme1_rd.stp",
+    "key": "part 0 edges haecceity only",
+    "count": 6,
+    "verdict": "rust-correct",
+    "reason": "6 EDGE_CURVEs of the part (#2009, #2010, #2011, #2012, ...) that OpenCascade's healing split or replaced, so its numbering has no edge read from them: measured with specify-core's venv (scratch script, OpenCascade 7.9.3.1), on both faces that use each of them OpenCascade's edges with no file instance reach both its vertices (the file's coordinates, scaled to mm). They are edges of the file's solid and PMI may name them; haecceity keeps them."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_01_asme1_rd.stp",
+    "key": "part 0 edges order",
+    "count": 103,
+    "verdict": "undetermined",
+    "reason": "103 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/nist/nist_ctc_01_asme1_rd.stp",
@@ -183,17 +246,31 @@
   },
   {
     "file": "corpus/nist/nist_ctc_02_asme1_rc.stp",
-    "key": "part 0 edges",
-    "count": 1618,
+    "key": "part 0 edges OpenCascade made",
+    "count": 148,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'SOLID' (1642 edges), 'SHELL' (4 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+    "reason": "148 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
   },
   {
     "file": "corpus/nist/nist_ctc_02_asme1_rc.stp",
-    "key": "part 0 faces",
+    "key": "part 0 edges in another OpenCascade part",
+    "count": 4,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: these 4 EDGE_CURVEs (#20688, #20686, #20694, #20692) belong to the representation items OpenCascade numbers as its separate part(s) 1; haecceity's one part (the product definition) holds them after the solid's."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_02_asme1_rc.stp",
+    "key": "part 0 edges order",
+    "count": 277,
+    "verdict": "undetermined",
+    "reason": "277 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_02_asme1_rc.stp",
+    "key": "part 0 faces in another OpenCascade part",
     "count": 1,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'SOLID' (663 faces), 'SHELL' (1 faces); positions differ where those parts begin."
+    "reason": "Follows from the part count entry: these 1 ADVANCED_FACEs (#20698) belong to the representation items OpenCascade numbers as its separate part(s) 1; haecceity's one part (the product definition) holds them after the solid's."
   },
   {
     "file": "corpus/nist/nist_ctc_02_asme1_rc.stp",
@@ -211,10 +288,24 @@
   },
   {
     "file": "corpus/nist/nist_ctc_03_asme1_rc.stp",
-    "key": "part 0 edges",
-    "count": 363,
+    "key": "part 0 edges OpenCascade made",
+    "count": 25,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 25 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 5 EDGE_CURVEs (#1870, #1913, #1922, #2046, ...) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "25 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_03_asme1_rc.stp",
+    "key": "part 0 edges haecceity only",
+    "count": 5,
+    "verdict": "rust-correct",
+    "reason": "5 EDGE_CURVEs of the part (#1870, #1913, #1922, #2046, ...) that OpenCascade's healing split or replaced, so its numbering has no edge read from them: measured with specify-core's venv (scratch script, OpenCascade 7.9.3.1), on both faces that use each of them OpenCascade's edges with no file instance reach both its vertices (the file's coordinates, scaled to mm). They are edges of the file's solid and PMI may name them; haecceity keeps them."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_03_asme1_rc.stp",
+    "key": "part 0 edges order",
+    "count": 65,
+    "verdict": "undetermined",
+    "reason": "65 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/nist/nist_ctc_03_asme1_rc.stp",
@@ -225,17 +316,31 @@
   },
   {
     "file": "corpus/nist/nist_ctc_04_asme1_rd.stp",
-    "key": "part 0 edges",
-    "count": 1270,
+    "key": "part 0 edges OpenCascade made",
+    "count": 66,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'SOLID' (1270 edges), 'SHELL' (2 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+    "reason": "66 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
   },
   {
     "file": "corpus/nist/nist_ctc_04_asme1_rd.stp",
-    "key": "part 0 faces",
+    "key": "part 0 edges in another OpenCascade part",
+    "count": 2,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: these 2 EDGE_CURVEs (#14179, #14174) belong to the representation items OpenCascade numbers as its separate part(s) 1; haecceity's one part (the product definition) holds them after the solid's."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_04_asme1_rd.stp",
+    "key": "part 0 edges order",
+    "count": 59,
+    "verdict": "undetermined",
+    "reason": "59 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_04_asme1_rd.stp",
+    "key": "part 0 faces in another OpenCascade part",
     "count": 1,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'SOLID' (517 faces), 'SHELL' (1 faces); positions differ where those parts begin."
+    "reason": "Follows from the part count entry: these 1 ADVANCED_FACEs (#14184) belong to the representation items OpenCascade numbers as its separate part(s) 1; haecceity's one part (the product definition) holds them after the solid's."
   },
   {
     "file": "corpus/nist/nist_ctc_04_asme1_rd.stp",
@@ -253,17 +358,31 @@
   },
   {
     "file": "corpus/nist/nist_ctc_05_asme1_rd.stp",
-    "key": "part 0 edges",
-    "count": 376,
+    "key": "part 0 edges OpenCascade made",
+    "count": 21,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'SOLID' (531 edges), 'SHELL' (4 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+    "reason": "21 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
   },
   {
     "file": "corpus/nist/nist_ctc_05_asme1_rd.stp",
-    "key": "part 0 faces",
+    "key": "part 0 edges in another OpenCascade part",
+    "count": 4,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: these 4 EDGE_CURVEs (#6528, #6526, #6524, #6522) belong to the representation items OpenCascade numbers as its separate part(s) 1; haecceity's one part (the product definition) holds them after the solid's."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_05_asme1_rd.stp",
+    "key": "part 0 edges order",
+    "count": 98,
+    "verdict": "undetermined",
+    "reason": "98 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+  },
+  {
+    "file": "corpus/nist/nist_ctc_05_asme1_rd.stp",
+    "key": "part 0 faces in another OpenCascade part",
     "count": 1,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'SOLID' (208 faces), 'SHELL' (1 faces); positions differ where those parts begin."
+    "reason": "Follows from the part count entry: these 1 ADVANCED_FACEs (#6532) belong to the representation items OpenCascade numbers as its separate part(s) 1; haecceity's one part (the product definition) holds them after the solid's."
   },
   {
     "file": "corpus/nist/nist_ctc_05_asme1_rd.stp",
@@ -281,10 +400,24 @@
   },
   {
     "file": "corpus/nist/nist_ftc_06_asme1_rd.stp",
-    "key": "part 0 edges",
-    "count": 363,
+    "key": "part 0 edges OpenCascade made",
+    "count": 92,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 92 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 21 EDGE_CURVEs (#1779, #1787, #1788, #1789, ...) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "92 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "corpus/nist/nist_ftc_06_asme1_rd.stp",
+    "key": "part 0 edges haecceity only",
+    "count": 21,
+    "verdict": "rust-correct",
+    "reason": "21 EDGE_CURVEs of the part (#1779, #1787, #1788, #1789, ...) that OpenCascade's healing split or replaced, so its numbering has no edge read from them: measured with specify-core's venv (scratch script, OpenCascade 7.9.3.1), on both faces that use each of them OpenCascade's edges with no file instance reach both its vertices (the file's coordinates, scaled to mm). They are edges of the file's solid and PMI may name them; haecceity keeps them."
+  },
+  {
+    "file": "corpus/nist/nist_ftc_06_asme1_rd.stp",
+    "key": "part 0 edges order",
+    "count": 125,
+    "verdict": "undetermined",
+    "reason": "125 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/nist/nist_ftc_06_asme1_rd.stp",
@@ -295,17 +428,38 @@
   },
   {
     "file": "corpus/nist/nist_ftc_07_asme1_rd.stp",
-    "key": "part 0 edges",
-    "count": 193,
+    "key": "part 0 edges OpenCascade made",
+    "count": 51,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 51 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 4 EDGE_CURVEs (#5821, #5832, #5843, #5854) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "51 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "corpus/nist/nist_ftc_07_asme1_rd.stp",
+    "key": "part 0 edges haecceity only",
+    "count": 4,
+    "verdict": "rust-correct",
+    "reason": "4 EDGE_CURVEs of the part (#5821, #5832, #5843, #5854) that OpenCascade's healing split or replaced, so its numbering has no edge read from them: measured with specify-core's venv (scratch script, OpenCascade 7.9.3.1), on both faces that use each of them OpenCascade's edges with no file instance reach both its vertices (the file's coordinates, scaled to mm). They are edges of the file's solid and PMI may name them; haecceity keeps them."
+  },
+  {
+    "file": "corpus/nist/nist_ftc_07_asme1_rd.stp",
+    "key": "part 0 edges order",
+    "count": 49,
+    "verdict": "undetermined",
+    "reason": "49 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/nist/nist_ftc_08_asme1_rc.stp",
-    "key": "part 0 edges",
-    "count": 379,
+    "key": "part 0 edges OpenCascade made",
+    "count": 20,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 20 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "20 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "corpus/nist/nist_ftc_08_asme1_rc.stp",
+    "key": "part 0 edges order",
+    "count": 33,
+    "verdict": "undetermined",
+    "reason": "33 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/nist/nist_ftc_08_asme1_rc.stp",
@@ -316,10 +470,10 @@
   },
   {
     "file": "corpus/nist/nist_ftc_09_asme1_rd.stp",
-    "key": "part 0 edges",
-    "count": 158,
+    "key": "part 0 edges order",
+    "count": 120,
     "verdict": "undetermined",
-    "reason": "The same 454 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "120 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/nist/nist_ftc_09_asme1_rd.stp",
@@ -330,24 +484,38 @@
   },
   {
     "file": "corpus/nist/nist_ftc_10_asme1_rb.stp",
-    "key": "part 0 edges",
-    "count": 469,
+    "key": "part 0 edges OpenCascade made",
+    "count": 70,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 70 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 6 EDGE_CURVEs (#5463, #5504, #5545, #5615, ...) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "70 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "corpus/nist/nist_ftc_10_asme1_rb.stp",
+    "key": "part 0 edges haecceity only",
+    "count": 6,
+    "verdict": "rust-correct",
+    "reason": "6 EDGE_CURVEs of the part (#5463, #5504, #5545, #5615, ...) that OpenCascade's healing split or replaced, so its numbering has no edge read from them: measured with specify-core's venv (scratch script, OpenCascade 7.9.3.1), on both faces that use each of them OpenCascade's edges with no file instance reach both its vertices (the file's coordinates, scaled to mm). They are edges of the file's solid and PMI may name them; haecceity keeps them."
+  },
+  {
+    "file": "corpus/nist/nist_ftc_10_asme1_rb.stp",
+    "key": "part 0 edges order",
+    "count": 16,
+    "verdict": "undetermined",
+    "reason": "16 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "corpus/ttt_inputs/sm-hanger.step",
-    "key": "part 0 edges",
-    "count": 66,
+    "key": "part 0 edges order",
+    "count": 63,
     "verdict": "undetermined",
-    "reason": "The same 297 EDGE_CURVEs on both sides, in another order: OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "63 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "nist-pmi/nist_ctc_01_asme1_ap242-e1.stp",
-    "key": "part 0 edges",
-    "count": 108,
+    "key": "part 0 edges OpenCascade made",
+    "count": 4,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 4 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges)."
+    "reason": "4 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
   },
   {
     "file": "nist-pmi/nist_ctc_01_asme1_ap242-e1.stp",
@@ -358,17 +526,24 @@
   },
   {
     "file": "nist-pmi/nist_ctc_02_asme1_ap242-e2.stp",
-    "key": "part 0 edges",
-    "count": 1579,
+    "key": "part 0 edges OpenCascade made",
+    "count": 176,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'SOLID' (1586 edges), 'SHELL' (2 edges), 'SHELL' (4 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+    "reason": "176 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
   },
   {
     "file": "nist-pmi/nist_ctc_02_asme1_ap242-e2.stp",
-    "key": "part 0 faces",
+    "key": "part 0 edges in another OpenCascade part",
+    "count": 6,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: these 6 EDGE_CURVEs (#8613, #8614, #8615, #8616, ...) belong to the representation items OpenCascade numbers as its separate part(s) 1, 2; haecceity's one part (the product definition) holds them after the solid's."
+  },
+  {
+    "file": "nist-pmi/nist_ctc_02_asme1_ap242-e2.stp",
+    "key": "part 0 faces in another OpenCascade part",
     "count": 2,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'SOLID' (635 faces), 'SHELL' (1 faces), 'SHELL' (1 faces); positions differ where those parts begin."
+    "reason": "Follows from the part count entry: these 2 ADVANCED_FACEs (#3148, #3149) belong to the representation items OpenCascade numbers as its separate part(s) 1, 2; haecceity's one part (the product definition) holds them after the solid's."
   },
   {
     "file": "nist-pmi/nist_ctc_02_asme1_ap242-e2.stp",
@@ -393,17 +568,31 @@
   },
   {
     "file": "nist-pmi/nist_ctc_04_asme1_ap242-e2.stp",
-    "key": "part 0 edges",
-    "count": 1174,
+    "key": "part 0 edges OpenCascade made",
+    "count": 66,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'SOLID' (1174 edges), 'SHELL' (2 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+    "reason": "66 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
   },
   {
     "file": "nist-pmi/nist_ctc_04_asme1_ap242-e2.stp",
-    "key": "part 0 faces",
+    "key": "part 0 edges in another OpenCascade part",
+    "count": 2,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: these 2 EDGE_CURVEs (#17451, #17444) belong to the representation items OpenCascade numbers as its separate part(s) 1; haecceity's one part (the product definition) holds them after the solid's."
+  },
+  {
+    "file": "nist-pmi/nist_ctc_04_asme1_ap242-e2.stp",
+    "key": "part 0 edges order",
+    "count": 4,
+    "verdict": "undetermined",
+    "reason": "4 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+  },
+  {
+    "file": "nist-pmi/nist_ctc_04_asme1_ap242-e2.stp",
+    "key": "part 0 faces in another OpenCascade part",
     "count": 1,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'SOLID' (483 faces), 'SHELL' (1 faces); positions differ where those parts begin."
+    "reason": "Follows from the part count entry: these 1 ADVANCED_FACEs (#17460) belong to the representation items OpenCascade numbers as its separate part(s) 1; haecceity's one part (the product definition) holds them after the solid's."
   },
   {
     "file": "nist-pmi/nist_ctc_04_asme1_ap242-e2.stp",
@@ -421,17 +610,31 @@
   },
   {
     "file": "nist-pmi/nist_ctc_05_asme1_ap242-e1.stp",
-    "key": "part 0 edges",
-    "count": 317,
+    "key": "part 0 edges OpenCascade made",
+    "count": 75,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 75 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 9 EDGE_CURVEs (#2781, #2835, #2836, #2837, ...) that healing split or replaced are not in OpenCascade's numbering; OpenCascade numbers 9 wireframe curves of the part's shape representation (TRIMMED_CURVE #3891, #3892, #3893, ..., members of a GEOMETRIC_CURVE_SET, bounding no face) as edges; the part's edges are its B-rep's EDGE_CURVEs."
+    "reason": "75 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "nist-pmi/nist_ctc_05_asme1_ap242-e1.stp",
+    "key": "part 0 edges OpenCascade only",
+    "count": 9,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade numbers 9 wireframe curves of the part's shape representation as edges (#3891, #3892, #3893, #3894, ...: TRIMMED_CURVEs, members of a GEOMETRIC_CURVE_SET, not EDGE_CURVEs of the solid's topology). haecceity's part edges are the B-rep's EDGE_CURVEs; a PMI reference to such a curve (a GEOMETRIC_ITEM_SPECIFIC_USAGE) binds by its #N, which is the PMI reader's to resolve."
+  },
+  {
+    "file": "nist-pmi/nist_ctc_05_asme1_ap242-e1.stp",
+    "key": "part 0 edges haecceity only",
+    "count": 9,
+    "verdict": "rust-correct",
+    "reason": "9 EDGE_CURVEs of the part (#2781, #2835, #2836, #2837, ...) that OpenCascade's healing split or replaced, so its numbering has no edge read from them: measured with specify-core's venv (scratch script, OpenCascade 7.9.3.1), on both faces that use each of them OpenCascade's edges with no file instance reach both its vertices (the file's coordinates, scaled to mm). They are edges of the file's solid and PMI may name them; haecceity keeps them."
   },
   {
     "file": "nist-pmi/nist_ftc_06_asme1_ap242-e2.stp",
-    "key": "part 0 edges",
-    "count": 476,
+    "key": "part 0 edges OpenCascade made",
+    "count": 14,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 14 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges)."
+    "reason": "14 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
   },
   {
     "file": "nist-pmi/nist_ftc_06_asme1_ap242-e2.stp",
@@ -442,17 +645,31 @@
   },
   {
     "file": "nist-pmi/nist_ftc_07_asme1_ap242-e2.stp",
-    "key": "part 0 edges",
-    "count": 838,
+    "key": "part 0 edges OpenCascade made",
+    "count": 31,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'SOLID' (896 edges), 'COMPOUND' (6 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+    "reason": "31 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
   },
   {
     "file": "nist-pmi/nist_ftc_07_asme1_ap242-e2.stp",
-    "key": "part 0 faces",
+    "key": "part 0 edges in another OpenCascade part",
+    "count": 6,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: these 6 EDGE_CURVEs (#13383, #13391, #13397, #13441, ...) belong to the representation items OpenCascade numbers as its separate part(s) 1; haecceity's one part (the product definition) holds them after the solid's."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_07_asme1_ap242-e2.stp",
+    "key": "part 0 edges order",
+    "count": 4,
+    "verdict": "undetermined",
+    "reason": "4 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_07_asme1_ap242-e2.stp",
+    "key": "part 0 faces in another OpenCascade part",
     "count": 2,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'SOLID' (304 faces), 'COMPOUND' (2 faces); positions differ where those parts begin."
+    "reason": "Follows from the part count entry: these 2 ADVANCED_FACEs (#13406, #13450) belong to the representation items OpenCascade numbers as its separate part(s) 1; haecceity's one part (the product definition) holds them after the solid's."
   },
   {
     "file": "nist-pmi/nist_ftc_07_asme1_ap242-e2.stp",
@@ -470,10 +687,24 @@
   },
   {
     "file": "nist-pmi/nist_ftc_08_asme1_ap242-e2.stp",
-    "key": "part 0 edges",
-    "count": 508,
+    "key": "part 0 edges OpenCascade made",
+    "count": 48,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 48 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 4 EDGE_CURVEs (#3642, #3643, #3644, #3645) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "48 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_08_asme1_ap242-e2.stp",
+    "key": "part 0 edges haecceity only",
+    "count": 4,
+    "verdict": "rust-correct",
+    "reason": "4 EDGE_CURVEs of the part (#3642, #3643, #3644, #3645) that OpenCascade's healing split or replaced, so its numbering has no edge read from them: measured with specify-core's venv (scratch script, OpenCascade 7.9.3.1), on both faces that use each of them OpenCascade's edges with no file instance reach both its vertices (the file's coordinates, scaled to mm). They are edges of the file's solid and PMI may name them; haecceity keeps them."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_08_asme1_ap242-e2.stp",
+    "key": "part 0 edges order",
+    "count": 171,
+    "verdict": "undetermined",
+    "reason": "171 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "nist-pmi/nist_ftc_08_asme1_ap242-e2.stp",
@@ -498,17 +729,31 @@
   },
   {
     "file": "nist-pmi/nist_ftc_10_asme1_ap242-e2.stp",
-    "key": "part 0 edges",
-    "count": 823,
+    "key": "part 0 edges OpenCascade made",
+    "count": 16,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'SOLID' (815 edges), 'COMPOUND' (158 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+    "reason": "16 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
   },
   {
     "file": "nist-pmi/nist_ftc_10_asme1_ap242-e2.stp",
-    "key": "part 0 faces",
+    "key": "part 0 edges in another OpenCascade part",
+    "count": 158,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: these 158 EDGE_CURVEs (#13948, #13957, #13965, #13972, ...) belong to the representation items OpenCascade numbers as its separate part(s) 1; haecceity's one part (the product definition) holds them after the solid's."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_10_asme1_ap242-e2.stp",
+    "key": "part 0 edges order",
+    "count": 5,
+    "verdict": "undetermined",
+    "reason": "5 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_10_asme1_ap242-e2.stp",
+    "key": "part 0 faces in another OpenCascade part",
     "count": 18,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'SOLID' (264 faces), 'COMPOUND' (18 faces); positions differ where those parts begin."
+    "reason": "Follows from the part count entry: these 18 ADVANCED_FACEs (#13981, #14750, #15512, #15536, ...) belong to the representation items OpenCascade numbers as its separate part(s) 1; haecceity's one part (the product definition) holds them after the solid's."
   },
   {
     "file": "nist-pmi/nist_ftc_10_asme1_ap242-e2.stp",
@@ -526,17 +771,52 @@
   },
   {
     "file": "nist-pmi/nist_ftc_11_asme1_ap242-e3.stp",
-    "key": "part 0 edges",
-    "count": 92,
+    "key": "part 0 edges OpenCascade made",
+    "count": 10,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 10 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 2 EDGE_CURVEs (#881, #899) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "10 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_11_asme1_ap242-e3.stp",
+    "key": "part 0 edges haecceity only",
+    "count": 2,
+    "verdict": "rust-correct",
+    "reason": "2 EDGE_CURVEs of the part (#881, #899) that OpenCascade's healing split or replaced, so its numbering has no edge read from them: measured with specify-core's venv (scratch script, OpenCascade 7.9.3.1), on both faces that use each of them OpenCascade's edges with no file instance reach both its vertices (the file's coordinates, scaled to mm). They are edges of the file's solid and PMI may name them; haecceity keeps them."
+  },
+  {
+    "file": "nist-pmi/nist_ftc_11_asme1_ap242-e3.stp",
+    "key": "part 0 edges order",
+    "count": 14,
+    "verdict": "undetermined",
+    "reason": "14 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "nist-pmi/nist_stc_06_asme1_ap242-e3.stp",
-    "key": "part 0 edges",
-    "count": 215,
+    "key": "part 0 edges OpenCascade made",
+    "count": 70,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 70 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 10 EDGE_CURVEs (#1723, #1840, #1936, #1962, ...) that healing split or replaced are not in OpenCascade's numbering; OpenCascade numbers 19 wireframe curves of the part's shape representation (TRIMMED_CURVE #4473, #4486, #4495, ..., members of a GEOMETRIC_CURVE_SET, bounding no face) as edges; the part's edges are its B-rep's EDGE_CURVEs; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "70 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "nist-pmi/nist_stc_06_asme1_ap242-e3.stp",
+    "key": "part 0 edges OpenCascade only",
+    "count": 19,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade numbers 19 wireframe curves of the part's shape representation as edges (#4473, #4486, #4495, #4504, ...: TRIMMED_CURVEs, members of a GEOMETRIC_CURVE_SET, not EDGE_CURVEs of the solid's topology). haecceity's part edges are the B-rep's EDGE_CURVEs; a PMI reference to such a curve (a GEOMETRIC_ITEM_SPECIFIC_USAGE) binds by its #N, which is the PMI reader's to resolve."
+  },
+  {
+    "file": "nist-pmi/nist_stc_06_asme1_ap242-e3.stp",
+    "key": "part 0 edges haecceity only",
+    "count": 10,
+    "verdict": "rust-correct",
+    "reason": "10 EDGE_CURVEs of the part (#1723, #1840, #1936, #1962, ...) that OpenCascade's healing split or replaced, so its numbering has no edge read from them: measured with specify-core's venv (scratch script, OpenCascade 7.9.3.1), on both faces that use each of them OpenCascade's edges with no file instance reach both its vertices (the file's coordinates, scaled to mm). They are edges of the file's solid and PMI may name them; haecceity keeps them."
+  },
+  {
+    "file": "nist-pmi/nist_stc_06_asme1_ap242-e3.stp",
+    "key": "part 0 edges order",
+    "count": 3,
+    "verdict": "undetermined",
+    "reason": "3 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "nist-pmi/nist_stc_06_asme1_ap242-e3.stp",
@@ -547,17 +827,31 @@
   },
   {
     "file": "nist-pmi/nist_stc_07_asme1_ap242-e3.stp",
-    "key": "part 0 edges",
-    "count": 871,
+    "key": "part 0 edges OpenCascade made",
+    "count": 16,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'COMPOUND' (6 edges), 'SOLID' (881 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+    "reason": "16 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
   },
   {
     "file": "nist-pmi/nist_stc_07_asme1_ap242-e3.stp",
-    "key": "part 0 faces",
-    "count": 306,
+    "key": "part 0 edges in another OpenCascade part",
+    "count": 6,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'COMPOUND' (2 faces), 'SOLID' (304 faces); positions differ where those parts begin."
+    "reason": "Follows from the part count entry: these 6 EDGE_CURVEs (#133, #140, #145, #182, ...) belong to the representation items OpenCascade numbers as its separate part(s) 0; haecceity's one part (the product definition) holds them after the solid's."
+  },
+  {
+    "file": "nist-pmi/nist_stc_07_asme1_ap242-e3.stp",
+    "key": "part 0 edges order",
+    "count": 52,
+    "verdict": "undetermined",
+    "reason": "52 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+  },
+  {
+    "file": "nist-pmi/nist_stc_07_asme1_ap242-e3.stp",
+    "key": "part 0 faces in another OpenCascade part",
+    "count": 2,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: these 2 ADVANCED_FACEs (#151, #188) belong to the representation items OpenCascade numbers as its separate part(s) 0; haecceity's one part (the product definition) holds them after the solid's."
   },
   {
     "file": "nist-pmi/nist_stc_07_asme1_ap242-e3.stp",
@@ -575,17 +869,24 @@
   },
   {
     "file": "nist-pmi/nist_stc_08_asme1_ap242-e3.stp",
-    "key": "part 0 edges",
-    "count": 381,
+    "key": "part 0 edges OpenCascade made",
+    "count": 20,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the edges OpenCascade splits into parts 'SOLID' (725 edges), 'SHELL' (4 edges), so positions differ beyond the first part; within it the differences are those of the other NIST files (edges healing made, and loop order)."
+    "reason": "20 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
   },
   {
     "file": "nist-pmi/nist_stc_08_asme1_ap242-e3.stp",
-    "key": "part 0 faces",
+    "key": "part 0 edges in another OpenCascade part",
+    "count": 4,
+    "verdict": "rust-correct",
+    "reason": "Follows from the part count entry: these 4 EDGE_CURVEs (#5942, #5943, #5944, #5945) belong to the representation items OpenCascade numbers as its separate part(s) 1; haecceity's one part (the product definition) holds them after the solid's."
+  },
+  {
+    "file": "nist-pmi/nist_stc_08_asme1_ap242-e3.stp",
+    "key": "part 0 faces in another OpenCascade part",
     "count": 1,
     "verdict": "rust-correct",
-    "reason": "Follows from the part count entry: haecceity's one part holds the faces OpenCascade splits into parts 'SOLID' (270 faces), 'SHELL' (1 faces); positions differ where those parts begin."
+    "reason": "Follows from the part count entry: these 1 ADVANCED_FACEs (#3195) belong to the representation items OpenCascade numbers as its separate part(s) 1; haecceity's one part (the product definition) holds them after the solid's."
   },
   {
     "file": "nist-pmi/nist_stc_08_asme1_ap242-e3.stp",
@@ -603,10 +904,24 @@
   },
   {
     "file": "nist-pmi/nist_stc_09_asme1_ap242-e4.stp",
-    "key": "part 0 edges",
-    "count": 526,
+    "key": "part 0 edges OpenCascade made",
+    "count": 274,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 274 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); OpenCascade numbers 16 wireframe curves of the part's shape representation (TRIMMED_CURVE #6519, #7678, #7699, ..., members of a GEOMETRIC_CURVE_SET, bounding no face) as edges; the part's edges are its B-rep's EDGE_CURVEs; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "274 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "nist-pmi/nist_stc_09_asme1_ap242-e4.stp",
+    "key": "part 0 edges OpenCascade only",
+    "count": 16,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade numbers 16 wireframe curves of the part's shape representation as edges (#6519, #7678, #7699, #7709, ...: TRIMMED_CURVEs, members of a GEOMETRIC_CURVE_SET, not EDGE_CURVEs of the solid's topology). haecceity's part edges are the B-rep's EDGE_CURVEs; a PMI reference to such a curve (a GEOMETRIC_ITEM_SPECIFIC_USAGE) binds by its #N, which is the PMI reader's to resolve."
+  },
+  {
+    "file": "nist-pmi/nist_stc_09_asme1_ap242-e4.stp",
+    "key": "part 0 edges order",
+    "count": 7,
+    "verdict": "undetermined",
+    "reason": "7 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "nist-pmi/nist_stc_09_asme1_ap242-e4.stp",
@@ -617,10 +932,24 @@
   },
   {
     "file": "nist-pmi/nist_stc_10_asme1_ap242-e2.stp",
-    "key": "part 0 edges",
-    "count": 524,
+    "key": "part 0 edges OpenCascade made",
+    "count": 94,
     "verdict": "rust-correct",
-    "reason": "haecceity numbers the part's edges as the file has them, one per EDGE_CURVE; 94 edges OpenCascade's import made have no file instance (ShapeFix's seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges); 12 EDGE_CURVEs (#4772, #4773, #4782, #4783, ...) that healing split or replaced are not in OpenCascade's numbering; OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which a rule on the file's orientation flags reproduces for most loops but not all (haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense)."
+    "reason": "94 edges of OpenCascade's numbering have no file instance: its import healing (ShapeFix) made them (seams on periodic faces the file stores without one, the pieces of closed edges such a seam splits, degenerated edges). haecceity numbers the part's edges as the file has them, one per EDGE_CURVE, and PMI binds an edge by its #N, which these edges do not have."
+  },
+  {
+    "file": "nist-pmi/nist_stc_10_asme1_ap242-e2.stp",
+    "key": "part 0 edges haecceity only",
+    "count": 12,
+    "verdict": "rust-correct",
+    "reason": "12 EDGE_CURVEs of the part (#4772, #4773, #4782, #4783, ...) that OpenCascade's healing split or replaced, so its numbering has no edge read from them: measured with specify-core's venv (scratch script, OpenCascade 7.9.3.1), on both faces that use each of them OpenCascade's edges with no file instance reach both its vertices (the file's coordinates, scaled to mm). They are edges of the file's solid and PMI may name them; haecceity keeps them."
+  },
+  {
+    "file": "nist-pmi/nist_stc_10_asme1_ap242-e2.stp",
+    "key": "part 0 edges order",
+    "count": 73,
+    "verdict": "undetermined",
+    "reason": "73 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
     "file": "nist-pmi/nist_stc_10_asme1_ap242-e2.stp",
