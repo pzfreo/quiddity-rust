@@ -18,6 +18,7 @@ pub use features::blends::{
 };
 pub use features::bosses::{BossRecord, recognise_bosses};
 pub use features::chamfers::{Chamfer, ChamferOptions, recognise_chamfers};
+pub use features::channels::{Channel, recognise_channels};
 pub use features::circular_blind_steps::{CircularBlindStep, recognise_circular_blind_steps};
 pub use features::circular_face_patterns::{CircularFacePattern, recognise_circular_face_patterns};
 pub use features::countersinks::{CounterSink, recognise_countersinks};
@@ -46,12 +47,14 @@ pub use features::oriented_chamfers::{
 };
 pub use features::paired_ramp_steps::{PairedRampStep, recognise_paired_ramp_steps};
 pub use features::plates::{Plate, PlateOptions, recognise_plates};
+pub use features::pockets::{Pocket, recognise_pockets};
 pub use features::profiled_bores::{DoubleDBore, DoubleDBoreOptions, recognise_double_d_bores};
 pub use features::rectangular_blind_slots::{
     RectangularBlindSlot, recognise_rectangular_blind_slots,
 };
 pub use features::round_bottom_slots::{RoundBottomBlindSlot, recognise_round_bottom_blind_slots};
 pub use features::sheet_metal::{SheetMetalBody, SheetMetalOptions, recognise_sheet_metal_bodies};
+pub use features::slots::{Slot, recognise_slots};
 pub use features::thin_walls::{ThinWallBody, recognise_thin_wall_bodies};
 pub use features::through_steps::{ThroughStep, recognise_through_steps};
 pub use features::turned::TurnedProfileKey;

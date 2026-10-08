@@ -54,5 +54,133 @@
     "verdict": "rust-wrong",
     "reason": "Faces 107 and 206 lie exactly the level tolerance apart (z 34.983 and 35.483 in the frame, tol 0.5), so round-off from the placement decides whether they form one level or two. The recogniser's threshold is at fault; Python's framed recognition does the same (tools/capture_frames.py --compare recognise_face_levels: 15 levels unmoved, 16 moved, the level at 34.983 split into 34.983 and 35.483).",
     "max_differing": 3
+  },
+  {
+    "file": "mfcadpp/10049.step",
+    "motion": "translate",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 15-18, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: _discover_pockets on the part translated by (123.456, -78.9, 41.3) defines it by [15, 16, 17, 18], unmoved by [16, 18]).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10098.step",
+    "motion": "translate",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 27-30): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: translated, Python's defining faces are [27, 28, 29, 30], unmoved [27, 29]).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10098.step",
+    "motion": "rot_zx_moved",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 27-30): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [27, 28, 29, 30], unmoved [27, 29]).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10098.step",
+    "motion": "generic_framed",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 27-30): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: on the framed working parts of tools/capture_frames.py, Python's defining faces are [27, 29] as imported and [27, 28, 29, 30] under the generic motion).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10103.step",
+    "motion": "translate",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 35-38, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: translated, Python's defining faces are [35, 36, 37, 38], unmoved [36, 38]).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10103.step",
+    "motion": "rot_zx_moved",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 35-38, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [35, 36, 37, 38], unmoved [36, 38]).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10146.step",
+    "motion": "translate",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: translated, Python's defining faces are [10, 11, 12, 13], unmoved [11, 13]).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10146.step",
+    "motion": "rot_zx_moved",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 13]).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10245.step",
+    "motion": "translate",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 14-17, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: translated, Python's defining faces are [14, 15, 16, 17], unmoved [15, 17]).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10245.step",
+    "motion": "rot_zx_moved",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 14-17, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [14, 15, 16, 17], unmoved [15, 17]).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10245.step",
+    "motion": "generic_framed",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 14-17, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: on the framed working parts of tools/capture_frames.py, Python's defining faces are [15, 17] as imported and [14, 15, 16, 17] under the generic motion).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/118.step",
+    "motion": "translate",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 24-27, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: translated, Python's defining faces are [24, 25, 26, 27], unmoved [25, 26]).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/163.step",
+    "motion": "translate",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: translated, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]).",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/163.step",
+    "motion": "rot_zx_moved",
+    "family": "pockets",
+    "verdict": "rust-wrong",
+    "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]).",
+    "max_differing": 2
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "motion": "rot_z90",
+    "family": "slots",
+    "verdict": "rust-wrong",
+    "reason": "Kernel: unmoved, the volume probe refuses the void prisms between the two obround slots' walls (63/65 and 67/69; its lines run microns above face 8, where the file's faces disagree: known_probes.json's _recess_reduce entry for this file), so the second slot is lost and the first is found from its caps alone ([62, 64]); turned, the probe's lines run along other axes and answer, so both slots are found from their walls and caps. Python finds both slots, each on walls and caps, unmoved and under this motion (checked).",
+    "max_differing": 3
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "motion": "rot_x90",
+    "family": "slots",
+    "verdict": "rust-wrong",
+    "reason": "Kernel: unmoved, the volume probe refuses the void prisms between the two obround slots' walls (63/65 and 67/69; its lines run microns above face 8, where the file's faces disagree: known_probes.json's _recess_reduce entry for this file), so the second slot is lost and the first is found from its caps alone ([62, 64]); turned, the probe's lines run along other axes and answer, so both slots are found from their walls and caps. Python finds both slots, each on walls and caps, unmoved and under this motion (checked).",
+    "max_differing": 3
   }
 ]

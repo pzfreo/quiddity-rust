@@ -103,6 +103,9 @@ pub fn recognise(function: &str, part: &Part, kwargs: &Value) -> Value {
             quiddity::recognise_sheet_metal_bodies(part, &options(kwargs))
                 .unwrap_or_else(|e| panic!("{e}")),
         ),
+        "recognise_slots" => json(quiddity::recognise_slots(part)),
+        "recognise_pockets" => json(quiddity::recognise_pockets(part)),
+        "recognise_channels" => json(quiddity::recognise_channels(part)),
         // Over a part: the patterns among the part's gusset ribs.
         "recognise_gusset_rib_patterns" => json(quiddity::recognise_gusset_rib_patterns(
             &quiddity::recognise_gusset_ribs(part),
@@ -201,6 +204,9 @@ pub fn defining(function: &str, part: &Part, kwargs: &Value) -> Result<Vec<Vec<u
         "recognise_sheet_metal_bodies" => {
             quiddity::features::sheet_metal::discover_verified(&ctx).map(faces)
         }
+        "recognise_slots" => quiddity::features::slots::discover_verified(&ctx).map(faces),
+        "recognise_pockets" => quiddity::features::pockets::discover_verified(&ctx).map(faces),
+        "recognise_channels" => quiddity::features::channels::discover_verified(&ctx).map(faces),
         other => panic!("{other} has no evidence path"),
     };
     result.map_err(|e| e.to_string())

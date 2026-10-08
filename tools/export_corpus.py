@@ -66,6 +66,14 @@ from quiddity.rectangular_blind_slots import (  # noqa: E402
     _discover_rectangular_blind_slots,
     recognise_rectangular_blind_slots,
 )
+from quiddity._recess_features import (  # noqa: E402
+    _discover_channels,
+    _discover_pockets,
+    _discover_slots,
+    recognise_channels,
+    recognise_pockets,
+    recognise_slots,
+)
 from quiddity.round_bottom_slots import (  # noqa: E402
     _discover_round_bottom_blind_slots,
     recognise_round_bottom_blind_slots,
@@ -265,6 +273,12 @@ def main() -> None:
                   lambda p, ledger, o: _discover_blends(p, graph=ledger.graph, writer=ledger.writer))
         sheet_metal = (FamilyId.SHEET_METAL_BODIES, lambda p, o: recognise_sheet_metal_bodies(p, **o),
                        _sheet_metal_evidence)
+        slots = (FamilyId.SLOTS, lambda p, o: recognise_slots(p),
+                 lambda p, ledger, o: _discover_slots(p, writer=ledger.writer))
+        pockets = (FamilyId.POCKETS, lambda p, o: recognise_pockets(p),
+                   lambda p, ledger, o: _discover_pockets(p, writer=ledger.writer))
+        channels = (FamilyId.CHANNELS, lambda p, o: recognise_channels(p),
+                    lambda p, ledger, o: _discover_channels(p, writer=ledger.writer))
         entries.append(
             {
                 "file": str(path.relative_to(CORPUS)),
@@ -321,6 +335,9 @@ def main() -> None:
                     "recognise_sheet_metal_bodies": [
                         _run(part, "recognise_sheet_metal_bodies", *sheet_metal, {})
                     ],
+                    "recognise_slots": [_run(part, "recognise_slots", *slots, {})],
+                    "recognise_pockets": [_run(part, "recognise_pockets", *pockets, {})],
+                    "recognise_channels": [_run(part, "recognise_channels", *channels, {})],
                     "recognise_gusset_rib_patterns": [
                         {"options": {}, "result": _plain(recognise_gusset_rib_patterns(recognise_gusset_ribs(part)))}
                     ],

@@ -315,5 +315,141 @@
     "check": "other blends/0: carried",
     "verdict": "rust-correct",
     "reason": "The resized corner round is recognised twice: as the fillet the case's expectation names (fillets, adapted, radius 5 to 8) and as the straight convex blend over the same cylinder face (blends, ported after the case was written). The blend is reported adapted with sizes.radius 5.0 to 8.0 and its axis point moved by the radius change, which is the true change: the round's radius is 5 in the old part and 8 in the new (tools/capture_revisions.py). The check expects every feature it does not name to be carried; the case (expected.json) names only the fillets family because Python's aggregate prefers the dimension-worthy Fillet for a complete chain (build_recognition_result, not ported). A blends expectation in the case would retire this entry."
+  },
+  {
+    "test": "invariance",
+    "file": "cadgenbench_inputs/cgb245.step",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The record's length moves by one 0.01 mm step: Python publishes recess coordinates on a two-decimal grid in absolute coordinates and derives length from the rounded ends extended by the obround end radius (the third slot by its proved corner radius), so the motion shifts the grid under the feature and the rounded value changes. Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked: translated, Python's lengths are 14.96, 14.96 and 16.85 against 14.97, 14.97 and 16.86 unmoved).",
+    "features": [
+      "slots/0",
+      "slots/1",
+      "slots/2"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10038.step",
+    "motion": "rot_x90",
+    "verdict": "rust-wrong",
+    "reason": "Pocket 4 has a 2.0 x 2.0 section 27.82 long (walls 37, 39, 41, 42): which axis is its depth is a `width > length` tie (equal to the last bits), decided by round-off from the placement, so turned it reads as 27.82 long and 1.42 deep where unmoved it is 2.0 long and 27.82 deep, and pocket 1 (walls 11-14, 2.0 wide) changes reading the same way; the same faces, so recognition is invariant, but the records differ and the correspondence pairs them by cost. The recogniser's tie; Python behaves the same (checked: under rot_x90 its records for these walls read 27.82 x 1.42 and 2.0 x 6.6 deep).",
+    "features": [
+      "pockets/0",
+      "pockets/3"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10038.step",
+    "motion": "rot_y180",
+    "verdict": "rust-wrong",
+    "reason": "Pocket 4 has a 2.0 x 2.0 section 27.82 long (walls 37, 39, 41, 42): which axis is its depth is a `width > length` tie (equal to the last bits), decided by round-off from the placement, so turned it reads as 27.82 long and 1.42 deep where unmoved it is 2.0 long and 27.82 deep, and pocket 1 (walls 11-14, 2.0 wide) changes reading the same way; the same faces, so recognition is invariant, but the records differ and the correspondence pairs them by cost. The recogniser's tie; Python behaves the same (checked: under rot_y180 its records for these walls read 27.82 x 1.42 and 2.0 x 6.6 deep).",
+    "features": [
+      "pockets/0",
+      "pockets/3"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10047.step",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The record's length moves by one 0.01 mm step: Python publishes recess coordinates on a two-decimal grid in absolute coordinates and derives length from the rounded ends extended by the obround end radius, so the motion shifts the grid under the feature and the rounded value changes. Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked: translated, Python's length is 4.13 against 4.12 unmoved).",
+    "features": [
+      "pockets/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10049.step",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The record's depth moves by one 0.01 mm step: Python publishes recess coordinates on a two-decimal grid in absolute coordinates and derives depth from the end caps' already-rounded depth extent (an obround pocket recovered from its caps), so the motion shifts the grid under the feature and the rounded value changes. Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's depth is 6.09 against 6.1 unmoved).",
+    "features": [
+      "pockets/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10063.step",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The record's depth moves by one 0.01 mm step: Python publishes recess coordinates on a two-decimal grid in absolute coordinates and derives depth from the end caps' already-rounded depth extent (an obround pocket recovered from its caps), so the motion shifts the grid under the feature and the rounded value changes. Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's depth is 24.51 against 24.52 unmoved).",
+    "features": [
+      "pockets/2"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10096.step",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The record's depth moves by one 0.01 mm step: Python publishes recess coordinates on a two-decimal grid in absolute coordinates and derives depth from the end caps' already-rounded depth extent (an obround pocket recovered from its caps), so the motion shifts the grid under the feature and the rounded value changes. Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's depth is 4.06 against 4.07 unmoved).",
+    "features": [
+      "pockets/1"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10101.step",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The record's length moves by one 0.01 mm step: Python publishes recess coordinates on a two-decimal grid in absolute coordinates and derives length from the rounded ends extended by the obround end radius, so the motion shifts the grid under the feature and the rounded value changes. Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked: translated, Python's length is 3.56 against 3.57 unmoved).",
+    "features": [
+      "pockets/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10119.step",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The record's length moves by one 0.01 mm step: Python publishes recess coordinates on a two-decimal grid in absolute coordinates and derives length from the rounded ends extended by the obround end radius, so the motion shifts the grid under the feature and the rounded value changes. Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked: translated, Python's length is 6.29 against 6.3 unmoved).",
+    "features": [
+      "pockets/2"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10119.step",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The record's depth moves by one 0.01 mm step: Python publishes recess coordinates on a two-decimal grid in absolute coordinates and derives depth from the end caps' already-rounded depth extent (an obround pocket recovered from its caps), so the motion shifts the grid under the feature and the rounded value changes. Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's depth is 2.92 against 2.93 unmoved).",
+    "features": [
+      "pockets/2"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp_holdout/20273.step",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The record's depth moves by one 0.01 mm step: Python publishes recess coordinates on a two-decimal grid in absolute coordinates and derives depth from the end caps' already-rounded depth extent (an obround pocket recovered from its caps), so the motion shifts the grid under the feature and the rounded value changes. Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked: translated, Python's depth is 3.1 against 3.11 unmoved).",
+    "features": [
+      "pockets/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "nist/nist_ftc_09_asme1_rd.stp",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The record's length moves by one 0.01 mm step: Python publishes recess coordinates on a two-decimal grid in absolute coordinates and derives length from the rounded ends extended by the obround radius, so the motion shifts the grid under the feature and the rounded value changes. Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked: translated, Python's length is 38.1 against 38.09 unmoved).",
+    "features": [
+      "slots/2"
+    ],
+    "faces": 0
   }
 ]

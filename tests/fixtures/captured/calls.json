@@ -255979,6 +255979,6062 @@
      ]
     }
    ]
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_route_matrix_matches_fresh_complete_role_inventory[part0-2-0]",
+   "function": "recognise_slots",
+   "file": "6b0d2fa1b40ca1f7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 28.0,
+     "w_center": 0.0,
+     "lo": -14.0,
+     "hi": 14.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -40.0,
+      -25.0,
+      -8.0,
+      40.0,
+      25.0,
+      8.0,
+      59520.0,
+      12816.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 28.0,
+     "w_center": 0.0,
+     "lo": -14.0,
+     "hi": 14.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -40.0,
+      -25.0,
+      -8.0,
+      40.0,
+      25.0,
+      8.0,
+      59520.0,
+      12816.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_route_matrix_matches_fresh_complete_role_inventory[part1-4-0]",
+   "function": "recognise_slots",
+   "file": "eb62c370e8bb503b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 20.0,
+     "length": 20.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      136000.0,
+      22400.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 20.0,
+     "length": 20.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      136000.0,
+      22400.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_route_matrix_matches_fresh_complete_role_inventory[part2-4-0]",
+   "function": "recognise_slots",
+   "file": "b6888e33662f0398.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 14.0,
+     "length": 60.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -60.0,
+      -10.0,
+      60.0,
+      60.0,
+      10.0,
+      258320.0,
+      40232.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 14.0,
+     "length": 60.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -60.0,
+      -10.0,
+      60.0,
+      60.0,
+      10.0,
+      258320.0,
+      40232.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 14.0,
+     "length": 60.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -60.0,
+      -10.0,
+      60.0,
+      60.0,
+      10.0,
+      258320.0,
+      40232.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 14.0,
+     "length": 60.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -60.0,
+      -10.0,
+      60.0,
+      60.0,
+      10.0,
+      258320.0,
+      40232.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_route_matrix_matches_fresh_complete_role_inventory[part3-2-2]",
+   "function": "recognise_slots",
+   "file": "4b074083cecc7132.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 42.0,
+     "w_center": 0.0,
+     "lo": -21.0,
+     "hi": 21.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      110538.053289,
+      19407.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 42.0,
+     "w_center": 0.0,
+     "lo": -21.0,
+     "hi": 21.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      110538.053289,
+      19407.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_route_matrix_matches_fresh_complete_role_inventory[part4-0-2]",
+   "function": "recognise_slots",
+   "file": "ff3f8d7871e5f69f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 15.0,
+     "w_center": 0.0,
+     "lo": -7.5,
+     "hi": 7.5,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      117018.053289,
+      18975.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 15.0,
+     "w_center": 0.0,
+     "lo": -7.5,
+     "hi": 7.5,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      117018.053289,
+      18975.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_writer_enabled_discovery_matches_the_writer_free_public_product",
+   "function": "recognise_slots",
+   "file": "4b074083cecc7132.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 42.0,
+     "w_center": 0.0,
+     "lo": -21.0,
+     "hi": 21.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      110538.053289,
+      19407.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 42.0,
+     "w_center": 0.0,
+     "lo": -21.0,
+     "hi": 21.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      110538.053289,
+      19407.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_max_span_boundary_is_strict_and_writer_matches_public[89.99-True]",
+   "function": "recognise_slots",
+   "file": "dd797f3a8a995fe7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 89.99,
+     "w_center": 0.0,
+     "lo": -44.99,
+     "hi": 44.99,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      102002.0,
+      20599.8
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 89.99,
+     "w_center": 0.0,
+     "lo": -44.99,
+     "hi": 44.99,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      102002.0,
+      20599.8
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_max_span_boundary_is_strict_and_writer_matches_public[90.0-False]",
+   "function": "recognise_slots",
+   "file": "b0b948e1e81eeb25.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_max_span_boundary_is_strict_and_writer_matches_public[90.01-False]",
+   "function": "recognise_slots",
+   "file": "535d04615e7047ac.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_solid_membrane_d_cutout_and_blind_obround_do_not_leak",
+   "function": "recognise_slots",
+   "file": "61b8c4b807e31556.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_solid_membrane_d_cutout_and_blind_obround_do_not_leak",
+   "function": "recognise_slots",
+   "file": "6ec7fb4094dbb457.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_principal_axes_translation_mirror_and_scale_preserve_complete_roles[part0]",
+   "function": "recognise_slots",
+   "file": "289fae1568cf16f2.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 28.0,
+     "w_center": -19.0,
+     "lo": 23.0,
+     "hi": 51.0,
+     "d_lo": 3.0,
+     "d_hi": 19.0,
+     "body_key": [
+      -3.0,
+      -44.0,
+      3.0,
+      77.0,
+      6.0,
+      19.0,
+      59520.0,
+      12816.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 28.0,
+     "w_center": -19.0,
+     "lo": 23.0,
+     "hi": 51.0,
+     "d_lo": 3.0,
+     "d_hi": 19.0,
+     "body_key": [
+      -3.0,
+      -44.0,
+      3.0,
+      77.0,
+      6.0,
+      19.0,
+      59520.0,
+      12816.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_principal_axes_translation_mirror_and_scale_preserve_complete_roles[part1]",
+   "function": "recognise_slots",
+   "file": "70fe19658b0cb3a0.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "z",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 28.0,
+     "w_center": 0.0,
+     "lo": -14.0,
+     "hi": 14.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -40.0,
+      -8.0,
+      -25.0,
+      40.0,
+      8.0,
+      25.0,
+      59520.0,
+      12816.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "z",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 28.0,
+     "w_center": 0.0,
+     "lo": -14.0,
+     "hi": 14.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -40.0,
+      -8.0,
+      -25.0,
+      40.0,
+      8.0,
+      25.0,
+      59520.0,
+      12816.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_principal_axes_translation_mirror_and_scale_preserve_complete_roles[part2]",
+   "function": "recognise_slots",
+   "file": "1bee67bc5b2e985f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "z",
+     "width": 10.0,
+     "length": 28.0,
+     "w_center": 0.0,
+     "lo": -14.0,
+     "hi": 14.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -8.0,
+      -25.0,
+      -40.0,
+      8.0,
+      25.0,
+      40.0,
+      59520.0,
+      12816.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "z",
+     "width": 10.0,
+     "length": 28.0,
+     "w_center": 0.0,
+     "lo": -14.0,
+     "hi": 14.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -8.0,
+      -25.0,
+      -40.0,
+      8.0,
+      25.0,
+      40.0,
+      59520.0,
+      12816.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_principal_axes_translation_mirror_and_scale_preserve_complete_roles[part3]",
+   "function": "recognise_slots",
+   "file": "053f301a77b048b5.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 28.0,
+     "w_center": 0.0,
+     "lo": -14.0,
+     "hi": 14.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -40.0,
+      -25.0,
+      -8.0,
+      40.0,
+      25.0,
+      8.0,
+      59520.0,
+      12816.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 28.0,
+     "w_center": 0.0,
+     "lo": -14.0,
+     "hi": 14.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -40.0,
+      -25.0,
+      -8.0,
+      40.0,
+      25.0,
+      8.0,
+      59520.0,
+      12816.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_principal_axes_translation_mirror_and_scale_preserve_complete_roles[part4]",
+   "function": "recognise_slots",
+   "file": "6ad524110267bfcd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 2.0,
+     "length": 5.6,
+     "w_center": 0.0,
+     "lo": -2.8,
+     "hi": 2.8,
+     "d_lo": -1.6,
+     "d_hi": 1.6,
+     "body_key": [
+      -8.0,
+      -5.0,
+      -1.6,
+      8.0,
+      5.0,
+      1.6,
+      476.16,
+      512.64
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 2.0,
+     "length": 5.6,
+     "w_center": 0.0,
+     "lo": -2.8,
+     "hi": 2.8,
+     "d_lo": -1.6,
+     "d_hi": 1.6,
+     "body_key": [
+      -8.0,
+      -5.0,
+      -1.6,
+      8.0,
+      5.0,
+      1.6,
+      476.16,
+      512.64
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_principal_axes_translation_mirror_and_scale_preserve_complete_roles[part5]",
+   "function": "recognise_slots",
+   "file": "0ec5e516b21a961b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 50.0,
+     "length": 140.0,
+     "w_center": 0.0,
+     "lo": -70.0,
+     "hi": 70.0,
+     "d_lo": -40.0,
+     "d_hi": 40.0,
+     "body_key": [
+      -200.0,
+      -125.0,
+      -40.0,
+      200.0,
+      125.0,
+      40.0,
+      7440000.0,
+      320400.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 50.0,
+     "length": 140.0,
+     "w_center": 0.0,
+     "lo": -70.0,
+     "hi": 70.0,
+     "d_lo": -40.0,
+     "d_hi": 40.0,
+     "body_key": [
+      -200.0,
+      -125.0,
+      -40.0,
+      200.0,
+      125.0,
+      40.0,
+      7440000.0,
+      320400.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_principal_axes_translation_mirror_and_scale_preserve_complete_roles[part6]",
+   "function": "recognise_slots",
+   "file": "74a318d0d85443f2.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "z",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 42.0,
+     "w_center": 0.0,
+     "lo": -21.0,
+     "hi": 21.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -10.0,
+      -30.0,
+      50.0,
+      10.0,
+      30.0,
+      110538.053289,
+      19407.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "z",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 42.0,
+     "w_center": 0.0,
+     "lo": -21.0,
+     "hi": 21.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -10.0,
+      -30.0,
+      50.0,
+      10.0,
+      30.0,
+      110538.053289,
+      19407.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_attribution.py::test_shared_graph_face_edges_and_foreign_authority_boundaries",
+   "function": "recognise_slots",
+   "file": "6b0d2fa1b40ca1f7.step.gz",
+   "options": {},
+   "hints": [
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 28.0,
+     "w_center": 0.0,
+     "lo": -14.0,
+     "hi": 14.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -40.0,
+      -25.0,
+      -8.0,
+      40.0,
+      25.0,
+      8.0,
+      59520.0,
+      12816.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 28.0,
+     "w_center": 0.0,
+     "lo": -14.0,
+     "hi": 14.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -40.0,
+      -25.0,
+      -8.0,
+      40.0,
+      25.0,
+      8.0,
+      59520.0,
+      12816.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_claims.py::test_every_claimed_face_is_one_of_that_slots_walls",
+   "function": "recognise_slots",
+   "file": "c91b3e0411f7bd91.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 40.0,
+     "w_center": 0.0,
+     "lo": -50.0,
+     "hi": -10.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      126400.0,
+      23680.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 16.0,
+     "length": 30.0,
+     "w_center": 0.0,
+     "lo": 15.0,
+     "hi": 45.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      126400.0,
+      23680.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 40.0,
+     "w_center": 0.0,
+     "lo": -50.0,
+     "hi": -10.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      126400.0,
+      23680.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 16.0,
+     "length": 30.0,
+     "w_center": 0.0,
+     "lo": 15.0,
+     "hi": 45.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      126400.0,
+      23680.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_claims.py::test_a_candidate_merged_away_gives_up_its_walls",
+   "function": "recognise_slots",
+   "file": "eb62c370e8bb503b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 20.0,
+     "length": 20.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      136000.0,
+      22400.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 20.0,
+     "length": 20.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      136000.0,
+      22400.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_claims.py::test_a_candidate_merged_away_gives_up_its_walls",
+   "function": "recognise_slots",
+   "file": "8577d644da24c96c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 20.0,
+     "length": 21.0,
+     "w_center": 0.0,
+     "lo": -10.5,
+     "hi": 10.5,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      135600.0,
+      22400.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 20.0,
+     "length": 21.0,
+     "w_center": 0.0,
+     "lo": -10.5,
+     "hi": 10.5,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      135600.0,
+      22400.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_claims.py::test_arms_collapsed_into_one_channel_pool_their_walls",
+   "function": "recognise_slots",
+   "file": "b6888e33662f0398.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 14.0,
+     "length": 60.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -60.0,
+      -10.0,
+      60.0,
+      60.0,
+      10.0,
+      258320.0,
+      40232.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 14.0,
+     "length": 60.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -60.0,
+      -10.0,
+      60.0,
+      60.0,
+      10.0,
+      258320.0,
+      40232.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 14.0,
+     "length": 60.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -60.0,
+      -10.0,
+      60.0,
+      60.0,
+      10.0,
+      258320.0,
+      40232.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 14.0,
+     "length": 60.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -60.0,
+      -10.0,
+      60.0,
+      60.0,
+      10.0,
+      258320.0,
+      40232.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_claims.py::test_a_slot_recovered_from_its_end_caps_claims_both_caps",
+   "function": "recognise_slots",
+   "file": "ff3f8d7871e5f69f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 15.0,
+     "w_center": 0.0,
+     "lo": -7.5,
+     "hi": 7.5,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      117018.053289,
+      18975.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 15.0,
+     "w_center": 0.0,
+     "lo": -7.5,
+     "hi": 7.5,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      117018.053289,
+      18975.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_claims.py::test_a_compound_does_not_pool_claims_across_its_solids",
+   "function": "recognise_slots",
+   "file": "1d13225329e35867.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 30.0,
+     "w_center": 0.0,
+     "lo": -15.0,
+     "hi": 15.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -40.0,
+      -30.0,
+      -10.0,
+      40.0,
+      30.0,
+      10.0,
+      90000.0,
+      16200.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 30.0,
+     "w_center": 0.0,
+     "lo": 185.0,
+     "hi": 215.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      160.0,
+      -30.0,
+      -10.0,
+      240.0,
+      30.0,
+      10.0,
+      90000.0,
+      16200.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 30.0,
+     "w_center": 0.0,
+     "lo": -15.0,
+     "hi": 15.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -40.0,
+      -30.0,
+      -10.0,
+      40.0,
+      30.0,
+      10.0,
+      90000.0,
+      16200.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 30.0,
+     "w_center": 0.0,
+     "lo": 185.0,
+     "hi": 215.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      160.0,
+      -30.0,
+      -10.0,
+      240.0,
+      30.0,
+      10.0,
+      90000.0,
+      16200.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_claims.py::test_a_ledger_built_from_another_part_is_refused_rather_than_left_empty",
+   "function": "recognise_slots",
+   "file": "82486612a860a3d9.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 30.0,
+     "w_center": 0.0,
+     "lo": -15.0,
+     "hi": 15.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      138000.0,
+      22600.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 30.0,
+     "w_center": 0.0,
+     "lo": -15.0,
+     "hi": 15.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      138000.0,
+      22600.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_claims.py::test_a_ledger_built_from_another_part_is_refused_rather_than_left_empty",
+   "function": "recognise_slots",
+   "file": "82486612a860a3d9.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 30.0,
+     "w_center": 0.0,
+     "lo": -15.0,
+     "hi": 15.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      138000.0,
+      22600.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 30.0,
+     "w_center": 0.0,
+     "lo": -15.0,
+     "hi": 15.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      138000.0,
+      22600.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_claims.py::test_the_ledger_is_written_and_never_read",
+   "function": "recognise_slots",
+   "file": "82486612a860a3d9.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 30.0,
+     "w_center": 0.0,
+     "lo": -15.0,
+     "hi": 15.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      138000.0,
+      22600.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 30.0,
+     "w_center": 0.0,
+     "lo": -15.0,
+     "hi": 15.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      138000.0,
+      22600.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_slot_claims.py::test_the_ledger_is_written_and_never_read",
+   "function": "recognise_slots",
+   "file": "82486612a860a3d9.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 30.0,
+     "w_center": 0.0,
+     "lo": -15.0,
+     "hi": 15.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      138000.0,
+      22600.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 30.0,
+     "w_center": 0.0,
+     "lo": -15.0,
+     "hi": 15.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -60.0,
+      -30.0,
+      -10.0,
+      60.0,
+      30.0,
+      10.0,
+      138000.0,
+      22600.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pocket_attribution.py::test_floored_pocket_dimensions_are_covariant_under_principal_permutations[rotation0]",
+   "function": "recognise_pockets",
+   "file": "5cb6c0230bb38bd0.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 20.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": 0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -30.0,
+      -20.0,
+      -6.0,
+      30.0,
+      20.0,
+      6.0,
+      27360.0,
+      7584.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 20.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": 0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -30.0,
+      -20.0,
+      -6.0,
+      30.0,
+      20.0,
+      6.0,
+      27360.0,
+      7584.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pocket_attribution.py::test_floored_pocket_dimensions_are_covariant_under_principal_permutations[rotation1]",
+   "function": "recognise_pockets",
+   "file": "10e74a3816939678.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "z",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 20.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": -6.0,
+     "d_hi": -0.0,
+     "open_sign": -1,
+     "edge_anchored": false,
+     "body_key": [
+      -30.0,
+      -6.0,
+      -20.0,
+      30.0,
+      6.0,
+      20.0,
+      27360.0,
+      7584.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "z",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 20.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": -6.0,
+     "d_hi": -0.0,
+     "open_sign": -1,
+     "edge_anchored": false,
+     "body_key": [
+      -30.0,
+      -6.0,
+      -20.0,
+      30.0,
+      6.0,
+      20.0,
+      27360.0,
+      7584.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pocket_attribution.py::test_floored_pocket_dimensions_are_covariant_under_principal_permutations[rotation2]",
+   "function": "recognise_pockets",
+   "file": "e2399dc10b3d3a99.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "z",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 20.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": 0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -30.0,
+      -6.0,
+      -20.0,
+      30.0,
+      6.0,
+      20.0,
+      27360.0,
+      7584.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "z",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 20.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": 0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -30.0,
+      -6.0,
+      -20.0,
+      30.0,
+      6.0,
+      20.0,
+      27360.0,
+      7584.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pocket_attribution.py::test_floored_pocket_dimensions_are_covariant_under_principal_permutations[rotation3]",
+   "function": "recognise_pockets",
+   "file": "1ad4a272826e524f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "z",
+     "width": 12.0,
+     "length": 20.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": -0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -6.0,
+      -20.0,
+      -30.0,
+      6.0,
+      20.0,
+      30.0,
+      27360.0,
+      7584.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "z",
+     "width": 12.0,
+     "length": 20.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": -0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -6.0,
+      -20.0,
+      -30.0,
+      6.0,
+      20.0,
+      30.0,
+      27360.0,
+      7584.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pocket_attribution.py::test_floored_pocket_dimensions_are_covariant_under_principal_permutations[rotation4]",
+   "function": "recognise_pockets",
+   "file": "0b2c0a4e601c4541.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "z",
+     "width": 12.0,
+     "length": 20.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": -6.0,
+     "d_hi": 0.0,
+     "open_sign": -1,
+     "edge_anchored": false,
+     "body_key": [
+      -6.0,
+      -20.0,
+      -30.0,
+      6.0,
+      20.0,
+      30.0,
+      27360.0,
+      7584.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "z",
+     "width": 12.0,
+     "length": 20.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": -6.0,
+     "d_hi": 0.0,
+     "open_sign": -1,
+     "edge_anchored": false,
+     "body_key": [
+      -6.0,
+      -20.0,
+      -30.0,
+      6.0,
+      20.0,
+      30.0,
+      27360.0,
+      7584.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pocket_attribution.py::test_corner_depth_tie_uses_only_the_kernel_coordinate_floor[5e-07-False]",
+   "function": "recognise_pockets",
+   "file": "478a290ec8ed3313.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pocket_attribution.py::test_corner_depth_tie_uses_only_the_kernel_coordinate_floor[2e-06-True]",
+   "function": "recognise_pockets",
+   "file": "8df58a59cd5744e5.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 6.0,
+     "length": 15.0,
+     "depth": 6.0,
+     "w_center": 27.0,
+     "lo": 5.0,
+     "hi": 20.0,
+     "d_lo": 0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": true,
+     "body_key": [
+      -30.0,
+      -20.0,
+      -6.0,
+      30.0,
+      20.0,
+      6.0,
+      28259.99982,
+      7200.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 6.0,
+     "length": 15.0,
+     "depth": 6.0,
+     "w_center": 27.0,
+     "lo": 5.0,
+     "hi": 20.0,
+     "d_lo": 0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": true,
+     "body_key": [
+      -30.0,
+      -20.0,
+      -6.0,
+      30.0,
+      20.0,
+      6.0,
+      28259.99982,
+      7200.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_canonical_channel_owns_only_two_opposed_walls",
+   "function": "recognise_channels",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_channel_discovery_remains_graph_only_and_writer_free",
+   "function": "recognise_channels",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_axis_preserving_transforms_keep_exact_wall_roles[part0]",
+   "function": "recognise_channels",
+   "file": "ab00f54fbd4155bc.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": -9.0,
+     "lo": -17.0,
+     "hi": 43.0,
+     "d_lo": 12.0,
+     "d_hi": 28.0,
+     "open_sign": 1,
+     "body_key": [
+      -17.0,
+      -34.0,
+      2.0,
+      43.0,
+      16.0,
+      28.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": -9.0,
+     "lo": -17.0,
+     "hi": 43.0,
+     "d_lo": 12.0,
+     "d_hi": 28.0,
+     "open_sign": 1,
+     "body_key": [
+      -17.0,
+      -34.0,
+      2.0,
+      43.0,
+      16.0,
+      28.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_axis_preserving_transforms_keep_exact_wall_roles[part1]",
+   "function": "recognise_channels",
+   "file": "e6f0e4688b8f8deb.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -25.0,
+      -30.0,
+      -5.0,
+      25.0,
+      30.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -25.0,
+      -30.0,
+      -5.0,
+      25.0,
+      30.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_axis_preserving_transforms_keep_exact_wall_roles[part2]",
+   "function": "recognise_channels",
+   "file": "69fbe27ec80d465b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "z",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": -21.0,
+     "d_hi": -5.0,
+     "open_sign": -1,
+     "body_key": [
+      -30.0,
+      -21.0,
+      -25.0,
+      30.0,
+      5.0,
+      25.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "z",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": -21.0,
+     "d_hi": -5.0,
+     "open_sign": -1,
+     "body_key": [
+      -30.0,
+      -21.0,
+      -25.0,
+      30.0,
+      5.0,
+      25.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_axis_preserving_transforms_keep_exact_wall_roles[part3]",
+   "function": "recognise_channels",
+   "file": "135017783b00b8a4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "z",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -5.0,
+      -25.0,
+      -30.0,
+      21.0,
+      25.0,
+      30.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "z",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -5.0,
+      -25.0,
+      -30.0,
+      21.0,
+      25.0,
+      30.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_axis_preserving_transforms_keep_exact_wall_roles[part4]",
+   "function": "recognise_channels",
+   "file": "cb8f2765a4d57f6f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": -21.0,
+     "d_hi": -5.0,
+     "open_sign": -1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -21.0,
+      30.0,
+      25.0,
+      5.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": -21.0,
+     "d_hi": -5.0,
+     "open_sign": -1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -21.0,
+      30.0,
+      25.0,
+      5.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_axis_preserving_transforms_keep_exact_wall_roles[part5]",
+   "function": "recognise_channels",
+   "file": "9b1bf6f5960644af.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_axis_preserving_transforms_keep_exact_wall_roles[part6]",
+   "function": "recognise_channels",
+   "file": "17384f11914d444f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 6.0,
+     "w_center": 0.0,
+     "lo": -6.0,
+     "hi": 6.0,
+     "d_lo": 1.0,
+     "d_hi": 4.2,
+     "open_sign": 1,
+     "body_key": [
+      -6.0,
+      -5.0,
+      -1.0,
+      6.0,
+      5.0,
+      4.2,
+      393.6,
+      507.2
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 6.0,
+     "w_center": 0.0,
+     "lo": -6.0,
+     "hi": 6.0,
+     "d_lo": 1.0,
+     "d_hi": 4.2,
+     "open_sign": 1,
+     "body_key": [
+      -6.0,
+      -5.0,
+      -1.0,
+      6.0,
+      5.0,
+      4.2,
+      393.6,
+      507.2
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_axis_preserving_transforms_keep_exact_wall_roles[part7]",
+   "function": "recognise_channels",
+   "file": "fb52cd353c6601d5.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 150.0,
+     "w_center": 0.0,
+     "lo": -150.0,
+     "hi": 150.0,
+     "d_lo": 25.0,
+     "d_hi": 105.0,
+     "open_sign": 1,
+     "body_key": [
+      -150.0,
+      -125.0,
+      -25.0,
+      150.0,
+      125.0,
+      105.0,
+      6150000.0,
+      317000.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 150.0,
+     "w_center": 0.0,
+     "lo": -150.0,
+     "hi": 150.0,
+     "d_lo": 25.0,
+     "d_hi": 105.0,
+     "open_sign": 1,
+     "body_key": [
+      -150.0,
+      -125.0,
+      -25.0,
+      150.0,
+      125.0,
+      105.0,
+      6150000.0,
+      317000.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_multiple_bodies_keep_occurrence_and_body_identity",
+   "function": "recognise_channels",
+   "file": "6b8d1f33256ee5ad.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -110.0,
+     "hi": -50.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -110.0,
+      -25.0,
+      -5.0,
+      -50.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": 50.0,
+     "hi": 110.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      50.0,
+      -25.0,
+      -5.0,
+      110.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -110.0,
+     "hi": -50.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -110.0,
+      -25.0,
+      -5.0,
+      -50.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": 50.0,
+     "hi": 110.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      50.0,
+      -25.0,
+      -5.0,
+      110.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_equal_channels_on_one_and_coincident_bodies_keep_occurrence_identity",
+   "function": "recognise_channels",
+   "file": "aff227850a54e56f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 20.0,
+     "w_center": -15.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -35.0,
+      -5.0,
+      30.0,
+      35.0,
+      21.0,
+      70800.0,
+      17720.0
+     ]
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 20.0,
+     "w_center": 15.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -35.0,
+      -5.0,
+      30.0,
+      35.0,
+      21.0,
+      70800.0,
+      17720.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 20.0,
+     "w_center": -15.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -35.0,
+      -5.0,
+      30.0,
+      35.0,
+      21.0,
+      70800.0,
+      17720.0
+     ]
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 20.0,
+     "w_center": 15.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -35.0,
+      -5.0,
+      30.0,
+      35.0,
+      21.0,
+      70800.0,
+      17720.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_equal_channels_on_one_and_coincident_bodies_keep_occurrence_identity",
+   "function": "recognise_channels",
+   "file": "651fd2918f47a7aa.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_round_clip_split_floor_and_depth_width_extremes_keep_roles",
+   "function": "recognise_channels",
+   "file": "fcd9872198dab1e3.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 20.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      20.0,
+      47886.4385224,
+      12302.3769756
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 20.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      20.0,
+      47886.4385224,
+      12302.3769756
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_round_clip_split_floor_and_depth_width_extremes_keep_roles",
+   "function": "recognise_channels",
+   "file": "46218ece6c6cccde.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49130.0,
+      12824.0
+     ]
+    },
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 2.0,
+     "w_center": 0.0,
+     "lo": -25.0,
+     "hi": 25.0,
+     "d_lo": 4.5,
+     "d_hi": 5.5,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49130.0,
+      12824.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49130.0,
+      12824.0
+     ]
+    },
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 2.0,
+     "w_center": 0.0,
+     "lo": -25.0,
+     "hi": 25.0,
+     "d_lo": 4.5,
+     "d_hi": 5.5,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49130.0,
+      12824.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_round_clip_split_floor_and_depth_width_extremes_keep_roles",
+   "function": "recognise_channels",
+   "file": "fe90c087db4f5f1f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 55.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      55.0,
+      90000.0,
+      22200.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 55.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      55.0,
+      90000.0,
+      22200.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_round_clip_split_floor_and_depth_width_extremes_keep_roles",
+   "function": "recognise_channels",
+   "file": "76b27822436c3886.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 40.0,
+     "w_center": 0.0,
+     "lo": -15.0,
+     "hi": 15.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -15.0,
+      -40.0,
+      -5.0,
+      15.0,
+      40.0,
+      21.0,
+      43200.0,
+      10200.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 40.0,
+     "w_center": 0.0,
+     "lo": -15.0,
+     "hi": 15.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -15.0,
+      -40.0,
+      -5.0,
+      15.0,
+      40.0,
+      21.0,
+      43200.0,
+      10200.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_real_nonchannel_predicates_issue_no_evidence",
+   "function": "recognise_channels",
+   "file": "7e7271558f0b6d72.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_real_nonchannel_predicates_issue_no_evidence",
+   "function": "recognise_channels",
+   "file": "74ce120236538bf8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_real_nonchannel_predicates_issue_no_evidence",
+   "function": "recognise_channels",
+   "file": "3ae5ed8d030338c3.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_real_nonchannel_predicates_issue_no_evidence",
+   "function": "recognise_channels",
+   "file": "38c96eff7773bf4f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_real_nonchannel_predicates_issue_no_evidence",
+   "function": "recognise_channels",
+   "file": "c486d93d66d1860d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_real_nonchannel_predicates_issue_no_evidence",
+   "function": "recognise_channels",
+   "file": "614e90332248ea5e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_real_nonchannel_predicates_issue_no_evidence",
+   "function": "recognise_channels",
+   "file": "380a0eba25ac5f3d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_real_nonchannel_predicates_issue_no_evidence",
+   "function": "recognise_channels",
+   "file": "497b93fb6c38f26d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_real_nonchannel_predicates_issue_no_evidence",
+   "function": "recognise_channels",
+   "file": "956a7b6b1961b55c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_closed_wall_cap_and_void_helper_boundaries",
+   "function": "recognise_channels",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_channel_envelope_floor_tolerance_and_open_sign",
+   "function": "recognise_channels",
+   "file": "af93a8f2db245e8a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -29.7,
+     "hi": 29.7,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49008.00064,
+      12641.600128
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -29.7,
+     "hi": 29.7,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49008.00064,
+      12641.600128
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_channel_envelope_floor_tolerance_and_open_sign",
+   "function": "recognise_channels",
+   "file": "9bded48c44c310a5.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_channel_envelope_floor_tolerance_and_open_sign",
+   "function": "recognise_channels",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_channel_envelope_floor_tolerance_and_open_sign",
+   "function": "recognise_channels",
+   "file": "29281925d256d335.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": -21.0,
+     "d_hi": -5.0,
+     "open_sign": -1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -21.0,
+      30.0,
+      25.0,
+      5.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": -21.0,
+     "d_hi": -5.0,
+     "open_sign": -1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -21.0,
+      30.0,
+      25.0,
+      5.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_open_shell_and_late_second_body_refuse_atomically",
+   "function": "recognise_channels",
+   "file": "f1be75de47eccbb6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_step_traversal_and_supplied_edges_preserve_roles",
+   "function": "recognise_channels",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_proposal_builder_refuses_a_candidate_without_graph_nodes",
+   "function": "recognise_channels",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_attribution.py::test_proposal_builder_refuses_a_candidate_without_retained_floor_nodes",
+   "function": "recognise_channels",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_plate_body_identity.py::test_body_join_survives_compound_order_and_public_serialisation",
+   "function": "recognise_channels",
+   "file": "5fc2eda506553bb9.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": -105.0,
+     "hi": -55.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": [
+      -105.0,
+      -25.0,
+      -6.0,
+      -55.0,
+      25.0,
+      24.0,
+      52500.0,
+      11900.0
+     ]
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 20.0,
+     "w_center": 0.0,
+     "lo": 40.0,
+     "hi": 120.0,
+     "d_lo": 0.0,
+     "d_hi": 15.0,
+     "open_sign": 1,
+     "body_key": [
+      40.0,
+      -30.0,
+      -15.0,
+      120.0,
+      30.0,
+      15.0,
+      120000.0,
+      19800.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": -105.0,
+     "hi": -55.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": [
+      -105.0,
+      -25.0,
+      -6.0,
+      -55.0,
+      25.0,
+      24.0,
+      52500.0,
+      11900.0
+     ]
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 20.0,
+     "w_center": 0.0,
+     "lo": 40.0,
+     "hi": 120.0,
+     "d_lo": 0.0,
+     "d_hi": 15.0,
+     "open_sign": 1,
+     "body_key": [
+      40.0,
+      -30.0,
+      -15.0,
+      120.0,
+      30.0,
+      15.0,
+      120000.0,
+      19800.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_plate_body_identity.py::test_body_join_survives_compound_order_and_public_serialisation",
+   "function": "recognise_channels",
+   "file": "265731f05609b8c9.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": -105.0,
+     "hi": -55.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": [
+      -105.0,
+      -25.0,
+      -6.0,
+      -55.0,
+      25.0,
+      24.0,
+      52500.0,
+      11900.0
+     ]
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 20.0,
+     "w_center": 0.0,
+     "lo": 40.0,
+     "hi": 120.0,
+     "d_lo": 0.0,
+     "d_hi": 15.0,
+     "open_sign": 1,
+     "body_key": [
+      40.0,
+      -30.0,
+      -15.0,
+      120.0,
+      30.0,
+      15.0,
+      120000.0,
+      19800.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": -105.0,
+     "hi": -55.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": [
+      -105.0,
+      -25.0,
+      -6.0,
+      -55.0,
+      25.0,
+      24.0,
+      52500.0,
+      11900.0
+     ]
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 20.0,
+     "w_center": 0.0,
+     "lo": 40.0,
+     "hi": 120.0,
+     "d_lo": 0.0,
+     "d_hi": 15.0,
+     "open_sign": 1,
+     "body_key": [
+      40.0,
+      -30.0,
+      -15.0,
+      120.0,
+      30.0,
+      15.0,
+      120000.0,
+      19800.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_plate_body_identity.py::test_coincident_body_signatures_refuse_join_instead_of_using_order",
+   "function": "recognise_channels",
+   "file": "5874769ad5cf56ef.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": -25.0,
+     "hi": 25.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": -25.0,
+     "hi": 25.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": -25.0,
+     "hi": 25.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": -25.0,
+     "hi": 25.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_plate_body_identity.py::test_coincident_body_signatures_refuse_join_instead_of_using_order",
+   "function": "recognise_channels",
+   "file": "5874769ad5cf56ef.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": -25.0,
+     "hi": 25.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": -25.0,
+     "hi": 25.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": -25.0,
+     "hi": 25.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": -25.0,
+     "hi": 25.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_plate_body_identity.py::test_translated_equal_bodies_have_distinct_joinable_keys",
+   "function": "recognise_channels",
+   "file": "b0680410513f8016.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": -85.0,
+     "hi": -35.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": [
+      -85.0,
+      -25.0,
+      -6.0,
+      -35.0,
+      25.0,
+      24.0,
+      52500.0,
+      11900.0
+     ]
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": 35.0,
+     "hi": 85.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": [
+      35.0,
+      -25.0,
+      -6.0,
+      85.0,
+      25.0,
+      24.0,
+      52500.0,
+      11900.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": -85.0,
+     "hi": -35.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": [
+      -85.0,
+      -25.0,
+      -6.0,
+      -35.0,
+      25.0,
+      24.0,
+      52500.0,
+      11900.0
+     ]
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": 35.0,
+     "hi": 85.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": [
+      35.0,
+      -25.0,
+      -6.0,
+      85.0,
+      25.0,
+      24.0,
+      52500.0,
+      11900.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_plate_body_identity.py::test_nested_single_solid_wrapper_uses_the_same_physical_scope",
+   "function": "recognise_channels",
+   "file": "c565b95a77a0e28a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": -25.0,
+     "hi": 25.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": [
+      -25.0,
+      -25.0,
+      -6.0,
+      25.0,
+      25.0,
+      24.0,
+      52500.0,
+      11900.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 25.0,
+     "w_center": 0.0,
+     "lo": -25.0,
+     "hi": 25.0,
+     "d_lo": 6.0,
+     "d_hi": 24.0,
+     "open_sign": 1,
+     "body_key": [
+      -25.0,
+      -25.0,
+      -6.0,
+      25.0,
+      25.0,
+      24.0,
+      52500.0,
+      11900.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_channel_plate_body_identity.py::test_body_join_is_exact_after_step_round_trip",
+   "function": "recognise_channels",
+   "file": "53d3a3c3f6e3bb45.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recess_provenance.py::test_slot_dual_read_retains_exact_cap_groups[3]",
+   "function": "recognise_slots",
+   "file": "ff3f8d7871e5f69f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 15.0,
+     "w_center": 0.0,
+     "lo": -7.5,
+     "hi": 7.5,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      117018.053289,
+      18975.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 15.0,
+     "w_center": 0.0,
+     "lo": -7.5,
+     "hi": 7.5,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      117018.053289,
+      18975.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_provenance.py::test_slot_dual_read_retains_exact_cap_groups[30]",
+   "function": "recognise_slots",
+   "file": "4b074083cecc7132.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 42.0,
+     "w_center": 0.0,
+     "lo": -21.0,
+     "hi": 21.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      110538.053289,
+      19407.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 42.0,
+     "w_center": 0.0,
+     "lo": -21.0,
+     "hi": 21.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      110538.053289,
+      19407.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_provenance.py::test_stubby_pocket_dual_read_retains_caps_without_publishing_them",
+   "function": "recognise_pockets",
+   "file": "d11127fa3f888a5a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 16.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -8.0,
+     "hi": 8.0,
+     "d_lo": 0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -30.0,
+      -20.0,
+      -6.0,
+      30.0,
+      20.0,
+      6.0,
+      27968.761102,
+      7460.49555922
+     ],
+     "end_radius": 5.0,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 16.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -8.0,
+     "hi": 8.0,
+     "d_lo": 0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -30.0,
+      -20.0,
+      -6.0,
+      30.0,
+      20.0,
+      6.0,
+      27968.761102,
+      7460.49555922
+     ],
+     "end_radius": 5.0,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_provenance.py::test_occurrence_matrix_preserves_public_parity_and_exact_planar_roles[slot-part0-2]",
+   "function": "recognise_slots",
+   "file": "6b0d2fa1b40ca1f7.step.gz",
+   "options": {},
+   "hints": [
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 28.0,
+     "w_center": 0.0,
+     "lo": -14.0,
+     "hi": 14.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -40.0,
+      -25.0,
+      -8.0,
+      40.0,
+      25.0,
+      8.0,
+      59520.0,
+      12816.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 28.0,
+     "w_center": 0.0,
+     "lo": -14.0,
+     "hi": 14.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -40.0,
+      -25.0,
+      -8.0,
+      40.0,
+      25.0,
+      8.0,
+      59520.0,
+      12816.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_provenance.py::test_occurrence_matrix_preserves_public_parity_and_exact_planar_roles[slot-part0-2]",
+   "function": "recognise_slots",
+   "file": "6b0d2fa1b40ca1f7.step.gz",
+   "options": {},
+   "hints": [
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 28.0,
+     "w_center": 0.0,
+     "lo": -14.0,
+     "hi": 14.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -40.0,
+      -25.0,
+      -8.0,
+      40.0,
+      25.0,
+      8.0,
+      59520.0,
+      12816.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 28.0,
+     "w_center": 0.0,
+     "lo": -14.0,
+     "hi": 14.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -40.0,
+      -25.0,
+      -8.0,
+      40.0,
+      25.0,
+      8.0,
+      59520.0,
+      12816.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_provenance.py::test_occurrence_matrix_preserves_public_parity_and_exact_planar_roles[slot-part1-4]",
+   "function": "recognise_slots",
+   "file": "94d21d9cda569581.step.gz",
+   "options": {},
+   "hints": [
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 54.0,
+     "w_center": 0.0,
+     "lo": -27.0,
+     "hi": 27.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -50.0,
+      -50.0,
+      -8.0,
+      50.0,
+      50.0,
+      8.0,
+      141568.0,
+      27552.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 12.0,
+     "length": 54.0,
+     "w_center": 0.0,
+     "lo": -27.0,
+     "hi": 27.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -50.0,
+      -50.0,
+      -8.0,
+      50.0,
+      50.0,
+      8.0,
+      141568.0,
+      27552.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 54.0,
+     "w_center": 0.0,
+     "lo": -27.0,
+     "hi": 27.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -50.0,
+      -50.0,
+      -8.0,
+      50.0,
+      50.0,
+      8.0,
+      141568.0,
+      27552.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 12.0,
+     "length": 54.0,
+     "w_center": 0.0,
+     "lo": -27.0,
+     "hi": 27.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -50.0,
+      -50.0,
+      -8.0,
+      50.0,
+      50.0,
+      8.0,
+      141568.0,
+      27552.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_provenance.py::test_occurrence_matrix_preserves_public_parity_and_exact_planar_roles[slot-part1-4]",
+   "function": "recognise_slots",
+   "file": "94d21d9cda569581.step.gz",
+   "options": {},
+   "hints": [
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 54.0,
+     "w_center": 0.0,
+     "lo": -27.0,
+     "hi": 27.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -50.0,
+      -50.0,
+      -8.0,
+      50.0,
+      50.0,
+      8.0,
+      141568.0,
+      27552.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 12.0,
+     "length": 54.0,
+     "w_center": 0.0,
+     "lo": -27.0,
+     "hi": 27.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -50.0,
+      -50.0,
+      -8.0,
+      50.0,
+      50.0,
+      8.0,
+      141568.0,
+      27552.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 54.0,
+     "w_center": 0.0,
+     "lo": -27.0,
+     "hi": 27.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -50.0,
+      -50.0,
+      -8.0,
+      50.0,
+      50.0,
+      8.0,
+      141568.0,
+      27552.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 12.0,
+     "length": 54.0,
+     "w_center": 0.0,
+     "lo": -27.0,
+     "hi": 27.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -50.0,
+      -50.0,
+      -8.0,
+      50.0,
+      50.0,
+      8.0,
+      141568.0,
+      27552.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_provenance.py::test_occurrence_matrix_preserves_public_parity_and_exact_planar_roles[pocket-part2-2]",
+   "function": "recognise_pockets",
+   "file": "7e4d74e1a44d04b6.step.gz",
+   "options": {},
+   "hints": [
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 20.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": 0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -30.0,
+      -20.0,
+      -6.0,
+      30.0,
+      20.0,
+      6.0,
+      27360.0,
+      7584.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 20.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": 0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -30.0,
+      -20.0,
+      -6.0,
+      30.0,
+      20.0,
+      6.0,
+      27360.0,
+      7584.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_provenance.py::test_occurrence_matrix_preserves_public_parity_and_exact_planar_roles[pocket-part2-2]",
+   "function": "recognise_pockets",
+   "file": "7e4d74e1a44d04b6.step.gz",
+   "options": {},
+   "hints": [
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 20.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": 0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -30.0,
+      -20.0,
+      -6.0,
+      30.0,
+      20.0,
+      6.0,
+      27360.0,
+      7584.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 20.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": 0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -30.0,
+      -20.0,
+      -6.0,
+      30.0,
+      20.0,
+      6.0,
+      27360.0,
+      7584.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_provenance.py::test_occurrence_matrix_preserves_public_parity_and_exact_planar_roles[pocket-part3-3]",
+   "function": "recognise_pockets",
+   "file": "73be41c4c6944dba.step.gz",
+   "options": {},
+   "hints": [
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 15.0,
+     "length": 15.0,
+     "depth": 6.0,
+     "w_center": 22.5,
+     "lo": 5.0,
+     "hi": 20.0,
+     "d_lo": 0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": true,
+     "body_key": [
+      -30.0,
+      -20.0,
+      -6.0,
+      30.0,
+      20.0,
+      6.0,
+      27450.0,
+      7200.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 15.0,
+     "length": 15.0,
+     "depth": 6.0,
+     "w_center": 22.5,
+     "lo": 5.0,
+     "hi": 20.0,
+     "d_lo": 0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": true,
+     "body_key": [
+      -30.0,
+      -20.0,
+      -6.0,
+      30.0,
+      20.0,
+      6.0,
+      27450.0,
+      7200.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_provenance.py::test_occurrence_matrix_preserves_public_parity_and_exact_planar_roles[pocket-part3-3]",
+   "function": "recognise_pockets",
+   "file": "73be41c4c6944dba.step.gz",
+   "options": {},
+   "hints": [
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 15.0,
+     "length": 15.0,
+     "depth": 6.0,
+     "w_center": 22.5,
+     "lo": 5.0,
+     "hi": 20.0,
+     "d_lo": 0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": true,
+     "body_key": [
+      -30.0,
+      -20.0,
+      -6.0,
+      30.0,
+      20.0,
+      6.0,
+      27450.0,
+      7200.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "x",
+     "long_axis": "y",
+     "width": 15.0,
+     "length": 15.0,
+     "depth": 6.0,
+     "w_center": 22.5,
+     "lo": 5.0,
+     "hi": 20.0,
+     "d_lo": 0.0,
+     "d_hi": 6.0,
+     "open_sign": 1,
+     "edge_anchored": true,
+     "body_key": [
+      -30.0,
+      -20.0,
+      -6.0,
+      30.0,
+      20.0,
+      6.0,
+      27450.0,
+      7200.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_provenance.py::test_occurrence_matrix_preserves_public_parity_and_exact_planar_roles[pocket-part4-2]",
+   "function": "recognise_pockets",
+   "file": "4ab2ee4276e8c397.step.gz",
+   "options": {},
+   "hints": [
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 40.0,
+     "depth": 8.0,
+     "w_center": 0.0,
+     "lo": -20.0,
+     "hi": 20.0,
+     "d_lo": -1.0,
+     "d_hi": 7.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -40.0,
+      -25.0,
+      -7.0,
+      40.0,
+      25.0,
+      7.0,
+      52971.6814693,
+      12371.3274123
+     ],
+     "end_radius": 5.0,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 40.0,
+     "depth": 8.0,
+     "w_center": 0.0,
+     "lo": -20.0,
+     "hi": 20.0,
+     "d_lo": -1.0,
+     "d_hi": 7.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -40.0,
+      -25.0,
+      -7.0,
+      40.0,
+      25.0,
+      7.0,
+      52971.6814693,
+      12371.3274123
+     ],
+     "end_radius": 5.0,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_provenance.py::test_occurrence_matrix_preserves_public_parity_and_exact_planar_roles[pocket-part4-2]",
+   "function": "recognise_pockets",
+   "file": "4ab2ee4276e8c397.step.gz",
+   "options": {},
+   "hints": [
+    "face_edges"
+   ],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 40.0,
+     "depth": 8.0,
+     "w_center": 0.0,
+     "lo": -20.0,
+     "hi": 20.0,
+     "d_lo": -1.0,
+     "d_hi": 7.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -40.0,
+      -25.0,
+      -7.0,
+      40.0,
+      25.0,
+      7.0,
+      52971.6814693,
+      12371.3274123
+     ],
+     "end_radius": 5.0,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 40.0,
+     "depth": 8.0,
+     "w_center": 0.0,
+     "lo": -20.0,
+     "hi": 20.0,
+     "d_lo": -1.0,
+     "d_hi": 7.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -40.0,
+      -25.0,
+      -7.0,
+      40.0,
+      25.0,
+      7.0,
+      52971.6814693,
+      12371.3274123
+     ],
+     "end_radius": 5.0,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_provenance.py::test_competing_endpoint_cap_clusters_fail_closed",
+   "function": "recognise_slots",
+   "file": "4b074083cecc7132.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 42.0,
+     "w_center": 0.0,
+     "lo": -21.0,
+     "hi": 21.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      110538.053289,
+      19407.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 42.0,
+     "w_center": 0.0,
+     "lo": -21.0,
+     "hi": 21.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      110538.053289,
+      19407.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_provenance.py::test_competing_endpoint_cap_clusters_fail_closed",
+   "function": "recognise_slots",
+   "file": "4b074083cecc7132.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 42.0,
+     "w_center": 0.0,
+     "lo": -21.0,
+     "hi": 21.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      110538.053289,
+      19407.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 12.0,
+     "length": 42.0,
+     "w_center": 0.0,
+     "lo": -21.0,
+     "hi": 21.0,
+     "d_lo": -10.0,
+     "d_hi": 10.0,
+     "body_key": [
+      -50.0,
+      -30.0,
+      -10.0,
+      50.0,
+      30.0,
+      10.0,
+      110538.053289,
+      19407.7875658
+     ],
+     "end_radius": 6.0,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_radii.py::test_blind_obround_publishes_end_radius_without_corner_radius",
+   "function": "recognise_pockets",
+   "file": "f50dae34cc98adbb.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 30.0,
+     "depth": 8.0,
+     "w_center": 0.0,
+     "lo": -15.0,
+     "hi": 15.0,
+     "d_lo": -1.0,
+     "d_hi": 7.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -40.0,
+      -25.0,
+      -7.0,
+      40.0,
+      25.0,
+      7.0,
+      53771.6814693,
+      12211.3274123
+     ],
+     "end_radius": 5.0,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 30.0,
+     "depth": 8.0,
+     "w_center": 0.0,
+     "lo": -15.0,
+     "hi": 15.0,
+     "d_lo": -1.0,
+     "d_hi": 7.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -40.0,
+      -25.0,
+      -7.0,
+      40.0,
+      25.0,
+      7.0,
+      53771.6814693,
+      12211.3274123
+     ],
+     "end_radius": 5.0,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_radii.py::test_direct_records_are_json_serializable_and_keep_unknown_distinct_from_square[False]",
+   "function": "recognise_slots",
+   "file": "0c9b348627fc0c70.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 20.0,
+     "w_center": -0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": -5.0,
+     "d_hi": 5.0,
+     "body_key": [
+      -20.0,
+      -15.0,
+      -5.0,
+      20.0,
+      15.0,
+      5.0,
+      10034.3362965,
+      3972.53096528
+     ],
+     "end_radius": null,
+     "corner_radius": 2.0
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 20.0,
+     "w_center": -0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": -5.0,
+     "d_hi": 5.0,
+     "body_key": [
+      -20.0,
+      -15.0,
+      -5.0,
+      20.0,
+      15.0,
+      5.0,
+      10034.3362965,
+      3972.53096528
+     ],
+     "end_radius": null,
+     "corner_radius": 2.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_radii.py::test_direct_records_are_json_serializable_and_keep_unknown_distinct_from_square[True]",
+   "function": "recognise_pockets",
+   "file": "cee082a50db9fcfd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 20.0,
+     "depth": 5.0,
+     "w_center": -0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": 0.0,
+     "d_hi": 5.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -20.0,
+      -15.0,
+      -5.0,
+      20.0,
+      15.0,
+      5.0,
+      11017.1681482,
+      4082.83185289
+     ],
+     "end_radius": null,
+     "corner_radius": 2.0
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 20.0,
+     "depth": 5.0,
+     "w_center": -0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": 0.0,
+     "d_hi": 5.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -20.0,
+      -15.0,
+      -5.0,
+      20.0,
+      15.0,
+      5.0,
+      11017.1681482,
+      4082.83185289
+     ],
+     "end_radius": null,
+     "corner_radius": 2.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recess_radii.py::test_aggregate_slot_retains_the_direct_radius_contract",
+   "function": "recognise_slots",
+   "file": "0c9b348627fc0c70.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 20.0,
+     "w_center": -0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": -5.0,
+     "d_hi": 5.0,
+     "body_key": [
+      -20.0,
+      -15.0,
+      -5.0,
+      20.0,
+      15.0,
+      5.0,
+      10034.3362965,
+      3972.53096528
+     ],
+     "end_radius": null,
+     "corner_radius": 2.0
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 20.0,
+     "w_center": -0.0,
+     "lo": -10.0,
+     "hi": 10.0,
+     "d_lo": -5.0,
+     "d_hi": 5.0,
+     "body_key": [
+      -20.0,
+      -15.0,
+      -5.0,
+      20.0,
+      15.0,
+      5.0,
+      10034.3362965,
+      3972.53096528
+     ],
+     "end_radius": null,
+     "corner_radius": 2.0
+    }
+   ]
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[blind_pockets_and_pocket_patterns]",
+   "function": "recognise_slots",
+   "file": "ce30ea612029f8ba.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[blind_pockets_and_pocket_patterns]",
+   "function": "recognise_pockets",
+   "file": "ce30ea612029f8ba.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 12.0,
+     "depth": 6.0,
+     "w_center": -25.0,
+     "lo": -31.0,
+     "hi": -19.0,
+     "d_lo": 4.0,
+     "d_hi": 10.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -60.0,
+      -50.0,
+      -10.0,
+      60.0,
+      50.0,
+      10.0,
+      235680.0,
+      34384.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 12.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -31.0,
+     "hi": -19.0,
+     "d_lo": 4.0,
+     "d_hi": 10.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -60.0,
+      -50.0,
+      -10.0,
+      60.0,
+      50.0,
+      10.0,
+      235680.0,
+      34384.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 12.0,
+     "depth": 6.0,
+     "w_center": 25.0,
+     "lo": -31.0,
+     "hi": -19.0,
+     "d_lo": 4.0,
+     "d_hi": 10.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -60.0,
+      -50.0,
+      -10.0,
+      60.0,
+      50.0,
+      10.0,
+      235680.0,
+      34384.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 12.0,
+     "depth": 6.0,
+     "w_center": -25.0,
+     "lo": 19.0,
+     "hi": 31.0,
+     "d_lo": 4.0,
+     "d_hi": 10.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -60.0,
+      -50.0,
+      -10.0,
+      60.0,
+      50.0,
+      10.0,
+      235680.0,
+      34384.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 12.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": 19.0,
+     "hi": 31.0,
+     "d_lo": 4.0,
+     "d_hi": 10.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -60.0,
+      -50.0,
+      -10.0,
+      60.0,
+      50.0,
+      10.0,
+      235680.0,
+      34384.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 12.0,
+     "depth": 6.0,
+     "w_center": 25.0,
+     "lo": 19.0,
+     "hi": 31.0,
+     "d_lo": 4.0,
+     "d_hi": 10.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -60.0,
+      -50.0,
+      -10.0,
+      60.0,
+      50.0,
+      10.0,
+      235680.0,
+      34384.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 12.0,
+     "depth": 6.0,
+     "w_center": -25.0,
+     "lo": -31.0,
+     "hi": -19.0,
+     "d_lo": 4.0,
+     "d_hi": 10.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -60.0,
+      -50.0,
+      -10.0,
+      60.0,
+      50.0,
+      10.0,
+      235680.0,
+      34384.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 12.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": -31.0,
+     "hi": -19.0,
+     "d_lo": 4.0,
+     "d_hi": 10.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -60.0,
+      -50.0,
+      -10.0,
+      60.0,
+      50.0,
+      10.0,
+      235680.0,
+      34384.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 12.0,
+     "depth": 6.0,
+     "w_center": 25.0,
+     "lo": -31.0,
+     "hi": -19.0,
+     "d_lo": 4.0,
+     "d_hi": 10.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -60.0,
+      -50.0,
+      -10.0,
+      60.0,
+      50.0,
+      10.0,
+      235680.0,
+      34384.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 12.0,
+     "depth": 6.0,
+     "w_center": -25.0,
+     "lo": 19.0,
+     "hi": 31.0,
+     "d_lo": 4.0,
+     "d_hi": 10.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -60.0,
+      -50.0,
+      -10.0,
+      60.0,
+      50.0,
+      10.0,
+      235680.0,
+      34384.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 12.0,
+     "depth": 6.0,
+     "w_center": 0.0,
+     "lo": 19.0,
+     "hi": 31.0,
+     "d_lo": 4.0,
+     "d_hi": 10.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -60.0,
+      -50.0,
+      -10.0,
+      60.0,
+      50.0,
+      10.0,
+      235680.0,
+      34384.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 12.0,
+     "depth": 6.0,
+     "w_center": 25.0,
+     "lo": 19.0,
+     "hi": 31.0,
+     "d_lo": 4.0,
+     "d_hi": 10.0,
+     "open_sign": 1,
+     "edge_anchored": false,
+     "body_key": [
+      -60.0,
+      -50.0,
+      -10.0,
+      60.0,
+      50.0,
+      10.0,
+      235680.0,
+      34384.0
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[blind_pockets_and_pocket_patterns]",
+   "function": "recognise_channels",
+   "file": "ce30ea612029f8ba.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[open_channels]",
+   "function": "recognise_slots",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[open_channels]",
+   "function": "recognise_pockets",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[open_channels]",
+   "function": "recognise_channels",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 30.0,
+     "w_center": 0.0,
+     "lo": -30.0,
+     "hi": 30.0,
+     "d_lo": 5.0,
+     "d_hi": 21.0,
+     "open_sign": 1,
+     "body_key": [
+      -30.0,
+      -25.0,
+      -5.0,
+      30.0,
+      25.0,
+      21.0,
+      49200.0,
+      12680.0
+     ]
+    }
+   ]
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[straight_and_obround_slots]",
+   "function": "recognise_slots",
+   "file": "4ee8cff9e649797a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 8.0,
+     "length": 30.0,
+     "w_center": -48.0,
+     "lo": -47.0,
+     "hi": -17.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -65.0,
+      -75.0,
+      -8.0,
+      65.0,
+      75.0,
+      8.0,
+      291543.362939,
+      51537.5751919
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 8.0,
+     "length": 30.0,
+     "w_center": -16.0,
+     "lo": -47.0,
+     "hi": -17.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -65.0,
+      -75.0,
+      -8.0,
+      65.0,
+      75.0,
+      8.0,
+      291543.362939,
+      51537.5751919
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 8.0,
+     "length": 30.0,
+     "w_center": 16.0,
+     "lo": -47.0,
+     "hi": -17.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -65.0,
+      -75.0,
+      -8.0,
+      65.0,
+      75.0,
+      8.0,
+      291543.362939,
+      51537.5751919
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 8.0,
+     "length": 30.0,
+     "w_center": 48.0,
+     "lo": -47.0,
+     "hi": -17.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -65.0,
+      -75.0,
+      -8.0,
+      65.0,
+      75.0,
+      8.0,
+      291543.362939,
+      51537.5751919
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 34.0,
+     "w_center": 0.0,
+     "lo": 15.0,
+     "hi": 49.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -65.0,
+      -75.0,
+      -8.0,
+      65.0,
+      75.0,
+      8.0,
+      291543.362939,
+      51537.5751919
+     ],
+     "end_radius": 5.0,
+     "corner_radius": null
+    }
+   ],
+   "result": [
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 8.0,
+     "length": 30.0,
+     "w_center": -48.0,
+     "lo": -47.0,
+     "hi": -17.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -65.0,
+      -75.0,
+      -8.0,
+      65.0,
+      75.0,
+      8.0,
+      291543.362939,
+      51537.5751919
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 8.0,
+     "length": 30.0,
+     "w_center": -16.0,
+     "lo": -47.0,
+     "hi": -17.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -65.0,
+      -75.0,
+      -8.0,
+      65.0,
+      75.0,
+      8.0,
+      291543.362939,
+      51537.5751919
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 8.0,
+     "length": 30.0,
+     "w_center": 16.0,
+     "lo": -47.0,
+     "hi": -17.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -65.0,
+      -75.0,
+      -8.0,
+      65.0,
+      75.0,
+      8.0,
+      291543.362939,
+      51537.5751919
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 8.0,
+     "length": 30.0,
+     "w_center": 48.0,
+     "lo": -47.0,
+     "hi": -17.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -65.0,
+      -75.0,
+      -8.0,
+      65.0,
+      75.0,
+      8.0,
+      291543.362939,
+      51537.5751919
+     ],
+     "end_radius": null,
+     "corner_radius": null
+    },
+    {
+     "width_axis": "y",
+     "long_axis": "x",
+     "width": 10.0,
+     "length": 34.0,
+     "w_center": 0.0,
+     "lo": 15.0,
+     "hi": 49.0,
+     "d_lo": -8.0,
+     "d_hi": 8.0,
+     "body_key": [
+      -65.0,
+      -75.0,
+      -8.0,
+      65.0,
+      75.0,
+      8.0,
+      291543.362939,
+      51537.5751919
+     ],
+     "end_radius": 5.0,
+     "corner_radius": null
+    }
+   ]
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[straight_and_obround_slots]",
+   "function": "recognise_pockets",
+   "file": "4ee8cff9e649797a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[straight_and_obround_slots]",
+   "function": "recognise_channels",
+   "file": "4ee8cff9e649797a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
   }
  ],
  "skipped": [
@@ -256047,6 +262103,26 @@
    "test": null,
    "reason": "capture failed: RuntimeError",
    "count": 2
+  },
+  {
+   "function": "recognise_pockets",
+   "test": "tests/test_pocket_attribution.py::test_principal_corner_step_round_trip_preserves_the_canonical_depth",
+   "reason": "capture failed: RuntimeError: Failed to write STEP file"
+  },
+  {
+   "function": "recognise_channels",
+   "test": "tests/test_channel_attribution.py::test_step_traversal_and_supplied_edges_preserve_roles",
+   "reason": "capture failed: RuntimeError: Failed to write STEP file"
+  },
+  {
+   "function": "recognise_channels",
+   "test": "tests/test_channel_attribution.py::test_distinct_channels_may_truthfully_share_one_original_wall",
+   "reason": "capture failed: RuntimeError: Failed to write STEP file"
+  },
+  {
+   "function": "recognise_channels",
+   "test": "tests/test_channel_plate_body_identity.py::test_body_join_is_exact_after_step_round_trip",
+   "reason": "capture failed: RuntimeError: Failed to write STEP file"
   }
  ]
 }
