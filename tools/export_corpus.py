@@ -61,6 +61,10 @@ from quiddity.interior_voids import _discover_interior_voids  # noqa: E402
 from quiddity.oriented_chamfers import _discover_oriented_chamfers  # noqa: E402
 from quiddity.paired_ramp_steps import _discover_paired_ramp_steps  # noqa: E402
 from quiddity.plates import _discover_plates  # noqa: E402
+from quiddity.repeating_profiles import (  # noqa: E402
+    _discover_repeating_radial_profiles,
+    recognise_repeating_radial_profiles,
+)
 from quiddity.rectangular_blind_slots import (  # noqa: E402
     _discover_rectangular_blind_slots,
     recognise_rectangular_blind_slots,
@@ -264,6 +268,9 @@ def main() -> None:
                    lambda p, ledger, o: _discover_pockets(p, writer=ledger.writer))
         channels = (FamilyId.CHANNELS, lambda p, o: recognise_channels(p),
                     lambda p, ledger, o: _discover_channels(p, writer=ledger.writer))
+        repeating = (FamilyId.REPEATING_RADIAL_PROFILES,
+                     lambda p, o: recognise_repeating_radial_profiles(p),
+                     lambda p, ledger, o: _discover_repeating_radial_profiles(p, writer=ledger.writer))
         entries.append(
             {
                 "file": str(path.relative_to(CORPUS)),
@@ -320,6 +327,9 @@ def main() -> None:
                     "recognise_slots": [_run(part, "recognise_slots", *slots, {})],
                     "recognise_pockets": [_run(part, "recognise_pockets", *pockets, {})],
                     "recognise_channels": [_run(part, "recognise_channels", *channels, {})],
+                    "recognise_repeating_radial_profiles": [
+                        _run(part, "recognise_repeating_radial_profiles", *repeating, {})
+                    ],
                     "recognise_gusset_rib_patterns": [
                         {"options": {}, "result": _plain(recognise_gusset_rib_patterns(recognise_gusset_ribs(part)))}
                     ],

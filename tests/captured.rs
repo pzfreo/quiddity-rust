@@ -43,6 +43,7 @@ const SKIPPED: &[(&str, usize)] = &[
     ("recognise_plates", 4),
     ("recognise_pockets", 1),
     ("recognise_rectangular_blind_slots", 1),
+    ("recognise_repeating_radial_profiles", 1),
     ("recognise_round_bottom_blind_slots", 1),
     ("recognise_through_steps", 7),
     ("recognise_turned_steps", 18),
@@ -314,4 +315,9 @@ fn pockets_match_python() {
 #[test]
 fn channels_match_python() {
     replay("recognise_channels");
+}
+
+#[test]
+fn repeating_radial_profiles_match_python() {
+    replay("recognise_repeating_radial_profiles");
 }

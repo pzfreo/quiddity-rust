@@ -6444,6 +6444,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -21640,6 +21647,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -119206,6 +119220,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -126711,6 +126732,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -141669,6 +141697,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -159721,6 +159756,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -163114,6 +163156,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -205634,6 +205683,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -235261,6 +235317,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -261677,6 +261740,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -262722,6 +262792,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -263458,6 +263535,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -265004,6 +265088,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -266068,6 +266159,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -267479,6 +267577,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -270616,6 +270721,13 @@
        ]
       ]
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -272261,6 +272373,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -274256,6 +274375,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -277375,6 +277501,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -278834,6 +278967,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -281885,6 +282025,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -283514,6 +283661,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -285429,6 +285583,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -287373,6 +287534,13 @@
         7
        ]
       ]
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -289379,6 +289547,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -291306,6 +291481,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -293639,6 +293821,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -295322,6 +295511,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -296883,6 +297079,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -297992,6 +298195,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -300027,6 +300237,13 @@
         20
        ]
       ]
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -302262,6 +302479,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -304291,6 +304515,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -306208,6 +306439,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -308775,6 +309013,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -310804,6 +311049,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -312572,6 +312824,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -314849,6 +315108,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -316054,6 +316320,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -317973,6 +318246,13 @@
        ]
       ]
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -319869,6 +320149,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -322006,6 +322293,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -323877,6 +324171,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -326068,6 +326369,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -328466,6 +328774,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -329825,6 +330140,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -331283,6 +331605,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -333486,6 +333815,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -335266,6 +335602,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -337073,6 +337416,13 @@
         11
        ]
       ]
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -338908,6 +339258,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -340844,6 +341201,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -342328,6 +342692,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -344733,6 +345104,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -346134,6 +346512,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -348728,6 +349113,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -350288,6 +350680,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -352468,6 +352867,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -354475,6 +354881,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -355601,6 +356014,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -357282,6 +357702,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -358488,6 +358915,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -360270,6 +360704,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -362668,6 +363109,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -363971,6 +364419,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -365772,6 +366227,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -367322,6 +367784,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -368329,6 +368798,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -369860,6 +370336,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -371250,6 +371733,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -372547,6 +373037,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -374290,6 +374787,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -376420,6 +376924,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -378152,6 +378663,13 @@
         19
        ]
       ]
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -380497,6 +381015,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -382481,6 +383006,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -383855,6 +384387,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -385691,6 +386230,13 @@
         19
        ]
       ]
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -387899,6 +388445,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -389620,6 +390173,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -391576,6 +392136,13 @@
         10
        ]
       ]
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -394119,6 +394686,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -396995,6 +397569,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -398633,6 +399214,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -400567,6 +401155,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -402413,6 +403008,13 @@
         22
        ]
       ]
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
      }
     ]
    }
@@ -404567,6 +405169,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -407235,6 +407844,13 @@
        ]
       ]
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -409357,6 +409973,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -418143,6 +418766,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -450736,6 +451366,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -460549,6 +461186,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -487746,6 +488390,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -499129,6 +499780,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -507237,6 +507895,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -520602,6 +521267,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -535390,6 +536062,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -545346,6 +546025,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],
@@ -557202,6 +557888,13 @@
       "result": [],
       "defining": []
      }
+    ],
+    "recognise_repeating_radial_profiles": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
     ]
    }
   },
@@ -563689,6 +564382,13 @@
      }
     ],
     "recognise_channels": [
+     {
+      "options": {},
+      "result": [],
+      "defining": []
+     }
+    ],
+    "recognise_repeating_radial_profiles": [
      {
       "options": {},
       "result": [],

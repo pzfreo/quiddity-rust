@@ -52,6 +52,9 @@ pub use features::profiled_bores::{DoubleDBore, DoubleDBoreOptions, recognise_do
 pub use features::rectangular_blind_slots::{
     RectangularBlindSlot, recognise_rectangular_blind_slots,
 };
+pub use features::repeating_profiles::{
+    RepeatingRadialProfile, RepeatingRadialProfileOptions, recognise_repeating_radial_profiles,
+};
 pub use features::round_bottom_slots::{RoundBottomBlindSlot, recognise_round_bottom_blind_slots};
 pub use features::slots::{Slot, recognise_slots};
 pub use features::thin_walls::{ThinWallBody, recognise_thin_wall_bodies};

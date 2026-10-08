@@ -41,6 +41,7 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 | Slots | `recognise_slots` | 42/42 | 0 | 98/100 (2 known) |
 | Pockets | `recognise_pockets` | 19/19 | 1 | 98/100 (2 known) |
 | Channels | `recognise_channels` | 44/45 (1 known divergence) | 3 | 100/100 |
+| Repeating radial profiles | `recognise_repeating_radial_profiles` | 59/60 (1 known divergence) | 1 | 100/100 |
 
 *Captured test calls*: the Python suite's calls replayed by `tests/captured.rs`. *Not captured*:
 calls the suite makes that the capture could not record, outside the replay and pinned by it
@@ -59,7 +60,7 @@ its verdict and reason in a verdict file:
 | Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
 |---|---|---|---|---|---|---|---|
 | `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 135 (903 problems) | 72 | 12 | 14 | 37 | 0 |
-| `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 24 (25 calls) | 4 | 1 | 1 | 2 | 16 |
+| `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 25 (26 calls) | 4 | 1 | 1 | 2 | 17 |
 | `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 25 | 0 | 25 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
 | `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 31 | 4 | 27 | 0 | 0 | 0 |
@@ -177,6 +178,8 @@ src/
     recess_core.rs   the wall-pair candidates, corner notches, and each family's per-solid scan
                      (`_recess_core`)
     slots.rs  pockets.rs  channels.rs
+    repeating_profiles.rs  complete outer wires repeating under one sector rotation, measured
+                     along each edge's exact arc length (`Edge.position_at`)
     volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over haecceity's volume.rs
   frames.rs          part-relative recognition (`quiddity.frames`): the frame inferred from the
                      part's plane normals and cylinder axes, the part re-read into it, recognised
@@ -195,7 +198,8 @@ tests/
   corpus.rs          every ported recogniser over the shared 100-file STEP corpus
   evidence.rs        fillet defining faces and evidence refusals on hand-built cases
   invariance.rs      every corpus part moved and turned: each family must find the same faces;
-                     and under a generic rotation, recognised in its own frame
+                     and under a generic rotation, recognised in its own frame; repeating
+                     radial profiles (none in the corpus) on their captured parts
   frames.rs          the frames Python derives (fixtures, corpus, Python's frame-test parts),
                      as read and under a generic rotation, and the frame moving with the part
   correspondence.rs  every corpus part corresponds with itself moved, everything carried; the

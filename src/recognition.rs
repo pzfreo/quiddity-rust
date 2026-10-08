@@ -105,6 +105,7 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
     ("slots", &["Slot"]),
     ("pockets", &["Pocket"]),
     ("channels", &["Channel"]),
+    ("repeating_radial_profiles", &["RepeatingRadialProfile"]),
 ];
 
 /// The record class names a family's records can have.

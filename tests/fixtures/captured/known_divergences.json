@@ -219,5 +219,14 @@
     "count": 1,
     "verdict": "rust-wrong",
     "reason": "The part is the channel fixture's faces exported as a shell-based surface model, with no solid. Python's recess families scan such a part as one source (`solids or [part]`, a documented record-only open-shell compatibility input) and publish the fixture's channel with body_key null; the port reads the faces without a solid and, like every ported family, scans solids only, so it finds nothing. Python's void proof there is vacuous (its probe intersects a box with a shell, which has no volume), so porting the path faithfully would publish recesses without a material proof; whether surface models should be recognised at all is a maintainer question. Python's evidence path refuses this part (no valid solid), as the port does."
+  },
+  {
+    "function": "recognise_repeating_radial_profiles",
+    "test": "tests/test_repeating_profile_attribution.py::test_open_shell_and_malformed_sampling_fail_closed",
+    "file": "262e21956d42c8dd.step.gz",
+    "options": {},
+    "count": 1,
+    "verdict": "not-applicable",
+    "reason": "The test's second call monkeypatches Face.outer_wire to raise ('malformed sampling must fail closed'), and the capture re-ran Python under that patch, so its empty answer reflects the injected failure, not the part. Unpatched, Python finds the one 5-repeat profile on this shell (the same test's first call on the same file), which the port finds too."
   }
 ]
