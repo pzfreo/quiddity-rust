@@ -613,8 +613,9 @@ tested; `pmi::write` (and replace built from the removal plan) is the next stage
   checked: general_datum_reference WR1–WR6, geometric_tolerance WR2/WR4,
   geometric_tolerance_relationship WR3.
 
-**Stage 3 (2026-10-08): the writer.** Delivered and tested on branch `ap242-writer`,
-datum feature symbols (decision 6) included.
+**Stage 3 (2026-10-08): the writer and the command line's read side.** Delivered and tested;
+integrated on `ap242` from streams `ap242-writer` (datum feature symbols, decision 6, included)
+and `ap242-cli-read`.
 
 - **`pmi::write`** (`crates/haecceity/src/pmi/write.rs`, `tests/pmi_write.rs`,
   `tests/pmi_roundtrip.rs`, `tests/fixtures/known_pmi_write.json`, `tests/fixtures/ap242/write/`):
@@ -679,6 +680,20 @@ datum feature symbols (decision 6) included.
   of a `set_representation_item`, the practice's §6.5.1 form; it gives a fit with stated limits
   the limits' middle as its value).
 
+- **Command line, read side** ([Architecture](#architecture) item 7; `src/pmi_json.rs`,
+  `src/bin/quiddity.rs`, `tests/pmi_cli.rs`): `quiddity parts` (distinct parts and the binding),
+  `quiddity pmi read [--part N]` (the model and findings as JSON) and `quiddity pmi check`
+  (a JSON document decoded through the model's constructors against the file). The JSON form is
+  versioned (`quiddity-pmi` `VERSION` 1) and bound to the STEP text's sha256 and the reader
+  (`READER`), so anchors are never trusted against another file or reader. Values are stated
+  decimal text with their own unit, never JSON numbers; fits are deviation plus grade; datum
+  systems live on the tolerance. Decoding refuses, naming the JSON path: unknown fields,
+  unknown or misspelt terms (a name outside the practice's table is written `{"other": …}`, and
+  an `{"other": …}` naming a standard term is refused), duplicate keys, and violated model
+  invariants. `READER` is pinned to the sha256 of `pmi read`'s output over the committed
+  fixtures, so a reader change fails until the version is bumped. The write side
+  (`quiddity pmi write`) is the next stage.
+
 Settled by the implementation (where the design was open or silent):
 
 - *Editions.* An AP242 file keeps its `FILE_SCHEMA` whatever its edition (decision 1: an AP242
@@ -686,8 +701,8 @@ Settled by the implementation (where the design was open or silent):
   where there is one (editions 1 and 4), else against the target's (editions 2 and 3), and the
   report names the table (`validated_against`). For an edition 2 or 3 file, whether the written
   instances are valid instances of the file's own edition is therefore undetermined: the report
-  says so (`edition_undetermined`) and the round-trip pins record it per file (8 NIST files). An AP214/AP203 file that gains PMI becomes `TARGET_SCHEMA` only when
-  every instance validates (refused otherwise, naming them). A replace or remove that adds
+  says so (`edition_undetermined`) and the round-trip pins record it per file (8 NIST files).
+  An AP214/AP203 file that gains PMI becomes `TARGET_SCHEMA` only when every instance validates (refused otherwise, naming them). A replace or remove that adds
   nothing keeps the schema.
 - *Supplemental geometry* is the part's geometry, not PMI: a replace keeps it (it is not a
   seed of the removal plan) and what is written uses the file's item of equal value, so the
@@ -732,7 +747,11 @@ read; a bare 'thread runout' aspect (WR16, no runout feature) is reported uncons
 feature is read as that feature's composition.
 
 Not done in this stage: writing datum targets and tolerance relations (design: Out of scope);
-pinning the four NIST files of the reference set not obtainable here (above).
+pinning the four NIST files of the reference set not obtainable here (above); knurls from
+specify-core intents (the intent lacks parameters `turned_knurl` requires; undetermined); the
+command line's write side. The stage 1 and 2 suites `p21.rs`, `express_rules.rs` and
+`removal.rs` still fall back to a hard-coded scratch directory for the NIST files when
+`HAECCEITY_NIST_PMI` is unset; the stage 3 suites use the variable only.
 
 ## Out of scope for now
 
