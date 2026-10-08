@@ -77,7 +77,7 @@ pub(super) struct FaceCache {
     pub(super) uv_loops: OnceLock<Option<Vec<UvLoop>>>,
     pub(super) domain: OnceLock<Option<FaceDomain>>,
     pub(super) bounds: OnceLock<Bounds>,
-    pub(super) mass: OnceLock<Option<[f64; 2]>>,
+    pub(super) mass: OnceLock<Option<[f64; 5]>>,
     pub(super) edge_deviation: OnceLock<Vec<(usize, f64)>>,
     pub(super) uv_bounds: OnceLock<Option<(f64, f64, f64, f64)>>,
     pub(super) recovered: OnceLock<Option<Surface>>,

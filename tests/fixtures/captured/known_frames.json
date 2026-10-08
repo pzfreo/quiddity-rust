@@ -51,26 +51,6 @@
     "reason": "Kernel: under the generic motion this seamless torus elbow's solid integrates to a negative volume (solid_mass -103.4 and area -432.4 against 219.3 and 444.9 unmoved), so the frame is refused for no material. The torus band between two loops without a seam edge takes the wrong side once moved (mass.rs's boundary walk); the in-place reading is right (crates/haecceity/tests/kernel.rs) and Python's frame agrees with it."
   },
   {
-    "file": "torus_elbow_seamless_reversed_bound.step",
-    "case": "frame",
-    "fields": [
-      "origin"
-    ],
-    "origin_within": 1.0,
-    "verdict": "rust-wrong",
-    "reason": "Kernel: one planar end cap (face 2) is read with its normal into the material. Its flux p.n vanishes in place only because its plane passes through the world origin, so solid_mass is right unmoved (829.047, the exact 2 pi^2 7 9 (2/3), as kernel.rs checks) but the centroid, which weighs the cap by its distance from the box centre, takes the wrong volume (702.7) and a wrong centre; moved, solid_mass gives -3168.4. Python's origin is the exact centroid."
-  },
-  {
-    "file": "torus_elbow_seamless_reversed_bound.step",
-    "case": "moved",
-    "fields": [
-      "origin"
-    ],
-    "origin_within": 1.0,
-    "verdict": "rust-wrong",
-    "reason": "Kernel: one planar end cap (face 2) is read with its normal into the material. Its flux p.n vanishes in place only because its plane passes through the world origin, so solid_mass is right unmoved (829.047, the exact 2 pi^2 7 9 (2/3), as kernel.rs checks) but the centroid, which weighs the cap by its distance from the box centre, takes the wrong volume (702.7) and a wrong centre; moved, solid_mass gives -3168.4. Python's origin is the exact centroid."
-  },
-  {
     "file": "cadgenbench/threaded_connector_109.step",
     "case": "frame",
     "fields": [
@@ -158,19 +138,21 @@
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "case": "frame",
     "fields": [
-      "refusal"
+      "origin"
     ],
-    "verdict": "rust-wrong",
-    "reason": "Kernel: face 29 (a B-spline face whose own seam is not its surface's) is not integrated (see this file's corpus mass entry), so the port has no volume and refuses the frame (unmeasured-face, the port's own refusal) where Python derives one."
+    "origin_within": 0.006,
+    "verdict": "undetermined",
+    "reason": "Python's origin is OpenCascade's centroid at VolumeProperties' default (fixed) rule, (-6.117805, -1.853569, -8.039570) in place, volume 223533.796; its adaptive rule (eps 1e-9 and 1e-11 agree) gives (-6.118127, -1.849812, -8.043742), volume 223478.913. The port's centroid, (-6.118110, -1.849941, -8.043424) in place, is 3.9e-3 from the fixed rule's and 3.4e-4 from the adaptive one's (3.3e-3 moved). The remaining 3.4e-4 goes with the 5 mm^3 volume difference that this file's corpus mass entry leaves undetermined (the volume has no independent check), so which centroid is right is not shown. Before face 29 was integrated the port refused this frame."
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "case": "moved",
     "fields": [
-      "refusal"
+      "origin"
     ],
-    "verdict": "rust-wrong",
-    "reason": "Kernel: face 29 (a B-spline face whose own seam is not its surface's) is not integrated (see this file's corpus mass entry), so the port has no volume and refuses the frame (unmeasured-face, the port's own refusal) where Python derives one."
+    "origin_within": 0.005,
+    "verdict": "undetermined",
+    "reason": "Python's origin is OpenCascade's centroid at VolumeProperties' default (fixed) rule, (-6.117805, -1.853569, -8.039570) in place, volume 223533.796; its adaptive rule (eps 1e-9 and 1e-11 agree) gives (-6.118127, -1.849812, -8.043742), volume 223478.913. The port's centroid, (-6.118110, -1.849941, -8.043424) in place, is 3.9e-3 from the fixed rule's and 3.4e-4 from the adaptive one's (3.3e-3 moved). The remaining 3.4e-4 goes with the 5 mm^3 volume difference that this file's corpus mass entry leaves undetermined (the volume has no independent check), so which centroid is right is not shown. Before face 29 was integrated the port refused this frame."
   },
   {
     "file": "cadgenbench_inputs/cgb241.step",

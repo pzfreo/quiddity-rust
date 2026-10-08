@@ -63,33 +63,6 @@
     "evidence": "0.01 mm outside face 94; 0.0100 mm from an edge toleranced 0.024 mm; OpenCascade's rays count 3,4,4,0,0,0,6."
   },
   {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "point": 85,
-    "check": "parity",
-    "observed": "0,0,0,4,3,0,0",
-    "verdict": "rust-wrong",
-    "reason": "The port's trimming domain (uv.rs FaceDomain) of a B-spline face whose edges stray from it excludes crossings well inside the face, so a ray loses crossings OpenCascade's IntCurvesFace_ShapeIntersector counts; the vote still answers as OpenCascade does.",
-    "evidence": "Ray 4 crosses B-spline face 29 at t 15.6592, uv (0.0036, 0.791), 0.312 mm from its nearest edge (72, which strays 0.166 mm from the surface), and the domain excludes it; OpenCascade rays 0,0,0,4,4,0,0."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "point": 178,
-    "check": "parity",
-    "observed": "0,3,0,2,2,2,0",
-    "verdict": "rust-wrong",
-    "reason": "The port's trimming domain (uv.rs FaceDomain) of a B-spline face whose edges stray from it excludes crossings well inside the face, so a ray loses crossings OpenCascade's IntCurvesFace_ShapeIntersector counts; the vote still answers as OpenCascade does.",
-    "evidence": "Ray 1 crosses face 29 at t 69.8473, uv (0.546, 0.762), 0.358 mm from edge 72, and the domain excludes it; OpenCascade rays 0,4,0,2,2,2,0."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "point": 236,
-    "check": "parity",
-    "observed": "0,2,1,4,0,0,3",
-    "verdict": "rust-wrong",
-    "reason": "The port's trimming domain (uv.rs FaceDomain) of a B-spline face whose edges stray from it excludes crossings well inside the face, so a ray loses crossings OpenCascade's IntCurvesFace_ShapeIntersector counts; the vote still answers as OpenCascade does.",
-    "evidence": "Rays 0, 2 and 6 lose face 29's crossings (ray 0 at t 0.4399, uv (0.219, 0.399), and 5.0782, each about 0.3 mm from edge 70, which strays 0.047 mm); OpenCascade rays 2,2,2,4,0,0,4."
-  },
-  {
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "point": 299,
     "check": "parity",

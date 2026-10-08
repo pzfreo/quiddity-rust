@@ -39,11 +39,9 @@ OUT = FIXTURES / "known_face_areas.json"
 
 PLACEMENT = (
     "Under the test's motion (a translation and 37 degrees about (1, 2, 3)) this B-spline face's "
-    "area changes by {change:.1e} relative (pinned: {rust!r} unmoved, {moved!r} moved); all but 16 "
-    "corpus faces agree to 1e-12. Resolving every boundary panel a hundred times finer (1e-11) "
-    "leaves the change, so it comes from the boundary walk, not the quadrature; not traced. "
-    "Whether a pin at this scale holds on Linux is a maintainer question "
-    "(docs/review-2026-10-08.md)."
+    "area changes by {change:.1e} relative (pinned: {rust!r} unmoved, {moved!r} moved); all but one "
+    "corpus face agree to 1e-12. Not traced. Whether a pin at this scale holds on Linux is a "
+    "maintainer question (docs/review-2026-10-08.md)."
 )
 
 SPECIAL = {
@@ -55,20 +53,31 @@ SPECIAL = {
         "adds the triangle: this deliberately malformed file orients the triangle's loop as an outer "
         "boundary, which the port reads from the geometry instead.",
     ),
+    ("cadgenbench_inputs/cgb217.step.gz", 34, "occ"): (
+        "rust-wrong",
+        "tools/face_area_evidence.py gives 28.16983104 by Green's theorem and by direct slices; the "
+        "port gives {rust}. Traced to the boundary walk: the port's answer moves with the reference "
+        "its inner integral starts from (28.169842 from u = 0, 28.169781 from u = 1), so its path "
+        "does not close in v, by 2.2e-6, all of it on edge 89 between t = 0.8328 and 0.7427, where "
+        "the edge dips 1.6e-3 into the face from the side v = 1 it otherwise runs outside; the panel "
+        "sums there do not add up to the foot point's change in v. Not yet resolved. OpenCascade "
+        "gives {occ} (fixed rule), {fine} (adaptive) and {rebuilt} (pcurves projected from the edges).",
+    ),
+    ("cadgenbench_inputs/cgb207.step", 125, "occ"): (
+        "rust-wrong",
+        "tools/face_area_evidence.py gives 47.45338085 (Green's theorem) and 47.45337956 (direct "
+        "slices); the port gives {rust}, 1e-6 more. Unlike the faces fixed with it, the port's walk "
+        "closes here (its answer does not move with the inner integral's reference, to 6e-12), so "
+        "the difference is in the path the foot points take, not in the quadrature; not traced "
+        "further. OpenCascade gives {occ} (fixed rule), {fine} (adaptive) and {rebuilt} (pcurves "
+        "projected from the edges).",
+    ),
     ("cadgenbench_inputs/cgb242.step.gz", 483, "occ"): (
         "rust-wrong",
         "A degenerate seam-to-seam sliver: OpenCascade bounds it by one B-spline edge used twice and "
         "a degenerate edge (a triangulation of it has area 1e-21; face.area {occ}, adaptive {fine}). "
         "The port reads its two edges as the two sides of a closed v range and integrates the cap "
         "between them, {rust}; negligible, but not the face's area.",
-    ),
-    ("cadgenbench_inputs/cgb217.step.gz", 29, "occ"): (
-        "rust-wrong",
-        "Refused (no area). The face lies on a B-spline surface closed in u, and its own seam edge "
-        "(edge 71, at u = 0.018) is not the surface's seam (u = 0 = 1), so its boundary crosses the "
-        "surface's seam mid-edge, which the boundary walk does not unwrap (before the refusal it "
-        "returned -0.0049). OpenCascade gives {occ} (fixed rule), {fine} (adaptive) and {rebuilt} "
-        "(pcurves projected from the edges).",
     ),
 }
 
