@@ -273,8 +273,8 @@ tests/
                      on test parts, fixtures and the corpus
   corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity
                      revision, every file and its sha256)
-  determinism.rs     recognition and correspondence JSON byte for byte the same twice in one
-                     process (fresh hash seeds)
+  determinism.rs     every corpus part's recognition and correspondence JSON byte for byte the
+                     same twice in one process (fresh hash seeds)
   wiring.rs          every family's defining faces wired, and every record field given a role
                      in the fingerprint table, over the fixtures and the corpus
   recognition.rs     the document: a record type for every family, order, faces, round trip
