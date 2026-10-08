@@ -60,8 +60,8 @@
     "family": "kernel",
     "key": "solid masses differ by up to 1e-3",
     "count": 1,
-    "verdict": "rust-correct",
-    "reason": "The port's volume, 4382309.3945, is unchanged by any placement (it gave 4382320.555 in place and 4382375.138 / 4382301.960 moved: the shell's residual outward area vector, (0.29, -0.78, -0.12) mm², made a flux from the origin depend on where the part is; mass.rs now measures it from the solid's mean vertex use, as OpenCascade does). Against OpenCascade's adaptive integration (4382356.32, area 800065.50) the port is 1.1e-5 off in volume and 4.2e-6 in area (800062.147); the captured values (4381850.216, 800052.939) are its fixed rule. The area difference is the sum of the face differences tests/face_areas.rs lists, every one rust-correct (the independent integrations of tools/face_area_evidence.py over the 3D edges agree with the port) except B-spline face 397, undetermined, 1.7e-5 mm² of the 3.35. The volume is integrated over the same boundaries and has no independent check of its own."
+    "verdict": "undetermined",
+    "reason": "Area rust-correct, volume undetermined. The port's volume, 4382309.3945, is unchanged by any placement (it gave 4382320.555 in place and 4382375.138 / 4382301.960 moved: the shell's residual outward area vector, (0.29, -0.78, -0.12) mm², made a flux from the origin depend on where the part is; mass.rs now measures it from the solid's mean vertex use, as OpenCascade does). Against OpenCascade's adaptive integration (4382356.32, area 800065.50) the port is 1.1e-5 off in volume and 4.2e-6 in area (800062.147); the captured values (4381850.216, 800052.939) are its fixed rule. The area difference is the sum of the face differences tests/face_areas.rs lists, every one rust-correct (the independent integrations of tools/face_area_evidence.py over the 3D edges agree with the port) except B-spline face 397, undetermined, 1.7e-5 mm² of the 3.35. The volume (47 mm³ from the adaptive rule) is integrated over the same boundaries but has no independent check, so which side it favours is not shown."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -306,8 +306,8 @@
     "family": "kernel",
     "key": "solid masses differ by up to 1e-3",
     "count": 1,
-    "verdict": "rust-correct",
-    "reason": "The port gives volume 223473.964 and area 52556.575 (unchanged by any placement); OpenCascade's fixed rule 223533.796 and 52563.707 (the captured values), its adaptive rule 223478.913 and 52555.861. The area difference is exactly the sum of the face differences tests/face_areas.rs lists for this file, 96 of them rust-correct (chiefly cylinders 315, 331, 333, ... at 0.03 each, where an independent Green's-theorem integration over the 3D edges agrees with the port to 1e-13 and OpenCascade integrates its pcurves) and one rust-wrong (B-spline face 34, 5e-5 mm² of the 7.13). Face 29, a B-spline face whose own seam is not its closed surface's seam, used to be refused (so the solid had no mass); the boundary walk now unwraps across the surface's seam and gives 49.929583, which two independent integrations confirm (49.929581)."
+    "verdict": "undetermined",
+    "reason": "The port gives volume 223473.964 and area 52556.575 (unchanged by any placement); OpenCascade's fixed rule 223533.796 and 52563.707 (the captured values), its adaptive rule 223478.913 and 52555.861. The area difference is exactly the sum of the face differences tests/face_areas.rs lists for this file, 96 of them rust-correct (chiefly cylinders 315, 331, 333, ... at 0.03 each, where an independent Green's-theorem integration over the 3D edges agrees with the port to 1e-13 and OpenCascade integrates its pcurves) and one rust-wrong (B-spline face 34, 5e-5 mm² of the 7.13), so the area is mostly OpenCascade's error but carries a known port defect. The volume (5 mm³, 2.2e-5, from the adaptive rule) has no independent check. Face 29, a B-spline face whose own seam is not its closed surface's seam, used to be refused (so the solid had no mass); the boundary walk now unwraps across the surface's seam and gives 49.929583, which two independent integrations confirm (49.929581)."
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
@@ -347,7 +347,7 @@
     "key": "{} records: 1 vs 1 records, fields {\"air_samples\", \"body_key\"}",
     "count": 1,
     "verdict": "undetermined",
-    "reason": "Same void faces, openings, enclosed samples (169) and estimated volume; the air samples differ by 75 of 89347 (0.08%): the void grid is a sampling instrument anchored at the solid's box, and OpenCascade's box is padded (by 1e-7 on this part's faces) where the port's is exact, so the two grids sit a fraction of a micron apart and cells whose centres fall on a face flip. The body key carries the solid's mass, whose difference is its own entry (rust-correct). The enclosed samples agree since the trimming domain of face 29 (a rotated seam on a closed B-spline surface) unwraps across the surface's seam."
+    "reason": "Same void faces, openings, enclosed samples (169) and estimated volume; the air samples differ by 75 of 89347 (0.08%): the void grid is a sampling instrument anchored at the solid's box, and OpenCascade's box is padded (by 1e-7 on this part's faces) where the port's is exact, so the two grids sit a fraction of a micron apart and cells whose centres fall on a face flip. The body key carries the solid's mass, whose difference is its own entry (undetermined). The enclosed samples agree since the trimming domain of face 29 (a rotated seam on a closed B-spline surface) unwraps across the surface's seam."
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
@@ -890,8 +890,8 @@
     "family": "kernel",
     "key": "solid masses differ by up to 1e-6",
     "count": 1,
-    "verdict": "rust-correct",
-    "reason": "The port's volume, 1726247.1200, is unchanged by any placement (it used to change under translation, from the shell's residual area vector; see nist_ctc_01). OpenCascade's adaptive integration gives 1726247.5795 (2.7e-7) and area 391371.3474 against the port's 391371.3811 (8.7e-8). The difference is the sum of face differences that tests/face_areas.rs lists, all rust-correct: chiefly the vertex-blend spheres 49, 50, 51 and 53, each a spherical triangle of three great-circle arcs whose area by Girard's theorem, 14.268931992720, is the port's to 1e-14 (OpenCascade gives 14.26622 with every rule, its pcurves rebuilt too), and B-spline faces 90, 91, 95, 102, 103, 106 and 125, whose edges lie up to 3e-3 mm off their surfaces."
+    "verdict": "undetermined",
+    "reason": "Area rust-correct, volume undetermined. The port's volume, 1726247.1200, is unchanged by any placement (it used to change under translation, from the shell's residual area vector; see nist_ctc_01). OpenCascade's adaptive integration gives 1726247.5795 (2.7e-7) and area 391371.3474 against the port's 391371.3811 (8.7e-8). The area difference is the sum of face differences that tests/face_areas.rs lists, all rust-correct: chiefly the vertex-blend spheres 49, 50, 51 and 53, each a spherical triangle of three great-circle arcs whose area by Girard's theorem, 14.268931992720, is the port's to 1e-14 (OpenCascade gives 14.26622 with every rule, its pcurves rebuilt too), and B-spline faces 90, 91, 95, 102, 103, 106 and 125, whose edges lie up to 3e-3 mm off their surfaces. The volume is integrated over the same boundaries but has no independent check."
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",

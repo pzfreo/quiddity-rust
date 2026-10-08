@@ -54,13 +54,13 @@ its verdict and reason in a verdict file:
 
 | Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
 |---|---|---|---|---|---|---|---|
-| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 127 (895 problems) | 64 | 18 | 13 | 32 | 0 |
+| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 126 (894 problems) | 66 | 12 | 14 | 34 | 0 |
 | `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 23 (24 calls) | 4 | 0 | 1 | 2 | 16 |
 | `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 7 | 0 | 7 | 0 | 0 | 0 |
 | `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 18 | 3 | 15 | 0 | 0 | 0 |
 | `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 28 (53 probes) | 6 | 12 | 0 | 10 | 0 |
 | `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 64 | 13 | 0 | 0 | 51 | 0 |
-| `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 41 | 1 | 1 | 2 | 4 | 33 |
+| `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 42 | 1 | 2 | 2 | 4 | 33 |
 | `tests/fixtures/known_face_areas.json` | `crates/haecceity/tests/face_areas.rs` | 1831 | 1815 | 3 | 0 | 12 | 1 |
 
 The undetermined entries are the backlog: differences not yet shown to be either side's error.
