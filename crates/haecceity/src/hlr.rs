@@ -675,6 +675,12 @@ fn parallel<R: Send>(items: &[usize], f: impl Fn(usize) -> R + Sync) -> Vec<R> {
     let threads = std::thread::available_parallelism()
         .map_or(1, |n| n.get())
         .min(items.len());
+    // One thread, or none to be had (wasm32-unknown-unknown spawns none): work here, in order.
+    if threads <= 1 {
+        let mut done: Vec<(usize, R)> = items.iter().map(|&i| (i, f(i))).collect();
+        done.sort_by_key(|(i, _)| *i);
+        return done.into_iter().map(|(_, r)| r).collect();
+    }
     let next = AtomicUsize::new(0);
     let mut done: Vec<(usize, R)> = std::thread::scope(|scope| {
         let workers: Vec<_> = (0..threads)
