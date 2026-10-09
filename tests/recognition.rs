@@ -853,10 +853,9 @@ fn sorted(faces: &[usize]) -> Vec<usize> {
     faces
 }
 
-/// The `Features` field of a family a rule reads (none for risers, which are not carried).
+/// The `Features` field of a family a rule reads.
 fn family_field(family: reconcile::Family) -> Option<&'static str> {
     match family {
-        reconcile::Family::Risers => None,
         reconcile::Family::Passages => Some("section_passages"),
         other => Some(
             RECORD_TYPES

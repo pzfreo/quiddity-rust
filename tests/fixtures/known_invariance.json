@@ -56,6 +56,14 @@
     "max_differing": 3
   },
   {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "motion": "generic_framed",
+    "family": "step_levels",
+    "verdict": "rust-wrong",
+    "reason": "The face_levels entry's cause: step levels cluster horizontal faces with the same 0.5 mm tolerance, and faces 107 and 206 lie exactly that far apart (z 34.983 and 35.483 in the frame), so round-off from the placement decides whether the level at 34.983 holds both faces ([107, 206] unmoved) or face 107 alone (moved; no step level then holds face 206). The recogniser's threshold is at fault, as Python's framed face levels show for this file.",
+    "max_differing": 2
+  },
+  {
     "file": "mfcadpp/10049.step",
     "motion": "translate",
     "family": "pockets",

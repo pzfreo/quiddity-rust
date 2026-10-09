@@ -140,6 +140,8 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
         &["OrientedSlotGrid", "OrientedSlotArray"],
     ),
     ("pads", &["RaisedPad"]),
+    ("step_levels", &["FaceLevel"]),
+    ("risers", &["RiserEvidence"]),
 ];
 
 /// The record class names a family's records can have.

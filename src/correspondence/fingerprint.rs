@@ -811,6 +811,40 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("z1", Derived),
         ],
     },
+    FamilyFingerprint {
+        family: "step_levels",
+        members: None,
+        variants: false,
+        fields: &[
+            // A horizontal plane's height, and its faces' extent, whose widths are its sizes.
+            ("z", Placement),
+            ("x_span", Derived),
+            ("y_span", Derived),
+            ("body_key", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "risers",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("vertical", Trait),
+            // Which end is low follows the part's sense of z.
+            ("lo_at_envelope", Placement),
+            ("hi_at_envelope", Placement),
+            ("positions", Placement),
+            ("other_axis", Placement),
+            ("other_positions", Placement),
+            // Its height is their difference.
+            ("z_lo", Derived),
+            ("z_hi", Derived),
+            // The scan's tolerance, the same for every riser.
+            ("tol", Ignored),
+            ("body_levels", Placement),
+            ("body_key", Placement),
+        ],
+    },
 ];
 
 /// The fingerprint table of the family with this serde key.
@@ -1077,6 +1111,11 @@ fn derived_sizes(family: &str, r: &Value, sizes: &mut BTreeMap<String, f64>) {
             insert_sorted(sizes, "section.walls", walls.unwrap_or_default());
         }
         "oriented_slots" => put("depth", interval("source.run_interval")),
+        "risers" => put("height", span("z_lo", "z_hi")),
+        "step_levels" => {
+            let widths = [interval("x_span"), interval("y_span")];
+            insert_sorted(sizes, "footprint", widths.into_iter().flatten().collect());
+        }
         "pads" => {
             let extents = ["x", "y", "z"].map(|a| span(&format!("{a}0"), &format!("{a}1")));
             let axis = at(r, "axis")

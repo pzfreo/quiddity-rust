@@ -59,6 +59,9 @@ const MOTIONS: [Motion; 6] = [
     ),
 ];
 
+/// The families caller-space recognition reads along world Z (`quiddity.levels`).
+const WORLD_Z: [&str; 2] = ["risers", "step_levels"];
+
 fn placement(r: &[[f64; 3]; 3], t: &[f64; 3]) -> Placement {
     [0, 1, 2].map(|i| [r[i][0], r[i][1], r[i][2], t[i]])
 }
@@ -291,18 +294,23 @@ fn correspond_with_themselves_moved(slice: usize, n: usize) {
                 .map(move |(m, motion)| (i, m, motion))
         })
         .collect();
-    let moved = common::parallel::map(&cases, |&(i, m, (motion, _, _))| {
+    let moved = common::parallel::map(&cases, |&(i, m, (motion, r, _))| {
         let name = &files[i];
         let old = unmoved[i].as_ref().unwrap();
         let new = prints[i][m].as_ref().unwrap();
         let c = correspondence::correspond(old, new).unwrap();
-        let skip: Vec<String> = invariance
+        let mut skip: Vec<String> = invariance
             .as_array()
             .unwrap()
             .iter()
             .filter(|k| k["file"] == name.as_str() && k["motion"] == *motion)
             .map(|k| k["family"].as_str().unwrap().to_string())
             .collect();
+        // Read along world Z by specification (`tests/invariance.rs`' WORLD_Z): where the motion
+        // does not keep Z vertical, the moved part's levels and risers are other faces.
+        if r[2][2].abs() != 1.0 {
+            skip.extend(WORLD_Z.map(String::from));
+        }
         Moved {
             found: invariance_problems(old, new, &c, &skip),
             alignment: format!(
