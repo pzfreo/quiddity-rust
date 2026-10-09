@@ -194,6 +194,28 @@ fn written(f: &File, p: &PartPmi) -> Written {
     w
 }
 
+/// `pmi::verify` of a replace of part 0's PMI with `p` (written into `f`, read back as `w`).
+fn assert_verified(f: &File, w: &Written, p: &PartPmi) {
+    let before = pmi::read(&f.doc, &f.parts).unwrap();
+    let parts = read_part_definitions(w.doc.bytes()).unwrap();
+    let v = pmi::verify(
+        pmi::Snapshot {
+            doc: &f.doc,
+            defs: &f.parts,
+            read: &before,
+        },
+        &f.doc,
+        &[(PartId(0), p.clone())],
+        Mode::Replace,
+        pmi::Snapshot {
+            doc: &w.doc,
+            defs: &parts,
+            read: &w.read,
+        },
+    );
+    assert!(v.is_ok(), "{:?}", v.into_result());
+}
+
 fn assert_reads_back(w: &Written, part: PartId, p: &PartPmi) {
     let d = differences_as_stated(p, &w.read.parts[part.0]);
     assert!(
@@ -758,7 +780,8 @@ fn refs_of(doc: &Document, id: u64) -> Vec<u64> {
 /// The datum feature symbols of the written file (decision 6): per
 /// `draughting_model_item_association`, the label of the datum its datum feature establishes,
 /// with its callout checked to be a tessellated 'datum' set in an annotation plane of a
-/// draughting model related to the part's shape representation.
+/// draughting model that no `mechanical_design_and_draughting_relationship` relates to the
+/// part's shape representation (left out, docs/step-ap242.md decisions of 2026-10-09).
 fn datum_symbols(w: &Written) -> Vec<String> {
     let mut out = Vec::new();
     for id in w.doc.ids() {
@@ -795,11 +818,12 @@ fn datum_symbols(w: &Written) -> Vec<String> {
             .expect("the callout's annotation plane is in the model");
         assert!(refs_of(&w.doc, plane).len() >= 3);
         assert!(
-            w.doc
+            !w.doc
                 .referrers(model)
                 .iter()
                 .any(|&r| w.names(r) == ["mechanical_design_and_draughting_relationship"]),
-            "the model is related to the shape"
+            "the model is not related to the shape (maintainer decision 2026-10-09: \
+             OpenCascade 7.9 crashes on that relationship)"
         );
         let datum = w
             .doc
@@ -873,6 +897,371 @@ fn datum_feature_symbols_go_with_their_datums() {
     let w4 = write(&again, &[(PartId(0), only_a)], Mode::Add).unwrap();
     assert!(w4.report.datum_symbols.is_empty());
     assert_eq!(datum_symbols(&w4).len(), 4);
+}
+
+/// A size and a tolerance on a feature of several faces (maintainer decision 2026-10-09): one
+/// `geometric_item_specific_usage` per face, which OpenCascade reads, never an
+/// `item_identified_representation_usage` of a `set_representation_item`. A shape aspect has
+/// one usage per representation (UR2), so each face is a member shape aspect of its own,
+/// shared by every feature on that face (UR1, §5.1), and the feature is composed of its
+/// members; it reads back as the feature of those faces.
+#[test]
+fn a_feature_of_several_faces_has_a_usage_per_face() {
+    let f = spool();
+    let p = PartPmi {
+        // Feature 1 shares face 10 with feature 2, which is a datum feature of its own.
+        features: vec![faces(&[0]), faces(&[9, 10]), faces(&[10]), faces(&[5, 6])],
+        datums: vec![datum("A", 0), datum("B", 2)],
+        dimensions: vec![size(
+            3,
+            "20.",
+            DimTolerance::Deviations(bounds("0.1", "-0.1")),
+        )],
+        tolerances: vec![{
+            let mut t = tolerance(
+                ToleranceKind::SurfaceProfile,
+                ToleranceTarget::Feature(FeatureId(1)),
+                "0.1",
+            );
+            t.datums = Some(system(&[0, 1]));
+            t
+        }],
+        ..PartPmi::default()
+    };
+    let w = written(&f, &p);
+    assert_verified(&f, &w, &p);
+    let added = w.added();
+    for &id in &added {
+        assert!(
+            !w.text(id).contains("SET_REPRESENTATION_ITEM"),
+            "{}",
+            w.text(id)
+        );
+        assert!(
+            w.names(id) != ["item_identified_representation_usage"],
+            "{}",
+            w.text(id)
+        );
+    }
+    // Every usage identifies one face; each face is identified once.
+    let usages: Vec<u64> = added
+        .iter()
+        .copied()
+        .filter(|&id| w.names(id) == ["geometric_item_specific_usage"])
+        .collect();
+    let mut identified: Vec<u64> = usages.iter().map(|&u| refs_of(&w.doc, u)[2]).collect();
+    let n = identified.len();
+    identified.sort_unstable();
+    identified.dedup();
+    assert_eq!(identified.len(), n, "a face is identified twice");
+    assert_eq!(n, 5, "faces 0, 5, 6, 9, 10: one usage each");
+    let violations: Vec<_> = haecceity::express_rules::check_all(&w.doc)
+        .into_iter()
+        .filter(|v| v.id > w.max)
+        .collect();
+    assert!(violations.is_empty(), "{violations:#?}");
+}
+
+/// Add onto a file whose kept plain shape aspect identifies a feature's faces by one usage of
+/// a `set_representation_item` (§6.5.1, as earlier writes did): the new feature is composed of
+/// that aspect, and no face gains a second usage (item_identified_representation_usage UR1).
+#[test]
+fn add_composes_a_feature_of_an_aspect_of_its_faces() {
+    let f = spool();
+    let def = &f.parts[0];
+    let (face9, face10) = (def.faces[9], def.faces[10]);
+    let gisu = f
+        .doc
+        .ids()
+        .find(|&id| {
+            matches!(f.doc.get(id).unwrap(), RawEntity::Simple { name, .. }
+                if name.eq_ignore_ascii_case("geometric_item_specific_usage"))
+        })
+        .unwrap();
+    let rep = refs_of(&f.doc, gisu)[1];
+    let (aspect, usage) = (f.doc.max_id() + 1, f.doc.max_id() + 2);
+    let mut text = String::from_utf8(f.doc.bytes().to_vec()).unwrap();
+    let at = text.rfind("ENDSEC;").unwrap();
+    text.insert_str(
+        at,
+        &format!(
+            "#{aspect}=SHAPE_ASPECT('','',#{},.T.);\n#{usage}=ITEM_IDENTIFIED_REPRESENTATION_USAGE('','',#{aspect},#{rep},SET_REPRESENTATION_ITEM((#{face9},#{face10})));\n",
+            def.shape
+        ),
+    );
+    let g = open_bytes(text.into_bytes());
+    let add = PartPmi {
+        features: vec![faces(&[9, 10])],
+        tolerances: vec![tolerance(
+            ToleranceKind::SurfaceProfile,
+            ToleranceTarget::Feature(FeatureId(0)),
+            "0.1",
+        )],
+        ..PartPmi::default()
+    };
+    let w = write(&g, &[(PartId(0), add)], Mode::Add).unwrap_or_else(|e| panic!("{e}"));
+    let added = w.added();
+    let compositions: Vec<u64> = added
+        .iter()
+        .copied()
+        .filter(|&id| w.names(id) == ["shape_aspect_relationship"])
+        .collect();
+    assert_eq!(compositions.len(), 1);
+    assert_eq!(refs_of(&w.doc, compositions[0])[1], aspect);
+    assert!(
+        added
+            .iter()
+            .all(|&id| w.names(id) != ["geometric_item_specific_usage"]),
+        "no new usage of faces 9 and 10"
+    );
+    let t = w.read.parts[0]
+        .tolerances
+        .iter()
+        .find(|t| t.kind == ToleranceKind::SurfaceProfile && t.datums.is_none())
+        .expect("the added profile tolerance");
+    let ToleranceTarget::Feature(fid) = t.target else {
+        panic!("{t:?}");
+    };
+    assert_eq!(w.read.parts[0].features[fid.0], faces(&[9, 10]));
+}
+
+/// Part notes in words (coating, heat treatment, edges) as the PMI practice's editable text
+/// (§7.4: 'semantic text', a user defined attribute; on the part, on its
+/// `product_definition_shape`, Table 17).
+fn part_notes() -> Vec<AttributeSet> {
+    [
+        ("coating", "Anodise to MIL-A-8625 Type II, black"),
+        ("heat treatment", "None"),
+        ("edges", "Break sharp edges 0.2 max"),
+    ]
+    .into_iter()
+    .map(|(k, v)| AttributeSet {
+        name: "semantic text".into(),
+        on: None,
+        items: vec![(k.into(), AttributeValue::Text(v.into()))],
+    })
+    .collect()
+}
+
+/// Ra 3.2 µm on the part (any process) and Ra 0.8 µm, Rz 4 µm on `faces` (material removal
+/// required).
+fn textures(faces: Option<FeatureId>) -> Vec<SurfaceTexture> {
+    let um = |t| length(t, LengthUnit::Micrometre);
+    let mut out = vec![SurfaceTexture {
+        on: None,
+        material_removal: MaterialRemoval::AnyProcessAllowed,
+        parameters: vec![SurfaceTextureParameter {
+            characteristic: "Ra".into(),
+            value: um("3.2"),
+        }],
+    }];
+    if let Some(f) = faces {
+        out.push(SurfaceTexture {
+            on: Some(f),
+            material_removal: MaterialRemoval::Required,
+            parameters: vec![
+                SurfaceTextureParameter {
+                    characteristic: "Ra".into(),
+                    value: um("0.8"),
+                },
+                SurfaceTextureParameter {
+                    characteristic: "Rz".into(),
+                    value: um("4."),
+                },
+            ],
+        });
+    }
+    out
+}
+
+/// Notes and surface finish in standard forms (decision 5; maintainer decisions 2026-10-09,
+/// specify-core's U3): part notes as 'semantic text' (PMI practice §7.4) and surface texture as
+/// AP242's surface conditions (ISO 10303-1110: `Surface_texture`, its
+/// `Standard_surface_texture_parameter`s in `surface_texture_representation`s). Both read back
+/// as written; the instances satisfy `surface_texture_representation` WR1–WR5,
+/// `general_property_association` WR1–WR2 and the global rule
+/// `restrict_representation_for_surface_condition` (checked here: `express_rules` does not
+/// evaluate them), and the writer's own schema and rule checks. WR5 with the association's WR2
+/// makes the parameter 'surface_condition', not the mapping's 'surface texture parameter'
+/// (docs/step-ap242.md, question 3). A parameter without its 'surface_condition' association
+/// is reported, not read.
+#[test]
+fn notes_and_surface_textures_are_standard_forms() {
+    let f = spool();
+    let mut p = PartPmi {
+        features: vec![faces(&[9, 10])],
+        attributes: part_notes(),
+        surface_textures: textures(Some(FeatureId(0))),
+        ..PartPmi::default()
+    };
+    let w = written(&f, &p);
+    assert_verified(&f, &w, &p);
+    let pds = f.parts[0].shape;
+    let name_of = |id: u64| w.text(id).split('\'').nth(1).unwrap_or("").to_string();
+    // A general_property's name follows its id.
+    let gp_name = |id: u64| w.text(id).split('\'').nth(3).unwrap_or("").to_string();
+    let added = w.added();
+    let of = |entity: &str| -> Vec<u64> {
+        added
+            .iter()
+            .copied()
+            .filter(|&id| w.names(id) == [entity])
+            .collect()
+    };
+    // Notes: 'semantic text' on the part's shape.
+    let notes: Vec<u64> = of("property_definition")
+        .into_iter()
+        .filter(|&id| name_of(id) == "semantic text")
+        .collect();
+    assert_eq!(notes.len(), 3);
+    for n in notes {
+        assert_eq!(refs_of(&w.doc, n), [pds], "{}", w.text(n));
+    }
+    // Surface textures: 'surface texture' with a 'surface texture' representation (the global
+    // rule), each parameter related to it and represented by a surface_texture_representation.
+    let pdrs = of("property_definition_representation");
+    let rep_of = |pd: u64| -> u64 {
+        let found: Vec<u64> = pdrs
+            .iter()
+            .filter(|&&r| refs_of(&w.doc, r)[0] == pd)
+            .map(|&r| refs_of(&w.doc, r)[1])
+            .collect();
+        assert_eq!(found.len(), 1, "{}", w.text(pd));
+        found[0]
+    };
+    let textures_: Vec<u64> = of("property_definition")
+        .into_iter()
+        .filter(|&id| name_of(id) == "surface texture")
+        .collect();
+    assert_eq!(textures_.len(), 2);
+    for &t in &textures_ {
+        assert_eq!(name_of(rep_of(t)), "surface texture");
+    }
+    let mut parameters = 0;
+    for r in of("property_definition_relationship") {
+        assert_eq!(name_of(r), "surface texture parameter");
+        let [relating, related] = refs_of(&w.doc, r)[..] else {
+            panic!("{}", w.text(r));
+        };
+        assert!(textures_.contains(&relating));
+        assert_eq!(name_of(related), "surface_condition");
+        let rep = rep_of(related);
+        assert_eq!(w.names(rep), ["surface_texture_representation"]);
+        // The representation's references: its items, then its context.
+        let mut items = refs_of(&w.doc, rep);
+        items.pop();
+        let kinds: Vec<Vec<String>> = items.iter().map(|&i| w.names(i)).collect();
+        // WR1: each item is exactly one of measure item, value range, descriptive item;
+        // WR2: one descriptive item, the 'measuring method'; WR3: a measure.
+        let descriptive: Vec<u64> = items
+            .iter()
+            .copied()
+            .filter(|&i| w.names(i) == ["descriptive_representation_item"])
+            .collect();
+        assert_eq!(descriptive.len(), 1, "{kinds:?}");
+        assert_eq!(name_of(descriptive[0]), "measuring method");
+        assert!(
+            kinds
+                .iter()
+                .any(|k| k.contains(&"measure_representation_item".to_string())),
+            "{kinds:?}"
+        );
+        assert_eq!(items.len(), 2, "{kinds:?}");
+        // WR4: in no representation relationship; WR5: one association with the general
+        // property 'surface_condition'; the association's WR1 (the only one on the parameter)
+        // and WR2 (the parameter is not a dimension or tolerance, so the names agree).
+        assert!(
+            w.doc
+                .referrers(rep)
+                .iter()
+                .all(|&x| w.names(x) == ["property_definition_representation"])
+        );
+        let gpas: Vec<u64> = w
+            .doc
+            .referrers(related)
+            .iter()
+            .copied()
+            .filter(|&x| w.names(x) == ["general_property_association"])
+            .collect();
+        assert_eq!(gpas.len(), 1);
+        let gp = refs_of(&w.doc, gpas[0])[0];
+        assert_eq!(w.names(gp), ["general_property"]);
+        assert_eq!(gp_name(gp), "surface_condition", "{}", w.text(gp));
+        assert_eq!(refs_of(&w.doc, gpas[0]), [gp, related]);
+        assert_eq!(
+            name_of(related),
+            gp_name(gp),
+            "general_property_association WR2"
+        );
+        parameters += 1;
+    }
+    assert_eq!(parameters, 3);
+    // Every general_property_association the write added meets WR2 (none derives a dimension
+    // or tolerance): the notes' and the textures' alike.
+    for g in of("general_property_association") {
+        let [base, derived] = refs_of(&w.doc, g)[..] else {
+            panic!("{}", w.text(g));
+        };
+        assert_eq!(gp_name(base), name_of(derived), "{}", w.text(g));
+    }
+    // A parameter named as the mapping names it (breaking the association's WR2) reads the
+    // same.
+    let text = String::from_utf8(w.doc.bytes().to_vec()).unwrap();
+    let mapped = text.replace(
+        "PROPERTY_DEFINITION('surface_condition'",
+        "PROPERTY_DEFINITION('surface texture parameter'",
+    );
+    assert_ne!(mapped, text);
+    let r = pmi::read(&Document::parse(mapped.into_bytes()).unwrap(), &f.parts).unwrap();
+    assert_eq!(r.parts[0].surface_textures, p.surface_textures);
+    // A parameter whose general property is not 'surface_condition' breaks WR5: reported, and
+    // its texture not read.
+    let renamed = text.replace(
+        "GENERAL_PROPERTY('','surface_condition',$)",
+        "GENERAL_PROPERTY('','roughness',$)",
+    );
+    assert_ne!(renamed, text);
+    let r = pmi::read(&Document::parse(renamed.into_bytes()).unwrap(), &f.parts).unwrap();
+    assert!(r.parts[0].surface_textures.is_empty());
+    assert!(
+        r.findings.iter().any(|x| x.detail.contains("WR5")),
+        "{:?}",
+        r.findings
+    );
+    // Remove: nothing of them is left.
+    let again = File {
+        parts: read_part_definitions(w.doc.bytes()).unwrap(),
+        doc: Document::parse(w.doc.bytes().to_vec()).unwrap(),
+    };
+    let w2 = write(&again, &[(PartId(0), PartPmi::default())], Mode::Remove).unwrap();
+    assert!(w2.read.parts[0].surface_textures.is_empty());
+    assert!(w2.read.parts[0].attributes.is_empty());
+    // The micrometre the first write added stays: the removal plan never removes units
+    // (shared infrastructure, docs/step-ap242.md stage 2).
+    let left: Vec<String> = w2
+        .doc
+        .ids()
+        .filter(|&id| id > f.doc.max_id())
+        .map(|id| w2.text(id))
+        .collect();
+    assert_eq!(
+        left,
+        ["(LENGTH_UNIT()NAMED_UNIT(*)SI_UNIT(.MICRO.,.METRE.));"].map(|t| {
+            let id = w2.doc.ids().find(|&id| id > f.doc.max_id()).unwrap_or(0);
+            format!("#{id}={t}")
+        })
+    );
+    // A value that is not a Part 21 REAL is refused, naming the texture.
+    p.surface_textures[1].parameters[0].value = length("35", LengthUnit::Micrometre);
+    match write(&f, &[(PartId(0), p)], Mode::Replace) {
+        Err(WriteError::Refused(r)) => {
+            assert!(
+                r.iter().any(|x| x.item == ItemRef::SurfaceTexture(1)),
+                "{r:?}"
+            )
+        }
+        other => panic!("not refused: {:?}", other.err()),
+    }
 }
 
 /// One datum per name per document (assemblies): datum A on each part of the two-part
@@ -2401,6 +2790,62 @@ fn compare_occt(
             }
         }
     }
+    // Notes on the part ('semantic text', §7.4): XCAF's metadata of the part's label, which
+    // holds one string per property name; and what it holds that the reader does not.
+    let metadata: Vec<&Json> = occt["metadata"].as_array().unwrap().iter().collect();
+    for (pi, p) in r.parts.iter().enumerate() {
+        let strings = metadata
+            .iter()
+            .find(|m| m["part"].as_u64() == Some(pi as u64))
+            .map(|m| m["strings"].clone())
+            .unwrap_or(Json::Null);
+        let mut ours: Vec<String> = Vec::new();
+        for a in p.attributes.iter().filter(|a| a.on.is_none()) {
+            for (item, v) in &a.items {
+                let AttributeValue::Text(text) = v else {
+                    continue;
+                };
+                ours.push(text.clone());
+                if strings[&a.name].as_str() != Some(text.as_str()) {
+                    out.push((
+                        format!("{name} occt part {pi} {} {item:?}", a.name),
+                        format!(
+                            "not in XCAF's metadata, which holds {:?} = {}",
+                            a.name, strings[&a.name]
+                        ),
+                    ));
+                }
+            }
+        }
+        if let Json::Object(m) = &strings {
+            for (k, v) in m {
+                if !ours.iter().any(|t| Some(t.as_str()) == v.as_str()) {
+                    out.push((
+                        format!("{name} occt part {pi} metadata {k:?}"),
+                        format!("{v} is no text the reader has on the part"),
+                    ));
+                }
+            }
+        }
+        // Surface texture: XCAF has none.
+        for (i, s) in p.surface_textures.iter().enumerate() {
+            out.push((
+                format!("{name} occt part {pi} surface texture {i}"),
+                format!(
+                    "not read: {} {}",
+                    s.material_removal.term(),
+                    s.parameters
+                        .iter()
+                        .map(|x| format!(
+                            "{} {}{:?}",
+                            x.characteristic, x.value.value, x.value.unit
+                        ))
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                ),
+            ));
+        }
+    }
     // Material.
     let materials: Vec<String> = occt["materials"]
         .as_array()
@@ -2545,6 +2990,8 @@ fn written_cases() -> Vec<(String, Option<Vec<u8>>)> {
         on: Some(NoteOwner::Feature(FeatureId(4))),
         items: vec![("gauge".into(), AttributeValue::Text("plug".into()))],
     }];
+    p.attributes.extend(part_notes());
+    p.surface_textures = textures(Some(FeatureId(9)));
     let (edit, _) = pmi::write(
         &f.doc,
         &f.parts,
@@ -2676,6 +3123,16 @@ fn opencascade_reads_the_written_files() {
             Some(common::sha256_hex(&std::fs::read(&path).unwrap()).as_str()),
             "{name}: the capture is not of the committed file"
         );
+        // specify-core's load.load_all opens it (it crashed on the datum feature symbols'
+        // mechanical_design_and_draughting_relationship, no longer written), and XCAF reads it
+        // and every shape label's name.
+        if capture["loads"] != true || capture["reads"] != true {
+            problems.push(format!(
+                "{name}: OpenCascade does not open it: loads {} reads {}",
+                capture["loads"], capture["reads"]
+            ));
+            continue;
+        }
         // Every datum in these files is one the writer added, so each has its datum feature
         // symbol (decision 6), which OpenCascade links to the datum as its presentation.
         let datums = capture["parts"]

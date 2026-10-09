@@ -5,7 +5,9 @@ rule checks; writer; the `quiddity` command line `parts`, `pmi read`, `pmi check
 `pmi write` verified by reading back).
 Still refused by the writer, by name: datum targets, tolerance relations, notes, general tolerance
 tables and decimal places, and material density (the material name is written). See
-[Status](#status).
+[Status](#status). Since 2026-10-09 ([decisions](#maintainer-decisions-2026-10-09)) part notes
+in words are written as 'semantic text' (§7.4) and surface texture in AP242's surface conditions
+form; the refused notes are the non-standard 'manufacturing requirement' route.
 
 haecceity reads STEP geometry today (`crates/haecceity/src/step.rs`, through step-io's typed
 model). This document adds what specify-core and draftwright still need OpenCascade for: reading
@@ -69,6 +71,82 @@ These override anything below and any stream brief that says otherwise.
 8. **Main-session decisions:** only the generated schema table is committed, with the long
    form's source URL and sha256 (not the EXPRESS file itself); step-io's author is not contacted
    (haecceity rebuilds and checks the id map itself).
+
+## Maintainer decisions (2026-10-09)
+
+From specify-core-rust's questions Q16, Q20 (2) and Q3 (its upstream needs U15 and U3). As
+implemented, with the evidence found doing it; the open points are under
+[Questions](#questions-2026-10-09).
+
+1. **No `mechanical_design_and_draughting_relationship` for the datum feature symbols**
+   (Q16). The symbols' `draughting_model` ('datum feature symbols') is no longer related to the
+   part's shape representation; each symbol stays linked to its datum feature by its
+   `draughting_model_item_association` (§7.3), and OpenCascade still gives every datum its symbol
+   as presentation, with its annotation plane (`check_pmi_occt.py`, required by
+   `opencascade_reads_the_written_files`). A **deliberate departure** from the form the writer
+   wrote (decision 6's model related to the shape it annotates), to revisit; the practice itself
+   does not ask for that relationship (§9.2's global draughting model references the geometry it
+   shows; §9.4.4 relates draughting models to each other by
+   `mechanical_design_and_draughting_relationship`, as NIST's files do, never to a shape
+   representation). The cause is not what U15 says: OpenCascade 7.9's reader reads the files
+   with the relationship. The
+   SIGSEGV is in specify-core's `load.py`, which looks a label's name up with
+   `label.FindAttribute(TDataStd_Name.GetID_s(), TDataStd_Name())`, an in/out handle the OCP
+   binding mishandles: that call alone, made on every shape label, crashes on NIST CTC-01 (no
+   haecceity instance in it); reading the same labels' names through `TDF_AttributeIterator`
+   reads every file, with or without the relationship (the stage 3 `every_kind` file and
+   specify-core-rust's crashing `plate`); `load.load_all` still crashes on the file with the
+   relationship and opens the file without it. So the relationship only moves the heap so that
+   the bad call crashes. `check_pmi_occt.py` records both: `loads` (specify-core's
+   `load.load_all` in a child process) and `reads` (the safe walk).
+2. **One `geometric_item_specific_usage` per face** (Q20 (2)), never an
+   `item_identified_representation_usage` of a `set_representation_item` (the §5.1 Figure 5
+   form, which OpenCascade drops, and the datums only such an item cites with it). A shape
+   aspect has one usage per representation (`item_identified_representation_usage` UR2: the
+   schema's `UNIQUE UR2: used_representation, definition`), and OpenCascade, given a feature
+   with two such usages, reads only the first face (tried on the `every_kind` profile tolerance:
+   faces 9 and 10 read as face 9). So each face of a feature of several faces is a member
+   `shape_aspect` with its one usage, shared by every feature on that face (§5.1: one shape
+   aspect and usage per face), and the feature is composed of its members by
+   `shape_aspect_relationship` (§5.1 Figure 5's composition), which the reader already read as
+   the feature's faces. OpenCascade reads all of them: the five sizes and tolerances it dropped
+   in the written files (`known_pmi_write.json` "occt") now read on their faces with their datums.
+3. **Notes and surface finish in standard forms** (Q3, decision 5).
+   - *Part notes in words* (coating, heat treatment, edges) are the practice's editable text,
+     §7.4: a 'semantic text' user defined attribute (`AttributeSet { name: "semantic text", items:
+     [(<variable name>, Text(<line>))] }`, one per note), which the writer already wrote and the
+     reader already read; on the part it is now on the `product_definition_shape` (§7.4.3
+     Table 17's 'on part'). The form is NIST's (`GENERAL_PROPERTY('','semantic text',$)`, FTC-07
+     16 times). OpenCascade's metadata reader keeps one string per property name on the part's
+     label, so of several notes it shows the last (pinned rust-correct). `Note` stays the
+     'manufacturing requirement' route, read and refused.
+   - *Surface texture* is new in the model (`SurfaceTexture { on: Option<FeatureId>,
+     material_removal, parameters: [SurfaceTextureParameter { characteristic, value: Length }] }`)
+     and written as ISO 10303-1110 (AP242's surface conditions module) maps `Surface_texture` and
+     `Standard_surface_texture_parameter`, the PMI practice having no section on it and no NIST
+     file carrying one: `property_definition('surface texture','',<the faces' shape aspect or the
+     part's product_definition_shape>)` with `representation('surface texture')` holding
+     `descriptive_representation_item('material removal condition', 'any process allowed' |
+     'material removal required' | 'no material removal')`; per parameter
+     `property_definition('surface_condition','',<same owner>)`, related to the texture by
+     `property_definition_relationship('surface texture parameter')`, represented by a
+     `surface_texture_representation('surface texture parameter', (descriptive_representation_item(
+     'measuring method', 'Ra'), measure_representation_item('characteristic value',
+     LENGTH_MEASURE(3.2), µm)))` and associated with `general_property('', 'surface_condition')`.
+     The parameter is named 'surface_condition', not the mapping's 'surface texture parameter':
+     `surface_texture_representation` WR5 requires the association with 'surface_condition', and
+     `general_property_association` WR2 requires the derived definition's name to equal the
+     general property's, so no other name is schema-valid (question 3). Checked against the
+     schema (the writer's validation), `surface_texture_representation` WR1–WR5,
+     `general_property_association` WR1–WR2 and the global rule
+     `restrict_representation_for_surface_condition` (`notes_and_surface_textures_are_standard_forms`:
+     `express_rules` does not evaluate them). The reader reads this form, and the parameter
+     named as the mapping names it; a parameter without exactly one association with
+     'surface_condition' (WR5) is reported and its texture not read, as is anything else of a surface condition (direction,
+     manufacturing method, machining allowance, evaluation length, filters, value ranges) is
+     reported and the texture not read. OpenCascade XCAF has no surface texture
+     (not-applicable). The CLI's JSON carries it (`surface_textures`, terms `any_process_allowed`,
+     `material_removal_required`, `no_material_removal`).
 
 Schema references below are to the AP242 MIM long form `242_mim_lf.exp` (WG12 N11521, from
 stepcode); section numbers (§) are the PMI practice's unless stated.
@@ -452,7 +530,7 @@ be read, e.g. the pre-4.0.6 datum forms of §6.5.2):
 
 | Concept | AP242 form |
 |---|---|
-| Feature on items | `shape_aspect` + `geometric_item_specific_usage` per item, or `item_identified_representation_usage` with a `set_representation_item` (§5.1, §6.5.1) |
+| Feature on items | `shape_aspect` + `geometric_item_specific_usage` per item, or `item_identified_representation_usage` with a `set_representation_item` (§5.1, §6.5.1); the writer writes one `geometric_item_specific_usage` per face, a feature of several faces composed of one member shape aspect per face (decisions of 2026-10-09, 2) |
 | Group | `composite_group_shape_aspect` named 'multiple elements' / 'pattern of features', `shape_aspect_relationship` per member (§6.4); all around / between: `all_around_shape_aspect` / `between_shape_aspect` (§6.4.2–3) |
 | Derived feature | `derived_shape_aspect` (or the Table 3 subtype) with `shape_aspect_deriving_relationship`s (§5.1.4) — written only when the model states a derived feature |
 | Datum | one `datum` per label per part, established by `shape_aspect_relationship` from its `datum_feature` (the feature itself) and/or its `datum_target`s (§6.5, §6.6). A hole or boss datum is a datum feature on the cylindrical faces (§6.5.1, Figure 35); the axis is implied, so specify-core's "hole or boss axis" is written in that form, not as a derived axis |
@@ -472,6 +550,8 @@ be read, e.g. the pre-4.0.6 datum forms of §6.5.2):
 | Thread / knurl | `thread` / `turned_knurl` with one `shape_representation_with_parameters` whose items are exactly the model's fields, named as the WHERE rules name them; 'applied shape', 'partial area occurrence', 'thread runout' relationships |
 | Material | Material practice R2.1 §4.1: `property_definition('material property','material name')` → `representation('material name')` → `descriptive_representation_item(id, name)`, as specify-core's files carry it (decision 2); §4.2 'density' → `measure_representation_item('density measure', POSITIVE_RATIO_MEASURE, derived unit)`, read only |
 | Attributes | UDA practice §5–7: `general_property` 'user defined attribute' |
+| Note in words | §7.4 'semantic text': an attribute set of that name, one per note, on the part's `product_definition_shape` or a feature (decisions of 2026-10-09, 3) |
+| Surface texture | ISO 10303-1110 `Surface_texture` / `Standard_surface_texture_parameter`: `property_definition('surface texture')`, related (by 'surface texture parameter') 'surface_condition' property definitions with `surface_texture_representation`s and `general_property` 'surface_condition' (decisions of 2026-10-09, 3) |
 | Standard | `applied_document_reference` to the dimensioning standard (§4) |
 
 ## Anti-requirements
@@ -719,10 +799,14 @@ Settled by the implementation (where the design was open or silent):
 - *Usages.* A feature of one item is a `geometric_item_specific_usage`; of several items in one
   representation, an `item_identified_representation_usage` of a `set_representation_item`
   (§6.5.1 example; the GISU redeclares its item as one `geometric_model_item`, and UR2 allows one
-  usage per aspect and representation). Features of equal items are one instance. Items several
+  usage per aspect and representation). *Superseded 2026-10-09 (decision 2 of that day): one
+  `geometric_item_specific_usage` per item, each item of a feature of several in one
+  representation through a member shape aspect of its own.* Features of equal items are one instance. Items several
   features share (UR1: one usage per item and representation) are owned by one referenced
   feature and the others are composed of it by `shape_aspect_relationship` (§6.5.2, read as
-  the same items); in add, items a kept plain shape aspect already identifies are composed of it.
+  the same items); in add, items a kept plain shape aspect already identifies are composed of it
+  (per face, or all of a feature's faces where one usage of the aspect identifies exactly
+  them, as a `set_representation_item` does).
 - *Datum features*: a datum feature on a pattern applying to each member is the group and the
   datum feature in one complex instance (§6.5.2); a datum feature with exactly one size
   dimension, not otherwise a tolerance's or attribute's feature, is the
@@ -827,6 +911,71 @@ U9, in the library, so its stand-ins can go:
   reported as written) are gone. Since part names are in `pmi read`'s output and `pmi check`
   holds a document to them, `pmi_json::READER` is now `haecceity-pmi-read/2` (of the committed
   fixtures only NIST STC-06 and STC-09 read differently: their names, the id for an empty name).
+  Stage 5 makes it `haecceity-pmi-read/3`: a file's surface textures are now read where they
+  were reported (no committed fixture has one, so the pinned output is otherwise unchanged).
+
+**Stage 5 (2026-10-09): the maintainer's writer decisions of 2026-10-09.** Delivered and tested
+([decisions](#maintainer-decisions-2026-10-09)): no relationship for the symbols' draughting
+model; one usage per face; 'semantic text' notes and `SurfaceTexture` written, read and carried
+by the CLI's JSON (`PartProvenance.surface_textures`, `ItemRef::SurfaceTexture`, refused when a
+value is not a Part 21 REAL).
+
+- *Read-back*: `a_feature_of_several_faces_has_a_usage_per_face` and
+  `notes_and_surface_textures_are_standard_forms` (`pmi_write.rs`) read each write back equal as
+  stated and pass `pmi::verify`; no `set_representation_item` or `item_identified_representation_usage`
+  is written, each face is identified once, and the added instances violate no rule.
+  `add_composes_a_feature_of_an_aspect_of_its_faces`: an add onto a file whose plain shape
+  aspect identifies the feature's two faces by one `set_representation_item` usage composes the
+  feature of that aspect and adds no usage (per-face members would identify each face twice). A remove
+  takes everything written except the micrometre unit the write added (the removal plan never
+  removes units). The NIST and specify round trips (`pmi_roundtrip.rs`, 13 NIST files here) and
+  the add tests are unchanged: their pins needed no update.
+- *OpenCascade* (`check_pmi_occt.py`, specify-core's venv, OCP 7.9.3.1): all five written files
+  load in specify-core's `load.load_all` and read in XCAF; the stage 3 `every_kind` (with the
+  relationship) still crashes `load.load_all` (SIGSEGV) and reads in the safe walk. Differences,
+  `known_pmi_write.json` "occt", 5 (was 6): the H7 fit read as its limits' middle (rust-correct,
+  as before, its instance renumbered), two of `every_kind`'s three part notes (XCAF keeps the
+  last 'semantic text' only; rust-correct) and its two surface textures (XCAF has none;
+  not-applicable). The five "feature identified by a `set_representation_item`" differences are
+  gone: OpenCascade reads those sizes and tolerances on all their faces, with their datums.
+- *Written files* (`tests/fixtures/ap242/write/`): re-exported (no relationship; per-face
+  usages; `every_kind` gains three part notes and two surface textures, one on the two faces of
+  its profile tolerance) and re-captured.
+
+### Questions (2026-10-09)
+
+What was done meanwhile is in each.
+
+1. **The crash is specify-core's, not OpenCascade's** (decision 1). With OpenCascade reading the
+   relationship and specify-core's `load.py` crashing on a binding misuse, should the
+   relationship come back (decision 6's full form) once specify-core's `_name` reads names
+   through `TDF_AttributeIterator`? *Meanwhile:* left out, as decided; files open in
+   specify-core as it is.
+2. **Per-face usages through member shape aspects** (decision 2). The literal form, several
+   usages on the feature's own shape aspect, violates UR2 and OpenCascade reads one face of it;
+   the members are valid and OpenCascade reads every face. Is that the intended form? *Meanwhile:*
+   members.
+3. **Surface texture's mapping has defects** (decision 3). ISO 10303-1110 maps `Surface_texture`
+   to a `surface_texture_representation`, whose WR2 and WR3 (one descriptive item, the
+   'measuring method', and a measure) its mandatory 'material removal condition' cannot meet; it
+   names the item of `characteristic_value` 'evaluation length' (the path of
+   `evaluation_length`, copied); it gives a parameter no owner of its own. No practice and no
+   NIST file settles them. *Meanwhile:* a plain `representation('surface texture')`, the value
+   named 'characteristic value', the parameter on its texture's owner; the reader reads only
+   that. And the mapping names the parameter's `property_definition` 'surface texture
+   parameter', while `surface_texture_representation` WR5 (one `general_property_association`
+   with the general property 'surface_condition') and `general_property_association` WR2 (the
+   derived definition's name equals the general property's) require 'surface_condition': no
+   name meets both. *Meanwhile:* 'surface_condition', so every written instance is
+   schema-valid; the reader accepts either name. A reference file (CAx-IF or a CAD system's)
+   would settle it.
+4. **The material removal condition is mandatory** (ISO 1302, ISO 10303-1110) and specify-core's
+   finish ('Ra 3.2') does not state one. *Meanwhile:* the model requires it; specify-core must
+   state one ('any process allowed' is ISO 1302's basic symbol, which an unqualified 'Ra 3.2'
+   on a drawing means).
+5. **Several part notes, one shown by OpenCascade.** One 'semantic text' property per note is
+   §7.4's form; one property with a line per note would make them one note (and whether
+   OpenCascade would show more of it is untried). *Meanwhile:* one property per note.
 
 ## Out of scope for now
 

@@ -466,40 +466,34 @@
  },
  "occt": [
   {
-   "detail": "Size_Diameter",
-   "key": "assembly_plate_pin_intent occt missing dimension #1356",
-   "verdict": "rust-correct",
-   "reason": "OpenCascade does not read a feature whose faces one ITEM_IDENTIFIED_REPRESENTATION_USAGE identifies as a SET_REPRESENTATION_ITEM, which is the PMI practice's form for a feature of several faces (§6.5.1, Figure 36 and its Part 21 example: #280=ITEM_IDENTIFIED_REPRESENTATION_USAGE('','datum feature',#269,#246,SET_REPRESENTATION_ITEM(#281,#282))). geometric_item_specific_usage redeclares its item as one geometric_model_item, and item_identified_representation_usage UR2 allows one usage per aspect and representation, so a usage per face is not an alternative. haecceity reads the item back (pmi_write.rs) and the schema and rules validate it; OpenCascade drops the dimension or tolerance on that feature."
-  },
-  {
-   "detail": "Position",
-   "key": "assembly_plate_pin_intent occt missing tolerance #1431",
-   "verdict": "rust-correct",
-   "reason": "OpenCascade does not read a feature whose faces one ITEM_IDENTIFIED_REPRESENTATION_USAGE identifies as a SET_REPRESENTATION_ITEM, which is the PMI practice's form for a feature of several faces (§6.5.1, Figure 36 and its Part 21 example: #280=ITEM_IDENTIFIED_REPRESENTATION_USAGE('','datum feature',#269,#246,SET_REPRESENTATION_ITEM(#281,#282))). geometric_item_specific_usage redeclares its item as one geometric_model_item, and item_identified_representation_usage UR2 allows one usage per aspect and representation, so a usage per face is not an alternative. haecceity reads the item back (pmi_write.rs) and the schema and rules validate it; OpenCascade drops the dimension or tolerance on that feature."
-  },
-  {
-   "detail": "#6611: value 20.0105 vs 20. Millimetre (different)",
+   "detail": "#6615: value 20.0105 vs 20. Millimetre (different)",
    "key": "every_kind occt dimension 0:1:4:3",
    "verdict": "rust-correct",
    "reason": "The dimension is Ø20 H7 with its limits stated beside the class (20.000/20.021, §5.2.5: 'upper limit'/'lower limit' items beside 'nominal value' and LIMITS_AND_FITS). OpenCascade gives the value as the middle of the stated limits (20.0105) instead of the 'nominal value' item (20.); haecceity reads the nominal, the class and the limits as written."
   },
   {
-   "detail": "SurfaceProfile",
-   "key": "every_kind occt missing tolerance #6658",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"Break sharp edges 0.2 max\"",
+   "key": "every_kind occt part 0 semantic text \"coating\"",
    "verdict": "rust-correct",
-   "reason": "OpenCascade does not read a feature whose faces one ITEM_IDENTIFIED_REPRESENTATION_USAGE identifies as a SET_REPRESENTATION_ITEM, which is the PMI practice's form for a feature of several faces (§6.5.1, Figure 36 and its Part 21 example: #280=ITEM_IDENTIFIED_REPRESENTATION_USAGE('','datum feature',#269,#246,SET_REPRESENTATION_ITEM(#281,#282))). geometric_item_specific_usage redeclares its item as one geometric_model_item, and item_identified_representation_usage UR2 allows one usage per aspect and representation, so a usage per face is not an alternative. haecceity reads the item back (pmi_write.rs) and the schema and rules validate it; OpenCascade drops the dimension or tolerance on that feature."
+   "reason": "XCAF's metadata reader keeps one string per property name on the part's label (TDataStd_NamedData, keyed 'semantic text'), so of several part notes it holds the last. Each note is its own property_definition('semantic text') with its descriptive item, as PMI practice §7.4 defines editable note text (one property per note; its count is 'number of semantic text notes', Table 17) and NIST's files carry (FTC-07: 16, FTC-10: 19). haecceity reads every note back (pmi_write.rs notes_and_surface_textures_are_standard_forms)."
   },
   {
-   "detail": "Size_Diameter",
-   "key": "spool_fits_intent occt missing dimension #6376",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"Break sharp edges 0.2 max\"",
+   "key": "every_kind occt part 0 semantic text \"heat treatment\"",
    "verdict": "rust-correct",
-   "reason": "OpenCascade does not read a feature whose faces one ITEM_IDENTIFIED_REPRESENTATION_USAGE identifies as a SET_REPRESENTATION_ITEM, which is the PMI practice's form for a feature of several faces (§6.5.1, Figure 36 and its Part 21 example: #280=ITEM_IDENTIFIED_REPRESENTATION_USAGE('','datum feature',#269,#246,SET_REPRESENTATION_ITEM(#281,#282))). geometric_item_specific_usage redeclares its item as one geometric_model_item, and item_identified_representation_usage UR2 allows one usage per aspect and representation, so a usage per face is not an alternative. haecceity reads the item back (pmi_write.rs) and the schema and rules validate it; OpenCascade drops the dimension or tolerance on that feature."
+   "reason": "XCAF's metadata reader keeps one string per property name on the part's label (TDataStd_NamedData, keyed 'semantic text'), so of several part notes it holds the last. Each note is its own property_definition('semantic text') with its descriptive item, as PMI practice §7.4 defines editable note text (one property per note; its count is 'number of semantic text notes', Table 17) and NIST's files carry (FTC-07: 16, FTC-10: 19). haecceity reads every note back (pmi_write.rs notes_and_surface_textures_are_standard_forms)."
   },
   {
-   "detail": "Position",
-   "key": "spool_fits_intent occt missing tolerance #6404",
-   "verdict": "rust-correct",
-   "reason": "OpenCascade does not read a feature whose faces one ITEM_IDENTIFIED_REPRESENTATION_USAGE identifies as a SET_REPRESENTATION_ITEM, which is the PMI practice's form for a feature of several faces (§6.5.1, Figure 36 and its Part 21 example: #280=ITEM_IDENTIFIED_REPRESENTATION_USAGE('','datum feature',#269,#246,SET_REPRESENTATION_ITEM(#281,#282))). geometric_item_specific_usage redeclares its item as one geometric_model_item, and item_identified_representation_usage UR2 allows one usage per aspect and representation, so a usage per face is not an alternative. haecceity reads the item back (pmi_write.rs) and the schema and rules validate it; OpenCascade drops the dimension or tolerance on that feature."
+   "detail": "not read: any process allowed Ra 3.2Micrometre",
+   "key": "every_kind occt part 0 surface texture 0",
+   "verdict": "not-applicable",
+   "reason": "XCAF has no surface texture: OpenCascade 7.9 reads no AP242 surface condition (ISO 10303-1110 'surface texture' property and its surface_texture_representation parameters), and its metadata reader keeps nothing of them (the capture's metadata). haecceity reads the texture back as written."
+  },
+  {
+   "detail": "not read: material removal required Ra 0.8Micrometre, Rz 4.Micrometre",
+   "key": "every_kind occt part 0 surface texture 1",
+   "verdict": "not-applicable",
+   "reason": "XCAF has no surface texture: OpenCascade 7.9 reads no AP242 surface condition (ISO 10303-1110 'surface texture' property and its surface_texture_representation parameters), and its metadata reader keeps nothing of them (the capture's metadata). haecceity reads the texture back as written."
   }
  ]
 }

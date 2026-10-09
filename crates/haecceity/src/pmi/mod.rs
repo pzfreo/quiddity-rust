@@ -132,6 +132,7 @@ pub struct PartProvenance {
     pub knurls: Vec<Vec<u64>>,
     pub material: Vec<u64>,
     pub notes: Vec<Vec<u64>>,
+    pub surface_textures: Vec<Vec<u64>>,
     pub attributes: Vec<Vec<u64>>,
     /// Per supplemental geometry: every instance of its item tree.
     pub geometry: Vec<Vec<u64>>,
@@ -161,6 +162,7 @@ impl PartProvenance {
                     &self.threads,
                     &self.knurls,
                     &self.notes,
+                    &self.surface_textures,
                     &self.attributes,
                     &self.geometry,
                 ]

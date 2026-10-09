@@ -3980,6 +3980,26 @@ impl<'a> Reader<'a> {
                 );
                 continue;
             };
+            // A surface texture parameter (ISO 10303-1110) is read with its surface texture:
+            // named 'surface texture parameter' as the mapping has it, or 'surface_condition'
+            // as `pmi::write` names it (general_property_association WR2 with
+            // surface_texture_representation WR5).
+            let mapped = name == "surface texture parameter";
+            if mapped || name == "surface_condition" {
+                if self.has_texture(pdef) {
+                    continue;
+                }
+                if mapped {
+                    self.find(
+                        FindingKind::Unsupported,
+                        part,
+                        pdef,
+                        &[owner],
+                        "a surface texture parameter of no surface texture (ISO 10303-1110: related from its 'surface texture' by a 'surface texture parameter' property_definition_relationship); not read",
+                    );
+                    continue;
+                }
+            }
             // User defined attributes (UDA practice §5: associated with a general_property),
             // and editable note text (PMI practice §7.4, UDA practice §6.4.1: 'semantic text',
             // which some files write without the general_property).
@@ -3988,6 +4008,7 @@ impl<'a> Reader<'a> {
                 continue;
             }
             match (name.as_str(), description.as_str(), on) {
+                ("surface texture", _, _) => self.surface_texture(st, pdef, on),
                 ("default tolerances", _, None) => self.general_tolerance(st, pdef),
                 ("material property", _, None) => self.material(st, pdef, &description),
                 ("manufacturing requirement", _, _) => self.note(st, pdef, &description, on),
@@ -4526,6 +4547,262 @@ impl<'a> Reader<'a> {
             on,
         });
         st.prov.notes.push(ids(prov));
+    }
+
+    /// Whether a 'surface texture parameter' is related from a 'surface texture' property
+    /// definition (ISO 10303-1110, `Surface_texture.parameters`), with which it is read.
+    fn has_texture(&mut self, parameter: u64) -> bool {
+        let rels = self.referrers_by(
+            parameter,
+            "property_definition_relationship",
+            "property_definition_relationship",
+            "related_property_definition",
+        );
+        for r in rels {
+            if self.name_of_relationship(r) != "surface texture parameter" {
+                continue;
+            }
+            let texture = self.get_ref(
+                r,
+                "property_definition_relationship",
+                "relating_property_definition",
+            );
+            if let Some(t) = texture
+                && self.get_str(t, "property_definition", "name").as_deref()
+                    == Some("surface texture")
+            {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn name_of_relationship(&mut self, r: u64) -> String {
+        self.get_str(r, "property_definition_relationship", "name")
+            .unwrap_or_default()
+    }
+
+    /// A surface texture (ISO 10303-1110 `Surface_texture` and its
+    /// `Standard_surface_texture_parameter`s, as `pmi::write` writes them): the 'material
+    /// removal condition' of its representation and, per related 'surface texture parameter',
+    /// the characteristic ('measuring method') and the length value of its
+    /// `surface_texture_representation`. What the model does not hold (the texture's
+    /// direction, manufacturing method, machining allowance; a parameter's evaluation length,
+    /// filters, value range, other measures) is reported and the texture is not read.
+    fn surface_texture(&mut self, st: &mut PartState, pdef: u64, on: Option<NoteOwner>) {
+        let part = Some(st.id);
+        let on = match on {
+            None => None,
+            Some(NoteOwner::Feature(f)) => Some(f),
+            Some(o) => {
+                self.find(
+                    FindingKind::Unsupported,
+                    part,
+                    pdef,
+                    &[],
+                    format!("a surface texture on {o:?} (the model holds it on faces or the part); not read"),
+                );
+                return;
+            }
+        };
+        let mut prov = vec![pdef];
+        prov.extend(self.id_attributes(pdef));
+        let mut removal = None;
+        for (pdr, rep) in self.property_representations(pdef) {
+            prov.extend([pdr, rep]);
+            for item in self.get_refs(rep, "representation", "items") {
+                let name = self.name_of(item);
+                if !self.is(item, "descriptive_representation_item")
+                    || name != "material removal condition"
+                {
+                    self.find(
+                        FindingKind::Unsupported,
+                        part,
+                        item,
+                        &[pdef],
+                        format!("surface texture item {name:?} is not held by the model; texture not read"),
+                    );
+                    return;
+                }
+                let term = self
+                    .get_str(item, "descriptive_representation_item", "description")
+                    .unwrap_or_default();
+                match (MaterialRemoval::from_term(&term), removal) {
+                    (Some(m), None) => removal = Some(m),
+                    (Some(_), Some(_)) => {
+                        self.find(
+                            FindingKind::Conflict,
+                            part,
+                            item,
+                            &[pdef],
+                            "a second material removal condition; texture not read",
+                        );
+                        return;
+                    }
+                    (None, _) => {
+                        self.find(
+                            FindingKind::Nonconformance,
+                            part,
+                            item,
+                            &[pdef],
+                            format!("material removal condition {term:?} is none of ISO 10303-1110's terms; texture not read"),
+                        );
+                        return;
+                    }
+                }
+                prov.push(item);
+            }
+        }
+        let Some(material_removal) = removal else {
+            self.find(
+                FindingKind::Nonconformance,
+                part,
+                pdef,
+                &[],
+                "a surface texture without its material removal condition (mandatory, ISO 10303-1110); not read",
+            );
+            return;
+        };
+        let mut parameters = Vec::new();
+        let rels = self.referrers_by(
+            pdef,
+            "property_definition_relationship",
+            "property_definition_relationship",
+            "relating_property_definition",
+        );
+        for r in rels {
+            if self.name_of_relationship(r) != "surface texture parameter" {
+                continue;
+            }
+            let Some(p) = self.get_ref(
+                r,
+                "property_definition_relationship",
+                "related_property_definition",
+            ) else {
+                continue;
+            };
+            let pname = self
+                .get_str(p, "property_definition", "name")
+                .unwrap_or_default();
+            if pname != "surface texture parameter" && pname != "surface_condition" {
+                self.find(
+                    FindingKind::Nonconformance,
+                    part,
+                    p,
+                    &[pdef],
+                    format!("a surface texture parameter named {pname:?} (ISO 10303-1110: 'surface texture parameter', or 'surface_condition' for general_property_association WR2); texture not read"),
+                );
+                return;
+            }
+            prov.extend([r, p]);
+            prov.extend(self.id_attributes(p));
+            // WR5 of its representation: exactly one association with the general property
+            // 'surface_condition'.
+            let gpas = self.referrers_by(
+                p,
+                "general_property_association",
+                "general_property_association",
+                "derived_definition",
+            );
+            let gp = match gpas[..] {
+                [g] => self
+                    .get_ref(g, "general_property_association", "base_definition")
+                    .filter(|&gp| {
+                        self.get_str(gp, "general_property", "name").as_deref()
+                            == Some("surface_condition")
+                    })
+                    .map(|gp| (g, gp)),
+                _ => None,
+            };
+            let Some((g, gp)) = gp else {
+                self.find(
+                    FindingKind::Nonconformance,
+                    part,
+                    p,
+                    &[pdef],
+                    "a surface texture parameter without exactly one association with the general property 'surface_condition' (surface_texture_representation WR5); texture not read",
+                );
+                return;
+            };
+            prov.extend([g, gp]);
+            let mut characteristic = None;
+            let mut value = None;
+            for (pdr, rep) in self.property_representations(p) {
+                prov.extend([pdr, rep]);
+                for item in self.get_refs(rep, "representation", "items") {
+                    let name = self.name_of(item);
+                    if self.is(item, "descriptive_representation_item")
+                        && name == "measuring method"
+                        && characteristic.is_none()
+                    {
+                        characteristic =
+                            self.get_str(item, "descriptive_representation_item", "description");
+                    } else if self.is(item, "measure_representation_item")
+                        && !self.is(item, "qualified_representation_item")
+                        && name == "characteristic value"
+                        && value.is_none()
+                    {
+                        match self.measure(item) {
+                            Ok(Measured::Length(l)) => value = Some(l),
+                            Ok(m) => {
+                                self.find(
+                                    FindingKind::Unsupported,
+                                    part,
+                                    item,
+                                    &[pdef, p],
+                                    format!("a surface texture value that is not a length ({m:?}); texture not read"),
+                                );
+                                return;
+                            }
+                            Err(e) => {
+                                self.find(e.kind, part, item, &[pdef, p], e.why);
+                                return;
+                            }
+                        }
+                    } else {
+                        self.find(
+                            FindingKind::Unsupported,
+                            part,
+                            item,
+                            &[pdef, p],
+                            format!("surface texture parameter item {name:?} is not held by the model; texture not read"),
+                        );
+                        return;
+                    }
+                    prov.push(item);
+                }
+            }
+            let (Some(characteristic), Some(value)) = (characteristic, value) else {
+                self.find(
+                    FindingKind::Nonconformance,
+                    part,
+                    p,
+                    &[pdef],
+                    "a surface texture parameter without its characteristic ('measuring method') or its value; texture not read",
+                );
+                return;
+            };
+            parameters.push(SurfaceTextureParameter {
+                characteristic,
+                value,
+            });
+        }
+        if parameters.is_empty() {
+            self.find(
+                FindingKind::Unsupported,
+                part,
+                pdef,
+                &[],
+                "a surface texture without parameters (the model holds a texture by its parameters); not read",
+            );
+            return;
+        }
+        st.pmi.surface_textures.push(SurfaceTexture {
+            on,
+            material_removal,
+            parameters,
+        });
+        st.prov.surface_textures.push(ids(prov));
     }
 
     // --- accounting -----------------------------------------------------------------------
