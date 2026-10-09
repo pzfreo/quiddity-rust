@@ -7,13 +7,6 @@
     "verdict": "rust-correct"
   },
   {
-    "file": "inventory_refusal/14052.step.gz",
-    "kind": "retry",
-    "reason": "A deliberately malformed corpus part: OpenCascade's BRepCheck reports BRepCheck_BadOrientationOfSubshape on face 1 (the capture's bad_face_status), a geometric fault the port's topological validity check (closed, orientable) does not look for, as for this file's hole, boss and plate entries in known_divergences.json (rust-wrong). The port calls the solid valid, its strict hole evidence passes, and it does not reach the retry.",
-    "rust": false,
-    "verdict": "rust-wrong"
-  },
-  {
     "faces": [
       698,
       2091,
@@ -79,27 +72,14 @@
   },
   {
     "faces": [
-      8,
-      18
-    ],
-    "file": "inventory_refusal/14052.step.gz",
-    "function": "_discover_holes",
-    "kind": "skip",
-    "module": "holes",
-    "reason": "Python skips this hole because it touches face 1's bad-face region in a solid it admits as locally degraded; the port publishes it. A deliberately malformed corpus part: OpenCascade's BRepCheck reports BRepCheck_BadOrientationOfSubshape on face 1 (the capture's bad_face_status), a geometric fault the port's topological validity check (closed, orientable) does not look for, as for this file's hole, boss and plate entries in known_divergences.json (rust-wrong). Python's admission of a solid with at most three bad faces needs a per-face geometric validity check the kernel does not have.",
-    "rust": "published",
-    "verdict": "rust-wrong"
-  },
-  {
-    "faces": [
       6
     ],
     "file": "inventory_refusal/14052.step.gz",
     "function": "_discover_plates",
     "kind": "skip",
     "module": "plates",
-    "reason": "Python skips this plate because face 6 touches face 1's bad-face region in a solid it admits as locally degraded; the port publishes it. A deliberately malformed corpus part: OpenCascade's BRepCheck reports BRepCheck_BadOrientationOfSubshape on face 1 (the capture's bad_face_status), a geometric fault the port's topological validity check (closed, orientable) does not look for, as for this file's hole, boss and plate entries in known_divergences.json (rust-wrong).",
-    "rust": "published",
+    "reason": "Python skips this plate because face 6 touches face 1's bad-face region in a solid it admits as locally degraded (face 1 is faulted: as written its circular hole crosses the outer loop, BRepCheck_IntersectingWires; after OpenCascade's import healing BRepCheck_BadOrientationOfSubshape, the capture's bad_face_status). The port faults face 1 too (Part::bad_faces), so its strict plate evidence refuses, as Python's strict run does; but the plates family has no locally degraded evidence path in the port (holes and pockets do), so the whole family is refused where Python's retry skips the one plate.",
+    "rust": "refused",
     "verdict": "rust-wrong"
   }
 ]

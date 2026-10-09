@@ -3047,48 +3047,6 @@
     "reason": "The nominal follows the face's area, which differs from OpenCascade's face.area: known_face_areas.json lists this face (rust-correct)."
   },
   {
-    "file": "inventory_refusal/14052.step.gz",
-    "field": "orientation",
-    "faces": [
-      19
-    ],
-    "verdict": "rust-wrong",
-    "reason": "A deliberately malformed corpus part (OpenCascade's BRepCheck finds geometric faults; known_divergences.json's evidence entries): the port certifies a side that disagrees with this face's own orientation, where Python has no valid owner."
-  },
-  {
-    "file": "inventory_refusal/14052.step.gz",
-    "field": "use",
-    "faces": [
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14,
-      15,
-      16,
-      17,
-      18,
-      19,
-      20,
-      21,
-      22,
-      23,
-      24
-    ],
-    "verdict": "rust-wrong",
-    "reason": "A deliberately malformed corpus part: OpenCascade's BRepCheck finds geometric faults the port's topological validity check (closed, orientable) does not look for, so Python has no valid owner and the port certifies (as this file's evidence entries in known_divergences.json)."
-  },
-  {
     "file": "mfcadpp/1000.step",
     "field": "use",
     "faces": [

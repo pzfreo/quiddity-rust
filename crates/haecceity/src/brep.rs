@@ -175,6 +175,7 @@ pub struct Part {
     pub(super) cache: Vec<FaceCache>,
     edge_faces: OnceLock<Vec<Vec<usize>>>,
     valid_solids: OnceLock<Vec<bool>>,
+    bad_faces: OnceLock<Vec<Vec<usize>>>,
     unresolved_faces: Vec<usize>,
     unresolved_edges: Vec<usize>,
     face_sources: Vec<Source>,
@@ -191,6 +192,7 @@ impl Part {
             cache,
             edge_faces: OnceLock::new(),
             valid_solids: OnceLock::new(),
+            bad_faces: OnceLock::new(),
             unresolved_faces: Vec::new(),
             unresolved_edges: Vec::new(),
             face_sources: Vec::new(),
@@ -595,6 +597,34 @@ impl Part {
                 .map(|s| self.check_solid(s))
                 .collect()
         })[solid]
+    }
+
+    /// The faces of solid *solid* whose geometry `BRepCheck`'s face check faults, ascending:
+    /// loops that cross or are wound against the outward normal ([`crate::validity`], planar
+    /// faces).
+    pub fn bad_faces(&self, solid: usize) -> &[usize] {
+        &self.bad_faces.get_or_init(|| {
+            self.solids
+                .iter()
+                .map(|s| {
+                    let mut bad: Vec<usize> = s
+                        .faces
+                        .iter()
+                        .copied()
+                        .filter(|&f| self.face_loops_faulted(f))
+                        .collect();
+                    bad.sort_unstable();
+                    bad.dedup();
+                    bad
+                })
+                .collect()
+        })[solid]
+    }
+
+    /// Valid as `BRepCheck_Analyzer::IsValid` reads it, as far as the kernel checks: the
+    /// topology sound ([`Part::solid_is_valid`]) and no face faulted ([`Part::bad_faces`]).
+    pub fn solid_is_geometrically_valid(&self, solid: usize) -> bool {
+        self.solid_is_valid(solid) && self.bad_faces(solid).is_empty()
     }
 
     fn check_solid(&self, solid: usize) -> bool {

@@ -9,8 +9,7 @@
 //! evidence refuses on a part whose solids are not all valid; three corpus parts take it
 //! (`tests/local_degradation.rs`). [`discover_locally_degraded`] is that run's evidence path: a
 //! hole proving no one valid solid is skipped, not refused. Not ported: the retry itself (the
-//! port's `recognise` checks no evidence, so has no refusal to retry on) and the degraded run's
-//! admission of an invalid solid with a small bad-face region (the kernel finds no bad faces).
+//! port's `recognise` checks no evidence, so has no refusal to retry on).
 
 use std::collections::BTreeSet;
 
@@ -106,9 +105,8 @@ pub fn discover_verified(
 /// The evidence path as Python's locally degraded run takes it (`_discover_holes` on a graph
 /// with `local_degradation` set): a hole whose cylinder and closing faces prove no one valid
 /// solid is skipped instead of refusing every hole, and the countersink check is made over the
-/// holes kept. Python's degraded run also admits an invalid solid with at most three bad faces,
-/// skipping only what touches them; the kernel's validity is topological and whole-solid, with
-/// no bad-face region, so here a hole on an invalid solid is always skipped. The seat face of a
+/// holes kept. Python's degraded run also admits a solid with at most three faulted faces,
+/// skipping only the holes that touch them ([`evidence::locally_valid_solid`]). The seat face of a
 /// composed countersink is proved with the hole, so a hole whose seat lies on another solid is
 /// skipped, where Python refuses it (no captured call or corpus part has one).
 pub fn discover_locally_degraded(
@@ -118,7 +116,7 @@ pub fn discover_locally_degraded(
     let mut found = discover(ctx, csinks);
     found.retain(|h| {
         let faces: Vec<usize> = h.defining.iter().chain(&h.context).copied().collect();
-        !h.defining.is_empty() && evidence::common_valid_solid(ctx.part, &faces).is_some()
+        !h.defining.is_empty() && evidence::locally_valid_solid(ctx.part, &faces).is_some()
     });
     seats_once(csinks, &found)?;
     Ok(found)

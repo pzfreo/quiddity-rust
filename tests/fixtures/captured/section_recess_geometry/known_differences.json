@@ -43,20 +43,6 @@
   },
   {
     "case": "candidates",
-    "file": "inventory_refusal/14052.step.gz",
-    "verdict": "rust-wrong",
-    "reason": "The port's one extra candidate is its polygonal reading of floor 21 (this file's floor entry). A deliberately malformed corpus part: OpenCascade's BRepCheck reports BRepCheck_BadOrientationOfSubshape on face 1, so Python's common_valid_solid of walls 15, 16, 17 and floor 21 is None and it refuses the triangular pocket there; the port's topological validity check (closed, orientable) calls solid 0 valid and its probes then prove the pocket, as for this file's hole, boss and plate entries in known_divergences.json and its local_degradation entries (rust-wrong): Python's rule needs a geometric face check the kernel does not have."
-  },
-  {
-    "case": "floor",
-    "file": "inventory_refusal/14052.step.gz",
-    "floor": 21,
-    "kind": "polygonal",
-    "verdict": "rust-wrong",
-    "reason": "A deliberately malformed corpus part: OpenCascade's BRepCheck reports BRepCheck_BadOrientationOfSubshape on face 1, so Python's common_valid_solid of walls 15, 16, 17 and floor 21 is None and it refuses the triangular pocket there; the port's topological validity check (closed, orientable) calls solid 0 valid and its probes then prove the pocket, as for this file's hole, boss and plate entries in known_divergences.json and its local_degradation entries (rust-wrong): Python's rule needs a geometric face check the kernel does not have."
-  },
-  {
-    "case": "candidates",
     "file": "parts/2e5c3ece457e6e43.step.gz",
     "verdict": "equivalent",
     "reason": "The passage on walls 10, 11, 12 publishes frame origin z 91.234 here and 91.235 in Python, a three-decimal rounding tie: the test part places it at 91.2345, the port's passage prover gives 91.2345 (the double just below) and Python's 91.23450000000001, one ulp apart (tests/section_geometry.rs agrees at 1e-6). Everything else agrees, and from Python's own proof the port's projection gives Python's 91.235 (this part's passage call agrees). One geometry, rounded to either side of a tie."
