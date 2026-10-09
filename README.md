@@ -870,3 +870,15 @@ intersection of two cylinders, displaced into the opening it bounds), a hit with
 of it that lies past the other face's surface is not on the face, whatever its trim says. A
 line that only touches a face at its edge (a tangent blend) bounds no material there. A sphere
 bounded only by a vertex loop at a pole is the whole sphere.
+
+A B-spline crossing is tested against the trim at the parameters the intersection solved for,
+not by inverting the surface again at the point: on cgb243's combs the inversion settled on a
+face boundary 1.3 to 1.5 mm away and the trim test dropped crossings well inside faces 223, 225,
+238 and 239, leaving 8 interior-void grid lines with odd counts (and 7 comb crossings of faces
+233 and 234 missed on another, as OpenCascade misses them). Where a crossing is counted, the band
+of an edge also reaches as far as the edge strays, at that point, from the face across it: the
+crack is that wide there whichever face the edge leaves (cgb217's cylinders 51 and 358 beside
+B-spline faces 43 and 47, crossings 2.8 and 6.0 µm outside their trims that parity needs). A hit
+asked about alone (visibility) keeps to the face's own band, having no face across to yield to.
+The overshoot reach (`OVERSHOOT_BANDS`, 4) is empirical: the corpus needs at least 1.8 and
+breaks at 70 (evidence at the constant).

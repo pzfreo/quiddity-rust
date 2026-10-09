@@ -16,8 +16,18 @@ use super::sampling::{CHORD_TOLERANCE, edge_interval};
 const TOUCH_COS: f64 = 1e-6;
 
 /// How many bands of a straying edge a crossing past the neighbouring surface may lie from the
-/// edge and still be taken for the edge's overshoot ([`RayCaster::overshoots`]). The ones seen
-/// (nist_ftc_10's cross bores) lie up to 1.3 bands from it.
+/// edge and still be taken for the edge's overshoot ([`RayCaster::overshoots`]).
+///
+/// Empirical, not derived (verdict: undetermined). Over the corpus tests (classify, probes,
+/// drawings, the recognisers' corpus run) the overshoots that matter are nist_ftc_10's cross
+/// bores (face 175, edge 402), up to 1.64 bands from the edge; below 1.8 bands
+/// `_recess_reduce` #5 there is refused. The next points past a neighbour lie 22.6 bands and
+/// more from their edge (cgb207's faces 175 and 64), and taking those for overshoots breaks
+/// parity at 70 bands (classify point cgb207 #286). Every value from 1.8 to 50 gives the same
+/// test results; within it the drawings' visibility rays alone see a difference (two dozen
+/// of their points on cgb217 and nist_ctc_05 lie 2 to 4 bands from an edge), which no view's
+/// score shows. A derivation would follow how far along the surface an edge's stray carries the
+/// boundary (the stray over the sine of the angle between the faces); none is made.
 const OVERSHOOT_BANDS: f64 = 4.0;
 
 /// One meeting of a ray with a face, `t` along the (unit) direction.
@@ -46,6 +56,8 @@ struct Crossing {
     hit: Hit,
     contact: Contact,
     tangent: bool,
+    /// The surface parameters of the crossing, where the intersection itself found them.
+    uv: Option<(f64, f64)>,
 }
 
 enum Node {
@@ -65,6 +77,9 @@ pub struct RayCaster<'a> {
     /// A hit this close to a face's boundary is on the boundary. It exceeds the edges' polyline
     /// error, so a hit at a shared edge is never missed by both faces.
     pub(super) edge_tol: f64,
+    /// Per part edge, once asked: the furthest it strays from any face's surface it bounds
+    /// ([`Self::crack`]).
+    cracks: Vec<std::sync::OnceLock<f64>>,
 }
 
 impl<'a> RayCaster<'a> {
@@ -113,6 +128,9 @@ impl<'a> RayCaster<'a> {
             root,
             root_box,
             edge_tol,
+            cracks: (0..part.edges.len())
+                .map(|_| std::sync::OnceLock::new())
+                .collect(),
         }
     }
 
@@ -157,13 +175,14 @@ impl<'a> RayCaster<'a> {
                         if !ray_meets_box(origin, dir, t_max, &self.face_boxes[i], self.edge_tol) {
                             continue;
                         }
-                        let Some((ts, _)) = self.part.faces[i].surface.ray_hits(origin, dir, t_max)
+                        let Some((ts, _)) =
+                            surface_hits(&self.part.faces[i].surface, origin, dir, t_max)
                         else {
                             unanswered = true;
                             continue;
                         };
-                        let met = ts.into_iter().filter(|&t| t > t_min).any(|t| {
-                            self.contact(i, geom::add(origin, geom::scale(dir, t)))
+                        let met = ts.into_iter().filter(|&(t, _)| t > t_min).any(|(t, uv)| {
+                            self.contact(i, geom::add(origin, geom::scale(dir, t)), uv, false)
                                 .is_some()
                         });
                         if met {
@@ -187,7 +206,7 @@ impl<'a> RayCaster<'a> {
         let on_trim = |c: &Crossing| match c.contact {
             Contact::Edge { inside } => {
                 let q = geom::add(origin, geom::scale(dir, c.hit.t));
-                inside && !(c.tangent && self.touches(c.hit.face, q, dir))
+                inside && !(c.tangent && self.touches(c.hit.face, q, c.uv, dir))
             }
             _ => true,
         };
@@ -200,12 +219,11 @@ impl<'a> RayCaster<'a> {
         )
     }
 
-    /// Whether a ray along *dir* only touches face *i*'s surface at *q*: the surface's normal
-    /// there is square to the ray.
-    fn touches(&self, i: usize, q: V3, dir: V3) -> bool {
+    /// Whether a ray along *dir* only touches face *i*'s surface at *q* (at parameters *uv*,
+    /// where known): the surface's normal there is square to the ray.
+    fn touches(&self, i: usize, q: V3, uv: Option<(f64, f64)>, dir: V3) -> bool {
         let surface = &self.part.faces[i].surface;
-        surface
-            .parameters(q, None)
+        uv.or_else(|| surface.parameters(q, None))
             .and_then(|(u, v)| surface.normal(u, v))
             .is_some_and(|n| geom::dot(n, dir).abs() <= TOUCH_COS)
     }
@@ -248,11 +266,11 @@ impl<'a> RayCaster<'a> {
                             continue;
                         }
                         let (ts, tangent) =
-                            self.part.faces[i].surface.ray_hits(origin, dir, t_max)?;
+                            surface_hits(&self.part.faces[i].surface, origin, dir, t_max)?;
                         in_surface |= tangent && ts.is_empty();
-                        for t in ts {
+                        for (t, uv) in ts {
                             let q = geom::add(origin, geom::scale(dir, t));
-                            if let Some(contact) = self.contact(i, q)
+                            if let Some(contact) = self.contact(i, q, uv, true)
                                 && !self.overshoots(i, q)
                             {
                                 let hit = Hit { t, face: i };
@@ -260,6 +278,7 @@ impl<'a> RayCaster<'a> {
                                     hit,
                                     contact,
                                     tangent,
+                                    uv,
                                 });
                             }
                         }
@@ -339,7 +358,7 @@ impl<'a> RayCaster<'a> {
         let inside: Vec<V3> = [1.0, -1.0]
             .into_iter()
             .filter_map(at)
-            .filter(|&p| self.contact(i, p) == Some(Contact::Interior))
+            .filter(|&p| self.contact(i, p, None, false) == Some(Contact::Interior))
             .collect();
         let [within] = inside[..] else {
             return false;
@@ -366,13 +385,55 @@ impl<'a> RayCaster<'a> {
     /// Whether a point on face *i*'s surface lies on the face: inside its trim, on its boundary
     /// or in the band of an edge that strays from its surface.
     pub(super) fn claims(&self, i: usize, q: V3) -> bool {
-        self.contact(i, q).is_some()
+        self.contact(i, q, None, false).is_some()
+    }
+
+    /// The furthest edge *e* strays from the surface of any face it bounds (sampled): the
+    /// widest crack it can leave between them anywhere along it, which bounds the search for
+    /// a point in it ([`Self::stray_across`] says how wide it is at the point).
+    fn crack(&self, e: usize) -> f64 {
+        *self.cracks[e].get_or_init(|| {
+            let part = self.part;
+            part.edge_faces()[e]
+                .iter()
+                .flat_map(|&f| part.edge_deviation(f).iter())
+                .filter(|&&(edge, _)| edge == e)
+                .fold(0.0, |widest, &(_, deviation)| widest.max(deviation))
+        })
+    }
+
+    /// How far edge *e*'s point *c* lies from the surfaces of the faces across it from face
+    /// *i*: the width of the crack the edge leaves there on their side.
+    fn stray_across(&self, i: usize, e: usize, c: V3) -> f64 {
+        let part = self.part;
+        part.edge_faces()[e]
+            .iter()
+            .filter(|&&b| b != i)
+            .filter_map(|&b| {
+                let s = &part.faces[b].surface;
+                s.parameters(c, None)
+                    .map(|(u, v)| geom::dist(s.value(u, v), c))
+            })
+            .fold(0.0, f64::max)
     }
 
     /// How a point on face *i*'s surface meets the face, if it does. The band is where the file
     /// itself leaves the boundary uncertain: an edge that strays from this face's surface (a
     /// B-spline face approximating its neighbour) leaves a crack as wide as the stray, which
     /// OpenCascade covers with the edge tolerance it sets on import.
+    ///
+    /// With *across* (a crossing being counted, where a banded crossing yields to the face
+    /// across the edge, [`Self::crossings`]) the band also reaches as far as the edge strays,
+    /// at its point nearest *q*, from a face across it: the crack between the two faces is
+    /// that wide there whichever face's surface the edge leaves. cgb217's cylinder face 51
+    /// meets B-spline face 43 at an edge 2.0 µm off the cylinder and 11.9 µm off face 43
+    /// there; a line crossing the cylinder 2.83 µm from it, outside the trim, meets face 43's
+    /// surface nowhere near, and OpenCascade (edge tolerance 9.7 µm) counts the crossing on
+    /// face 51, as parity requires. The edge's widest stray elsewhere along it is no evidence
+    /// at *q* (cgb202's edge between faces 509 and 1863 strays 0.41 mm from face 509 somewhere,
+    /// 0.19 µm where a line passes 0.37 mm from it). Without *across* (a hit asked about alone:
+    /// visibility, probes) nothing would give the band up to a face across it that the ray
+    /// also meets, so it keeps to this face's own stray.
     ///
     /// The trim is tested on polylines, which stray from a curved edge by up to the chord
     /// tolerance, so a point that close to an edge could be put on either side of it. On an
@@ -382,12 +443,15 @@ impl<'a> RayCaster<'a> {
     /// outside that edge's sliver (chord and arc meet there), and an edge off the surface (a
     /// band) has no side on it to read, so neither changes the answer; nor does anything on a
     /// B-spline face, whose surface cannot be followed past its edges.
-    fn contact(&self, i: usize, q: V3) -> Option<Contact> {
+    ///
+    /// *uv* are the point's parameters where the ray's intersection found them; otherwise they
+    /// are found by inverting the surface at *q*.
+    fn contact(&self, i: usize, q: V3, uv: Option<(f64, f64)>, across: bool) -> Option<Contact> {
         let part = self.part;
         let surface = &part.faces[i].surface;
         let exact = !matches!(surface, Surface::Freeform { .. });
         let domain = part.domain(i);
-        let uv = surface.parameters(q, None);
+        let uv = uv.or_else(|| surface.parameters(q, None));
         let mut inside = domain.is_some_and(|d| uv.is_some_and(|(u, v)| d.contains(u, v)));
         let (mut on_edge, mut in_band) = (false, None);
         // Each edge whose curve passes within reach of the point between its ends: the edge,
@@ -395,9 +459,12 @@ impl<'a> RayCaster<'a> {
         let mut near: Vec<(usize, V3, f64)> = Vec::new();
         for &(e, deviation) in part.edge_deviation(i) {
             let reach = self.edge_tol + deviation;
+            // The widest a crack across the edge can be (it holds this face's own stray).
+            let crack = if across { self.crack(e) } else { deviation };
             let edge = &part.edges[e];
-            if !self.edge_boxes[e].contains(q, reach) || polyline_distance(q, &edge.samples) > reach
-            {
+            // The polyline strays from the curve by less than the edge tolerance.
+            let find = self.edge_tol + crack;
+            if !self.edge_boxes[e].contains(q, find) || polyline_distance(q, &edge.samples) > find {
                 continue;
             }
             // The polyline only finds the edges near; the distance that decides is the curve's,
@@ -405,8 +472,18 @@ impl<'a> RayCaster<'a> {
             let (c, between_ends) = nearest_on_edge(edge, q);
             let d = geom::dist(c, q);
             on_edge |= d <= COORD_FLOOR;
-            if d <= COORD_FLOOR + deviation && in_band.is_none() {
-                in_band = Some(Contact::Band(e, COORD_FLOOR + deviation));
+            if in_band.is_none() {
+                // Past this face's own stray, only where the edge strays as far from a face
+                // across it, there: the crack's widest elsewhere is no evidence at this point.
+                let stray = if d <= COORD_FLOOR + deviation {
+                    Some(deviation)
+                } else if d <= COORD_FLOOR + crack {
+                    let wide = self.stray_across(i, e, c).min(crack);
+                    (d <= COORD_FLOOR + wide).then_some(wide)
+                } else {
+                    None
+                };
+                in_band = stray.map(|s| Contact::Band(e, COORD_FLOOR + s));
             }
             // Nearer an end than the point is to the curve, the sliver is too thin to hold it.
             let clear_of_ends = between_ends
@@ -431,6 +508,34 @@ impl<'a> RayCaster<'a> {
             in_band
         }
     }
+}
+
+/// A ray's hit on a surface: its distance and, where known, its surface parameters.
+type SurfaceHit = (f64, Option<(f64, f64)>);
+
+/// [`Surface::ray_hits`] with each hit's surface parameters where the intersection finds them:
+/// a B-spline crossing is solved for `(t, u, v)` together, and those parameters are the point's
+/// exactly. Inverting the surface at the point again need not find them: from the nearest
+/// sample of a folded surface (cgb243's combs, faces 225, 223, 238 and 239) the inversion can
+/// settle on a boundary 1.3 to 1.5 mm from the point, and the trim test then misses a crossing
+/// well inside the face.
+fn surface_hits(
+    surface: &Surface,
+    origin: V3,
+    dir: V3,
+    t_max: f64,
+) -> Option<(Vec<SurfaceHit>, bool)> {
+    if let Surface::Freeform { surface, .. } = surface {
+        let (hits, grazing) = surface.ray_hits(origin, dir, t_max);
+        let hits = hits
+            .into_iter()
+            .filter(|&(t, _, _)| t > 1e-12 && t <= t_max)
+            .map(|(t, u, v)| (t, Some((u, v))))
+            .collect();
+        return Some((hits, grazing));
+    }
+    let (ts, tangent) = surface.ray_hits(origin, dir, t_max)?;
+    Some((ts.into_iter().map(|t| (t, None)).collect(), tangent))
 }
 
 /// Whether a surface is analytic (exact), not a B-spline that may approximate a neighbour.
