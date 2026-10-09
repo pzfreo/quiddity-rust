@@ -165,10 +165,11 @@ fn degraded_pockets(part: &Part) -> Result<Vec<Vec<usize>>, EvidenceError> {
 }
 
 /// Whether the port reaches the retry on a part: its strict hole evidence refused for want of a
-/// valid solid, and its solids not all valid.
+/// valid solid, and its solids not all valid (`BRepCheck_Analyzer(solid).IsValid()`, so faulted
+/// faces count).
 fn port_retries(part: &Part) -> bool {
-    let all_valid =
-        !part.solids.is_empty() && (0..part.solids.len()).all(|s| part.solid_is_valid(s));
+    let all_valid = !part.solids.is_empty()
+        && (0..part.solids.len()).all(|s| part.solid_is_geometrically_valid(s));
     matches!(hole_paths(part).0, Err(EvidenceError::NoValidSolid)) && !all_valid
 }
 

@@ -72,7 +72,7 @@ its verdict and reason in a verdict file:
 
 | Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
 |---|---|---|---|---|---|---|---|
-| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 140 (907 problems) | 109 | 8 | 22 | 0 | 1 |
+| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 136 (903 problems) | 109 | 4 | 22 | 0 | 1 |
 | `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 39 (40 calls) | 4 | 1 | 3 | 3 | 28 |
 | `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 21 | 0 | 21 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
@@ -85,11 +85,11 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/passages/known_divergences.json` | `tests/passages.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_section_recess_helpers.json` | `tests/section_recess_helpers.rs` | 4 | 0 | 4 | 0 | 0 | 0 |
 | `tests/fixtures/captured/section_recess/known_differences.json` | `tests/section_recess.rs` | 4 | 0 | 0 | 0 | 0 | 4 |
-| `tests/fixtures/captured/section_recess_geometry/known_differences.json` | `tests/section_recess_geometry.rs` | 10 | 0 | 8 | 1 | 0 | 1 |
+| `tests/fixtures/captured/section_recess_geometry/known_differences.json` | `tests/section_recess_geometry.rs` | 8 | 0 | 6 | 1 | 0 | 1 |
 | `tests/fixtures/captured/known_section_geometry.json` | `tests/section_geometry.rs` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `tests/fixtures/captured/outer_profiles/known_differences.json` | `tests/outer_profiles.rs` | 7 (2193 faces) | 6 | 1 | 0 | 0 | 0 |
-| `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 118 (2920 answers) | 98 | 8 | 0 | 9 | 3 |
-| `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 9 | 3 | 3 | 0 | 0 | 3 |
+| `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 116 (2894 answers) | 98 | 6 | 0 | 9 | 3 |
+| `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 7 | 3 | 1 | 0 | 0 | 3 |
 | `tests/fixtures/captured/reconcile/known.json` | `tests/reconcile.rs` | 35 (0 decisions, 9 accepted, 26 motions) | 4 | 9 | 0 | 0 | 22 |
 | `tests/fixtures/known_face_sources.json` | `crates/haecceity/tests/face_sources.rs` | 134 | 90 | 0 | 0 | 43 | 1 |
 | `tests/fixtures/known_pmi.json` "nist" | `crates/haecceity/tests/pmi_read.rs` | 74 | 65 | 0 | 9 | 0 | 0 |
@@ -141,14 +141,15 @@ pockets, double-D bores, through steps, angled steps, circular blind steps and s
 families check the flag there and skip nothing; passages, oriented slots, repeating profiles,
 polygonal bosses, sheet metal, thin walls, pads and oblique through steps, among others, never
 reach their check. Ported: the holes' degraded evidence path
-(`holes::discover_locally_degraded`), which skips 13975's hole as Python does and publishes
-14052's on a solid it calls valid (rust-wrong), and the pockets' one
-(`pockets::discover_locally_degraded`), which skips 13975's two pockets as Python does. Not
+(`holes::discover_locally_degraded`), which skips 13975's hole and 14052's as Python does, the
+pockets' one (`pockets::discover_locally_degraded`), which skips 13975's two pockets as Python
+does, and Python's admission of a solid with at most three faulted faces
+(`evidence::locally_valid_solid`, on the kernel's per-face check `Part::bad_faces`, which faults
+14052's face 1 and no other face in the corpus: `crates/haecceity/tests/validity.rs`). Not
 ported: the retry itself (the port's `recognise` checks no family's evidence, so there is no
 refusal to retry on; whether it should panic or carry a refusal is an open maintainer
-question), the fillet and plate skips (in `fillets.rs` and `plates.rs`), and Python's admission
-of an invalid solid with at most three bad faces, which needs a per-face geometric validity
-check the kernel does not have. `tests/local_degradation.rs` compares which parts retry and
+question) and the fillet and plate skips (in `fillets.rs` and `plates.rs`; 14052's plate
+evidence is refused, not skipped). `tests/local_degradation.rs` compares which parts retry and
 every skip against the port's evidence paths, with each difference's verdict in
 `captured/local_degradation/known.json`, and checks the degraded holes and pockets under two
 rigid motions.
@@ -262,9 +263,8 @@ calls), the obround, polygonal and mixed floor readers asked of every planar fac
 (17157 calls), the seat, cylindrical-pocket, cylindrical-passage and plane-envelope projections
 of Python's own proofs (13, 22, 33 and 11 calls), 22 `has_physical_planar_floor` questions, and
 `cylindrical_channel_geometry` of the 35 channel proofs `tests/section_geometry.rs` replays.
-All agree but 9: three tilted mixed pockets the kernel's volume probe cannot measure and the
-malformed 14052's triangular pocket Python refuses on BRepCheck validity (rust-wrong), and one
-passage origin on a three-decimal rounding tie (equivalent). The candidates are unchanged under
+All agree but 7: three tilted mixed pockets the kernel's volume probe cannot measure
+(rust-wrong), and one passage origin on a three-decimal rounding tie (equivalent). The candidates are unchanged under
 the invariance motions (re-expressed in the moved run's canonical frame) but one translated
 pocket whose publication bound Python's projection also exceeds there (not-applicable). Not
 captured: 16 test shapes STEP export refuses, 86 test parts where Python finds nothing (2 per
@@ -277,7 +277,7 @@ or typed refusal, `recovery_nominal` / `recovery_tolerance`, and surface uses wi
 material-side certificate) is ported ahead of them (`src/features/effective_surfaces.rs`) and
 replayed face by face (`tests/effective_surfaces.rs`, `tools/capture_effective_surfaces.py`):
 12275 faces of 260 parts its consumers' Python tests build, the two golden fixtures and the
-corpus, 36825 answers. 33905 agree; the 2920 that differ are listed (chiefly OpenCascade's
+corpus, 36825 answers. 33931 agree; the 2894 that differ are listed (chiefly OpenCascade's
 coarse face areas and edge lengths in the nominal, and sides Python cannot certify where its
 mesh samples stray off the face or BRepCheck rejects cgb202's healed solid). Not captured: 3
 certificates OpenCascade took over two minutes to mesh, 16 test shapes STEP export refuses,
@@ -339,6 +339,8 @@ crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code
                      parts, their faces and edges in specify-core's numbering, placements)
     brep.rs          Part: faces, loops, edges, solids in OpenCascade's traversal order;
                      cached neighbours, validity, face bounds, extents along any direction
+    validity.rs      per-face geometric validity (BRepCheck's face faults: crossing loops,
+                     loops wound against the normal; planar faces), shells of a solid
     geom.rs          vectors, frames, Bounds, analytic surfaces and curves, Python rounding
     nurbs.rs         rational B-spline curves/surfaces: evaluation, derivatives, inversion,
                      ray intersection

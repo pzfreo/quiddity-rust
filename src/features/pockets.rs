@@ -9,7 +9,7 @@
 use std::collections::BTreeSet;
 
 use super::Context;
-use super::evidence::{EvidenceError, Occurrence, common_valid_solid};
+use super::evidence::{EvidenceError, Occurrence, common_valid_solid, locally_valid_solid};
 use super::recess_core::pocket_proposals;
 use super::recess_reduce::{Proposal, body_scoped};
 use super::records;
@@ -61,9 +61,9 @@ pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<Pocket>>, E
 /// The evidence path as Python's locally degraded run takes it (`_discover_pockets` on a graph
 /// with `local_degradation` set): a pocket whose faces (defining, floors, inner region) prove no
 /// one valid solid is skipped instead of refusing every pocket, and the duplicate check is made
-/// over the pockets kept; every other refusal stands. Python's degraded run also admits an
-/// invalid solid with at most three bad faces; the kernel's validity is topological and
-/// whole-solid, with no bad-face region, so here a pocket on an invalid solid is always skipped.
+/// over the pockets kept; every other refusal stands. Python's degraded run also admits a solid
+/// with at most three faulted faces, skipping only the pockets that touch them
+/// ([`locally_valid_solid`]).
 pub fn discover_locally_degraded(
     ctx: &Context<'_>,
 ) -> Result<Vec<Occurrence<Pocket>>, EvidenceError> {
@@ -84,7 +84,12 @@ fn verified(ctx: &Context<'_>, degraded: bool) -> Result<Vec<Occurrence<Pocket>>
         if found.defining.is_empty() {
             return Err(EvidenceError::NoValidSolid);
         }
-        let Some(solid) = common_valid_solid(ctx.part, &members) else {
+        let proved = if degraded {
+            locally_valid_solid(ctx.part, &members)
+        } else {
+            common_valid_solid(ctx.part, &members)
+        };
+        let Some(solid) = proved else {
             if degraded {
                 continue;
             }

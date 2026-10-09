@@ -26,6 +26,7 @@ pub mod sampling;
 pub mod step;
 pub mod sweep;
 pub mod uv;
+pub mod validity;
 pub mod volume;
 
 pub use brep::Part;
