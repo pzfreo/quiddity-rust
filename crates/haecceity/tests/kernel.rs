@@ -762,3 +762,23 @@ fn uv_bounds_are_the_range_of_the_boundary_edges() {
         );
     }
 }
+
+/// A face's box reaches its edges' and its surface's extremes between their samples: cgb207's
+/// y min lies on B-spline edge 452 (-41.1839642 at 4001 samples; its own samples stopped
+/// 2.7e-4 short) and its z min inside B-spline face 22 (OpenCascade's mesh node -32.4992456;
+/// the 13 × 13 grid stopped 3.1e-5 short); cgb203 face 89 bulges to y 127.997 (OpenCascade's
+/// box, to its three decimals) where the grid stopped at 127.936.
+#[test]
+fn face_boxes_reach_extremes_between_samples() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let part = read_step_file(&dir.join("cadgenbench_inputs/cgb207.step")).unwrap();
+    let b = part.solid_bounds(0);
+    assert!((b.min[1] + 41.1839642).abs() < 1e-6, "{:?}", b.min);
+    assert!((b.min[2] + 32.4992456).abs() < 1e-6, "{:?}", b.min);
+    let part = read_step_file(&dir.join("cadgenbench_inputs/cgb203.step")).unwrap();
+    let max_y = part.face_bounds(89).max[1];
+    assert!((max_y - 127.997).abs() < 5e-4, "{max_y}");
+}

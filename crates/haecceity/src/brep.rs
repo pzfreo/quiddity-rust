@@ -6,7 +6,7 @@ use std::f64::consts::TAU;
 use std::sync::OnceLock;
 
 use super::geom::{self, Bounds, Curve, Surface, V3};
-use super::sampling::{edge_interval, extremes_along};
+use super::sampling::{edge_interval, extremes_along, sampled_extremes};
 use super::uv::{FaceDomain, UvLoop, touches_singular_point};
 
 const AXES: [V3; 3] = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
@@ -228,8 +228,9 @@ impl Part {
                 let edge = &self.edges[e];
                 out.extend(&edge.samples);
                 // Conics' extremes in closed form: their samples are taken in the part's
-                // placement, so would put the box's sampling error there too.
-                if let Curve::Circle { .. } | Curve::Ellipse { .. } = edge.curve {
+                // placement, so would put the box's sampling error there too. A B-spline's
+                // samples undercut its extremes between them (cgb207 edge 452, 2.7e-4 short).
+                if !matches!(edge.curve, Curve::Line { .. }) {
                     let interval = edge_interval(
                         &edge.curve,
                         edge.start,
@@ -237,7 +238,12 @@ impl Part {
                         edge.same_sense,
                         edge.is_closed(),
                     );
-                    out.extend(extremes_along(&edge.curve, interval, dirs));
+                    out.extend(match edge.curve {
+                        Curve::Nurbs(_) => {
+                            sampled_extremes(&edge.curve, interval, &edge.samples, dirs)
+                        }
+                        _ => extremes_along(&edge.curve, interval, dirs),
+                    });
                 }
             }
         }
@@ -278,13 +284,29 @@ impl Part {
                 let (u0, u1, v0, v1) = surface.domain();
                 let n = 12;
                 let h = (1e-6 * (u1 - u0), 1e-6 * (v1 - v0));
+                let mut held = Vec::new();
                 for i in 0..=n {
                     for j in 0..=n {
                         let u = u0 + (u1 - u0) * i as f64 / n as f64;
                         let v = v0 + (v1 - v0) * j as f64 / n as f64;
                         if holds(domain, u, v, h) {
+                            held.push((u, v));
                             out.push(f.surface.value(u, v));
                         }
+                    }
+                }
+                // The grid undercuts an interior bulge (cgb207 face 22, 3.1e-5 short): refine
+                // the best grid point along each direction within a grid step.
+                let step = ((u1 - u0) / n as f64, (v1 - v0) / n as f64);
+                for d in dirs.iter().flat_map(|&d| [d, geom::scale(d, -1.0)]) {
+                    let along = |&(u, v): &(f64, f64)| geom::dot(f.surface.value(u, v), d);
+                    let Some(best) = held.iter().max_by(|a, b| along(a).total_cmp(&along(b)))
+                    else {
+                        continue;
+                    };
+                    let (u, v) = surface.extreme_near(*best, step, d);
+                    if holds(domain, u, v, h) {
+                        out.push(f.surface.value(u, v));
                     }
                 }
             }
