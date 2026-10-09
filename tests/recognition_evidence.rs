@@ -5,18 +5,16 @@
 //! `build_recognition_evidence`. Features are keyed by family and defining faces: each one's
 //! constituent faces, host faces, instance groups and members (by their keys) are compared, and
 //! each family's order. Projected candidates are keyed the same way: each one's index, outcome,
-//! reason, constituent faces and related candidates (by their keys). The families the view
-//! states as gaps ([`evidence_view::GAPS`]) are counted per part instead.
+//! reason, constituent faces and related candidates (by their keys).
 //!
 //! Every difference is listed in `captured/recognition_evidence/known_differences.json` with a
 //! verdict and a reason, under `features` (`{"file", "family", "defining", "field", "python",
 //! "rust"}`, where `field` is `present`, `order` (with `defining` null and each side's defining
 //! lists), `constituent`, `hosts`, `groups` or `members`), `candidates` (`{"file", "family",
-//! "defining", "python", "rust"}`, each side's summary or null), `gaps` (`{"file", "family",
-//! "python"}`: how many features of a gap family Python lists) and `errors` (`{"file", "python",
-//! "rust"}`). Unlisted, stale and doubly listed differences fail, and a failing run prints the
-//! entries it needs. The view is also compared with itself under two rigid motions (`motions`,
-//! the same shapes with a `motion`, `rust` unmoved and `moved`).
+//! "defining", "python", "rust"}`, each side's summary or null) and `errors` (`{"file",
+//! "python", "rust"}`). Unlisted, stale and doubly listed differences fail, and a failing run
+//! prints the entries it needs. The view is also compared with itself under two rigid motions
+//! (`motions`, the same shapes with a `motion`, `rust` unmoved and `moved`).
 
 mod common;
 
@@ -25,7 +23,7 @@ use std::io::Read;
 use std::path::{Path, PathBuf};
 
 use quiddity::Part;
-use quiddity::evidence_view::{self, RecognitionEvidence, build_recognition_evidence};
+use quiddity::evidence_view::{RecognitionEvidence, build_recognition_evidence};
 use quiddity::kernel::step::{Placement, read_step_file, read_step_file_placed};
 use serde_json::{Value, json};
 
@@ -86,10 +84,6 @@ fn python_view(part: &Value) -> Result<Value, String> {
     }
 }
 
-fn is_gap(family: &str) -> bool {
-    evidence_view::GAPS.iter().any(|g| g.family == family)
-}
-
 type Key = (String, Vec<u64>);
 
 fn key(item: &Value) -> Key {
@@ -102,8 +96,8 @@ fn key(item: &Value) -> Key {
 
 /// How two views are compared: the port with Python, or the port with itself moved (where the
 /// order of records, a candidate's index, a pattern's member order and a circular pattern's
-/// group order follow the placement, and risers, read along world Z, are compared only when
-/// the motion keeps Z vertical).
+/// group order follow the placement, and step levels and risers, read along world Z, are
+/// compared only when the motion keeps Z vertical).
 #[derive(Clone, Copy, PartialEq)]
 enum Compare {
     Python,
@@ -112,7 +106,7 @@ enum Compare {
 
 impl Compare {
     fn skips(self, family: &str) -> bool {
-        is_gap(family) || (self == Compare::Moved { z_vertical: false } && family == "risers")
+        self == (Compare::Moved { z_vertical: false }) && matches!(family, "step_levels" | "risers")
     }
 }
 
@@ -154,9 +148,7 @@ fn orders(view: &Value) -> BTreeMap<String, Vec<Vec<u64>>> {
     let mut out: BTreeMap<String, Vec<Vec<u64>>> = BTreeMap::new();
     for f in view["features"].as_array().unwrap() {
         let (family, defining) = key(f);
-        if !is_gap(&family) {
-            out.entry(family).or_default().push(defining);
-        }
+        out.entry(family).or_default().push(defining);
     }
     out
 }
@@ -200,7 +192,7 @@ fn one_or_all<T: Clone + serde::Serialize>(v: Option<&Vec<T>>) -> Value {
     }
 }
 
-/// Every difference between two views, by list: features, candidates, gaps, errors.
+/// Every difference between two views, by list: features, candidates, errors.
 fn differences(
     file: &str,
     left: &Result<Value, String>,
@@ -223,26 +215,6 @@ fn differences(
             return out;
         }
     };
-    // Gap families: counted on the left (Python) side; the right never lists them.
-    let mut gaps: BTreeMap<&str, usize> = BTreeMap::new();
-    for f in l["features"].as_array().unwrap() {
-        let family = f["family"].as_str().unwrap();
-        if is_gap(family) {
-            *gaps.entry(family).or_default() += 1;
-        }
-    }
-    for f in r["features"].as_array().unwrap() {
-        assert!(
-            !is_gap(f["family"].as_str().unwrap()),
-            "{file}: {f} is a gap"
-        );
-    }
-    for (family, count) in gaps {
-        out.entry("gaps")
-            .or_default()
-            .push(json!({"file": file, "family": family, "python": count}));
-    }
-
     let (lf, rf) = (features(l, mode), features(r, mode));
     let mut keys: Vec<&Key> = lf.keys().chain(rf.keys()).collect();
     keys.sort();
@@ -386,50 +358,6 @@ fn capture_covers_the_corpus() {
     assert_eq!(got, want);
 }
 
-/// The view states the families it does not list, and the known differences give every part
-/// where Python lists one of them the verdict that says so.
-#[test]
-fn gaps_are_stated() {
-    let gaps: Vec<&str> = evidence_view::GAPS.iter().map(|g| g.family).collect();
-    assert_eq!(gaps, ["section_recesses", "step_levels"]);
-    for gap in evidence_view::GAPS {
-        assert!(!gap.reason.is_empty());
-    }
-    let known = common::load(KNOWN);
-    let mut python: BTreeMap<(String, String), u64> = BTreeMap::new();
-    for p in parts(&capture()) {
-        for f in p["features"].as_array().into_iter().flatten() {
-            let family = f["family"].as_str().unwrap();
-            if gaps.contains(&family) {
-                *python
-                    .entry((p["file"].as_str().unwrap().to_owned(), family.to_owned()))
-                    .or_default() += 1;
-            }
-        }
-    }
-    let listed: BTreeMap<(String, String), u64> = known["gaps"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .map(|e| {
-            assert_eq!(e["verdict"], "rust-wrong", "{e}");
-            let reason = e["reason"].as_str().unwrap();
-            if e["family"] == "section_recesses" {
-                assert!(reason.contains("awaits q-section-recess-family"), "{e}");
-            }
-            (
-                (
-                    e["file"].as_str().unwrap().to_owned(),
-                    e["family"].as_str().unwrap().to_owned(),
-                ),
-                e["python"].as_u64().unwrap(),
-            )
-        })
-        .collect();
-    assert!(python.keys().any(|(_, f)| f == "section_recesses"));
-    assert_eq!(listed, python);
-}
-
 #[test]
 fn view_agrees_with_python() {
     let Some(dir) = corpus() else { return };
@@ -463,7 +391,7 @@ fn view_agrees_with_python() {
             lists.entry(list).or_default().extend(entries);
         }
     }
-    let problems: Vec<String> = ["features", "candidates", "gaps", "errors"]
+    let problems: Vec<String> = ["features", "candidates", "errors"]
         .into_iter()
         .map(|list| known_problems(lists.remove(list).unwrap_or_default(), list))
         .filter(|p| !p.is_empty())

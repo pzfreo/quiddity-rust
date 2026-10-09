@@ -28,7 +28,26 @@
       "verdict": "rust-correct"
     }
   ],
-  "errors": [],
+  "errors": [
+    {
+      "file": "inventory_refusal/13975.step.gz",
+      "python": "viewed",
+      "reason": "The section-recess projection refuses this part's whole recognition, so the view refuses with its message, as Python's view refuses wherever its aggregate's projection raises: Python reads no solid here (its document's body roster is empty) and its aggregate takes the local-degradation retry, which skips the two pockets on the part (captured/local_degradation). The port reads one solid its validity check rejects, takes no retry (README: not ported), and keeps the pockets, whose defining faces have no valid solid, so the projection refuses the whole document with Python's message (\"accepted recess candidate lost body authority\"). (captured/section_recesses/known_differences.json, the same refusal.) This replaces the view's four record differences on 13975 and 14052 (a hole and a riser on 13975, a hole and a plate on 14052, the records Python's local-degradation retry skips), which the refused view no longer reaches.",
+      "rust": {
+        "error": "accepted recess candidate lost body authority"
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "file": "inventory_refusal/14052.step.gz",
+      "python": "viewed",
+      "reason": "The section-recess projection refuses this part's whole recognition, so the view refuses with its message, as Python's view refuses wherever its aggregate's projection raises: The deliberately malformed corpus part (OpenCascade's BRepCheck faults face 1; the kernel's per-face geometric validity faults the same face). Python's strict run refuses and its aggregate takes the local-degradation retry (captured/local_degradation), whose graph admits the solid with one faulted face, so it publishes one triangular pocket on walls 15, 16, 17 and floor 21 from the accepted prismatic pocket. The port's inventory takes no retry (README: not ported), so the accepted prismatic pocket's defining faces have no valid solid and the projection refuses the whole document with Python's message (\"accepted section feature lost its body authority\"). (captured/section_recesses/known_differences.json, the same refusal.) This replaces the view's four record differences on 13975 and 14052 (a hole and a riser on 13975, a hole and a plate on 14052, the records Python's local-degradation retry skips), which the refused view no longer reaches.",
+      "rust": {
+        "error": "accepted section feature lost its body authority"
+      },
+      "verdict": "rust-wrong"
+    }
+  ],
   "features": [
     {
       "defining": [
@@ -41,18 +60,6 @@
       "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
       "python": 0,
       "reason": "Not a reconciliation difference: Python's aggregate discovers plates only on solids that own no turned step (plates.py _discover passes the turned steps' solids as excluded_solids), and this part's one solid owns its turned steps (its four bosses are rejected as exactly turned steps). The port's plates::discover has no such exclusion, so the aggregate's plate dependency on turned steps is not ported. (captured/reconcile/known.json accepted, the same record.)",
-      "rust": 1,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        0
-      ],
-      "family": "holes",
-      "field": "present",
-      "file": "inventory_refusal/13975.step.gz",
-      "python": 0,
-      "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. The shell bounds no volume (edge 15 is used by one face only, edge 4 twice in one direction; known_divergences.json's 13975 entries), so no valid solid owns the record; the port's own degraded evidence paths (holes::discover_locally_degraded, pockets::discover_locally_degraded) skip it as Python does, but recognise does not use them. (captured/reconcile/known.json accepted, the same record.)",
       "rust": 1,
       "verdict": "rust-wrong"
     },
@@ -281,19 +288,6 @@
     },
     {
       "defining": [
-        5,
-        6
-      ],
-      "family": "plates",
-      "field": "present",
-      "file": "inventory_refusal/14052.step.gz",
-      "python": 0,
-      "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. A deliberately malformed corpus part: OpenCascade's BRepCheck reports BRepCheck_BadOrientationOfSubshape on face 1, a geometric fault the port's topological validity check does not look for, so the port calls the solid valid and publishes the record (captured/local_degradation/known.json's 14052 skips, rust-wrong). (captured/reconcile/known.json accepted, the same record.)",
-      "rust": 1,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
         5
       ],
       "family": "risers",
@@ -338,18 +332,6 @@
     },
     {
       "defining": [
-        6
-      ],
-      "family": "risers",
-      "field": "present",
-      "file": "inventory_refusal/13975.step.gz",
-      "python": 0,
-      "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. The shell bounds no volume (edge 15 is used by one face only, edge 4 twice in one direction; known_divergences.json's 13975 entries), so no valid solid owns the record; the port's own degraded evidence paths (holes::discover_locally_degraded, pockets::discover_locally_degraded) skip it as Python does, but recognise does not use them.",
-      "rust": 1,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
         8,
         15
       ],
@@ -365,18 +347,6 @@
       "defining": [
         8
       ],
-      "family": "holes",
-      "field": "present",
-      "file": "inventory_refusal/14052.step.gz",
-      "python": 0,
-      "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. A deliberately malformed corpus part: OpenCascade's BRepCheck reports BRepCheck_BadOrientationOfSubshape on face 1, a geometric fault the port's topological validity check does not look for, so the port calls the solid valid and publishes the record (captured/local_degradation/known.json's 14052 skips, rust-wrong). (captured/reconcile/known.json accepted, the same record.)",
-      "rust": 1,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        8
-      ],
       "family": "risers",
       "field": "present",
       "file": "mfcadpp_holdout/257.step",
@@ -384,1240 +354,201 @@
       "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
       "rust": 0,
       "verdict": "rust-correct"
-    }
-  ],
-  "gaps": [
-    {
-      "family": "section_recesses",
-      "file": "inventory_refusal/14052.step.gz",
-      "python": 1,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/1000.step",
-      "python": 9,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10000.step",
-      "python": 2,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10007.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10020.step",
-      "python": 6,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10033.step",
-      "python": 1,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10038.step",
-      "python": 6,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/1004.step",
-      "python": 4,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10046.step",
-      "python": 4,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10047.step",
-      "python": 6,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10049.step",
-      "python": 5,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10060.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10063.step",
-      "python": 5,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/1007.step",
-      "python": 1,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/1008.step",
-      "python": 2,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10092.step",
-      "python": 2,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10096.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10098.step",
-      "python": 2,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10101.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10103.step",
-      "python": 5,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10119.step",
-      "python": 5,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10127.step",
-      "python": 2,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/1013.step",
-      "python": 5,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10131.step",
-      "python": 2,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10138.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10146.step",
-      "python": 4,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10155.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10156.step",
-      "python": 1,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10163.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10167.step",
-      "python": 5,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/1017.step",
-      "python": 1,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10170.step",
-      "python": 2,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10190.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10212.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10224.step",
-      "python": 2,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10245.step",
-      "python": 4,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10247.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10252.step",
-      "python": 1,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10255.step",
-      "python": 2,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp/10278.step",
-      "python": 1,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/118.step",
-      "python": 7,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/119.step",
-      "python": 2,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/163.step",
-      "python": 4,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/16943.step",
-      "python": 4,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/181.step",
-      "python": 2,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/182.step",
-      "python": 1,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/183.step",
-      "python": 2,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/196.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/200.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/20273.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/203.step",
-      "python": 4,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/205.step",
-      "python": 1,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/229.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/238.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/244.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/257.step",
-      "python": 4,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/265.step",
-      "python": 6,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/274.step",
-      "python": 4,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/275.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/317.step",
-      "python": 5,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/340.step",
-      "python": 1,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/363.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/388.step",
-      "python": 4,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/408.step",
-      "python": 4,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/419.step",
-      "python": 1,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/464.step",
-      "python": 8,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/467.step",
-      "python": 2,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/471.step",
-      "python": 1,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/483.step",
-      "python": 1,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/498.step",
-      "python": 4,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/520.step",
-      "python": 3,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_holdout/808.step",
-      "python": 8,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "mfcadpp_regressions/11512.step",
-      "python": 2,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
     },
     {
+      "defining": [
+        105,
+        123
+      ],
       "family": "section_recesses",
+      "field": "present",
       "file": "nist/nist_ctc_01_asme1_rd.stp",
-      "python": 7,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
+      "python": 1,
+      "reason": "The section recess on walls [105, 123], constituent faces [105, 123, 125]: Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
     },
     {
+      "defining": [
+        112,
+        114
+      ],
       "family": "section_recesses",
-      "file": "nist/nist_ctc_02_asme1_rc.stp",
-      "python": 8,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "nist/nist_ctc_03_asme1_rc.stp",
-      "python": 7,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "nist/nist_ctc_04_asme1_rd.stp",
-      "python": 6,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "nist/nist_ctc_05_asme1_rd.stp",
-      "python": 6,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "nist/nist_ftc_06_asme1_rd.stp",
-      "python": 9,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "nist/nist_ftc_08_asme1_rc.stp",
-      "python": 9,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "nist/nist_ftc_09_asme1_rd.stp",
-      "python": 9,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "section_recesses",
-      "file": "nist/nist_ftc_10_asme1_rb.stp",
-      "python": 4,
-      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "cadgenbench/flanged_spool_132.step",
-      "python": 5,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "cadgenbench/threaded_connector_109.step",
-      "python": 8,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "cadgenbench_inputs/cgb202.step.gz",
-      "python": 11,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "cadgenbench_inputs/cgb203.step",
-      "python": 1,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "cadgenbench_inputs/cgb207.step",
-      "python": 7,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "cadgenbench_inputs/cgb217.step.gz",
-      "python": 9,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "cadgenbench_inputs/cgb242.step.gz",
-      "python": 7,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "cadgenbench_inputs/cgb243.step.gz",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "cadgenbench_inputs/cgb245.step",
-      "python": 11,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "gramel/GRM-05_depth_lock_bolt.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "gramel/string_post.step",
-      "python": 4,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "inventory_refusal/14052.step.gz",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/1000.step",
-      "python": 4,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10000.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10007.step",
-      "python": 4,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10020.step",
-      "python": 6,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10033.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10038.step",
-      "python": 5,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/1004.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10046.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10047.step",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10049.step",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10060.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10063.step",
-      "python": 7,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/1007.step",
-      "python": 1,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10077.step",
-      "python": 4,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/1008.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10092.step",
-      "python": 6,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10096.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10098.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10101.step",
-      "python": 6,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10103.step",
-      "python": 5,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10119.step",
-      "python": 6,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10127.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/1013.step",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10138.step",
-      "python": 4,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10146.step",
-      "python": 6,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10155.step",
-      "python": 4,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10156.step",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10167.step",
-      "python": 5,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/1017.step",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10170.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10190.step",
-      "python": 4,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10212.step",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10224.step",
-      "python": 4,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10245.step",
-      "python": 6,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10247.step",
-      "python": 1,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10252.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10255.step",
-      "python": 5,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp/10278.step",
-      "python": 1,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/118.step",
-      "python": 4,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/119.step",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/163.step",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/16943.step",
-      "python": 5,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/18016.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/181.step",
-      "python": 1,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/182.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/196.step",
-      "python": 1,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/200.step",
-      "python": 4,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/20273.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/203.step",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/205.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/229.step",
-      "python": 6,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/238.step",
-      "python": 1,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/244.step",
-      "python": 4,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/257.step",
-      "python": 4,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/265.step",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/274.step",
-      "python": 4,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/275.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/317.step",
-      "python": 8,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/340.step",
-      "python": 1,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/363.step",
-      "python": 1,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/388.step",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/408.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/419.step",
-      "python": 4,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/464.step",
-      "python": 5,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/467.step",
-      "python": 4,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/471.step",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/483.step",
-      "python": 6,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/498.step",
-      "python": 1,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/520.step",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_holdout/808.step",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "mfcadpp_regressions/11512.step",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
+      "field": "present",
       "file": "nist/nist_ctc_01_asme1_rd.stp",
-      "python": 2,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
+      "python": 1,
+      "reason": "The section recess on walls [112, 114], constituent faces [112, 114, 125]: Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
     },
     {
-      "family": "step_levels",
-      "file": "nist/nist_ctc_02_asme1_rc.stp",
-      "python": 6,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
+      "defining": [
+        126,
+        128
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ctc_01_asme1_rd.stp",
+      "python": 1,
+      "reason": "The section recess on walls [126, 128], constituent faces [126, 128, 138]: Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
     },
     {
-      "family": "step_levels",
+      "defining": [
+        110,
+        112
+      ],
+      "family": "section_recesses",
+      "field": "present",
       "file": "nist/nist_ctc_03_asme1_rc.stp",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
+      "python": 1,
+      "reason": "The section recess on walls [110, 112], constituent faces [110, 112, 117]: Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
     },
     {
-      "family": "step_levels",
+      "defining": [
+        124,
+        126
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ctc_03_asme1_rc.stp",
+      "python": 1,
+      "reason": "The section recess on walls [124, 126], constituent faces [124, 126, 138]: Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        133,
+        135
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ctc_03_asme1_rc.stp",
+      "python": 1,
+      "reason": "The section recess on walls [133, 135], constituent faces [133, 135, 138]: Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        496,
+        500
+      ],
+      "family": "section_recesses",
+      "field": "present",
       "file": "nist/nist_ctc_04_asme1_rd.stp",
-      "python": 6,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
+      "python": 1,
+      "reason": "The section recess on walls [496, 500], constituent faces [496, 499, 500]: Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
     },
     {
-      "family": "step_levels",
-      "file": "nist/nist_ctc_05_asme1_rd.stp",
-      "python": 7,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
+      "defining": [
+        506,
+        508
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ctc_04_asme1_rd.stp",
+      "python": 1,
+      "reason": "The section recess on walls [506, 508], constituent faces [499, 506, 508]: Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
     },
     {
-      "family": "step_levels",
+      "defining": [
+        114,
+        116
+      ],
+      "family": "section_recesses",
+      "field": "present",
       "file": "nist/nist_ftc_06_asme1_rd.stp",
-      "python": 6,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
+      "python": 1,
+      "reason": "The section recess on walls [114, 116], constituent faces [114, 116, 122]: Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
     },
     {
-      "family": "step_levels",
-      "file": "nist/nist_ftc_07_asme1_rd.stp",
-      "python": 10,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
+      "defining": [
+        125,
+        127
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "python": 1,
+      "reason": "The section recess on walls [125, 127], constituent faces [125, 127, 143]: Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
     },
     {
-      "family": "step_levels",
+      "defining": [
+        134,
+        136
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "python": 1,
+      "reason": "The section recess on walls [134, 136], constituent faces [134, 136, 143]: Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        238,
+        239
+      ],
+      "family": "section_recesses",
+      "field": "present",
       "file": "nist/nist_ftc_08_asme1_rc.stp",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
+      "python": 1,
+      "reason": "The section recess on walls [238, 239], constituent faces [237, 238, 239]: Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
     },
     {
-      "family": "step_levels",
+      "defining": [
+        249,
+        253
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ftc_08_asme1_rc.stp",
+      "python": 1,
+      "reason": "The section recess on walls [249, 253], constituent faces [249, 252, 253]: Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        259,
+        261
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ftc_08_asme1_rc.stp",
+      "python": 1,
+      "reason": "The section recess on walls [259, 261], constituent faces [252, 259, 261]: Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        132,
+        134
+      ],
+      "family": "section_recesses",
+      "field": "present",
       "file": "nist/nist_ftc_09_asme1_rd.stp",
-      "python": 15,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "nist/nist_ftc_10_asme1_rb.stp",
-      "python": 10,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
-    },
-    {
-      "family": "step_levels",
-      "file": "ttt_inputs/sm-hanger.step",
-      "python": 3,
-      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
-      "verdict": "rust-wrong"
+      "python": 1,
+      "reason": "The section recess on walls [132, 134], constituent faces [132, 134, 144]: Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
     }
   ],
   "motions": [
@@ -3043,6 +1974,38 @@
       "rust": [
         38
       ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "mfcadpp_holdout/163.step",
+      "list": "features",
+      "motion": "rot_zx_moved",
+      "moved": 1,
+      "reason": "The section-recess refusal of the square-footprint pocket (constituent faces 10-13 and floor 32) carries the pocket's defining faces, [11, 12] unmoved and [10, 11, 12, 13] moved; same region and reason (captured/section_recesses/known_differences.json, 163 invariance). The pocket's own tie: A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]). (known_invariance.json, mfcadpp_holdout/163.step rot_zx_moved pockets.)",
+      "rust": 0,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        11,
+        12
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "mfcadpp_holdout/163.step",
+      "list": "features",
+      "motion": "rot_zx_moved",
+      "moved": 0,
+      "reason": "The section-recess refusal of the square-footprint pocket (constituent faces 10-13 and floor 32) carries the pocket's defining faces, [11, 12] unmoved and [10, 11, 12, 13] moved; same region and reason (captured/section_recesses/known_differences.json, 163 invariance). The pocket's own tie: A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]). (known_invariance.json, mfcadpp_holdout/163.step rot_zx_moved pockets.)",
+      "rust": 1,
       "verdict": "rust-wrong"
     }
   ]

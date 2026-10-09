@@ -21,14 +21,15 @@
 //! position among its family's physical candidates (before reconciliation).
 //!
 //! Features come family by family in Python's registry order (`PHYSICAL_DEFINITIONS`), leaving
-//! out the recess source families as Python does, then the hole patterns; candidates in that
-//! family order, then by index. The planar outer-profile evidence is read per face on demand
-//! ([`RecognitionEvidence::planar_outer_profile`]), as Python's view reads it.
+//! out the recess source families and the section recesses as Python does, then the section
+//! recesses and their refusals (the aggregate's projection of the recess source families,
+//! [`section_recess_projection`]: family `section_recesses`, indexed recesses first), then the
+//! hole patterns; candidates in that family order, then by index. The planar outer-profile
+//! evidence is read per face on demand ([`RecognitionEvidence::planar_outer_profile`]), as
+//! Python's view reads it.
 //!
-//! Not ported, each stated in [`GAPS`]: the section recesses (and their refusals), which Python
-//! lists after the physical families, and the step levels, a physical family the port does not
-//! have. Nor are the view's association coverage, its bounded report (`RecognitionReport`) or
-//! the framed variant (`build_framed_recognition_evidence`).
+//! Not ported: the view's association coverage, its bounded report (`RecognitionReport`) and the
+//! framed variant (`build_framed_recognition_evidence`).
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
@@ -37,6 +38,9 @@ use serde::Serialize;
 use serde_json::Value;
 
 use crate::features::reconcile::{Disposition, Family, Outcome, ReasonCode, ReconcileError};
+use crate::features::section_recess_family::{
+    SectionRecessFamilyError, SectionRecessProjection, section_recess_projection,
+};
 use crate::features::{
     self, Context, Features, Inventory, angled_steps, bosses, circular_face_patterns, countersinks,
     edge_open_circular, holes, interior_voids, policy, polygonal_bosses, prismatic_pockets,
@@ -103,27 +107,7 @@ pub const RECESS_SOURCE_FAMILIES: [&str; 8] = [
     "round_bottom_blind_slots",
 ];
 
-/// A family Python's view lists that this one does not, and why.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
-pub struct Gap {
-    pub family: &'static str,
-    pub reason: &'static str,
-}
-
-/// The view's stated gaps: features Python lists that are absent here (an absence, not a guess).
-pub const GAPS: [Gap; 2] = [
-    Gap {
-        family: "section_recesses",
-        reason: "the aggregate's section-recess projection (and its refusals) is not ported here; \
-                 it awaits q-section-recess-family",
-    },
-    Gap {
-        family: "step_levels",
-        reason: "the step-level family (`levels.STEP_LEVELS`) is not ported",
-    },
-];
-
-/// One accepted feature (a physical occurrence or a hole pattern).
+/// One accepted feature (a physical occurrence, a section recess or refusal, or a hole pattern).
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct EvidenceFeature {
     /// Python's family value (`passages` for the port's section passages).
@@ -180,12 +164,21 @@ impl From<ReconcileError> for EvidenceViewError {
     }
 }
 
+impl From<SectionRecessFamilyError> for EvidenceViewError {
+    fn from(error: SectionRecessFamilyError) -> Self {
+        EvidenceViewError(error.0)
+    }
+}
+
 /// One recognition run's evidence on *part* (`RecognitionEvidence`).
 #[derive(Clone, Debug)]
 pub struct RecognitionEvidence<'a> {
     part: &'a Part,
     /// The accepted inventory ([`features::recognise`]'s answer for the same run).
     pub result: Features,
+    /// The aggregate's section recesses and refusals (`RecognitionResult.section_recesses`,
+    /// `section_recess_refusals`).
+    pub section_recesses: SectionRecessProjection,
     pub features: Vec<EvidenceFeature>,
     pub candidates: Vec<EvidenceCandidate>,
     /// The rejected candidates, as positions in `candidates`, in order.
@@ -196,10 +189,19 @@ impl RecognitionEvidence<'_> {
     /// The record of the feature at *position* in `features`, as its JSON.
     pub fn record(&self, position: usize) -> Value {
         let feature = &self.features[position];
-        let records = serde_json::to_value(&self.result)
-            .map(|v| v[field(feature.family)].clone())
-            .expect("records serialise");
-        records[feature.index].clone()
+        let recesses = &self.section_recesses;
+        let record = match feature.family {
+            "section_recesses" => match recesses.section_recesses.get(feature.index) {
+                Some(recess) => serde_json::to_value(recess),
+                None => serde_json::to_value(
+                    &recesses.refusals[feature.index - recesses.section_recesses.len()],
+                ),
+            },
+            family => {
+                serde_json::to_value(&self.result).map(|v| v[field(family)][feature.index].clone())
+            }
+        };
+        record.expect("records serialise")
     }
 
     /// One face's planar outer profile (`RecognitionEvidence.planar_outer_profile`).
@@ -224,12 +226,15 @@ fn sorted(faces: &[usize]) -> Vec<usize> {
     set.into_iter().collect()
 }
 
-/// Recognise *part* once and project the outcome onto its faces (`build_recognition_evidence`),
-/// or the reconciliation's refusal.
+/// Recognise *part* and project the outcome onto its faces (`build_recognition_evidence`), or
+/// the reconciliation's or the section-recess projection's refusal. The projection
+/// ([`section_recess_projection`]) recognises the part again, on its own run context: the same
+/// deterministic run Python's single one is.
 pub fn build_recognition_evidence(
     part: &Part,
 ) -> Result<RecognitionEvidence<'_>, EvidenceViewError> {
-    project(part, features::inventory(part)?)
+    let inventory = features::inventory(part)?;
+    project(part, inventory, section_recess_projection(part)?)
 }
 
 /// Each physical family's candidates' defining and constituent faces (sorted), by Python family.
@@ -253,7 +258,8 @@ fn faces(part: &Part, inventory: &Inventory) -> Result<Faces, EvidenceViewError>
     let mut defining = BTreeMap::new();
     for family in PHYSICAL_FAMILIES {
         let found: Vec<Vec<usize>> = match family {
-            "section_recesses" | "step_levels" => Vec::new(),
+            // Not a candidate family: the projection's records carry their own evidence.
+            "section_recesses" => Vec::new(),
             other => inventory
                 .physical
                 .defining
@@ -369,6 +375,7 @@ fn faces(part: &Part, inventory: &Inventory) -> Result<Faces, EvidenceViewError>
 fn project(
     part: &Part,
     inventory: Inventory,
+    section_recesses: SectionRecessProjection,
 ) -> Result<RecognitionEvidence<'_>, EvidenceViewError> {
     let faces = faces(part, &inventory)?;
     let family_of = |family: Family| -> &'static str {
@@ -389,7 +396,7 @@ fn project(
 
     let mut out = Vec::new();
     for family in PHYSICAL_FAMILIES {
-        if RECESS_SOURCE_FAMILIES.contains(&family) || GAPS.iter().any(|g| g.family == family) {
+        if RECESS_SOURCE_FAMILIES.contains(&family) || family == "section_recesses" {
             continue;
         }
         let mut accepted = 0;
@@ -411,6 +418,23 @@ fn project(
             });
             accepted += 1;
         }
+    }
+    // The section recesses, then their refusals, each with the faces its record carries.
+    let recesses = section_recesses
+        .section_recesses
+        .iter()
+        .map(|r| r.evidence());
+    let refusals = section_recesses.refusals.iter().map(|r| r.evidence());
+    for (index, evidence) in recesses.chain(refusals).enumerate() {
+        out.push(EvidenceFeature {
+            family: "section_recesses",
+            index,
+            defining: evidence.defining_faces().to_vec(),
+            constituent: evidence.constituent_faces().to_vec(),
+            groups: Vec::new(),
+            hosts: Vec::new(),
+            members: Vec::new(),
+        });
     }
     let accepted = inventory.clone().accepted();
 
@@ -563,6 +587,7 @@ fn project(
     Ok(RecognitionEvidence {
         part,
         result: accepted,
+        section_recesses,
         features: out,
         candidates,
         rejected_candidates,
