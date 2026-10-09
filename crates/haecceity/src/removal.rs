@@ -19,7 +19,11 @@
 //!   (`representation_context`, `application_context`, `application_context_element`,
 //!   `application_protocol_definition`) and product structure (`product`,
 //!   `product_definition_formation`, `product_definition`, `product_definition_shape`,
-//!   `product_definition_relationship`, `product_category`);
+//!   `product_definition_relationship`, `product_category`), except a `product_definition_shape`
+//!   whose definition is a `characterized_object` (a feature definition's own shape, e.g. a
+//!   `thread`'s, which thread WR13 requires): `product_definition_shape` WR1 allows only a
+//!   product definition (or relationship) or a characterized object as its definition and UR1
+//!   one shape per definition, so that shape is its object's alone and goes with it;
 //! - the B-rep: every `topological_representation_item`, every representation a
 //!   `property_definition_representation` uses for a `product_definition_shape` (the parts'
 //!   shape representations), and every instance of family [`Family::Other`] reachable from
@@ -749,13 +753,24 @@ pub fn instance_family(doc: &Document, id: u64) -> Family {
     Family::Other
 }
 
+/// Whether `e` is the `product_definition_shape` of a `characterized_object` (a feature
+/// definition: a `thread`'s or `turned_knurl`'s, thread WR13), not of a product definition.
+/// `product_definition_shape` WR1 allows exactly those two kinds of definition and UR1 gives a
+/// definition one shape, so such a shape is its object's alone, not product structure.
+fn is_feature_shape(doc: &Document, e: &RawEntity) -> bool {
+    matches!(e, RawEntity::Simple { name, attributes, .. }
+        if TARGET.is_a(name, "product_definition_shape")
+            && matches!(attributes.get(2), Some(Attribute::EntityRef(d))
+                if doc.get(*d).is_some_and(|d| is_a(d, "characterized_object"))))
+}
+
 /// The shared infrastructure of the document (module documentation).
 fn infrastructure(doc: &Document) -> BTreeSet<u64> {
     let mut out = BTreeSet::new();
     let mut brep = Vec::new();
     for id in doc.ids() {
         let e = doc.get(id).expect("listed");
-        if INFRASTRUCTURE.iter().any(|root| is_a(e, root)) {
+        if INFRASTRUCTURE.iter().any(|root| is_a(e, root)) && !is_feature_shape(doc, e) {
             out.insert(id);
         }
         if is_a(e, "topological_representation_item") {

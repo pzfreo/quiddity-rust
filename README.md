@@ -118,8 +118,9 @@ OpenCascade (design: `docs/step-ap242.md`): a lossless Part 21 document with byt
 source instance (`step::read_part_definitions`), and a plain semantic PMI model with one reader
 (`pmi/`). The reader keeps every value as the file states it, in its own unit; reports what it
 does not read (`pmi::Finding`), never drops it; and records the instances behind every item
-(`pmi::Provenance`). A removal plan (`removal.rs`) works out what replacing a part's PMI removes,
-with its presentation or refusing; named EXPRESS WHERE and UNIQUE rules (`express_rules.rs`)
+(`pmi::Provenance`), specify-core's own notes on faces included. A removal plan (`removal.rs`)
+works out what replacing a part's PMI removes (a thread's or knurl's own shape with it), with
+its presentation or refusing; named EXPRESS WHERE and UNIQUE rules (`express_rules.rs`)
 back the writer. The writer (`pmi::write`) maps every part's PMI to one edit of the file
 (add, replace, remove) through a typed emission layer, keeping every other byte, with a
 datum feature symbol derived for each datum it adds; refusals, round trips and OpenCascade's
