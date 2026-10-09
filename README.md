@@ -298,11 +298,8 @@ whose cylinder seam lies on another face's edge, valid to BRepCheck but not to t
 check, on two aperture test parts (undetermined); and one passage origin on a rounding tie
 (equivalent). The kernel's cover misses a hole in a cylindrical support whose loops it places
 on different turns (mfcadpp/10138), so the aperture proof first requires the bore's face to
-have no edge but its rings and seams. Not compared: 7 test parts on which the port's own
-recognition (the passages' entry-treatment proofs) takes 100 to 400 s against Python's 7 to 18
-(compared with `QUIDDITY_SLOW_SECTION_RECESSES` set; they agree), and 6 test shapes STEP export
-refuses. Under the translation and a quarter turn about z, on the 82 corpus parts where Python
-publishes anything, the documents name the same faces and classifications but one refusal's
+have no edge but its rings and seams. Not compared: 6 test shapes STEP export refuses. Under
+the translation and a quarter turn about z, on the 82 corpus parts where Python publishes anything, the documents name the same faces and classifications but one refusal's
 source pocket (the pocket recogniser's listed `width > length` tie; rust-wrong); geometry is not
 compared under motion. Passages' consulted faces are now kept on their occurrences (entry
 treatments, regions), which the projection's evidence reads. Section recesses are not in the

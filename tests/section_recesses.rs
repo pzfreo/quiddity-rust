@@ -209,24 +209,9 @@ fn differences(file: &str, got: &Value, want: &Value) -> Vec<(Value, String)> {
     out
 }
 
-/// Test parts on which the port's recognition itself (the passages' entry-treatment proofs,
-/// before any section-recess projection) takes 100 to 400 s, against Python's 7 to 18 s: compared
-/// only when `QUIDDITY_SLOW_SECTION_RECESSES` is set (all agreed when last run).
-const SLOW: [&str; 7] = [
-    "parts/00eb6f057ad5d83c.step.gz",
-    "parts/14ba78f684b0e385.step.gz",
-    "parts/160a9f5d03a23b16.step.gz",
-    "parts/3a4d47e864aef62a.step.gz",
-    "parts/8086e3e719e1797d.step.gz",
-    "parts/ce93e738613f41b1.step.gz",
-    "parts/f3cf6fbffaeacd1a.step.gz",
-];
-
-/// Whether a run is compared: Python finished it, and it is not a slow part left out.
+/// Whether a run is compared: Python finished it.
 fn compared(run: &Value) -> bool {
-    let file = run["file"].as_str().unwrap();
     run["document"].get("timeout").is_none()
-        && (!SLOW.contains(&file) || std::env::var_os("QUIDDITY_SLOW_SECTION_RECESSES").is_some())
 }
 
 /// What one run compared.
@@ -238,7 +223,6 @@ struct Tally {
     patterns: usize,
     refused: usize,
     timed_out: Vec<String>,
-    slow: Vec<String>,
     found: Vec<(Value, String)>,
 }
 
@@ -248,10 +232,6 @@ fn replay(run: &Value) -> Tally {
     let mut tally = Tally::default();
     if want.get("timeout").is_some() {
         tally.timed_out.push(file.to_string());
-        return tally;
-    }
-    if !compared(run) {
-        tally.slow.push(file.to_string());
         return tally;
     }
     let Some(part) = read(run["source"].as_str().unwrap(), file) else {
@@ -325,21 +305,18 @@ fn documents_agree(k: usize, n: usize) {
         total.patterns += t.patterns;
         total.refused += t.refused;
         total.timed_out.extend(t.timed_out);
-        total.slow.extend(t.slow);
         total.found.extend(t.found);
     }
     eprintln!(
         "slice {k}/{n}: {} documents ({} refused by Python), {} occurrences, {} refusals, {} \
-         patterns; {} differences; not captured (Python timed out): {:?}; slow parts not \
-         compared: {:?}",
+         patterns; {} differences; not captured (Python timed out): {:?}",
         total.documents,
         total.refused,
         total.occurrences,
         total.refusals,
         total.patterns,
         total.found.len(),
-        total.timed_out,
-        total.slow
+        total.timed_out
     );
 
     let known = common::load(KNOWN);
