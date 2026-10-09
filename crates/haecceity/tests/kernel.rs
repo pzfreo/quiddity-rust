@@ -488,6 +488,22 @@ fn convex_prism_probes_match_the_analytic_volume() {
 }
 
 #[test]
+fn an_edge_used_four_times_is_valid_while_the_shell_stays_one_set() {
+    // A section-recess test part: a bore of radius 4 tangent inside the x = 25 wall, whose seam
+    // is the wall's edge too (used by the wall, its neighbour and the seam's two sides), as
+    // `BRepCheck_Analyzer` accepts it (`BRepCheck_Shell::Closed`: an edge on three or more face
+    // sides faults only when the faces fall into more than one set joined by the other edges).
+    let bore = fixture("captured/section_recesses/parts/349d4f2a44971104.step.gz");
+    assert!(bore.solid_is_valid(0));
+    // Two unit boxes meeting at one edge, sewn by OpenCascade into one shell and written as one
+    // solid: `BRepCheck_InvalidMultiConnexity` before writing (OpenCascade's import heals the
+    // file into two solids).
+    let sewn = fixture("edge_sewn_boxes.step");
+    assert_eq!(sewn.solids.len(), 1);
+    assert!(!sewn.solid_is_valid(0));
+}
+
+#[test]
 fn volume_probes_refuse_rather_than_read_unanswered_rays_as_air() {
     use haecceity::geom::{Bounds, Surface, SurfaceType};
     use haecceity::volume::{Probe, common_volume};

@@ -249,56 +249,6 @@
     "reason": "Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it."
   },
   {
-    "file": "parts/1bf8ce96b0c8f8c8.step.gz",
-    "item": "occurrence",
-    "key": [
-      0,
-      [
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14
-      ]
-    ],
-    "kind": "missing",
-    "verdict": "rust-wrong",
-    "reason": "A test part's tilted (run 0.515038, -0.250611, 0.819713) mixed line/arc pocket: Python's native discovery proves it from its exact swept floor and publishes it; the port's native discovery refuses the mixed floor reading because the kernel's ray-cast volume probe cannot measure the tilted probe, as listed for the same pocket in section_recess_geometry/known_differences.json (case floor, kind mixed). With no native record and no legacy pocket on these faces, the port publishes nothing there."
-  },
-  {
-    "file": "parts/33f7c6b46714d733.step.gz",
-    "item": "occurrence",
-    "key": [
-      0,
-      [
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14
-      ]
-    ],
-    "kind": "missing",
-    "verdict": "rust-wrong",
-    "reason": "A test part's tilted (run 0.515038, -0.250611, 0.819713) mixed line/arc pocket: Python's native discovery proves it from its exact swept floor and publishes it; the port's native discovery refuses the mixed floor reading because the kernel's ray-cast volume probe cannot measure the tilted probe, as listed for the same pocket in section_recess_geometry/known_differences.json (case floor, kind mixed). With no native record and no legacy pocket on these faces, the port publishes nothing there."
-  },
-  {
-    "file": "parts/349d4f2a44971104.step.gz",
-    "item": "document",
-    "key": null,
-    "kind": "differs",
-    "verdict": "undetermined",
-    "reason": "A support-aperture test part whose cylinder (radius 4, axis along y, centre at z 15) touches the x = 25 wall along its seam: the seam edge is used by that wall, its neighbour and twice by the cylinder, four uses. OpenCascade's BRepCheck accepts the solid and Python refuses the accepted channel on faces 5 and 7 as unsupported; the kernel's topological validity check (each edge used by exactly two face sides) calls the solid invalid, while the channels family publishes the channel without asking for a valid solid, so the projection meets an accepted candidate with no body and refuses the whole document with Python's message (where Python's aggregate would instead refuse the run at `_validate_attribution`). Whether a solid with a seam lying on another face's edge is valid is not decided."
-  },
-  {
     "file": "parts/555ae7123b3725c3.step.gz",
     "item": "occurrence",
     "key": [
@@ -312,34 +262,5 @@
     "kind": "differs",
     "verdict": "equivalent",
     "reason": "The passage on walls 10, 11, 12 publishes frame origin z 91.234 here and 91.235 in Python, a three-decimal rounding tie: the test part places it at 91.2345, and the port's and Python's passage provers give it one ulp apart, as listed for the same passage in section_recess_geometry/known_differences.json (parts/2e5c3ece457e6e43)."
-  },
-  {
-    "file": "parts/77965569200c7a89.step.gz",
-    "item": "document",
-    "key": null,
-    "kind": "differs",
-    "verdict": "undetermined",
-    "reason": "A support-aperture test part whose cylinder (radius 4, axis along y, centre at z 15) touches the x = 25 wall along its seam: the seam edge is used by that wall, its neighbour and twice by the cylinder, four uses. OpenCascade's BRepCheck accepts the solid and Python refuses the accepted channel on faces 5 and 7 as unsupported; the kernel's topological validity check (each edge used by exactly two face sides) calls the solid invalid, while the channels family publishes the channel without asking for a valid solid, so the projection meets an accepted candidate with no body and refuses the whole document with Python's message (where Python's aggregate would instead refuse the run at `_validate_attribution`). Whether a solid with a seam lying on another face's edge is valid is not decided."
-  },
-  {
-    "file": "parts/aa3ae6925b3bcd1a.step.gz",
-    "item": "occurrence",
-    "key": [
-      0,
-      [
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14
-      ]
-    ],
-    "kind": "missing",
-    "verdict": "rust-wrong",
-    "reason": "A test part's tilted (run 0.515038, -0.250611, 0.819713) mixed line/arc pocket: Python's native discovery proves it from its exact swept floor and publishes it; the port's native discovery refuses the mixed floor reading because the kernel's ray-cast volume probe cannot measure the tilted probe, as listed for the same pocket in section_recess_geometry/known_differences.json (case floor, kind mixed). With no native record and no legacy pocket on these faces, the port publishes nothing there."
   }
 ]

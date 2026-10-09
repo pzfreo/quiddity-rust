@@ -651,18 +651,18 @@ fn faces_meeting(rays: &RayCaster<'_>, region: &Bounds) -> Vec<usize> {
 
 /// The material intervals along a ray that starts outside the solid, by the parity of its
 /// crossings. Crossings closer than the kernel can tell apart are one (a ray through an edge
-/// meets both faces there); a line still left odd (a graze) is nudged off it. `None` when a
-/// face the line meets cannot be intersected, or the parity is still odd after the nudges.
+/// meets both faces there); a line still left odd (a graze) is nudged off it, first by
+/// nanometres, then by up to the coordinate floor: a line that close to a vertex or edge
+/// passes where the file itself does not place the boundary (vertices can lie off their curves:
+/// 3e-8 on the tilted pocket parts, `tests/tilted_probe.rs`), and the faces there can each put
+/// the crossing outside their trims, or each claim it. Between breaks the length varies
+/// continuously, so a line that near stands for the one asked (breaks closer than the floor put
+/// Gauss points that near a corner: a probe inset 1e-6 from a face's plane has its vertices
+/// 1e-6 from the face's). `None` when a face the line meets cannot be intersected, or the
+/// parity is still odd after the nudges.
 fn intervals(rays: &RayCaster<'_>, origin: V3, dir: V3, reach: f64) -> Option<Vec<(f64, f64)>> {
-    for nudge in 0..4 {
-        let o = geom::add(
-            origin,
-            [
-                1e-9 * nudge as f64,
-                2e-9 * nudge as f64,
-                3e-9 * nudge as f64,
-            ],
-        );
+    for nudge in [0.0, 1e-9, 2e-9, 3e-9, 1e-7, 3e-7, COORD_FLOOR] {
+        let o = geom::add(origin, [nudge, 2.0 * nudge, 3.0 * nudge]);
         let hits = rays.trimmed_hits(o, dir, reach)?;
         let mut ts: Vec<f64> = Vec::new();
         for h in hits {

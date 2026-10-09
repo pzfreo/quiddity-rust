@@ -83,10 +83,10 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/known_face_areas.json` | `crates/haecceity/tests/face_areas.rs` | 1831 | 1829 | 0 | 0 | 1 | 1 |
 | `tests/fixtures/captured/known_sections.json` | `tests/sections.rs` | 1 | 0 | 0 | 0 | 0 | 1 |
 | `tests/fixtures/captured/passages/known_divergences.json` | `tests/passages.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
-| `tests/fixtures/captured/known_section_recess_helpers.json` | `tests/section_recess_helpers.rs` | 4 | 0 | 4 | 0 | 0 | 0 |
+| `tests/fixtures/captured/known_section_recess_helpers.json` | `tests/section_recess_helpers.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/section_recess/known_differences.json` | `tests/section_recess.rs` | 4 | 0 | 0 | 0 | 0 | 4 |
-| `tests/fixtures/captured/section_recess_geometry/known_differences.json` | `tests/section_recess_geometry.rs` | 8 | 0 | 6 | 1 | 0 | 1 |
-| `tests/fixtures/captured/section_recesses/known_differences.json` | `tests/section_recesses.rs` | 24 | 15 | 6 | 1 | 2 | 0 |
+| `tests/fixtures/captured/section_recess_geometry/known_differences.json` | `tests/section_recess_geometry.rs` | 2 | 0 | 0 | 1 | 0 | 1 |
+| `tests/fixtures/captured/section_recesses/known_differences.json` | `tests/section_recesses.rs` | 19 | 15 | 3 | 1 | 0 | 0 |
 | `tests/fixtures/captured/known_section_geometry.json` | `tests/section_geometry.rs` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `tests/fixtures/captured/outer_profiles/known_differences.json` | `tests/outer_profiles.rs` | 6 (2168 faces) | 6 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 116 (2894 answers) | 98 | 6 | 0 | 9 | 3 |
@@ -244,9 +244,9 @@ All agree; an envelope proof's two roof terms whose heights tie to round-off are
 gradient order, and a seat's arc in one direction (Python's follows OCCT's per-process shape hash). Not
 captured: 1 value with a boolean radius (refused by type), 16 test parts STEP export refuses,
 and 428 more test parts on which Python proves nothing outside the helpers' own tests (all 474
-would add about 4 MB of STEP; 4 per test are kept). Under the invariance motions 4 seats
-at scale 0.1 are refused turned 90° about x, where the kernel's volume probe cannot answer a
-grazing end probe (rust-wrong).
+would add about 4 MB of STEP; 4 per test are kept). The proofs are unchanged under the
+invariance motions (4 seats at scale 0.1 turned 90° about x, whose grazing end probe the volume
+probe once left unanswered, agree since it nudges such lines by up to the coordinate floor).
 The section-recess records themselves are ported ahead of the family
 (`src/features/section_recess.rs`, `tests/section_recess.rs`,
 `tools/capture_section_recess.py`): `_section_recess`'s geometry, closed and open profiles,
@@ -269,8 +269,9 @@ calls), the obround, polygonal and mixed floor readers asked of every planar fac
 (17157 calls), the seat, cylindrical-pocket, cylindrical-passage and plane-envelope projections
 of Python's own proofs (13, 22, 33 and 11 calls), 22 `has_physical_planar_floor` questions, and
 `cylindrical_channel_geometry` of the 35 channel proofs `tests/section_geometry.rs` replays.
-All agree but 7: three tilted mixed pockets the kernel's volume probe cannot measure
-(rust-wrong), and one passage origin on a three-decimal rounding tie (equivalent). The candidates are unchanged under
+All agree but one passage origin on a three-decimal rounding tie (equivalent); the tilted
+mixed pockets agree since the volume probe nudges a line passing a corner within the
+coordinate floor by up to that floor (`crates/haecceity/tests/tilted_probe.rs`). The candidates are unchanged under
 the invariance motions (re-expressed in the moved run's canonical frame) but one translated
 pocket whose publication bound Python's projection also exceeds there (not-applicable). Not
 captured: 16 test shapes STEP export refuses, 86 test parts where Python finds nothing (2 per
@@ -288,15 +289,15 @@ pockets' derived patterns re-expressed over the published section midpoints. A p
 refusal drops one candidate (it becomes a refusal); any other Python `ValueError` is the
 projection's `SectionRecessFamilyError` with Python's message. The documents of 312 parts the
 section-recess Python tests build (up to 3 per test case), the two golden fixtures and the
-100 corpus files (cgb203 included, 591 s in Python) are compared item by item: 400 of 414
-agree, with 651 of 671 occurrences, 46 of 48 refusals and all 20 patterns. The 23 differences
+100 corpus files (cgb203 included, 591 s in Python) are compared item by item: 405 of 414
+agree, with 654 of 671 occurrences, all 48 refusals and all 20 patterns. The 18 differences
 (`captured/section_recesses/known_differences.json`): 15 NIST channels Python proves open at an
 end OpenCascade's own classifier puts in material (its boolean answered 0 for a slab whose
-sides lie in the slot's wall planes; rust-correct); the tilted mixed pockets, as listed elsewhere, and
-13975's and 14052's missing local-degradation retry, which refuses each whole document (rust-wrong); a solid
-whose cylinder seam lies on another face's edge, valid to BRepCheck but not to the kernel's
-check, on two aperture test parts (undetermined); and one passage origin on a rounding tie
-(equivalent). The kernel's cover misses a hole in a cylindrical support whose loops it places
+sides lie in the slot's wall planes; rust-correct); 13975's and 14052's missing
+local-degradation retry, which refuses each whole document (rust-wrong); and one passage origin
+on a rounding tie (equivalent). The kernel's validity check admits an edge used more than twice
+as `BRepCheck_Shell` does (as often each way, the shell not parted there), so the two aperture
+test parts whose bore's seam lies on the wall's edge agree. The kernel's cover misses a hole in a cylindrical support whose loops it places
 on different turns (mfcadpp/10138), so the aperture proof first requires the bore's face to
 have no edge but its rings and seams. Not compared: 6 test shapes STEP export refuses. Under
 the translation and a quarter turn about z, on the 82 corpus parts where Python publishes anything, the documents name the same faces and classifications but one refusal's
