@@ -311,14 +311,6 @@
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "family": "kernel",
-    "key": "arcs",
-    "count": 6,
-    "verdict": "rust-wrong",
-    "reason": "Cone 361 (a countersink), its bore cylinder 362 and the cross-bore cylinder 363. Read orientation-free, all three pairs are concave, as Python says: a point in the 121-degree wedge between 361 and 362 is outside the solid by ray parity in both kernels (OpenCascade's intersector, the port's classifier; 3 points, 2 offsets), and OpenCascade's parity reading (inward directions by UV classification, outward normals by parity) is concave at every decidable point of all three edges. The port walks face 361's loop the other way from OpenCascade (normals agree), so its turn has the opposite sign; the earlier rust-correct verdict (OpenCascade's healing re-orienting faces) does not survive this check. Not traced further (the reader's loop orientation is the step-honesty stream's)."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "family": "kernel",
     "key": "solid masses differ by up to 1e-3",
     "count": 1,
     "verdict": "rust-correct",
