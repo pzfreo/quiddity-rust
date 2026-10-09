@@ -222,7 +222,11 @@ golden fixture, the corpus), every ring, the legacy roster's walls, the records 
 walls, and 274 compatibility calls (`tools/capture_passages.py`): all agree. `Features` carries
 them as `section_passages`, the field of Python's legacy inventory (`_LegacyRecognitionResult`;
 the public `RecognitionResult` publishes passages through `section_recess`), less those
-reconciliation rejects for a slot or an oriented slot.
+reconciliation rejects for a slot or an oriented slot. A run finds its passages once (`Context`)
+for the records and the reconciliation's compatibility views, and a ring's emptiness probes stop
+measuring once the material met settles the answer (`volume::fills_at_most`, the same answers):
+the inventory of the seven section-recess test parts on which measuring whole probes took 76 to
+224 s now takes under 3 s each.
 Open question for the maintainer: Python 0.4 publishes passages through the unified
 `section_recess` projection rather than as a family of their own; whether the recognition
 document should keep `section_passages` as a family (as now) or wait for that projection is not

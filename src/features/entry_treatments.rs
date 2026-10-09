@@ -16,7 +16,7 @@ use crate::kernel::brep::{Arc, Part};
 use crate::kernel::cover::FaceRef;
 use crate::kernel::geom::{self, V3};
 use crate::kernel::rays::RayCaster;
-use crate::kernel::volume::{Probe, common_volume, probe_volume};
+use crate::kernel::volume::{Probe, common_volume, fills_at_most, probe_volume};
 
 /// The bevels that explain a ring's entry, and the stock faces they meet (`EntryTreatmentProof`).
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -52,6 +52,13 @@ pub fn material_fraction(ctx: &Context<'_>, owner: usize, probe: &Part) -> Optio
     let probe = Probe::Solid(RayCaster::for_solid(probe, 0));
     let whole = probe_volume(&probe).filter(|&v| v > 0.0)?;
     Some(common_volume(ctx.solid_classifier(owner), &probe)? / whole)
+}
+
+/// Whether [`material_fraction`] is at most *limit* (an unanswered fraction is not), measured
+/// only as far as the answer needs ([`fills_at_most`]).
+pub fn material_at_most(ctx: &Context<'_>, owner: usize, probe: &Part, limit: f64) -> bool {
+    let probe = Probe::Solid(RayCaster::for_solid(probe, 0));
+    fills_at_most(ctx.solid_classifier(owner), &probe, limit)
 }
 
 /// The removed cell under one bevel (`_cell_supports`): outside the base wall, inside the stock

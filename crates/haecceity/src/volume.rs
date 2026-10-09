@@ -174,13 +174,46 @@ const MAX_DEPTH: usize = 5;
 /// centre the classifier cannot place, or a solid probe whose own volume is unknown. An
 /// unanswered line is never read as air.
 pub fn common_volume(solid: &Classifier<'_>, probe: &Probe<'_>) -> Option<f64> {
-    let [material, air] = shared(solid, probe, COORD_FLOOR)?;
+    let ([material, air], _) = shared(solid, probe, COORD_FLOOR, &|_| false)?;
     if material == 0.0 {
         Some(0.0)
     } else if air == 0.0 {
         probe_volume(probe)
     } else {
-        Some(shared(solid, probe, 0.0)?[0])
+        Some(shared(solid, probe, 0.0, &|_| false)?.0[0])
+    }
+}
+
+/// Whether *solid*'s material fills at most *limit* of *probe*'s volume: [`common_volume`]
+/// over the probe's own (positive) volume at most *limit*, an unanswered volume never.
+///
+/// The same answer, measured only as far as it needs: each pass stops once the volume measured
+/// so far settles it (both kinds found where only emptiness and fullness are asked, more
+/// material than *limit* allows), since a running total only grows. A pass stopped short has
+/// not met every line, and a line unresolved further on would have left the volume unanswered:
+/// the first pass is finished before an at-most answer stands on it.
+pub fn fills_at_most(solid: &Classifier<'_>, probe: &Probe<'_>, limit: f64) -> bool {
+    let Some(whole) = probe_volume(probe).filter(|&v| v > 0.0) else {
+        return false;
+    };
+    let at_most = |volume: Option<f64>| volume.is_some_and(|v| v / whole <= limit);
+    let Some(([material, air], short)) =
+        shared(solid, probe, COORD_FLOOR, &|[m, a]| m > 0.0 && a > 0.0)
+    else {
+        return false;
+    };
+    if material == 0.0 {
+        return at_most(Some(0.0));
+    }
+    if air == 0.0 {
+        return at_most(probe_volume(probe));
+    }
+    match shared(solid, probe, 0.0, &|[m, _]| m / whole > limit) {
+        Some(([m, _], false)) => {
+            (!short || shared(solid, probe, COORD_FLOOR, &|_| false).is_some()) && at_most(Some(m))
+        }
+        // Unanswered, or more material than *limit* already.
+        _ => false,
     }
 }
 
@@ -405,20 +438,26 @@ impl<'a> Polyline<'a> {
 }
 
 /// The material and the air shared with the probe drawn in by *inset* on every side, or
-/// `None` when a line through it, or the state of a probe clear of every face, is unresolved.
-fn shared(solid: &Classifier<'_>, probe: &Probe<'_>, inset: f64) -> Option<Pair> {
+/// `None` when a line through it, or the state of a probe clear of every face, is unresolved;
+/// with whether it stopped short, at the first slab whose running total satisfies *stop*.
+fn shared(
+    solid: &Classifier<'_>,
+    probe: &Probe<'_>,
+    inset: f64,
+    stop: &dyn Fn(Pair) -> bool,
+) -> Option<(Pair, bool)> {
     let rays = solid.rays();
     let (sb, pb) = (rays.bounds(), probe.bounds());
     let whole = probe_volume(probe)?;
     let Some(region) = overlap(&sb, &pb) else {
-        return Some([0.0, whole]);
+        return Some(([0.0, whole], false));
     };
     // A probe whose box meets no face's box is wholly inside or wholly outside. Its centre lies
     // clear of every face, so `On` there is as unresolved as `Unknown`.
     if !rays.any_face_box_meets(&pb) {
         return match solid.classify(pb.centre()) {
-            State::In => Some([whole, 0.0]),
-            State::Out => Some([0.0, whole]),
+            State::In => Some(([whole, 0.0], false)),
+            State::Out => Some(([0.0, whole], false)),
             State::On | State::Unknown => None,
         };
     }
@@ -444,7 +483,7 @@ fn shared(solid: &Classifier<'_>, probe: &Probe<'_>, inset: f64) -> Option<Pair>
         region.max[(z + 1) % 3] - inset,
     );
     if h1 <= h0 || across.1 <= across.0 {
-        return Some([0.0, 0.0]);
+        return Some(([0.0, 0.0], false));
     }
     let y = (z + 2) % 3;
     let start = sb.min[y].min(pb.min[y]) - 1.0;
@@ -526,7 +565,7 @@ fn shared(solid: &Classifier<'_>, probe: &Probe<'_>, inset: f64) -> Option<Pair>
         }
         integrate(&|s| length(h, s), across, ss, rule.per(h1 - h0))
     };
-    let total = integrate(&area, (h0, h1), hs, rule);
+    let total = integrate_until(&area, (h0, h1), hs, rule, stop);
     (!unresolved.get()).then_some(total)
 }
 
@@ -756,17 +795,31 @@ const GAUSS4: [(f64, f64); 4] = [
 ];
 
 /// ∫ f over [lo, hi], by *rule* on each interval between the *breaks* that fall inside it.
-fn integrate(f: &dyn Fn(f64) -> Pair, (lo, hi): (f64, f64), breaks: Vec<f64>, rule: Rule) -> Pair {
+fn integrate(f: &dyn Fn(f64) -> Pair, range: (f64, f64), breaks: Vec<f64>, rule: Rule) -> Pair {
+    integrate_until(f, range, breaks, rule, &|_| false).0
+}
+
+/// [`integrate`], stopped after the first interval whose running total satisfies *stop*, with
+/// whether it stopped short of *hi*. Every length is at least zero and every weight positive,
+/// so the running total only grows, rounding included: the whole integral satisfies any test
+/// that only a larger total can pass, and a stopped total is the whole one's exact prefix.
+fn integrate_until(
+    f: &dyn Fn(f64) -> Pair,
+    (lo, hi): (f64, f64),
+    breaks: Vec<f64>,
+    rule: Rule,
+    stop: &dyn Fn(Pair) -> bool,
+) -> (Pair, bool) {
     if hi <= lo {
-        return [0.0, 0.0];
+        return ([0.0, 0.0], false);
     }
     let mut breaks: Vec<f64> = breaks.into_iter().filter(|&x| lo < x && x < hi).collect();
     breaks.extend([lo, hi]);
     breaks.sort_by(f64::total_cmp);
     breaks.dedup_by(|x, y| *x - *y <= 1e-9 * (hi - lo));
-    breaks
-        .windows(2)
-        .map(|w| match rule {
+    let mut total = [0.0, 0.0];
+    for (at, w) in breaks.windows(2).enumerate() {
+        let part = match rule {
             Rule::Exact => gauss2(f, w[0], w[1]),
             Rule::Adaptive(tol) => {
                 let share = tol * (w[1] - w[0]) / (hi - lo);
@@ -777,8 +830,13 @@ fn integrate(f: &dyn Fn(f64) -> Pair, (lo, hi): (f64, f64), breaks: Vec<f64>, ru
                     adapt(f, w[0], w[1], fine, share, 0)
                 }
             }
-        })
-        .fold([0.0, 0.0], add)
+        };
+        total = add(total, part);
+        if at + 2 < breaks.len() && stop(total) {
+            return (total, true);
+        }
+    }
+    (total, false)
 }
 
 /// Material and air, integrated together from the same lines.
@@ -847,5 +905,35 @@ mod tests {
         let got = common_volume(&solid, &probe).unwrap();
         assert!(want > 0.0);
         assert!((got - want).abs() <= 1e-6 * want, "{got} vs {want}");
+    }
+
+    #[test]
+    fn fills_at_most_answers_as_the_whole_volume_does() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../tests/fixtures/rejected_bored_box.step");
+        let part = crate::read_step_file(&path).unwrap();
+        let solid = Classifier::new(&part);
+        let boxed = |min: V3, max: V3| Probe::Box(Bounds { min, max });
+        let probes = [
+            // In the bore (empty), in the wall (full), across the bore's side, the sliver above,
+            // across the whole part and beyond it.
+            boxed([-2.0, -2.0, -10.0], [2.0, 2.0, 10.0]),
+            boxed([10.0, 10.0, -5.0], [14.0, 14.0, 5.0]),
+            boxed([-8.0, -1.0, -10.0], [0.0, 1.0, 10.0]),
+            boxed([-4.0, 3.0, -10.0], [4.0, 4.98, 10.0]),
+            boxed([-20.0, -20.0, -12.0], [20.0, 20.0, 12.0]),
+            boxed([20.0, 20.0, 20.0], [21.0, 21.0, 21.0]),
+        ];
+        for probe in &probes {
+            let whole = probe_volume(probe).unwrap();
+            let fraction = common_volume(&solid, probe).unwrap() / whole;
+            for limit in [0.0, 1e-9, 0.5 * fraction, fraction, 0.5, 1.0 - 1e-9, 1.0] {
+                assert_eq!(
+                    fills_at_most(&solid, probe, limit),
+                    fraction <= limit,
+                    "fraction {fraction}, limit {limit}"
+                );
+            }
+        }
     }
 }
