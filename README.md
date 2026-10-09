@@ -343,7 +343,15 @@ crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code
                      between the corners of the solid ∩ probe arrangement
     mass.rs          exact solid volume and area: Green's theorem along the exact edges,
                      adaptive Gauss-Kronrod quadrature (BRepGProp); every corpus face is
-                     checked against OpenCascade and under motion (tests/face_areas.rs)
+                     checked against OpenCascade and under motion (tests/face_areas.rs), and
+                     face areas and centroids against OpenCascade's adaptive integration, each
+                     difference judged by an independent integration (tests/face_moments.rs)
+    overlap.rs       the common area of two coplanar planar faces (BRepAlgoAPI_Common and its
+                     area): both faces' loops intersected as polygons (i_overlay), circles
+                     resampled from their exact curves; refusals named (tests/overlap.rs)
+    anchor.rs        a point proved on a face's trimmed region, with its parameters: the
+                     face centre if the domain contains it, else from the face's mesh
+                     (tests/anchor.rs, every corpus face)
     hlr.rs           hidden-line projection and section views (HLRBRep, draftwright's
                      section A–A): edges and traced silhouettes cut where their projections
                      cross, each piece's visibility by one ray; section contours traced
