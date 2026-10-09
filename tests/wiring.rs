@@ -117,36 +117,27 @@ fn parts() -> (Vec<PathBuf>, bool) {
 #[test]
 fn families_are_wired_and_their_records_fingerprinted_field_by_field() {
     let (paths, corpus) = parts();
-    let threads = std::thread::available_parallelism().map_or(4, |n| n.get());
-    let results: Vec<(Vec<String>, Leaves)> = std::thread::scope(|s| {
-        let chunks: Vec<_> = paths
-            .chunks(paths.len().div_ceil(threads))
-            .map(|chunk| {
-                s.spawn(move || {
-                    let mut out = Vec::new();
-                    for path in chunk {
-                        // The corpus test reports read failures.
-                        let Ok(part) = quiddity::read_step_file(path) else {
-                            continue;
-                        };
-                        let features = features::recognise(&part);
-                        let json = serde_json::to_value(&features).unwrap();
-                        let name = path.file_name().unwrap().to_string_lossy();
-                        let (mut problems, leaves) = check(&name, &json, &features.defining);
-                        // A feature with no size would be carried through any resize.
-                        for f in fingerprint(&part, &features).features {
-                            if f.sizes.is_empty() {
-                                problems.push(format!("{name}: {} has no sizes", f.id));
-                            }
-                        }
-                        out.push((problems, leaves));
-                    }
-                    out
-                })
-            })
-            .collect();
-        chunks.into_iter().flat_map(|c| c.join().unwrap()).collect()
-    });
+    // Each part spread over every core, the results in `paths`' order.
+    let results: Vec<(Vec<String>, Leaves)> = common::parallel::map(&paths, |path| {
+        // The corpus test reports read failures.
+        let Ok(part) = quiddity::read_step_file(path) else {
+            return None;
+        };
+        let features = features::recognise(&part);
+        let json = serde_json::to_value(&features).unwrap();
+        let name = path.file_name().unwrap().to_string_lossy();
+        let (mut problems, leaves) = check(&name, &json, &features.defining);
+        // A feature with no size would be carried through any resize.
+        for f in fingerprint(&part, &features).features {
+            if f.sizes.is_empty() {
+                problems.push(format!("{name}: {} has no sizes", f.id));
+            }
+        }
+        Some((problems, leaves))
+    })
+    .into_iter()
+    .flatten()
+    .collect();
     let mut problems = Vec::new();
     let mut found = Leaves::new();
     for (p, leaves) in results {

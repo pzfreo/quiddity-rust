@@ -78,30 +78,21 @@ fn records_are_ordered_typed_and_on_the_parts_faces() {
         .filter(|p| p.extension().is_some_and(|e| e == "step"))
         .collect();
     paths.sort();
-    let threads = std::thread::available_parallelism().map_or(4, |n| n.get());
-    let problems: Vec<String> = std::thread::scope(|s| {
-        let chunks: Vec<_> = paths
-            .chunks(paths.len().div_ceil(threads))
-            .map(|chunk| {
-                s.spawn(move || {
-                    let mut out = Vec::new();
-                    for path in chunk {
-                        let name = path.file_name().unwrap().to_string_lossy();
-                        let Ok((part, recognition, _)) =
-                            serve::recognise_step(&path.to_string_lossy(), &IDENTITY)
-                        else {
-                            continue;
-                        };
-                        let doc = recognition::document(&recognition, part.faces.len());
-                        check(&name, &doc, part.faces.len(), &mut out);
-                        check_labels(&name, &doc, &mut out);
-                    }
-                    out
-                })
-            })
-            .collect();
-        chunks.into_iter().flat_map(|c| c.join().unwrap()).collect()
-    });
+    let problems: Vec<String> = common::parallel::map(&paths, |path| {
+        let mut out = Vec::new();
+        let name = path.file_name().unwrap().to_string_lossy();
+        if let Ok((part, recognition, _)) =
+            serve::recognise_step(&path.to_string_lossy(), &IDENTITY)
+        {
+            let doc = recognition::document(&recognition, part.faces.len());
+            check(&name, &doc, part.faces.len(), &mut out);
+            check_labels(&name, &doc, &mut out);
+        }
+        out
+    })
+    .into_iter()
+    .flatten()
+    .collect();
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 

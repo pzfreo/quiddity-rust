@@ -83,20 +83,21 @@ fn corpus_matches_python() {
         eprintln!("corpus not found; set QUIDDITY_CORPUS");
         return;
     };
-    let mut problems = Vec::new();
-    let mut counts = BTreeMap::<String, (usize, usize)>::new();
     let files = common::load("corpus.json")["files"]
         .as_array()
         .unwrap()
         .clone();
-    let (mut kernel_runs, mut mass_runs, mut per_face_runs) = (0, 0, 0);
-    for entry in &files {
+    // Each file on its own, spread over every core; the results come back in corpus order, so
+    // the problems are listed as one file after another would list them.
+    let found = common::parallel::map(&files, |entry| {
+        let mut problems = Vec::new();
+        let mut counts = BTreeMap::<String, (usize, usize)>::new();
         let name = entry["file"].as_str().unwrap();
         let part = match read_step_file(&dir.join(name)) {
             Ok(p) => p,
             Err(e) => {
                 problems.push(Problem::new(name, "read", "read failed", e.to_string()));
-                continue;
+                return (problems, counts, None);
             }
         };
         let (aligned, found) =
@@ -107,10 +108,7 @@ fn corpus_matches_python() {
         // Face-indexed kernel answers compare only where the faces align (same count and
         // types); edge counts and boxes may differ (seams OpenCascade's healing adds).
         check_kernel(name, &part, &entry["kernel"], aligned, &mut problems);
-        kernel_runs += 1;
-        mass_runs +=
-            usize::from(entry["kernel"]["solids"].as_array().unwrap().len() == part.solids.len());
-        per_face_runs += usize::from(aligned);
+        let masses = entry["kernel"]["solids"].as_array().unwrap().len() == part.solids.len();
         for (function, runs) in entry["results"].as_object().unwrap() {
             for run in runs.as_array().unwrap() {
                 let tally = counts.entry(function.clone()).or_default();
@@ -134,6 +132,23 @@ fn corpus_matches_python() {
                     check_evidence(name, function, &part, run, &mut problems);
                 }
             }
+        }
+        (problems, counts, Some((masses, aligned)))
+    });
+    let mut problems = Vec::new();
+    let mut counts = BTreeMap::<String, (usize, usize)>::new();
+    let (mut kernel_runs, mut mass_runs, mut per_face_runs) = (0, 0, 0);
+    for (found, tallies, ran) in found {
+        problems.extend(found);
+        for (function, (ok, bad)) in tallies {
+            let tally = counts.entry(function).or_default();
+            tally.0 += ok;
+            tally.1 += bad;
+        }
+        if let Some((masses, aligned)) = ran {
+            kernel_runs += 1;
+            mass_runs += usize::from(masses);
+            per_face_runs += usize::from(aligned);
         }
     }
     for (function, (ok, bad)) in &counts {
