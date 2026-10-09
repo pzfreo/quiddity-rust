@@ -952,14 +952,6 @@
     "max_differing": 15
   },
   {
-    "file": "nist/nist_ctc_03_asme1_rc.stp",
-    "check": "caller_space",
-    "family": "slots",
-    "verdict": "rust-correct",
-    "reason": "The default finds both obround slots (walls 63/65 and 67/69), as Python does on the part as imported; caller space loses the second because the volume probe refuses its void prism unmoved (known_divergences.json's recognise_slots entry and known_invariance.json's rot_z90 and rot_x90 entries for this file). In the frame the probe answers.",
-    "max_differing": 3
-  },
-  {
     "file": "nist/nist_ctc_04_asme1_rd.stp",
     "check": "caller_space",
     "family": "blends",

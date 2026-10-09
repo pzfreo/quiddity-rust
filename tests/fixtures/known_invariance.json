@@ -166,21 +166,5 @@
     "verdict": "rust-wrong",
     "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]).",
     "max_differing": 2
-  },
-  {
-    "file": "nist/nist_ctc_03_asme1_rc.stp",
-    "motion": "rot_z90",
-    "family": "slots",
-    "verdict": "rust-wrong",
-    "reason": "Kernel: unmoved, the volume probe refuses the void prisms between the two obround slots' walls (63/65 and 67/69; its lines run microns above face 8, where the file's faces disagree: known_probes.json's _recess_reduce entry for this file), so the second slot is lost and the first is found from its caps alone ([62, 64]); turned, the probe's lines run along other axes and answer, so both slots are found from their walls and caps. Python finds both slots, each on walls and caps, unmoved and under this motion (checked).",
-    "max_differing": 3
-  },
-  {
-    "file": "nist/nist_ctc_03_asme1_rc.stp",
-    "motion": "rot_x90",
-    "family": "slots",
-    "verdict": "rust-wrong",
-    "reason": "Kernel: unmoved, the volume probe refuses the void prisms between the two obround slots' walls (63/65 and 67/69; its lines run microns above face 8, where the file's faces disagree: known_probes.json's _recess_reduce entry for this file), so the second slot is lost and the first is found from its caps alone ([62, 64]); turned, the probe's lines run along other axes and answer, so both slots are found from their walls and caps. Python finds both slots, each on walls and caps, unmoved and under this motion (checked).",
-    "max_differing": 3
   }
 ]

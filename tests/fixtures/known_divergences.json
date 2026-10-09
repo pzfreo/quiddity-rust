@@ -25,14 +25,6 @@
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
-    "family": "inventory",
-    "key": "face bounds",
-    "count": 1,
-    "verdict": "rust-wrong",
-    "reason": "Face 1870 is a torus about the y axis through y = -102.5 with minor radius 5, so no point of the face lies below y = -107.5; OpenCascade's box gives -107.5000001 (the surface, padded by 1e-7). The port's reaches -107.512205: it bounds the 3D edges, and B-spline edge 1077 ((64.21, -107.5, -104.03) to (58.45, -107.14, -103.87)) strays up to 0.022 mm off the torus (within its 0.0853 tolerance, 2001 samples projected onto the surface) and dips 0.0122 below the surface's lowest y. The face's tolerance is 1e-7, so the surface, not the edge, says where the face is. The cause is the kernel's face box, not a recogniser."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb202.step.gz",
     "family": "kernel",
     "key": "arcs",
     "count": 2,
@@ -382,6 +374,14 @@
   },
   {
     "file": "cadgenbench_inputs/cgb241.step",
+    "family": "inventory",
+    "key": "face bounds",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Cylinder face 3: its x min is -270.571512 in the port and -270.58 in OpenCascade. Its edges' foot points on the cylinder reach -270.571512 (tools/kernel_evidence.py boxes, 2001 samples per edge); the B-spline edge that reaches -270.580181 strays up to 0.0125 off the cylinder (its tolerance is 0.0125). The face's tolerance is 1e-7, so its surface, not the edge, says where the face is (crates/haecceity/src/brep.rs face boxes take an analytic face's boundary on its surface). OpenCascade's box follows the edge here, though on cgb202's torus face 1870 and sphere face 421, whose edges stray as far, it follows the surface."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb241.step",
     "family": "kernel",
     "key": "solid masses differ by up to 1e-1",
     "count": 1,
@@ -419,6 +419,14 @@
     "count": 1,
     "verdict": "rust-correct",
     "reason": "A straight path's anchor is its faces' area centre projected onto the cylinder axis (_straight_path_anchor). Python takes the centre from BRepGProp.SurfaceProperties at its default precision, which on this face is off; the port's boundary quadrature gives the centre BRepGProp gives at eps 1e-9 on all four differing paths (faces 25, 39, 19, 27: z -78.600, 16.793, 18.695, -58.775 against Python's -78.601, 16.792, 18.703, -58.798; BRepGProp at eps 1e-9 -78.5996, 16.7925, 18.6952, -58.7752)."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "family": "inventory",
+    "key": "face bounds",
+    "count": 2,
+    "verdict": "rust-correct",
+    "reason": "Torus faces 660 and 663: their y max is 54.414518 in the port and 54.409 in OpenCascade. Their shared B-spline edge reaches 54.409078 but strays up to 0.0066 off the torus (its tolerance is 0.0065), and its foot points on the torus reach 54.414522 (tools/kernel_evidence.py boxes, 2001 samples per edge). The face's tolerance is 1e-7, so its surface, not the edge, says where the face is (crates/haecceity/src/brep.rs face boxes take an analytic face's boundary on its surface). OpenCascade's box follows the edge here, though on cgb202's torus face 1870 and sphere face 421, whose edges stray as far, it follows the surface."
   },
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
@@ -867,14 +875,6 @@
     "count": 3,
     "verdict": "equivalent",
     "reason": "The same parameter range: a whole turn apart, or a full turn started at a different seam (OpenCascade's healing adds seams where this file has none and starts its range there; the port starts at the surface's own origin). Classified by the test, which compares angular directions modulo a turn."
-  },
-  {
-    "file": "nist/nist_ctc_03_asme1_rc.stp",
-    "family": "recognise_slots",
-    "key": "{} records: 1 vs 2 records, fields {}",
-    "count": 1,
-    "verdict": "rust-wrong",
-    "reason": "Python's second obround slot (walls 67 and 69, caps 66 and 68, 19.05 wide) is found only through its walls, whose void proof is the prism between them inset by 1e-6; the port's volume probe refuses that prism (its integration lines run microns above face 8, where the file's faces disagree: see this file's _recess_reduce entry in known_probes.json), so the candidate is not proved and dropped. The first slot is still found because the port recovers it from its end caps, which needs no probe."
   },
   {
     "file": "nist/nist_ctc_04_asme1_rd.stp",

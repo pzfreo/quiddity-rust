@@ -782,3 +782,21 @@ fn face_boxes_reach_extremes_between_samples() {
     let max_y = part.face_bounds(89).max[1];
     assert!((max_y - 127.997).abs() < 5e-4, "{max_y}");
 }
+
+/// An analytic face's box is its surface's, not that of an edge straying from it within its
+/// tolerance: cgb202's torus face 1870 (minor radius 5 about y = -102.5) reaches no lower than
+/// y = -107.5, though its B-spline edge 1077 dips to -107.512205; nist_ctc_03's plane face 8 lies
+/// at z = 76.2, though its edge 88 runs 4.6e-6 above it.
+#[test]
+fn analytic_face_boxes_stay_on_their_surface() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let part = read_step_file(&dir.join("cadgenbench_inputs/cgb202.step.gz")).unwrap();
+    let min_y = part.face_bounds(1870).min[1];
+    assert!((min_y + 107.5).abs() < 1e-9, "{min_y}");
+    let part = read_step_file(&dir.join("nist/nist_ctc_03_asme1_rc.stp")).unwrap();
+    let max_z = part.face_bounds(8).max[2];
+    assert!((max_z - 76.2).abs() < 1e-9, "{max_z}");
+}

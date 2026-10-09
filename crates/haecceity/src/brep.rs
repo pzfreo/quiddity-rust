@@ -247,6 +247,17 @@ impl Part {
                 }
             }
         }
+        // The face lies on its surface: an edge straying from an analytic surface (within its
+        // tolerance) does not carry the box past it (cgb202 torus face 1870: edge 1077 dips
+        // 0.0122 below the torus's lowest y). A point within the coordinate floor of the
+        // surface is on it, and keeps its exact coordinates.
+        for p in &mut out {
+            if let Some(q) = f.surface.foot(*p)
+                && geom::dist(*p, q) > geom::COORD_FLOOR
+            {
+                *p = q;
+            }
+        }
         // Doubly-curved faces can bulge past their boundary: add their interior extremes that
         // lie on the face.
         let Some(domain) = self.domain(face) else {
