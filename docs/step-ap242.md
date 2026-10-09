@@ -946,7 +946,12 @@ value is not a Part 21 REAL).
   gone: OpenCascade reads those sizes and tolerances on all their faces, with their datums.
 - *Written files* (`tests/fixtures/ap242/write/`): re-exported (no relationship; per-face
   usages; `every_kind` gains three part notes and two surface textures, one on the two faces of
-  its profile tolerance) and re-captured.
+  its profile tolerance) and re-captured. Added since: `thread_replaced` and `thread_removed`
+  (U14) and `thumbwheel_notes_add` (U10, an add beside specify-core's notes on faces, whose
+  callouts OpenCascade links to the faces the reader puts each note on, now compared) load and
+  read, with one new difference, specify-core's own kept Ø10 (rust-correct, OpenCascade's known
+  misread); decision 1 is cross-checked by `every_kind`'s datums, 2 by its two-face profile and
+  the intents' six-face sizes and positions, 3 by its part notes and surface textures.
 
 **For specify-core-rust (2026-10-09): U14 and U10.** Its upstream needs U14 (a part with a
 thread haecceity wrote written again) and U10 (its Python notes on faces), so its stand-ins
