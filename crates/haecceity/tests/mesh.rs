@@ -30,24 +30,22 @@ use haecceity::sampling::CHORD_TOLERANCE;
 const DEFLECTION: f64 = 0.001;
 const ANGULAR: f64 = 0.3;
 
-/// Faces refused, each because its boundary crosses itself in parameter space even unthinned,
-/// or spans no area there (cgb242 face 483). On the tori an edge strays across another within
-/// the file's tolerance: cgb207 face 50's edge 63 runs up to v = 1.5719, beyond the line
-/// v = π/2 its edge 153 follows back, meeting it tangentially at vertex 48, and cgb242 face 422's
-/// edge 1608 dips to v = -1.5716 below the line v = -π/2. On cgb243 face 543 (freeform) an
-/// edge's samples reach the corner (1, 0) of a degenerate side in the face's parameter loops.
-/// 14052 is the corpus's malformed file (README: its triangular pocket Python refuses on
-/// validity).
+/// Faces refused, each because its boundary crosses itself in parameter space even unthinned.
+/// cgb202 face 399 has a neck that closes within the file's tolerance: its edges 1077 and 1078
+/// pass within 15 µm of each other in space, and their samples cross on the surface (samples
+/// 283 and 353 of the loop's 673, near (0.110, 0.425)), so no thinning keeps it open. 14052 is
+/// the corpus's malformed file (README: its triangular pocket Python refuses on validity).
+///
+/// Nineteen faces refused before now mesh: on the tori (cgb207 faces 50, 54; cgb242 faces 422,
+/// 426, 429, 430, and 10 and 46, which met no crossing only while their neighbours' refusals had
+/// their edges thinned less) an edge meeting a parameter line tangentially strays past it within
+/// tolerance, and its samples there are dropped (`straying` in mesh.rs,
+/// `torus_edge_straying_past_its_top_circle_is_dropped`); on the B-splines (cgb202 faces 1034,
+/// 1214; cgb207 face 222; cgb242 faces 483, 501, 505, 509, 513, 551, 552, 856, 863; cgb243 face
+/// 543) the samples beside a collapsed side's apex had stalled on that side, off their edge
+/// (`beside_collapsed` in uv.rs, `samples_beside_a_collapsed_side_invert_onto_their_edge`).
 const KNOWN_REFUSALS: &[(&str, &[usize])] = &[
-    ("cadgenbench_inputs/cgb202.step.gz", &[399, 1034, 1214]),
-    ("cadgenbench_inputs/cgb207.step", &[50, 54, 222]),
-    (
-        "cadgenbench_inputs/cgb242.step.gz",
-        &[
-            422, 426, 429, 430, 483, 501, 505, 509, 513, 551, 552, 856, 863,
-        ],
-    ),
-    ("cadgenbench_inputs/cgb243.step.gz", &[543]),
+    ("cadgenbench_inputs/cgb202.step.gz", &[399]),
     ("inventory_refusal/14052.step.gz", &[1]),
 ];
 
@@ -55,6 +53,14 @@ const KNOWN_REFUSALS: &[(&str, &[usize])] = &[
 /// thousandths as high as they are long), where refinement inserted points hard by a side it
 /// may not split (the side is shared with the neighbouring face) and the side's sag tilts the
 /// sliver over. cgb203 face 55: two of 322 triangles, 2.1 and 3.2 mm long along edge 179.
+///
+/// The torus faces of cgb207 and cgb242 listed are the same in a cusp: where an edge meets the
+/// tube's top circle (a boundary side along v = ±π/2) tangentially, the face between them
+/// narrows to nothing, and refinement fills the cusp with points ever nearer the circle, whose
+/// slivers stand across its sag (cgb242 face 420: two triangles 1.4 and 2.1 mm long at vertex 47,
+/// within 1e-7 of the circle in v). cgb242 faces 420, 424, 428 and 431 had none while the faces
+/// then refused beside them (422 to 430) had their shared edges thinned to the samples; cgb242
+/// face 10 had eight then and has none now.
 const KNOWN_INWARD: &[(&str, usize, usize)] = &[
     ("cadgenbench_inputs/cgb202.step.gz", 1324, 10),
     ("cadgenbench_inputs/cgb203.step", 55, 2),
@@ -64,9 +70,18 @@ const KNOWN_INWARD: &[(&str, usize, usize)] = &[
     ("cadgenbench_inputs/cgb203.step", 59, 2),
     ("cadgenbench_inputs/cgb203.step", 60, 2),
     ("cadgenbench_inputs/cgb203.step", 61, 2),
+    ("cadgenbench_inputs/cgb207.step", 50, 16),
+    ("cadgenbench_inputs/cgb207.step", 54, 5),
     ("cadgenbench_inputs/cgb207.step", 73, 6),
-    ("cadgenbench_inputs/cgb242.step.gz", 10, 8),
     ("cadgenbench_inputs/cgb242.step.gz", 46, 4),
+    ("cadgenbench_inputs/cgb242.step.gz", 420, 2),
+    ("cadgenbench_inputs/cgb242.step.gz", 422, 3),
+    ("cadgenbench_inputs/cgb242.step.gz", 424, 2),
+    ("cadgenbench_inputs/cgb242.step.gz", 426, 3),
+    ("cadgenbench_inputs/cgb242.step.gz", 428, 5),
+    ("cadgenbench_inputs/cgb242.step.gz", 429, 3),
+    ("cadgenbench_inputs/cgb242.step.gz", 430, 4),
+    ("cadgenbench_inputs/cgb242.step.gz", 431, 2),
     ("cadgenbench_inputs/cgb242.step.gz", 621, 1),
     ("cadgenbench_inputs/cgb242.step.gz", 623, 1),
     ("cadgenbench_inputs/cgb243.step.gz", 159, 4),
@@ -507,4 +522,86 @@ fn corpus_faces_mesh_watertight_outward_and_within_deflection() {
         "two runs differ: {:?}",
         all.nondeterministic
     );
+}
+
+/// A corpus face meshed with the whole part, its area within 1% of its moments area.
+fn meshed(part: &Part, face: usize, name: &str) -> FaceMesh {
+    let mesh = part.mesh(deflection(part), ANGULAR).swap_remove(face);
+    let mesh = mesh.unwrap_or_else(|e| panic!("{name} face {face}: {e}"));
+    let exact = part.face_moments(face).unwrap().area;
+    assert!(
+        (mesh.area() - exact).abs() <= 0.01 * exact,
+        "{name} face {face}: {} against {exact}",
+        mesh.area()
+    );
+    mesh
+}
+
+/// cgb207 face 50 and cgb242 face 422 are torus faces whose edge meets the tube's top circle
+/// (their side along v = π/2, or -π/2) tangentially and runs on past it within the file's
+/// tolerance (to v = 1.5719 and -1.5726), crossing the side in parameter space. The samples past
+/// it are dropped, the faces mesh, and no mesh vertex lies past the circle.
+#[test]
+fn torus_edge_straying_past_its_top_circle_is_dropped() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let half = std::f64::consts::FRAC_PI_2;
+    for (file, face, line, sign) in [
+        ("cadgenbench_inputs/cgb207.step", 50, half, 1.0),
+        ("cadgenbench_inputs/cgb242.step.gz", 422, -half, -1.0),
+    ] {
+        let part = read_step_file(&dir.join(file)).unwrap();
+        let past = |v: f64, by: f64| sign * (v - line) > by;
+        let lp = &part.uv_loops(face).unwrap()[0];
+        assert!(
+            lp.points.iter().any(|p| past(p.1, 1e-4)),
+            "{file} face {face}: no sample strays past v = {line}"
+        );
+        let mesh = meshed(&part, face, file);
+        assert!(
+            mesh.uv.iter().all(|p| !past(p.1, 1e-9)),
+            "{file} face {face}: a mesh vertex lies past v = {line}"
+        );
+    }
+}
+
+/// cgb202 face 1034 and cgb243 face 543 are B-spline faces with a side collapsed to a point,
+/// their boundary running through it. The samples after it were inverted from the apex's
+/// parameters, where the search stalls on the side, and stopped there 0.04 to 0.1 mm from their
+/// edge, so the loop jumped across the face. Now every loop point lies within 0.01 mm of its edge
+/// sample (3 µm at most, the edges standing off the surface within their tolerance), and the
+/// faces mesh.
+#[test]
+fn samples_beside_a_collapsed_side_invert_onto_their_edge() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    for (file, face) in [
+        ("cadgenbench_inputs/cgb202.step.gz", 1034),
+        ("cadgenbench_inputs/cgb243.step.gz", 543),
+    ] {
+        let part = read_step_file(&dir.join(file)).unwrap();
+        let f = &part.faces[face];
+        let mut worst = 0.0_f64;
+        for (li, lp) in part.uv_loops(face).unwrap().iter().enumerate() {
+            for (k, source) in lp.sources.iter().enumerate() {
+                let Some((place, sample)) = *source else {
+                    continue;
+                };
+                let edge = f.loops[li].edges[place].0;
+                let (u, v) = lp.points[k];
+                let off = geom::dist(f.surface.value(u, v), part.edges[edge].samples[sample]);
+                assert!(
+                    off <= 0.01,
+                    "{file} face {face}: edge {edge} sample {sample} lies {off:.3e} mm off"
+                );
+                worst = worst.max(off);
+            }
+        }
+        println!("{file} face {face}: loop points at most {worst:.2e} mm off their samples");
+        meshed(&part, face, file);
+    }
 }

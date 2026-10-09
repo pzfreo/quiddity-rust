@@ -57,17 +57,11 @@ fn check(part: &Part, file: &str) -> Outcome {
 }
 
 /// The faces of the corpus the anchor refuses, with their reasons (a change must be made here, so
-/// the count is seen to move): three whose centre is outside and whose mesh is refused, and the
-/// degenerate sliver at a B-spline surface's tip (`known_face_areas.json`, cgb242 face 483).
+/// the count is seen to move): one whose centre is outside and whose mesh is refused
+/// (tests/mesh.rs `KNOWN_REFUSALS`).
 const REFUSED: &[&str] = &[
     "cadgenbench_inputs/cgb202.step.gz face 399: its centre is outside it and its boundary \
      crosses itself in parameter space",
-    "cadgenbench_inputs/cgb242.step.gz face 422: its centre is outside it and its boundary \
-     crosses itself in parameter space",
-    "cadgenbench_inputs/cgb242.step.gz face 430: its centre is outside it and its boundary \
-     crosses itself in parameter space",
-    "cadgenbench_inputs/cgb242.step.gz face 483: its centre is outside it and its boundary spans \
-     no area in parameter space",
 ];
 
 #[test]
