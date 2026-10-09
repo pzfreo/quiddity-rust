@@ -13,6 +13,9 @@ use super::sampling::edge_interval;
 /// The angle between neighbouring samples' directions, as `tessellate`'s angular tolerance.
 const ANGULAR_DEFLECTION: f64 = 0.1;
 const MAX_GRID: usize = 256;
+/// Offsets from a chord this close are one: far above the round-off a placement brings (1e-13 at
+/// hundreds of millimetres), far below any deflection.
+const OFFSET_TIE: f64 = 1e-9;
 
 impl Part {
     /// Points on the face: its edges, and a grid over its interior unless it is a plane (which
@@ -58,9 +61,12 @@ impl Part {
         while nv < MAX_GRID && !fine(nu, nv, false) {
             nv *= 2;
         }
-        for i in 0..=nu {
-            for j in 0..=nv {
-                let (u, v) = at(i, nu, j, nv);
+        // The grid's points at its cells' centres: the boundary is the edges' samples above, and
+        // a grid line along it (the bounds' own lines, on a face trimmed by iso-curves) would
+        // put its points in or out of the face by round-off, and so differ with placement.
+        for i in 0..nu {
+            for j in 0..nv {
+                let (u, v) = at(2 * i + 1, 2 * nu, 2 * j + 1, 2 * nv);
                 if domain.contains(u, v) {
                     out.push(surface.value(u, v));
                 }
@@ -167,9 +173,15 @@ impl Part {
     }
 }
 
-/// The angle between the directions a→m and m→b (zero if either is degenerate).
+/// The angle between the directions a→m and m→b (zero if either is degenerate: shorter than
+/// [`geom::COORD_FLOOR`], as along an iso-line that collapses to a pole, whose direction is only
+/// round-off and so would change with placement).
 fn turn(a: V3, m: V3, b: V3) -> f64 {
-    match (geom::unit(geom::sub(m, a)), geom::unit(geom::sub(b, m))) {
+    let direction = |from: V3, to: V3| {
+        let d = geom::sub(to, from);
+        geom::unit(d).filter(|_| geom::norm(d) > geom::COORD_FLOOR)
+    };
+    match (direction(a, m), direction(m, b)) {
         (Some(x), Some(y)) => geom::dot(x, y).clamp(-1.0, 1.0).acos(),
         _ => 0.0,
     }
@@ -194,9 +206,14 @@ pub fn thin(samples: &[V3], deflection: f64, out: &mut Vec<V3>) {
             let t = geom::dot(geom::sub(p, a), chord) / geom::dot(chord, chord).max(1e-300);
             geom::dist(p, geom::add(a, geom::scale(chord, t.clamp(0.0, 1.0))))
         };
-        let (k, far) = (1..s.len() - 1)
-            .map(|k| (k, off(s[k])))
-            .fold((0, -1.0), |best, x| if x.1 > best.1 { x } else { best });
+        // The farthest sample, the first of those within OFFSET_TIE of it (symmetric samples
+        // tie, and round-off would otherwise pick between them by placement).
+        let offsets: Vec<f64> = (1..s.len() - 1).map(|k| off(s[k])).collect();
+        let far = offsets.iter().copied().fold(-1.0, f64::max);
+        let k = 1 + offsets
+            .iter()
+            .position(|&o| o >= far - OFFSET_TIE)
+            .unwrap_or(0);
         // The turn from the run's first direction to its last.
         let turned = match (
             geom::unit(geom::sub(s[1], a)),
@@ -340,5 +357,36 @@ mod tests {
             assert_eq!(tree.nearest(q), brute);
         }
         assert_eq!(fit_distance(&points, &points), Some(0.0));
+    }
+
+    /// An arc's samples, symmetric so that its two middle samples are equally far from the
+    /// chord, thin to the same samples wherever the arc is placed.
+    #[test]
+    fn thinning_does_not_depend_on_placement() {
+        let kept = |offset: V3| {
+            let samples: Vec<V3> = (0..18)
+                .map(|k| {
+                    // Turning less than the angular deflection, so the sag decides.
+                    let t = 0.08 * k as f64 / 17.0;
+                    geom::add(offset, [1000.0 * t.cos(), 1000.0 * t.sin(), 0.0])
+                })
+                .collect();
+            let mut out = Vec::new();
+            thin(&samples, 0.1, &mut out);
+            out.iter()
+                .map(|p| samples.iter().position(|s| s == p).unwrap())
+                .collect::<Vec<_>>()
+        };
+        let unmoved = kept([0.0; 3]);
+        // A deterministic scatter of placements within a metre.
+        let mut x = 0.5f64;
+        let mut next = || {
+            x = (x * 3.9).fract() * 0.999 + 0.0005;
+            1000.0 * x - 500.0
+        };
+        for _ in 0..50 {
+            let offset = [next(), next(), next()];
+            assert_eq!(kept(offset), unmoved, "{offset:?}");
+        }
     }
 }

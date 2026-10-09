@@ -258,7 +258,7 @@
     "key": "{} records: 1 vs 1 records, fields {\"fit_error\"}",
     "count": 1,
     "verdict": "rust-correct",
-    "reason": "Same pattern (7 copies about z, pitch 51.428571429°, the same 152 faces). fit_error is the largest 99th-percentile nearest-sample distance between a copy turned one pitch and the next, so it measures the sampling as well as the geometry; the geometry's own value is 0: OpenCascade mesh nodes of the 152 faces at 0.05 mm deflection (339254 points), turned one pitch either way and projected onto the pattern faces' surfaces, lie at a 99th-percentile distance of 3.7e-9 mm (median 3.3e-10). The port's 0.326125 (its samples of the exact surfaces) is nearer that than Python's 1.08891 (OpenCascade's mesh at the family's 0.9 mm deflection, 0.25% of the part's 360 mm); both are under the match threshold, 2.5 deflections (2.25 mm), so the pattern is the same."
+    "reason": "Same pattern (7 copies about z, pitch 51.428571429°, the same 152 faces). fit_error is the largest 99th-percentile nearest-sample distance between a copy turned one pitch and the next, so it measures the sampling as well as the geometry; the geometry's own value is 0: OpenCascade mesh nodes of the 152 faces at 0.05 mm deflection (339254 points), turned one pitch either way and projected onto the pattern faces' surfaces, lie at a 99th-percentile distance of 3.7e-9 mm (median 3.3e-10). The port's 0.286016 (its samples of the exact surfaces) is nearer that than Python's 1.08891 (OpenCascade's mesh at the family's 0.9 mm deflection, 0.25% of the part's 360 mm); both are under the match threshold, 2.5 deflections (2.25 mm), so the pattern is the same."
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
