@@ -2,22 +2,6 @@
   {
     "file": "cadgenbench/flanged_spool_132.step",
     "check": "caller_space",
-    "family": "blends",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
-    "max_differing": 2
-  },
-  {
-    "file": "cadgenbench/flanged_spool_132.step",
-    "check": "caller_space",
-    "family": "bosses",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same boss cylinder: the axis is negated and the location moves to the other end, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
-    "max_differing": 3
-  },
-  {
-    "file": "cadgenbench/flanged_spool_132.step",
-    "check": "caller_space",
     "family": "hole_patterns",
     "verdict": "equivalent",
     "reason": "Equivalent: the same pattern of the same holes; its members are listed in another order (a bolt circle's or rectangle's start is chosen by coordinates, in the frame here and in the file in caller space) or described from their other ends (the holes entries), and for the counterbored-both-ends holes of nist_ftc_10 the member faces follow the holes entry.",
@@ -35,8 +19,8 @@
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "check": "caller_space",
     "family": "blends",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "verdict": "undetermined",
+    "reason": "The part's frame is not the file's axes, so the default finds other fillets (this file's fillets entry) and reconciliation (blend_superseded_by_fillet) rejects other blends: of the 69 blend candidates caller space rejects 10 (as Python does), the default 4: 2 of caller space's (faces 1466, 1630) and 2 caller space keeps (faces 2, 692), so 8 blends (faces 29, 662, 1252, 1254, 1256, 1258, 1346, 1450) are in the default document only and 2 in caller space only (65 against 59). Blends found in both differ only in sense: path.direction or path.normal is negated, chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice). Which reading the part intends is not established (a maintainer question on M8: parts whose frame is not the file's axes).",
     "max_differing": 30
   },
   {
@@ -75,8 +59,8 @@
     "file": "cadgenbench_inputs/cgb207.step",
     "check": "caller_space",
     "family": "blends",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "verdict": "undetermined",
+    "reason": "The part's frame is not the file's axes, so the default finds other fillets (this file's fillets entry) and reconciliation (blend_superseded_by_fillet) rejects other blends: of the 7 blend candidates caller space rejects 2 (faces 86, 88, as Python does), the default those and the blend on face 208, which is in caller space only (4 against 5). Blends found in both differ only in sense: path.direction or path.normal is negated, chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice). Which reading the part intends is not established (a maintainer question on M8: parts whose frame is not the file's axes).",
     "max_differing": 4
   },
   {
@@ -91,8 +75,8 @@
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "check": "caller_space",
     "family": "blends",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "verdict": "undetermined",
+    "reason": "The part's frame is not the file's axes, so the default finds other fillets (this file's fillets entry) and reconciliation (blend_superseded_by_fillet) rejects other blends: of the 39 blend candidates caller space rejects 10, the default only 2 of them (faces 138, 139), so 8 blends (faces 191, 196, 219, 224, 247, 252, 296, 301) are in the default document only (37 against 29). Blends found in both differ only in sense: path.direction or path.normal is negated, chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice). Which reading the part intends is not established (a maintainer question on M8: parts whose frame is not the file's axes).",
     "max_differing": 24
   },
   {
@@ -133,6 +117,14 @@
     "family": "turned_steps",
     "verdict": "undetermined",
     "reason": "The part's frame is not the file's axes (frame x = file z, y = (-0.9741, -0.2261, 0); Python's frame agrees, captured/frames.json), so the default reads letter-axis families along the frame's axes and caller space along the file's, and directions and orders follow the frame: features found on other faces or not at all, and values differing. Which reading the part intends is not established (a maintainer question on M8: parts whose frame is not the file's axes).",
+    "max_differing": 1
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "check": "caller_space",
+    "family": "bosses",
+    "verdict": "undetermined",
+    "reason": "Caller space finds a turned step on exactly this boss's faces (321, 330, 332, ..., 342) and reconciliation rejects the boss for it (turned.boss_superseded_by_step); the default, read along the part's frame, finds four of caller space's five turned steps but not that one (this file's turned_steps entry: the frame is not the file's axes), so the boss stays. Which reading the part intends is not established (a maintainer question on M8).",
     "max_differing": 1
   },
   {
@@ -230,14 +222,6 @@
     "verdict": "equivalent",
     "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
     "max_differing": 2
-  },
-  {
-    "file": "gramel/string_post.step",
-    "check": "caller_space",
-    "family": "bosses",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same boss cylinder: the axis is negated and the location moves to the other end, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
-    "max_differing": 1
   },
   {
     "file": "gramel/string_post.step",
@@ -360,6 +344,14 @@
     "max_differing": 1
   },
   {
+    "file": "mfcadpp/10060.step",
+    "check": "caller_space",
+    "family": "pockets",
+    "verdict": "undetermined",
+    "reason": "The default finds an edge-open circular pocket that caller space does not (this file's edge_open_circular_pockets entry; Python behaves the same), and reconciliation rejects the pocket on two of its walls for it there (recess.pocket_superseded_by_edge_open_circular_pocket, its walls [11, 13] a subset of the edge-open pocket's [11, 12, 13, 14]); in caller space no edge-open pocket wins it, so it is accepted. Which reading is right follows the edge-open pocket's, which is not established.",
+    "max_differing": 1
+  },
+  {
     "file": "mfcadpp/10063.step",
     "check": "caller_space",
     "family": "circular_blind_steps",
@@ -421,6 +413,14 @@
     "family": "through_steps",
     "verdict": "equivalent",
     "reason": "Equivalent: the section (boundary endpoint, corner, boundary endpoint) is listed from its other end, its lesser direction taken in the frame (endpoint_scopes follow it); the points agree.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10103.step",
+    "check": "caller_space",
+    "family": "pockets",
+    "verdict": "undetermined",
+    "reason": "The default finds an edge-open circular pocket that caller space does not (this file's edge_open_circular_pockets entry; Python behaves the same), and reconciliation rejects the pocket on two of its walls for it there (recess.pocket_superseded_by_edge_open_circular_pocket, its walls [24, 26] a subset of the edge-open pocket's [24, 25, 26, 27]); in caller space no edge-open pocket wins it, so it is accepted. Which reading is right follows the edge-open pocket's, which is not established.",
     "max_differing": 1
   },
   {
@@ -686,14 +686,6 @@
     "verdict": "equivalent",
     "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
     "max_differing": 2
-  },
-  {
-    "file": "mfcadpp_holdout/20273.step",
-    "check": "caller_space",
-    "family": "blends",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
-    "max_differing": 1
   },
   {
     "file": "mfcadpp_holdout/20273.step",
@@ -1216,14 +1208,6 @@
     "max_differing": 2
   },
   {
-    "file": "mfcadpp/10049.step",
-    "check": "caller_space",
-    "family": "prismatic_pockets",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
-    "max_differing": 1
-  },
-  {
     "file": "mfcadpp/10063.step",
     "check": "caller_space",
     "family": "prismatic_pockets",
@@ -1248,14 +1232,6 @@
     "max_differing": 1
   },
   {
-    "file": "mfcadpp/10103.step",
-    "check": "caller_space",
-    "family": "prismatic_pockets",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
-    "max_differing": 1
-  },
-  {
     "file": "mfcadpp/10127.step",
     "check": "caller_space",
     "family": "prismatic_pockets",
@@ -1270,14 +1246,6 @@
     "verdict": "equivalent",
     "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
     "max_differing": 1
-  },
-  {
-    "file": "mfcadpp/10146.step",
-    "check": "caller_space",
-    "family": "prismatic_pockets",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
-    "max_differing": 2
   },
   {
     "file": "mfcadpp/10167.step",
@@ -1310,14 +1278,6 @@
     "verdict": "equivalent",
     "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
     "max_differing": 2
-  },
-  {
-    "file": "mfcadpp/10212.step",
-    "check": "caller_space",
-    "family": "prismatic_pockets",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
-    "max_differing": 1
   },
   {
     "file": "mfcadpp/10245.step",
@@ -1424,14 +1384,6 @@
     "max_differing": 1
   },
   {
-    "file": "mfcadpp_holdout/265.step",
-    "check": "caller_space",
-    "family": "prismatic_pockets",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
-    "max_differing": 2
-  },
-  {
     "file": "mfcadpp_holdout/274.step",
     "check": "caller_space",
     "family": "prismatic_pockets",
@@ -1446,14 +1398,6 @@
     "verdict": "equivalent",
     "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
     "max_differing": 4
-  },
-  {
-    "file": "mfcadpp_holdout/340.step",
-    "check": "caller_space",
-    "family": "prismatic_pockets",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same section polygon, walked from another corner or in the other sense. The walk is canonical (counter-clockwise from the least corner) in the two axes across the pocket, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's walk so that the document does not depend on placement). Checked record by record: the corners agree to the published grid up to rotation and reversal, and axis, sides, depth, open_sign and at agree.",
-    "max_differing": 1
   },
   {
     "file": "mfcadpp_holdout/464.step",

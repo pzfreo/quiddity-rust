@@ -3,10 +3,14 @@
 //!
 //! Python's default inventory (`_take_inventory`, local-degradation retry included) decides
 //! between families in `_reconcile_existing`; the port's [`reconcile::reconcile`] makes the same
-//! decisions on [`features::recognise`]'s records. On every corpus part the two are compared as
+//! decisions on [`features::inventory`]'s candidates. On every corpus part the two are compared as
 //! sets keyed by family and defining faces: each decision's outcome, reason and related
 //! candidates (by their faces). Python's default acceptances are not compared (whether a record
-//! exists at all is `tests/corpus.rs`'s question).
+//! exists at all is `tests/corpus.rs`'s question). The records `features::recognise` keeps (the
+//! accepted inventory) are compared too, family by family among those a rule reads, with
+//! Python's candidates less its rejected ones; differences are listed under `accepted` as
+//! `{"file", "family", "python", "rust"}` (the defining-face lists only that side has) or
+//! `{"file", "family", "order": true}`.
 //!
 //! Every difference is listed under `decisions` in `captured/reconcile/known.json` with a
 //! verdict and a reason: `{"file", "family", "faces", "python", "rust"}`, where `python` and
@@ -23,9 +27,9 @@ use std::io::Read;
 use std::path::{Path, PathBuf};
 
 use quiddity::Part;
+use quiddity::features;
 use quiddity::features::passage_compat::PassageCompatibilityView;
 use quiddity::features::reconcile::{self, Disposition, Evidence};
-use quiddity::features::{self, Context};
 use quiddity::kernel::step::{Placement, read_step_file, read_step_file_placed};
 use serde_json::{Value, json};
 
@@ -101,9 +105,7 @@ fn python_decisions(part: &Value) -> Result<Decided, String> {
 
 /// The port's decisions on *part*, or its refusal.
 fn port_decisions(part: &Part) -> Result<Decided, String> {
-    let found = features::recognise(part);
-    let evidence = Evidence::discover(&Context::new(part)).map_err(|e| e.to_string())?;
-    decided(reconcile::reconcile(&found, &evidence))
+    decided(features::inventory(part).map(|i| i.dispositions))
 }
 
 fn decided(
@@ -246,7 +248,8 @@ fn decisions_agree_with_python() {
     let entries = parts(&capture);
     let found = common::parallel::map(entries, |p| {
         let file = p["file"].as_str().unwrap();
-        let rust = port_decisions(&read(&dir, file));
+        let inventory = features::inventory(&read(&dir, file));
+        let rust = decided(inventory.clone().map(|i| i.dispositions));
         let python = python_decisions(p);
         let count =
             |d: &Result<Decided, String>| d.as_ref().map_or(0, |d| d.values().map(Vec::len).sum());
@@ -254,16 +257,80 @@ fn decisions_agree_with_python() {
             count(&python),
             count(&rust),
             differences(file, &python, &rust),
+            inventory.map_or_else(
+                |_| Vec::new(),
+                |i| accepted_differences(file, p, i.accepted()),
+            ),
         )
     });
     let (python, rust): (usize, usize) = found.iter().fold((0, 0), |(p, r), f| (p + f.0, r + f.1));
-    let differences: Vec<Value> = found.into_iter().flat_map(|f| f.2).collect();
+    let (differences, accepted): (Vec<Vec<Value>>, Vec<Vec<Value>>) =
+        found.into_iter().map(|f| (f.2, f.3)).unzip();
+    let differences: Vec<Value> = differences.into_iter().flatten().collect();
     eprintln!(
         "reconcile: {python} Python decisions, {rust} port decisions over {} parts; {} differ",
         entries.len(),
         differences.len()
     );
     check_known(differences, "decisions");
+    check_known(accepted.into_iter().flatten().collect(), "accepted");
+}
+
+/// Where `features::recognise`'s records (the accepted inventory) differ from Python's accepted
+/// candidates (the captured candidates less every rejected one), family by family among those a
+/// rule reads: the defining-face lists only one side has, or `order` where both have the same
+/// lists in another order. Risers are not carried.
+fn accepted_differences(file: &str, part: &Value, accepted: features::Features) -> Vec<Value> {
+    let rejected: Vec<(&str, usize)> = part["decisions"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|d| d["outcome"] == "rejected")
+        .map(|d| {
+            let c = d["candidate"].as_array().unwrap();
+            (c[0].as_str().unwrap(), c[1].as_u64().unwrap() as usize)
+        })
+        .collect();
+    let mut out = Vec::new();
+    for (family, field) in FIELDS {
+        let python: Vec<Vec<usize>> = face_lists(part["candidates"].get(family))
+            .into_iter()
+            .enumerate()
+            .filter(|(i, _)| !rejected.contains(&(family, *i)))
+            .map(|(_, f)| f)
+            .collect();
+        let rust: Vec<Vec<usize>> = accepted.defining[field]
+            .iter()
+            .map(|f| {
+                let mut f = f.clone();
+                f.sort_unstable();
+                f
+            })
+            .collect();
+        if python == rust {
+            continue;
+        }
+        let only = |a: &[Vec<usize>], b: &[Vec<usize>]| {
+            let mut rest = b.to_vec();
+            let mut out = Vec::new();
+            for f in a {
+                match rest.iter().position(|g| g == f) {
+                    Some(at) => {
+                        rest.remove(at);
+                    }
+                    None => out.push(f.clone()),
+                }
+            }
+            out
+        };
+        let (p, r) = (only(&python, &rust), only(&rust, &python));
+        out.push(if p.is_empty() && r.is_empty() {
+            json!({"file": file, "family": family, "order": true})
+        } else {
+            json!({"file": file, "family": family, "python": p, "rust": r})
+        });
+    }
+    out
 }
 
 /// The `Features` fields (`Defining` keys) the rules read, by Python family value.

@@ -76,7 +76,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 39 (40 calls) | 4 | 1 | 3 | 3 | 28 |
 | `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 21 | 0 | 21 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
-| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 36 | 10 | 26 | 0 | 0 | 0 |
+| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 35 | 9 | 26 | 0 | 0 | 0 |
 | `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 8 (20 probes) | 7 | 0 | 0 | 0 | 1 |
 | `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 63 | 58 | 0 | 0 | 1 | 4 |
 | `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 40 | 5 | 0 | 2 | 0 | 33 |
@@ -90,7 +90,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/outer_profiles/known_differences.json` | `tests/outer_profiles.rs` | 7 (2193 faces) | 6 | 1 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 118 (2920 answers) | 98 | 8 | 0 | 9 | 3 |
 | `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 9 | 3 | 3 | 0 | 0 | 3 |
-| `tests/fixtures/captured/reconcile/known.json` | `tests/reconcile.rs` | 26 (0 decisions, 26 motions) | 0 | 4 | 0 | 0 | 22 |
+| `tests/fixtures/captured/reconcile/known.json` | `tests/reconcile.rs` | 35 (0 decisions, 9 accepted, 26 motions) | 4 | 9 | 0 | 0 | 22 |
 | `tests/fixtures/known_face_sources.json` | `crates/haecceity/tests/face_sources.rs` | 134 | 90 | 0 | 0 | 43 | 1 |
 | `tests/fixtures/known_pmi.json` "nist" | `crates/haecceity/tests/pmi_read.rs` | 74 | 65 | 0 | 9 | 0 | 0 |
 | `tests/fixtures/known_pmi.json` "occt" | `crates/haecceity/tests/pmi_read.rs` | 403 | 402 | 1 | 0 | 0 | 0 |
@@ -155,8 +155,14 @@ rigid motions.
 
 The aggregate's cross-family reconciliation (`_reconcile_existing`: recess precedence, bevels,
 circular-step fillets, blends, Double-D bores, bosses and turned steps, steps and grooves,
-oriented-slot passages, thin walls) is ported as decisions (`src/features/reconcile.rs`), not yet
-applied: `recognise` still returns every family's records. `tools/capture_reconcile.py` records
+oriented-slot passages, thin walls) is ported (`src/features/reconcile.rs`) and applied:
+`features::inventory` makes the decisions on one run's candidates, and `features::recognise` (so
+the caller-space and default recognitions, the recognition document and correspondence) drops
+every rejected candidate with its defining faces and derives hole, slot, pocket, gusset-rib and
+oriented-slot patterns from accepted members only, as Python's `_take_inventory_once` does.
+Reconciliation adds no records (step levels and risers are physical families in Python, not
+derived from it), so the document keeps its shape (`recognition/2`); a reconciliation refusal
+panics, as the passages' does. `tools/capture_reconcile.py` records
 every disposition Python's default inventory makes over the corpus, local-degradation retry
 included (`captured/reconcile/capture.json.gz`): 261 decisions on 62 of 100 parts (127 blends
 superseded by fillets, 27 bosses by turned steps, 27 rings by pockets, 24 fillets by circular
@@ -165,7 +171,24 @@ pockets by passages, 6 step/groove relations, 7 other recess decisions). `tests/
 compares the port's decisions part by part, keyed by family and defining faces, with outcome,
 reason and winners: all 261 agree. Thirteen synthetic scenarios run through Python's own
 `_reconcile_existing` (`captured/reconcile/scenarios.json`) cover the branches the corpus never
-reaches, including a candidate two rules decide, which Python refuses; all agree. Risers, which
+reaches, including a candidate two rules decide, which Python refuses; all agree. The accepted
+records are compared too, family by family among those a rule reads, with Python's candidates
+less its rejected ones: all agree but 9 candidate differences no rule causes (listed under
+`accepted`): 3 holes whose spotface or drilling end the port reads differently and 2 cgb202
+fillets on a solid only OpenCascade calls invalid (rust-correct); 13975's hole and pockets and
+14052's hole and plate, which Python's local-degradation retry skips and `recognise`, which takes
+no retry, publishes, and GRM-03's plate on a solid that owns turned steps, which Python's
+aggregate never offers to plates (`excluded_solids`, not ported) (rust-wrong). Over the corpus
+caller-space recognition loses Python's 245 rejected records of carried families on 62 parts
+(127 blends, 36 bosses, 27 prismatic pockets, 24 fillets, 13 chamfers, 12 pockets, 3 slots, 2
+section passages, 1 plate) and the default document 233 on 63 (114 blends, 35 bosses, 14
+pockets; the rest as caller space), because its frame finds other candidates on five parts
+(`known_framed_document.json`, undetermined): on cgb202, cgb207 and cgb217, whose frames are
+not the file's axes, other fillets, so it keeps 16 blends caller space rejects and rejects 3
+caller space keeps; on cgb217 no turned step for one boss; on 10060 and 10103 an edge-open
+circular pocket that rejects one pocket each. No pattern changes. `tests/recognition.rs` checks
+that no rejected candidate is in `recognise` or the document on parts where every rejecting rule
+the corpus reaches fires, and that a pattern loses a member reconciliation rejects. Risers, which
 `recognise` does not run, are found for the thin-wall rule with the aggregate's options.
 
 The kernel also answers the questions the unported families ask of OpenCascade's booleans,
@@ -197,8 +220,8 @@ replays the entry calls and, on 359 parts (the calls' parts, the section tests' 
 golden fixture, the corpus), every ring, the legacy roster's walls, the records and defining
 walls, and 274 compatibility calls (`tools/capture_passages.py`): all agree. `Features` carries
 them as `section_passages`, the field of Python's legacy inventory (`_LegacyRecognitionResult`;
-the public `RecognitionResult` publishes passages through `section_recess`), unreconciled with
-through slots.
+the public `RecognitionResult` publishes passages through `section_recess`), less those
+reconciliation rejects for a slot or an oriented slot.
 Open question for the maintainer: Python 0.4 publishes passages through the unified
 `section_recess` projection rather than as a family of their own; whether the recognition
 document should keep `section_passages` as a family (as now) or wait for that projection is not
@@ -399,7 +422,7 @@ src/
     turned_steps.rs  round_bottom_slots.rs  rectangular_blind_slots.rs  gussets.rs
     grooves.rs  plates.rs  profiled_bores.rs
     reconcile.rs     the aggregate's cross-family reconciliation decisions (`_reconcile_existing`),
-                     ported but not yet applied to `recognise`'s output
+                     applied by `recognise`
     edge_open.rs     what the two edge-open recess families share: `_rings.SPAN_EPS`, principal
                      planes, the mouth capping a wall chain, and the floor proof by swept-face
                      probes
@@ -521,7 +544,8 @@ tests/
   local_degradation.rs  which corpus parts take Python's local-degradation retry and what it
                      skips there, against the port's evidence paths, and under rigid motion
   reconcile.rs       every reconciliation decision Python's inventory makes over the corpus and
-                     13 synthetic scenarios, against the port's decisions, and under rigid motion
+                     13 synthetic scenarios, against the port's decisions, and under rigid motion;
+                     the accepted records against Python's
   pads.rs            each pad's top and four walls on Python's evidence-test parts and the golden
                      fixture; tolerances the capture cannot record (NaN, infinity)
   corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity

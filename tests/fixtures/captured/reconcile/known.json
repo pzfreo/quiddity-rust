@@ -1,4 +1,187 @@
 {
+ "accepted": [
+  {
+   "family": "fillets",
+   "file": "cadgenbench_inputs/cgb202.step.gz",
+   "python": [],
+   "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. Python skips the fillet because it touches the bad-face region of a solid OpenCascade's BRepCheck calls unorientable after its import healing re-orients wires; the file's own topology is closed and consistently oriented and the port accepts the solid, so publishing it is right (captured/local_degradation/known.json's two cgb202 fillet skips and this file's recognise_fillets evidence entry in known_divergences.json, rust-correct).",
+   "rust": [
+    [
+     1627
+    ],
+    [
+     698
+    ]
+   ],
+   "verdict": "rust-correct"
+  },
+  {
+   "family": "holes",
+   "file": "cadgenbench_inputs/cgb217.step.gz",
+   "python": [
+    [
+     315,
+     319,
+     331,
+     333,
+     335,
+     337,
+     339,
+     341,
+     343
+    ]
+   ],
+   "reason": "Not a reconciliation difference: the same hole's candidate defining faces differ. Python's hole claims the internal-groove cylinder it calls a spotface (with its faces) because it orders segments by their high end in either drilling direction; the port orders by the end nearest the opening, finds no spotface and claims the bore alone. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes spotface entry in known_divergences.json (rust-correct).",
+   "rust": [
+    [
+     319
+    ]
+   ],
+   "verdict": "rust-correct"
+  },
+  {
+   "family": "holes",
+   "file": "cadgenbench_inputs/cgb242.step.gz",
+   "python": [
+    [
+     6,
+     36,
+     43,
+     56,
+     66,
+     103,
+     109,
+     156,
+     158
+    ]
+   ],
+   "reason": "Not a reconciliation difference: the same through hole's candidate defining faces differ with its drilling end. Python drills this Ø22 hole from the Ø102 end (it takes whichever segment comes first in face order at the Ø110 end, where the bore and the Ø110 segment end level), its counterbore the Ø102 one; the port drills from the wider Ø110 end, as Python's own rule says and as Python does with the part turned over, so the segments each side claims with the bore differ. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes axis/cbore entry in known_divergences.json (rust-correct).",
+   "rust": [
+    [
+     156,
+     158,
+     173,
+     185
+    ]
+   ],
+   "verdict": "rust-correct"
+  },
+  {
+   "family": "holes",
+   "file": "cadgenbench_inputs/cgb243.step.gz",
+   "python": [
+    [
+     133,
+     134,
+     135,
+     136,
+     137,
+     138,
+     139,
+     140,
+     141,
+     142,
+     143,
+     144,
+     145,
+     146,
+     187,
+     232
+    ]
+   ],
+   "reason": "Not a reconciliation difference: the same hole's candidate defining faces differ. Python's hole claims the Ø61.62 cylinder 0.47 mm inside the mouth it calls a spotface (with its faces) because it orders segments by their high end in either drilling direction; the port orders by the end nearest the opening, finds no spotface and claims the bore alone. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes spotface entry in known_divergences.json (rust-correct).",
+   "rust": [
+    [
+     133,
+     134,
+     135,
+     136,
+     137,
+     138,
+     139,
+     140,
+     141,
+     142,
+     143,
+     144,
+     145,
+     146,
+     187
+    ]
+   ],
+   "verdict": "rust-correct"
+  },
+  {
+   "family": "plates",
+   "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
+   "python": [],
+   "reason": "Not a reconciliation difference: Python's aggregate discovers plates only on solids that own no turned step (plates.py _discover passes the turned steps' solids as excluded_solids), and this part's one solid owns its turned steps (its four bosses are rejected as exactly turned steps). The port's plates::discover has no such exclusion, so the aggregate's plate dependency on turned steps is not ported.",
+   "rust": [
+    [
+     0,
+     7,
+     11
+    ]
+   ],
+   "verdict": "rust-wrong"
+  },
+  {
+   "family": "holes",
+   "file": "inventory_refusal/13975.step.gz",
+   "python": [],
+   "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. The shell bounds no volume (edge 15 is used by one face only, edge 4 twice in one direction; known_divergences.json's 13975 entries), so no valid solid owns the record; the port's own degraded evidence paths (holes::discover_locally_degraded, pockets::discover_locally_degraded) skip it as Python does, but recognise does not use them.",
+   "rust": [
+    [
+     0
+    ]
+   ],
+   "verdict": "rust-wrong"
+  },
+  {
+   "family": "pockets",
+   "file": "inventory_refusal/13975.step.gz",
+   "python": [],
+   "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. The shell bounds no volume (edge 15 is used by one face only, edge 4 twice in one direction; known_divergences.json's 13975 entries), so no valid solid owns the record; the port's own degraded evidence paths (holes::discover_locally_degraded, pockets::discover_locally_degraded) skip it as Python does, but recognise does not use them.",
+   "rust": [
+    [
+     9,
+     11,
+     15
+    ],
+    [
+     5,
+     7,
+     16
+    ]
+   ],
+   "verdict": "rust-wrong"
+  },
+  {
+   "family": "holes",
+   "file": "inventory_refusal/14052.step.gz",
+   "python": [],
+   "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. A deliberately malformed corpus part: OpenCascade's BRepCheck reports BRepCheck_BadOrientationOfSubshape on face 1, a geometric fault the port's topological validity check does not look for, so the port calls the solid valid and publishes the record (captured/local_degradation/known.json's 14052 skips, rust-wrong).",
+   "rust": [
+    [
+     8
+    ]
+   ],
+   "verdict": "rust-wrong"
+  },
+  {
+   "family": "plates",
+   "file": "inventory_refusal/14052.step.gz",
+   "python": [],
+   "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. A deliberately malformed corpus part: OpenCascade's BRepCheck reports BRepCheck_BadOrientationOfSubshape on face 1, a geometric fault the port's topological validity check does not look for, so the port calls the solid valid and publishes the record (captured/local_degradation/known.json's 14052 skips, rust-wrong).",
+   "rust": [
+    [
+     5,
+     6
+    ]
+   ],
+   "verdict": "rust-wrong"
+  }
+ ],
  "decisions": [],
  "motions": [
   {

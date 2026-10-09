@@ -310,13 +310,6 @@
     "faces": 0
   },
   {
-    "test": "revisions",
-    "case": "fillet_resized",
-    "check": "other blends/0: carried",
-    "verdict": "rust-correct",
-    "reason": "The resized corner round is recognised twice: as the fillet the case's expectation names (fillets, adapted, radius 5 to 8) and as the straight convex blend over the same cylinder face (blends, ported after the case was written). The blend is reported adapted with sizes.radius 5.0 to 8.0 and its axis point moved by the radius change, which is the true change: the round's radius is 5 in the old part and 8 in the new (tools/capture_revisions.py). The check expects every feature it does not name to be carried; the case (expected.json) names only the fillets family because Python's aggregate prefers the dimension-worthy Fillet for a complete chain (build_recognition_result, not ported). A blends expectation in the case would retire this entry."
-  },
-  {
     "test": "invariance",
     "file": "cadgenbench_inputs/cgb245.step",
     "motion": "translate",
