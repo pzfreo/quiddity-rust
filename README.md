@@ -386,7 +386,8 @@ crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code
     mesh.rs          faces as triangle meshes to a chordal and angular deflection
                      (BRepMesh_IncrementalMesh): constrained Delaunay in parameter space,
                      edges discretised once for both faces so closed shells are watertight
-                     (tests/mesh.rs)
+                     (tests/mesh.rs); 2 of the corpus's 10,669 faces refused with the reason
+                     (a neck closed within tolerance, the malformed 14052)
     classify.rs      point-in-solid (whole part or one solid) by the parity of rays.rs
                      crossings, with on-boundary detection (BRepClass3d)
     rays.rs          every hit of a ray on a solid's trimmed faces, through a box hierarchy

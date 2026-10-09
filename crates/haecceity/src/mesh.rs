@@ -7,8 +7,10 @@
 //!    so a chord stands for the samples it skips in space and, on each face's surface, its
 //!    straight line in that face's parameters stands for them too, and the normals along it
 //!    turn by no more than the angular deflection; then divided where a face's surface needs a
-//!    closer spacing along it than the chord gives. Samples a face routes along a pole's line
-//!    are kept by neither face, and an edge running through a pole takes the pole as a point.
+//!    closer spacing along it than the chord gives. Samples a face routes along a pole's line,
+//!    or that stray within the deflection past a parameter line its boundary follows (an edge
+//!    meeting a torus's top circle tangentially, see `straying`), are kept by neither face, and
+//!    an edge running through a pole takes the pole as a point.
 //!    Both faces of an edge take the same points ([`BoundaryPoint`]), at the edge's own
 //!    positions in space, so a closed shell's mesh is watertight.
 //! 2. Polygons. A face's boundary loops ([`Part::uv_loops`]: unwrapped across periodic
@@ -50,6 +52,7 @@ use spade::{ConstrainedDelaunayTriangulation, HasPosition, Point2, Triangulation
 
 use super::brep::Part;
 use super::geom::{self, Surface, V3};
+use super::uv::UvLoop;
 
 /// Refinement stops after this many rounds of insertions, however far from the tolerance.
 const MAX_ROUNDS: usize = 40;
@@ -418,6 +421,9 @@ impl<'a> PartMesher<'a> {
             {
                 winding_u += 1;
             }
+            for (e, sample) in straying(part, face, li, &sheet, lp, &points, self.deflection) {
+                uv.remove(&(e, sample));
+            }
             box_points.extend(&points);
             loops.push(points);
         }
@@ -606,6 +612,105 @@ impl<'a> PartMesher<'a> {
             self.angular,
         )
     }
+}
+
+/// The samples (edge, index) of a loop that stray past a parameter line its boundary follows,
+/// within the deflection of it, where they meet it: neither face of their edge keeps them (see
+/// [`PartMesher::make_plan`]), so the loop is a simple polygon.
+///
+/// An edge of the loop all of whose points share one parameter value (a torus face's side
+/// along v = π/2) is a line the face lies on one side of. An edge meeting it at a vertex
+/// tangentially may run along beyond the line, off the face, within the file's tolerance
+/// before it leaves on the face's side (cgb207 face 50's edge 63 reaches v = 1.5719 near
+/// vertex 48, 0.1 µm off the torus's top circle), and its samples there cross the line's.
+/// Walking each neighbouring edge from the shared vertex, the samples within the deflection of
+/// the line (in space) up to the first one clearly off it are the meeting; those of them beside
+/// the line (within its span in the other parameter, where they can cross it) on its far side
+/// from that one are the strays. Dropped, the edge's chord from the vertex stands for them:
+/// they lie within the deflection of the line, and of the face. A stray farther off is kept,
+/// and the face is then refused if its boundary crosses.
+fn straying(
+    part: &Part,
+    face: usize,
+    li: usize,
+    sheet: &Sheet<'_>,
+    lp: &UvLoop,
+    points: &[(f64, f64)],
+    deflection: f64,
+) -> Vec<(usize, usize)> {
+    let f = &part.faces[face];
+    let edges = &f.loops[li].edges;
+    let n = edges.len();
+    // Per edge of the loop, its points' indices in loop order.
+    let mut at: Vec<Vec<usize>> = vec![Vec::new(); n];
+    for (k, source) in lp.sources.iter().enumerate() {
+        if let Some((place, _)) = source {
+            at[*place].push(k);
+        }
+    }
+    let uses = |e: usize| {
+        f.loops
+            .iter()
+            .flat_map(|l| &l.edges)
+            .filter(|&&(g, _)| g == e)
+            .count()
+    };
+    let mut out = Vec::new();
+    for line in 0..n {
+        let ks = &at[line];
+        if ks.len() < 2 {
+            continue;
+        }
+        for axis in 0..2 {
+            let pick = |p: (f64, f64)| if axis == 0 { p.0 } else { p.1 };
+            let c = pick(points[ks[0]]);
+            let tiny = 1e-9 * (1.0 + c.abs());
+            if ks.iter().any(|&k| (pick(points[k]) - c).abs() > tiny) {
+                continue;
+            }
+            // The line's span in the other parameter: only a stray beside it can cross it.
+            let across = |p: (f64, f64)| if axis == 0 { p.1 } else { p.0 };
+            let (lo, hi) = ks
+                .iter()
+                .fold((f64::INFINITY, f64::NEG_INFINITY), |(lo, hi), &k| {
+                    (lo.min(across(points[k])), hi.max(across(points[k])))
+                });
+            // The edge before the line, walked back from its end, and the edge after it,
+            // walked on from its start.
+            let before: Vec<usize> = at[(line + n - 1) % n].iter().rev().copied().collect();
+            let after: Vec<usize> = at[(line + 1) % n].clone();
+            for walk in [before, after] {
+                let mut meeting: Vec<(usize, f64)> = Vec::new();
+                let mut inside = None;
+                for &k in &walk {
+                    let p = points[k];
+                    let d = pick(p) - c;
+                    let on = if axis == 0 { (c, p.1) } else { (p.0, c) };
+                    let Some((place, sample)) = lp.sources[k] else {
+                        break;
+                    };
+                    let e = edges[place].0;
+                    let off = geom::dist(sheet.value(on.0, on.1), part.edges[e].samples[sample]);
+                    if off > deflection {
+                        inside = Some(d.signum());
+                        break;
+                    }
+                    if d.abs() > tiny && across(p) > lo && across(p) < hi {
+                        meeting.push((k, d));
+                    }
+                }
+                let Some(side) = inside else { continue };
+                for (k, d) in meeting {
+                    let (place, sample) = lp.sources[k].expect("sourced above");
+                    let e = edges[place].0;
+                    if d.signum() != side && uses(e) == 1 {
+                        out.push((e, sample));
+                    }
+                }
+            }
+        }
+    }
+    out
 }
 
 /// Per vertex of the part, the least-numbered vertex at exactly the same point.
