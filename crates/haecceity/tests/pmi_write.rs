@@ -1071,14 +1071,29 @@ fn textures(faces: Option<FeatureId>) -> Vec<SurfaceTexture> {
     out
 }
 
+/// `text` with `from` replaced by `to` in the line of instance `#id` (which holds it once).
+fn edited(text: &str, id: u64, from: &str, to: &str) -> String {
+    let tag = format!("#{id}=");
+    let old = text.lines().find(|l| l.starts_with(&tag)).unwrap();
+    assert_eq!(old.matches(from).count(), 1, "{from} in {old}");
+    text.replacen(old, &old.replacen(from, to, 1), 1)
+}
+
+/// `text` with `line` appended to its data section.
+fn appended(text: &str, line: &str) -> String {
+    let at = text.rfind("ENDSEC;").unwrap();
+    format!("{}{line}\n{}", &text[..at], &text[at..])
+}
+
 /// Notes and surface finish in standard forms (decision 5; maintainer decisions 2026-10-09,
 /// specify-core's U3): part notes as 'semantic text' (PMI practice §7.4) and surface texture as
 /// AP242's surface conditions (ISO 10303-1110: `Surface_texture`, its
 /// `Standard_surface_texture_parameter`s in `surface_texture_representation`s). Both read back
 /// as written; the instances satisfy `surface_texture_representation` WR1–WR5,
 /// `general_property_association` WR1–WR2 and the global rule
-/// `restrict_representation_for_surface_condition` (checked here: `express_rules` does not
-/// evaluate them), and the writer's own schema and rule checks. WR5 with the association's WR2
+/// `restrict_representation_for_surface_condition` (`express_rules::check_all`, each rule also
+/// shown failing on an edit of the written file that breaks it), and the writer's own schema
+/// and rule checks. WR5 with the association's WR2
 /// makes the parameter 'surface_condition', not the mapping's 'surface texture parameter'
 /// (docs/step-ap242.md, question 3). A parameter without its 'surface_condition' association
 /// is reported, not read.
@@ -1114,8 +1129,10 @@ fn notes_and_surface_textures_are_standard_forms() {
     for n in notes {
         assert_eq!(refs_of(&w.doc, n), [pds], "{}", w.text(n));
     }
-    // Surface textures: 'surface texture' with a 'surface texture' representation (the global
-    // rule), each parameter related to it and represented by a surface_texture_representation.
+    // Surface textures: 'surface texture' with one representation, each parameter related to
+    // it and represented by a surface_texture_representation of two items (the 'measuring
+    // method' and the value), associated with a general property. The rules these forms meet
+    // are express_rules', below.
     let pdrs = of("property_definition_representation");
     let rep_of = |pd: u64| -> u64 {
         let found: Vec<u64> = pdrs
@@ -1132,9 +1149,9 @@ fn notes_and_surface_textures_are_standard_forms() {
         .collect();
     assert_eq!(textures_.len(), 2);
     for &t in &textures_ {
-        assert_eq!(name_of(rep_of(t)), "surface texture");
+        rep_of(t);
     }
-    let mut parameters = 0;
+    let mut parameters = Vec::new();
     for r in of("property_definition_relationship") {
         assert_eq!(name_of(r), "surface texture parameter");
         let [relating, related] = refs_of(&w.doc, r)[..] else {
@@ -1147,77 +1164,138 @@ fn notes_and_surface_textures_are_standard_forms() {
         // The representation's references: its items, then its context.
         let mut items = refs_of(&w.doc, rep);
         items.pop();
-        let kinds: Vec<Vec<String>> = items.iter().map(|&i| w.names(i)).collect();
-        // WR1: each item is exactly one of measure item, value range, descriptive item;
-        // WR2: one descriptive item, the 'measuring method'; WR3: a measure.
-        let descriptive: Vec<u64> = items
-            .iter()
-            .copied()
-            .filter(|&i| w.names(i) == ["descriptive_representation_item"])
-            .collect();
-        assert_eq!(descriptive.len(), 1, "{kinds:?}");
-        assert_eq!(name_of(descriptive[0]), "measuring method");
-        assert!(
-            kinds
-                .iter()
-                .any(|k| k.contains(&"measure_representation_item".to_string())),
-            "{kinds:?}"
-        );
-        assert_eq!(items.len(), 2, "{kinds:?}");
-        // WR4: in no representation relationship; WR5: one association with the general
-        // property 'surface_condition'; the association's WR1 (the only one on the parameter)
-        // and WR2 (the parameter is not a dimension or tolerance, so the names agree).
+        assert_eq!(items.len(), 2, "{}", w.text(rep));
+        // The writer relates it to no 'measuring direction' (which WR4 would allow): it is
+        // used by its property_definition_representation alone.
         assert!(
             w.doc
                 .referrers(rep)
                 .iter()
                 .all(|&x| w.names(x) == ["property_definition_representation"])
         );
-        let gpas: Vec<u64> = w
-            .doc
-            .referrers(related)
-            .iter()
-            .copied()
-            .filter(|&x| w.names(x) == ["general_property_association"])
-            .collect();
-        assert_eq!(gpas.len(), 1);
-        let gp = refs_of(&w.doc, gpas[0])[0];
-        assert_eq!(w.names(gp), ["general_property"]);
-        assert_eq!(gp_name(gp), "surface_condition", "{}", w.text(gp));
-        assert_eq!(refs_of(&w.doc, gpas[0]), [gp, related]);
-        assert_eq!(
-            name_of(related),
-            gp_name(gp),
-            "general_property_association WR2"
-        );
-        parameters += 1;
+        parameters.push((related, rep, items));
     }
-    assert_eq!(parameters, 3);
-    // Every general_property_association the write added meets WR2 (none derives a dimension
-    // or tolerance): the notes' and the textures' alike.
-    for g in of("general_property_association") {
-        let [base, derived] = refs_of(&w.doc, g)[..] else {
-            panic!("{}", w.text(g));
-        };
-        assert_eq!(gp_name(base), name_of(derived), "{}", w.text(g));
+    assert_eq!(parameters.len(), 3);
+    // The rules (express_rules::check_all): surface_texture_representation WR1–WR5,
+    // general_property_association WR1–WR2 (the notes' associations and the parameters') and
+    // the global rule restrict_representation_for_surface_condition hold on what the write
+    // added; an edit of the written file breaking each is reported as that rule alone.
+    let rules = |doc: &Document| -> BTreeSet<(u64, &'static str)> {
+        haecceity::express_rules::check_all(doc)
+            .into_iter()
+            .map(|v| (v.id, v.rule))
+            .collect()
+    };
+    let base = rules(&w.doc);
+    let on_added: Vec<_> = base.iter().filter(|&&(id, _)| id > w.max).collect();
+    assert!(on_added.is_empty(), "{on_added:?}");
+    let text = String::from_utf8(w.doc.bytes().to_vec()).unwrap();
+    let broken = |t: &str| -> BTreeSet<&'static str> {
+        assert_ne!(t, text);
+        rules(&Document::parse(t.as_bytes().to_vec()).unwrap())
+            .difference(&base)
+            .map(|&(_, r)| r)
+            .collect()
+    };
+    let (param, rep, ref items) = parameters[0];
+    let (method, value) = (items[0], items[1]);
+    assert_eq!(name_of(method), "measuring method");
+    let other_rep = parameters[1].1;
+    let point = w
+        .doc
+        .ids()
+        .find(|&id| w.names(id) == ["cartesian_point"])
+        .unwrap();
+    let gpa = of("general_property_association")
+        .into_iter()
+        .find(|&g| gp_name(refs_of(&w.doc, g)[0]) == "semantic text")
+        .unwrap();
+    let [gp, derived] = refs_of(&w.doc, gpa)[..] else {
+        panic!("{}", w.text(gpa));
+    };
+    let next = w.doc.max_id() + 1;
+    let items_ = format!("(#{method},#{value})");
+    for (case, t, rule) in [
+        (
+            "a texture's representation named otherwise",
+            text.replace(
+                "REPRESENTATION('surface texture'",
+                "REPRESENTATION('surface finish'",
+            ),
+            "restrict_representation_for_surface_condition.WR1",
+        ),
+        (
+            "a point among the items",
+            edited(
+                &text,
+                rep,
+                &items_,
+                &format!("(#{method},#{value},#{point})"),
+            ),
+            "surface_texture_representation.WR1",
+        ),
+        (
+            "no 'measuring method'",
+            edited(&text, method, "'measuring method'", "'measuring mode'"),
+            "surface_texture_representation.WR2",
+        ),
+        (
+            "no measure",
+            edited(&text, rep, &items_, &format!("(#{method})")),
+            "surface_texture_representation.WR3",
+        ),
+        (
+            "related to another parameter's representation",
+            appended(
+                &text,
+                &format!("#{next}=REPRESENTATION_RELATIONSHIP('','',#{rep},#{other_rep});"),
+            ),
+            "surface_texture_representation.WR4",
+        ),
+        (
+            "a second representation of the parameter",
+            appended(
+                &text,
+                &format!("#{next}=PROPERTY_DEFINITION_REPRESENTATION(#{param},#{rep});"),
+            ),
+            "surface_texture_representation.WR5",
+        ),
+        (
+            "a second association of a definition",
+            appended(
+                &text,
+                &format!("#{next}=GENERAL_PROPERTY_ASSOCIATION('',$,#{gp},#{derived});"),
+            ),
+            "general_property_association.WR1",
+        ),
+    ] {
+        assert_eq!(broken(&t), BTreeSet::from([rule]), "{case}");
     }
     // A parameter named as the mapping names it (breaking the association's WR2) reads the
     // same.
-    let text = String::from_utf8(w.doc.bytes().to_vec()).unwrap();
     let mapped = text.replace(
         "PROPERTY_DEFINITION('surface_condition'",
         "PROPERTY_DEFINITION('surface texture parameter'",
     );
-    assert_ne!(mapped, text);
+    assert_eq!(
+        broken(&mapped),
+        BTreeSet::from(["general_property_association.WR2"])
+    );
     let r = pmi::read(&Document::parse(mapped.into_bytes()).unwrap(), &f.parts).unwrap();
     assert_eq!(r.parts[0].surface_textures, p.surface_textures);
-    // A parameter whose general property is not 'surface_condition' breaks WR5: reported, and
-    // its texture not read.
+    // A parameter whose general property is not 'surface_condition' breaks WR5 (and the
+    // association's WR2: the names differ): reported, and its texture not read.
     let renamed = text.replace(
         "GENERAL_PROPERTY('','surface_condition',$)",
         "GENERAL_PROPERTY('','roughness',$)",
     );
-    assert_ne!(renamed, text);
+    assert_eq!(
+        broken(&renamed),
+        BTreeSet::from([
+            "general_property_association.WR2",
+            "surface_texture_representation.WR5"
+        ])
+    );
     let r = pmi::read(&Document::parse(renamed.into_bytes()).unwrap(), &f.parts).unwrap();
     assert!(r.parts[0].surface_textures.is_empty());
     assert!(

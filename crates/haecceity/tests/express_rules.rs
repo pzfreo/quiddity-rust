@@ -16,7 +16,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 
 use haecceity::express;
-use haecceity::express_rules::{RULES, RuleViolation, check_all};
+use haecceity::express_rules::{GLOBAL_RULES, RULES, RuleViolation, check_all};
 use haecceity::p21::Document;
 use serde_json::{Value, json};
 
@@ -726,4 +726,144 @@ fn draughting_relationship_rules_on_a_written_document() {
         with(&[(dm, shaded)]),
         pairs(&[(r, "mechanical_design_and_draughting_relationship.WR3")])
     );
+}
+
+// ---------------------------------------------------------------------------------------------
+// Global rules
+// ---------------------------------------------------------------------------------------------
+
+const SURFACE_CONDITION_RULE: &str = "restrict_representation_for_surface_condition.WR1";
+
+/// The global rules: each named once, `name.label`, FOR declared entities. The table holds no
+/// global rule, so the names are the schema text's as the module quotes it.
+#[test]
+fn global_rule_labels() {
+    let mut seen = BTreeSet::new();
+    for r in GLOBAL_RULES {
+        assert!(seen.insert(r.rule), "{} listed twice", r.rule);
+        assert_eq!(r.rule, format!("{}.{}", r.name, r.label));
+        for e in r.entities {
+            assert!(express::is_declared(e), "{e} is not declared");
+        }
+    }
+    assert!(seen.contains(SURFACE_CONDITION_RULE));
+}
+
+/// `restrict_representation_for_surface_condition` on a written document (its surface
+/// textures pass) and on minimal edits of it: a property definition named for any of the six
+/// surface conditions with a representation named otherwise fails, reported on the
+/// `property_definition_representation`; named alike they pass. Any other name (case
+/// included), an unset name and a definition that is no `property_definition` are UNKNOWN:
+/// they pass. Subtypes count on both sides (a `product_definition_shape` represented through a
+/// `shape_definition_representation`).
+#[test]
+fn surface_condition_rule_on_a_written_document() {
+    let text = every_kind();
+    let doc = Document::parse(text.clone().into_bytes()).unwrap();
+    let pass: Vec<String> = check_all(&doc)
+        .iter()
+        .filter(|v| v.rule == SURFACE_CONDITION_RULE)
+        .map(ToString::to_string)
+        .collect();
+    assert!(pass.is_empty(), "{}", pass.join("\n"));
+    let pd = instances(&text, "PROPERTY_DEFINITION")
+        .into_iter()
+        .find(|&p| line(&text, p).contains("'surface texture'"))
+        .unwrap();
+    let pdr = instances(&text, "PROPERTY_DEFINITION_REPRESENTATION")
+        .into_iter()
+        .find(|&r| refs_in(line(&text, r))[0] == pd)
+        .unwrap();
+    let rep = refs_in(line(&text, pdr))[1];
+    assert!(line(&text, rep).contains("'surface texture'"));
+    let fails = pairs(&[(pdr, SURFACE_CONDITION_RULE)]);
+    for name in [
+        "visual appearance",
+        "tactile appearance",
+        "contact ratio",
+        "hardness",
+        "treatment result",
+    ] {
+        let renamed = edit(&text, pd, "'surface texture'", &format!("'{name}'"));
+        assert_eq!(new_violations(&text, &renamed), fails, "{name}");
+        let both = edit(&renamed, rep, "'surface texture'", &format!("'{name}'"));
+        assert!(new_violations(&text, &both).is_empty(), "{name}");
+    }
+    let t = edit(&text, rep, "'surface texture'", "'surface finish'");
+    assert_eq!(new_violations(&text, &t), fails);
+    // UNKNOWN: another name, a name differing in case, an unset name on either side.
+    for (id, to) in [
+        (pd, "'roughness'"),
+        (pd, "'Surface Texture'"),
+        (pd, "$"),
+        (rep, "$"),
+    ] {
+        let t = edit(&text, id, "'surface texture'", to);
+        assert!(new_violations(&text, &t).is_empty(), "#{id} named {to}");
+    }
+    // A shape aspect named 'surface texture' is not a property_definition: UNKNOWN. A
+    // product_definition_shape so named, represented through a
+    // shape_definition_representation, is one.
+    let next = doc.max_id() + 1;
+    let point = instances(&text, "CARTESIAN_POINT")[0];
+    let ctx = *refs_in(line(&text, rep)).last().unwrap();
+    let owner = refs_in(line(&text, pd))[0];
+    let product = instances(&text, "PRODUCT_DEFINITION")[0];
+    let other = format!("#{next}=REPRESENTATION('other',(#{point}),#{ctx});");
+    let t = append(
+        &text,
+        &[
+            other.clone(),
+            format!(
+                "#{}=SHAPE_ASPECT('surface texture','',#{owner},.F.);",
+                next + 1
+            ),
+            format!(
+                "#{}=PROPERTY_DEFINITION_REPRESENTATION(#{},#{next});",
+                next + 2,
+                next + 1
+            ),
+        ],
+    );
+    assert!(new_violations(&text, &t).is_empty());
+    let t = append(
+        &text,
+        &[
+            other,
+            format!(
+                "#{}=PRODUCT_DEFINITION_SHAPE('surface texture','',#{product});",
+                next + 1
+            ),
+            format!(
+                "#{}=SHAPE_DEFINITION_REPRESENTATION(#{},#{next});",
+                next + 2,
+                next + 1
+            ),
+        ],
+    );
+    assert_eq!(
+        new_violations(&text, &t),
+        pairs(&[(next + 2, SURFACE_CONDITION_RULE)])
+    );
+}
+
+/// The committed files (writer output, specify-core output, NIST models, the removal fixture)
+/// meet every global rule, and some hold surface textures for it to apply to.
+#[test]
+fn committed_files_meet_the_global_rules() {
+    let files = committed_files();
+    let results = common::parallel::map(&files, |p| {
+        let text = text_of(p);
+        let held = text.contains("PROPERTY_DEFINITION('surface texture'");
+        let doc = Document::parse(text.into_bytes()).unwrap();
+        let v: Vec<String> = check_all(&doc)
+            .into_iter()
+            .filter(|v| GLOBAL_RULES.iter().any(|g| g.rule == v.rule))
+            .map(|v| format!("{}: {v}", p.display()))
+            .collect();
+        (v, held)
+    });
+    let v: Vec<&String> = results.iter().flat_map(|(v, _)| v).collect();
+    assert!(v.is_empty(), "{v:#?}");
+    assert!(results.iter().any(|&(_, h)| h));
 }

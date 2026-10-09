@@ -43,8 +43,12 @@
 //! **Validation before returning.** The edit is applied; every added or replaced instance must
 //! pass `express` validation against the table of the file's edition (the target edition for
 //! an AP242 edition without a table, and for an AP214/AP203 file that gains PMI, whose every
-//! instance must then pass); and `express_rules::check_all` of the result must have no
-//! violation the original lacked. Violations the original already had are reported.
+//! instance must then pass); and `express_rules::check_all` of the result (the WHERE, UNIQUE
+//! and global rules it evaluates, `restrict_representation_for_surface_condition` among them)
+//! must have no violation the original lacked. Violations the original already had are
+//! reported. The plan's own refusals that cite a rule (thread WR1 and WR12, turned_knurl WR2)
+//! are checks of the model before anything is emitted, naming every offending item at once
+//! (`Refusal`); `express_rules` stays the check of what was written.
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
@@ -2019,7 +2023,8 @@ impl<'a> PartPlan<'a> {
             }
         }
 
-        // Threads and knurls: their parameter counts (thread WR1, turned_knurl WR2).
+        // Threads and knurls: their parameter counts (thread WR1, turned_knurl WR2), refused
+        // here per item, before emission; express_rules checks the written instances.
         for (i, t) in p.threads.iter().enumerate() {
             let n = 6
                 + usize::from(t.minor_diameter.is_some())

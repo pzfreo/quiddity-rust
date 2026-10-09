@@ -120,7 +120,7 @@ source instance (`step::read_part_definitions`), and a plain semantic PMI model 
 does not read (`pmi::Finding`), never drops it; and records the instances behind every item
 (`pmi::Provenance`), specify-core's own notes on faces included. A removal plan (`removal.rs`)
 works out what replacing a part's PMI removes (a thread's or knurl's own shape with it), with
-its presentation or refusing; named EXPRESS WHERE and UNIQUE rules (`express_rules.rs`)
+its presentation or refusing; named EXPRESS WHERE, UNIQUE and global rules (`express_rules.rs`)
 back the writer. The writer (`pmi::write`) maps every part's PMI to one edit of the file
 (add, replace, remove) through a typed emission layer, keeping every other byte, with a
 datum feature symbol derived for each datum it adds; refusals, round trips and OpenCascade's
@@ -426,7 +426,8 @@ crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code
                      tolerance table, datum, datum target, datum system, tolerance,
                      plus_minus_tolerance, item_identified_representation_usage, surface
                      texture, general property association, mechanical design and
-                     draughting relationship), each citing
+                     draughting relationship) and the global rule
+                     restrict_representation_for_surface_condition, each citing
                      its schema label, three-valued
     removal.rs       the removal plan: the instances a replace removes (seeds plus forward
                      dependencies nothing kept holds), presentation removed or refused by

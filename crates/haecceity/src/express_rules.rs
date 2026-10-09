@@ -1,9 +1,9 @@
-//! Named checks of the AP242 WHERE and UNIQUE rules the PMI writer relies on, over a
+//! Named checks of the AP242 WHERE, UNIQUE and global rules the PMI writer relies on, over a
 //! [`Document`], each a function citing its label in the target edition's long form
 //! (`242_mim_lf.exp`, [`crate::express::TARGET`]), and [`check_all`] running them all.
 //!
 //! [`crate::express`] validates instances (names, attributes, types, bounds, complex
-//! combinations) but evaluates no WHERE or UNIQUE rule. This module is not a general EXPRESS
+//! combinations) but evaluates no WHERE, UNIQUE or global rule. This module is not a general EXPRESS
 //! rule engine: each rule below is transcribed by hand from the schema text, with the schema's
 //! own reading of indeterminate values: a WHERE rule is violated only when it evaluates to
 //! FALSE (ISO 10303-11 §9.2.2.2), so a comparison with an unset (`$`) value, which is UNKNOWN,
@@ -37,6 +37,12 @@
 //! - `mechanical_design_and_draughting_relationship` WR1–WR3 (which representations may be
 //!   related to which).
 //!
+//! The global rules ([`GLOBAL_RULES`]), each a WHERE rule over the whole population of the
+//! entity types it is FOR, reported on the instances that make it FALSE:
+//!
+//! - `restrict_representation_for_surface_condition` WR1 (a surface condition's property
+//!   definition and its representation are named alike).
+//!
 //! Two literal readings worth knowing: `default_tolerance_table` WR2 compares names with `<`
 //! (as written; `'general tolerance definition'` and `'default tolerance'` themselves pass);
 //! `datum_target` WR5 forbids a description that `placed_datum_target_feature` WR1 requires
@@ -56,7 +62,8 @@ pub struct RuleViolation {
     /// The instance's type: its entity name, or `(a b c)` for a complex instance, lower case.
     pub entity: String,
     /// `entity.label` of the rule, as the schema declares it (`thread.WR3`, `datum.UR1`,
-    /// `datum_reference_compartment.owner` for the INVERSE cardinality).
+    /// `datum_reference_compartment.owner` for the INVERSE cardinality), or `name.label` of a
+    /// global rule (`restrict_representation_for_surface_condition.WR1`).
     pub rule: &'static str,
     pub message: String,
 }
@@ -322,7 +329,31 @@ pub const RULES: &[Rule] = &[
     ),
 ];
 
-/// Every violation of [`RULES`] in the document, ordered by instance id, then rule.
+/// A global rule: its name, the label of its WHERE rule, the entity types it is FOR, and the
+/// instances of their population that make the rule FALSE, each with why.
+pub struct GlobalRule {
+    /// The rule's name in the schema.
+    pub name: &'static str,
+    /// `name.label`.
+    pub rule: &'static str,
+    /// Its WHERE rule's label (`WR1`).
+    pub label: &'static str,
+    /// The entity types the rule is FOR (lower case).
+    pub entities: &'static [&'static str],
+    check: fn(&Ctx) -> Vec<(u64, String)>,
+}
+
+/// Every global rule [`check_all`] evaluates.
+pub const GLOBAL_RULES: &[GlobalRule] = &[GlobalRule {
+    name: "restrict_representation_for_surface_condition",
+    rule: "restrict_representation_for_surface_condition.WR1",
+    label: "WR1",
+    entities: &["property_definition_representation"],
+    check: restrict_representation_for_surface_condition_wr1,
+}];
+
+/// Every violation of [`RULES`] and [`GLOBAL_RULES`] in the document, ordered by instance id,
+/// then rule.
 pub fn check_all(doc: &Document) -> Vec<RuleViolation> {
     let ctx = Ctx::new(doc);
     let mut out = Vec::new();
@@ -363,6 +394,11 @@ pub fn check_all(doc: &Document) -> Vec<RuleViolation> {
                     format!("shares {key} with {}", others.join(", ")),
                 ));
             }
+        }
+    }
+    for rule in GLOBAL_RULES {
+        for (id, message) in (rule.check)(&ctx) {
+            out.push(ctx.violation(id, rule.rule, message));
         }
     }
     out.sort();
@@ -1693,4 +1729,73 @@ fn mechanical_design_and_draughting_relationship_wr3(ctx: &Ctx, x: u64) -> Optio
         x,
         "mechanical_design_shaded_presentation_representation",
     )
+}
+
+// ---------------------------------------------------------------------------------------------
+// Global rules
+// ---------------------------------------------------------------------------------------------
+
+/// The property definition names `surface_condition_correlation` constrains.
+const SURFACE_CONDITIONS: [&str; 6] = [
+    "visual appearance",
+    "tactile appearance",
+    "contact ratio",
+    "hardness",
+    "treatment result",
+    "surface texture",
+];
+
+/// restrict_representation_for_surface_condition WR1, as the schema states it:
+///
+/// ```text
+/// RULE restrict_representation_for_surface_condition FOR (property_definition_representation);
+/// WHERE
+///   WR1: SIZEOF(QUERY(pdr
+///                     <* property_definition_representation
+///                     | NOT surface_condition_correlation(pdr.definition, pdr.used_representation))) =
+///        0;
+/// END_RULE;
+///
+/// FUNCTION surface_condition_correlation(pd : property_definition;
+///                                        rep : representation) : LOGICAL;
+///   CASE pd.name OF
+///     'visual appearance', 'tactile appearance', 'contact ratio', 'hardness', 'treatment result', 'surface texture' : RETURN(pd.name =
+///                                                                                                                            rep.name);
+///     OTHERWISE: RETURN(UNKNOWN);
+///   END_CASE;
+/// END_FUNCTION;
+/// ```
+///
+/// QUERY selects the representations for which the correlation is FALSE: a definition named
+/// one of [`SURFACE_CONDITIONS`] (exactly, case and all) whose representation is named
+/// otherwise. Any other name is UNKNOWN, as is an unset name on either side; neither is
+/// selected. `pdr.definition` is a `represented_definition`, of which only a
+/// `property_definition` (or subtype) is type compatible with the function's `pd`; for the
+/// others (`general_property`, `shape_aspect`, the relationships) the call has no defined
+/// value, so it is read as indeterminate and the rule is not violated.
+fn restrict_representation_for_surface_condition_wr1(ctx: &Ctx) -> Vec<(u64, String)> {
+    ctx.doc
+        .ids()
+        .filter(|&pdr| ctx.is(pdr, PDR))
+        .filter_map(|pdr| {
+            let pd = ctx.reference(pdr, PDR, "definition")?;
+            let rep = ctx.reference(pdr, PDR, "used_representation")?;
+            if !ctx.is(pd, "property_definition") {
+                return None;
+            }
+            let name = ctx.text(pd, "property_definition", "name")?;
+            if !SURFACE_CONDITIONS.contains(&name.as_str()) {
+                return None;
+            }
+            let rep_name = ctx.text(rep, "representation", "name")?;
+            (rep_name != name).then(|| {
+                (
+                    pdr,
+                    format!(
+                        "property definition #{pd} is named '{name}', its representation #{rep} '{rep_name}'"
+                    ),
+                )
+            })
+        })
+        .collect()
 }
