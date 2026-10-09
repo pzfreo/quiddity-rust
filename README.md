@@ -177,10 +177,13 @@ aggregate never offers to plates (`excluded_solids`, not ported) (rust-wrong). O
 caller-space recognition loses Python's 245 rejected records of carried families on 62 parts
 (127 blends, 36 bosses, 27 prismatic pockets, 24 fillets, 13 chamfers, 12 pockets, 3 slots, 2
 section passages, 1 plate) and the default document 233 on 63 (114 blends, 35 bosses, 14
-pockets; the rest as caller space), its frame finding other candidates on a few parts
-(`known_framed_document.json`); no pattern changes. `tests/recognition.rs` checks that no rejected candidate is in `recognise` or
-the document on parts where every rejecting rule the corpus reaches fires, and that a pattern
-loses a member reconciliation rejects. Risers, which
+pockets; the rest as caller space), because its frame finds other candidates on five parts
+(`known_framed_document.json`, undetermined): on cgb202, cgb207 and cgb217, whose frames are
+not the file's axes, other fillets, so it keeps 16 blends caller space rejects and rejects 3
+caller space keeps; on cgb217 no turned step for one boss; on 10060 and 10103 an edge-open
+circular pocket that rejects one pocket each. No pattern changes. `tests/recognition.rs` checks
+that no rejected candidate is in `recognise` or the document on parts where every rejecting rule
+the corpus reaches fires, and that a pattern loses a member reconciliation rejects. Risers, which
 `recognise` does not run, are found for the thin-wall rule with the aggregate's options.
 
 The kernel also answers the questions the unported families ask of OpenCascade's booleans,

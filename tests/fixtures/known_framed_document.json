@@ -19,8 +19,8 @@
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "check": "caller_space",
     "family": "blends",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "verdict": "undetermined",
+    "reason": "The part's frame is not the file's axes, so the default finds other fillets (this file's fillets entry) and reconciliation (blend_superseded_by_fillet) rejects other blends: of the 69 blend candidates caller space rejects 10 (as Python does), the default 4: 2 of caller space's (faces 1466, 1630) and 2 caller space keeps (faces 2, 692), so 8 blends (faces 29, 662, 1252, 1254, 1256, 1258, 1346, 1450) are in the default document only and 2 in caller space only (65 against 59). Blends found in both differ only in sense: path.direction or path.normal is negated, chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice). Which reading the part intends is not established (a maintainer question on M8: parts whose frame is not the file's axes).",
     "max_differing": 30
   },
   {
@@ -59,8 +59,8 @@
     "file": "cadgenbench_inputs/cgb207.step",
     "check": "caller_space",
     "family": "blends",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "verdict": "undetermined",
+    "reason": "The part's frame is not the file's axes, so the default finds other fillets (this file's fillets entry) and reconciliation (blend_superseded_by_fillet) rejects other blends: of the 7 blend candidates caller space rejects 2 (faces 86, 88, as Python does), the default those and the blend on face 208, which is in caller space only (4 against 5). Blends found in both differ only in sense: path.direction or path.normal is negated, chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice). Which reading the part intends is not established (a maintainer question on M8: parts whose frame is not the file's axes).",
     "max_differing": 4
   },
   {
@@ -75,8 +75,8 @@
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "check": "caller_space",
     "family": "blends",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same rolling-ball path: path.direction or path.normal is negated, nothing else, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "verdict": "undetermined",
+    "reason": "The part's frame is not the file's axes, so the default finds other fillets (this file's fillets entry) and reconciliation (blend_superseded_by_fillet) rejects other blends: of the 39 blend candidates caller space rejects 10, the default only 2 of them (faces 138, 139), so 8 blends (faces 191, 196, 219, 224, 247, 252, 296, 301) are in the default document only (37 against 29). Blends found in both differ only in sense: path.direction or path.normal is negated, chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice). Which reading the part intends is not established (a maintainer question on M8: parts whose frame is not the file's axes).",
     "max_differing": 24
   },
   {
