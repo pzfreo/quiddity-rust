@@ -78,6 +78,7 @@ pub mod round_bottom_slots;
 pub mod section_passages;
 pub mod section_recess;
 pub mod section_recess_discovery;
+pub mod section_recess_family;
 pub mod section_recess_geometry;
 pub mod sections;
 pub mod sheet_metal;
@@ -186,6 +187,11 @@ pub struct Inventory {
     pub evidence: reconcile::Evidence,
     /// Every decision the rules make, in rule order (no default acceptances).
     pub dispositions: Vec<reconcile::Disposition>,
+    /// Each family's constituent faces, candidate by candidate under the family's field name
+    /// (Python's `EvidenceIndex.constituent_of`): its defining faces and the further faces its
+    /// proof consulted, sorted. The section-recess projection reads them
+    /// ([`section_recess_family`]).
+    pub constituent: Defining,
 }
 
 impl Inventory {
@@ -260,76 +266,76 @@ fn drop_rejected<T>(items: &mut Vec<T>, indices: &BTreeSet<usize>) {
 /// Every ported family's candidates on *part* with default options and the reconciliation's
 /// decisions on them, or the reconciliation's refusal.
 pub fn inventory(part: &Part) -> Result<Inventory, reconcile::ReconcileError> {
-    let ctx = Context::new(part);
-    let seats = countersinks::discover(&ctx);
-    let mut defining = BTreeMap::new();
-    let holes = kept(&mut defining, "holes", holes::discover(&ctx, &seats));
+    inventory_in(&Context::new(part))
+}
+
+/// [`inventory`] in a run the caller keeps, so a projection of it reads the same analysis.
+pub(crate) fn inventory_in(ctx: &Context<'_>) -> Result<Inventory, reconcile::ReconcileError> {
+    let seats = countersinks::discover(ctx);
+    let mut defining = Kept::default();
+    let holes = kept(&mut defining, "holes", holes::discover(ctx, &seats));
     let countersinks = kept(&mut defining, "countersinks", seats);
-    let gusset_ribs = kept(&mut defining, "gusset_ribs", gussets::discover(&ctx));
-    let slots = kept(&mut defining, "slots", slots::discover(&ctx));
-    let pocket_occurrences = pockets::discover(&ctx);
-    let thin_wall_bodies = kept(
-        &mut defining,
-        "thin_wall_bodies",
-        thin_walls::discover(&ctx),
-    );
+    let gusset_ribs = kept(&mut defining, "gusset_ribs", gussets::discover(ctx));
+    let slots = kept(&mut defining, "slots", slots::discover(ctx));
+    let pocket_occurrences = pockets::discover(ctx);
+    let thin_wall_bodies = kept(&mut defining, "thin_wall_bodies", thin_walls::discover(ctx));
     // Python's aggregate raises on the same internal inconsistencies, refusing the whole
     // recognition; `inventory` carries only the reconciliation's refusal, so it panics with the
     // message.
     let passages =
-        passages::discover(&ctx).unwrap_or_else(|e| panic!("section passages refused: {e}"));
+        passages::discover(ctx).unwrap_or_else(|e| panic!("section passages refused: {e}"));
     // The passages' refusal is the panic above, so the evidence's own discovery of them agrees.
-    let evidence = reconcile::Evidence::with_pockets(&ctx, &pocket_occurrences)?;
+    let evidence = reconcile::Evidence::with_pockets(ctx, &pocket_occurrences)?;
     let pockets = kept(&mut defining, "pockets", pocket_occurrences);
     let oriented_slots = kept(
         &mut defining,
         "oriented_slots",
-        oriented_slots::discover(&ctx, &passages)
+        oriented_slots::discover(ctx, &passages)
             .unwrap_or_else(|e| panic!("oriented slots refused: {e}")),
     );
     let freeform_surfaces = kept(
         &mut defining,
         "freeform_surfaces",
-        freeform_surfaces::discover(&ctx, &thin_wall_bodies),
+        freeform_surfaces::discover(ctx, &thin_wall_bodies),
     );
     let physical = Features {
         fillets: kept(
             &mut defining,
             "fillets",
-            fillets::discover(&ctx, &Default::default()),
+            fillets::discover(ctx, &Default::default()),
         ),
         chamfers: kept(
             &mut defining,
             "chamfers",
-            chamfers::discover(&ctx, &Default::default()),
+            chamfers::discover(ctx, &Default::default()),
         ),
-        bosses: kept(&mut defining, "bosses", bosses::discover(&ctx)),
-        angled_steps: kept(&mut defining, "angled_steps", angled_steps::discover(&ctx)),
-        flats: kept(&mut defining, "flats", flats::discover(&ctx)),
+        bosses: kept(&mut defining, "bosses", bosses::discover(ctx)),
+        angled_steps: kept(&mut defining, "angled_steps", angled_steps::discover(ctx)),
+        flats: kept(&mut defining, "flats", flats::discover(ctx)),
         paired_ramp_steps: kept(
             &mut defining,
             "paired_ramp_steps",
-            paired_ramp_steps::discover(&ctx),
+            paired_ramp_steps::discover(ctx),
         ),
         oriented_chamfers: kept(
             &mut defining,
             "oriented_chamfers",
-            oriented_chamfers::discover(&ctx, &Default::default()),
+            oriented_chamfers::discover(ctx, &Default::default()),
         ),
         circular_face_patterns: kept(
             &mut defining,
             "circular_face_patterns",
-            circular_face_patterns::discover(&ctx),
+            circular_face_patterns::discover(ctx),
         ),
         oblique_through_steps: kept(
             &mut defining,
             "oblique_through_steps",
-            oblique_through_steps::discover(&ctx),
+            oblique_through_steps::discover(ctx),
         ),
         circular_blind_steps: kept(
             &mut defining,
             "circular_blind_steps",
-            circular_blind_steps::discover(&ctx),
+            circular_blind_steps::discover(ctx),
         ),
         hole_patterns: Vec::new(),
         holes,
@@ -340,103 +346,119 @@ pub fn inventory(part: &Part) -> Result<Inventory, reconcile::ReconcileError> {
         interior_voids: kept(
             &mut defining,
             "interior_voids",
-            interior_voids::discover(&ctx),
+            interior_voids::discover(ctx),
         ),
-        through_steps: kept(
-            &mut defining,
-            "through_steps",
-            through_steps::discover(&ctx),
-        ),
+        through_steps: kept(&mut defining, "through_steps", through_steps::discover(ctx)),
         turned_steps: kept(
             &mut defining,
             "turned_steps",
-            turned_steps::sorted_occurrences(turned_steps::discover(&ctx)),
+            turned_steps::sorted_occurrences(turned_steps::discover(ctx)),
         ),
-        grooves: kept(&mut defining, "grooves", grooves::discover(&ctx)),
+        grooves: kept(&mut defining, "grooves", grooves::discover(ctx)),
         plates: kept(
             &mut defining,
             "plates",
-            plates::discover(&ctx, &Default::default()),
+            plates::discover(ctx, &Default::default()),
         ),
         round_bottom_blind_slots: kept(
             &mut defining,
             "round_bottom_blind_slots",
-            round_bottom_slots::discover(&ctx),
+            round_bottom_slots::discover(ctx),
         ),
         rectangular_blind_slots: kept(
             &mut defining,
             "rectangular_blind_slots",
-            rectangular_blind_slots::discover(&ctx),
+            rectangular_blind_slots::discover(ctx),
         ),
         double_d_bores: kept(
             &mut defining,
             "double_d_bores",
-            profiled_bores::discover(&ctx),
+            profiled_bores::discover(ctx),
         ),
         edge_open_circular_pockets: kept(
             &mut defining,
             "edge_open_circular_pockets",
-            edge_open_circular::discover(&ctx),
+            edge_open_circular::discover(ctx),
         ),
         edge_open_prismatic_recesses: kept(
             &mut defining,
             "edge_open_prismatic_recesses",
-            edge_open_prismatic::discover(&ctx),
+            edge_open_prismatic::discover(ctx),
         ),
-        blends: kept(&mut defining, "blends", blends::discover(&ctx)),
+        blends: kept(&mut defining, "blends", blends::discover(ctx)),
         sheet_metal_bodies: kept(
             &mut defining,
             "sheet_metal_bodies",
-            sheet_metal::discover(&ctx),
+            sheet_metal::discover(ctx),
         ),
         slot_patterns: Vec::new(),
         slots,
         pocket_patterns: Vec::new(),
         pockets,
-        channels: kept(&mut defining, "channels", channels::discover(&ctx)),
+        channels: kept(&mut defining, "channels", channels::discover(ctx)),
         repeating_radial_profiles: kept(
             &mut defining,
             "repeating_radial_profiles",
-            repeating_profiles::discover(&ctx),
+            repeating_profiles::discover(ctx),
         ),
         freeform_surfaces,
         polygonal_bosses: kept(
             &mut defining,
             "polygonal_bosses",
-            polygonal_bosses::discover(&ctx, &Default::default()),
+            polygonal_bosses::discover(ctx, &Default::default()),
         ),
         polygonal_stock: kept(
             &mut defining,
             "polygonal_stock",
-            polygonal_bosses::discover_stock(&ctx, &Default::default()),
+            polygonal_bosses::discover_stock(ctx, &Default::default()),
         ),
         section_passages: kept(&mut defining, "section_passages", passages),
         prismatic_pockets: kept(
             &mut defining,
             "prismatic_pockets",
-            prismatic_pockets::discover(&ctx),
+            prismatic_pockets::discover(ctx),
         ),
         oriented_slot_patterns: Vec::new(),
         oriented_slots,
         pads: kept(
             &mut defining,
             "pads",
-            pads::discover(&ctx, &Default::default())
+            pads::discover(ctx, &Default::default())
                 .unwrap_or_else(|e| panic!("rectangular pads refused: {e}")),
         ),
-        defining,
+        defining: defining.defining,
     };
     let dispositions = reconcile::reconcile(&physical, &evidence)?;
     Ok(Inventory {
         physical,
         evidence,
         dispositions,
+        constituent: defining.constituent,
     })
 }
 
-/// The records of a family's occurrences, their defining faces kept under the family's name.
-fn kept<R>(defining: &mut Defining, family: &'static str, found: Vec<Occurrence<R>>) -> Vec<R> {
-    defining.insert(family, found.iter().map(|o| o.defining.clone()).collect());
+/// Defining and constituent faces by family field name, then record.
+#[derive(Default)]
+struct Kept {
+    defining: Defining,
+    constituent: Defining,
+}
+
+/// The records of a family's occurrences, their defining and constituent faces kept under the
+/// family's name.
+fn kept<R>(kept: &mut Kept, family: &'static str, found: Vec<Occurrence<R>>) -> Vec<R> {
+    kept.defining
+        .insert(family, found.iter().map(|o| o.defining.clone()).collect());
+    kept.constituent.insert(
+        family,
+        found
+            .iter()
+            .map(|o| {
+                let faces: BTreeSet<usize> = o.defining.iter().chain(&o.context).copied().collect();
+                faces.into_iter().collect()
+            })
+            .collect(),
+    );
     records(found)
 }
 

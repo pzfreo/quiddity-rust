@@ -86,6 +86,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/known_section_recess_helpers.json` | `tests/section_recess_helpers.rs` | 4 | 0 | 4 | 0 | 0 | 0 |
 | `tests/fixtures/captured/section_recess/known_differences.json` | `tests/section_recess.rs` | 4 | 0 | 0 | 0 | 0 | 4 |
 | `tests/fixtures/captured/section_recess_geometry/known_differences.json` | `tests/section_recess_geometry.rs` | 10 | 0 | 8 | 1 | 0 | 1 |
+| `tests/fixtures/captured/section_recesses/known_differences.json` | `tests/section_recesses.rs` | 24 | 15 | 6 | 1 | 2 | 0 |
 | `tests/fixtures/captured/known_section_geometry.json` | `tests/section_geometry.rs` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `tests/fixtures/captured/outer_profiles/known_differences.json` | `tests/outer_profiles.rs` | 7 (2193 faces) | 6 | 1 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 118 (2920 answers) | 98 | 8 | 0 | 9 | 3 |
@@ -268,9 +269,39 @@ passage origin on a three-decimal rounding tie (equivalent). The candidates are 
 the invariance motions (re-expressed in the moved run's canonical frame) but one translated
 pocket whose publication bound Python's projection also exceeds there (not-applicable). Not
 captured: 16 test shapes STEP export refuses, 86 test parts where Python finds nothing (2 per
-test are kept), and cgb203's floor questions (its projection passed 600 s). Section recesses
-remain pending: `recognise_section_recesses` / `build_section_recess_document` (Python's
-aggregate reconciliation) and the family's wiring into recognition are not ported.
+test are kept), and cgb203's floor questions (its projection passed 600 s).
+The family's entry points, `recognise_section_recesses` and `build_section_recess_document`
+(Python's aggregate section-recess projection, `_project_result`), are ported as library API
+(`src/features/section_recess_family.rs`, `tests/section_recesses.rs`,
+`tools/capture_section_recesses.py`): one recognition and reconciliation
+(`features::inventory`), the native records discovered in the same run, then the accepted
+prismatic pockets no native record covers, passages, edge-open recesses and blind slots
+projected, pockets and channels proved as corner notches or open channels (support apertures
+included, `_support_apertures`; the channel on a native bore by `prove_cylindrical_channel`),
+de-duplicated by region, every uncovered accepted source candidate refused, and the accepted
+pockets' derived patterns re-expressed over the published section midpoints. A publication
+refusal drops one candidate (it becomes a refusal); any other Python `ValueError` is the
+projection's `SectionRecessFamilyError` with Python's message. The documents of 312 parts the
+section-recess Python tests build (up to 3 per test case), the two golden fixtures and the
+100 corpus files (cgb203 included, 591 s in Python) are compared item by item: 400 of 414
+agree, with 651 of 671 occurrences, 46 of 48 refusals and all 20 patterns. The 23 differences
+(`captured/section_recesses/known_differences.json`): 15 NIST channels Python proves open at an
+end OpenCascade's own classifier puts in material (its boolean answered 0 for a slab whose
+sides lie in the slot's wall planes; rust-correct); the tilted mixed pockets, 14052's native
+pocket and 13975's missing local-degradation retry, as listed elsewhere (rust-wrong); a solid
+whose cylinder seam lies on another face's edge, valid to BRepCheck but not to the kernel's
+check, on two aperture test parts (undetermined); and one passage origin on a rounding tie
+(equivalent). The kernel's cover misses a hole in a cylindrical support whose loops it places
+on different turns (mfcadpp/10138), so the aperture proof first requires the bore's face to
+have no edge but its rings and seams. Not compared: 7 test parts on which the port's own
+recognition (the passages' entry-treatment proofs) takes 100 to 400 s against Python's 7 to 18
+(compared with `QUIDDITY_SLOW_SECTION_RECESSES` set; they agree), and 6 test shapes STEP export
+refuses. Under the translation and a quarter turn about z, on the 82 corpus parts where Python
+publishes anything, the documents name the same faces and classifications but one refusal's
+source pocket (the pocket recogniser's listed `width > length` tie; rust-wrong); geometry is not
+compared under motion. Passages' consulted faces are now kept on their occurrences (entry
+treatments, regions), which the projection's evidence reads. Section recesses are not in the
+recognition document, the CLI or correspondence (the open question above).
 The effective-surface query the rectangular pads, cylindrical channels, pockets and passages
 and section recesses read (`_effective_surfaces`: each face's native or recovered analytic fact
 or typed refusal, `recovery_nominal` / `recovery_tolerance`, and surface uses with a
@@ -483,6 +514,10 @@ src/
     section_recess_geometry.rs  section-recess candidates from seats, intact floors and the
                      cylindrical and plane-envelope proofs, and their published geometry
     section_recess_discovery.rs  the candidates numbered as section-recess records
+    section_recess_family.rs  the aggregate's section-recess projection over a reconciled run
+                     (`recognise_section_recesses`, `build_section_recess_document`): legacy
+                     recess records projected, corner-notch and open-channel proofs (with
+                     support apertures), de-duplication, refusals and patterns
     cylindrical_channels.rs  three-support channels ending on a native bore, and the exact
                      cell (a polygon swept between planes or cylinder branches) the three
                      cylindrical proofs build and probe
@@ -539,6 +574,8 @@ tests/
                      refusal), and the geometric records moved
   section_recess_geometry.rs  section-recess candidates, floor readings, projections and floor
                      questions against Python's captured calls, and under rigid motion
+  section_recesses.rs  `build_section_recess_document` against Python's on test parts, fixtures
+                     and the corpus, item by item
   prismatic_pockets.rs  prismatic pocket walls and consulted floors on Python's evidence-test
                      parts
   local_degradation.rs  which corpus parts take Python's local-degradation retry and what it
@@ -647,6 +684,8 @@ tools/
                      section-recess tests and the corpus documents (captured/section_recess/)
   capture_section_recess_geometry.py records the section-recess candidates, floor readers,
                      projections and floor questions (captured/section_recess_geometry/)
+  capture_section_recesses.py records `build_section_recess_document` on the section-recess
+                     tests' parts, fixtures and the corpus (captured/section_recesses/)
   capture_effective_surfaces.py records `_effective_surfaces`'s answers for every face of its
                      consumers' test parts, the golden fixtures and the corpus
                      (captured/effective_surfaces/)

@@ -313,7 +313,8 @@ pub fn recognise_section_passages(part: &Part) -> Checked<Vec<SectionPassage>> {
     Ok(super::records(discover(&Context::new(part))?))
 }
 
-/// The section passages with their defining walls, or a refusal.
+/// The section passages with their defining walls and consulted faces (the proposal's further
+/// constituent faces: entry treatments or region), or a refusal.
 pub fn discover(ctx: &Context<'_>) -> Checked<Vec<Occurrence<SectionPassage>>> {
     Ok(discover_section_passages(ctx)?
         .into_iter()
@@ -323,7 +324,7 @@ pub fn discover(ctx: &Context<'_>) -> Checked<Vec<Occurrence<SectionPassage>>> {
             Occurrence {
                 record: found.record,
                 defining,
-                context: Vec::new(),
+                context: found.constituent,
             }
         })
         .collect())
@@ -532,6 +533,8 @@ pub fn legacy_roster(ctx: &Context<'_>) -> Vec<(Passage, Vec<usize>)> {
 struct Found {
     record: SectionPassage,
     nodes: Vec<usize>,
+    /// The proposal's constituent faces beyond its walls (its entry treatments or region).
+    constituent: Vec<usize>,
     solid: usize,
     compatibility: PassageCompatibilityView,
 }
@@ -628,6 +631,12 @@ fn discover_section_passages(ctx: &Context<'_>) -> Checked<Vec<Found>> {
             found.push(Found {
                 record,
                 nodes: proposal.nodes.clone(),
+                constituent: proposal
+                    .constituent
+                    .iter()
+                    .copied()
+                    .filter(|f| !proposal.nodes.contains(f))
+                    .collect(),
                 solid: proposal.solid,
                 compatibility,
             });

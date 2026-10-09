@@ -1,0 +1,353 @@
+[
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "item": "document",
+    "key": null,
+    "kind": "differs",
+    "verdict": "rust-wrong",
+    "reason": "Python reads no solid here (its document's body roster is empty) and its aggregate takes the local-degradation retry, which skips the two pockets on the part (captured/local_degradation). The port reads one solid its validity check rejects, takes no retry (README: not ported), and keeps the pockets, whose defining faces have no valid solid, so the projection refuses the whole document with Python's message (\"accepted recess candidate lost body authority\")."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        15,
+        16,
+        17,
+        21
+      ]
+    ],
+    "kind": "differs",
+    "verdict": "rust-wrong",
+    "reason": "The deliberately malformed corpus part's triangular pocket on walls 15, 16, 17 and floor 21. OpenCascade's BRepCheck reports BRepCheck_BadOrientationOfSubshape on face 1, so Python's native discovery refuses the pocket and the region is published from the accepted prismatic pocket on its legacy three-decimal grid; the port's topological validity check accepts the solid, so its native record (listed in section_recess_geometry/known_differences.json, case candidates) takes the region and its vertices differ by 0.001 (-1.068, 0.033 against 0.032; 0.613 against 0.612)."
+  },
+  {
+    "file": "mfcadpp_holdout/163.step",
+    "item": "invariance",
+    "key": "translate",
+    "kind": "differs",
+    "verdict": "rust-wrong",
+    "reason": "The refusal of the square-footprint pocket on walls 10-13 (constituent faces 10-13 and floor 32) names defining faces [10, 11, 12, 13] translated and [11, 12] unmoved: the pocket recogniser's `width > length` tie on its equal wall pairs, listed for this part and motion in tests/fixtures/known_invariance.json (family pockets), which Python shares. Same region and reason; only the source candidate's defining faces move."
+  },
+  {
+    "file": "nist/nist_ctc_01_asme1_rd.stp",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        105,
+        123,
+        125
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-correct",
+    "reason": "Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it."
+  },
+  {
+    "file": "nist/nist_ctc_01_asme1_rd.stp",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        112,
+        114,
+        125
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-correct",
+    "reason": "Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it."
+  },
+  {
+    "file": "nist/nist_ctc_01_asme1_rd.stp",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        126,
+        128,
+        138
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-correct",
+    "reason": "Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it."
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        110,
+        112,
+        117
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-correct",
+    "reason": "Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it."
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        124,
+        126,
+        138
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-correct",
+    "reason": "Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it."
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        133,
+        135,
+        138
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-correct",
+    "reason": "Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it."
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        496,
+        499,
+        500
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-correct",
+    "reason": "Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it."
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        499,
+        506,
+        508
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-correct",
+    "reason": "Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it."
+  },
+  {
+    "file": "nist/nist_ftc_06_asme1_rd.stp",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        114,
+        116,
+        122
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-correct",
+    "reason": "Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it."
+  },
+  {
+    "file": "nist/nist_ftc_06_asme1_rd.stp",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        125,
+        127,
+        143
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-correct",
+    "reason": "Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it."
+  },
+  {
+    "file": "nist/nist_ftc_06_asme1_rd.stp",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        134,
+        136,
+        143
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-correct",
+    "reason": "Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it."
+  },
+  {
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        237,
+        238,
+        239
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-correct",
+    "reason": "Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it."
+  },
+  {
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        249,
+        252,
+        253
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-correct",
+    "reason": "Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it."
+  },
+  {
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        252,
+        259,
+        261
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-correct",
+    "reason": "Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it."
+  },
+  {
+    "file": "nist/nist_ftc_09_asme1_rd.stp",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        132,
+        134,
+        144
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-correct",
+    "reason": "Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it."
+  },
+  {
+    "file": "parts/1bf8ce96b0c8f8c8.step.gz",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-wrong",
+    "reason": "A test part's tilted (run 0.515038, -0.250611, 0.819713) mixed line/arc pocket: Python's native discovery proves it from its exact swept floor and publishes it; the port's native discovery refuses the mixed floor reading because the kernel's ray-cast volume probe cannot measure the tilted probe, as listed for the same pocket in section_recess_geometry/known_differences.json (case floor, kind mixed). With no native record and no legacy pocket on these faces, the port publishes nothing there."
+  },
+  {
+    "file": "parts/33f7c6b46714d733.step.gz",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-wrong",
+    "reason": "A test part's tilted (run 0.515038, -0.250611, 0.819713) mixed line/arc pocket: Python's native discovery proves it from its exact swept floor and publishes it; the port's native discovery refuses the mixed floor reading because the kernel's ray-cast volume probe cannot measure the tilted probe, as listed for the same pocket in section_recess_geometry/known_differences.json (case floor, kind mixed). With no native record and no legacy pocket on these faces, the port publishes nothing there."
+  },
+  {
+    "file": "parts/349d4f2a44971104.step.gz",
+    "item": "document",
+    "key": null,
+    "kind": "differs",
+    "verdict": "undetermined",
+    "reason": "A support-aperture test part whose cylinder (radius 4, axis along y, centre at z 15) touches the x = 25 wall along its seam: the seam edge is used by that wall, its neighbour and twice by the cylinder, four uses. OpenCascade's BRepCheck accepts the solid and Python refuses the accepted channel on faces 5 and 7 as unsupported; the kernel's topological validity check (each edge used by exactly two face sides) calls the solid invalid, while the channels family publishes the channel without asking for a valid solid, so the projection meets an accepted candidate with no body and refuses the whole document with Python's message (where Python's aggregate would instead refuse the run at `_validate_attribution`). Whether a solid with a seam lying on another face's edge is valid is not decided."
+  },
+  {
+    "file": "parts/555ae7123b3725c3.step.gz",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        10,
+        11,
+        12
+      ]
+    ],
+    "kind": "differs",
+    "verdict": "equivalent",
+    "reason": "The passage on walls 10, 11, 12 publishes frame origin z 91.234 here and 91.235 in Python, a three-decimal rounding tie: the test part places it at 91.2345, and the port's and Python's passage provers give it one ulp apart, as listed for the same passage in section_recess_geometry/known_differences.json (parts/2e5c3ece457e6e43)."
+  },
+  {
+    "file": "parts/77965569200c7a89.step.gz",
+    "item": "document",
+    "key": null,
+    "kind": "differs",
+    "verdict": "undetermined",
+    "reason": "A support-aperture test part whose cylinder (radius 4, axis along y, centre at z 15) touches the x = 25 wall along its seam: the seam edge is used by that wall, its neighbour and twice by the cylinder, four uses. OpenCascade's BRepCheck accepts the solid and Python refuses the accepted channel on faces 5 and 7 as unsupported; the kernel's topological validity check (each edge used by exactly two face sides) calls the solid invalid, while the channels family publishes the channel without asking for a valid solid, so the projection meets an accepted candidate with no body and refuses the whole document with Python's message (where Python's aggregate would instead refuse the run at `_validate_attribution`). Whether a solid with a seam lying on another face's edge is valid is not decided."
+  },
+  {
+    "file": "parts/aa3ae6925b3bcd1a.step.gz",
+    "item": "occurrence",
+    "key": [
+      0,
+      [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-wrong",
+    "reason": "A test part's tilted (run 0.515038, -0.250611, 0.819713) mixed line/arc pocket: Python's native discovery proves it from its exact swept floor and publishes it; the port's native discovery refuses the mixed floor reading because the kernel's ray-cast volume probe cannot measure the tilted probe, as listed for the same pocket in section_recess_geometry/known_differences.json (case floor, kind mixed). With no native record and no legacy pocket on these faces, the port publishes nothing there."
+  }
+]
