@@ -87,7 +87,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/section_recess/known_differences.json` | `tests/section_recess.rs` | 4 | 0 | 0 | 0 | 0 | 4 |
 | `tests/fixtures/captured/section_recess_geometry/known_differences.json` | `tests/section_recess_geometry.rs` | 8 | 0 | 6 | 1 | 0 | 1 |
 | `tests/fixtures/captured/known_section_geometry.json` | `tests/section_geometry.rs` | 2 | 0 | 2 | 0 | 0 | 0 |
-| `tests/fixtures/captured/outer_profiles/known_differences.json` | `tests/outer_profiles.rs` | 7 (2193 faces) | 6 | 1 | 0 | 0 | 0 |
+| `tests/fixtures/captured/outer_profiles/known_differences.json` | `tests/outer_profiles.rs` | 6 (2168 faces) | 6 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 116 (2894 answers) | 98 | 6 | 0 | 9 | 3 |
 | `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 7 | 3 | 1 | 0 | 0 | 3 |
 | `tests/fixtures/captured/reconcile/known.json` | `tests/reconcile.rs` | 35 (0 decisions, 9 accepted, 26 motions) | 4 | 9 | 0 | 0 | 22 |
@@ -304,9 +304,9 @@ the faces of its one valid body and each support's source edge (an index into `P
 Python's refusal. `tests/outer_profiles.rs` replays every face of the parts quiddity's
 outer-profile tests build, four golden fixtures and the corpus (`tools/capture_outer_profiles.py`,
 11154 faces) and checks every profile's supports against its source edges, the ported test
-cases, and invariance under two rigid motions and a generic rotation. 2193 faces differ, listed
-in `captured/outer_profiles/known_differences.json`: cgb202's and 14052's bodies (BRepCheck, as
-elsewhere), circles and lines OpenCascade's import heals, and tangent cusps. Python signs a cusp
+cases, and invariance under two rigid motions and a generic rotation. 2168 faces differ, listed
+in `captured/outer_profiles/known_differences.json`: cgb202's body (BRepCheck, as elsewhere),
+circles and lines OpenCascade's import heals, and tangent cusps. Python signs a cusp
 (a support turning straight back) by the round-off of `atan2` on antiparallel tangents, which
 follows the placement; the port signs it by the supports' curvatures, and its answers are
 unchanged under every motion. Not captured: test parts past four per test, and two solids sharing

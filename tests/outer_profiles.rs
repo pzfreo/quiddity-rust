@@ -677,9 +677,20 @@ fn rounded_triangle_corners_and_reversed_face() {
     }
     assert_eq!(vertices.len(), 3);
 
-    // The same part with this face reversed (its wire and solid untouched).
+    // The same part with this face reversed, as OpenCascade's `TopoDS_Shape::Reversed` turns
+    // it: the face's sense and its loops' traversal both flip. Flipping only the sense would
+    // leave the loops wound against the face's normal, which the body check refuses
+    // (`Part::bad_faces`); every face is turned so the solid's edge uses stay paired.
     let mut faces = part.faces.clone();
-    faces[face].reversed = !faces[face].reversed;
+    for f in &mut faces {
+        f.reversed = !f.reversed;
+        for lp in &mut f.loops {
+            lp.edges.reverse();
+            for use_ in &mut lp.edges {
+                use_.1 = !use_.1;
+            }
+        }
+    }
     let flipped = Part::new(faces, part.edges.clone(), part.solids.clone());
     let q = planar_outer_profile(&flipped, face).unwrap();
     assert!((0..3).all(|i| (q.profile.normal[i] + p.profile.normal[i]).abs() < 1e-12));

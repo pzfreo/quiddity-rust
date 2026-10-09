@@ -14,13 +14,6 @@
     "reason": "As sm-hanger: the wire has tangent cusps whose atan2 signs in Python are round-off and sum to a total turning other than one turn, so Python refuses invalid_boundary; the port signs them by the supports' curvatures and publishes the profile (before that rule the port refused as Python does)."
   },
   {
-    "file": "inventory_refusal/14052.step.gz",
-    "field": "outcome",
-    "faces": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
-    "verdict": "rust-wrong",
-    "reason": "A deliberately malformed corpus part: OpenCascade's BRepCheck finds geometric faults (BRepCheck_BadOrientationOfSubshape on face 1) that the port's topological validity check (closed, orientable) does not look for, so Python proves no body and refuses every face as ambiguous_body while the port inspects them (as for this file's hole, boss and plate entries in known_divergences.json, rust-wrong)."
-  },
-  {
     "file": "nist/nist_ftc_06_asme1_rd.stp",
     "field": "outcome",
     "faces": [22, 34, 36, 38],
