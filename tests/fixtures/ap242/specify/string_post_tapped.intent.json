@@ -1,0 +1,249 @@
+{
+ "schema": 1,
+ "rules_version": 1,
+ "binding": {
+  "source_sha256": "7b7f1a4bf407ef7599d58e126e43e95f50d165212ed21bf6b2fc716d14bfdf85",
+  "face_count": 28,
+  "loader_version": 2,
+  "part": 0
+ },
+ "part": {
+  "material": "Brass CW614N",
+  "general_tolerance": "ISO 2768-f",
+  "surface_finish": "Ra 3.2",
+  "edges": "Break sharp edges 0.2 max"
+ },
+ "datums": [
+  {
+   "letter": "A",
+   "faces": [
+    11
+   ],
+   "question": "datum.A"
+  }
+ ],
+ "requirements": [
+  {
+   "kind": "thread",
+   "feature": "holes:17.19",
+   "faces": [
+    17
+   ],
+   "side": "internal",
+   "designation": "M2",
+   "pitch": 0.4,
+   "spec": "M2x0.4",
+   "class": "6H",
+   "hand": "RH",
+   "through": false,
+   "drill_point": false,
+   "drill_diameter": 1.6,
+   "drill_depth": 4.0,
+   "full_thread": 2.5,
+   "question": "hole.function:holes:17.19"
+  },
+  {
+   "kind": "location",
+   "feature": "holes:17.19",
+   "faces": [
+    17
+   ],
+   "reference": [
+    11
+   ],
+   "distance": 1.2,
+   "basic": true,
+   "question": "hole.position:holes:17.19"
+  },
+  {
+   "kind": "position",
+   "feature": "holes:17.19",
+   "faces": [
+    17
+   ],
+   "tolerance": 0.1,
+   "diametral": true,
+   "datums": [
+    "A"
+   ],
+   "question": "hole.position:holes:17.19"
+  },
+  {
+   "kind": "size",
+   "feature": "holes:5",
+   "faces": [
+    5
+   ],
+   "nominal": 1.7,
+   "fit": "H11",
+   "upper": 0.06,
+   "lower": 0.0,
+   "clearance_for": "M1.6",
+   "question": "hole.function:holes:5"
+  },
+  {
+   "kind": "location",
+   "feature": "holes:5",
+   "faces": [
+    5
+   ],
+   "reference": [
+    11
+   ],
+   "distance": 1.2,
+   "basic": true,
+   "question": "hole.position:holes:5"
+  },
+  {
+   "kind": "position",
+   "feature": "holes:5",
+   "faces": [
+    5
+   ],
+   "tolerance": 0.1,
+   "diametral": true,
+   "datums": [
+    "A"
+   ],
+   "mmc": true,
+   "question": "hole.position:holes:5"
+  },
+  {
+   "kind": "flatness",
+   "faces": [
+    11
+   ],
+   "tolerance": 0.01,
+   "question": "datum.A.flatness"
+  }
+ ],
+ "general": [
+  {
+   "kind": "size",
+   "feature": "turned_steps:10.12",
+   "faces": [
+    10,
+    12
+   ],
+   "nominal": 3.4,
+   "upper": 0.05,
+   "lower": -0.05,
+   "general": true
+  },
+  {
+   "kind": "size",
+   "feature": "turned_steps:6",
+   "faces": [
+    6
+   ],
+   "nominal": 5.0,
+   "upper": 0.05,
+   "lower": -0.05,
+   "general": true
+  },
+  {
+   "kind": "size",
+   "feature": "turned_steps:0",
+   "faces": [
+    0
+   ],
+   "nominal": 6.0,
+   "upper": 0.05,
+   "lower": -0.05,
+   "general": true
+  },
+  {
+   "kind": "size",
+   "feature": "turned_steps:9",
+   "faces": [
+    9
+   ],
+   "nominal": 7.5,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    3
+   ],
+   "reference": [
+    16,
+    21,
+    24,
+    27
+   ],
+   "distance": 1.0,
+   "upper": 0.05,
+   "lower": -0.05,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    2
+   ],
+   "reference": [
+    16,
+    21,
+    24,
+    27
+   ],
+   "distance": 6.5,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    8
+   ],
+   "reference": [
+    16,
+    21,
+    24,
+    27
+   ],
+   "distance": 7.6,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    15
+   ],
+   "reference": [
+    16,
+    21,
+    24,
+    27
+   ],
+   "distance": 14.8,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    13
+   ],
+   "reference": [
+    11
+   ],
+   "distance": 2.4,
+   "upper": 0.05,
+   "lower": -0.05,
+   "general": true
+  }
+ ]
+}

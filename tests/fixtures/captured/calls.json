@@ -405285,6 +405285,3408 @@
    "options": {},
    "rich_arguments": [],
    "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_simple_pad_has_exact_top_and_four_wall_roles",
+   "function": "recognise_rectangular_pads",
+   "file": "93d93a4ff5a93d06.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_separate_edge_pads_may_share_merged_stock_wall_faces",
+   "function": "recognise_rectangular_pads",
+   "file": "d326a88df10b4331.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": 15.0,
+     "x1": 55.0,
+     "y0": 0.0,
+     "y1": 18.0,
+     "z0": 22.0,
+     "z1": 36.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 15.0,
+     "x1": 55.0,
+     "y0": 102.0,
+     "y1": 120.0,
+     "z0": 22.0,
+     "z1": 36.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 125.0,
+     "x1": 165.0,
+     "y0": 0.0,
+     "y1": 18.0,
+     "z0": 22.0,
+     "z1": 36.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 125.0,
+     "x1": 165.0,
+     "y0": 102.0,
+     "y1": 120.0,
+     "z0": 22.0,
+     "z1": 36.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": 15.0,
+     "x1": 55.0,
+     "y0": 0.0,
+     "y1": 18.0,
+     "z0": 22.0,
+     "z1": 36.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 15.0,
+     "x1": 55.0,
+     "y0": 102.0,
+     "y1": 120.0,
+     "z0": 22.0,
+     "z1": 36.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 125.0,
+     "x1": 165.0,
+     "y0": 0.0,
+     "y1": 18.0,
+     "z0": 22.0,
+     "z1": 36.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 125.0,
+     "x1": 165.0,
+     "y0": 102.0,
+     "y1": 120.0,
+     "z0": 22.0,
+     "z1": 36.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_equal_records_on_coincident_valid_solids_remain_distinct",
+   "function": "recognise_rectangular_pads",
+   "file": "6048533ad5f38cfc.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_disjoint_same_solid_pad_occurrences_keep_exact_roles[False]",
+   "function": "recognise_rectangular_pads",
+   "file": "f755640230120764.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -52.0,
+     "x1": -28.0,
+     "y0": -9.0,
+     "y1": 9.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 28.0,
+     "x1": 52.0,
+     "y0": -9.0,
+     "y1": 9.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -52.0,
+     "x1": -28.0,
+     "y0": -9.0,
+     "y1": 9.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 28.0,
+     "x1": 52.0,
+     "y0": -9.0,
+     "y1": 9.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_disjoint_same_solid_pad_occurrences_keep_exact_roles[True]",
+   "function": "recognise_rectangular_pads",
+   "file": "24af50ee67e9fb2b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -52.0,
+     "x1": -28.0,
+     "y0": -9.0,
+     "y1": 9.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 25.0,
+     "x1": 55.0,
+     "y0": -9.0,
+     "y1": 9.0,
+     "z0": 5.0,
+     "z1": 10.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -52.0,
+     "x1": -28.0,
+     "y0": -9.0,
+     "y1": 9.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 25.0,
+     "x1": 55.0,
+     "y0": -9.0,
+     "y1": 9.0,
+     "z0": 5.0,
+     "z1": 10.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_intervening_levels_do_not_change_body_local_pad_base",
+   "function": "recognise_rectangular_pads",
+   "file": "ecafad7c9184d591.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": 18.0,
+     "x1": 42.0,
+     "y0": -9.0,
+     "y1": 9.0,
+     "z0": 12.0,
+     "z1": 28.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": 18.0,
+     "x1": 42.0,
+     "y0": -9.0,
+     "y1": 9.0,
+     "z0": 12.0,
+     "z1": 28.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_tier_context_suppresses_upper_tiny_pad_but_retains_lower_pad",
+   "function": "recognise_rectangular_pads",
+   "file": "01d3c23d2c85f794.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_sloped_support_keeps_current_highest_wall_base_semantics",
+   "function": "recognise_rectangular_pads",
+   "file": "4c1f9c12b4ecc50a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -10.0,
+     "x1": 10.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 6.455,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -10.0,
+     "x1": 10.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 6.455,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_repeated_shallow_wrappers_collapse_to_same_ordered_roles",
+   "function": "recognise_rectangular_pads",
+   "file": "93d93a4ff5a93d06.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_supported_transforms_preserve_writer_lifecycle",
+   "function": "recognise_rectangular_pads",
+   "file": "ec959abadf364bae.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": 2.0,
+     "x1": 32.0,
+     "y0": -19.0,
+     "y1": 1.0,
+     "z0": 9.0,
+     "z1": 13.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": 2.0,
+     "x1": 32.0,
+     "y0": -19.0,
+     "y1": 1.0,
+     "z0": 9.0,
+     "z1": 13.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_supported_transforms_preserve_writer_lifecycle",
+   "function": "recognise_rectangular_pads",
+   "file": "afc954e0f2edfe89.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -10.0,
+     "x1": 10.0,
+     "y0": -15.0,
+     "y1": 15.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -10.0,
+     "x1": 10.0,
+     "y0": -15.0,
+     "y1": 15.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_supported_transforms_preserve_writer_lifecycle",
+   "function": "recognise_rectangular_pads",
+   "file": "cd410353032e35ae.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_supported_transforms_preserve_writer_lifecycle",
+   "function": "recognise_rectangular_pads",
+   "file": "b6acdce266673e2b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -3.0,
+     "x1": 3.0,
+     "y0": -2.0,
+     "y1": 2.0,
+     "z0": 1.0,
+     "z1": 1.8,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -3.0,
+     "x1": 3.0,
+     "y0": -2.0,
+     "y1": 2.0,
+     "z0": 1.0,
+     "z1": 1.8,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_supported_transforms_preserve_writer_lifecycle",
+   "function": "recognise_rectangular_pads",
+   "file": "5ae051018344b100.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -75.0,
+     "x1": 75.0,
+     "y0": -50.0,
+     "y1": 50.0,
+     "z0": 25.0,
+     "z1": 45.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -75.0,
+     "x1": 75.0,
+     "y0": -50.0,
+     "y1": 50.0,
+     "z0": 25.0,
+     "z1": 45.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_step_round_trip_preserves_pad_role_correspondence",
+   "function": "recognise_rectangular_pads",
+   "file": "93d93a4ff5a93d06.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_reversed_face_traversal_preserves_pad_occurrence_roles",
+   "function": "recognise_rectangular_pads",
+   "file": "4a054d268b2d3ad0.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -75.0,
+     "x1": -45.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 45.0,
+     "x1": 75.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -75.0,
+     "x1": -45.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 45.0,
+     "x1": 75.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_reversed_face_traversal_preserves_pad_occurrence_roles",
+   "function": "recognise_rectangular_pads",
+   "file": "4a054d268b2d3ad0.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -75.0,
+     "x1": -45.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 45.0,
+     "x1": 75.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -75.0,
+     "x1": -45.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 45.0,
+     "x1": 75.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_reversed_vertical_face_orientation_preserves_unsigned_wall_roles",
+   "function": "recognise_rectangular_pads",
+   "file": "93d93a4ff5a93d06.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_open_shell_refuses_both_entry_points_without_material_side_authority",
+   "function": "recognise_rectangular_pads",
+   "file": "8bac758b81a5aeca.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_stock_ledge_and_recess_issue_no_pad[part0]",
+   "function": "recognise_rectangular_pads",
+   "file": "72ca646716d04cd0.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_stock_ledge_and_recess_issue_no_pad[part1]",
+   "function": "recognise_rectangular_pads",
+   "file": "14db84ecf3bbb5ea.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_stock_ledge_and_recess_issue_no_pad[part2]",
+   "function": "recognise_rectangular_pads",
+   "file": "72ca646716d04cd0.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_custom_tolerance_preserves_full_lifecycle",
+   "function": "recognise_rectangular_pads",
+   "file": "93d93a4ff5a93d06.step.gz",
+   "options": {
+    "tol": 0.1
+   },
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_top_area_deficit_boundary_preserves_current_semantics[0.9674329735677815-True]",
+   "function": "recognise_rectangular_pads",
+   "file": "72fd486b61401b2a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_top_area_deficit_boundary_preserves_current_semantics[0.9772050238058398-True]",
+   "function": "recognise_rectangular_pads",
+   "file": "04d9e85773c926a6.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_top_area_deficit_boundary_preserves_current_semantics[0.9869770740438982-False]",
+   "function": "recognise_rectangular_pads",
+   "file": "d225e1f887c63068.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_absolute_area_floor_boundary_preserves_current_semantics[0.11170953754245574-True]",
+   "function": "recognise_rectangular_pads",
+   "file": "e96e58c4a0fbfe80.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -0.5,
+     "x1": 0.5,
+     "y0": -0.5,
+     "y1": 0.5,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -0.5,
+     "x1": 0.5,
+     "y0": -0.5,
+     "y1": 0.5,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_absolute_area_floor_boundary_preserves_current_semantics[0.11283791670955123-True]",
+   "function": "recognise_rectangular_pads",
+   "file": "f559e145071685b1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -0.5,
+     "x1": 0.5,
+     "y0": -0.5,
+     "y1": 0.5,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_absolute_area_floor_boundary_preserves_current_semantics[0.11283791670955126-False]",
+   "function": "recognise_rectangular_pads",
+   "file": "f559e145071685b1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_stock_envelope_wall_remains_defining_below_local_base",
+   "function": "recognise_rectangular_pads",
+   "file": "2b45d228a1c3332f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": 10.0,
+     "x1": 40.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": 10.0,
+     "x1": 40.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_absolute_height_threshold_is_strict[0.199-False]",
+   "function": "recognise_rectangular_pads",
+   "file": "d213ed4c3b0dca10.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_absolute_height_threshold_is_strict[0.2-False]",
+   "function": "recognise_rectangular_pads",
+   "file": "5d9e7f003366ca28.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_absolute_height_threshold_is_strict[0.201-True]",
+   "function": "recognise_rectangular_pads",
+   "file": "baa9ee55e5b071e8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 5.201,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 5.201,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_footprint_width_threshold_is_strict[x-0.199-False]",
+   "function": "recognise_rectangular_pads",
+   "file": "076ef75f8f5aa152.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_footprint_width_threshold_is_strict[x-0.2-False]",
+   "function": "recognise_rectangular_pads",
+   "file": "2be4cc0ca59b6522.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_footprint_width_threshold_is_strict[x-0.201-True]",
+   "function": "recognise_rectangular_pads",
+   "file": "feff45440a211e4b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -0.101,
+     "x1": 0.101,
+     "y0": -1.0,
+     "y1": 1.0,
+     "z0": 1.0,
+     "z1": 3.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -0.101,
+     "x1": 0.101,
+     "y0": -1.0,
+     "y1": 1.0,
+     "z0": 1.0,
+     "z1": 3.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_footprint_width_threshold_is_strict[y-0.199-False]",
+   "function": "recognise_rectangular_pads",
+   "file": "459d21d981f4915a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_footprint_width_threshold_is_strict[y-0.2-False]",
+   "function": "recognise_rectangular_pads",
+   "file": "27d76b6763b30d76.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_footprint_width_threshold_is_strict[y-0.201-True]",
+   "function": "recognise_rectangular_pads",
+   "file": "ec9d63b6d36e9b67.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -1.0,
+     "x1": 1.0,
+     "y0": -0.101,
+     "y1": 0.101,
+     "z0": 1.0,
+     "z1": 3.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -1.0,
+     "x1": 1.0,
+     "y0": -0.101,
+     "y1": 0.101,
+     "z0": 1.0,
+     "z1": 3.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_full_span_margin_boundary_is_inclusive[x-19.598-True]",
+   "function": "recognise_rectangular_pads",
+   "file": "4025754d0ef771c5.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -9.799,
+     "x1": 9.799,
+     "y0": -1.0,
+     "y1": 1.0,
+     "z0": 1.0,
+     "z1": 3.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -9.799,
+     "x1": 9.799,
+     "y0": -1.0,
+     "y1": 1.0,
+     "z0": 1.0,
+     "z1": 3.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_full_span_margin_boundary_is_inclusive[x-19.6-False]",
+   "function": "recognise_rectangular_pads",
+   "file": "26486c73107330f5.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_full_span_margin_boundary_is_inclusive[x-19.602-False]",
+   "function": "recognise_rectangular_pads",
+   "file": "cf6a98f7006a65b8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_full_span_margin_boundary_is_inclusive[y-19.598-True]",
+   "function": "recognise_rectangular_pads",
+   "file": "b95bc0f00d1503e4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -1.0,
+     "x1": 1.0,
+     "y0": -9.799,
+     "y1": 9.799,
+     "z0": 1.0,
+     "z1": 3.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -1.0,
+     "x1": 1.0,
+     "y0": -9.799,
+     "y1": 9.799,
+     "z0": 1.0,
+     "z1": 3.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_full_span_margin_boundary_is_inclusive[y-19.6-False]",
+   "function": "recognise_rectangular_pads",
+   "file": "db609d6bf02c749b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_full_span_margin_boundary_is_inclusive[y-19.602-False]",
+   "function": "recognise_rectangular_pads",
+   "file": "d732c6bbd91e8ed1.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_tied_signed_axis_readings_refuse_without_iteration_order_preference",
+   "function": "recognise_rectangular_pads",
+   "file": "26486c73107330f5.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_tied_signed_axis_readings_refuse_without_iteration_order_preference",
+   "function": "recognise_rectangular_pads",
+   "file": "c62b42930b570d1c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_small_pad_on_large_part_remains_attributed",
+   "function": "recognise_rectangular_pads",
+   "file": "72fcdf0d35b5490b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -0.5,
+     "x1": 0.5,
+     "y0": -0.5,
+     "y1": 0.5,
+     "z0": 5.0,
+     "z1": 7.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -0.5,
+     "x1": 0.5,
+     "y0": -0.5,
+     "y1": 0.5,
+     "z0": 5.0,
+     "z1": 7.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_existing_invalid_tolerance_behavior_remains_empty[-0.1]",
+   "function": "recognise_rectangular_pads",
+   "file": "93d93a4ff5a93d06.step.gz",
+   "options": {
+    "tol": -0.1
+   },
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_non_z_and_curved_top_shapes_issue_no_pad[part0]",
+   "function": "recognise_rectangular_pads",
+   "file": "5b99f08b2a6f5d42.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_non_z_and_curved_top_shapes_issue_no_pad[part1]",
+   "function": "recognise_rectangular_pads",
+   "file": "f3020f0e3df5477e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_signed_principal_pads_preserve_authored_parameter_fidelity[rotation0-z-1]",
+   "function": "recognise_rectangular_pads",
+   "file": "74c0a6fcaa79dbb3.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_signed_principal_pads_preserve_authored_parameter_fidelity[rotation1-z--1]",
+   "function": "recognise_rectangular_pads",
+   "file": "df2e51c2ea43f91c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -9.0,
+     "z1": -5.0,
+     "axis": "z",
+     "direction": -1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -9.0,
+     "z1": -5.0,
+     "axis": "z",
+     "direction": -1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_signed_principal_pads_preserve_authored_parameter_fidelity[rotation2-x-1]",
+   "function": "recognise_rectangular_pads",
+   "file": "323eb203d69cab9d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": 5.0,
+     "x1": 9.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": 5.0,
+     "x1": 9.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_signed_principal_pads_preserve_authored_parameter_fidelity[rotation3-x--1]",
+   "function": "recognise_rectangular_pads",
+   "file": "e18919d15b700442.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -9.0,
+     "x1": -5.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": -1
+    }
+   ],
+   "result": [
+    {
+     "x0": -9.0,
+     "x1": -5.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": -1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_signed_principal_pads_preserve_authored_parameter_fidelity[rotation4-y-1]",
+   "function": "recognise_rectangular_pads",
+   "file": "4c04bc03e516d065.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": 5.0,
+     "y1": 9.0,
+     "z0": -10.0,
+     "z1": 10.0,
+     "axis": "y",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": 5.0,
+     "y1": 9.0,
+     "z0": -10.0,
+     "z1": 10.0,
+     "axis": "y",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_signed_principal_pads_preserve_authored_parameter_fidelity[rotation5-y--1]",
+   "function": "recognise_rectangular_pads",
+   "file": "5009f28669d4910e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -9.0,
+     "y1": -5.0,
+     "z0": -10.0,
+     "z1": 10.0,
+     "axis": "y",
+     "direction": -1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -9.0,
+     "y1": -5.0,
+     "z0": -10.0,
+     "z1": 10.0,
+     "axis": "y",
+     "direction": -1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_equal_oriented_pads_remain_distinct_and_body_local",
+   "function": "recognise_rectangular_pads",
+   "file": "132b7ebb428fafd8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": 5.0,
+     "x1": 9.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": 1
+    },
+    {
+     "x0": 5.0,
+     "x1": 9.0,
+     "y0": 90.0,
+     "y1": 110.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": 5.0,
+     "x1": 9.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": 1
+    },
+    {
+     "x0": 5.0,
+     "x1": 9.0,
+     "y0": 90.0,
+     "y1": 110.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_pad_survives_arbitrary_rigid_motion_through_framed_aggregate",
+   "function": "recognise_rectangular_pads",
+   "file": "73b322a87c696a93.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": 5.591,
+     "x1": 13.591,
+     "y0": -17.591,
+     "y1": -1.591,
+     "z0": -31.263,
+     "z1": -3.263,
+     "axis": "x",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": 5.591,
+     "x1": 13.591,
+     "y0": -17.591,
+     "y1": -1.591,
+     "z0": -31.263,
+     "z1": -3.263,
+     "axis": "x",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_signed_principal_pad_step_round_trip_preserves_record",
+   "function": "recognise_rectangular_pads",
+   "file": "e18919d15b700442.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -9.0,
+     "x1": -5.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": -1
+    }
+   ],
+   "result": [
+    {
+     "x0": -9.0,
+     "x1": -5.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": -1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_preserves_exact_pad_and_evidence[0.5]",
+   "function": "recognise_rectangular_pads",
+   "file": "93d93a4ff5a93d06.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_preserves_exact_pad_and_evidence[0.5]",
+   "function": "recognise_rectangular_pads",
+   "file": "7fb19d8ac9d97a40.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_preserves_exact_pad_and_evidence[1.0]",
+   "function": "recognise_rectangular_pads",
+   "file": "93d93a4ff5a93d06.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_preserves_exact_pad_and_evidence[1.0]",
+   "function": "recognise_rectangular_pads",
+   "file": "4f66ce9b6b1173f3.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_preserves_exact_pad_and_evidence[2.0]",
+   "function": "recognise_rectangular_pads",
+   "file": "93d93a4ff5a93d06.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_preserves_exact_pad_and_evidence[2.0]",
+   "function": "recognise_rectangular_pads",
+   "file": "11134d02516dd3dd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_is_signed_principal_axis_covariant[rotation0]",
+   "function": "recognise_rectangular_pads",
+   "file": "691580ac64a9ab8a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -9.0,
+     "z1": -5.0,
+     "axis": "z",
+     "direction": -1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -9.0,
+     "z1": -5.0,
+     "axis": "z",
+     "direction": -1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_is_signed_principal_axis_covariant[rotation0]",
+   "function": "recognise_rectangular_pads",
+   "file": "df2e51c2ea43f91c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -9.0,
+     "z1": -5.0,
+     "axis": "z",
+     "direction": -1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -9.0,
+     "z1": -5.0,
+     "axis": "z",
+     "direction": -1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_is_signed_principal_axis_covariant[rotation0]",
+   "function": "recognise_rectangular_pads",
+   "file": "df2e51c2ea43f91c.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -9.0,
+     "z1": -5.0,
+     "axis": "z",
+     "direction": -1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -9.0,
+     "z1": -5.0,
+     "axis": "z",
+     "direction": -1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_is_signed_principal_axis_covariant[rotation1]",
+   "function": "recognise_rectangular_pads",
+   "file": "013009db43d7ce90.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": 5.0,
+     "x1": 9.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": 5.0,
+     "x1": 9.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_is_signed_principal_axis_covariant[rotation1]",
+   "function": "recognise_rectangular_pads",
+   "file": "323eb203d69cab9d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": 5.0,
+     "x1": 9.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": 5.0,
+     "x1": 9.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_is_signed_principal_axis_covariant[rotation1]",
+   "function": "recognise_rectangular_pads",
+   "file": "323eb203d69cab9d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": 5.0,
+     "x1": 9.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": 5.0,
+     "x1": 9.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_is_signed_principal_axis_covariant[rotation2]",
+   "function": "recognise_rectangular_pads",
+   "file": "2ddf6c8429f0414a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -9.0,
+     "x1": -5.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": -1
+    }
+   ],
+   "result": [
+    {
+     "x0": -9.0,
+     "x1": -5.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": -1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_is_signed_principal_axis_covariant[rotation2]",
+   "function": "recognise_rectangular_pads",
+   "file": "e18919d15b700442.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -9.0,
+     "x1": -5.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": -1
+    }
+   ],
+   "result": [
+    {
+     "x0": -9.0,
+     "x1": -5.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": -1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_is_signed_principal_axis_covariant[rotation2]",
+   "function": "recognise_rectangular_pads",
+   "file": "e18919d15b700442.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -9.0,
+     "x1": -5.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": -1
+    }
+   ],
+   "result": [
+    {
+     "x0": -9.0,
+     "x1": -5.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": -15.0,
+     "z1": 15.0,
+     "axis": "x",
+     "direction": -1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_is_signed_principal_axis_covariant[rotation3]",
+   "function": "recognise_rectangular_pads",
+   "file": "bbf9513aea5cb167.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": 5.0,
+     "y1": 9.0,
+     "z0": -10.0,
+     "z1": 10.0,
+     "axis": "y",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": 5.0,
+     "y1": 9.0,
+     "z0": -10.0,
+     "z1": 10.0,
+     "axis": "y",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_is_signed_principal_axis_covariant[rotation3]",
+   "function": "recognise_rectangular_pads",
+   "file": "4c04bc03e516d065.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": 5.0,
+     "y1": 9.0,
+     "z0": -10.0,
+     "z1": 10.0,
+     "axis": "y",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": 5.0,
+     "y1": 9.0,
+     "z0": -10.0,
+     "z1": 10.0,
+     "axis": "y",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_is_signed_principal_axis_covariant[rotation3]",
+   "function": "recognise_rectangular_pads",
+   "file": "4c04bc03e516d065.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": 5.0,
+     "y1": 9.0,
+     "z0": -10.0,
+     "z1": 10.0,
+     "axis": "y",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": 5.0,
+     "y1": 9.0,
+     "z0": -10.0,
+     "z1": 10.0,
+     "axis": "y",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_is_signed_principal_axis_covariant[rotation4]",
+   "function": "recognise_rectangular_pads",
+   "file": "d1fd0f4233334ed0.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -9.0,
+     "y1": -5.0,
+     "z0": -10.0,
+     "z1": 10.0,
+     "axis": "y",
+     "direction": -1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -9.0,
+     "y1": -5.0,
+     "z0": -10.0,
+     "z1": 10.0,
+     "axis": "y",
+     "direction": -1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_is_signed_principal_axis_covariant[rotation4]",
+   "function": "recognise_rectangular_pads",
+   "file": "5009f28669d4910e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -9.0,
+     "y1": -5.0,
+     "z0": -10.0,
+     "z1": 10.0,
+     "axis": "y",
+     "direction": -1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -9.0,
+     "y1": -5.0,
+     "z0": -10.0,
+     "z1": 10.0,
+     "axis": "y",
+     "direction": -1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_complete_corner_blend_cycle_is_signed_principal_axis_covariant[rotation4]",
+   "function": "recognise_rectangular_pads",
+   "file": "5009f28669d4910e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -9.0,
+     "y1": -5.0,
+     "z0": -10.0,
+     "z1": 10.0,
+     "axis": "y",
+     "direction": -1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -9.0,
+     "y1": -5.0,
+     "z0": -10.0,
+     "z1": 10.0,
+     "axis": "y",
+     "direction": -1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_full_span_step_remains_negative_across_signed_principal_axes[rotation0]",
+   "function": "recognise_rectangular_pads",
+   "file": "0aeb30f43267e9fd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_full_span_step_remains_negative_across_signed_principal_axes[rotation1]",
+   "function": "recognise_rectangular_pads",
+   "file": "e309ff00f3a2b89e.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_full_span_step_remains_negative_across_signed_principal_axes[rotation2]",
+   "function": "recognise_rectangular_pads",
+   "file": "77ae110189123892.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_full_span_step_remains_negative_across_signed_principal_axes[rotation3]",
+   "function": "recognise_rectangular_pads",
+   "file": "5c0bb24dfd11b08d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_full_span_step_remains_negative_across_signed_principal_axes[rotation4]",
+   "function": "recognise_rectangular_pads",
+   "file": "58f2cee19499071a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_rotated_non_pad_controls_remain_negative_or_independently_owned[rotation0]",
+   "function": "recognise_rectangular_pads",
+   "file": "9c35b5104e3f1161.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_rotated_non_pad_controls_remain_negative_or_independently_owned[rotation0]",
+   "function": "recognise_rectangular_pads",
+   "file": "12c4d345a5181a73.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_rotated_non_pad_controls_remain_negative_or_independently_owned[rotation0]",
+   "function": "recognise_rectangular_pads",
+   "file": "43eaeae5c72a3027.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_rotated_non_pad_controls_remain_negative_or_independently_owned[rotation0]",
+   "function": "recognise_rectangular_pads",
+   "file": "e18e932375e11d60.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": 9.0,
+     "x1": 13.0,
+     "y0": -4.0,
+     "y1": 4.0,
+     "z0": -5.0,
+     "z1": 5.0,
+     "axis": "x",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": 9.0,
+     "x1": 13.0,
+     "y0": -4.0,
+     "y1": 4.0,
+     "z0": -5.0,
+     "z1": 5.0,
+     "axis": "x",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_rotated_non_pad_controls_remain_negative_or_independently_owned[rotation1]",
+   "function": "recognise_rectangular_pads",
+   "file": "441d3761f3b52135.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_rotated_non_pad_controls_remain_negative_or_independently_owned[rotation1]",
+   "function": "recognise_rectangular_pads",
+   "file": "a2689902533fbfd7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_rotated_non_pad_controls_remain_negative_or_independently_owned[rotation1]",
+   "function": "recognise_rectangular_pads",
+   "file": "fc1f756129a12f1b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_rotated_non_pad_controls_remain_negative_or_independently_owned[rotation1]",
+   "function": "recognise_rectangular_pads",
+   "file": "f3fd3132ae1190a2.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -5.0,
+     "x1": 5.0,
+     "y0": -13.0,
+     "y1": -9.0,
+     "z0": -4.0,
+     "z1": 4.0,
+     "axis": "y",
+     "direction": -1
+    }
+   ],
+   "result": [
+    {
+     "x0": -5.0,
+     "x1": 5.0,
+     "y0": -13.0,
+     "y1": -9.0,
+     "z0": -4.0,
+     "z1": 4.0,
+     "axis": "y",
+     "direction": -1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_partial_corner_blend_cycle_does_not_select_a_subset",
+   "function": "recognise_rectangular_pads",
+   "file": "449ce01770bccf46.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_unexplained_rounded_top_area_is_not_selected",
+   "function": "recognise_rectangular_pads",
+   "file": "4f66ce9b6b1173f3.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_rounded_perforated_top_cannot_borrow_corner_cycle[0.1]",
+   "function": "recognise_rectangular_pads",
+   "file": "d32e49de14622174.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_rounded_perforated_top_cannot_borrow_corner_cycle[0.2]",
+   "function": "recognise_rectangular_pads",
+   "file": "fef611e66a39b981.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_rounded_perforated_top_cannot_borrow_corner_cycle[0.5]",
+   "function": "recognise_rectangular_pads",
+   "file": "ca5a077995bb856f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_rounded_perforated_top_cannot_borrow_corner_cycle[2.0]",
+   "function": "recognise_rectangular_pads",
+   "file": "943cedc9a5309f09.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_blended_pad_survives_step_roundtrip",
+   "function": "recognise_rectangular_pads",
+   "file": "93d93a4ff5a93d06.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_nurbs_conversion_recovers_pad_standalone_and_aggregate",
+   "function": "recognise_rectangular_pads",
+   "file": "93d93a4ff5a93d06.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_nurbs_conversion_recovers_pad_standalone_and_aggregate",
+   "function": "recognise_rectangular_pads",
+   "file": "6710e5e17ef29099.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_nurbs_pad_adversaries_preserve_tiers_envelope_and_ownership[part0-1]",
+   "function": "recognise_rectangular_pads",
+   "file": "01d3c23d2c85f794.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_nurbs_pad_adversaries_preserve_tiers_envelope_and_ownership[part0-1]",
+   "function": "recognise_rectangular_pads",
+   "file": "6ee35f0604856ade.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_nurbs_pad_adversaries_preserve_tiers_envelope_and_ownership[part1-1]",
+   "function": "recognise_rectangular_pads",
+   "file": "2b45d228a1c3332f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": 10.0,
+     "x1": 40.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": 10.0,
+     "x1": 40.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_nurbs_pad_adversaries_preserve_tiers_envelope_and_ownership[part1-1]",
+   "function": "recognise_rectangular_pads",
+   "file": "d9b1ae01d2144729.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": 10.0,
+     "x1": 40.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": 10.0,
+     "x1": 40.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_nurbs_pad_adversaries_preserve_tiers_envelope_and_ownership[part2-2]",
+   "function": "recognise_rectangular_pads",
+   "file": "4a054d268b2d3ad0.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -75.0,
+     "x1": -45.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 45.0,
+     "x1": 75.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -75.0,
+     "x1": -45.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 45.0,
+     "x1": 75.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_nurbs_pad_adversaries_preserve_tiers_envelope_and_ownership[part2-2]",
+   "function": "recognise_rectangular_pads",
+   "file": "0a5c01a208ad2a60.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -75.0,
+     "x1": -45.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 45.0,
+     "x1": 75.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -75.0,
+     "x1": -45.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    },
+    {
+     "x0": 45.0,
+     "x1": 75.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_nurbs_pad_adversaries_preserve_tiers_envelope_and_ownership[part3-0]",
+   "function": "recognise_rectangular_pads",
+   "file": "8bac758b81a5aeca.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_nurbs_pad_adversaries_preserve_tiers_envelope_and_ownership[part3-0]",
+   "function": "recognise_rectangular_pads",
+   "file": "3a1994d3bfb20745.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_nurbs_pad_refuses_ambiguous_recovery_in_both_entry_points",
+   "function": "recognise_rectangular_pads",
+   "file": "6710e5e17ef29099.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_pad_refuses_disagreeing_material_samples_in_both_entry_points[_pad]",
+   "function": "recognise_rectangular_pads",
+   "file": "93d93a4ff5a93d06.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_pad_refuses_disagreeing_material_samples_in_both_entry_points[_blended_pad]",
+   "function": "recognise_rectangular_pads",
+   "file": "4f66ce9b6b1173f3.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_refused_lower_tier_cannot_introduce_the_upper_pad",
+   "function": "recognise_rectangular_pads",
+   "file": "01d3c23d2c85f794.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_nurbs_conversion_does_not_turn_stock_ledges_or_recesses_into_pads[part0]",
+   "function": "recognise_rectangular_pads",
+   "file": "fc1c81c8d00b58c0.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_nurbs_conversion_does_not_turn_stock_ledges_or_recesses_into_pads[part1]",
+   "function": "recognise_rectangular_pads",
+   "file": "fc1c81c8d00b58c0.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_pad_attribution.py::test_nurbs_conversion_does_not_turn_stock_ledges_or_recesses_into_pads[part2]",
+   "function": "recognise_rectangular_pads",
+   "file": "929ef784635f2aac.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_large_part_small_features.py::test_a_small_pad_on_a_large_part_is_still_a_pad",
+   "function": "recognise_rectangular_pads",
+   "file": "ebe4670fe6fcb8e8.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -2.5,
+     "x1": 2.5,
+     "y0": -2.5,
+     "y1": 2.5,
+     "z0": 10.0,
+     "z1": 12.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -2.5,
+     "x1": 2.5,
+     "y0": -2.5,
+     "y1": 2.5,
+     "z0": 10.0,
+     "z1": 12.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_records_are_frozen_and_json_serializable",
+   "function": "recognise_rectangular_pads",
+   "file": "93d93a4ff5a93d06.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_every_record_type_is_actually_exercised",
+   "function": "recognise_rectangular_pads",
+   "file": "93d93a4ff5a93d06.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": -15.0,
+     "x1": 15.0,
+     "y0": -10.0,
+     "y1": 10.0,
+     "z0": 5.0,
+     "z1": 9.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "78cad3d7476afb70.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "ce30ea612029f8ba.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "63eb54cc99e74641.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "6338384a50de6b27.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "825aec526c690833.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "3aa3fee8a5ce2624.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "c7ee6c53ea0011e7.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "236ea4cc9bd6bfe4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "04aec2096ae6ebfa.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "c31caa7ecbb2d309.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "97c1f9960ddab64f.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "9683f6213a4aa5bd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "63fe3fe242437c92.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "ee52f5590e82077a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "7802ff06fec22161.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "d8902ad04466ddf4.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "ecafad7c9184d591.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [
+    {
+     "x0": 18.0,
+     "x1": 42.0,
+     "y0": -9.0,
+     "y1": 9.0,
+     "z0": 12.0,
+     "z1": 28.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ],
+   "result": [
+    {
+     "x0": 18.0,
+     "x1": 42.0,
+     "y0": -9.0,
+     "y1": 9.0,
+     "z0": 12.0,
+     "z1": 28.0,
+     "axis": "z",
+     "direction": 1
+    }
+   ]
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "54fe727555b63158.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "d9547b97c3c72ed2.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "7edb959cec898e4b.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "1ca728fa59ffe247.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "b4955f88525ea716.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "4e090fe361c883ac.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "786005dcbc3b0bea.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "12a159d1bdde516d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "644f8fd20345b417.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "016c60d49a52fa18.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "4ee8cff9e649797a.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "b61746a9d8907bfd.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "72dedc5a3f0d0458.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "3851ade112550bd3.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "22af1dfe2a5c86d0.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "52c28c694ef89625.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
+  },
+  {
+   "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+   "function": "recognise_rectangular_pads",
+   "file": "0a3141da4c6d054d.step.gz",
+   "options": {},
+   "hints": [],
+   "rich_arguments": [],
+   "in_memory": [],
+   "result": []
   }
  ],
  "skipped": [
@@ -405437,6 +408839,31 @@
   {
    "function": "recognise_oriented_slots",
    "test": "tests/test_oriented_slots.py::test_step_round_trip_preserves_oriented_slot",
+   "reason": "capture failed: RuntimeError: Failed to write STEP file"
+  },
+  {
+   "function": "recognise_rectangular_pads",
+   "test": "tests/test_pad_attribution.py::test_step_round_trip_preserves_pad_role_correspondence",
+   "reason": "capture failed: RuntimeError: Failed to write STEP file"
+  },
+  {
+   "function": "recognise_rectangular_pads",
+   "test": "tests/test_pad_attribution.py::test_existing_invalid_tolerance_behavior_remains_empty[nan]",
+   "reason": "capture failed: ValueError: non-finite option tol=nan"
+  },
+  {
+   "function": "recognise_rectangular_pads",
+   "test": "tests/test_pad_attribution.py::test_existing_invalid_tolerance_behavior_remains_empty[inf]",
+   "reason": "capture failed: ValueError: non-finite option tol=inf"
+  },
+  {
+   "function": "recognise_rectangular_pads",
+   "test": "tests/test_pad_attribution.py::test_signed_principal_pad_step_round_trip_preserves_record",
+   "reason": "capture failed: RuntimeError: Failed to write STEP file"
+  },
+  {
+   "function": "recognise_rectangular_pads",
+   "test": "tests/test_pad_attribution.py::test_blended_pad_survives_step_roundtrip",
    "reason": "capture failed: RuntimeError: Failed to write STEP file"
   }
  ]

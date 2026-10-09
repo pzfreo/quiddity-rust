@@ -145,6 +145,21 @@ pub(super) fn holds(domain: &FaceDomain, u: f64, v: f64, (hu, hv): (f64, f64)) -
         .all(|&(du, dv)| domain.contains(u + du, v + dv))
 }
 
+/// The file instance a face or edge of a [`Part`] was read from: the `#N` of its
+/// `ADVANCED_FACE` (or `FACE_SURFACE`) or `EDGE_CURVE`, and the placed instance it belongs to.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct Source {
+    /// The instance id (`#N`) in the file.
+    pub entity: u64,
+    /// Which placed instance of a shape the face or edge is part of: the reader's placed solids,
+    /// numbered in reading order (a solid's instance number is its index in [`Part::solids`]),
+    /// then each placement of a surface model.
+    pub instance: usize,
+}
+
+pub type FaceSource = Source;
+pub type EdgeSource = Source;
+
 /// A part's boundary representation: faces, edges and solids in OpenCascade's traversal order.
 ///
 /// Immutable after construction. `faces`, `edges` and `solids` are public for reading only:
@@ -162,6 +177,8 @@ pub struct Part {
     valid_solids: OnceLock<Vec<bool>>,
     unresolved_faces: Vec<usize>,
     unresolved_edges: Vec<usize>,
+    face_sources: Vec<Source>,
+    edge_sources: Vec<Source>,
 }
 
 impl Part {
@@ -176,7 +193,28 @@ impl Part {
             valid_solids: OnceLock::new(),
             unresolved_faces: Vec::new(),
             unresolved_edges: Vec::new(),
+            face_sources: Vec::new(),
+            edge_sources: Vec::new(),
         }
+    }
+
+    /// Records, for every face and every edge in index order, the instance it was read from.
+    pub(super) fn with_sources(mut self, faces: Vec<Source>, edges: Vec<Source>) -> Self {
+        assert_eq!(faces.len(), self.faces.len());
+        assert_eq!(edges.len(), self.edges.len());
+        self.face_sources = faces;
+        self.edge_sources = edges;
+        self
+    }
+
+    /// The file instance face *face* was read from; `None` for a part not read from a file.
+    pub fn face_source(&self, face: usize) -> Option<FaceSource> {
+        self.face_sources.get(face).copied()
+    }
+
+    /// The file instance edge *edge* was read from; `None` for a part not read from a file.
+    pub fn edge_source(&self, edge: usize) -> Option<EdgeSource> {
+        self.edge_sources.get(edge).copied()
     }
 
     /// Records the faces whose surface (`Surface::Other`, unevaluable) and the edges whose curve
@@ -425,7 +463,44 @@ impl Part {
                 direction = geom::scale(direction, -1.0);
             }
         }
-        if geom::dot(geom::cross(na, direction), nb) < 0.0 {
+        let into_a = geom::cross(na, direction);
+        let first = geom::dot(into_a, nb);
+        // (Faces tangent but for a tilt along the edge, normals nearly equal, also leave the
+        // first order at round-off; they keep its sign, as OpenCascade's reading does.)
+        if first.abs() > geom::SMOOTH_ARC_GAP || geom::dot(na, nb) > 0.0 {
+            return if first < 0.0 {
+                Arc::Convex
+            } else {
+                Arc::Concave
+            };
+        }
+        // Outward normals opposite (two surfaces kissing): the first order is round-off, so
+        // read the second. Both faces leave the edge along `into_a`; step h along each, place
+        // the point on its surface, and measure how far it has moved along the other face's
+        // normal from the edge point's own foot (an edge may lie off its surfaces within
+        // tolerance). A positive sum puts *a* on the outside of *b*: the material fills all
+        // round the edge but a zero-angle notch (concave); a negative one leaves it a
+        // zero-angle knife (convex).
+        let step = 1e-4 * self.face_bounds(a).diagonal().max(1e-9);
+        let lift = |face: usize, other: V3| {
+            let surface = &self.faces[face].surface;
+            let (u0, v0) = surface.parameters(point, None)?;
+            let off = geom::add(point, geom::scale(into_a, step));
+            let (u, v) = surface.parameters(off, Some((u0, v0)))?;
+            let moved = geom::sub(surface.value(u, v), surface.value(u0, v0));
+            self.domain(face)?
+                .contains(u, v)
+                .then(|| geom::dot(moved, other))
+        };
+        let (Some(la), Some(lb)) = (lift(a, nb), lift(b, na)) else {
+            return Arc::Unknown;
+        };
+        // Below this the lifts are round-off in the placed points (coplanar faces back to back).
+        let floor = 1e-12 * point.iter().fold(1.0f64, |m, c| m.max(c.abs()));
+        let sum = la + lb;
+        if sum.abs() <= floor {
+            Arc::Unknown
+        } else if sum < 0.0 {
             Arc::Convex
         } else {
             Arc::Concave

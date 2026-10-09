@@ -108,6 +108,81 @@ fn arcs_at_closed_edges_ignore_their_recorded_direction() {
     assert!(rims >= 4, "both rims, both ways round");
 }
 
+/// cgb217's B-spline face 34: its edge 89 runs just outside the side v = 1 and dips 1.6e-3 mm
+/// into the face, leaving the side 1.2e-5 before it crosses the knot line u = 0.25. The walk
+/// must split at that corner, not only at the knot line, or it misses the foot point's step
+/// off the side. tools/face_area_evidence.py gives 28.16983104 by Green's theorem and by
+/// direct slices (tests/fixtures/known_face_areas.json).
+#[test]
+fn boundary_walk_splits_at_a_corner_beside_a_knot_line() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let part = read_step_file(&dir.join("cadgenbench_inputs/cgb217.step.gz")).unwrap();
+    let [area, _] = part.face_mass(34).unwrap();
+    assert!((area - 28.16983104).abs() < 1e-7, "{area}");
+}
+
+/// cgb242's B-spline face 726 has a side u = 1 collapsed to a point, where its edge 730 starts.
+/// Under the motion below the walk's first node there lands at v = 1 instead of v = 0 (v is
+/// undetermined on that side), so its swept parameter area lost the jump's ∮ u dv, the loop read
+/// as clockwise and the face's area came out negative.
+#[test]
+fn a_jump_along_a_collapsed_side_leaves_the_area_unchanged() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let path = dir.join("cadgenbench_inputs/cgb242.step.gz");
+    let moved: haecceity::step::Placement = [
+        [0.0, 0.0, 1.0, 123.456],
+        [1.0, 0.0, 0.0, -78.9],
+        [0.0, 1.0, 0.0, 41.3],
+    ];
+    let area = |placement: &haecceity::step::Placement| {
+        let part = haecceity::step::read_step_file_placed(&path, placement).unwrap();
+        part.face_mass(726).unwrap()[0]
+    };
+    let (unmoved, moved) = (area(&haecceity::step::IDENTITY), area(&moved));
+    assert!((unmoved - 18.22923018).abs() < 1e-7, "{unmoved}");
+    assert!(
+        (moved - unmoved).abs() < 1e-9 * unmoved,
+        "{unmoved} moved {moved}"
+    );
+}
+
+/// Two quarter cylinders of radius 7 on axes 14 apart (x = ±7, y = 0) kiss along x = y = 0 with
+/// opposite outward normals, as sm-hanger's faces 11 and 12 do; the first-order turn is
+/// round-off there. Extruded 5 in z by OpenCascade from the profile (0,0) - arc to (7,7) -
+/// (7,-5) - (-7,-5) - (-7,7) - arc to (0,0) (`notch`: the material fills all round the edge but
+/// the zero-angle notch between the arcs, OpenCascade's classifier OUT at (0, 0.01, 2.5) and IN
+/// 1e-3 to either side) and from the arcs closed by (7,7) - (-7,7) (`knife`: the material is the
+/// notch).
+#[test]
+fn arcs_where_surfaces_kiss_read_the_second_order() {
+    use haecceity::brep::Arc;
+    use haecceity::geom::SurfaceType;
+    for (name, expected) in [
+        ("kissing_cylinders_notch.step", Arc::Concave),
+        ("kissing_cylinders_knife.step", Arc::Convex),
+    ] {
+        let part = fixture(name);
+        let cylinders: Vec<usize> = (0..part.faces.len())
+            .filter(|&f| part.faces[f].surface.kind() == SurfaceType::Cylinder)
+            .collect();
+        let [a, b] = cylinders[..] else {
+            panic!("{name}: two cylinders, not {cylinders:?}");
+        };
+        assert_eq!(part.arc(a, b), Some(expected), "{name}");
+        assert_eq!(
+            part.arc(b, a),
+            Some(expected),
+            "{name}, the other way round"
+        );
+    }
+}
+
 #[test]
 fn areas_and_volumes_are_exact() {
     use std::f64::consts::PI;

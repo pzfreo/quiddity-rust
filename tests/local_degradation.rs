@@ -13,9 +13,9 @@
 //!   solids are not all valid;
 //! - on every part Python retried, each record Python skipped: what the port's evidence path for
 //!   that family does with it. Holes and pockets have the degraded path
-//!   (`discover_locally_degraded`); the other families' strict paths answer `refused` (the whole family), `published` (a record on
-//!   those faces) or `skipped` (no record there). A face is found by its box, so a part the port
-//!   reads in another face order still compares.
+//!   (`discover_locally_degraded`); the other families' strict paths answer `refused` (the
+//!   whole family), `published` (a record on those faces) or `skipped` (no record there). A
+//!   face is found by its box, so a part the port reads in another face order still compares.
 //!
 //! Every difference is listed in `captured/local_degradation/known.json` with a verdict and a
 //! reason: `{"file", "kind": "retry", "rust"}` for a part only one side retries, `{"file",

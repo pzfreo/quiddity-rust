@@ -1,0 +1,15 @@
+[
+ {
+  "answers": {
+   "diameter.fit:turned_steps:2": "thread:M5",
+   "diameter.fit:turned_steps:3": "f7",
+   "diameter.fit:turned_steps:9": "knurl:diamond",
+   "diameter.runout:turned_steps:3": "0.02",
+   "hole.function:holes:12.13": "tapped:M2",
+   "hole.position:holes:12.13": "0.1",
+   "part.general_tolerance": "ISO 2768-f",
+   "part.material": "Stainless steel 303"
+  },
+  "part": null
+ }
+]

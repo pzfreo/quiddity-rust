@@ -121,6 +121,10 @@ def _record(name, real, args, kwargs, result):
         for k, v in kwargs.items()
         if k not in HINTS and (v is None or isinstance(v, (bool, int, float, str)))
     }
+    # JSON has no NaN or infinity; such an option is listed as not captured.
+    for key, value in simple.items():
+        if isinstance(value, float) and not math.isfinite(value):
+            raise ValueError(f"non-finite option {key}={value!r}")
     # Precomputed inventories the port derives itself from the same part.
     hints = sorted(k for k in kwargs if k in HINTS)
     rich = sorted(set(kwargs) - set(simple) - set(hints))

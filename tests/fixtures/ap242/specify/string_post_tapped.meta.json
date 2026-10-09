@@ -1,0 +1,26 @@
+{
+ "case": "string_post_tapped",
+ "command": "specify-core analyse [--part N]; specify-core write --accept-defaults --intent",
+ "input": "corpus:gramel/string_post.step",
+ "input_sha256": "7b7f1a4bf407ef7599d58e126e43e95f50d165212ed21bf6b2fc716d14bfdf85",
+ "not_byte_for_byte": "the STEP header FILE_NAME time stamp",
+ "specify_core": "cc341dd6eaea84428d9bcf34915a7bffd78fecdb",
+ "write_report": {
+  "not_written": [],
+  "warnings": [],
+  "written": [
+   "datum A",
+   "internal thread M2x0.4-6H on holes:17.19",
+   "location 1.2 basic to holes:17.19 from faces [11]",
+   "position 0.1 on holes:17.19",
+   "Ø1.7 H11 on holes:5",
+   "location 1.2 basic to holes:5 from faces [11]",
+   "position 0.1 MMC on holes:5",
+   "flatness 0.01 on [11]",
+   "material Brass CW614N",
+   "general tolerance ISO 2768-f",
+   "surface finish Ra 3.2",
+   "edges Break sharp edges 0.2 max"
+  ]
+ }
+}

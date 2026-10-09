@@ -9,7 +9,13 @@
 //!   fixtures and the corpus, and every `prove_entry_treatments` question asked on the way,
 //!   each replayed on its own.
 //!
-//! Floats agree to one part in a million (`common::same`), refusals exactly. Differences are
+//! Floats agree to one part in a million (`common::same`), refusals exactly (a proposal run's
+//! captured refusal without its `<ExceptionType>: ` prefix). A part's proposals are compared in
+//! the order each side emits them, except within a run of adjacent proposals whose order
+//! round-off alone decides: Python's order between those is not stable from one Python run to
+//! the next (`same_proposals`), so such a run is compared as a set. A value whose input the
+//! port's types cannot hold (a section mutated after construction) is reported as not
+//! constructible rather than refused by this test. Differences are
 //! listed in `tests/fixtures/captured/known_sections.json`: per entry its `case` (`value`,
 //! `patch`, `proposals`, `entry_treatment`), what identifies it (a value's `kind` and `given`
 //! input, a patch's `index`, a part's `file`, a treatment question's `file`, `opening` and
@@ -135,12 +141,11 @@ fn value_answer(kind: &str, given: &Value) -> Value {
                 )?;
                 let stored = vertices(&given["boundary"])?;
                 let section = PlanarSection::new(stored.clone())?;
-                // Python revalidates a stored section by rebuilding it: one not already in
-                // canonical form was mutated after construction.
+                // Python revalidates a stored section by rebuilding it, and refuses one whose
+                // boundary was mutated after construction. A `PlanarSection` cannot be mutated,
+                // so the port has no such input: the call is reported, not refused here.
                 if section.boundary() != stored.as_slice() {
-                    return Err(SectionError(
-                        "section occurrence section is not canonical or was mutated",
-                    ));
+                    return Ok(None);
                 }
                 let [lo, hi] = floats::<2>(&given["run_interval"]);
                 let occurrence = SectionOccurrence::new(
@@ -150,10 +155,11 @@ fn value_answer(kind: &str, given: &Value) -> Value {
                     section,
                     SectionEnds::new(ends[0].as_bool().unwrap(), ends[1].as_bool().unwrap())?,
                 )?;
-                occurrence_geometry(&occurrence, &issuer)
+                occurrence_geometry(&occurrence, &issuer).map(Some)
             })();
             match geometry {
-                Ok(g) => json!({"geometry": serde_json::to_value(g).unwrap()}),
+                Ok(Some(g)) => json!({"geometry": serde_json::to_value(g).unwrap()}),
+                Ok(None) => json!({"not_constructible": "a mutated section"}),
                 Err(e) => refused(e),
             }
         }
@@ -212,6 +218,7 @@ fn section_values_agree_with_python() {
     let values = captured["values"].as_array().unwrap();
     assert!(!values.is_empty());
     let mut found = Vec::new();
+    let mut refusals = 0;
     for record in values {
         let kind = record["kind"].as_str().unwrap();
         let got = value_answer(kind, &record["given"]);
@@ -221,8 +228,17 @@ fn section_values_agree_with_python() {
                 json!({"case": "value", "kind": kind, "given": record["given"]}),
                 format!("{kind} {}: {}", record["given"], common::diff(&got, &want)),
             ));
+        } else if got.get("refused").is_some() {
+            refusals += 1;
         }
     }
+    eprintln!(
+        "section values: {} captured, {refusals} refusals matched, {} differ, {} skipped by the \
+         capture",
+        values.len(),
+        found.len(),
+        captured["skipped"]
+    );
     check_known("value", found, None);
 }
 
@@ -285,31 +301,37 @@ fn sort_key(p: &Value) -> Value {
     json!([p["frame"]["run"], p["run_interval"], p["frame"]["origin"]])
 }
 
-/// The sort keys compared component by component, components within one part in a million of
-/// each other (`common::same`) counting as equal.
-fn tolerant_order(a: &Value, b: &Value) -> std::cmp::Ordering {
-    let flat = |k: &Value| -> Vec<Value> {
+/// Whether round-off alone decides the order of two proposals: their sort keys are equal, or
+/// the first component in which they differ agrees to one part in a million (`common::same`).
+fn ordered_by_round_off(a: &Value, b: &Value) -> bool {
+    let flat = |k: Value| -> Vec<f64> {
         k.as_array()
             .unwrap()
             .iter()
-            .flat_map(|part| part.as_array().unwrap().clone())
+            .flat_map(|part| {
+                part.as_array()
+                    .unwrap()
+                    .iter()
+                    .map(float)
+                    .collect::<Vec<_>>()
+            })
             .collect()
     };
-    for (x, y) in flat(&sort_key(a)).iter().zip(flat(&sort_key(b)).iter()) {
-        if !common::same(x, y) {
-            return float(x).total_cmp(&float(y));
-        }
-    }
-    std::cmp::Ordering::Equal
+    let (x, y) = (flat(sort_key(a)), flat(sort_key(b)));
+    x.iter()
+        .zip(&y)
+        .find(|(x, y)| x != y)
+        .is_none_or(|(x, y)| common::same(&json!(x), &json!(y)))
 }
 
-/// Whether two proposal lists agree up to round-off in their order: both re-sorted with sort-key
-/// components that agree to `common::same` counted equal, and proposals whose keys then tie
-/// compared as sets. Python orders by exact keys, so last-bit round-off decides between two
-/// coincident solids' rings, or between two congruent rings at one run interval (one ring's
-/// interval `(-10.000000000000002, 10.0)`, the other's `(-10.0, 10.0)`), and that round-off is
-/// not even stable between Python runs: two captures ordered one part's coincident rings both
-/// ways.
+/// Whether two proposal lists agree in order up to round-off: position by position in the
+/// order each side emitted, except that a run of adjacent proposals whose order round-off alone
+/// decides (`ordered_by_round_off`) is compared as a set against the same positions of the other
+/// list. Python orders by exact keys, so last-bit round-off decides between two coincident
+/// solids' rings, or between two congruent rings at one run interval (one ring's interval
+/// `(-10.000000000000002, 10.0)`, the other's `(-10.0, 10.0)`, their origins opposite), and that
+/// round-off is not even stable between Python runs: two captures ordered one part's coincident
+/// rings both ways.
 fn same_proposals(got: &Value, want: &Value) -> bool {
     let (Some(g), Some(w)) = (got.as_array(), want.as_array()) else {
         return common::same(got, want);
@@ -317,15 +339,14 @@ fn same_proposals(got: &Value, want: &Value) -> bool {
     if g.len() != w.len() {
         return false;
     }
-    let mut g: Vec<Value> = g.clone();
-    let mut w: Vec<Value> = w.clone();
-    g.sort_by(tolerant_order);
-    w.sort_by(tolerant_order);
+    let run_end = |list: &[Value], from: usize| {
+        (from + 1..list.len())
+            .find(|&i| !ordered_by_round_off(&list[i - 1], &list[i]))
+            .unwrap_or(list.len())
+    };
     let mut start = 0;
     while start < g.len() {
-        let end = (start..w.len())
-            .find(|&i| tolerant_order(&w[i], &w[start]).is_ne())
-            .unwrap_or(w.len());
+        let end = run_end(g, start).max(run_end(w, start));
         let mut unmatched: Vec<&Value> = g[start..end].iter().collect();
         for x in &w[start..end] {
             match unmatched.iter().position(|y| common::same(x, y)) {
@@ -338,6 +359,55 @@ fn same_proposals(got: &Value, want: &Value) -> bool {
         start = end;
     }
     true
+}
+
+/// A captured refusal without the `<ExceptionType>: ` prefix the capture writes before Python's
+/// message (`ValueError: ...`), so it compares with the port's message alone.
+fn python_message(refused: &str) -> &str {
+    match refused.split_once(": ") {
+        Some((name, message))
+            if !name.is_empty()
+                && name
+                    .chars()
+                    .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '.') =>
+        {
+            message
+        }
+        _ => refused,
+    }
+}
+
+#[test]
+fn captured_refusals_lose_their_exception_type() {
+    assert_eq!(
+        python_message("ValueError: section boundary must be simple"),
+        "section boundary must be simple"
+    );
+    assert_eq!(
+        python_message("numpy.linalg.LinAlgError: Singular matrix: rank 2"),
+        "Singular matrix: rank 2"
+    );
+    assert_eq!(
+        python_message("section boundary must be simple"),
+        "section boundary must be simple"
+    );
+    assert_eq!(
+        python_message("run interval collapses: lo 1, hi 1"),
+        "run interval collapses: lo 1, hi 1"
+    );
+}
+
+#[test]
+fn proposals_are_compared_in_order_except_within_ties() {
+    let p = |run: f64, lo: f64, origin: f64| json!({"frame": {"run": [run], "origin": [origin]}, "run_interval": [lo]});
+    let (a, b) = (p(0.0, 1.0, 0.0), p(1.0, 1.0, 5.0));
+    // Order decided by distinct keys matters.
+    assert!(same_proposals(&json!([a, b]), &json!([a, b])));
+    assert!(!same_proposals(&json!([b, a]), &json!([a, b])));
+    // Order decided by round-off does not, even where later components differ.
+    let c = p(1.0, 1.0 + 1e-12, -5.0);
+    assert!(same_proposals(&json!([a, c, b]), &json!([a, b, c])));
+    assert!(!same_proposals(&json!([c, a, b]), &json!([a, b, c])));
 }
 
 /// The port's answer to one captured treatment question, in the capture's shape.
@@ -409,10 +479,11 @@ fn section_ring_proposals_agree_with_python() {
             Err(e) => json!({"refused": e.0}),
         };
         let mut want = json!({});
-        for key in ["proposals", "refused"] {
-            if !run[key].is_null() {
-                want[key] = run[key].clone();
-            }
+        if !run["proposals"].is_null() {
+            want["proposals"] = run["proposals"].clone();
+        }
+        if let Some(refused) = run["refused"].as_str() {
+            want["refused"] = json!(python_message(refused));
         }
         let agree = match (got.get("proposals"), want.get("proposals")) {
             (Some(g), Some(w)) => same_proposals(g, w),

@@ -1,0 +1,374 @@
+{
+  "files": {
+    "nist_ctc_01_asme1_ap242-e1.stp": {
+      "item_identified_representation_usage.UR1": {
+        "count": 77,
+        "example": "#129 draughting_model_item_association violates item_identified_representation_usage.UR1: shares used_representation #630 and identified_item #607 with #130",
+        "verdict": "file-wrong",
+        "reason": "Two usages identify the same item in the same representation: draughting model item associations pairing one callout both with a semantic item and with a second definition ('PMI representation to presentation link' or the toleranced shape aspect), or several geometric_item_specific_usages of one face in one representation (one per shape aspect, where PMI practice §5.1 asks for one shared shape aspect). UR1 is declared on item_identified_representation_usage, so it spans all usages. The file is wrong."
+      }
+    },
+    "nist_ctc_02_asme1_ap242-e2.stp": {
+      "datum_target.WR4": {
+        "count": 9,
+        "example": "#102 placed_datum_target_feature violates datum_target.WR4: name is 'Datum Target.1'; '' required",
+        "verdict": "file-wrong",
+        "reason": "The file names its datum targets (the example's name); datum_target WR4 requires shape_aspect.name = ''. The file is wrong."
+      },
+      "datum_target.WR5": {
+        "count": 9,
+        "example": "#102 placed_datum_target_feature violates datum_target.WR5: description 'point'; none allowed",
+        "verdict": "file-wrong",
+        "reason": "The file describes its targets by their shape ('point', 'circular curve', 'rectangle', 'area'), as placed_datum_target_feature WR1 and PMI practice §6.6 require; datum_target WR5 (NOT EXISTS(SELF\\shape_aspect.description)) forbids any description. The two rules of the schema conflict for placed targets; checked as written, the file violates WR5."
+      },
+      "item_identified_representation_usage.UR1": {
+        "count": 195,
+        "example": "#186 draughting_model_item_association_with_placeholder violates item_identified_representation_usage.UR1: shares used_representation #1208 and identified_item #1162 with #500, #501",
+        "verdict": "file-wrong",
+        "reason": "Two usages identify the same item in the same representation: draughting model item associations pairing one callout both with a semantic item and with a second definition ('PMI representation to presentation link' or the toleranced shape aspect), or several geometric_item_specific_usages of one face in one representation (one per shape aspect, where PMI practice §5.1 asks for one shared shape aspect). UR1 is declared on item_identified_representation_usage, so it spans all usages. The file is wrong."
+      },
+      "item_identified_representation_usage.UR2": {
+        "count": 92,
+        "example": "#186 draughting_model_item_association_with_placeholder violates item_identified_representation_usage.UR2: shares used_representation #1208 and definition #403 with #501",
+        "verdict": "file-wrong",
+        "reason": "One definition is used twice in the same representation: several callouts presenting one PMI item in one draughting model, or several geometric_item_specific_usages of one shape aspect in one representation (PMI practice §5.1 combines several items in one usage of a set_representation_item). UR2 allows one usage per (used_representation, definition). The file is wrong."
+      }
+    },
+    "nist_ctc_03_asme1_ap242-e2.stp": {
+      "item_identified_representation_usage.UR1": {
+        "count": 158,
+        "example": "#98 draughting_model_item_association_with_placeholder violates item_identified_representation_usage.UR1: shares used_representation #827 and identified_item #798 with #366, #367",
+        "verdict": "file-wrong",
+        "reason": "Two usages identify the same item in the same representation: draughting model item associations pairing one callout both with a semantic item and with a second definition ('PMI representation to presentation link' or the toleranced shape aspect), or several geometric_item_specific_usages of one face in one representation (one per shape aspect, where PMI practice §5.1 asks for one shared shape aspect). UR1 is declared on item_identified_representation_usage, so it spans all usages. The file is wrong."
+      },
+      "item_identified_representation_usage.UR2": {
+        "count": 58,
+        "example": "#98 draughting_model_item_association_with_placeholder violates item_identified_representation_usage.UR2: shares used_representation #827 and definition #263 with #367",
+        "verdict": "file-wrong",
+        "reason": "One definition is used twice in the same representation: several callouts presenting one PMI item in one draughting model, or several geometric_item_specific_usages of one shape aspect in one representation (PMI practice §5.1 combines several items in one usage of a set_representation_item). UR2 allows one usage per (used_representation, definition). The file is wrong."
+      }
+    },
+    "nist_ctc_04_asme1_ap242-e2.stp": {
+      "datum_system.UR1": {
+        "count": 5,
+        "example": "#18606 datum_system violates datum_system.UR1: shares name '' on #12 with #18713, #18728, #18779, #18791",
+        "verdict": "file-wrong",
+        "reason": "Several datum systems of one product_definition_shape share the name ''; datum_system UR1 makes (of_shape, name) unique, so each system needs a name of its own. The file is wrong (and the writer must name each system)."
+      },
+      "item_identified_representation_usage.UR1": {
+        "count": 56,
+        "example": "#18329 draughting_model_item_association violates item_identified_representation_usage.UR1: shares used_representation #18300 and identified_item #18321 with #18339",
+        "verdict": "file-wrong",
+        "reason": "Two usages identify the same item in the same representation: draughting model item associations pairing one callout both with a semantic item and with a second definition ('PMI representation to presentation link' or the toleranced shape aspect), or several geometric_item_specific_usages of one face in one representation (one per shape aspect, where PMI practice §5.1 asks for one shared shape aspect). UR1 is declared on item_identified_representation_usage, so it spans all usages. The file is wrong."
+      },
+      "item_identified_representation_usage.UR2": {
+        "count": 25,
+        "example": "#18329 draughting_model_item_association violates item_identified_representation_usage.UR2: shares used_representation #18300 and definition #18302 with #18339, #20384",
+        "verdict": "file-wrong",
+        "reason": "One definition is used twice in the same representation: several callouts presenting one PMI item in one draughting model, or several geometric_item_specific_usages of one shape aspect in one representation (PMI practice §5.1 combines several items in one usage of a set_representation_item). UR2 allows one usage per (used_representation, definition). The file is wrong."
+      }
+    },
+    "nist_ctc_05_asme1_ap242-e1.stp": {
+      "datum.WR4": {
+        "count": 4,
+        "example": "#1161 datum violates datum.WR4: name is 'A'; '' required",
+        "verdict": "file-wrong",
+        "reason": "The file names its datums (the example's name); datum WR4 requires shape_aspect.name = '' (the letter is datum.identification). Checked against the schema text; the file is wrong."
+      },
+      "datum_system.UR1": {
+        "count": 5,
+        "example": "#964 datum_system violates datum_system.UR1: shares name '' on #1176 with #965, #967, #968, #969",
+        "verdict": "file-wrong",
+        "reason": "Several datum systems of one product_definition_shape share the name ''; datum_system UR1 makes (of_shape, name) unique, so each system needs a name of its own. The file is wrong (and the writer must name each system)."
+      },
+      "datum_target.WR5": {
+        "count": 2,
+        "example": "#1103 placed_datum_target_feature violates datum_target.WR5: description 'rectangle'; none allowed",
+        "verdict": "file-wrong",
+        "reason": "The file describes its targets by their shape ('point', 'circular curve', 'rectangle', 'area'), as placed_datum_target_feature WR1 and PMI practice §6.6 require; datum_target WR5 (NOT EXISTS(SELF\\shape_aspect.description)) forbids any description. The two rules of the schema conflict for placed targets; checked as written, the file violates WR5."
+      },
+      "item_identified_representation_usage.UR1": {
+        "count": 95,
+        "example": "#53 draughting_model_item_association violates item_identified_representation_usage.UR1: shares used_representation #99 and identified_item #267 with #79",
+        "verdict": "file-wrong",
+        "reason": "Two usages identify the same item in the same representation: draughting model item associations pairing one callout both with a semantic item and with a second definition ('PMI representation to presentation link' or the toleranced shape aspect), or several geometric_item_specific_usages of one face in one representation (one per shape aspect, where PMI practice §5.1 asks for one shared shape aspect). UR1 is declared on item_identified_representation_usage, so it spans all usages. The file is wrong."
+      }
+    },
+    "nist_ftc_06_asme1_ap242-e2.stp": {
+      "datum_target.WR4": {
+        "count": 6,
+        "example": "#71 placed_datum_target_feature violates datum_target.WR4: name is 'Datum Target.5'; '' required",
+        "verdict": "file-wrong",
+        "reason": "The file names its datum targets (the example's name); datum_target WR4 requires shape_aspect.name = ''. The file is wrong."
+      },
+      "datum_target.WR5": {
+        "count": 6,
+        "example": "#71 placed_datum_target_feature violates datum_target.WR5: description 'circular curve'; none allowed",
+        "verdict": "file-wrong",
+        "reason": "The file describes its targets by their shape ('point', 'circular curve', 'rectangle', 'area'), as placed_datum_target_feature WR1 and PMI practice §6.6 require; datum_target WR5 (NOT EXISTS(SELF\\shape_aspect.description)) forbids any description. The two rules of the schema conflict for placed targets; checked as written, the file violates WR5."
+      },
+      "item_identified_representation_usage.UR1": {
+        "count": 345,
+        "example": "#420 draughting_model_item_association violates item_identified_representation_usage.UR1: shares used_representation #2018 and identified_item #1951 with #487",
+        "verdict": "file-wrong",
+        "reason": "Two usages identify the same item in the same representation: draughting model item associations pairing one callout both with a semantic item and with a second definition ('PMI representation to presentation link' or the toleranced shape aspect), or several geometric_item_specific_usages of one face in one representation (one per shape aspect, where PMI practice §5.1 asks for one shared shape aspect). UR1 is declared on item_identified_representation_usage, so it spans all usages. The file is wrong."
+      }
+    },
+    "nist_ftc_07_asme1_ap242-e2.stp": {
+      "datum_system.UR1": {
+        "count": 5,
+        "example": "#13915 datum_system violates datum_system.UR1: shares name '' on #15 with #13982, #14023, #14216, #14707",
+        "verdict": "file-wrong",
+        "reason": "Several datum systems of one product_definition_shape share the name ''; datum_system UR1 makes (of_shape, name) unique, so each system needs a name of its own. The file is wrong (and the writer must name each system)."
+      },
+      "item_identified_representation_usage.UR1": {
+        "count": 117,
+        "example": "#13714 draughting_model_item_association violates item_identified_representation_usage.UR1: shares used_representation #13679 and identified_item #13706 with #13724",
+        "verdict": "file-wrong",
+        "reason": "Two usages identify the same item in the same representation: draughting model item associations pairing one callout both with a semantic item and with a second definition ('PMI representation to presentation link' or the toleranced shape aspect), or several geometric_item_specific_usages of one face in one representation (one per shape aspect, where PMI practice §5.1 asks for one shared shape aspect). UR1 is declared on item_identified_representation_usage, so it spans all usages. The file is wrong."
+      },
+      "item_identified_representation_usage.UR2": {
+        "count": 53,
+        "example": "#13714 draughting_model_item_association violates item_identified_representation_usage.UR2: shares used_representation #13679 and definition #13681 with #13724, #13977, #16363",
+        "verdict": "file-wrong",
+        "reason": "One definition is used twice in the same representation: several callouts presenting one PMI item in one draughting model, or several geometric_item_specific_usages of one shape aspect in one representation (PMI practice §5.1 combines several items in one usage of a set_representation_item). UR2 allows one usage per (used_representation, definition). The file is wrong."
+      }
+    },
+    "nist_ftc_08_asme1_ap242-e2.stp": {
+      "datum.WR4": {
+        "count": 4,
+        "example": "#433 datum violates datum.WR4: name is 'Datum Feature Symbol B (54)'; '' required",
+        "verdict": "file-wrong",
+        "reason": "The file names its datums (the example's name); datum WR4 requires shape_aspect.name = '' (the letter is datum.identification). Checked against the schema text; the file is wrong."
+      },
+      "datum_system.UR1": {
+        "count": 9,
+        "example": "#462 datum_system violates datum_system.UR1: shares name '' on #10072 with #463, #464, #465, #466, #467, #468, #469, #470",
+        "verdict": "file-wrong",
+        "reason": "Several datum systems of one product_definition_shape share the name ''; datum_system UR1 makes (of_shape, name) unique, so each system needs a name of its own. The file is wrong (and the writer must name each system)."
+      },
+      "item_identified_representation_usage.UR1": {
+        "count": 118,
+        "example": "#649 draughting_model_item_association violates item_identified_representation_usage.UR1: shares used_representation #1088 and identified_item #1231 with #650",
+        "verdict": "file-wrong",
+        "reason": "Two usages identify the same item in the same representation: draughting model item associations pairing one callout both with a semantic item and with a second definition ('PMI representation to presentation link' or the toleranced shape aspect), or several geometric_item_specific_usages of one face in one representation (one per shape aspect, where PMI practice §5.1 asks for one shared shape aspect). UR1 is declared on item_identified_representation_usage, so it spans all usages. The file is wrong."
+      },
+      "item_identified_representation_usage.UR2": {
+        "count": 33,
+        "example": "#649 draughting_model_item_association violates item_identified_representation_usage.UR2: shares used_representation #1088 and definition #980 with #651, #658",
+        "verdict": "file-wrong",
+        "reason": "One definition is used twice in the same representation: several callouts presenting one PMI item in one draughting model, or several geometric_item_specific_usages of one shape aspect in one representation (PMI practice §5.1 combines several items in one usage of a set_representation_item). UR2 allows one usage per (used_representation, definition). The file is wrong."
+      },
+      "item_identified_representation_usage.WR1": {
+        "count": 2,
+        "example": "#777 geometric_item_specific_usage violates item_identified_representation_usage.WR1: identified items [#1705] are not in #1711",
+        "verdict": "file-wrong",
+        "reason": "The usage names a representation that does not contain its item (valid_identified_item_in_representation, through using_representations): a face of the B-rep with another SHAPE_REPRESENTATION (stc_07 #22), wireframe TRIMMED_CURVEs of a GEOMETRIC_CURVE_SET with the ADVANCED_BREP_SHAPE_REPRESENTATION (ftc_08, ftc_09, stc_10), tessellated faces with the top-level SHAPE_REPRESENTATION (ftc_08 e4-tg), a SET_REPRESENTATION_ITEM of a MAPPED_ITEM and B-rep faces with 'Positions of Holes', which lists only the mapped item's placement (stc_09). Each example was checked in the file text. The file is wrong."
+      }
+    },
+    "nist_ftc_08_asme1_ap242-e4-tg.stp": {
+      "item_identified_representation_usage.UR1": {
+        "count": 197,
+        "example": "#55931 draughting_model_item_association violates item_identified_representation_usage.UR1: shares used_representation #25280 and identified_item #27611 with #55951",
+        "verdict": "file-wrong",
+        "reason": "Two usages identify the same item in the same representation: draughting model item associations pairing one callout both with a semantic item and with a second definition ('PMI representation to presentation link' or the toleranced shape aspect), or several geometric_item_specific_usages of one face in one representation (one per shape aspect, where PMI practice §5.1 asks for one shared shape aspect). UR1 is declared on item_identified_representation_usage, so it spans all usages. The file is wrong."
+      },
+      "item_identified_representation_usage.UR2": {
+        "count": 133,
+        "example": "#55876 draughting_model_item_association violates item_identified_representation_usage.UR2: shares used_representation #25280 and definition #55861 with #55881, #55886",
+        "verdict": "file-wrong",
+        "reason": "One definition is used twice in the same representation: several callouts presenting one PMI item in one draughting model, or several geometric_item_specific_usages of one shape aspect in one representation (PMI practice §5.1 combines several items in one usage of a set_representation_item). UR2 allows one usage per (used_representation, definition). The file is wrong."
+      },
+      "item_identified_representation_usage.WR1": {
+        "count": 126,
+        "example": "#55871 geometric_item_specific_usage violates item_identified_representation_usage.WR1: identified items [#7581] are not in #101",
+        "verdict": "file-wrong",
+        "reason": "The usage names a representation that does not contain its item (valid_identified_item_in_representation, through using_representations): a face of the B-rep with another SHAPE_REPRESENTATION (stc_07 #22), wireframe TRIMMED_CURVEs of a GEOMETRIC_CURVE_SET with the ADVANCED_BREP_SHAPE_REPRESENTATION (ftc_08, ftc_09, stc_10), tessellated faces with the top-level SHAPE_REPRESENTATION (ftc_08 e4-tg), a SET_REPRESENTATION_ITEM of a MAPPED_ITEM and B-rep faces with 'Positions of Holes', which lists only the mapped item's placement (stc_09). Each example was checked in the file text. The file is wrong."
+      }
+    },
+    "nist_ftc_09_asme1_ap242-e1.stp": {
+      "datum.WR4": {
+        "count": 8,
+        "example": "#8180 datum violates datum.WR4: name is 'Simple Datum.1'; '' required",
+        "verdict": "file-wrong",
+        "reason": "The file names its datums (the example's name); datum WR4 requires shape_aspect.name = '' (the letter is datum.identification). Checked against the schema text; the file is wrong."
+      },
+      "datum_system.UR1": {
+        "count": 8,
+        "example": "#9732 datum_system violates datum_system.UR1: shares name '' on #6023 with #9770, #9813, #10105, #10272, #10340, #10612, #10658",
+        "verdict": "file-wrong",
+        "reason": "Several datum systems of one product_definition_shape share the name ''; datum_system UR1 makes (of_shape, name) unique, so each system needs a name of its own. The file is wrong (and the writer must name each system)."
+      },
+      "item_identified_representation_usage.UR1": {
+        "count": 172,
+        "example": "#8183 geometric_item_specific_usage violates item_identified_representation_usage.UR1: shares used_representation #6016 and identified_item #5088 with #8184",
+        "verdict": "file-wrong",
+        "reason": "Two usages identify the same item in the same representation: draughting model item associations pairing one callout both with a semantic item and with a second definition ('PMI representation to presentation link' or the toleranced shape aspect), or several geometric_item_specific_usages of one face in one representation (one per shape aspect, where PMI practice §5.1 asks for one shared shape aspect). UR1 is declared on item_identified_representation_usage, so it spans all usages. The file is wrong."
+      },
+      "item_identified_representation_usage.UR2": {
+        "count": 65,
+        "example": "#8213 geometric_item_specific_usage violates item_identified_representation_usage.UR2: shares used_representation #6016 and definition #8206 with #8218",
+        "verdict": "file-wrong",
+        "reason": "One definition is used twice in the same representation: several callouts presenting one PMI item in one draughting model, or several geometric_item_specific_usages of one shape aspect in one representation (PMI practice §5.1 combines several items in one usage of a set_representation_item). UR2 allows one usage per (used_representation, definition). The file is wrong."
+      },
+      "item_identified_representation_usage.WR1": {
+        "count": 1,
+        "example": "#8883 geometric_item_specific_usage violates item_identified_representation_usage.WR1: identified items [#6725] are not in #6016",
+        "verdict": "file-wrong",
+        "reason": "The usage names a representation that does not contain its item (valid_identified_item_in_representation, through using_representations): a face of the B-rep with another SHAPE_REPRESENTATION (stc_07 #22), wireframe TRIMMED_CURVEs of a GEOMETRIC_CURVE_SET with the ADVANCED_BREP_SHAPE_REPRESENTATION (ftc_08, ftc_09, stc_10), tessellated faces with the top-level SHAPE_REPRESENTATION (ftc_08 e4-tg), a SET_REPRESENTATION_ITEM of a MAPPED_ITEM and B-rep faces with 'Positions of Holes', which lists only the mapped item's placement (stc_09). Each example was checked in the file text. The file is wrong."
+      }
+    },
+    "nist_ftc_10_asme1_ap242-e2.stp": {
+      "datum_system.UR1": {
+        "count": 12,
+        "example": "#18509 datum_system violates datum_system.UR1: shares name '' on #12 with #18544, #18566, #18871, #18936, #19101, #19123, #19246, #19370, #19578, #19615, #19652",
+        "verdict": "file-wrong",
+        "reason": "Several datum systems of one product_definition_shape share the name ''; datum_system UR1 makes (of_shape, name) unique, so each system needs a name of its own. The file is wrong (and the writer must name each system)."
+      },
+      "datum_target.WR4": {
+        "count": 4,
+        "example": "#18373 datum_target violates datum_target.WR4: name is 'K'; '' required",
+        "verdict": "file-wrong",
+        "reason": "The file names its datum targets (the example's name); datum_target WR4 requires shape_aspect.name = ''. The file is wrong."
+      },
+      "datum_target.WR5": {
+        "count": 4,
+        "example": "#18373 datum_target violates datum_target.WR5: description 'area'; none allowed",
+        "verdict": "file-wrong",
+        "reason": "The file describes its targets by their shape ('point', 'circular curve', 'rectangle', 'area'), as placed_datum_target_feature WR1 and PMI practice §6.6 require; datum_target WR5 (NOT EXISTS(SELF\\shape_aspect.description)) forbids any description. The two rules of the schema conflict for placed targets; checked as written, the file violates WR5."
+      },
+      "item_identified_representation_usage.UR1": {
+        "count": 190,
+        "example": "#18106 draughting_model_item_association violates item_identified_representation_usage.UR1: shares used_representation #18088 and identified_item #18098 with #18107",
+        "verdict": "file-wrong",
+        "reason": "Two usages identify the same item in the same representation: draughting model item associations pairing one callout both with a semantic item and with a second definition ('PMI representation to presentation link' or the toleranced shape aspect), or several geometric_item_specific_usages of one face in one representation (one per shape aspect, where PMI practice §5.1 asks for one shared shape aspect). UR1 is declared on item_identified_representation_usage, so it spans all usages. The file is wrong."
+      },
+      "item_identified_representation_usage.UR2": {
+        "count": 98,
+        "example": "#18106 draughting_model_item_association violates item_identified_representation_usage.UR2: shares used_representation #18088 and definition #18090 with #18107, #18541",
+        "verdict": "file-wrong",
+        "reason": "One definition is used twice in the same representation: several callouts presenting one PMI item in one draughting model, or several geometric_item_specific_usages of one shape aspect in one representation (PMI practice §5.1 combines several items in one usage of a set_representation_item). UR2 allows one usage per (used_representation, definition). The file is wrong."
+      }
+    },
+    "nist_ftc_11_asme1_ap242-e3.stp": {
+      "item_identified_representation_usage.UR1": {
+        "count": 32,
+        "example": "#238 draughting_model_item_association violates item_identified_representation_usage.UR1: shares used_representation #292 and identified_item #353 with #239",
+        "verdict": "file-wrong",
+        "reason": "Two usages identify the same item in the same representation: draughting model item associations pairing one callout both with a semantic item and with a second definition ('PMI representation to presentation link' or the toleranced shape aspect), or several geometric_item_specific_usages of one face in one representation (one per shape aspect, where PMI practice §5.1 asks for one shared shape aspect). UR1 is declared on item_identified_representation_usage, so it spans all usages. The file is wrong."
+      },
+      "item_identified_representation_usage.UR2": {
+        "count": 7,
+        "example": "#240 draughting_model_item_association violates item_identified_representation_usage.UR2: shares used_representation #292 and definition #282 with #245, #257",
+        "verdict": "file-wrong",
+        "reason": "One definition is used twice in the same representation: several callouts presenting one PMI item in one draughting model, or several geometric_item_specific_usages of one shape aspect in one representation (PMI practice §5.1 combines several items in one usage of a set_representation_item). UR2 allows one usage per (used_representation, definition). The file is wrong."
+      }
+    },
+    "nist_stc_06_asme1_ap242-e3.stp": {
+      "datum_system.UR1": {
+        "count": 9,
+        "example": "#9759 datum_system violates datum_system.UR1: shares name '' on #12 with #9771, #9935, #10066, #10244, #10305, #10734, #10957, #11133",
+        "verdict": "file-wrong",
+        "reason": "Several datum systems of one product_definition_shape share the name ''; datum_system UR1 makes (of_shape, name) unique, so each system needs a name of its own. The file is wrong (and the writer must name each system)."
+      },
+      "item_identified_representation_usage.UR1": {
+        "count": 180,
+        "example": "#8217 draughting_model_item_association_with_placeholder violates item_identified_representation_usage.UR1: shares used_representation #8178 and identified_item #8209 with #8247",
+        "verdict": "file-wrong",
+        "reason": "Two usages identify the same item in the same representation: draughting model item associations pairing one callout both with a semantic item and with a second definition ('PMI representation to presentation link' or the toleranced shape aspect), or several geometric_item_specific_usages of one face in one representation (one per shape aspect, where PMI practice §5.1 asks for one shared shape aspect). UR1 is declared on item_identified_representation_usage, so it spans all usages. The file is wrong."
+      },
+      "item_identified_representation_usage.UR2": {
+        "count": 180,
+        "example": "#8217 draughting_model_item_association_with_placeholder violates item_identified_representation_usage.UR2: shares used_representation #8178 and definition #8180 with #8236, #8246, #8247, #10125, #10126, #10180, #10181",
+        "verdict": "file-wrong",
+        "reason": "One definition is used twice in the same representation: several callouts presenting one PMI item in one draughting model, or several geometric_item_specific_usages of one shape aspect in one representation (PMI practice §5.1 combines several items in one usage of a set_representation_item). UR2 allows one usage per (used_representation, definition). The file is wrong."
+      }
+    },
+    "nist_stc_07_asme1_ap242-e3.stp": {
+      "datum.WR4": {
+        "count": 5,
+        "example": "#14513 datum violates datum.WR4: name is 'Datum Feature.1'; '' required",
+        "verdict": "file-wrong",
+        "reason": "The file names its datums (the example's name); datum WR4 requires shape_aspect.name = '' (the letter is datum.identification). Checked against the schema text; the file is wrong."
+      },
+      "item_identified_representation_usage.UR1": {
+        "count": 529,
+        "example": "#11285 geometric_item_specific_usage violates item_identified_representation_usage.UR1: shares used_representation #22 and identified_item #7838 with #11346, #11394, #11567, #11761, #12269, #14041",
+        "verdict": "file-wrong",
+        "reason": "Two usages identify the same item in the same representation: draughting model item associations pairing one callout both with a semantic item and with a second definition ('PMI representation to presentation link' or the toleranced shape aspect), or several geometric_item_specific_usages of one face in one representation (one per shape aspect, where PMI practice §5.1 asks for one shared shape aspect). UR1 is declared on item_identified_representation_usage, so it spans all usages. The file is wrong."
+      },
+      "item_identified_representation_usage.UR2": {
+        "count": 48,
+        "example": "#14528 draughting_model_item_association_with_placeholder violates item_identified_representation_usage.UR2: shares used_representation #11142 and definition #14513 with #17428",
+        "verdict": "file-wrong",
+        "reason": "One definition is used twice in the same representation: several callouts presenting one PMI item in one draughting model, or several geometric_item_specific_usages of one shape aspect in one representation (PMI practice §5.1 combines several items in one usage of a set_representation_item). UR2 allows one usage per (used_representation, definition). The file is wrong."
+      },
+      "item_identified_representation_usage.WR1": {
+        "count": 330,
+        "example": "#11285 geometric_item_specific_usage violates item_identified_representation_usage.WR1: identified items [#7838] are not in #22",
+        "verdict": "file-wrong",
+        "reason": "The usage names a representation that does not contain its item (valid_identified_item_in_representation, through using_representations): a face of the B-rep with another SHAPE_REPRESENTATION (stc_07 #22), wireframe TRIMMED_CURVEs of a GEOMETRIC_CURVE_SET with the ADVANCED_BREP_SHAPE_REPRESENTATION (ftc_08, ftc_09, stc_10), tessellated faces with the top-level SHAPE_REPRESENTATION (ftc_08 e4-tg), a SET_REPRESENTATION_ITEM of a MAPPED_ITEM and B-rep faces with 'Positions of Holes', which lists only the mapped item's placement (stc_09). Each example was checked in the file text. The file is wrong."
+      }
+    },
+    "nist_stc_08_asme1_ap242-e3.stp": {
+      "item_identified_representation_usage.UR1": {
+        "count": 219,
+        "example": "#586 draughting_model_item_association violates item_identified_representation_usage.UR1: shares used_representation #1626 and identified_item #1582 with #630",
+        "verdict": "file-wrong",
+        "reason": "Two usages identify the same item in the same representation: draughting model item associations pairing one callout both with a semantic item and with a second definition ('PMI representation to presentation link' or the toleranced shape aspect), or several geometric_item_specific_usages of one face in one representation (one per shape aspect, where PMI practice §5.1 asks for one shared shape aspect). UR1 is declared on item_identified_representation_usage, so it spans all usages. The file is wrong."
+      }
+    },
+    "nist_stc_09_asme1_ap242-e4.stp": {
+      "datum_system.UR1": {
+        "count": 8,
+        "example": "#8943 datum_system violates datum_system.UR1: shares name '' on #15 with #8966, #9004, #9228, #9327, #9353, #9396, #9437",
+        "verdict": "file-wrong",
+        "reason": "Several datum systems of one product_definition_shape share the name ''; datum_system UR1 makes (of_shape, name) unique, so each system needs a name of its own. The file is wrong (and the writer must name each system)."
+      },
+      "item_identified_representation_usage.UR1": {
+        "count": 114,
+        "example": "#8742 draughting_model_item_association violates item_identified_representation_usage.UR1: shares used_representation #8719 and identified_item #8734 with #8743",
+        "verdict": "file-wrong",
+        "reason": "Two usages identify the same item in the same representation: draughting model item associations pairing one callout both with a semantic item and with a second definition ('PMI representation to presentation link' or the toleranced shape aspect), or several geometric_item_specific_usages of one face in one representation (one per shape aspect, where PMI practice §5.1 asks for one shared shape aspect). UR1 is declared on item_identified_representation_usage, so it spans all usages. The file is wrong."
+      },
+      "item_identified_representation_usage.UR2": {
+        "count": 57,
+        "example": "#8742 draughting_model_item_association violates item_identified_representation_usage.UR2: shares used_representation #8719 and definition #8721 with #8743, #8940",
+        "verdict": "file-wrong",
+        "reason": "One definition is used twice in the same representation: several callouts presenting one PMI item in one draughting model, or several geometric_item_specific_usages of one shape aspect in one representation (PMI practice §5.1 combines several items in one usage of a set_representation_item). UR2 allows one usage per (used_representation, definition). The file is wrong."
+      },
+      "item_identified_representation_usage.WR1": {
+        "count": 25,
+        "example": "#8376 item_identified_representation_usage violates item_identified_representation_usage.WR1: identified items [#8375, #2126, #2150] are not in #8368",
+        "verdict": "file-wrong",
+        "reason": "The usage names a representation that does not contain its item (valid_identified_item_in_representation, through using_representations): a face of the B-rep with another SHAPE_REPRESENTATION (stc_07 #22), wireframe TRIMMED_CURVEs of a GEOMETRIC_CURVE_SET with the ADVANCED_BREP_SHAPE_REPRESENTATION (ftc_08, ftc_09, stc_10), tessellated faces with the top-level SHAPE_REPRESENTATION (ftc_08 e4-tg), a SET_REPRESENTATION_ITEM of a MAPPED_ITEM and B-rep faces with 'Positions of Holes', which lists only the mapped item's placement (stc_09). Each example was checked in the file text. The file is wrong."
+      }
+    },
+    "nist_stc_10_asme1_ap242-e2.stp": {
+      "datum_system.UR1": {
+        "count": 12,
+        "example": "#528 datum_system violates datum_system.UR1: shares name '' on #12073 with #529, #530, #531, #532, #533, #534, #535, #536, #537, #538, #539",
+        "verdict": "file-wrong",
+        "reason": "Several datum systems of one product_definition_shape share the name ''; datum_system UR1 makes (of_shape, name) unique, so each system needs a name of its own. The file is wrong (and the writer must name each system)."
+      },
+      "item_identified_representation_usage.UR1": {
+        "count": 141,
+        "example": "#954 draughting_model_item_association_with_placeholder violates item_identified_representation_usage.UR1: shares used_representation #1445 and identified_item #1555 with #1247",
+        "verdict": "file-wrong",
+        "reason": "Two usages identify the same item in the same representation: draughting model item associations pairing one callout both with a semantic item and with a second definition ('PMI representation to presentation link' or the toleranced shape aspect), or several geometric_item_specific_usages of one face in one representation (one per shape aspect, where PMI practice §5.1 asks for one shared shape aspect). UR1 is declared on item_identified_representation_usage, so it spans all usages. The file is wrong."
+      },
+      "item_identified_representation_usage.UR2": {
+        "count": 19,
+        "example": "#1252 draughting_model_item_association violates item_identified_representation_usage.UR2: shares used_representation #1445 and definition #2856 with #1260, #1261",
+        "verdict": "file-wrong",
+        "reason": "One definition is used twice in the same representation: several callouts presenting one PMI item in one draughting model, or several geometric_item_specific_usages of one shape aspect in one representation (PMI practice §5.1 combines several items in one usage of a set_representation_item). UR2 allows one usage per (used_representation, definition). The file is wrong."
+      },
+      "item_identified_representation_usage.WR1": {
+        "count": 14,
+        "example": "#2753 geometric_item_specific_usage violates item_identified_representation_usage.WR1: identified items [#2209] are not in #3044",
+        "verdict": "file-wrong",
+        "reason": "The usage names a representation that does not contain its item (valid_identified_item_in_representation, through using_representations): a face of the B-rep with another SHAPE_REPRESENTATION (stc_07 #22), wireframe TRIMMED_CURVEs of a GEOMETRIC_CURVE_SET with the ADVANCED_BREP_SHAPE_REPRESENTATION (ftc_08, ftc_09, stc_10), tessellated faces with the top-level SHAPE_REPRESENTATION (ftc_08 e4-tg), a SET_REPRESENTATION_ITEM of a MAPPED_ITEM and B-rep faces with 'Positions of Holes', which lists only the mapped item's placement (stc_09). Each example was checked in the file text. The file is wrong."
+      }
+    }
+  }
+}
