@@ -1,4 +1,4 @@
-"""Split the test suite into shards of about equal time, for CI (`.github/workflows/ci.yml`).
+"""Split the test suite into shards of about equal time, for CI (`.github/workflows/suite.yml`).
 
     python3 shards.py LIST TIMES PLATFORM K N
 
@@ -46,10 +46,11 @@ def times(log):
     platforms = {"ubuntu": "Linux", "macos": "macOS"}
     out = {p: {} for p in platforms.values()}
     passed = re.compile(
-        r"test \((\w+)-latest, \d+\)\t.*\s(?:PASS|FAIL)\s+\[\s*([\d.]+)s\]\s+\(\s*\d+/\d+\)\s+(\S+)\s+(\S+)\s*$"
+        r"(?:^|/ )test \((\w+)-latest, \d+\)\t.*\s(?:PASS|FAIL)\s+\[\s*([\d.]+)s\]\s+\(\s*\d+/\d+\)\s+(\S+)\s+(\S+)\s*$"
     )
     for line in log:
-        m = passed.match(re.sub(r"(\x1b|\^\[)\[[0-9;]*m", "", line))
+        # (A job's log lines start with its name, `linux / test (ubuntu-latest, 3)`.)
+        m = passed.search(re.sub(r"(\x1b|\^\[)\[[0-9;]*m", "", line))
         if m:
             out[platforms[m[1]]][f"{m[3]} {m[4]}"] = round(float(m[2]), 1)
     json.dump({p: dict(sorted(t.items())) for p, t in out.items()}, sys.stdout, indent=1)
