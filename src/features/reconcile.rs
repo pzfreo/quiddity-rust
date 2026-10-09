@@ -15,10 +15,10 @@
 //! own occurrence published. Python's module docstring explains why: pairing records with
 //! claims by position survived a permutation that handed every record another's faces.
 //!
-//! These are the decisions only. [`super::recognise`] does not apply them yet: its families
-//! stay independent, and [`reconcile`] says which of their records Python's aggregate would
-//! reject or relate. Python's `ReconciliationResult.complete` gives every undecided candidate a
-//! default acceptance; that is left out here, as is any decision on a family no rule reads.
+//! [`reconcile`] makes the decisions; [`super::inventory`] makes them on one run's candidates and
+//! [`super::recognise`] applies them, dropping every rejected record (Python's `accepted_set`).
+//! Python's `ReconciliationResult.complete` gives every undecided candidate a default
+//! acceptance; that is left out here, as is any decision on a family no rule reads.
 
 use std::collections::BTreeSet;
 use std::fmt;
@@ -28,7 +28,7 @@ use serde::Serialize;
 use super::passage_compat::{PassageCompatibilityView, grouping_from_view};
 use super::passages::PassageError;
 use super::sections::V2;
-use super::{Context, Defining, Features, levels, pockets};
+use super::{Context, Defining, Features, Occurrence, levels, pockets};
 
 /// A disposition's outcome (`Outcome`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
@@ -173,7 +173,7 @@ impl Family {
 
     /// The [`Features`] field (and [`super::Defining`] key) holding the family's records;
     /// Python's passages are the port's section passages. Risers are not in [`Features`].
-    fn field(self) -> Option<&'static str> {
+    pub(crate) fn field(self) -> Option<&'static str> {
         match self {
             Family::Passages => Some("section_passages"),
             Family::Risers => None,
@@ -235,9 +235,17 @@ pub struct Evidence {
 impl Evidence {
     /// The run's evidence on *ctx*'s part, or Python's refusal of its passages.
     pub fn discover(ctx: &Context<'_>) -> Result<Evidence, ReconcileError> {
+        Self::with_pockets(ctx, &pockets::discover(ctx))
+    }
+
+    /// [`Evidence::discover`], given the run's pocket occurrences.
+    pub fn with_pockets(
+        ctx: &Context<'_>,
+        pockets: &[Occurrence<pockets::Pocket>],
+    ) -> Result<Evidence, ReconcileError> {
         Ok(Evidence {
-            pocket_constituent: pockets::discover(ctx)
-                .into_iter()
+            pocket_constituent: pockets
+                .iter()
                 .map(|o| {
                     let mut faces: Vec<usize> =
                         o.defining.iter().chain(&o.context).copied().collect();

@@ -18,10 +18,10 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use quiddity::correspondence::{self, Recognition};
-use quiddity::features::{self, Features};
-use quiddity::framed_records::{Rigid, map_features};
-use quiddity::frames::{PartFrame, RecordFrame};
-use quiddity::kernel::step::{IDENTITY, Placement};
+use quiddity::features::{self, Features, reconcile};
+use quiddity::framed_records::{self, Rigid, map_features};
+use quiddity::frames::{self, PartFrame, RecordFrame};
+use quiddity::kernel::step::{IDENTITY, Placement, read_step_file_placed};
 use quiddity::recognition::{
     self, RECORD_TYPES, RecognitionDocument, SCHEMA_VERSION, families, record_types,
 };
@@ -179,13 +179,21 @@ fn fields_without_a_file_axis_are_labelled() {
         assert_eq!(r.local, ["axis"], "{}", r.id);
     }
     // A blend along a fillet runs along the fillet's frame axis, in file coordinates.
+    // Reconciliation rejects each blend for its fillet, so they are the working part's
+    // candidates, carried into the file's coordinates as the default carries its records.
     let letter = fillets[0].parameters["axis"].as_str().unwrap();
     let axis = match letter {
         "x" => frame.x,
         "y" => frame.y,
         _ => frame.z,
     };
-    let blends = &recognition.features.blends;
+    let path = fixture("nonprincipal_37.step");
+    let read = |p: &Placement| read_step_file_placed(&path, p);
+    let part = read(&IDENTITY).unwrap();
+    let working = frames::working_part(&read, &IDENTITY, &part, &frame).unwrap();
+    let physical = features::inventory(&working).unwrap().physical;
+    assert!(recognition.features.blends.is_empty());
+    let blends = framed_records::to_file(physical, &frame).features.blends;
     assert!(blends.iter().any(|b| match &b.path {
         quiddity::BlendPath::Straight(s) =>
             (0..3).all(|i| (s.direction[i].abs() - axis[i].abs()).abs() < 1e-6),
@@ -815,3 +823,218 @@ sliced!(
         5 => slice_5,
     ]
 );
+
+/// Corpus parts on which reconciliation rejects candidates, between them by every rule that
+/// rejects a carried family and that the corpus reaches (`captured/reconcile/capture.json.gz`).
+const RECONCILED: [&str; 8] = [
+    "cadgenbench/flanged_spool_132.step",
+    "cadgenbench_inputs/cgb207.step",
+    "mfcadpp/1000.step",
+    "mfcadpp/10000.step",
+    "mfcadpp/10190.step",
+    "mfcadpp/10245.step",
+    "mfcadpp_holdout/467.step",
+    "nist/nist_ctc_03_asme1_rc.stp",
+];
+
+/// Whether *needle* is *v* or inside it.
+fn contains(v: &Value, needle: &Value) -> bool {
+    v == needle
+        || match v {
+            Value::Array(items) => items.iter().any(|x| contains(x, needle)),
+            Value::Object(fields) => fields.values().any(|x| contains(x, needle)),
+            _ => false,
+        }
+}
+
+fn sorted(faces: &[usize]) -> Vec<usize> {
+    let mut faces = faces.to_vec();
+    faces.sort_unstable();
+    faces
+}
+
+/// The `Features` field of a family a rule reads (none for risers, which are not carried).
+fn family_field(family: reconcile::Family) -> Option<&'static str> {
+    match family {
+        reconcile::Family::Risers => None,
+        reconcile::Family::Passages => Some("section_passages"),
+        other => Some(
+            RECORD_TYPES
+                .iter()
+                .map(|(f, _)| *f)
+                .find(|f| *f == other.value())
+                .expect("a carried family"),
+        ),
+    }
+}
+
+/// Each rejected candidate of a carried family: its field, its defining faces (ascending) and
+/// how many of the family's candidates have those faces.
+fn rejected(inventory: &features::Inventory) -> Vec<(&'static str, Vec<usize>, usize)> {
+    inventory
+        .dispositions
+        .iter()
+        .filter(|d| d.outcome == reconcile::Outcome::Rejected)
+        .filter_map(|d| {
+            let field = family_field(d.candidate.family)?;
+            let faces = d.candidate.defining.clone();
+            let same = inventory.physical.defining[field]
+                .iter()
+                .filter(|f| sorted(f) == faces)
+                .count();
+            Some((field, faces, same))
+        })
+        .collect()
+}
+
+/// A candidate reconciliation rejects is in neither `features::recognise`'s records nor the
+/// recognition document: on parts where each rejecting rule the corpus reaches fires, each
+/// rejected candidate's defining faces are held by as many fewer records of its family as were
+/// rejected with them (by none, unless an accepted candidate has the same faces), in both, and
+/// each family has exactly as many fewer records as it had rejected candidates.
+#[test]
+fn rejected_candidates_are_absent_from_recognition_and_the_document() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(
+            std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
+            "QUIDDITY_CORPUS_REQUIRED is set but the corpus was not found"
+        );
+        return;
+    };
+    let found = common::parallel::map(&RECONCILED, |file| {
+        let part = quiddity::read_step_file(&dir.join(file)).unwrap();
+        let inventory = features::inventory(&part).unwrap();
+        let rejected = rejected(&inventory);
+        let recognition = correspondence::recognise(&part);
+        let document = recognition::document(&recognition, part.faces.len());
+        let reasons: Vec<&str> = inventory
+            .dispositions
+            .iter()
+            .filter(|d| d.outcome == reconcile::Outcome::Rejected)
+            .map(|d| d.reason.value())
+            .collect();
+        let mut problems = Vec::new();
+        for (field, faces, same) in &rejected {
+            let lost = rejected
+                .iter()
+                .filter(|(f, g, _)| f == field && g == faces)
+                .count();
+            let kept = recognition.features.defining[field]
+                .iter()
+                .filter(|f| sorted(f) == *faces)
+                .count();
+            let in_document = document
+                .records
+                .iter()
+                .filter(|r| r.family == *field && r.faces == *faces)
+                .count();
+            if kept != same - lost || in_document != same - lost {
+                problems.push(format!(
+                    "{file}: rejected {field} {faces:?} is kept {kept} times and in the document \
+                     {in_document} times ({same} candidates, {lost} rejected)"
+                ));
+            }
+        }
+        for (field, candidates) in &inventory.physical.defining {
+            let lost = rejected.iter().filter(|(f, ..)| f == field).count();
+            let records = document
+                .records
+                .iter()
+                .filter(|r| r.family == *field)
+                .count();
+            if records != candidates.len() - lost {
+                problems.push(format!(
+                    "{file}: {field} has {records} records of {} candidates, {lost} rejected",
+                    candidates.len()
+                ));
+            }
+        }
+        (problems, reasons, rejected.len())
+    });
+    let mut problems = Vec::new();
+    let mut reasons: Vec<&str> = Vec::new();
+    for (file, (p, r, n)) in RECONCILED.iter().zip(found) {
+        assert!(n > 0, "{file}: reconciliation rejects nothing");
+        problems.extend(p);
+        reasons.extend(r);
+    }
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+    reasons.sort_unstable();
+    reasons.dedup();
+    // Every rejecting rule but those only the synthetic scenarios reach
+    // (`tests/reconcile.rs`).
+    let unreached = [
+        "bore.hole_superseded_by_double_d_bore",
+        "recess.pocket_superseded_by_edge_open_circular_pocket",
+        "recess.pocket_superseded_by_prismatic",
+        "recess.slot_superseded_by_prismatic",
+    ];
+    let mut want: Vec<&str> = reconcile::ReasonCode::ALL
+        .iter()
+        .filter(|r| r.spec().0 == reconcile::Outcome::Rejected)
+        .map(|r| r.value())
+        .filter(|r| !unreached.contains(r))
+        .collect();
+    want.sort_unstable();
+    assert_eq!(reasons, want);
+}
+
+/// Patterns are derived from accepted members only (`_derive_patterns`): rejecting a pocket of
+/// a pocket pattern, or a hole of a hole pattern, takes it out of every pattern. No corpus part
+/// has a pattern with a member reconciliation rejects, so a rejection is added to a real run's
+/// decisions.
+#[test]
+fn a_pattern_never_includes_a_rejected_member() {
+    for (name, field, patterns, family, reason, winner) in [
+        (
+            "golden_blind_pockets_and_pocket_patterns.step",
+            "pockets",
+            "pocket_patterns",
+            reconcile::Family::Pockets,
+            reconcile::ReasonCode::PocketSupersededByPassage,
+            reconcile::Family::Passages,
+        ),
+        (
+            "golden_bolt_circle_and_rectangular_grid.step",
+            "holes",
+            "hole_patterns",
+            reconcile::Family::Holes,
+            reconcile::ReasonCode::HoleSupersededByDoubleDBore,
+            reconcile::Family::DoubleDBores,
+        ),
+    ] {
+        let part = quiddity::read_step_file(&fixture(name)).unwrap();
+        let mut inventory = features::inventory(&part).unwrap();
+        let before = serde_json::to_value(inventory.clone().accepted()).unwrap();
+        let members = before[field].as_array().unwrap().clone();
+        // The first record that is a pattern's member, and one record.
+        let at = members
+            .iter()
+            .position(|m| contains(&before[patterns], m))
+            .unwrap_or_else(|| panic!("{name}: no {field} pattern"));
+        let member = members[at].clone();
+        assert_eq!(members.iter().filter(|m| **m == member).count(), 1);
+        inventory.dispositions.push(reconcile::Disposition {
+            candidate: reconcile::Candidate {
+                family,
+                index: at,
+                defining: sorted(&inventory.physical.defining[field][at]),
+            },
+            outcome: reconcile::Outcome::Rejected,
+            reason,
+            related: vec![reconcile::Candidate {
+                family: winner,
+                index: 0,
+                defining: Vec::new(),
+            }],
+        });
+        let after = inventory.accepted();
+        let json = serde_json::to_value(&after).unwrap();
+        assert_eq!(json[field].as_array().unwrap().len(), members.len() - 1);
+        assert_eq!(after.defining[field].len(), members.len() - 1);
+        assert!(
+            !contains(&json[patterns], &member),
+            "{name}: a {patterns} record still has the rejected member"
+        );
+    }
+}
