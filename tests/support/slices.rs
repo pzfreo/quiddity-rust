@@ -37,18 +37,21 @@ pub fn check_cover(files: &[String], n: usize) {
     let mut want = files.to_vec();
     all.sort();
     want.sort();
-    assert_eq!(all, want, "the slices are not the corpus");
+    assert_eq!(all, want, "the slices are not the files");
     want.dedup();
-    assert_eq!(want.len(), files.len(), "corpus.json lists a file twice");
+    assert_eq!(want.len(), files.len(), "a file is listed twice");
 }
 
 /// `sliced!(name, check, [0 => slice_0, 1 => slice_1, …])`: a module *name* with one test per
 /// slice, each calling `check(k, n)` (*n* being the number of slices listed), and
 /// `slices_cover_the_corpus`, which fails unless the slices listed are exactly `0..n` and together
 /// are the corpus (`super::corpus_files()`), each file once. The slice tests take turns (the
-/// module's doc).
+/// module's doc). `sliced!(name, check, files: f, [...])` slices `f()`'s files instead.
 macro_rules! sliced {
     ($name:ident, $check:path, [$($k:literal => $test:ident),* $(,)?]) => {
+        sliced!($name, $check, files: super::corpus_files, [$($k => $test),*]);
+    };
+    ($name:ident, $check:path, files: $files:path, [$($k:literal => $test:ident),* $(,)?]) => {
         mod $name {
             const SLICES: usize = [$($k),*].len();
             static TURN: std::sync::Mutex<()> = std::sync::Mutex::new(());
@@ -63,7 +66,7 @@ macro_rules! sliced {
             #[test]
             fn slices_cover_the_corpus() {
                 assert_eq!([$($k as usize),*], std::array::from_fn::<usize, SLICES, _>(|k| k));
-                super::slices::check_cover(&super::corpus_files(), SLICES);
+                super::slices::check_cover(&$files(), SLICES);
             }
         }
     };

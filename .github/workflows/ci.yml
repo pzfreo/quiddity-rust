@@ -38,14 +38,14 @@ jobs:
       # nextest does not run doc-tests.
       - run: cargo test --doc --workspace --release
 
-  # Shards per platform: about five minutes of tests each on Linux (14 + 5 test jobs
+  # Shards per platform: about four and a half minutes of tests each on Linux (15 + 5 test jobs
   # stay within a free account's 20 at a time); macOS runs at most five jobs at a time per
   # account, so it has five.
   linux:
     uses: ./.github/workflows/suite.yml
     with:
       os: ubuntu-latest
-      shards: "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]"
+      shards: "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
 
   macos:
     uses: ./.github/workflows/suite.yml

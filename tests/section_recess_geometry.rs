@@ -28,6 +28,9 @@
 //! run), within the two projections' displacement bounds (0.002 each).
 
 mod common;
+#[macro_use]
+#[path = "support/slices.rs"]
+mod slices;
 
 use std::cmp::Ordering;
 use std::collections::BTreeSet;
@@ -865,17 +868,41 @@ fn same_geometry(got: &Value, want: &Value) -> bool {
     })
 }
 
-#[test]
-fn candidates_do_not_depend_on_placement() {
-    require_corpus();
-    let captured = load_gz("calls.json.gz");
-    let runs: Vec<&Value> = captured["runs"]
+/// The runs where Python finds a candidate: those moved by [`candidates_do_not_depend_on_placement`].
+fn moved_runs(captured: &Value) -> Vec<&Value> {
+    captured["runs"]
         .as_array()
         .unwrap()
         .iter()
         .filter(|r| r["candidates"].as_array().is_some_and(|a| !a.is_empty()))
+        .collect()
+}
+
+/// The files of the moved runs, each once, in run order: what the invariance test is sliced by,
+/// so every run of a file (and every listed entry of it) is in one slice.
+fn moved_files() -> Vec<String> {
+    let mut files: Vec<String> = Vec::new();
+    for run in moved_runs(&load_gz("calls.json.gz")) {
+        let file = run["file"].as_str().unwrap();
+        if !files.iter().any(|f| f == file) {
+            files.push(file.to_string());
+        }
+    }
+    files
+}
+
+/// The candidates under every motion: one test per slice of the moved runs' files
+/// (`tests/support/slices.rs`).
+fn candidates_invariant(k: usize, n: usize) {
+    require_corpus();
+    let captured = load_gz("calls.json.gz");
+    let all = moved_runs(&captured);
+    assert!(!all.is_empty());
+    let mine = slices::slice(&moved_files(), k, n);
+    let runs: Vec<&Value> = all
+        .into_iter()
+        .filter(|r| mine.iter().any(|f| r["file"] == f.as_str()))
         .collect();
-    assert!(!runs.is_empty());
     // Every run's part unmoved and under every motion, all spread over every core at once (so a
     // costly part's readings run side by side); the candidates come back in run order, motion by
     // motion. A part the corpus does not have reads as `None`.
@@ -956,3 +983,10 @@ fn candidates_do_not_depend_on_placement() {
         .collect();
     check_known("invariance", found, &runs_ran(&runs));
 }
+
+sliced!(
+    candidates_do_not_depend_on_placement,
+    super::candidates_invariant,
+    files: super::moved_files,
+    [0 => slice_0, 1 => slice_1, 2 => slice_2, 3 => slice_3]
+);
