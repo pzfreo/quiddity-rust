@@ -81,6 +81,9 @@ pub use features::repeating_profiles::{
     RepeatingRadialProfile, RepeatingRadialProfileOptions, recognise_repeating_radial_profiles,
 };
 pub use features::round_bottom_slots::{RoundBottomBlindSlot, recognise_round_bottom_blind_slots};
+pub use features::section_recess_family::{
+    SectionRecessFamilyError, build_section_recess_document, recognise_section_recesses,
+};
 pub use features::sheet_metal::{SheetMetalBody, SheetMetalOptions, recognise_sheet_metal_bodies};
 pub use features::slots::{Slot, recognise_slots};
 pub use features::thin_walls::{ThinWallBody, recognise_thin_wall_bodies};
