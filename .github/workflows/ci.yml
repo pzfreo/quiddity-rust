@@ -60,11 +60,12 @@ jobs:
     needs: build
     strategy:
       fail-fast: false
-      # Shards per platform: about four minutes of tests each on Linux; macOS runs at most five
-      # jobs at a time per account, so it has five.
+      # Shards per platform: about five and a half minutes of tests each on Linux (14 + 5 test
+      # jobs stay within a free account's 20 at a time); macOS runs at most five jobs at a time
+      # per account, so it has five.
       matrix:
         os: [ubuntu-latest, macos-latest]
-        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
         exclude:
           - { os: macos-latest, shard: 6 }
           - { os: macos-latest, shard: 7 }
@@ -73,8 +74,10 @@ jobs:
           - { os: macos-latest, shard: 10 }
           - { os: macos-latest, shard: 11 }
           - { os: macos-latest, shard: 12 }
+          - { os: macos-latest, shard: 13 }
+          - { os: macos-latest, shard: 14 }
         include:
-          - { os: ubuntu-latest, shards: 12 }
+          - { os: ubuntu-latest, shards: 14 }
           - { os: macos-latest, shards: 5 }
     runs-on: ${{ matrix.os }}
     env:
