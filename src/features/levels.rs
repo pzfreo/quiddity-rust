@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use super::Context;
 use super::body::BodyKey;
+use super::evidence::{self, EvidenceError, Occurrence};
 use super::policy::{AXIS_ALIGNED_COS, AXIS_ZERO_COS, clears_threshold, cluster_coordinates};
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{Bounds, Surface};
@@ -21,6 +22,13 @@ const STEP_MIN_AREA_FRAC: f64 = 0.01;
 const STRUCTURAL_RAMP_MIN_FRAC: f64 = 0.1;
 /// A bounded riser must fill this fraction of its own footprint.
 const BOUNDED_RISER_AREA_FRAC: f64 = 0.5;
+/// The default end exclusion of a step level, absolute (`STEP_LADDER_BOUNDARY_MARGIN`, ADR
+/// 0006)...
+const STEP_LADDER_BOUNDARY_MARGIN: f64 = 0.6;
+/// ...but never more than this fraction of the span (`_END_MARGIN_MAX_FRAC`, ADR 0008).
+const END_MARGIN_MAX_FRAC: f64 = 0.25;
+/// The aggregate's riser area floor (`_discover_risers`' `min_area_frac`).
+const AGGREGATE_RISER_MIN_AREA_FRAC: f64 = 0.15;
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct FaceLevel {
@@ -122,6 +130,7 @@ struct Scope {
     faces: Vec<usize>,
     bounds: Bounds,
     key: Option<BodyKey>,
+    solid: Option<usize>,
 }
 
 fn scopes(ctx: &Context<'_>) -> Vec<Scope> {
@@ -131,6 +140,7 @@ fn scopes(ctx: &Context<'_>) -> Vec<Scope> {
             faces: (0..part.faces.len()).collect(),
             bounds: part.bounds(),
             key: None,
+            solid: None,
         }];
     }
     let keys = ctx.body_keys(true);
@@ -141,6 +151,7 @@ fn scopes(ctx: &Context<'_>) -> Vec<Scope> {
             faces: solid.faces.clone(),
             bounds: part.solid_bounds(s),
             key: keys[s].clone(),
+            solid: Some(s),
         })
         .collect()
 }
@@ -226,14 +237,113 @@ pub fn face_levels_with_faces(
     out
 }
 
-/// The scope's interior step levels: area-filtered, strictly inside its height by *tol*.
-fn body_levels(part: &Part, scope: &Scope, tol: f64) -> Vec<FaceLevel> {
+/// The scope's interior step levels with their faces: area-filtered, strictly inside its height
+/// by *margin*.
+fn interior_levels(part: &Part, scope: &Scope, margin: f64) -> Vec<(FaceLevel, Vec<usize>)> {
     let (lo, hi) = (scope.bounds.min[2], scope.bounds.max[2]);
     level_proposals(part, scope, TOL, STEP_MIN_AREA_FRAC)
         .into_iter()
-        .map(|(level, _)| level)
-        .filter(|level| lo + tol < level.z && level.z < hi - tol)
+        .filter(|(level, _)| lo + margin < level.z && level.z < hi - margin)
         .collect()
+}
+
+/// The scope's interior step levels: area-filtered, strictly inside its height by *tol*.
+fn body_levels(part: &Part, scope: &Scope, tol: f64) -> Vec<FaceLevel> {
+    interior_levels(part, scope, tol)
+        .into_iter()
+        .map(|(level, _)| level)
+        .collect()
+}
+
+/// The end exclusion for a span (`bounded_end_margin`): absolute, but never more than a quarter
+/// of it.
+pub fn bounded_end_margin(span: f64) -> f64 {
+    STEP_LADDER_BOUNDARY_MARGIN.min(span.max(0.0) * END_MARGIN_MAX_FRAC)
+}
+
+/// The scope's end exclusion: *tol*, or by default [`bounded_end_margin`] of its height.
+fn end_margin(scope: &Scope, tol: Option<f64>) -> f64 {
+    tol.unwrap_or_else(|| bounded_end_margin(scope.bounds.max[2] - scope.bounds.min[2]))
+}
+
+/// `step_level_records`: the area-filtered interior face levels of each body, strictly inside
+/// its height by *tol* (by default [`bounded_end_margin`] of that height).
+pub fn step_level_records(part: &Part, tol: Option<f64>) -> Vec<FaceLevel> {
+    let ctx = Context::new(part);
+    let mut out: Vec<FaceLevel> = scopes(&ctx)
+        .iter()
+        .flat_map(|scope| interior_levels(part, scope, end_margin(scope, tol)))
+        .map(|(level, _)| level)
+        .collect();
+    out.sort_by(|a, b| a.order(b));
+    out
+}
+
+/// The aggregate's step levels (`_discover_step_levels`), each defined by its body's horizontal
+/// faces at that level, as [`step_level_records`] gives them by default. Not proved: see
+/// [`proved`].
+pub fn discover_step_levels(ctx: &Context<'_>) -> Vec<Occurrence<FaceLevel>> {
+    let mut out: Vec<Occurrence<FaceLevel>> = scopes(ctx)
+        .iter()
+        .flat_map(|scope| interior_levels(ctx.part, scope, end_margin(scope, None)))
+        .map(|(record, defining)| Occurrence {
+            record,
+            defining,
+            context: Vec::new(),
+        })
+        .collect();
+    out.sort_by(|a, b| a.record.order(&b.record));
+    out
+}
+
+/// The aggregate's risers (`_discover_risers`: `min_area_frac` 0.15, the default tolerance),
+/// each defined by the faces it was read from and carrying, as its `body_levels`, the run's
+/// *levels* on its own body ([`discover_step_levels`], after any proof). Not proved: see
+/// [`proved`].
+pub fn discover_risers(
+    ctx: &Context<'_>,
+    levels: &[Occurrence<FaceLevel>],
+) -> Vec<Occurrence<RiserEvidence>> {
+    let part = ctx.part;
+    let body = |o: &Occurrence<FaceLevel>| o.defining.first().and_then(|&f| part.faces[f].solid);
+    let mut out: Vec<Occurrence<RiserEvidence>> = Vec::new();
+    for scope in scopes(ctx) {
+        let own: Vec<FaceLevel> = levels
+            .iter()
+            .filter(|o| body(o) == scope.solid)
+            .map(|o| o.record.clone())
+            .collect();
+        for (mut record, defining) in
+            riser_proposals(part, &scope, AGGREGATE_RISER_MIN_AREA_FRAC, TOL, vec![])
+        {
+            record.body_levels = own.clone();
+            out.push(Occurrence {
+                record,
+                defining,
+                context: Vec::new(),
+            });
+        }
+    }
+    out.sort_by(|a, b| a.record.order(&b.record));
+    out
+}
+
+/// The aggregate's proof of step levels or risers: strictly (`local_degradation` false) every
+/// occurrence's faces on one valid solid, or Python's refusal; under local degradation, those a
+/// locally degraded run proves ([`evidence::locally_valid_solid`]), the rest skipped as Python
+/// skips them.
+pub fn proved<R>(
+    part: &Part,
+    found: Vec<Occurrence<R>>,
+    local_degradation: bool,
+) -> Result<Vec<Occurrence<R>>, EvidenceError> {
+    if !local_degradation {
+        return evidence::verified(part, found);
+    }
+    Ok(found
+        .into_iter()
+        .filter(|o| evidence::locally_valid_solid(part, &o.defining).is_some())
+        .collect())
 }
 
 /// `recognise_risers`.
