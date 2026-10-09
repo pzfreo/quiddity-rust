@@ -347,7 +347,7 @@
     "key": "part 0 name",
     "count": 1,
     "verdict": "rust-correct",
-    "reason": "haecceity names the part by its product, PRODUCT.name ''. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+    "reason": "haecceity names the part by its product: PRODUCT.name is empty, so by its PRODUCT.id 'NIST PMI CTC 04 ASME1', as XCAF names the product's label. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
   },
   {
     "file": "corpus/nist/nist_ctc_04_asme1_rd.stp",
@@ -460,13 +460,6 @@
     "count": 33,
     "verdict": "undetermined",
     "reason": "33 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
-  },
-  {
-    "file": "corpus/nist/nist_ftc_08_asme1_rc.stp",
-    "key": "part 0 name",
-    "count": 1,
-    "verdict": "rust-correct",
-    "reason": "PRODUCT.name is empty in the file; haecceity reports it as written. OpenCascade substitutes the product's id ('NIST PMI FTC 08 ASME1', PRODUCT.id) for the missing name."
   },
   {
     "file": "corpus/nist/nist_ftc_09_asme1_rd.stp",
@@ -819,13 +812,6 @@
     "reason": "3 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
   },
   {
-    "file": "nist-pmi/nist_stc_06_asme1_ap242-e3.stp",
-    "key": "part 0 name",
-    "count": 1,
-    "verdict": "rust-correct",
-    "reason": "PRODUCT.name is empty in the file; haecceity reports it as written. OpenCascade substitutes the product's id ('nist_stc_06_asme1', PRODUCT.id) for the missing name."
-  },
-  {
     "file": "nist-pmi/nist_stc_07_asme1_ap242-e3.stp",
     "key": "part 0 edges OpenCascade made",
     "count": 16,
@@ -893,7 +879,7 @@
     "key": "part 0 name",
     "count": 1,
     "verdict": "rust-correct",
-    "reason": "haecceity names the part by its product, PRODUCT.name ''. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
+    "reason": "haecceity names the part by its product: PRODUCT.name is empty, so by its PRODUCT.id 'NIST PMI STC 08 ASME1', as XCAF names the product's label. OpenCascade's XCAF makes the product an assembly of its representation items and names the item's label after its shape type ('SOLID'), which specify-core reports as the part's name."
   },
   {
     "file": "nist-pmi/nist_stc_08_asme1_ap242-e3.stp",
@@ -922,13 +908,6 @@
     "count": 7,
     "verdict": "undetermined",
     "reason": "7 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
-  },
-  {
-    "file": "nist-pmi/nist_stc_09_asme1_ap242-e4.stp",
-    "key": "part 0 name",
-    "count": 1,
-    "verdict": "rust-correct",
-    "reason": "PRODUCT.name is empty in the file; haecceity reports it as written. OpenCascade substitutes the product's id ('NIST PMI FTC 09 ASME1', PRODUCT.id) for the missing name."
   },
   {
     "file": "nist-pmi/nist_stc_10_asme1_ap242-e2.stp",

@@ -388,7 +388,7 @@ never a silent fix):
    dropped ids and checks every face and edge against its record: entity type, bound count,
    surface type and sense, **and one geometric value** (the surface's location point, the edge
    vertices' coordinates) against step-io's typed geometry, refusing on any disagreement. Per
-   distinct part, `read_part_definitions` gives its `product_definition`, name, placements and
+   distinct part, `read_part_definitions` gives its `product_definition`, display name, placements and
    faces (and edges) in specify-core's numbering; this is the binding the PMI reader and writer
    resolve anchors through.
 4. **`pmi::read`** walks the `p21` records (step-io's typed model drops `thread`,
@@ -786,6 +786,47 @@ names (tested); add of a feature equal to one the part has writes a second shape
 which reads back as the same feature (leaving it out means renumbering every item that refers to
 features by index). The refuse-policy test counts presentation blockers by parsing the writer's
 refusal message on stderr, the only place a refused write reports them.
+
+**For specify-core-rust (2026-10-09): parts, names, read-back.** Its upstream needs U1, U7 and
+U9, in the library, so its stand-ins can go:
+
+- **U7** `pmi::verify(before: Snapshot, base: &Document, written: &[(PartId, PartPmi)], mode,
+  after: Snapshot) -> Verification` (`pmi/verify.rs`) is `quiddity pmi write`'s read-back check,
+  moved: `Verification.problems` lists each `Problem` (part count, a part's name or face or edge
+  count changed, a part not written that changed, add's lost, unexpected and missing items,
+  replace's differences and surviving consumed instances, new findings), whose `Display` is the
+  command's message. `base` is the document the edit was applied to (`before.doc` for the
+  command; a copy with some PMI already cleared for specify-core's U14 stand-in, whose removed ids
+  then do not count as survivors). In add, standards the part already states are left out of
+  `written` by the caller, as the command does. `tests/pmi_verify.rs`.
+- **U1** `step::read_part(bytes, &PartDefinition) -> Result<Part, StepError>`: the part's shape
+  where it is first placed, read with no placement applied (its own coordinates as its shape
+  representation states them, so nothing is inverted), faces in `PartDefinition.faces` order,
+  face and edge sources (`Source::instance` the whole file's instance number) and unresolved lists
+  kept; refused, naming the part, when its definition is not placed in the file or a face of the
+  definition is not read exactly once. `Part::with_sources` / `with_unresolved` stay `pub(super)`:
+  with `read_part` no caller outside haecceity rebuilds a part. `tests/step_parts.rs` checks, on
+  the assembly fixture (the pin placed twice, once turned) and the 7 committed NIST files, that
+  each placement in the whole file's read is the part moved: face by face, area to 1e-9 and
+  centroid to 1e-6 mm, sources and unresolved faces equal.
+- **U9** `PartDefinition.name` is the display name OpenCascade XCAF gives and specify-core
+  reports: escapes decoded (`p21::decode`), `PRODUCT.id` when `PRODUCT.name` is empty, and the
+  name of an assembly that holds the part as its only component (first in visiting order with a
+  name). `StepFile::read(bytes)` reads a file once: `parts` (as `read_part_definitions`, which
+  now calls it), `assemblies` (each `Assembly { product_definition, name, components:
+  [Component { occurrence, definition }] }`, components in file order, assemblies depth first
+  from the roots) and `part(i)`, the `Part` of `read_part` without parsing again. Checked against
+  XCAF (specify-core's `load.parts` and the labels' own names through OCP, OpenCascade 7.9) on
+  the assembly fixture, `wrapped.step` (made for this, a plate in an assembly named with Part 21
+  escapes: both 'Gehäuse Ø'), the corpus's 10 NIST files and NIST's AP242 set: every product
+  name agrees with XCAF's label for the product (FTC-08 and CTC-04: the id; NIST CTC-02 AP242
+  crashed OpenCascade in that check, so has the capture's result only). The one kind of
+  difference left is pinned in `known_face_sources.json`, verdict rust-correct: where XCAF makes
+  a NIST product an assembly of its representation items, specify-core names the part after the
+  item's label ('SOLID'); haecceity names it by its product. Three earlier pins (an empty name
+  reported as written) are gone. Since part names are in `pmi read`'s output and `pmi check`
+  holds a document to them, `pmi_json::READER` is now `haecceity-pmi-read/2` (of the committed
+  fixtures only NIST STC-06 and STC-09 read differently: their names, the id for an empty name).
 
 ## Out of scope for now
 

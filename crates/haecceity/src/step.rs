@@ -1194,7 +1194,7 @@ struct PlacedDefinition {
     /// The `#N` of the `product_definition_shape` its shape is represented through, or why
     /// there is not exactly one.
     shape: Result<u64, String>,
-    /// Its product's name.
+    /// Its product's name ([`product_name`]).
     name: String,
     placement: Placement,
 }
@@ -1221,14 +1221,56 @@ fn read_placed(bytes: &[u8], outer: &Placement) -> Result<Read, StepError> {
             "outer placement must be a proper rotation".into(),
         ));
     }
-    let (model, report) = step_io::read(bytes).map_err(|e| StepError::Parse(e.to_string()))?;
-    let graph = step_io::parser::parse_bytes(bytes).map_err(|e| StepError::Parse(e.to_string()))?;
-    refuse_dropped_shapes(&graph, &report)?;
-    let mut ids = FileIds::new(&graph, &model, &report);
+    build(&Parsed::new(bytes)?, Scope::Placed(*outer))
+}
+
+/// A STEP file parsed, its shapes checked complete, before any geometry is built.
+struct Parsed {
+    model: m::StepModel,
+    report: step_io::Report,
+    graph: step_io::parser::Graph,
+}
+
+impl Parsed {
+    fn new(bytes: &[u8]) -> Result<Parsed, StepError> {
+        let (model, report) = step_io::read(bytes).map_err(|e| StepError::Parse(e.to_string()))?;
+        let graph =
+            step_io::parser::parse_bytes(bytes).map_err(|e| StepError::Parse(e.to_string()))?;
+        refuse_dropped_shapes(&graph, &report)?;
+        Ok(Parsed {
+            model,
+            report,
+            graph,
+        })
+    }
+}
+
+/// Which shapes [`build`] reads, and where.
+#[derive(Clone, Copy)]
+enum Scope {
+    /// Every instance, the file's roots placed by this proper rigid motion.
+    Placed(Placement),
+    /// Only the instances of product definition `#N` where it is first placed, in its own
+    /// coordinates (as its shape representation states them, no placement applied).
+    Own(u64),
+}
+
+fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
+    let Parsed {
+        model,
+        report,
+        graph,
+    } = parsed;
+    let outer = match scope {
+        Scope::Placed(outer) => outer,
+        Scope::Own(_) => IDENTITY,
+    };
+    let outer = &outer;
+    let mut ids = FileIds::new(graph, model, report);
     let scene = model.scene();
     let units = scene.units();
     let mut reader = Reader {
-        model: &model,
+        model,
         to_mm: units.length.as_ref().map_or(1.0, |u| u.to_si * 1000.0),
         to_rad: units.angle.as_ref().map_or(1.0, |u| u.to_si),
         placement: IDENTITY,
@@ -1260,7 +1302,7 @@ fn read_placed(bytes: &[u8], outer: &Placement) -> Result<Read, StepError> {
     for (solid, placement, def) in instances {
         // The outer shell, then each void shell (whose faces face inward, hence the flip).
         let mut faces: Vec<(StepFace<'_>, bool)> = solid.faces().map(|f| (f, false)).collect();
-        let flips = void_orientations(&model, &solid);
+        let flips = void_orientations(model, &solid);
         for (void, flip) in solid.voids().into_iter().zip(flips) {
             faces.extend(void.into_iter().map(|f| (f, flip)));
         }
@@ -1268,10 +1310,10 @@ fn read_placed(bytes: &[u8], outer: &Placement) -> Result<Read, StepError> {
         instance_of.push(def);
     }
     let rg = model.ref_graph();
-    for index in reachable_surface_models(&model, &rg) {
+    for index in reachable_surface_models(model, &rg) {
         let sbsm = model.shell_based_surface_model_arena.get(index);
         // Placed like the assembly instances of the product that owns it, once per instance.
-        let owners = surface_model_owners(&model, &rg, index);
+        let owners = surface_model_owners(model, &rg, index);
         let mut placements: Vec<(Placement, Option<usize>)> = placed
             .iter()
             .enumerate()
@@ -1304,12 +1346,36 @@ fn read_placed(bytes: &[u8], outer: &Placement) -> Result<Read, StepError> {
         }
     }
 
+    // Own frame: only the shells of the definition's first placement are read, unplaced; every
+    // instance keeps the number the whole file's read gives it.
+    let own = match scope {
+        Scope::Placed(_) => None,
+        Scope::Own(definition) => {
+            let mut first = None;
+            for (index, (def, _)) in placed.iter().enumerate() {
+                if ids.id(def.key())? == definition {
+                    first = Some(index);
+                    break;
+                }
+            }
+            Some(first.ok_or_else(|| {
+                StepError::Unsupported(format!(
+                    "product definition #{definition} is not placed in the file"
+                ))
+            })?)
+        }
+    };
+
     let (mut out_faces, mut edges_out, mut solids) = (Vec::new(), Vec::new(), Vec::new());
     let (mut unresolved_faces, mut unresolved_edges) = (Vec::new(), Vec::new());
     let (mut face_sources, mut edge_sources, mut same_sense) = (Vec::new(), Vec::new(), Vec::new());
     let mut vertex_count = 0;
     for (is_solid, placement, faces, instance) in shells {
-        reader.placement = placement;
+        reader.placement = match own {
+            None => placement,
+            Some(own) if instance_of[instance] == Some(own) => IDENTITY,
+            Some(_) => continue,
+        };
         // Edges are shared within one placed shell only; another instance gets its own copies.
         let mut edge_index: HashMap<m::EntityKey, usize> = HashMap::new();
         let mut vertex_index: HashMap<m::EntityKey, usize> = HashMap::new();
@@ -1387,10 +1453,11 @@ fn read_placed(bytes: &[u8], outer: &Placement) -> Result<Read, StepError> {
     let placed = placed
         .into_iter()
         .map(|(def, placement)| {
+            let definition = ids.id(def.key())?;
             Ok(PlacedDefinition {
-                definition: ids.id(def.key())?,
+                definition,
                 shape: ids.definition_shape(&def, &rg),
-                name: def.product().map_or("", |p| p.name()).to_string(),
+                name: product_name(&graph.entities, definition),
                 placement,
             })
         })
@@ -1421,7 +1488,10 @@ pub struct PartDefinition {
     /// The `#N` of the `product_definition_shape` its shape is represented through, which the
     /// part's shape aspects name as `of_shape`.
     pub shape: u64,
-    /// Its product's name (`PRODUCT.name`).
+    /// Its display name, as OpenCascade's XCAF gives it and specify-core reports it: the name
+    /// of an assembly that holds the part as its only component (an exporter's wrapper round a
+    /// solid), else its product's name ([`product_name`]: `PRODUCT.name`, or `PRODUCT.id` when
+    /// the name is empty, escapes decoded).
     pub name: String,
     /// Face index → the `#N` of the `ADVANCED_FACE` (or `FACE_SURFACE`) it was read from.
     pub faces: Vec<u64>,
@@ -1454,18 +1524,205 @@ impl PartDefinition {
     }
 }
 
+/// A product definition that holds others: the relating side of one or more
+/// `next_assembly_usage_occurrence`s.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Assembly {
+    /// The `#N` of its `product_definition`.
+    pub product_definition: u64,
+    /// Its product's name ([`product_name`]).
+    pub name: String,
+    /// Its components, in file order (ascending `#N` of their occurrences).
+    pub components: Vec<Component>,
+}
+
+/// One component of an [`Assembly`].
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Component {
+    /// The `#N` of the `next_assembly_usage_occurrence` that places it.
+    pub occurrence: u64,
+    /// The `#N` of the `product_definition` it places.
+    pub definition: u64,
+}
+
+/// A STEP file read once: its distinct parts and its assemblies, and each part's [`Part`] in
+/// its own coordinates on demand ([`StepFile::part`]) without parsing the file again.
+pub struct StepFile {
+    parsed: Parsed,
+    /// The distinct parts, as [`read_part_definitions`] gives them.
+    pub parts: Vec<PartDefinition>,
+    /// The assemblies, depth first from the roots (the assemblies no occurrence places,
+    /// ascending `#N`), each where it is first met, as specify-core visits XCAF's assembly
+    /// labels.
+    pub assemblies: Vec<Assembly>,
+}
+
+impl StepFile {
+    /// Reads `bytes`; refused as [`read_part_definitions`] refuses.
+    pub fn read(bytes: &[u8]) -> Result<StepFile, StepError> {
+        let parsed = Parsed::new(bytes)?;
+        let assemblies = assemblies(&parsed.graph.entities);
+        let parts = part_definitions(build(&parsed, Scope::Placed(IDENTITY))?, &assemblies)?;
+        Ok(StepFile {
+            parsed,
+            parts,
+            assemblies,
+        })
+    }
+
+    /// Part *index* of [`StepFile::parts`] in its own coordinates, as [`read_part`] reads it.
+    /// Panics if there is no such part, as indexing does.
+    pub fn part(&self, index: usize) -> Result<Part, StepError> {
+        own_part(&self.parsed, &self.parts[index])
+    }
+}
+
+/// One distinct part of a file (*part*, from [`read_part_definitions`] of the same bytes) as a
+/// [`Part`] in its own coordinates: its shape where it is first placed, read with no placement
+/// applied, so a part placed several times, or placed away from the origin, is read once as its
+/// shape representation states it. Faces are in `part.faces` order and edges in the order its
+/// loops first use them; each face and edge keeps its source (`Source::instance` is the
+/// instance's number in the whole file's read, one of `part.placements[0].instances`) and the
+/// unresolved faces and edges are recorded as [`read_step`] records them. No placement is
+/// inverted, so none needs to be invertible. Refused, naming the part, when its product
+/// definition is not placed in the file or a face of *part* is not read exactly once.
+pub fn read_part(bytes: &[u8], part: &PartDefinition) -> Result<Part, StepError> {
+    own_part(&Parsed::new(bytes)?, part)
+}
+
+fn own_part(parsed: &Parsed, def: &PartDefinition) -> Result<Part, StepError> {
+    let refuse = |why: String| {
+        StepError::Unsupported(format!(
+            "part #{} ({}): {why}",
+            def.product_definition, def.name
+        ))
+    };
+    let part = build(parsed, Scope::Own(def.product_definition))
+        .map_err(|e| refuse(e.to_string()))?
+        .part;
+    let mut read: HashMap<u64, usize> = HashMap::new();
+    for f in 0..part.faces.len() {
+        if let Some(s) = part.face_source(f) {
+            *read.entry(s.entity).or_default() += 1;
+        }
+    }
+    for (index, entity) in def.faces.iter().enumerate() {
+        let n = read.get(entity).copied().unwrap_or(0);
+        if n != 1 {
+            return Err(refuse(format!(
+                "face {index} (#{entity}) is read {n} times, not once"
+            )));
+        }
+    }
+    let in_order = part.faces.len() == def.faces.len()
+        && (0..part.faces.len())
+            .all(|f| part.face_source(f).map(|s| s.entity) == Some(def.faces[f]));
+    if !in_order {
+        return Err(refuse(format!(
+            "its shape reads {} faces, not its {} in their order",
+            part.faces.len(),
+            def.faces.len()
+        )));
+    }
+    Ok(part)
+}
+
+/// A product definition's product name as OpenCascade's XCAF names its label:
+/// `PRODUCT_DEFINITION.formation` → `PRODUCT_DEFINITION_FORMATION.of_product` →
+/// `PRODUCT.name`, or `PRODUCT.id` when the name is empty (NIST FTC-08 and CTC-04 state their
+/// title as the id), escapes decoded ([`crate::p21::decode`]). A string whose escapes cannot be
+/// decoded is given as the file states it (a name is never refused for that); empty when the
+/// chain does not resolve.
+fn product_name(graph: &std::collections::BTreeMap<u64, RawEntity>, definition: u64) -> String {
+    let attribute = |id: u64, index: usize| match graph.get(&id)? {
+        RawEntity::Simple { attributes, .. } => attributes.get(index),
+        RawEntity::Complex { .. } => None,
+    };
+    let reference = |id: u64, index: usize| match attribute(id, index)? {
+        Attribute::EntityRef(r) => Some(*r),
+        _ => None,
+    };
+    let Some(product) = reference(definition, 2).and_then(|formation| reference(formation, 2))
+    else {
+        return String::new();
+    };
+    let text = |index: usize| match attribute(product, index) {
+        Some(Attribute::String(raw)) => crate::p21::decode(raw).unwrap_or_else(|_| raw.clone()),
+        _ => String::new(),
+    };
+    let name = text(1);
+    if name.is_empty() { text(0) } else { name }
+}
+
+/// The file's assemblies (see [`StepFile::assemblies`]).
+fn assemblies(graph: &std::collections::BTreeMap<u64, RawEntity>) -> Vec<Assembly> {
+    use std::collections::{BTreeMap, HashSet};
+    let reference = |a: Option<&Attribute>| match a {
+        Some(Attribute::EntityRef(n)) => Some(*n),
+        _ => None,
+    };
+    // Assembly → its components, in file order (the graph iterates ids ascending).
+    let mut components: BTreeMap<u64, Vec<Component>> = BTreeMap::new();
+    let mut placed = HashSet::new();
+    for (&occurrence, entity) in graph {
+        if let RawEntity::Simple {
+            name, attributes, ..
+        } = entity
+            && name == "NEXT_ASSEMBLY_USAGE_OCCURRENCE"
+            && let (Some(relating), Some(definition)) =
+                (reference(attributes.get(3)), reference(attributes.get(4)))
+        {
+            components.entry(relating).or_default().push(Component {
+                occurrence,
+                definition,
+            });
+            placed.insert(definition);
+        }
+    }
+    let mut out = Vec::new();
+    let mut seen = HashSet::new();
+    let mut stack: Vec<u64> = components
+        .keys()
+        .copied()
+        .filter(|k| !placed.contains(k))
+        .rev()
+        .collect();
+    while let Some(definition) = stack.pop() {
+        let Some(children) = components.get(&definition) else {
+            continue;
+        };
+        if !seen.insert(definition) {
+            continue;
+        }
+        stack.extend(children.iter().rev().map(|c| c.definition));
+        out.push(Assembly {
+            product_definition: definition,
+            name: product_name(graph, definition),
+            components: children.clone(),
+        });
+    }
+    out
+}
+
 /// The distinct parts of a STEP file, in specify-core's order (depth first through the assembly
 /// from its roots, each part where it is first placed; a part placed twice is one part with two
 /// placements), each with its faces and edges numbered as in its own shape. Refused when a shape
 /// with faces belongs to no product definition (nothing to anchor its PMI to), or a part's
 /// product definition has not exactly one represented `product_definition_shape`.
+/// [`StepFile::read`] gives the same parts with the assemblies, and each part's [`Part`].
 pub fn read_part_definitions(bytes: &[u8]) -> Result<Vec<PartDefinition>, StepError> {
+    StepFile::read(bytes).map(|file| file.parts)
+}
+
+/// The distinct parts of a whole file's read (see [`read_part_definitions`]), each named after
+/// an assembly of `assemblies` that holds it alone, if one does.
+fn part_definitions(read: Read, assemblies: &[Assembly]) -> Result<Vec<PartDefinition>, StepError> {
     let Read {
         part,
         instances,
         placed,
         same_sense,
-    } = read_placed(bytes, &IDENTITY)?;
+    } = read;
     if let Some(orphan) = instances.iter().position(Option::is_none) {
         return Err(StepError::Unsupported(format!(
             "instance {orphan} of the file's shapes belongs to no product definition"
@@ -1528,10 +1785,19 @@ pub fn read_part_definitions(bytes: &[u8]) -> Result<Vec<PartDefinition>, StepEr
             }
         }
         let face_index = faces.iter().enumerate().map(|(i, &f)| (f, i)).collect();
+        // Named after the first assembly (in visiting order) that holds it alone and has a
+        // name, as specify-core's `_part_name` names it.
+        let name = assemblies
+            .iter()
+            .find(|a| {
+                matches!(a.components[..], [c] if c.definition == def.definition)
+                    && !a.name.is_empty()
+            })
+            .map_or_else(|| def.name.clone(), |a| a.name.clone());
         parts.push(PartDefinition {
             product_definition: def.definition,
             shape,
-            name: def.name.clone(),
+            name,
             faces,
             edges,
             placements: vec![placement],
