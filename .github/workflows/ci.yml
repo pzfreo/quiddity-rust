@@ -38,14 +38,15 @@ jobs:
       # nextest does not run doc-tests.
       - run: cargo test --doc --workspace --release
 
-  # Shards per platform: 15 each, about six and a half minutes of tests per shard (run
-  # 37955367334: 95 runner-minutes of tests on Linux, 100 on macOS). Linux runs all 15 at once
-  # (with macOS's five, within a free account's 20 jobs at a time): about 11 minutes from push
-  # when .config/test-times.json is current. macOS runs at most five jobs at a time per account,
-  # so its shards go in three waves and take about 25 minutes, as five shards of about 16 minutes
-  # did (run 37893589158: shards started in groups of five at 7, 12-13 and 16-18 minutes). About
-  # 10 minutes on macOS needs more than five macOS jobs at a time or faster runners, not more
-  # shards; the 15 shards keep each one short so a higher limit would get there at once.
+  # Shards per platform: 15 each, about five and a half minutes of tests per shard on Linux and
+  # four and a half on macOS (run 37983308366: 81 runner-minutes of tests on Linux, 69 on macOS,
+  # plus about 20 s of setup per job). Linux runs all 15 at once (with macOS's five, within a free
+  # account's 20 jobs at a time): about 9-10 minutes from push when .config/test-times.json is
+  # current. macOS runs at most five jobs at a time per account, so its shards go in three waves
+  # and take about 20 minutes (five shards of about 16 minutes took about 24: run 37893589158's
+  # shards started in groups of five at 7, 12-13 and 16-18 minutes). About 10 minutes on macOS
+  # needs more than five macOS jobs at a time or faster runners, not more shards; the 15 shards
+  # keep each one short so a higher limit would get there at once.
   linux:
     uses: ./.github/workflows/suite.yml
     with:
