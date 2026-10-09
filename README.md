@@ -258,6 +258,18 @@ certificates OpenCascade took over two minutes to mesh, 16 test shapes STEP expo
 and test parts past the first three per test function. Every certificate the port issues also
 agrees with its face's own orientation, and the answers are unchanged under two rigid motions
 (1 listed kernel face: cgb242 face 726).
+The three cylindrical proofs section recesses compose on top of it are ported the same way
+(`tests/section_geometry.rs`, `tools/capture_section_geometry.py`): `prove_cylindrical_channel`,
+`cylindrical_pocket_proofs` and `cylindrical_passage_proofs`, on 178 parts the Python tests
+build, the two golden fixtures and the corpus, with every private question replayed on its own
+(148 channel questions, 35 proved, on test parts those the tests ask and elsewhere those
+Python's recognition asks; 12703 pocket floors, 69 proofs; 25583 passage cells, 90 proofs).
+The removed cell Python builds by a boolean (a box or extrusion less or within the cylinder) is
+built exactly as the section swept from its plane to the cylinder branch, with conic edges.
+All agree but one pocket (rust-wrong): a test part whose end wall's crest vertex lies 0.003 off
+its own circle edges, which the kernel pins its samples to. Not captured: 18 test shapes STEP
+export refuses, and 206 test parts on which Python proves nothing outside the proofs' own tests
+(left out to keep the fixtures small). The proofs are unchanged under the invariance motions.
 Planar outer-profile evidence (`_outer_profile`, `_outer_profile_geometry`,
 `RecognitionEvidence.planar_outer_profile`), which draftwright's profile angles read, is
 `features::outer_profile::planar_outer_profile(part, face)`: one face's line/arc outer wire as
@@ -275,18 +287,6 @@ unchanged under every motion. Not captured: test parts past four per test, and t
 one shell, which STEP export writes as two. Open question for the maintainer: whether the
 recognition document (`quiddity-rust/recognition/2`) should carry outer profiles; Python's
 document does not, and they are not in it.
-The three cylindrical proofs section recesses compose on top of it are ported the same way
-(`tests/section_geometry.rs`, `tools/capture_section_geometry.py`): `prove_cylindrical_channel`,
-`cylindrical_pocket_proofs` and `cylindrical_passage_proofs`, on 178 parts the Python tests
-build, the two golden fixtures and the corpus, with every private question replayed on its own
-(148 channel questions, 35 proved, on test parts those the tests ask and elsewhere those
-Python's recognition asks; 12703 pocket floors, 69 proofs; 25583 passage cells, 90 proofs).
-The removed cell Python builds by a boolean (a box or extrusion less or within the cylinder) is
-built exactly as the section swept from its plane to the cylinder branch, with conic edges.
-All agree but one pocket (rust-wrong): a test part whose end wall's crest vertex lies 0.003 off
-its own circle edges, which the kernel pins its samples to. Not captured: 18 test shapes STEP
-export refuses, and 206 test parts on which Python proves nothing outside the proofs' own tests
-(left out to keep the fixtures small). The proofs are unchanged under the invariance motions.
 
 For draftwright-rust, the kernel draws a part's views without OpenCascade's hidden-line
 algorithm or booleans (`crates/haecceity/src/hlr.rs`): every visible and hidden edge and

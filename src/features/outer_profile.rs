@@ -176,7 +176,7 @@ fn tangent(support: &ProfileSupport, normal: V3, end: bool) -> Option<V3> {
 /// The signed turn from each support into the next about *normal* (`_turns`).
 ///
 /// Unlike Python, a cusp (a support turning straight back: a line leaving the bottom of an arc
-/// it is tangent to, a fillet meeting a larger arc tangentially from inside it) takes its sign
+/// it is tangent to, a fillet meeting a larger arc it is externally tangent to) takes its sign
 /// from the supports' curvatures: their tangents are antiparallel, so their cross product is
 /// round-off and Python's `atan2` gives ±π by its sign, which follows the part's placement.
 /// Leaving the cusp, the two supports run back side by side, offset across the incoming tangent

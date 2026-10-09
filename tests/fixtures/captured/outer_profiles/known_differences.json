@@ -32,7 +32,7 @@
     "field": "profile",
     "faces": [0],
     "verdict": "rust-correct",
-    "reason": "Python's profile runs with the material on its right: its four rectangle corners turn -pi/2 about the outward normal (0, 0, -1). Eight of its turns are cusps, where an r 3.175 fillet meets an r 22.225 arc tangentially from inside it, and their atan2 signs are round-off of antiparallel tangents; they sum to -4pi, which lets the wrong orientation's winding pass as one turn. The port signs each cusp by the supports' curvatures (the fillet and arc run back side by side with the material between them: a spike, +pi), so the corners turn +pi/2 and it publishes the reverse traversal, with no negative turn (schema 1). Unchanged under the invariance motions; Python's answer is not."
+    "reason": "Python's profile runs with the material on its right: its four rectangle corners turn -pi/2 about the outward normal (0, 0, -1). Eight of its turns are cusps, where an r 3.175 fillet meets an r 22.225 arc it is externally tangent to (centres 25.4 apart), and their atan2 signs are round-off of antiparallel tangents; they sum to -4pi, which lets the wrong orientation's winding pass as one turn. The port signs each cusp by the supports' curvatures (the fillet and arc run back side by side with the material between them: a spike, +pi), so the corners turn +pi/2 and it publishes the reverse traversal, with no negative turn (schema 1). Unchanged under the invariance motions; Python's answer is not."
   },
   {
     "file": "parts/171b36b1d0928c36.step.gz",

@@ -602,7 +602,10 @@ fn python_outer_profile_cases() {
             "test_raw_rigid_motion_preserves_profile_supports_and_source_binding"
             | "test_framed_profile_maps_to_exact_caller_face_without_another_run"
             | "test_step_reimport_preserves_geometry_with_fresh_source_binding" => {
-                // A rounded triangle, moved: two six-support caps.
+                // A rounded triangle, moved: two six-support caps. Only partly ported: the
+                // supports' agreement across the motion is checked by `outer_profiles_are_placement_independent`
+                // and the face-by-face replay, and the framed view and fresh source binding
+                // have no counterpart in the port's plain-value evidence.
                 let six: Vec<_> = profiles
                     .iter()
                     .filter(|p| p.profile.supports.len() == 6)
