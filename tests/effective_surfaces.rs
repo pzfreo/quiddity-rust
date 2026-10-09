@@ -451,35 +451,54 @@ fn effective_surfaces_are_placement_independent() {
         .iter()
         .map(|f| f["file"].as_str().unwrap().to_string())
         .collect();
-    let results = common::parallel::map(&names, |name| {
-        let path = dir.join(name);
-        let base = read_step_file(&path).unwrap();
-        let ctx = Context::new(&base);
+    // Every part unmoved and under each motion, all spread over every core at once (so a costly
+    // part's readings run side by side); compared part by part, motion by motion.
+    let readings: Vec<(usize, Option<&Motion>)> = (0..names.len())
+        .flat_map(|i| {
+            std::iter::once(None)
+                .chain(MOTIONS.iter().map(Some))
+                .map(move |m| (i, m))
+        })
+        .collect();
+    let mut read_all = common::parallel::map(&readings, |&(i, motion)| {
+        let path = dir.join(&names[i]);
+        let (part, r) = match motion {
+            None => (read_step_file(&path).unwrap(), IDENTITY),
+            Some((_, r, t)) => {
+                let placement: Placement = [0, 1, 2].map(|i| [r[i][0], r[i][1], r[i][2], t[i]]);
+                (read_step_file_placed(&path, &placement).unwrap(), *r)
+            }
+        };
+        let ctx = Context::new(&part);
         let effective = EffectiveFaces::new(&ctx);
-        let want: Vec<[Value; 3]> = (0..base.faces.len())
-            .map(|f| placement_free(&effective, &base, f, &IDENTITY))
-            .collect();
-        let mut out = Vec::new();
-        for (motion, r, t) in MOTIONS {
-            let placement: Placement = [0, 1, 2].map(|i| [r[i][0], r[i][1], r[i][2], t[i]]);
-            let moved = read_step_file_placed(&path, &placement).unwrap();
-            let ctx = Context::new(&moved);
-            let effective = EffectiveFaces::new(&ctx);
-            for (face, want) in want.iter().enumerate() {
-                let got = placement_free(&effective, &moved, face, &r);
-                for (i, field) in FIELDS[..3].iter().enumerate() {
-                    if !common::same(&got[i], &want[i]) {
-                        out.push((
-                            (name.clone(), format!("{motion}:{field}")),
-                            face,
-                            format!("moved {}, unmoved {}", got[i], want[i]),
-                        ));
+        (0..part.faces.len())
+            .map(|f| placement_free(&effective, &part, f, &r))
+            .collect::<Vec<[Value; 3]>>()
+    })
+    .into_iter();
+    let results: Vec<Vec<Difference>> = names
+        .iter()
+        .map(|name| {
+            let want = read_all.next().unwrap();
+            let mut out = Vec::new();
+            for (motion, _, _) in MOTIONS {
+                let moved = read_all.next().unwrap();
+                for (face, want) in want.iter().enumerate() {
+                    let got = &moved[face];
+                    for (i, field) in FIELDS[..3].iter().enumerate() {
+                        if !common::same(&got[i], &want[i]) {
+                            out.push((
+                                (name.clone(), format!("{motion}:{field}")),
+                                face,
+                                format!("moved {}, unmoved {}", got[i], want[i]),
+                            ));
+                        }
                     }
                 }
             }
-        }
-        out
-    });
+            out
+        })
+        .collect();
     let found: Vec<Difference> = results.into_iter().flatten().collect();
     let files: BTreeSet<String> = names.into_iter().collect();
     eprintln!("effective surfaces under motion: {} differ", found.len());
