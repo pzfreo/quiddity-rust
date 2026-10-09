@@ -19,7 +19,7 @@ use std::cmp::Ordering;
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::Context;
-use super::entry_treatments::{material_fraction, prove_entry_treatments};
+use super::entry_treatments::{material_at_most, prove_entry_treatments};
 use super::evidence::common_valid_solid;
 use super::graph::{face_vertices, is_planar, normal, shared_occurrences};
 use super::sections::{
@@ -439,9 +439,7 @@ fn between_planes(
 
 fn empty(ctx: &Context<'_>, solid: usize, probe: Option<&Part>) -> bool {
     // A probe that cannot be built or answered proves nothing.
-    probe
-        .and_then(|p| material_fraction(ctx, solid, p))
-        .is_some_and(|f| f <= MATERIAL_VOL_FRAC)
+    probe.is_some_and(|p| material_at_most(ctx, solid, p, MATERIAL_VOL_FRAC))
 }
 
 fn end_thickness(span: f64, section: &PlanarSection) -> f64 {

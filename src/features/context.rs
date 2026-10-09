@@ -9,6 +9,7 @@ use std::sync::OnceLock;
 
 use super::body::{BodyKey, body_signature, unambiguous_body_keys};
 use super::cylinders::{CylinderEvidence, analyse_cylinders};
+use super::passages::{Found, PassageError, find_section_passages};
 use crate::kernel::brep::Part;
 use crate::kernel::classify::Classifier;
 use crate::kernel::geom::{Bounds, V3};
@@ -23,6 +24,7 @@ pub struct Context<'a> {
     solid_classifiers: Vec<OnceLock<Classifier<'a>>>,
     cylinders: OnceLock<Vec<CylinderEvidence>>,
     signatures: OnceLock<Vec<Option<BodyKey>>>,
+    section_passages: OnceLock<Result<Vec<Found>, PassageError>>,
 }
 
 impl<'a> Context<'a> {
@@ -34,6 +36,7 @@ impl<'a> Context<'a> {
             solid_classifiers: part.solids.iter().map(|_| OnceLock::new()).collect(),
             cylinders: OnceLock::new(),
             signatures: OnceLock::new(),
+            section_passages: OnceLock::new(),
         }
     }
 
@@ -70,6 +73,13 @@ impl<'a> Context<'a> {
     /// Every native cylindrical face (`analyse_cylinders`), in solid then face order.
     pub fn cylinders(&self) -> &[CylinderEvidence] {
         self.cylinders.get_or_init(|| analyse_cylinders(self.part))
+    }
+
+    /// The section passages before publication, or their refusal: found once, as the
+    /// passages and the reconciliation's compatibility views both read them.
+    pub(super) fn section_passages(&self) -> &Result<Vec<Found>, PassageError> {
+        self.section_passages
+            .get_or_init(|| find_section_passages(self))
     }
 
     /// The volume *face* moved by *offset* and swept along *sweep* shares with one solid

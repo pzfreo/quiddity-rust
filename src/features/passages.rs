@@ -530,7 +530,8 @@ pub fn legacy_roster(ctx: &Context<'_>) -> Vec<(Passage, Vec<usize>)> {
 }
 
 /// A section passage before publication: its record, walls, solid and compatibility view.
-struct Found {
+#[derive(Clone)]
+pub(super) struct Found {
     record: SectionPassage,
     nodes: Vec<usize>,
     /// The proposal's constituent faces beyond its walls (its entry treatments or region).
@@ -543,10 +544,15 @@ fn same_nodes(a: &[usize], b: &[usize]) -> bool {
     a.len() == b.len() && a.iter().all(|n| b.contains(n))
 }
 
+/// The run's section passages before publication, found once per run ([`Context`]).
+fn discover_section_passages(ctx: &Context<'_>) -> Checked<Vec<Found>> {
+    ctx.section_passages().clone()
+}
+
 /// `_discover_section_passages`: each proposal serialized, matched to the legacy roster by its
 /// walls (whose legacy value it must reproduce), duplicates of one wall set merged, sorted by
 /// run, interval and origin.
-fn discover_section_passages(ctx: &Context<'_>) -> Checked<Vec<Found>> {
+pub(super) fn find_section_passages(ctx: &Context<'_>) -> Checked<Vec<Found>> {
     let part = ctx.part;
     let proposals = section_ring_proposals(ctx)?;
     if proposals.is_empty() {
