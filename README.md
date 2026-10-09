@@ -608,8 +608,8 @@ tools/
   capture_pmi_occt.py records OpenCascade XCAF's PMI reading (tests/fixtures/ap242/occt/)
   capture_pmi_draftwright.py records draftwright's PMI extraction (tests/fixtures/ap242/draftwright/)
   make_specify_inputs.py runs specify-core on corpus parts (tests/fixtures/ap242/specify/)
-  check_pmi_occt.py  records OpenCascade XCAF's reading of the writer's files
-                     (tests/fixtures/ap242/write/)
+  check_pmi_occt.py  records whether specify-core's loader and XCAF open the writer's files,
+                     and XCAF's reading of them (tests/fixtures/ap242/write/)
   capture_revisions.py builds the revision pairs in build123d, with their expected classes
   capture_sections.py records the section helpers' calls in their Python tests, and their ring
                      proposals over those tests' parts, the golden fixtures and the corpus

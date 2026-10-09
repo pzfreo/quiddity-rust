@@ -379,6 +379,16 @@ fn strip(p: &PartPmi, refused: &[ItemRef]) -> PartPmi {
                 on: owner(&n.on),
             })
             .collect(),
+        surface_textures: p
+            .surface_textures
+            .iter()
+            .enumerate()
+            .filter(|(i, s)| !has(ItemRef::SurfaceTexture(*i)) && s.on.is_none_or(f_ok))
+            .map(|(_, s)| SurfaceTexture {
+                on: s.on.map(f),
+                ..s.clone()
+            })
+            .collect(),
         attributes: p
             .attributes
             .iter()

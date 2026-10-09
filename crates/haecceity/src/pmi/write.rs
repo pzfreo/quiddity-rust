@@ -32,7 +32,13 @@
 //! **Datum feature symbols** (decision 6): each datum feature of an added datum gets a minimal
 //! symbol, derived from the model when written (`PartPlan::datum_symbols`): a tessellated
 //! callout in an annotation plane of the part's draughting model, linked to the datum feature by
-//! a `draughting_model_item_association`; replace and remove take it with its datum.
+//! a `draughting_model_item_association`; replace and remove take it with its datum. The model is
+//! not related to the part's shape representation (maintainer decision, 2026-10-09).
+//!
+//! **Usages** (maintainer decision, 2026-10-09): one `geometric_item_specific_usage` per face;
+//! a feature of several faces is composed of one member shape aspect per face
+//! (`PartPlan::usages`). Part notes in words are 'semantic text' attribute sets (PMI practice
+//! §7.4); surface texture is ISO 10303-1110's form (`PartPlan::surface_texture`).
 //!
 //! **Validation before returning.** The edit is applied; every added or replaced instance must
 //! pass `express` validation against the table of the file's edition (the target edition for
@@ -84,6 +90,7 @@ pub enum ItemRef {
     Knurl(usize),
     Material,
     Note(usize),
+    SurfaceTexture(usize),
     Attribute(usize),
 }
 
@@ -1795,6 +1802,9 @@ impl<'a> PartPlan<'a> {
                     add(f);
                 }
             }
+            for s in &p.surface_textures {
+                s.on.into_iter().for_each(&mut add);
+            }
         }
         for (f, rs) in roles {
             // A thread's or knurl's area and a thread's runout are shape aspects of their own
@@ -1836,7 +1846,10 @@ impl<'a> PartPlan<'a> {
             ) || p
                 .attributes
                 .iter()
-                .any(|a| matches!(a.on, Some(NoteOwner::Feature(x)) if self.canonical[x.0] == f));
+                .any(|a| matches!(a.on, Some(NoteOwner::Feature(x)) if self.canonical[x.0] == f))
+                || p.surface_textures
+                    .iter()
+                    .any(|s| matches!(s.on, Some(x) if self.canonical[x.0] == f));
             if let [d] = sizes.as_slice()
                 && !stated_as_feature
             {
@@ -2099,6 +2112,14 @@ impl<'a> PartPlan<'a> {
                 }
             }
         }
+
+        // Surface textures.
+        for (i, s) in p.surface_textures.iter().enumerate() {
+            let vals: Vec<&Decimal> = s.parameters.iter().map(|x| &x.value.value).collect();
+            if let Some(why) = bad_value(&vals) {
+                self.refuse(ItemRef::SurfaceTexture(i), why);
+            }
+        }
     }
 
     /// The document's unit the reader names `name` (an attribute's measure of another kind):
@@ -2329,6 +2350,9 @@ impl<'a> PartPlan<'a> {
         for a in &p.attributes {
             self.attribute_set(em, &mut st, pd, pds, a)?;
         }
+        for t in &p.surface_textures {
+            self.surface_texture(em, &mut st, pds, t)?;
+        }
         Ok(())
     }
 
@@ -2516,15 +2540,10 @@ impl<'a> PartPlan<'a> {
                 ("context_of_items", context.a()),
             ],
         )?;
-        em.simple(
-            "mechanical_design_and_draughting_relationship",
-            &[
-                ("name", s("")),
-                ("description", s("")),
-                ("rep_1", em.reference(self.shape_rep)?.a()),
-                ("rep_2", model.a()),
-            ],
-        )?;
+        // No mechanical_design_and_draughting_relationship relates the model to the part's
+        // shape representation (maintainer decision, 2026-10-09): specify-core's OpenCascade
+        // loader crashed on every file with one (docs/step-ap242.md gives the cause); the
+        // associations below link each symbol.
         for (feature, callout) in callouts {
             em.simple(
                 "draughting_model_item_association",
@@ -2852,15 +2871,15 @@ impl<'a> PartPlan<'a> {
         Ok(r)
     }
 
-    /// The (representation, items) keys of a feature's usages: one per representation its
-    /// items are in (one usage per aspect and representation, UR2), items in model order.
+    /// The (representation, item) keys of a feature's usages: one per item, in model order
+    /// (one `geometric_item_specific_usage` per face, maintainer decision 2026-10-09).
     fn usage_keys(
         &self,
         em: &Emitter<'_>,
         st: &Emitted,
         items: &[Anchor],
     ) -> Result<Vec<(R, Vec<R>)>, WriteError> {
-        let mut by_rep: BTreeMap<R, Vec<R>> = BTreeMap::new();
+        let mut out = Vec::new();
         let mut seen = BTreeSet::new();
         for a in items {
             if !seen.insert(*a) {
@@ -2895,39 +2914,36 @@ impl<'a> PartPlan<'a> {
                     (r, rep)
                 }
             };
-            by_rep.entry(rep).or_default().push(item);
+            out.push((rep, vec![item]));
         }
-        Ok(by_rep.into_iter().collect())
+        Ok(out)
     }
 
-    /// A usage of `items` in `rep` defining `definition`: a `geometric_item_specific_usage` of
-    /// one item, or an `item_identified_representation_usage` of a `set_representation_item`
-    /// (geometric_item_specific_usage redeclares its item as one geometric_model_item, §5.1).
-    fn usage(em: &mut Emitter<'_>, definition: R, rep: R, items: &[R]) -> Result<R, WriteError> {
-        let (entity, identified) = match items {
-            [one] => ("geometric_item_specific_usage", one.a()),
-            _ => (
-                "item_identified_representation_usage",
-                typed("set_representation_item", refs(items.iter().copied())),
-            ),
-        };
+    /// The usage of `item` in `rep` defining `definition`: a `geometric_item_specific_usage`.
+    fn usage(em: &mut Emitter<'_>, definition: R, rep: R, item: R) -> Result<R, WriteError> {
         em.simple(
-            entity,
+            "geometric_item_specific_usage",
             &[
                 ("name", s("")),
                 ("description", s("")),
                 ("definition", definition.a()),
                 ("used_representation", rep.a()),
-                ("identified_item", identified),
+                ("identified_item", item.a()),
             ],
         )
     }
 
-    /// The usages of a feature's items. One item (or set) is identified once per
-    /// representation (item_identified_representation_usage UR1): items several features of
-    /// the part share, or that an existing shape aspect of the file already identifies, are
-    /// a member shape aspect the features are composed of (`shape_aspect_relationship`, §5.1
-    /// Figure 5), which the reader reads as their items.
+    /// The usages of a feature's items: one `geometric_item_specific_usage` per item
+    /// (maintainer decision 2026-10-09, which OpenCascade reads; the PMI practice's §5.1
+    /// Figure 5 alternative, one `item_identified_representation_usage` of a
+    /// `set_representation_item`, it drops). An aspect has one usage per representation
+    /// (item_identified_representation_usage UR2), so a feature of several items in one
+    /// representation identifies each through a member shape aspect of that one item, which
+    /// it is composed of (`shape_aspect_relationship`, §5.1: one shape aspect and usage per
+    /// face, shared by every feature on that face); the reader reads the composition as the
+    /// feature's items. One item is identified once per representation (UR1): an item several
+    /// features share, or that an existing shape aspect of the file already identifies, is
+    /// such a member too, owned by a referenced feature of that item alone where there is one.
     fn usages(
         &self,
         em: &mut Emitter<'_>,
@@ -2937,21 +2953,32 @@ impl<'a> PartPlan<'a> {
         own: Option<usize>,
         items: &[Anchor],
     ) -> Result<(), WriteError> {
-        for (rep, items) in self.usage_keys(em, st, items)? {
-            let key = (rep, items.clone());
+        let keys = self.usage_keys(em, st, items)?;
+        let mut per_rep: BTreeMap<R, usize> = BTreeMap::new();
+        for (rep, _) in &keys {
+            *per_rep.entry(*rep).or_insert(0) += 1;
+        }
+        for (rep, items) in keys {
+            let [item] = items[..] else {
+                return Err(WriteError::Internal("a usage key of several items".into()));
+            };
+            let several = per_rep[&rep] > 1;
+            let key = (rep, items);
             let member = if let Some(&m) = st.shared.get(&key) {
                 Some(m)
             } else if st.shared_keys.contains(&key)
                 && own == st.owners.get(&key).copied()
                 && own.is_some()
             {
-                // This feature owns the shared items: the others are composed of it.
-                Self::usage(em, feature, rep, &items)?;
+                // This feature owns the shared item: the others are composed of it.
+                Self::usage(em, feature, rep, item)?;
                 st.shared.insert(key, feature);
                 continue;
             } else if let Some(&o) = st.owners.get(&key) {
                 Some(self.feature(em, st, pds, o)?)
-            } else if st.shared_keys.contains(&key) {
+            } else if let Some(m) = self.existing_owner(em, rep, &key.1)? {
+                Some(m)
+            } else if st.shared_keys.contains(&key) || several {
                 let m = em.simple(
                     "shape_aspect",
                     &[
@@ -2961,11 +2988,11 @@ impl<'a> PartPlan<'a> {
                         ("product_definitional", boolean(true)),
                     ],
                 )?;
-                Self::usage(em, m, rep, &items)?;
+                Self::usage(em, m, rep, item)?;
                 st.shared.insert(key, m);
                 Some(m)
             } else {
-                self.existing_owner(em, rep, &items)?
+                None
             };
             match member {
                 Some(m) => {
@@ -2980,7 +3007,7 @@ impl<'a> PartPlan<'a> {
                     )?;
                 }
                 None => {
-                    Self::usage(em, feature, rep, &items)?;
+                    Self::usage(em, feature, rep, item)?;
                 }
             }
         }
@@ -3898,6 +3925,9 @@ impl<'a> PartPlan<'a> {
         a: &AttributeSet,
     ) -> Result<(), WriteError> {
         let owner = match a.on {
+            // Editable note text on the part is on its shape (PMI practice §7.4.3, Table 17:
+            // 'on part' is property_definition.definition = product_definition_shape).
+            None if a.name == "semantic text" => pds,
             None => pd,
             Some(NoteOwner::Feature(f)) => self.feature(em, st, pds, f.0)?,
             Some(NoteOwner::Dimension(d)) => self.dimension(em, st, pds, d.0)?,
@@ -3977,6 +4007,98 @@ impl<'a> PartPlan<'a> {
                 ("derived_definition", pdef.a()),
             ],
         )?;
+        Ok(())
+    }
+
+    /// A surface texture as ISO 10303-1110 maps it (the PMI practice has no section on it):
+    /// the `Surface_texture` is `property_definition('surface texture', '', <faces' shape
+    /// aspect or the part's shape>)` with a `representation('surface texture')` (the global
+    /// rule restrict_representation_for_surface_condition: the names agree) holding the
+    /// 'material removal condition'; each `Standard_surface_texture_parameter` is a
+    /// `property_definition('surface texture parameter')` on the same owner, related to it by
+    /// `property_definition_relationship('surface texture parameter')`, with a
+    /// `surface_texture_representation` of the characteristic ('measuring method', WR2) and its
+    /// value (a length measure item, WR1, WR3), and associated with a `general_property`
+    /// 'surface_condition' (WR5).
+    fn surface_texture(
+        &self,
+        em: &mut Emitter<'_>,
+        st: &mut Emitted,
+        pds: R,
+        t: &SurfaceTexture,
+    ) -> Result<(), WriteError> {
+        let owner = match t.on {
+            None => pds,
+            Some(f) => self.feature(em, st, pds, f.0)?,
+        };
+        let removal = Self::text_item(em, "material removal condition", t.material_removal.term())?;
+        let texture = self.property(
+            em,
+            owner,
+            "surface texture",
+            "",
+            "surface texture",
+            &[removal],
+        )?;
+        for p in &t.parameters {
+            let method = Self::text_item(em, "measuring method", &p.characteristic)?;
+            let value = em.measure_item(
+                "characteristic value",
+                MeasureItem::Length(&p.value),
+                self.context,
+                Vec::new(),
+                None,
+            )?;
+            let parameter = em.simple(
+                "property_definition",
+                &[
+                    ("name", s("surface texture parameter")),
+                    ("description", s("")),
+                    ("definition", owner.a()),
+                ],
+            )?;
+            let rep = em.simple(
+                "surface_texture_representation",
+                &[
+                    ("name", s("surface texture parameter")),
+                    ("items", refs([method, value])),
+                    ("context_of_items", em.reference(self.context)?.a()),
+                ],
+            )?;
+            em.simple(
+                "property_definition_representation",
+                &[
+                    ("definition", parameter.a()),
+                    ("used_representation", rep.a()),
+                ],
+            )?;
+            em.simple(
+                "property_definition_relationship",
+                &[
+                    ("name", s("surface texture parameter")),
+                    ("description", s("")),
+                    ("relating_property_definition", texture.a()),
+                    ("related_property_definition", parameter.a()),
+                ],
+            )?;
+            let condition = em.simple(
+                "general_property",
+                &[
+                    ("id", s("")),
+                    ("name", s("surface_condition")),
+                    ("description", A::Unset),
+                ],
+            )?;
+            em.simple(
+                "general_property_association",
+                &[
+                    ("name", s("")),
+                    ("description", A::Unset),
+                    ("base_definition", condition.a()),
+                    ("derived_definition", parameter.a()),
+                ],
+            )?;
+        }
         Ok(())
     }
 }
@@ -4502,6 +4624,11 @@ fn compare(a: &PartPmi, b: &PartPmi, stated: bool) -> Vec<String> {
         ("knurl", &ka.knurls, &kb.knurls),
         ("material", &ka.material, &kb.material),
         ("note", &ka.notes, &kb.notes),
+        (
+            "surface texture",
+            &ka.surface_textures,
+            &kb.surface_textures,
+        ),
         ("attribute", &ka.attributes, &kb.attributes),
     ] {
         let mut ys = y.clone();
@@ -4535,6 +4662,7 @@ struct Canonical {
     knurls: Vec<String>,
     material: Vec<String>,
     notes: Vec<String>,
+    surface_textures: Vec<String>,
     attributes: Vec<String>,
 }
 
@@ -4620,6 +4748,24 @@ impl Canonical {
                 p.notes
                     .iter()
                     .map(|n| format!("{:?} {:?} on {}", n.kind, n.text, k.owner(n.on)))
+                    .collect(),
+            ),
+            surface_textures: sorted(
+                p.surface_textures
+                    .iter()
+                    .map(|s| {
+                        let ps: Vec<String> = s
+                            .parameters
+                            .iter()
+                            .map(|x| format!("{:?} {}", x.characteristic, k.length(&x.value)))
+                            .collect();
+                        format!(
+                            "{:?} [{}] on {}",
+                            s.material_removal,
+                            ps.join(", "),
+                            k.owner(s.on.map(NoteOwner::Feature))
+                        )
+                    })
                     .collect(),
             ),
             attributes: sorted(

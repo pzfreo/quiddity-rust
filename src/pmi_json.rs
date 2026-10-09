@@ -532,6 +532,13 @@ const THREAD_SIDES: [(&str, ThreadSide); 2] = [
 /// 'hand' (`thread` WR8, `turned_knurl` WR10).
 const HANDS: [(&str, Hand); 2] = [("left", Hand::Left), ("right", Hand::Right)];
 
+/// ISO 10303-1110's material removal conditions ('any process allowed', …).
+const MATERIAL_REMOVALS: [(&str, MaterialRemoval); 3] = [
+    ("any_process_allowed", MaterialRemoval::AnyProcessAllowed),
+    ("material_removal_required", MaterialRemoval::Required),
+    ("no_material_removal", MaterialRemoval::NotAllowed),
+];
+
 /// `turned_knurl.description` (WR1).
 const KNURL_PATTERNS: [(&str, KnurlPattern); 3] = [
     ("diamond", KnurlPattern::Diamond),
@@ -1953,6 +1960,40 @@ fn attributes_from(v: &Json, path: &str) -> R<AttributeSet> {
     })
 }
 
+fn surface_texture_json(s: &SurfaceTexture) -> Json {
+    Out::new()
+        .opt("on", s.on.map(|f| json!(f.0)))
+        .put(
+            "material_removal",
+            json!(name_of(&MATERIAL_REMOVALS, s.material_removal)),
+        )
+        .list(
+            "parameters",
+            s.parameters
+                .iter()
+                .map(
+                    |p| json!({"characteristic": p.characteristic, "value": length_json(&p.value)}),
+                )
+                .collect(),
+        )
+        .done()
+}
+
+fn surface_texture_from(v: &Json, path: &str) -> R<SurfaceTexture> {
+    let o = object(v, path, &["on", "material_removal", "parameters"])?;
+    Ok(SurfaceTexture {
+        on: o.opt_with("on", |x, p| uint(x, p).map(FeatureId))?,
+        material_removal: o.req_with("material_removal", |x, p| term(&MATERIAL_REMOVALS, x, p))?,
+        parameters: o.list("parameters", |x, p| {
+            let q = object(x, p, &["characteristic", "value"])?;
+            Ok(SurfaceTextureParameter {
+                characteristic: q.req_with("characteristic", string)?,
+                value: q.req_with("value", length_from)?,
+            })
+        })?,
+    })
+}
+
 // ---------------------------------------------------------------------------------------------
 // Parts, findings, documents
 // ---------------------------------------------------------------------------------------------
@@ -1987,6 +2028,13 @@ pub fn to_json(p: &PartPmi) -> Json {
         .opt("material", p.material.as_ref().map(material_json))
         .list("notes", p.notes.iter().map(note_json).collect())
         .list(
+            "surface_textures",
+            p.surface_textures
+                .iter()
+                .map(surface_texture_json)
+                .collect(),
+        )
+        .list(
             "attributes",
             p.attributes.iter().map(attributes_json).collect(),
         )
@@ -2012,6 +2060,7 @@ pub fn from_json(v: &Json, path: &str) -> Result<PartPmi, JsonError> {
         "knurls",
         "material",
         "notes",
+        "surface_textures",
         "attributes",
         "geometry",
     ];
@@ -2030,6 +2079,7 @@ pub fn from_json(v: &Json, path: &str) -> Result<PartPmi, JsonError> {
         knurls: o.list("knurls", knurl_from)?,
         material: o.opt_with("material", material_from)?,
         notes: o.list("notes", note_from)?,
+        surface_textures: o.list("surface_textures", surface_texture_from)?,
         attributes: o.list("attributes", attributes_from)?,
         geometry: o.list("geometry", geometry_from)?,
     };
@@ -2896,6 +2946,14 @@ mod tests {
                 kind: "semantic text".into(),
                 text: "#10-32 UNF".into(),
                 on: Some(NoteOwner::DatumTarget(DatumTargetId(0))),
+            }],
+            surface_textures: vec![SurfaceTexture {
+                on: Some(FeatureId(0)),
+                material_removal: MaterialRemoval::Required,
+                parameters: vec![SurfaceTextureParameter {
+                    characteristic: "Ra".into(),
+                    value: len("0.8", LengthUnit::Micrometre),
+                }],
             }],
             attributes: vec![AttributeSet {
                 name: "specify-core".into(),

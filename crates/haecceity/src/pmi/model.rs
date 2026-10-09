@@ -2313,6 +2313,65 @@ pub enum NoteOwner {
     DatumTarget(DatumTargetId),
 }
 
+/// A surface texture requirement (ISO 1302; ASME Y14.36), in AP242's surface conditions
+/// (ISO 10303-1110 `Surface_texture` with its `Standard_surface_texture_parameter`s; the PMI
+/// practice has no section on it). Part notes in words (coating, heat treatment, edges) are
+/// not this: they are 'semantic text' attribute sets (PMI practice §7.4).
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct SurfaceTexture {
+    /// The faces it applies to; `None` for the part as a whole (a default for its surfaces).
+    pub on: Option<FeatureId>,
+    /// Whether material removal is allowed, required or not allowed (ISO 1302's symbol).
+    pub material_removal: MaterialRemoval,
+    /// Its parameters, in order; at least one.
+    pub parameters: Vec<SurfaceTextureParameter>,
+}
+
+/// ISO 1302's material removal condition (ISO 10303-1110
+/// `surface_texture_material_removal_condition_enumeration`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum MaterialRemoval {
+    /// 'any process allowed': the basic symbol.
+    AnyProcessAllowed,
+    /// 'material removal required'.
+    Required,
+    /// 'no material removal'.
+    NotAllowed,
+}
+
+impl MaterialRemoval {
+    /// The term the file states (ISO 10303-1110's mapping of `material_removal_condition`).
+    #[must_use]
+    pub fn term(self) -> &'static str {
+        match self {
+            MaterialRemoval::AnyProcessAllowed => "any process allowed",
+            MaterialRemoval::Required => "material removal required",
+            MaterialRemoval::NotAllowed => "no material removal",
+        }
+    }
+
+    #[must_use]
+    pub fn from_term(t: &str) -> Option<MaterialRemoval> {
+        [
+            MaterialRemoval::AnyProcessAllowed,
+            MaterialRemoval::Required,
+            MaterialRemoval::NotAllowed,
+        ]
+        .into_iter()
+        .find(|m| m.term() == t)
+    }
+}
+
+/// One surface texture parameter: its characteristic and the value required of it.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct SurfaceTextureParameter {
+    /// The characteristic as ISO 1302 names it ('Ra', 'Rz', 'Wt', …; ISO 4287, ISO 12085,
+    /// ISO 13565), as stated.
+    pub characteristic: String,
+    /// The value with its own unit (a length; e.g. 3.2 µm).
+    pub value: Length,
+}
+
 /// A user defined attribute set (UDA practice §5–7): the attribute's name and its values.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct AttributeSet {
@@ -2360,6 +2419,7 @@ pub struct PartPmi {
     pub knurls: Vec<Knurl>,
     pub material: Option<Material>,
     pub notes: Vec<Note>,
+    pub surface_textures: Vec<SurfaceTexture>,
     pub attributes: Vec<AttributeSet>,
     /// Supplemental geometry that features are made of ([`Anchor::Geometry`]).
     pub geometry: Vec<Geometry>,
@@ -2645,6 +2705,25 @@ impl PartPmi {
                     ));
                 }
                 _ => {}
+            }
+        }
+        for (i, s) in self.surface_textures.iter().enumerate() {
+            if let Some(f) = s.on
+                && !feature(f)
+            {
+                bad(format!("surface texture {i} names missing feature {}", f.0));
+            }
+            if s.parameters.is_empty() {
+                bad(format!("surface texture {i} has no parameter"));
+            }
+            for p in &s.parameters {
+                if p.characteristic.trim().is_empty() || p.characteristic.trim() != p.characteristic
+                {
+                    bad(format!(
+                        "surface texture {i}: the characteristic {:?} is not a name",
+                        p.characteristic
+                    ));
+                }
             }
         }
         let owners = self
