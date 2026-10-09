@@ -174,15 +174,17 @@ impl SectionVertex {
     }
 }
 
+/// The circle of a bulged edge (`_Arc`): its centre, radius, start angle and signed sweep.
 #[derive(Clone, Copy, Debug)]
-struct Arc {
-    centre: V2,
-    radius: f64,
-    start: f64,
-    sweep: f64,
+pub(crate) struct Arc {
+    pub(crate) centre: V2,
+    pub(crate) radius: f64,
+    pub(crate) start: f64,
+    pub(crate) sweep: f64,
 }
 
-fn arc(a: &SectionVertex, b: &SectionVertex) -> Checked<Option<Arc>> {
+/// The arc from *a* to *b* (`_arc`): `None` for a straight edge.
+pub(crate) fn arc(a: &SectionVertex, b: &SectionVertex) -> Checked<Option<Arc>> {
     let bulge = a.bulge;
     if bulge == 0.0 {
         return Ok(None);
@@ -235,8 +237,8 @@ fn arc_moments(arc: &Arc) -> [f64; 3] {
     [area, 0.5 * x2dy, -0.5 * y2dx]
 }
 
-/// The loop's signed area and centroid, integrated about its first vertex.
-fn moments(vertices: &[SectionVertex]) -> Checked<(f64, V2)> {
+/// The loop's signed area and centroid, integrated about its first vertex (`_moments`).
+pub(crate) fn moments(vertices: &[SectionVertex]) -> Checked<(f64, V2)> {
     let anchor = vertices[0].point;
     let local: Vec<SectionVertex> = vertices
         .iter()
@@ -574,10 +576,13 @@ fn validate_adjacent(
     Ok(())
 }
 
-fn validate_simple(vertices: &[SectionVertex]) -> Checked<()> {
+/// Refuse a loop (or, not *closed*, an open chain with no closing edge) whose edges overlap,
+/// backtrack or cross (`_validate_simple`).
+pub(crate) fn validate_simple(vertices: &[SectionVertex], closed: bool) -> Checked<()> {
     let n = vertices.len();
     if n > 2 {
-        for i in 0..n {
+        let shared = if closed { 0..n } else { 1..n - 1 };
+        for i in shared {
             validate_adjacent(
                 &vertices[(i + n - 1) % n],
                 &vertices[i],
@@ -585,10 +590,11 @@ fn validate_simple(vertices: &[SectionVertex]) -> Checked<()> {
             )?;
         }
     }
-    for left in 0..n {
+    let edges = if closed { n } else { n.saturating_sub(1) };
+    for left in 0..edges {
         let (a, b) = (&vertices[left], &vertices[(left + 1) % n]);
-        for right in left + 1..n {
-            if right == left + 1 || (left == 0 && right == n - 1) {
+        for right in left + 1..edges {
+            if right == left + 1 || (closed && left == 0 && right == n - 1) {
                 continue;
             }
             let (c, d) = (&vertices[right], &vertices[(right + 1) % n]);
@@ -658,7 +664,7 @@ impl PlanarSection {
         if (0..n).any(|i| py::dist(&boundary[i].point, &boundary[(i + 1) % n].point) <= EPS) {
             return refuse("adjacent section vertices must be distinct");
         }
-        validate_simple(&boundary)?;
+        validate_simple(&boundary, true)?;
         let (area, _) = moments(&boundary)?;
         let turned = if area < 0.0 {
             reverse(&boundary)

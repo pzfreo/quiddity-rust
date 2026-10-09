@@ -55,6 +55,24 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Pocket>> {
 /// record given two face sets on one solid; a record found twice from the same faces is
 /// published once.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<Pocket>>, EvidenceError> {
+    verified(ctx, false)
+}
+
+/// The evidence path as Python's locally degraded run takes it (`_discover_pockets` on a graph
+/// with `local_degradation` set): a pocket whose faces (defining, floors, inner region) prove no
+/// one valid solid is skipped instead of refusing every pocket, and the duplicate check is made
+/// over the pockets kept; every other refusal stands. Python's degraded run also admits an
+/// invalid solid with at most three bad faces; the kernel's validity is topological and
+/// whole-solid, with no bad-face region, so here a pocket on an invalid solid is always skipped.
+pub fn discover_locally_degraded(
+    ctx: &Context<'_>,
+) -> Result<Vec<Occurrence<Pocket>>, EvidenceError> {
+    verified(ctx, true)
+}
+
+/// The evidence path, skipping (when *degraded*) rather than refusing a pocket proving no one
+/// valid solid.
+fn verified(ctx: &Context<'_>, degraded: bool) -> Result<Vec<Occurrence<Pocket>>, EvidenceError> {
     let proposals = body_scoped(ctx, |ctx, solid| pocket_proposals(ctx, solid, true))
         .map_err(|_| EvidenceError::CompetingCaps)?;
     let mut pending: Vec<(Occurrence<Pocket>, Vec<usize>, usize)> = Vec::new();
@@ -66,7 +84,12 @@ pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<Pocket>>, E
         if found.defining.is_empty() {
             return Err(EvidenceError::NoValidSolid);
         }
-        let solid = common_valid_solid(ctx.part, &members).ok_or(EvidenceError::NoValidSolid)?;
+        let Some(solid) = common_valid_solid(ctx.part, &members) else {
+            if degraded {
+                continue;
+            }
+            return Err(EvidenceError::NoValidSolid);
+        };
         match pending
             .iter()
             .find(|(other, _, other_solid)| other.record == found.record && *other_solid == solid)

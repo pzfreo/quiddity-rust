@@ -108,6 +108,81 @@ fn arcs_at_closed_edges_ignore_their_recorded_direction() {
     assert!(rims >= 4, "both rims, both ways round");
 }
 
+/// cgb217's B-spline face 34: its edge 89 runs just outside the side v = 1 and dips 1.6e-3 mm
+/// into the face, leaving the side 1.2e-5 before it crosses the knot line u = 0.25. The walk
+/// must split at that corner, not only at the knot line, or it misses the foot point's step
+/// off the side. tools/face_area_evidence.py gives 28.16983104 by Green's theorem and by
+/// direct slices (tests/fixtures/known_face_areas.json).
+#[test]
+fn boundary_walk_splits_at_a_corner_beside_a_knot_line() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let part = read_step_file(&dir.join("cadgenbench_inputs/cgb217.step.gz")).unwrap();
+    let [area, _] = part.face_mass(34).unwrap();
+    assert!((area - 28.16983104).abs() < 1e-7, "{area}");
+}
+
+/// cgb242's B-spline face 726 has a side u = 1 collapsed to a point, where its edge 730 starts.
+/// Under the motion below the walk's first node there lands at v = 1 instead of v = 0 (v is
+/// undetermined on that side), so its swept parameter area lost the jump's ∮ u dv, the loop read
+/// as clockwise and the face's area came out negative.
+#[test]
+fn a_jump_along_a_collapsed_side_leaves_the_area_unchanged() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let path = dir.join("cadgenbench_inputs/cgb242.step.gz");
+    let moved: haecceity::step::Placement = [
+        [0.0, 0.0, 1.0, 123.456],
+        [1.0, 0.0, 0.0, -78.9],
+        [0.0, 1.0, 0.0, 41.3],
+    ];
+    let area = |placement: &haecceity::step::Placement| {
+        let part = haecceity::step::read_step_file_placed(&path, placement).unwrap();
+        part.face_mass(726).unwrap()[0]
+    };
+    let (unmoved, moved) = (area(&haecceity::step::IDENTITY), area(&moved));
+    assert!((unmoved - 18.22923018).abs() < 1e-7, "{unmoved}");
+    assert!(
+        (moved - unmoved).abs() < 1e-9 * unmoved,
+        "{unmoved} moved {moved}"
+    );
+}
+
+/// Two quarter cylinders of radius 7 on axes 14 apart (x = ±7, y = 0) kiss along x = y = 0 with
+/// opposite outward normals, as sm-hanger's faces 11 and 12 do; the first-order turn is
+/// round-off there. Extruded 5 in z by OpenCascade from the profile (0,0) - arc to (7,7) -
+/// (7,-5) - (-7,-5) - (-7,7) - arc to (0,0) (`notch`: the material fills all round the edge but
+/// the zero-angle notch between the arcs, OpenCascade's classifier OUT at (0, 0.01, 2.5) and IN
+/// 1e-3 to either side) and from the arcs closed by (7,7) - (-7,7) (`knife`: the material is the
+/// notch).
+#[test]
+fn arcs_where_surfaces_kiss_read_the_second_order() {
+    use haecceity::brep::Arc;
+    use haecceity::geom::SurfaceType;
+    for (name, expected) in [
+        ("kissing_cylinders_notch.step", Arc::Concave),
+        ("kissing_cylinders_knife.step", Arc::Convex),
+    ] {
+        let part = fixture(name);
+        let cylinders: Vec<usize> = (0..part.faces.len())
+            .filter(|&f| part.faces[f].surface.kind() == SurfaceType::Cylinder)
+            .collect();
+        let [a, b] = cylinders[..] else {
+            panic!("{name}: two cylinders, not {cylinders:?}");
+        };
+        assert_eq!(part.arc(a, b), Some(expected), "{name}");
+        assert_eq!(
+            part.arc(b, a),
+            Some(expected),
+            "{name}, the other way round"
+        );
+    }
+}
+
 #[test]
 fn areas_and_volumes_are_exact() {
     use std::f64::consts::PI;
@@ -583,4 +658,145 @@ fn surface_recovery_moves_with_the_part() {
             );
         }
     }
+}
+
+/// A face's parameter range is the range its boundary edges reach on its surface, each value
+/// from tools/kernel_evidence.py uv (2001 samples per edge, extremes refined by Brent):
+/// cone faces running to their apex, along an edge (cgb202 1262) or to a vertex loop (cgb243
+/// 21, 104); a cylinder whose file pcurve stops 0.0107 short of its B-spline edge (cgb202
+/// 1535) and one whose edge bulges between samples (1721); B-spline faces whose shared vertex
+/// stands 0.02 mm off their edges' ends (1428, 1448); sphere patches whose edges stop a degree
+/// from the pole (nist_ftc_07 49, 51); a cone pcurve running to the apex at another u (cgb243
+/// 19); a B-spline edge whose samples missed its end (nist_ctc_05 79, cgb242 558); and a
+/// B-spline face whose surface collapses at a corner of it, where v is arbitrary (cgb242 289,
+/// to its samples' 2.4e-6). A pcurve constant in v fixes the edge's v (cgb217 106: the bore's
+/// B-spline rim strays 0.0187 above the plane its pcurve, v = 24.5, gives).
+#[test]
+fn uv_bounds_are_the_range_of_the_boundary_edges() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    const PI: f64 = std::f64::consts::PI;
+    // (file, face, side (u0, u1, v0, v1 as 0..4), value, tolerance)
+    let cases: [(&str, usize, usize, f64, f64); 14] = [
+        (
+            "cadgenbench_inputs/cgb202.step.gz",
+            1262,
+            2,
+            -4.958191942,
+            1e-8,
+        ),
+        (
+            "cadgenbench_inputs/cgb202.step.gz",
+            1535,
+            3,
+            -115.0652464,
+            1e-6,
+        ),
+        (
+            "cadgenbench_inputs/cgb202.step.gz",
+            1721,
+            3,
+            67.731421158,
+            1e-8,
+        ),
+        (
+            "cadgenbench_inputs/cgb202.step.gz",
+            1428,
+            2,
+            0.00597859658,
+            1e-7,
+        ),
+        (
+            "cadgenbench_inputs/cgb202.step.gz",
+            1448,
+            0,
+            0.005941117131,
+            1e-9,
+        ),
+        (
+            "cadgenbench_inputs/cgb243.step.gz",
+            21,
+            2,
+            -1.458291747,
+            1e-8,
+        ),
+        (
+            "cadgenbench_inputs/cgb243.step.gz",
+            104,
+            2,
+            -2.916583493,
+            1e-8,
+        ),
+        ("cadgenbench_inputs/cgb243.step.gz", 19, 0, PI, 1e-9),
+        ("nist/nist_ftc_07_asme1_rd.stp", 49, 3, 1.553343034, 1e-8),
+        ("nist/nist_ftc_07_asme1_rd.stp", 51, 2, -1.553343034, 1e-8),
+        ("nist/nist_ctc_05_asme1_rd.stp", 79, 1, 0.9030627005, 1e-9),
+        (
+            "cadgenbench_inputs/cgb242.step.gz",
+            289,
+            2,
+            0.0058682224,
+            3e-6,
+        ),
+        (
+            "cadgenbench_inputs/cgb242.step.gz",
+            558,
+            0,
+            -0.0001523131,
+            1e-9,
+        ),
+        ("cadgenbench_inputs/cgb217.step.gz", 106, 3, 24.5, 1e-9),
+    ];
+    let mut parts = std::collections::BTreeMap::new();
+    for (file, face, side, want, tol) in cases {
+        let part = parts
+            .entry(file)
+            .or_insert_with(|| read_step_file(&dir.join(file)).unwrap());
+        let (u0, u1, v0, v1) = part.uv_bounds(face).unwrap();
+        let got = [u0, u1, v0, v1][side];
+        assert!(
+            (got - want).abs() <= tol,
+            "{file} face {face} side {side}: {got} vs {want}"
+        );
+    }
+}
+
+/// A face's box reaches its edges' and its surface's extremes between their samples: cgb207's
+/// y min lies on B-spline edge 452 (-41.1839642 at 4001 samples; its own samples stopped
+/// 2.7e-4 short) and its z min inside B-spline face 22 (OpenCascade's mesh node -32.4992456;
+/// the 13 × 13 grid stopped 3.1e-5 short); cgb203 face 89 bulges to y 127.997 (OpenCascade's
+/// box, to its three decimals) where the grid stopped at 127.936.
+#[test]
+fn face_boxes_reach_extremes_between_samples() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let part = read_step_file(&dir.join("cadgenbench_inputs/cgb207.step")).unwrap();
+    let b = part.solid_bounds(0);
+    assert!((b.min[1] + 41.1839642).abs() < 1e-6, "{:?}", b.min);
+    assert!((b.min[2] + 32.4992456).abs() < 1e-6, "{:?}", b.min);
+    let part = read_step_file(&dir.join("cadgenbench_inputs/cgb203.step")).unwrap();
+    let max_y = part.face_bounds(89).max[1];
+    assert!((max_y - 127.997).abs() < 5e-4, "{max_y}");
+}
+
+/// An analytic face's box is its surface's, not that of an edge straying from it within its
+/// tolerance: cgb202's torus face 1870 (minor radius 5 about y = -102.5) reaches no lower than
+/// y = -107.5, though its B-spline edge 1077 dips to -107.512205; nist_ctc_03's plane face 8 lies
+/// at z = 76.2, though its edge 88 runs 4.6e-6 above it.
+#[test]
+fn analytic_face_boxes_stay_on_their_surface() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let part = read_step_file(&dir.join("cadgenbench_inputs/cgb202.step.gz")).unwrap();
+    let min_y = part.face_bounds(1870).min[1];
+    assert!((min_y + 107.5).abs() < 1e-9, "{min_y}");
+    let part = read_step_file(&dir.join("nist/nist_ctc_03_asme1_rc.stp")).unwrap();
+    let max_z = part.face_bounds(8).max[2];
+    assert!((max_z - 76.2).abs() < 1e-9, "{max_z}");
 }

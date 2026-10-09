@@ -146,3 +146,29 @@ fn classification_matches_opencascade() {
         show(stale)
     );
 }
+
+/// cgb242 point 299: B-spline face 715's side u = 1 collapses to a point, the corner where its
+/// edges 968 and 494 meet. The corner's v is arbitrary there, and its loop took the v it arrived
+/// with (1), so the boundary cut straight from (1, 1) to edge 494's far end (0, 0) and the
+/// trimming domain lost the face's lower half: ray 6's crossing at uv (0.384, 0.052) was dropped
+/// (4 crossings; OpenCascade 5). Run along the collapsed side, every clean ray agrees.
+#[test]
+fn a_loop_runs_along_a_collapsed_side() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let file = "cadgenbench_inputs/cgb242.step.gz";
+    let part = read_step_file(&dir.join(file)).unwrap();
+    assert!(part.domain(715).unwrap().contains(0.384, 0.052));
+    let captured = captured();
+    let entry = captured["files"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|f| f["file"] == file)
+        .unwrap();
+    let p: [f64; 3] = serde_json::from_value(entry["points"][299].clone()).unwrap();
+    let rays = Classifier::new(&part).explain(p);
+    assert_eq!(rays, [1, 1, 3, 1, 1, 3, 5].map(Some), "{rays:?}");
+}

@@ -4,37 +4,51 @@ on:
   push:
     branches: [prototype/rust-port]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+env:
+  CARGO_TERM_COLOR: always
+
+# The suite is built once per platform, as a nextest archive of the test binaries, and run in
+# shards, one test at a time (.config/nextest.toml): `linux` and `macos` each run
+# .github/workflows/suite.yml, so one platform's shards start when its own build is done.
+# Formatting, clippy and doc-tests run beside them (`lint`). The shards together run the whole
+# suite on each platform.
+# Pins that depend on float round-off, such as known_correspondence.json's faces_at_most, must
+# hold on both platforms: Linux stays the reference for them, and macOS runs the full suite too
+# (the maintainer's decision of 2026-10-08; docs/review-2026-10-08.md, H1). The full suite
+# passing on an arm64 Mac, as macos-latest is, was the evidence that macOS holds them.
 jobs:
-  test:
+  lint:
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
-    env:
-      CARGO_TERM_COLOR: always
-      QUIDDITY_CORPUS: ${{ github.workspace }}/quiddity/tests/corpus
-      QUIDDITY_CORPUS_REQUIRED: "1"
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-      # The corpus lives in the Python repository, pinned to the revision tests/fixtures/corpus.json
-      # was exported at (its quiddity_revision; tests/corpus_files.rs checks the files' digests).
       # The toolchain comes from rust-toolchain.toml.
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          repository: pzfreo/quiddity
-          ref: 6d544e060cd0eeb4442d2196e5df757b5a15ea55
-          path: quiddity
-          sparse-checkout: tests/corpus
       - run: rustup toolchain install
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       - run: cargo fmt --all --check
       - run: cargo clippy --workspace --all-targets --release -- -D warnings
-      # Pins that depend on float round-off, such as known_correspondence.json's faces_at_most,
-      # must hold on both platforms: Linux stays the reference for them, and macOS runs too (the
-      # maintainer's decision of 2026-10-08; docs/review-2026-10-08.md, H1). The full suite
-      # passing on an arm64 Mac, as macos-latest is, was the evidence that macOS holds them.
-      - run: cargo test --workspace --release
+      # nextest does not run doc-tests.
+      - run: cargo test --doc --workspace --release
+
+  # Shards per platform: about four and a half minutes of tests each on Linux (15 + 5 test jobs
+  # stay within a free account's 20 at a time); macOS runs at most five jobs at a time per
+  # account, so it has five.
+  linux:
+    uses: ./.github/workflows/suite.yml
+    with:
+      os: ubuntu-latest
+      shards: "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+
+  macos:
+    uses: ./.github/workflows/suite.yml
+    with:
+      os: macos-latest
+      shards: "[1, 2, 3, 4, 5]"

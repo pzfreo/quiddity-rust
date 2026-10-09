@@ -17,7 +17,7 @@
 use std::collections::HashMap;
 
 use super::brep::{Arc, Part};
-use super::classify::{Classifier, State};
+use super::classify::{Classifier, ON_TOLERANCE, State};
 use super::geom::{self, Curve, Surface, V3};
 use super::rays::{RayCaster, polyline_distance};
 
@@ -300,7 +300,7 @@ pub fn project_section(
 pub fn section(part: &Part, plane: &Plane) -> Result<Vec<Vec<V3>>, Unresolved> {
     let faces = drawn_faces(part);
     resolved(part, &faces)?;
-    Ok(cut(part, plane, &faces))
+    cut(part, plane, &faces)
 }
 
 /// Refuses *faces* when any of them, or any of their edges, did not resolve.
@@ -326,24 +326,59 @@ fn resolved(part: &Part, faces: &[usize]) -> Result<(), Unresolved> {
 }
 
 /// [`section`] across *faces*, the drawn faces.
-fn cut(part: &Part, plane: &Plane, faces: &[usize]) -> Vec<Vec<V3>> {
+///
+/// The cut face is the material on both sides of the plane. Where the part crosses the plane,
+/// its outline is the crossing faces' contours. Where faces of the part lie in the plane (a
+/// part split there, a step face at the plane's height), their surface does not cross it, so
+/// they have no contour: the outline there is the edges lying in the plane, each kept where the
+/// plane has material across it on one side only. A point on a face lying in the plane has
+/// material on one side of the plane alone, so it is outside the cut face, as a point of no
+/// material is. Lying in the plane is decided within [`ON_TOLERANCE`], the kernel's tolerance
+/// for a point on a face: a face whose distance from the plane stays within it on one side
+/// touches the plane rather than crossing it, and a face lying in the plane within it puts its
+/// vertices in the plane, as the file's topology does, wherever their coordinates stand; and a
+/// contour running along the face's own edge, within the edge's stand-off from the face, is
+/// that edge. An edge in the plane whose sides cannot be classified, and that is not a seam or
+/// join of one surface crossing the plane, is refused.
+fn cut(part: &Part, plane: &Plane, faces: &[usize]) -> Result<Vec<Vec<V3>>, Unresolved> {
+    let mut edges: Vec<usize> = faces.iter().flat_map(|&f| part.face_edges(f)).collect();
+    edges.sort_unstable();
+    edges.dedup();
+    // The vertices of the faces lying in the plane: a plane parallel to it, within the
+    // tolerance across the face's extent.
+    let mut in_plane: Vec<usize> = faces
+        .iter()
+        .filter(|&&f| match &part.faces[f].surface {
+            Surface::Plane { frame } => {
+                let tilt = geom::norm(geom::cross(frame.z, plane.normal));
+                plane.distance(frame.origin).abs() <= ON_TOLERANCE
+                    && tilt * part.face_bounds(f).diagonal() <= ON_TOLERANCE
+            }
+            _ => false,
+        })
+        .flat_map(|&f| part.face_edges(f))
+        .flat_map(|e| [part.edges[e].vertices.0, part.edges[e].vertices.1])
+        .collect();
+    in_plane.sort_unstable();
+    in_plane.dedup();
     let mut out = Vec::new();
     for &face in faces {
         let surface = &part.faces[face].surface;
         let g = |(u, v): (f64, f64)| plane.distance(surface.value(u, v));
-        out.extend(contour(part, face, &g));
+        out.extend(contour(part, face, &g, Some((ON_TOLERANCE, &in_plane))));
     }
-    // An edge lying in the plane (a turned part's seam, cut through its axis) is no face's
-    // contour: it bounds the section where the plane has material on one side of it only.
-    let mut edges: Vec<usize> = faces.iter().flat_map(|&f| part.face_edges(f)).collect();
-    edges.sort_unstable();
-    edges.dedup();
     let classifier = Classifier::for_faces(part, faces.to_vec());
     let step = 1e-4 * classifier.rays().bounds().diagonal().max(1.0);
     for e in edges {
         let edge = &part.edges[e];
         let s = &edge.samples;
-        if s.len() < 2 || s.iter().any(|p| plane.distance(*p).abs() > 1e-6) {
+        let near = |p: &V3| plane.distance(*p).abs() <= ON_TOLERANCE;
+        let end_in = |p: &V3, v: usize| near(p) || in_plane.binary_search(&v).is_ok();
+        if s.len() < 2
+            || !s[1..s.len() - 1].iter().all(near)
+            || !end_in(&s[0], edge.vertices.0)
+            || !end_in(&s[s.len() - 1], edge.vertices.1)
+        {
             continue;
         }
         let k = s.len() / 2;
@@ -353,14 +388,50 @@ fn cut(part: &Part, plane: &Plane, faces: &[usize]) -> Vec<Vec<V3>> {
         let Some(across) = geom::unit(geom::cross(plane.normal, along)) else {
             continue;
         };
-        let material = |side: f64| {
-            classifier.classify(geom::add(mid, geom::scale(across, side * step))) == State::In
+        let side = |side: f64| match classifier
+            .classify(geom::add(mid, geom::scale(across, side * step)))
+        {
+            State::In => Some(true),
+            State::Out | State::On => Some(false),
+            State::Unknown => None,
         };
-        if material(1.0) != material(-1.0) {
-            out.push(s.clone());
+        match (side(1.0), side(-1.0)) {
+            (Some(a), Some(b)) => {
+                if a != b {
+                    out.push(s.clone());
+                }
+            }
+            // Where the classifier cannot say, a seam or a join within one surface that crosses
+            // the plane there (its normal off the plane's by more than the tolerance across the
+            // probe's step) has material across it on one side only, by the surface alone.
+            _ if crosses_along(part, e, mid, plane, step) => out.push(s.clone()),
+            _ => {
+                return Err(Unresolved {
+                    faces: part.edge_faces()[e].clone(),
+                    edges: vec![e],
+                });
+            }
         }
     }
-    out
+    Ok(out)
+}
+
+/// Whether edge *e*, lying in *plane*, is a seam or a join within one surface that crosses the
+/// plane at *mid*, a point of the edge: the surface tilts off the plane by more than
+/// [`ON_TOLERANCE`] over *step*.
+fn crosses_along(part: &Part, e: usize, mid: V3, plane: &Plane, step: f64) -> bool {
+    let faces = &part.edge_faces()[e];
+    let one_surface = match faces.as_slice() {
+        [_] => true,
+        [a, b] => same_surface(&part.faces[*a].surface, &part.faces[*b].surface),
+        _ => false,
+    };
+    let surface = &part.faces[faces[0]].surface;
+    one_surface
+        && surface
+            .parameters(mid, None)
+            .and_then(|(u, v)| surface.normal(u, v))
+            .is_some_and(|n| geom::norm(geom::cross(n, plane.normal)) * step > ON_TOLERANCE)
 }
 
 /// The faces drawn: the solids' (as draftwright projects them, leaving out loose sheets and
@@ -447,7 +518,7 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected
             })
             .collect();
         curves.extend(
-            cut(part, plane, &faces)
+            cut(part, plane, &faces)?
                 .into_iter()
                 .map(|c| (Class::Sharp, c, On::Section)),
         );
@@ -936,13 +1007,23 @@ fn silhouette(part: &Part, face: usize, view: &View) -> Vec<Vec<V3>> {
             .normal(u, v)
             .map_or(f64::NAN, |nrm| geom::dot(nrm, view.toward))
     };
-    contour(part, face, &g)
+    contour(part, face, &g, None)
 }
 
 /// The contour `g = 0` across a face, traced over its parameter range by marching squares,
 /// each crossing solved on its cell edge, refined to the edges' sampling tolerance, and kept
 /// where it lies on the face and off its boundary (those edges are drawn already).
-fn contour(part: &Part, face: usize, g: &dyn Fn((f64, f64)) -> f64) -> Vec<Vec<V3>> {
+///
+/// With *touch* (a tolerance and vertices where g is taken to vanish), a face on which g stays
+/// within the tolerance of one sign, never below `-touch` or never above `touch`, across its
+/// parameter range and along its edges has no contour: it meets `g = 0` at most where it
+/// touches it, along its boundary or at a tangency, not across it.
+fn contour(
+    part: &Part,
+    face: usize,
+    g: &dyn Fn((f64, f64)) -> f64,
+    touch: Option<(f64, &[usize])>,
+) -> Vec<Vec<V3>> {
     let surface = &part.faces[face].surface;
     let (Some((u0, u1, mut v0, mut v1)), Some(domain)) = (part.uv_bounds(face), part.domain(face))
     else {
@@ -987,6 +1068,37 @@ fn contour(part: &Part, face: usize, g: &dyn Fn((f64, f64)) -> f64) -> Vec<Vec<V
     {
         return Vec::new();
     }
+    if let Some((touch, vanish)) = touch {
+        // Judged within the range alone: the grid's extra cells run past the face's boundary
+        // (a half cylinder split along the plane reaches the other half's side).
+        let ranged: Vec<f64> = (0..=n)
+            .flat_map(|i| (0..=n).map(move |j| (i, j)))
+            .filter(|&(i, j)| {
+                let (u, v) = at(i, j);
+                (u0..=u1).contains(&u) && (v0..=v1).contains(&v)
+            })
+            .map(|(i, j)| values[i][j])
+            .chain(part.face_edges(face).into_iter().flat_map(|e| {
+                let edge = &part.edges[e];
+                let last = edge.samples.len().saturating_sub(1);
+                edge.samples
+                    .iter()
+                    .enumerate()
+                    .filter_map(|(k, p)| match k {
+                        0 if vanish.binary_search(&edge.vertices.0).is_ok() => Some(0.0),
+                        k if k == last && vanish.binary_search(&edge.vertices.1).is_ok() => {
+                            Some(0.0)
+                        }
+                        _ => surface.parameters(*p, None).map(g),
+                    })
+                    .collect::<Vec<_>>()
+            }))
+            .filter(|v| !v.is_nan())
+            .collect();
+        if ranged.iter().all(|v| *v >= -touch) || ranged.iter().all(|v| *v <= touch) {
+            return Vec::new();
+        }
+    }
     // Where g changes sign along a cell edge, solved there by bisection.
     let zero = |a: (f64, f64), b: (f64, f64), ga: f64| {
         let (mut lo, mut hi, mut glo) = (a, b, ga);
@@ -1004,7 +1116,16 @@ fn contour(part: &Part, face: usize, g: &dyn Fn((f64, f64)) -> f64) -> Vec<Vec<V
         }
         (0.5 * (lo.0 + hi.0), 0.5 * (lo.1 + hi.1))
     };
-    let boundary = part.face_edges(face);
+    // Each boundary edge with how far it may stand off the contour where it runs along it: on
+    // a section (with *touch*), by its stand-off from the face, within the file's tolerance.
+    let boundary: Vec<(usize, f64)> = match touch {
+        Some(_) => part.edge_deviation(face).to_vec(),
+        None => part
+            .face_edges(face)
+            .into_iter()
+            .map(|e| (e, 0.0))
+            .collect(),
+    };
     let mut out = Vec::new();
     for i in 0..n {
         for j in 0..n {
@@ -1037,12 +1158,14 @@ fn contour(part: &Part, face: usize, g: &dyn Fn((f64, f64)) -> f64) -> Vec<Vec<V
                 for w in curve.windows(2) {
                     let (p, q) = (w[0], w[1]);
                     // Judged at its ends, which lie on the contour (the chord's middle stands
-                    // off a curved edge by its sagitta).
-                    let on_edge = |e: &usize| {
-                        let edge = &part.edges[*e];
+                    // off a curved edge by its sagitta), and on the face: an edge standing off
+                    // the face lies that much further from them (counted on a section).
+                    let on_edge = |&(e, stand_off): &(usize, f64)| {
+                        let edge = &part.edges[e];
                         let on = |x: V3| {
                             polyline_distance(x, &edge.samples) <= 1e-3
-                                && geom::dist(edge.curve.value(edge.curve.parameter(x)), x) <= 1e-6
+                                && geom::dist(edge.curve.value(edge.curve.parameter(x)), x)
+                                    <= ON_TOLERANCE + stand_off
                         };
                         on(p) && on(q)
                     };

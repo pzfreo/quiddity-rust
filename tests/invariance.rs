@@ -6,6 +6,9 @@
 //! (`max_differing`), so a listed difference that grows still fails.
 
 mod common;
+#[macro_use]
+#[path = "support/slices.rs"]
+mod slices;
 
 use std::collections::BTreeMap;
 
@@ -90,15 +93,21 @@ fn signature(part: &Part) -> BTreeMap<&'static str, Vec<Vec<usize>>> {
 /// are other faces, in Python as here.
 const WORLD_Z: [&str; 2] = ["face_levels", "risers"];
 
-/// The listed exceptions for these motions, keyed by (file, motion, family), with the most
-/// occurrences each may differ by.
-fn known_entries(motions: &[&str]) -> Vec<((String, String, String), usize)> {
+/// The listed exceptions for these motions whose file is *owned* (the slice's,
+/// `tests/support/slices.rs`), keyed by (file, motion, family), with the most occurrences each
+/// may differ by.
+fn known_entries(
+    motions: &[&str],
+    owned: impl Fn(&str) -> bool,
+) -> Vec<((String, String, String), usize)> {
     let known = common::load("known_invariance.json");
     let known = known.as_array().unwrap();
     common::check_verdicts("known_invariance.json", known);
     known
         .iter()
-        .filter(|k| motions.contains(&k["motion"].as_str().unwrap()))
+        .filter(|k| {
+            motions.contains(&k["motion"].as_str().unwrap()) && owned(k["file"].as_str().unwrap())
+        })
         .map(|k| {
             let s = |f: &str| k[f].as_str().unwrap().to_string();
             let most = k["max_differing"]
@@ -125,8 +134,9 @@ struct Difference {
     text: String,
 }
 
-#[test]
-fn recognition_is_invariant_under_rigid_motion() {
+/// Every corpus part under every motion: one test per slice of the corpus
+/// (`tests/support/slices.rs`).
+fn invariant_under_rigid_motion(k: usize, n: usize) {
     let Some(dir) = common::corpus_dir() else {
         assert!(
             std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
@@ -136,34 +146,62 @@ fn recognition_is_invariant_under_rigid_motion() {
         return;
     };
     let names: Vec<&str> = MOTIONS.iter().map(|m| m.0).collect();
-    let known = known_entries(&names);
-    let files = corpus_files();
-    // Every part unmoved, then every part under every motion, each spread over every core; the
-    // differences come back in corpus order, motion by motion.
-    let unmoved = common::parallel::map(&files, |name| {
-        let base = read_step_file_placed(&dir.join(name), &IDENTITY).ok()?;
-        Some((base.faces.len(), signature(&base)))
-    });
-    let cases: Vec<(usize, &Motion)> = (0..files.len())
-        .filter(|&i| unmoved[i].is_some()) // the corpus test reports read failures
-        .flat_map(|i| MOTIONS.iter().map(move |m| (i, m)))
-        .collect();
-    let found = common::parallel::map(&cases, |&(i, (motion, r, t))| {
-        let name = &files[i];
-        let (faces, expected) = unmoved[i].as_ref().unwrap();
-        let moved = read_step_file_placed(&dir.join(name), &placement(r, t)).unwrap();
-        assert_eq!(moved.faces.len(), *faces, "{name} {motion}");
-        differences(expected, &signature(&moved), |family| {
-            WORLD_Z.contains(&family) && r[2][2].abs() != 1.0
+    let all = corpus_files();
+    let known = known_entries(&names, |file| slices::owns(&all, k, n, file));
+    let files = slices::slice(&all, k, n);
+    // Every part unmoved and under every motion, all spread over every core at once (so a costly
+    // part's readings run side by side); the differences come back in corpus order, motion by
+    // motion.
+    let readings: Vec<(usize, Option<&Motion>)> = (0..files.len())
+        .flat_map(|i| {
+            std::iter::once(None)
+                .chain(MOTIONS.iter().map(Some))
+                .map(move |m| (i, m))
         })
-    });
-    let found = cases
-        .iter()
-        .zip(found)
-        .map(|(&(i, (motion, _, _)), d)| (&files[i], *motion, d));
-    let problems = unexplained(&known, found);
+        .collect();
+    let mut read = common::parallel::map(&readings, |&(i, motion)| {
+        let at = motion.map_or(IDENTITY, |(_, r, t)| placement(r, t));
+        // (The error as text: the kernel's error is not `Send`.)
+        read_step_file_placed(&dir.join(&files[i]), &at)
+            .map(|p| (p.faces.len(), signature(&p)))
+            .map_err(|e| e.to_string())
+    })
+    .into_iter();
+    let mut found = Vec::new();
+    for name in &files {
+        let unmoved = read.next().unwrap();
+        let moved: Vec<_> = read.by_ref().take(MOTIONS.len()).collect();
+        // The corpus test reports read failures.
+        let Ok((faces, expected)) = unmoved else {
+            continue;
+        };
+        for ((motion, r, _), moved) in MOTIONS.iter().zip(moved) {
+            let (moved_faces, got) = moved.unwrap();
+            assert_eq!(moved_faces, faces, "{name} {motion}");
+            let d = differences(&expected, &got, |family| {
+                WORLD_Z.contains(&family) && r[2][2].abs() != 1.0
+            });
+            found.push((name, *motion, d));
+        }
+    }
+    let problems = unexplained(&known, found.into_iter());
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
+
+sliced!(
+    recognition_is_invariant_under_rigid_motion,
+    super::invariant_under_rigid_motion,
+    [
+        0 => slice_0,
+        1 => slice_1,
+        2 => slice_2,
+        3 => slice_3,
+        4 => slice_4,
+        5 => slice_5,
+        6 => slice_6,
+        7 => slice_7,
+    ]
+);
 
 /// The families of *got* whose occurrences are not *expected*'s, except those *skip* names.
 fn differences(
@@ -270,8 +308,10 @@ fn rotation(axis: [f64; 3], degrees: f64, translation: [f64; 3]) -> Placement {
 ///
 /// Also prints, without failing, how many family results caller-space recognition changes under
 /// the same rotation (review M8's measure).
-#[test]
-fn framed_recognition_is_invariant_under_a_generic_rotation() {
+///
+/// One test per slice of the corpus (`tests/support/slices.rs`); the measure printed is the
+/// slice's.
+fn framed_invariant_under_a_generic_rotation(k: usize, n: usize) {
     let Some(dir) = common::corpus_dir() else {
         assert!(
             std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
@@ -280,34 +320,63 @@ fn framed_recognition_is_invariant_under_a_generic_rotation() {
         eprintln!("corpus not found; set QUIDDITY_CORPUS");
         return;
     };
-    let known = known_entries(&[GENERIC]);
-    let files = corpus_files();
+    let all = corpus_files();
+    let known = known_entries(&[GENERIC], |file| slices::owns(&all, k, n, file));
+    let files = slices::slice(&all, k, n);
     let generic = rotation([1.0, 2.0, 3.0], 37.0, T);
-    let found = common::parallel::map(&files, |name| {
-        let path = dir.join(name);
-        // Caller space: the part as read, and as read under the rotation.
-        let plain = read_step_file_placed(&path, &IDENTITY).ok().map(|unmoved| {
-            let moved = read_step_file_placed(&path, &generic).unwrap();
-            differences(&signature(&unmoved), &signature(&moved), |_| false)
-        });
-        // In the part's frame. A refused frame (no material, an unmeasured face) is a
-        // difference only when the two placements disagree on it.
-        let framed = |placement: &Placement| {
-            frames::prepare_framed_file(&path, placement)
-                .map(|f| (f.frame.gauge, signature(&f.part)))
+    // Each part's four readings (as read, then in its frame; unmoved, then rotated), all spread
+    // over every core at once, so a costly part's readings run side by side.
+    let readings: Vec<(usize, bool, &Placement)> = (0..files.len())
+        .flat_map(|i| {
+            [
+                (false, &IDENTITY),
+                (false, &generic),
+                (true, &IDENTITY),
+                (true, &generic),
+            ]
+            .map(|(framed, at)| (i, framed, at))
+        })
+        .collect();
+    let mut read = common::parallel::map(&readings, |&(i, framed, at)| {
+        let path = dir.join(&files[i]);
+        if framed {
+            frames::prepare_framed_file(&path, at)
+                .map(|f| (Some(f.frame.gauge), signature(&f.part)))
                 .map_err(|e| e.to_string())
-        };
-        let differing = match (framed(&IDENTITY), framed(&generic)) {
-            (Ok((_, unmoved)), Ok((_, moved))) => differences(&unmoved, &moved, |_| false),
-            (Err(a), Err(b)) if a == b => Vec::new(),
-            (a, b) => vec![Difference {
-                family: "frame",
-                count: 1,
-                text: format!("unmoved {:?}, moved {:?}", a.map(|f| f.0), b.map(|f| f.0)),
-            }],
-        };
-        (plain, differing)
-    });
+        } else {
+            read_step_file_placed(&path, at)
+                .map(|p| (None, signature(&p)))
+                .map_err(|e| e.to_string())
+        }
+    })
+    .into_iter();
+    let found: Vec<_> = files
+        .iter()
+        .map(|_| {
+            let mut next = || read.next().unwrap();
+            let (plain_unmoved, plain_moved) = (next(), next());
+            // Caller space: the part as read, and as read under the rotation.
+            let plain = plain_unmoved
+                .ok()
+                .map(|(_, unmoved)| differences(&unmoved, &plain_moved.unwrap().1, |_| false));
+            // In the part's frame. A refused frame (no material, an unmeasured face) is a
+            // difference only when the two placements disagree on it.
+            let differing = match (next(), next()) {
+                (Ok((_, unmoved)), Ok((_, moved))) => differences(&unmoved, &moved, |_| false),
+                (Err(a), Err(b)) if a == b => Vec::new(),
+                (a, b) => vec![Difference {
+                    family: "frame",
+                    count: 1,
+                    text: format!(
+                        "unmoved {:?}, moved {:?}",
+                        a.map(|f| f.0.unwrap()),
+                        b.map(|f| f.0.unwrap())
+                    ),
+                }],
+            };
+            (plain, differing)
+        })
+        .collect();
     let (mut results, mut occurrences) = (0, 0);
     for (name, (plain, _)) in files.iter().zip(&found) {
         for d in plain.iter().flatten() {
@@ -328,6 +397,21 @@ fn framed_recognition_is_invariant_under_a_generic_rotation() {
     let problems = unexplained(&known, framed);
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
+
+sliced!(
+    framed_recognition_is_invariant_under_a_generic_rotation,
+    super::framed_invariant_under_a_generic_rotation,
+    [
+        0 => slice_0,
+        1 => slice_1,
+        2 => slice_2,
+        3 => slice_3,
+        4 => slice_4,
+        5 => slice_5,
+        6 => slice_6,
+        7 => slice_7,
+    ]
+);
 
 fn symmetric_difference(a: &[Vec<usize>], b: &[Vec<usize>]) -> Vec<String> {
     let only = |x: &[Vec<usize>], y: &[Vec<usize>], tag: &str| {

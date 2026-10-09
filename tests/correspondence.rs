@@ -12,6 +12,9 @@
 //! fails on an unlisted one and on a listed one that has gone.
 
 mod common;
+#[macro_use]
+#[path = "support/slices.rs"]
+mod slices;
 
 use std::collections::BTreeMap;
 
@@ -203,8 +206,19 @@ fn known() -> Vec<Value> {
     known
 }
 
-#[test]
-fn corpus_parts_correspond_with_themselves_moved() {
+fn corpus_files() -> Vec<String> {
+    common::load("corpus.json")["files"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|e| e["file"].as_str().unwrap().to_string())
+        .collect()
+}
+
+/// Every corpus part under every motion: one test per slice of the corpus
+/// (`tests/support/slices.rs`), each checking the listed cases of its files; the totals printed
+/// are the slice's.
+fn correspond_with_themselves_moved(slice: usize, n: usize) {
     let Some(dir) = common::corpus_dir() else {
         assert!(
             std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
@@ -213,11 +227,14 @@ fn corpus_parts_correspond_with_themselves_moved() {
         eprintln!("corpus not found; set QUIDDITY_CORPUS");
         return;
     };
+    let all = corpus_files();
     // Each listed case pins exactly which features and how many faces differ (or, for a
     // threshold-dependent count, at most how many), so any other difference in it still fails.
     let known: Vec<(Case, Listed)> = known()
         .iter()
-        .filter(|k| k["test"] == "invariance")
+        .filter(|e| {
+            e["test"] == "invariance" && slices::owns(&all, slice, n, e["file"].as_str().unwrap())
+        })
         .map(|k| {
             let mut features: Vec<String> = k["features"]
                 .as_array()
@@ -241,28 +258,44 @@ fn corpus_parts_correspond_with_themselves_moved() {
         })
         .collect();
     let invariance = common::load("known_invariance.json");
-    let files: Vec<String> = common::load("corpus.json")["files"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .map(|e| e["file"].as_str().unwrap().to_string())
+    let files = slices::slice(&all, slice, n);
+    // Every part unmoved and under every motion, all spread over every core at once (so a costly
+    // part's readings run side by side), then each moved part corresponded with its unmoved self;
+    // the results come back in corpus order, motion by motion.
+    let readings: Vec<(usize, Option<&Motion>)> = (0..files.len())
+        .flat_map(|i| {
+            std::iter::once(None)
+                .chain(MOTIONS.iter().map(Some))
+                .map(move |m| (i, m))
+        })
         .collect();
-    // Every part unmoved, then every part under every motion, each spread over every core; the
-    // results come back in corpus order, motion by motion.
-    let unmoved = common::parallel::map(&files, |name| {
-        let base = read_step_file_placed(&dir.join(name), &IDENTITY).ok()?;
-        Some(correspondence::recognise(&base).fingerprints)
-    });
-    let cases: Vec<(usize, &Motion)> = (0..files.len())
+    let mut read = common::parallel::map(&readings, |&(i, motion)| {
+        let at = motion.map_or(IDENTITY, |(_, r, t)| placement(r, t));
+        read_step_file_placed(&dir.join(&files[i]), &at)
+            .map(|p| correspondence::recognise(&p).fingerprints)
+            // (The error as text: the kernel's error is not `Send`.)
+            .map_err(|e| e.to_string())
+    })
+    .into_iter();
+    let (mut unmoved, mut prints) = (Vec::new(), Vec::new());
+    for _ in &files {
+        unmoved.push(read.next().unwrap().ok());
+        prints.push(read.by_ref().take(MOTIONS.len()).collect::<Vec<_>>());
+    }
+    let cases: Vec<(usize, usize, &Motion)> = (0..files.len())
         .filter(|&i| unmoved[i].is_some()) // the corpus test reports read failures
-        .flat_map(|i| MOTIONS.iter().map(move |m| (i, m)))
+        .flat_map(|i| {
+            MOTIONS
+                .iter()
+                .enumerate()
+                .map(move |(m, motion)| (i, m, motion))
+        })
         .collect();
-    let moved = common::parallel::map(&cases, |&(i, (motion, r, t))| {
+    let moved = common::parallel::map(&cases, |&(i, m, (motion, _, _))| {
         let name = &files[i];
         let old = unmoved[i].as_ref().unwrap();
-        let moved = read_step_file_placed(&dir.join(name), &placement(r, t)).unwrap();
-        let new = correspondence::recognise(&moved).fingerprints;
-        let c = correspondence::correspond(old, &new).unwrap();
+        let new = prints[i][m].as_ref().unwrap();
+        let c = correspondence::correspond(old, new).unwrap();
         let skip: Vec<String> = invariance
             .as_array()
             .unwrap()
@@ -271,7 +304,7 @@ fn corpus_parts_correspond_with_themselves_moved() {
             .map(|k| k["family"].as_str().unwrap().to_string())
             .collect();
         Moved {
-            found: invariance_problems(old, &new, &c, &skip),
+            found: invariance_problems(old, new, &c, &skip),
             alignment: format!(
                 "aligned {}, symmetric {}, fold {:?}",
                 c.alignment.found, c.alignment.symmetric, c.alignment.fold
@@ -283,7 +316,7 @@ fn corpus_parts_correspond_with_themselves_moved() {
     let mut problems = Vec::new();
     let mut seen = Vec::new();
     let (mut pairs, mut features, mut faces) = (0, 0, 0);
-    for (&(i, (motion, _, _)), m) in cases.iter().zip(moved) {
+    for (&(i, _, (motion, _, _)), m) in cases.iter().zip(moved) {
         let name = &files[i];
         let found = m.found;
         pairs += 1;
@@ -324,6 +357,21 @@ fn corpus_parts_correspond_with_themselves_moved() {
     eprintln!("{pairs} moved parts: {features} features, {faces} faces");
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
+
+sliced!(
+    corpus_parts_correspond_with_themselves_moved,
+    super::correspond_with_themselves_moved,
+    [
+        0 => slice_0,
+        1 => slice_1,
+        2 => slice_2,
+        3 => slice_3,
+        4 => slice_4,
+        5 => slice_5,
+        6 => slice_6,
+        7 => slice_7,
+    ]
+);
 
 /// The revision pairs: each case's expected class for named features, by the feature's
 /// family and position (fixture `expected.json`, written by `tools/capture_revisions.py`).

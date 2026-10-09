@@ -94,6 +94,11 @@ impl CylindricalEndSurface {
         })
     }
 
+    /// Which branch of the cylinder the end lies on: `"positive"` or `"negative"`.
+    pub fn branch(&self) -> &'static str {
+        self.branch
+    }
+
     /// The signed distance of a section point from the axis, across it (`_offset`).
     fn offset(&self, point: V2) -> Checked<f64> {
         if !finite(&point) {

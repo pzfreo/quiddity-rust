@@ -1,0 +1,188 @@
+{
+ "schema": 1,
+ "rules_version": 1,
+ "binding": {
+  "source_sha256": "b4d455810969ee6644e73f3ee0576b43dc0937eeb2589a4383c931d126b6d285",
+  "face_count": 14,
+  "loader_version": 2,
+  "part": 0
+ },
+ "part": {
+  "material": "Stainless steel 303",
+  "general_tolerance": "ISO 2768-f",
+  "surface_finish": "Ra 3.2",
+  "edges": "Break sharp edges 0.2 max"
+ },
+ "datums": [
+  {
+   "letter": "A",
+   "faces": [
+    0
+   ],
+   "question": "datum.A"
+  },
+  {
+   "letter": "B",
+   "faces": [
+    6
+   ],
+   "question": "datum.B"
+  }
+ ],
+ "requirements": [
+  {
+   "kind": "thread",
+   "feature": "holes:12.13",
+   "faces": [
+    12
+   ],
+   "side": "internal",
+   "designation": "M2",
+   "pitch": 0.4,
+   "spec": "M2x0.4",
+   "class": "6H",
+   "hand": "RH",
+   "through": false,
+   "drill_point": false,
+   "drill_diameter": 1.6,
+   "drill_depth": 3.8,
+   "full_thread": 2.5,
+   "question": "hole.function:holes:12.13"
+  },
+  {
+   "kind": "position",
+   "feature": "holes:12.13",
+   "faces": [
+    12
+   ],
+   "tolerance": 0.1,
+   "diametral": true,
+   "datums": [
+    "A",
+    "B"
+   ],
+   "question": "hole.position:holes:12.13"
+  },
+  {
+   "kind": "knurl",
+   "feature": "turned_steps:9",
+   "faces": [
+    9
+   ],
+   "pattern": "diamond",
+   "pitch": 1.0,
+   "diameter": 6.0,
+   "question": "diameter.fit:turned_steps:9"
+  },
+  {
+   "kind": "size",
+   "feature": "turned_steps:3",
+   "faces": [
+    3
+   ],
+   "nominal": 10.0,
+   "fit": "f7",
+   "upper": -0.013,
+   "lower": -0.028,
+   "question": "diameter.fit:turned_steps:3"
+  },
+  {
+   "kind": "runout",
+   "feature": "turned_steps:3",
+   "faces": [
+    3
+   ],
+   "tolerance": 0.02,
+   "datums": [
+    "A",
+    "B"
+   ],
+   "question": "diameter.runout:turned_steps:3"
+  },
+  {
+   "kind": "thread",
+   "feature": "turned_steps:2",
+   "faces": [
+    2
+   ],
+   "side": "external",
+   "designation": "M5",
+   "pitch": 0.8,
+   "spec": "M5x0.8",
+   "class": "6g",
+   "hand": "RH",
+   "length": 3.0,
+   "nominal": 5.0,
+   "question": "diameter.fit:turned_steps:2"
+  }
+ ],
+ "general": [
+  {
+   "kind": "size",
+   "feature": "turned_steps:6",
+   "faces": [
+    6
+   ],
+   "nominal": 3.0,
+   "upper": 0.05,
+   "lower": -0.05,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    11
+   ],
+   "reference": [
+    0
+   ],
+   "distance": 2.5,
+   "upper": 0.05,
+   "lower": -0.05,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    7
+   ],
+   "reference": [
+    0
+   ],
+   "distance": 2.0,
+   "upper": 0.05,
+   "lower": -0.05,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    4
+   ],
+   "reference": [
+    0
+   ],
+   "distance": 3.0,
+   "upper": 0.05,
+   "lower": -0.05,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    10
+   ],
+   "reference": [
+    0
+   ],
+   "distance": 21.0,
+   "upper": 0.1,
+   "lower": -0.1,
+   "general": true
+  }
+ ]
+}

@@ -1,0 +1,40 @@
+{
+ "case": "bracket_positions",
+ "command": "specify-core analyse [--part N]; specify-core write --accept-defaults --intent",
+ "input": "corpus:cadgenbench_inputs/cgb207.step",
+ "input_sha256": "0b2c689b1ec09c362c334a9b6c9714a5e4d658295f7f16078f5588472721dd26",
+ "not_byte_for_byte": "the STEP header FILE_NAME time stamp",
+ "specify_core": "cc341dd6eaea84428d9bcf34915a7bffd78fecdb",
+ "write_report": {
+  "not_written": [],
+  "warnings": [],
+  "written": [
+   "datum A",
+   "datum B",
+   "datum C",
+   "Ø10 H11 on hole_patterns.set:233.239.240",
+   "location 15 basic to holes:239 from faces [268]",
+   "location 130.831 basic to holes:239 from faces [262]",
+   "location 33.5119 basic to holes:233 from faces [268]",
+   "location 91.4312 basic to holes:233 from faces [262]",
+   "location 15 basic to holes:240 from faces [268]",
+   "location 53.5814 basic to holes:240 from faces [262]",
+   "position 0.2 MMC on hole_patterns.set:233.239.240",
+   "Ø10 H11 on hole_patterns.set:234.235.236",
+   "location 74.9427 basic to holes:234 from faces [268]",
+   "location 10 basic to holes:234 from faces [262]",
+   "location 39.9688 basic to holes:235 from faces [268]",
+   "location 10 basic to holes:235 from faces [262]",
+   "location 60.7706 basic to holes:236 from faces [268]",
+   "location 98.8164 basic to holes:236 from faces [262]",
+   "position 0.5 MMC on hole_patterns.set:234.235.236",
+   "flatness 0.05 on [268]",
+   "perpendicularity 0.05 on datum B",
+   "perpendicularity 0.1 on datum C",
+   "material Aluminium 6061-T6",
+   "general tolerance ISO 2768-m",
+   "surface finish Ra 3.2",
+   "edges Break sharp edges 0.2 max"
+  ]
+ }
+}

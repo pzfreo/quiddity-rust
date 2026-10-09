@@ -1,0 +1,10 @@
+# `cargo nextest` settings; CI (`.github/workflows/ci.yml`) runs the `ci` profile in shards.
+
+[profile.ci]
+# Report every failure in a shard, not only the first.
+fail-fast = false
+# One test at a time: the long tests spread their own work over every core
+# (`tests/common/parallel.rs`), so running several at once only shares the cores between them and
+# slows each one's longest item (a reading of cgb202, the costliest corpus part, ran four times
+# slower beside three other tests).
+test-threads = 1

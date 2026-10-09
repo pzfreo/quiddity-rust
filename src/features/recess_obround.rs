@@ -15,7 +15,7 @@ use crate::kernel::geom::{Bounds, V3};
 use crate::kernel::py;
 
 /// How close a cap's radius must be to half the record's width, as a fraction of it (ADR 0008).
-const END_RADIUS_FRAC: f64 = 0.0375;
+pub(crate) const END_RADIUS_FRAC: f64 = 0.0375;
 /// How close a half-cylinder's in-plane extents must be to 2r across and r along the bulge.
 const OBROUND_RATIO_TOL: f64 = 0.1;
 /// Coaxial cap patches (a STEP split of one semicircle) cluster within this fraction of the

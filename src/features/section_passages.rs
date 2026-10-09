@@ -277,7 +277,7 @@ fn first_vertex(part: &Part, wire: &[(usize, bool)]) -> V3 {
 
 /// A straight-edged wire as a section in *base*'s `u`, `v`, centred on its centroid, with that
 /// centroid placed in the world (`_line_section`).
-fn line_section(
+pub(crate) fn line_section(
     part: &Part,
     wire: &[(usize, bool)],
     base: &LocalFrame,

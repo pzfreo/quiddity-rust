@@ -154,7 +154,7 @@ fn curve_cuts(surface: &Surface, curve: &Curve, t0: f64, t1: f64) -> Vec<f64> {
 
 /// A B-spline surface's side of constant u, and of constant v, that collapses to a single
 /// point (as at the tip of a surface closing like a cone), if any.
-fn collapsed_sides(surface: &Surface) -> (Option<f64>, Option<f64>) {
+pub(crate) fn collapsed_sides(surface: &Surface) -> (Option<f64>, Option<f64>) {
     let Surface::Freeform { surface, .. } = surface else {
         return (None, None);
     };
@@ -235,7 +235,7 @@ struct Walk {
     crossed: bool,
     first: Option<Met>,
     latest: Option<Met>,
-    /// ∫ u dv so far: the parameter-space area the walk sweeps (Green's theorem).
+    /// ∫ (u − u_ref) dv so far: the parameter-space area the walk sweeps (Green's theorem).
     swept: f64,
 }
 
@@ -320,13 +320,14 @@ fn kronrod<S, const N: usize>(
 /// each half in turn, until its error estimate is below its terms' scale or the floor (the
 /// scale below which the integral is not resolved). The integrand is visited in walking order,
 /// carrying a state (`eval` runs one rule over (a, b) from a state, and may name a kink inside,
-/// where the panel is then split instead of halved), so a refined half restarts from where the
-/// walk stood.
+/// where the panel is then split instead of halved; a kink its rule cannot have seen, short of
+/// its outermost nodes, splits it even where its error estimate is resolved), so a refined half
+/// restarts from where the walk stood.
 fn adaptive<S: Copy, const N: usize>(
     cuts: &[f64],
     start: S,
     floor: Option<f64>,
-    eval: &mut impl FnMut(S, f64, f64) -> Option<(Panel<S, N>, Option<f64>)>,
+    eval: &mut impl FnMut(S, f64, f64) -> Option<(Panel<S, N>, Option<(f64, bool)>)>,
 ) -> Option<Panel<S, N>> {
     let mut state = start;
     let (mut total, mut excess, mut magnitude) = ([0.0; N], 0.0f64, 0.0);
@@ -337,9 +338,12 @@ fn adaptive<S: Copy, const N: usize>(
         let mut stack = vec![(w[0], w[1], 0, 0)];
         while let Some((a, b, depth, kinks)) = stack.pop() {
             let ((sum, error, size, end), kink) = eval(state, a, b)?;
+            let inside = |t: f64| (t - a) * (t - b) < 0.0 && t != a && t != b;
+            let kink = kink.filter(|&(t, _)| inside(t) && kinks < MAX_KINKS);
+            let unseen = kink.is_some_and(|(_, unseen)| unseen);
             let settled = match floor {
                 None => true,
-                Some(floor) => depth >= MAX_DEPTH || resolved(error, size, floor),
+                Some(floor) => depth >= MAX_DEPTH || (resolved(error, size, floor) && !unseen),
             };
             if settled {
                 for k in 0..N {
@@ -351,9 +355,8 @@ fn adaptive<S: Copy, const N: usize>(
                 }
                 state = end;
             } else {
-                let inside = |t: f64| (t - a) * (t - b) < 0.0 && t != a && t != b;
-                let (m, depth, kinks) = match kink.filter(|&t| inside(t) && kinks < MAX_KINKS) {
-                    Some(t) => (t, depth, kinks + 1),
+                let (m, depth, kinks) = match kink {
+                    Some((t, _)) => (t, depth, kinks + 1),
                     None => (0.5 * (a + b), depth + 1, kinks),
                 };
                 stack.push((m, b, depth, kinks));
@@ -655,6 +658,9 @@ impl Part {
         } else {
             collapsed.0.unwrap_or(start.0)
         };
+        // (The swept area, read only where the loops do not run round u, is measured from the
+        // same reference.)
+        let u_ref = if along_v { 0.0 } else { reference };
         let term = |u: f64, v: f64, du: f64, dv: f64| {
             let (weight, y) = if along_v {
                 let cuts = surface_cuts(surface, spans.1, true, reference, v);
@@ -672,13 +678,14 @@ impl Part {
         // unresolved at the scale of the whole face's terms.
         let mut passes = Vec::with_capacity(loops.len());
         for &i in &loops {
-            passes.push(self.boundary_integral(face, i, shifts[i], &term, None)?);
+            passes.push(self.boundary_integral(face, i, shifts[i], &term, None, u_ref)?);
         }
         let floor = 1e-11 * passes.iter().map(|p| p.2).sum::<f64>();
         let mut total = [0.0; N];
         for (&i, (mut sum, excess, _, swept)) in loops.iter().zip(passes) {
             if excess > floor {
-                let refined = self.boundary_integral(face, i, shifts[i], &term, Some(floor))?;
+                let refined =
+                    self.boundary_integral(face, i, shifts[i], &term, Some(floor), u_ref)?;
                 // A panel still unresolved at the floor after the deepest halving leaves the
                 // area unknown to that scale: refused rather than reported as if exact.
                 if refined.1 > floor {
@@ -698,7 +705,10 @@ impl Part {
 
     /// ∮ `term`(u, v, du/dt, dv/dt) dt round loop *i* of the face in parameter space (placed by
     /// `shift`): along each edge's exact curve, and straight across any gap between one edge's
-    /// end and the next one's start (a collapsed B-spline side, a pole), less whole turns.
+    /// end and the next one's start (a collapsed B-spline side, a pole), less whole turns. The
+    /// swept parameter area is ∮ (u − `u_ref`) dv, measured from the inner integral's reference
+    /// as the terms are: where the foot point jumps along a collapsed side u = `u_ref` (its v
+    /// undetermined there), neither counts the jump.
     fn boundary_integral<const N: usize>(
         &self,
         face: usize,
@@ -706,6 +716,7 @@ impl Part {
         shift: (f64, f64),
         term: &dyn Fn(f64, f64, f64, f64) -> [f64; N],
         floor: Option<f64>,
+        u_ref: f64,
     ) -> Option<Panel<f64, N>> {
         let fc = &self.faces[face];
         let surface = &fc.surface;
@@ -883,14 +894,36 @@ impl Part {
                 let mut weights = kronrod_nodes().iter().map(|n| 0.5 * (b - a) * n.1);
                 let panel = kronrod(walk, a, b, |walk, t| {
                     let ((u, v), (du, dv)) = node(walk, t)?;
-                    walk.swept += weights.next().unwrap_or(0.0) * u * dv;
+                    walk.swept += weights.next().unwrap_or(0.0) * (u - u_ref) * dv;
                     met.push((t, (u, v)));
                     Some(term(u, v, du, dv))
                 })?;
                 let kink = met
                     .windows(2)
                     .find(|w| held(w[0].1) != held(w[1].1))
-                    .map(|w| corner(w[0], w[1].0));
+                    .map(|w| (corner(w[0], w[1].0), false));
+                // A turn between an end of the panel and the node beside it is beyond the rule's
+                // reach: cgb217 face 34's edge 89 leaves the side v = 1 1.2e-5 before crossing the
+                // knot line u = 0.25, where the walk splits, so the step off the side fell short of
+                // the next panel's first node (2.2e-6 in v, 5e-5 of the face's area). The foot
+                // point at each end is compared with the node beside it (a turn within round-off
+                // of the end is the split's own).
+                let unseen = || {
+                    let (first, last) = (*met.first()?, *met.last()?);
+                    [(first, a), (last, b)]
+                        .into_iter()
+                        .find_map(|((tn, pn), te)| {
+                            let q = foot(surface, spans, ed.curve.value(te), wrap(pn))
+                                .map(|q| unwrap(q, pn))?;
+                            let t = (held(q) != held(pn)).then(|| corner((tn, pn), te))?;
+                            ((t - te).abs() > 1e-9 * (b - a).abs()).then_some((t, true))
+                        })
+                };
+                // (Only refinement splits, so a single pass need not look.)
+                let kink = match surface {
+                    Surface::Freeform { .. } if kink.is_none() && floor.is_some() => unseen(),
+                    _ => kink,
+                };
                 Some((panel, kink))
             };
             let walk = Walk {
@@ -995,7 +1028,7 @@ impl Part {
             let pieces = (gu.hypot(gv).ceil() as usize).max(1);
             let (sum, excess, size, ()) =
                 adaptive(&cuts(0.0, 1.0, pieces, &[]), (), floor, &mut eval)?;
-            add((sum, excess, size, gv * (from.0 + 0.5 * gu)));
+            add((sum, excess, size, gv * (from.0 + 0.5 * gu - u_ref)));
         }
         Some(total)
     }
@@ -1237,7 +1270,7 @@ mod tests {
         assert!((sum[0] - 5.0 / 18.0).abs() < 1e-9);
         let mut split = |(): (), a: f64, b: f64| {
             let panel = kronrod((), a, b, |(), x| Some([(x - 1.0 / 3.0).abs()]))?;
-            Some((panel, Some(1.0 / 3.0)))
+            Some((panel, Some((1.0 / 3.0, false))))
         };
         let (sum, ..) = adaptive(&[0.0, 1.0], (), Some(0.0), &mut split).unwrap();
         assert!((sum[0] - 5.0 / 18.0).abs() < 1e-15);

@@ -1,0 +1,1464 @@
+{
+ "schema": 1,
+ "rules_version": 1,
+ "binding": {
+  "source_sha256": "036683e8358ac27d51a92c35362e175c91bc44d3b600a5c605fb496865edcd37",
+  "face_count": 117,
+  "loader_version": 2,
+  "part": 0
+ },
+ "part": {
+  "material": "Aluminium 6082-T6",
+  "general_tolerance": "ISO 2768-m",
+  "surface_finish": "Ra 3.2",
+  "edges": "Break sharp edges 0.2 max"
+ },
+ "datums": [
+  {
+   "letter": "A",
+   "faces": [
+    97
+   ],
+   "existing": true
+  },
+  {
+   "letter": "B",
+   "faces": [
+    89,
+    90
+   ],
+   "existing": true
+  },
+  {
+   "letter": "C",
+   "faces": [
+    75,
+    76
+   ],
+   "existing": true
+  }
+ ],
+ "requirements": [
+  {
+   "kind": "perpendicularity",
+   "feature": "datum B",
+   "faces": [
+    89,
+    90
+   ],
+   "tolerance": 0.05,
+   "diametral": true,
+   "datums": [
+    "A"
+   ],
+   "question": "datum.B.control"
+  }
+ ],
+ "general": [
+  {
+   "kind": "size",
+   "feature": "hole_patterns.rectangle:0.1.91.92.93.94.95.96",
+   "faces": [
+    93,
+    94,
+    95,
+    96,
+    91,
+    92,
+    0,
+    1
+   ],
+   "nominal": 25.0,
+   "upper": 0.2,
+   "lower": -0.2,
+   "general": true
+  },
+  {
+   "kind": "size",
+   "feature": "hole_patterns.rectangle:71.72.73.74.75.76.89.90",
+   "faces": [
+    89,
+    90,
+    75,
+    76,
+    71,
+    72,
+    73,
+    74
+   ],
+   "nominal": 35.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "size",
+   "feature": "hole_patterns.set:50.51.52.53.56.58",
+   "faces": [
+    50,
+    51,
+    52,
+    53
+   ],
+   "nominal": 20.0,
+   "upper": 0.2,
+   "lower": -0.2,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    104
+   ],
+   "reference": [
+    97
+   ],
+   "distance": 50.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    2
+   ],
+   "reference": [
+    97
+   ],
+   "distance": 50.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    47,
+    49,
+    54,
+    55
+   ],
+   "reference": [
+    97
+   ],
+   "distance": 100.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    86
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 65.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    20,
+    28
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 150.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    82
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 165.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    31
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 207.5,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    35
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 292.5,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    110
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 350.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    107
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 450.0,
+   "upper": 0.8,
+   "lower": -0.8,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    37
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 507.5,
+   "upper": 0.8,
+   "lower": -0.8,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    41
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 592.5,
+   "upper": 0.8,
+   "lower": -0.8,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    8,
+    44
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 650.0,
+   "upper": 0.8,
+   "lower": -0.8,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    4
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 800.0,
+   "upper": 0.8,
+   "lower": -0.8,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    30,
+    36,
+    42,
+    48,
+    60
+   ],
+   "reference": [
+    26,
+    46
+   ],
+   "distance": 100.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    33,
+    39
+   ],
+   "reference": [
+    26,
+    46
+   ],
+   "distance": 125.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    88
+   ],
+   "reference": [
+    26,
+    46
+   ],
+   "distance": 200.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    80
+   ],
+   "reference": [
+    26,
+    46
+   ],
+   "distance": 205.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    78
+   ],
+   "reference": [
+    26,
+    46
+   ],
+   "distance": 245.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    84
+   ],
+   "reference": [
+    26,
+    46
+   ],
+   "distance": 250.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    10,
+    14,
+    18,
+    61,
+    62
+   ],
+   "reference": [
+    26,
+    46
+   ],
+   "distance": 350.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    6,
+    22
+   ],
+   "reference": [
+    26,
+    46
+   ],
+   "distance": 450.0,
+   "upper": 0.8,
+   "lower": -0.8,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    15
+   ],
+   "reference": [
+    11
+   ],
+   "distance": 190.525589,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    13
+   ],
+   "reference": [
+    17
+   ],
+   "distance": 190.525589,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    105
+   ],
+   "reference": [
+    108
+   ],
+   "distance": 100.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "",
+   "faces": [
+    106
+   ],
+   "reference": [
+    109
+   ],
+   "distance": 100.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:0.1",
+   "faces": [
+    0,
+    1
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 560.0,
+   "upper": 0.8,
+   "lower": -0.8,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:0.1",
+   "faces": [
+    0,
+    1
+   ],
+   "reference": [
+    26,
+    46
+   ],
+   "distance": 180.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:0.1",
+   "faces": [
+    0,
+    1
+   ],
+   "reference": [
+    11
+   ],
+   "distance": 103.30127,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:0.1",
+   "faces": [
+    0,
+    1
+   ],
+   "reference": [
+    17
+   ],
+   "distance": 173.826859,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:0.1",
+   "faces": [
+    0,
+    1
+   ],
+   "reference": [
+    25
+   ],
+   "distance": 487.903679,
+   "upper": 0.8,
+   "lower": -0.8,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:0.1",
+   "faces": [
+    0,
+    1
+   ],
+   "reference": [
+    108
+   ],
+   "distance": 8.971166,
+   "upper": 0.2,
+   "lower": -0.2,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:0.1",
+   "faces": [
+    0,
+    1
+   ],
+   "reference": [
+    109
+   ],
+   "distance": 168.971166,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:71.72",
+   "faces": [
+    71,
+    72
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 75.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:71.72",
+   "faces": [
+    71,
+    72
+   ],
+   "reference": [
+    26,
+    46
+   ],
+   "distance": 50.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:71.72",
+   "faces": [
+    71,
+    72
+   ],
+   "reference": [
+    11
+   ],
+   "distance": 251.721051,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:71.72",
+   "faces": [
+    71,
+    72
+   ],
+   "reference": [
+    17
+   ],
+   "distance": 311.195462,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:71.72",
+   "faces": [
+    71,
+    72
+   ],
+   "reference": [
+    25
+   ],
+   "distance": 53.033009,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:71.72",
+   "faces": [
+    71,
+    72
+   ],
+   "reference": [
+    108
+   ],
+   "distance": 364.054469,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:71.72",
+   "faces": [
+    71,
+    72
+   ],
+   "reference": [
+    109
+   ],
+   "distance": 39.054469,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:73.74",
+   "faces": [
+    73,
+    74
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 725.0,
+   "upper": 0.8,
+   "lower": -0.8,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:73.74",
+   "faces": [
+    73,
+    74
+   ],
+   "reference": [
+    26,
+    46
+   ],
+   "distance": 50.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:73.74",
+   "faces": [
+    73,
+    74
+   ],
+   "reference": [
+    11
+   ],
+   "distance": 311.195462,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:73.74",
+   "faces": [
+    73,
+    74
+   ],
+   "reference": [
+    17
+   ],
+   "distance": 251.721051,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:73.74",
+   "faces": [
+    73,
+    74
+   ],
+   "reference": [
+    25
+   ],
+   "distance": 512.652416,
+   "upper": 0.8,
+   "lower": -0.8,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:73.74",
+   "faces": [
+    73,
+    74
+   ],
+   "reference": [
+    108
+   ],
+   "distance": 39.054469,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:73.74",
+   "faces": [
+    73,
+    74
+   ],
+   "reference": [
+    109
+   ],
+   "distance": 364.054469,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:75.76",
+   "faces": [
+    75,
+    76
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 75.0,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:75.76",
+   "faces": [
+    75,
+    76
+   ],
+   "reference": [
+    26,
+    46
+   ],
+   "distance": 400.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:75.76",
+   "faces": [
+    75,
+    76
+   ],
+   "reference": [
+    11
+   ],
+   "distance": 426.721051,
+   "upper": 0.8,
+   "lower": -0.8,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:75.76",
+   "faces": [
+    75,
+    76
+   ],
+   "reference": [
+    17
+   ],
+   "distance": 136.195462,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:75.76",
+   "faces": [
+    75,
+    76
+   ],
+   "reference": [
+    25
+   ],
+   "distance": 300.520382,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:75.76",
+   "faces": [
+    75,
+    76
+   ],
+   "reference": [
+    108
+   ],
+   "distance": 60.945578,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:75.76",
+   "faces": [
+    75,
+    76
+   ],
+   "reference": [
+    109
+   ],
+   "distance": 264.054422,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:89.90",
+   "faces": [
+    89,
+    90
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 725.0,
+   "upper": 0.8,
+   "lower": -0.8,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:89.90",
+   "faces": [
+    89,
+    90
+   ],
+   "reference": [
+    26,
+    46
+   ],
+   "distance": 400.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:89.90",
+   "faces": [
+    89,
+    90
+   ],
+   "reference": [
+    11
+   ],
+   "distance": 136.195462,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:89.90",
+   "faces": [
+    89,
+    90
+   ],
+   "reference": [
+    17
+   ],
+   "distance": 426.721051,
+   "upper": 0.8,
+   "lower": -0.8,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:89.90",
+   "faces": [
+    89,
+    90
+   ],
+   "reference": [
+    25
+   ],
+   "distance": 760.13979,
+   "upper": 0.8,
+   "lower": -0.8,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:89.90",
+   "faces": [
+    89,
+    90
+   ],
+   "reference": [
+    108
+   ],
+   "distance": 264.054422,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:89.90",
+   "faces": [
+    89,
+    90
+   ],
+   "reference": [
+    109
+   ],
+   "distance": 60.945578,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:91.92",
+   "faces": [
+    91,
+    92
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 240.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:91.92",
+   "faces": [
+    91,
+    92
+   ],
+   "reference": [
+    26,
+    46
+   ],
+   "distance": 180.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:91.92",
+   "faces": [
+    91,
+    92
+   ],
+   "reference": [
+    11
+   ],
+   "distance": 173.826859,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:91.92",
+   "faces": [
+    91,
+    92
+   ],
+   "reference": [
+    17
+   ],
+   "distance": 103.30127,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:91.92",
+   "faces": [
+    91,
+    92
+   ],
+   "reference": [
+    25
+   ],
+   "distance": 261.629509,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:91.92",
+   "faces": [
+    91,
+    92
+   ],
+   "reference": [
+    108
+   ],
+   "distance": 168.971166,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:91.92",
+   "faces": [
+    91,
+    92
+   ],
+   "reference": [
+    109
+   ],
+   "distance": 8.971166,
+   "upper": 0.2,
+   "lower": -0.2,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:93.94",
+   "faces": [
+    93,
+    94
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 560.0,
+   "upper": 0.8,
+   "lower": -0.8,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:93.94",
+   "faces": [
+    93,
+    94
+   ],
+   "reference": [
+    26,
+    46
+   ],
+   "distance": 270.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:93.94",
+   "faces": [
+    93,
+    94
+   ],
+   "reference": [
+    11
+   ],
+   "distance": 58.30127,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:93.94",
+   "faces": [
+    93,
+    94
+   ],
+   "reference": [
+    17
+   ],
+   "distance": 218.826859,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:93.94",
+   "faces": [
+    93,
+    94
+   ],
+   "reference": [
+    25
+   ],
+   "distance": 551.543289,
+   "upper": 0.8,
+   "lower": -0.8,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:93.94",
+   "faces": [
+    93,
+    94
+   ],
+   "reference": [
+    108
+   ],
+   "distance": 68.97112,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:93.94",
+   "faces": [
+    93,
+    94
+   ],
+   "reference": [
+    109
+   ],
+   "distance": 91.02888,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:95.96",
+   "faces": [
+    95,
+    96
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 240.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:95.96",
+   "faces": [
+    95,
+    96
+   ],
+   "reference": [
+    26,
+    46
+   ],
+   "distance": 270.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:95.96",
+   "faces": [
+    95,
+    96
+   ],
+   "reference": [
+    11
+   ],
+   "distance": 218.826859,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:95.96",
+   "faces": [
+    95,
+    96
+   ],
+   "reference": [
+    17
+   ],
+   "distance": 58.30127,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:95.96",
+   "faces": [
+    95,
+    96
+   ],
+   "reference": [
+    25
+   ],
+   "distance": 325.269119,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:95.96",
+   "faces": [
+    95,
+    96
+   ],
+   "reference": [
+    108
+   ],
+   "distance": 91.02888,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:95.96",
+   "faces": [
+    95,
+    96
+   ],
+   "reference": [
+    109
+   ],
+   "distance": 68.97112,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:50.51.56",
+   "faces": [
+    50,
+    51
+   ],
+   "reference": [
+    97
+   ],
+   "distance": 25.0,
+   "upper": 0.2,
+   "lower": -0.2,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:50.51.56",
+   "faces": [
+    50,
+    51
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 370.0,
+   "upper": 0.5,
+   "lower": -0.5,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:50.51.56",
+   "faces": [
+    50,
+    51
+   ],
+   "reference": [
+    113
+   ],
+   "distance": 106.066017,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:50.51.56",
+   "faces": [
+    50,
+    51
+   ],
+   "reference": [
+    116
+   ],
+   "distance": 63.63961,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:52.53.58",
+   "faces": [
+    52,
+    53
+   ],
+   "reference": [
+    97
+   ],
+   "distance": 25.0,
+   "upper": 0.2,
+   "lower": -0.2,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:52.53.58",
+   "faces": [
+    52,
+    53
+   ],
+   "reference": [
+    24
+   ],
+   "distance": 430.0,
+   "upper": 0.8,
+   "lower": -0.8,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:52.53.58",
+   "faces": [
+    52,
+    53
+   ],
+   "reference": [
+    113
+   ],
+   "distance": 63.63961,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  },
+  {
+   "kind": "location",
+   "feature": "holes:52.53.58",
+   "faces": [
+    52,
+    53
+   ],
+   "reference": [
+    116
+   ],
+   "distance": 106.066017,
+   "upper": 0.3,
+   "lower": -0.3,
+   "general": true
+  }
+ ]
+}

@@ -162,6 +162,48 @@ pub fn extreme_parameters(curve: &Curve, (a, b): (f64, f64), dirs: &[V3]) -> Vec
     out
 }
 
+/// A B-spline edge's interior extremes along each of *dirs*, refined from its *samples* (which
+/// can undercut a bulge between two of them by up to the chord tolerance): the curve between the
+/// neighbours of the extreme sample, searched by golden section. Cheaper than
+/// [`extremes_along`]'s dense scan, and as exact where the samples bracket the extreme, which
+/// adaptive sampling to the chord tolerance ensures. Other curves have none here (a conic's are
+/// [`extremes_along`]'s, in closed form).
+pub fn sampled_extremes(curve: &Curve, (a, b): (f64, f64), samples: &[V3], dirs: &[V3]) -> Vec<V3> {
+    let Curve::Nurbs(_) = curve else {
+        return Vec::new();
+    };
+    let n = samples.len();
+    let (lo, hi) = if a <= b { (a, b) } else { (b, a) };
+    let mut out = Vec::new();
+    for &d in dirs {
+        for sign in [1.0, -1.0] {
+            let g = |p: V3| sign * dot(p, d);
+            let best = (0..n)
+                .max_by(|&i, &j| g(samples[i]).total_cmp(&g(samples[j])))
+                .expect("samples");
+            if best == 0 || best + 1 == n {
+                continue;
+            }
+            let (t0, t1) = (
+                curve.parameter(samples[best - 1]).clamp(lo, hi),
+                curve.parameter(samples[best + 1]).clamp(lo, hi),
+            );
+            let (mut x0, mut x1) = (t0.min(t1), t0.max(t1));
+            let r = 0.5 * (5f64.sqrt() - 1.0);
+            for _ in 0..60 {
+                let (c, e) = (x1 - r * (x1 - x0), x0 + r * (x1 - x0));
+                if g(curve.value(c)) > g(curve.value(e)) {
+                    x1 = e;
+                } else {
+                    x0 = c;
+                }
+            }
+            out.push(curve.value(0.5 * (x0 + x1)));
+        }
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

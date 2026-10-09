@@ -22,13 +22,6 @@
   },
   {
     "file": "nist/nist_ctc_03_asme1_rc.stp",
-    "caller": "_recess_reduce",
-    "probes": [5, 6, 7],
-    "verdict": "rust-wrong",
-    "reason": "The port refuses where Python answers: integration lines along x run 2.55e-6 to 4.1e-6 above the z = 76.2 face (face 8) the probe is inset from, inside the few microns where the file's faces there disagree: the fillet cylinder face 36 bottoms out at z 76.2000039 rather than on face 8, and its edge with face 8 (edge 88) lies 4.6e-6 above that face. Such a line meets the walls rising from face 8 (faces 63, 65, 67, 69) just above their edges with it and the fillet face 39 once, and fillet 36 twice or not at all, so its count stays odd (5 or 7) after the nudges and the probe is refused. Every crossing is exact (straight edges, no polyline sliver); OpenCascade closes the gap with the edges' tolerances. File precision, and the port's refusal is honest."
-  },
-  {
-    "file": "nist/nist_ctc_03_asme1_rc.stp",
     "caller": "_open_channel_section",
     "probes": [25, 29, 36, 40],
     "verdict": "rust-correct",

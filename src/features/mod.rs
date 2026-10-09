@@ -21,7 +21,10 @@ pub mod circular_face_patterns;
 pub mod context;
 pub mod countersinks;
 pub mod cylinders;
+pub mod cylindrical_channels;
 pub mod cylindrical_end_surface;
+pub mod cylindrical_passages;
+pub mod cylindrical_pockets;
 pub mod cylindrical_seats;
 pub mod edge_open;
 pub mod edge_open_circular;
@@ -44,6 +47,7 @@ pub mod levels;
 pub mod oblique_through_steps;
 pub mod oriented_chamfers;
 pub mod oriented_slots;
+pub mod pads;
 pub mod paired_ramp_steps;
 pub mod passage_compat;
 pub mod passages;
@@ -64,12 +68,16 @@ pub mod recess_patterns;
 pub mod recess_radii;
 pub mod recess_records;
 pub mod recess_reduce;
+pub mod reconcile;
 pub mod rectangular_blind_slots;
 pub mod regions;
 pub mod repeating_profiles;
 pub mod rings;
 pub mod round_bottom_slots;
 pub mod section_passages;
+pub mod section_recess;
+pub mod section_recess_discovery;
+pub mod section_recess_geometry;
 pub mod sections;
 pub mod sheet_metal;
 pub mod slots;
@@ -94,7 +102,8 @@ use crate::kernel::brep::Part;
 
 /// Every ported family's records for one part, computed in one run that shares its analysis.
 /// Families are independent here: the Python aggregate's cross-family reconciliation
-/// (`build_recognition_result`) is not ported. Face levels and risers are measurements with no
+/// (`build_recognition_result`) is ported as decisions ([`reconcile`]) but not yet applied, so
+/// records it would reject are still carried. Face levels and risers are measurements with no
 /// evidence path yet, so they are called on their own.
 #[derive(Clone, Debug, Serialize)]
 pub struct Features {
@@ -142,6 +151,7 @@ pub struct Features {
     pub prismatic_pockets: Vec<prismatic_pockets::PrismaticPocket>,
     pub oriented_slots: Vec<oriented_slots::OrientedSlot>,
     pub oriented_slot_patterns: Vec<oriented_slots::OrientedSlotPattern>,
+    pub pads: Vec<pads::RaisedPad>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole, gusset rib, slot, pocket and oriented slot patterns) have none of their own: their
     /// members' faces are theirs ([`crate::correspondence`]).
@@ -309,6 +319,12 @@ pub fn recognise(part: &Part) -> Features {
         ),
         oriented_slot_patterns: oriented_slots::recognise_oriented_slot_patterns(&oriented_slots),
         oriented_slots,
+        pads: kept(
+            &mut defining,
+            "pads",
+            pads::discover(&ctx, &Default::default())
+                .unwrap_or_else(|e| panic!("rectangular pads refused: {e}")),
+        ),
         defining,
     }
 }

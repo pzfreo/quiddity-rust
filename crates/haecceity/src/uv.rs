@@ -595,6 +595,7 @@ impl Part {
                     }
                 }
             }
+            route_collapsed_sides(&f.surface, &points, &mut raw);
             let (raw, placed) = route_singular_points(&f.surface, raw, f.reversed);
             for (mut u, mut v) in raw {
                 if let Some(&(lu, lv)) = pts.last() {
@@ -673,20 +674,27 @@ impl Part {
             winds.1 |= pv && (last.1 - first.1).abs() > 1.0;
         }
         let (_, shifts) = self.loop_placement(face)?;
-        if matches!(f.surface, Surface::Sphere { .. }) || f.pcurves.is_empty() {
-            for (lp, shift) in loops.iter().zip(&shifts) {
-                lp.points
-                    .iter()
-                    .for_each(|&(u, v)| widen(&mut range, (u + shift.0, v + shift.1)));
-            }
-        } else {
-            // Edge by edge: where the file gives an edge's pcurve, it sizes the range in place of
-            // the 3D edge (aligned to the edge's own samples to pick the period).
-            for ((lp, uv), shift) in f.loops.iter().zip(loops).zip(&shifts) {
-                if lp.vertex.is_some() {
-                    continue; // an apex bounds v through its edges; its u is meaningless
+        // Edge by edge, from the edges themselves: where the file gives an edge's pcurve, it
+        // widens the range too (aligned to the edge's own samples to pick the period).
+        for ((lp, uv), shift) in f.loops.iter().zip(loops).zip(&shifts) {
+            if let Some(vertex) = lp.vertex {
+                // A vertex loop at a pole or apex reaches that parameter line; its u is
+                // meaningless there.
+                let (u, v) = f.surface.parameters(vertex, None)?;
+                match f.surface.singular_v(v) {
+                    Some(line) => widen_v(&mut range, line),
+                    None => widen(&mut range, (u + shift.0, v + shift.1)),
                 }
-                self.widen_by_loop_edges(f, lp, uv, *shift, periodic, &mut range)?;
+                continue;
+            }
+            self.widen_by_loop_edges(f, lp, uv, *shift, periodic, &mut range)?;
+            // A loop running once round a sphere is closed through a pole, which the face then
+            // reaches (`close_through_pole`).
+            if matches!(f.surface, Surface::Sphere { .. })
+                && uv.winds_u
+                && let Some(&(_, pole)) = uv.points.len().checked_sub(2).map(|k| &uv.points[k])
+            {
+                widen_v(&mut range, pole);
             }
         }
         let seam = self.seam_parameters(face);
@@ -747,8 +755,34 @@ impl Part {
             self::range(uv.points.iter(), |p| p.1),
         );
         let loop_centre = (0.5 * (lu.0 + lu.1) + shift.0, 0.5 * (lv.0 + lv.1) + shift.1);
+        let collapsed = crate::mass::collapsed_sides(&f.surface);
         for &(e, forward) in &lp.edges {
-            let mut pts = self.edge_uv_points(f, e, forward, periodic, &mut last)?;
+            // A sphere's pcurves running into a pole turn in u where its 3D edges keep their
+            // longitude: they do not size its range.
+            let own: Vec<&Pcurve> = f
+                .pcurves
+                .iter()
+                .filter(|(pe, _)| *pe == e && !matches!(f.surface, Surface::Sphere { .. }))
+                .map(|(_, c)| c)
+                .collect();
+            let (mut pts, partial) =
+                self.edge_uv_points(f, e, forward, periodic, collapsed, &mut last)?;
+            for (u, v) in partial {
+                if let Some(u) = u {
+                    range[0] = range[0].min(u);
+                    range[1] = range[1].max(u);
+                }
+                if let Some(v) = v {
+                    widen_v(range, v);
+                }
+            }
+            // A pcurve constant in v fixes the edge's v exactly; otherwise its samples would
+            // undercut its interior extremes.
+            if !own.iter().any(|c| fixed_parameters(c).1.is_some()) {
+                for v in self.axial_extremes(f, e)? {
+                    widen_v(range, v);
+                }
+            }
             if pts.is_empty() {
                 continue;
             }
@@ -763,48 +797,93 @@ impl Part {
             let (du, dv) = (placed.0 - mean.0, placed.1 - mean.1);
             pts.iter_mut().for_each(|p| *p = (p.0 + du, p.1 + dv));
             last = *pts.last().expect("non-empty");
-            let own: Vec<&Pcurve> = f
-                .pcurves
-                .iter()
-                .filter(|(pe, _)| *pe == e)
-                .map(|(_, c)| c)
-                .collect();
             if own.is_empty() {
                 pts.iter().for_each(|&p| widen(range, p));
                 continue;
             }
-            widen_by_pcurves(&own, &pts, placed, periodic, range);
+            widen_by_pcurves(&f.surface, &own, &pts, placed, periodic, range);
         }
         Some(())
     }
 
-    /// Edge *e*'s samples on face *f*, walked *forward* or back, in (u, v) continuing from
-    /// *last* (which follows them); a pole or apex sample is skipped.
+    /// Edge *e*'s points on face *f*, walked *forward* or back, in (u, v) continuing from
+    /// *last* (which follows them): its samples, its ends taken on its curve (a vertex may
+    /// stand off the curve, and the face, by its tolerance); and, apart, the one parameter a
+    /// sample fixes where the other is arbitrary: v at a pole or apex, or on a B-spline side
+    /// *collapsed* to a point (`collapsed_sides`) the parameter across that side.
     fn edge_uv_points(
         &self,
         f: &Face,
         e: usize,
         forward: bool,
         periodic: (bool, bool),
+        collapsed: (Option<f64>, Option<f64>),
         last: &mut (f64, f64),
-    ) -> Option<Vec<(f64, f64)>> {
-        let samples = &self.edges[e].samples;
-        let ordered: Box<dyn Iterator<Item = &V3>> = if forward {
-            Box::new(samples.iter())
-        } else {
-            Box::new(samples.iter().rev())
+    ) -> Option<EdgeUv> {
+        let ed = &self.edges[e];
+        let samples = &ed.samples;
+        let (t0, t1) = edge_interval(&ed.curve, ed.start, ed.end, ed.same_sense, ed.is_closed());
+        let n = samples.len();
+        let at = |k: usize| match k {
+            0 => ed.curve.value(t0),
+            k if k + 1 == n => ed.curve.value(t1),
+            k => samples[k],
         };
-        let mut pts = Vec::with_capacity(samples.len());
-        for p in ordered {
-            let q = f.surface.parameters(*p, None)?;
-            if f.surface.singular_v(q.1).is_some() {
-                continue; // a pole or apex: its u is arbitrary
+        let ordered: Box<dyn Iterator<Item = usize>> = if forward {
+            Box::new(0..n)
+        } else {
+            Box::new((0..n).rev())
+        };
+        // A closed B-spline surface (not marked periodic) gives a seam point two parameter
+        // values: follow on from the last point.
+        let follow = matches!(f.surface, Surface::Freeform { .. });
+        let mut pts = Vec::with_capacity(n);
+        let mut partial = Vec::new();
+        for k in ordered {
+            let p = at(k);
+            let q = f.surface.parameters(p, follow.then_some(*last))?;
+            if let Some(line) = f.surface.singular_v(q.1) {
+                // A sample at the pole or apex itself (to 1e-9) is on its line, whatever
+                // round-off the vertex's coordinates leave in its v.
+                let v = if (q.1 - line).abs() <= 1e-9 {
+                    line
+                } else {
+                    q.1
+                };
+                partial.push((None, Some(v)));
+                continue;
+            }
+            let on = |u: f64, v: f64| geom::dist(p, f.surface.value(u, v)) <= 1e-6;
+            if let Some(u) = collapsed.0.filter(|&u| on(u, q.1)) {
+                partial.push((Some(u), None));
+                continue;
+            }
+            if let Some(v) = collapsed.1.filter(|&v| on(q.0, v)) {
+                partial.push((None, Some(v)));
+                continue;
             }
             let q = near(periodic, q, *last);
             pts.push(q);
             *last = q;
         }
-        Some(pts)
+        Some((pts, partial))
+    }
+
+    /// The v of edge *e*'s interior extremes along the axis of face *f*'s cylinder, cone or
+    /// sphere, whose v grows with the axial coordinate (none on other surfaces).
+    fn axial_extremes(&self, f: &Face, e: usize) -> Option<Vec<f64>> {
+        let (Surface::Cylinder { frame, .. }
+        | Surface::Cone { frame, .. }
+        | Surface::Sphere { frame, .. }) = f.surface
+        else {
+            return Some(Vec::new());
+        };
+        let ed = &self.edges[e];
+        let interval = edge_interval(&ed.curve, ed.start, ed.end, ed.same_sense, ed.is_closed());
+        extremes_along(&ed.curve, interval, &[frame.z])
+            .into_iter()
+            .map(|p| f.surface.parameters(p, None).map(|q| q.1))
+            .collect()
     }
 
     /// The constant periodic parameter of a seam edge (an edge used twice by this face), if
@@ -858,6 +937,18 @@ fn widen(range: &mut [f64; 4], (u, v): (f64, f64)) {
     ];
 }
 
+/// One parameter of a boundary point whose other parameter is arbitrary: (u, v), one `None`.
+type Partial = (Option<f64>, Option<f64>);
+
+/// An edge's points in (u, v), and the points that fix one parameter alone.
+type EdgeUv = (Vec<(f64, f64)>, Vec<Partial>);
+
+/// Widens a (u_min, u_max, v_min, v_max) range's v to take in *v*.
+fn widen_v(range: &mut [f64; 4], v: f64) {
+    range[2] = range[2].min(v);
+    range[3] = range[3].max(v);
+}
+
 /// (u, v) moved by whole turns in its periodic parameters to lie nearest (ru, rv).
 fn near(periodic: (bool, bool), (u, v): (f64, f64), (ru, rv): (f64, f64)) -> (f64, f64) {
     (
@@ -875,8 +966,10 @@ fn near(periodic: (bool, bool), (u, v): (f64, f64), (ru, rv): (f64, f64)) -> (f6
 }
 
 /// Widens *range* by an edge's own pcurves, each aligned to the period of *centre*, where the
-/// edge's samples *pts* sit.
+/// edge's samples *pts* sit. A pole at a pole or apex of *surface* bounds v alone: its u is
+/// arbitrary there.
 fn widen_by_pcurves(
+    surface: &Surface,
     own: &[&Pcurve],
     pts: &[(f64, f64)],
     centre: (f64, f64),
@@ -884,34 +977,56 @@ fn widen_by_pcurves(
     range: &mut [f64; 4],
 ) {
     for curve in own {
-        match curve {
-            Pcurve::Poles(poles) => {
-                let m = poles.len() as f64;
-                let mid = (
-                    poles.iter().map(|p| p.0).sum::<f64>() / m,
-                    poles.iter().map(|p| p.1).sum::<f64>() / m,
-                );
-                let aligned = near(periodic, mid, centre);
-                poles.iter().for_each(|&(u, v)| {
-                    widen(range, (u + aligned.0 - mid.0, v + aligned.1 - mid.1))
-                });
-            }
-            Pcurve::Line { point, dir } => {
-                // A line constant in one parameter fixes that parameter exactly; the other comes
-                // from the edge's samples.
-                let along_v = dir.0.abs() <= 1e-12 * dir.1.abs();
-                let along_u = dir.1.abs() <= 1e-12 * dir.0.abs();
-                let fixed = near(periodic, *point, centre);
-                for &(u, v) in pts {
-                    widen(
-                        range,
-                        (
-                            if along_v { fixed.0 } else { u },
-                            if along_u { fixed.1 } else { v },
-                        ),
-                    );
+        if let Pcurve::Poles(poles) = curve {
+            let m = poles.len() as f64;
+            let mid = (
+                poles.iter().map(|p| p.0).sum::<f64>() / m,
+                poles.iter().map(|p| p.1).sum::<f64>() / m,
+            );
+            let aligned = near(periodic, mid, centre);
+            for &(u, v) in poles.iter() {
+                let (u, v) = (u + aligned.0 - mid.0, v + aligned.1 - mid.1);
+                match surface.singular_v(v) {
+                    Some(_) => widen_v(range, v),
+                    None => widen(range, (u, v)),
                 }
             }
+        }
+        // A pcurve constant in one parameter fixes that parameter exactly; the other comes from
+        // the edge's samples. Otherwise the samples widen the range too: the poles hold their
+        // curve, but a file's pcurve may stray from its edge (within tolerance), and the range
+        // must still hold the edge.
+        let (fixed_u, fixed_v) = fixed_parameters(curve);
+        let place = |x: Option<f64>, c: f64, p: bool| {
+            x.map(|x| if p { geom::nearest_turn(x, c) } else { x })
+        };
+        let (fixed_u, fixed_v) = (
+            place(fixed_u, centre.0, periodic.0),
+            place(fixed_v, centre.1, periodic.1),
+        );
+        for &(u, v) in pts {
+            widen(range, (fixed_u.unwrap_or(u), fixed_v.unwrap_or(v)));
+        }
+    }
+}
+
+/// The parameters a pcurve holds constant, (u, v): a line along v or u, or a control polygon
+/// whose poles share their u or v.
+fn fixed_parameters(curve: &Pcurve) -> (Option<f64>, Option<f64>) {
+    match curve {
+        Pcurve::Line { point, dir } => (
+            (dir.0.abs() <= 1e-12 * dir.1.abs()).then_some(point.0),
+            (dir.1.abs() <= 1e-12 * dir.0.abs()).then_some(point.1),
+        ),
+        Pcurve::Poles(poles) => {
+            let shared = |pick: fn(&(f64, f64)) -> f64| {
+                let first = pick(poles.first()?);
+                poles
+                    .iter()
+                    .all(|p| (pick(p) - first).abs() <= 1e-12 * (1.0 + first.abs()))
+                    .then_some(first)
+            };
+            (shared(|p| p.0), shared(|p| p.1))
         }
     }
 }
@@ -1013,6 +1128,56 @@ fn route_singular_points(
         out.push(out[0]);
     }
     (out, placed)
+}
+
+/// Route a closed loop along a B-spline side that collapses to a point (`collapsed_sides`).
+/// A sample at that point fixes only the parameter across the side; the other is arbitrary, and
+/// inversion leaves it wherever its seed was, so the loop would cut straight across the face to
+/// the next sample (cgb242 face 715 lost half its domain so). Each run of such samples (the
+/// shared vertex of two edges, at least) instead runs along the side from where the boundary
+/// arrives to where it leaves: its first sample takes the arriving sample's other parameter, the
+/// rest the leaving one's. *points* are the samples, *raw* their parameters, in loop order.
+fn route_collapsed_sides(surface: &Surface, points: &[V3], raw: &mut [(f64, f64)]) {
+    let collapsed = crate::mass::collapsed_sides(surface);
+    let n = raw.len();
+    for (side, c) in [(0, collapsed.0), (1, collapsed.1)] {
+        let Some(c) = c else { continue };
+        let pick = |q: (f64, f64)| if side == 0 { q.0 } else { q.1 };
+        let on: Vec<bool> = (0..n)
+            .map(|k| {
+                let q = raw[k];
+                let at = if side == 0 { (c, q.1) } else { (q.0, c) };
+                (pick(q) - c).abs() <= 1e-9
+                    && geom::dist(points[k], surface.value(at.0, at.1)) <= 1e-6
+            })
+            .collect();
+        let Some(start) = on.iter().position(|o| !o) else {
+            continue; // the whole loop on the side: nothing to route from
+        };
+        let mut k = 0;
+        while k < n {
+            let i = (start + k) % n;
+            if !on[i] {
+                k += 1;
+                continue;
+            }
+            let run: Vec<usize> = (k..n)
+                .map(|j| (start + j) % n)
+                .take_while(|&j| on[j])
+                .collect();
+            k += run.len();
+            let before = raw[(run[0] + n - 1) % n];
+            let after = raw[(run[run.len() - 1] + 1) % n];
+            for (m, &j) in run.iter().enumerate() {
+                let other = if m == 0 { before } else { after };
+                raw[j] = if side == 0 {
+                    (c, other.1)
+                } else {
+                    (other.0, c)
+                };
+            }
+        }
+    }
 }
 
 /// Whether the face reaches the singular point (pole or apex) at *v*: the point is a whole

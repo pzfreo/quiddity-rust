@@ -1,0 +1,186 @@
+{
+  "files": {
+    "nist_ctc_01_asme1_ap242-e1.stp": {
+      "blockers": {
+        "draughting_model_item_association": 46,
+        "property_definition": 6
+      },
+      "families": {
+        "presentation": 46,
+        "validation-property": 6
+      },
+      "seeds": 218
+    },
+    "nist_ctc_02_asme1_ap242-e2.stp": {
+      "blockers": {
+        "draughting_model_item_association": 92,
+        "draughting_model_item_association_with_placeholder": 46,
+        "property_definition": 47
+      },
+      "families": {
+        "presentation": 138,
+        "validation-property": 47
+      },
+      "seeds": 641
+    },
+    "nist_ctc_03_asme1_ap242-e2.stp": {
+      "blockers": {
+        "draughting_model_item_association": 58,
+        "draughting_model_item_association_with_placeholder": 29,
+        "property_definition": 30
+      },
+      "families": {
+        "presentation": 87,
+        "validation-property": 30
+      },
+      "seeds": 462
+    },
+    "nist_ctc_04_asme1_ap242-e2.stp": {
+      "blockers": {
+        "draughting_model_item_association": 56,
+        "property_definition": 43
+      },
+      "families": {
+        "presentation": 56,
+        "validation-property": 43
+      },
+      "seeds": 1312
+    },
+    "nist_ctc_05_asme1_ap242-e1.stp": {
+      "blockers": {
+        "draughting_model_item_association": 46
+      },
+      "families": {
+        "presentation": 46
+      },
+      "seeds": 151
+    },
+    "nist_ftc_06_asme1_ap242-e2.stp": {
+      "blockers": {
+        "draughting_model_item_association": 67,
+        "draughting_model_item_association_with_placeholder": 67,
+        "property_definition": 65
+      },
+      "families": {
+        "presentation": 134,
+        "validation-property": 65
+      },
+      "seeds": 1502
+    },
+    "nist_ftc_07_asme1_ap242-e2.stp": {
+      "blockers": {
+        "draughting_model_item_association": 107,
+        "property_definition": 50
+      },
+      "families": {
+        "presentation": 107,
+        "validation-property": 50
+      },
+      "seeds": 952
+    },
+    "nist_ftc_08_asme1_ap242-e2.stp": {
+      "blockers": {
+        "draughting_model_item_association": 119
+      },
+      "families": {
+        "presentation": 119
+      },
+      "seeds": 641
+    },
+    "nist_ftc_08_asme1_ap242-e4-tg.stp": {
+      "blockers": {
+        "draughting_model_item_association": 212,
+        "property_definition": 2
+      },
+      "families": {
+        "presentation": 212,
+        "validation-property": 2
+      },
+      "seeds": 386
+    },
+    "nist_ftc_09_asme1_ap242-e1.stp": {
+      "blockers": {
+        "draughting_model_item_association": 124
+      },
+      "families": {
+        "presentation": 124
+      },
+      "seeds": 851
+    },
+    "nist_ftc_10_asme1_ap242-e2.stp": {
+      "blockers": {
+        "draughting_model_item_association": 182
+      },
+      "families": {
+        "presentation": 182
+      },
+      "seeds": 1150
+    },
+    "nist_ftc_11_asme1_ap242-e3.stp": {
+      "blockers": {
+        "draughting_model_item_association": 30
+      },
+      "families": {
+        "presentation": 30
+      },
+      "seeds": 82
+    },
+    "nist_stc_06_asme1_ap242-e3.stp": {
+      "blockers": {
+        "draughting_model_item_association": 120,
+        "draughting_model_item_association_with_placeholder": 48,
+        "property_definition": 49
+      },
+      "families": {
+        "presentation": 168,
+        "validation-property": 49
+      },
+      "seeds": 506
+    },
+    "nist_stc_07_asme1_ap242-e3.stp": {
+      "blockers": {
+        "draughting_model_item_association": 253,
+        "draughting_model_item_association_with_placeholder": 60,
+        "property_definition": 67
+      },
+      "families": {
+        "presentation": 313,
+        "validation-property": 67
+      },
+      "seeds": 1283
+    },
+    "nist_stc_08_asme1_ap242-e3.stp": {
+      "blockers": {
+        "draughting_model_item_association": 44,
+        "draughting_model_item_association_with_placeholder": 44,
+        "property_definition": 47
+      },
+      "families": {
+        "presentation": 88,
+        "validation-property": 47
+      },
+      "seeds": 1107
+    },
+    "nist_stc_09_asme1_ap242-e4.stp": {
+      "blockers": {
+        "draughting_model_item_association": 114
+      },
+      "families": {
+        "presentation": 114
+      },
+      "seeds": 890
+    },
+    "nist_stc_10_asme1_ap242-e2.stp": {
+      "blockers": {
+        "draughting_model_item_association": 73,
+        "draughting_model_item_association_with_placeholder": 67,
+        "property_definition": 1
+      },
+      "families": {
+        "presentation": 140,
+        "validation-property": 1
+      },
+      "seeds": 885
+    }
+  }
+}
