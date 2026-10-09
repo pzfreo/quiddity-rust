@@ -289,8 +289,8 @@ pockets' derived patterns re-expressed over the published section midpoints. A p
 refusal drops one candidate (it becomes a refusal); any other Python `ValueError` is the
 projection's `SectionRecessFamilyError` with Python's message. The documents of 312 parts the
 section-recess Python tests build (up to 3 per test case), the two golden fixtures and the
-100 corpus files (cgb203 included, 591 s in Python) are compared item by item: 405 of 414
-agree, with 654 of 671 occurrences, all 48 refusals and all 20 patterns. The 18 differences
+100 corpus files (cgb203 included, 591 s in Python) are compared item by item: 412 of 421
+agree, with 667 of 684 occurrences, all 48 refusals and all 20 patterns. The 18 differences
 (`captured/section_recesses/known_differences.json`): 15 NIST channels Python proves open at an
 end OpenCascade's own classifier puts in material (its boolean answered 0 for a slab whose
 sides lie in the slot's wall planes; rust-correct); 13975's and 14052's missing
