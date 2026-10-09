@@ -78,7 +78,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 9 (23 probes) | 7 | 1 | 0 | 0 | 1 |
 | `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 63 | 56 | 2 | 0 | 1 | 4 |
 | `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 40 | 5 | 0 | 2 | 0 | 33 |
-| `tests/fixtures/known_face_areas.json` | `crates/haecceity/tests/face_areas.rs` | 1831 | 1829 | 1 | 0 | 0 | 1 |
+| `tests/fixtures/known_face_areas.json` | `crates/haecceity/tests/face_areas.rs` | 1831 | 1829 | 0 | 0 | 1 | 1 |
 | `tests/fixtures/captured/known_sections.json` | `tests/sections.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/passages/known_divergences.json` | `tests/passages.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_section_recess_helpers.json` | `tests/section_recess_helpers.rs` | 4 | 0 | 4 | 0 | 0 | 0 |
