@@ -423,7 +423,9 @@ crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code
                      tools/express_table.py
     express_rules.rs named WHERE and UNIQUE rules the writer depends on (thread, knurl,
                      tolerance table, datum, datum target, datum system, tolerance,
-                     plus_minus_tolerance, item_identified_representation_usage), each citing
+                     plus_minus_tolerance, item_identified_representation_usage, surface
+                     texture, general property association, mechanical design and
+                     draughting relationship), each citing
                      its schema label, three-valued
     removal.rs       the removal plan: the instances a replace removes (seeds plus forward
                      dependencies nothing kept holds), presentation removed or refused by

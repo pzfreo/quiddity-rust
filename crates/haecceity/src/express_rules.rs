@@ -30,7 +30,12 @@
 //!   `geometric_item_specific_usage` (§5.1, §6.1: one usage per item and per aspect in a
 //!   representation, the item in that representation): UR1, UR2 and WR1, evaluated over every
 //!   usage (the UNIQUE rules are declared on the supertype, so they span its whole population,
-//!   draughting model item associations included).
+//!   draughting model item associations included);
+//! - `surface_texture_representation` WR1–WR5 and `general_property_association` WR1–WR2
+//!   (ISO 10303-1110's surface texture parameters; the associations of notes and other
+//!   general properties);
+//! - `mechanical_design_and_draughting_relationship` WR1–WR3 (which representations may be
+//!   related to which).
 //!
 //! Two literal readings worth knowing: `default_tolerance_table` WR2 compares names with `<`
 //! (as written; `'general tolerance definition'` and `'default tolerance'` themselves pass);
@@ -264,6 +269,56 @@ pub const RULES: &[Rule] = &[
         "item_identified_representation_usage",
         "WR1",
         Check::Where(item_identified_representation_usage_wr1)
+    ),
+    rule!(
+        "surface_texture_representation",
+        "WR1",
+        Check::Where(surface_texture_representation_wr1)
+    ),
+    rule!(
+        "surface_texture_representation",
+        "WR2",
+        Check::Where(surface_texture_representation_wr2)
+    ),
+    rule!(
+        "surface_texture_representation",
+        "WR3",
+        Check::Where(surface_texture_representation_wr3)
+    ),
+    rule!(
+        "surface_texture_representation",
+        "WR4",
+        Check::Where(surface_texture_representation_wr4)
+    ),
+    rule!(
+        "surface_texture_representation",
+        "WR5",
+        Check::Where(surface_texture_representation_wr5)
+    ),
+    rule!(
+        "general_property_association",
+        "WR1",
+        Check::Where(general_property_association_wr1)
+    ),
+    rule!(
+        "general_property_association",
+        "WR2",
+        Check::Where(general_property_association_wr2)
+    ),
+    rule!(
+        "mechanical_design_and_draughting_relationship",
+        "WR1",
+        Check::Where(mechanical_design_and_draughting_relationship_wr1)
+    ),
+    rule!(
+        "mechanical_design_and_draughting_relationship",
+        "WR2",
+        Check::Where(mechanical_design_and_draughting_relationship_wr2)
+    ),
+    rule!(
+        "mechanical_design_and_draughting_relationship",
+        "WR3",
+        Check::Where(mechanical_design_and_draughting_relationship_wr3)
     ),
 ];
 
@@ -1420,4 +1475,222 @@ fn item_identified_representation_usage_wr1(ctx: &Ctx, x: u64) -> Option<String>
         .filter(|&i| !ctx.using_representations(i).contains(&rep))
         .collect();
     (!missing.is_empty()).then(|| format!("identified items {} are not in #{rep}", ids(&missing)))
+}
+
+// ---------------------------------------------------------------------------------------------
+// surface_texture_representation and general_property_association (surface conditions)
+// ---------------------------------------------------------------------------------------------
+
+const RR: &str = "representation_relationship";
+const PDR: &str = "property_definition_representation";
+const GPA: &str = "general_property_association";
+
+/// The number of `types` in TYPEOF(i): `SIZEOF([…] * TYPEOF(i))`.
+fn types_of(ctx: &Ctx, i: u64, types: &[&str]) -> usize {
+    types.iter().filter(|t| ctx.is(i, t)).count()
+}
+
+/// surface_texture_representation WR1: every item is exactly one of a
+/// `measure_representation_item`, a `value_range` and a `descriptive_representation_item`.
+fn surface_texture_representation_wr1(ctx: &Ctx, x: u64) -> Option<String> {
+    let kinds = [
+        "measure_representation_item",
+        "value_range",
+        "descriptive_representation_item",
+    ];
+    let bad: Vec<u64> = ctx
+        .items(x)
+        .into_iter()
+        .filter(|&i| types_of(ctx, i, &kinds) != 1)
+        .collect();
+    (!bad.is_empty()).then(|| {
+        format!(
+            "items {} are not exactly one of measure_representation_item, value_range, descriptive_representation_item",
+            ids(&bad)
+        )
+    })
+}
+
+/// surface_texture_representation WR2: exactly one descriptive item, and exactly one
+/// descriptive item named 'measuring method' (QUERY selects only what is TRUE: an item whose
+/// name is unset is not selected).
+fn surface_texture_representation_wr2(ctx: &Ctx, x: u64) -> Option<String> {
+    let d = "descriptive_representation_item";
+    let items = ctx.items(x);
+    let all = items.iter().filter(|&&i| ctx.is(i, d)).count();
+    let named = count_named(ctx, &items, d, "measuring method");
+    (all != 1 || named != 1).then(|| {
+        format!("{all} descriptive items, {named} of them named 'measuring method'; exactly 1, so named, required")
+    })
+}
+
+/// surface_texture_representation WR3: some item is exactly one of a
+/// `measure_representation_item` and a `value_range`.
+fn surface_texture_representation_wr3(ctx: &Ctx, x: u64) -> Option<String> {
+    let kinds = ["measure_representation_item", "value_range"];
+    let any = ctx
+        .items(x)
+        .into_iter()
+        .any(|i| types_of(ctx, i, &kinds) == 1);
+    (!any).then(|| "no item is a measure_representation_item or a value_range".to_string())
+}
+
+/// surface_texture_representation WR4: it is the `rep_1` of at most one
+/// `representation_relationship` and the `rep_2` of none, and every relationship from it
+/// relates a representation named 'measuring direction' (QUERY: an unset name is not
+/// selected).
+fn surface_texture_representation_wr4(ctx: &Ctx, x: u64) -> Option<String> {
+    let from = ctx.used_in(x, RR, "rep_1");
+    let to = ctx.used_in(x, RR, "rep_2");
+    if from.len() > 1 || !to.is_empty() {
+        return Some(format!(
+            "rep_1 of {} and rep_2 of {}; at most 1 and none allowed",
+            ids(&from),
+            ids(&to)
+        ));
+    }
+    let other: Vec<u64> = from
+        .into_iter()
+        .filter(|&r| {
+            ctx.reference(r, RR, "rep_2")
+                .and_then(|r2| ctx.text(r2, "representation", "name"))
+                .as_deref()
+                != Some("measuring direction")
+        })
+        .collect();
+    (!other.is_empty()).then(|| {
+        format!(
+            "{} relate it to a representation not named 'measuring direction'",
+            ids(&other)
+        )
+    })
+}
+
+/// surface_texture_representation WR5: exactly one `property_definition_representation` uses
+/// it, and its definition is the derived definition of exactly one
+/// `general_property_association` whose base is a `general_property` named
+/// 'surface_condition'.
+fn surface_texture_representation_wr5(ctx: &Ctx, x: u64) -> Option<String> {
+    let pdrs = ctx.used_in(x, PDR, "used_representation");
+    if pdrs.len() != 1 {
+        return Some(format!(
+            "used by property_definition_representations {}; exactly 1 required",
+            ids(&pdrs)
+        ));
+    }
+    // An unset definition is treated as UNKNOWN (not a violation), as elsewhere here.
+    let def = ctx.reference(pdrs[0], PDR, "definition")?;
+    let gpas: Vec<u64> = ctx
+        .used_in(def, GPA, "derived_definition")
+        .into_iter()
+        .filter(|&g| {
+            ctx.reference(g, GPA, "base_definition").is_some_and(|b| {
+                ctx.is(b, "general_property")
+                    && ctx.text(b, "general_property", "name").as_deref()
+                        == Some("surface_condition")
+            })
+        })
+        .collect();
+    (gpas.len() != 1).then(|| {
+        format!(
+            "the definition of #{} has general_property_associations {} with the general property 'surface_condition'; exactly 1 required",
+            pdrs[0],
+            ids(&gpas)
+        )
+    })
+}
+
+/// The derived definition is a `dimensional_location`, a `dimensional_size` or a
+/// `geometric_tolerance` (general_property_association WR1 and WR2's first disjunct).
+fn derives_dimension_or_tolerance(ctx: &Ctx, derived: u64) -> bool {
+    types_of(
+        ctx,
+        derived,
+        &[
+            "dimensional_location",
+            "dimensional_size",
+            "geometric_tolerance",
+        ],
+    ) > 0
+}
+
+/// general_property_association WR1: unless the derived definition is a dimension or a
+/// tolerance, no other association derives it.
+fn general_property_association_wr1(ctx: &Ctx, x: u64) -> Option<String> {
+    let derived = ctx.reference(x, GPA, "derived_definition")?;
+    if derives_dimension_or_tolerance(ctx, derived) {
+        return None;
+    }
+    let all = ctx.used_in(derived, GPA, "derived_definition");
+    (all.len() != 1).then(|| {
+        format!(
+            "derived definition #{derived} is derived by associations {}; exactly 1 required",
+            ids(&all)
+        )
+    })
+}
+
+/// general_property_association WR2: unless the derived definition is a dimension or a
+/// tolerance, its name equals the base definition's (the derived definition is then a
+/// `property_definition`, `action_property` or `resource_property`; an unset name makes the
+/// rule UNKNOWN).
+fn general_property_association_wr2(ctx: &Ctx, x: u64) -> Option<String> {
+    let derived = ctx.reference(x, GPA, "derived_definition")?;
+    if derives_dimension_or_tolerance(ctx, derived) {
+        return None;
+    }
+    let base = ctx.reference(x, GPA, "base_definition")?;
+    let want = ctx.text(base, "general_property", "name")?;
+    let name = [
+        "property_definition",
+        "action_property",
+        "resource_property",
+    ]
+    .iter()
+    .find_map(|e| ctx.text(derived, e, "name"))?;
+    (name != want).then(|| {
+        format!("derived definition #{derived} is named '{name}', its base #{base} '{want}'")
+    })
+}
+
+// ---------------------------------------------------------------------------------------------
+// mechanical_design_and_draughting_relationship
+// ---------------------------------------------------------------------------------------------
+
+/// mechanical_design_and_draughting_relationship WR1–WR3: `NOT (ty IN TYPEOF(rep_2)) OR
+/// (ty IN TYPEOF(rep_1)) OR (shape_representation IN TYPEOF(rep_1))`.
+fn rep_1_matches_rep_2(ctx: &Ctx, x: u64, ty: &str) -> Option<String> {
+    let rep_1 = ctx.reference(x, RR, "rep_1")?;
+    let rep_2 = ctx.reference(x, RR, "rep_2")?;
+    (ctx.is(rep_2, ty) && !ctx.is(rep_1, ty) && !ctx.is(rep_1, "shape_representation")).then(|| {
+        format!(
+            "rep_2 #{rep_2} is a {ty}, rep_1 #{rep_1} neither a {ty} nor a shape_representation"
+        )
+    })
+}
+
+/// mechanical_design_and_draughting_relationship WR1: a `draughting_model` is related from a
+/// `draughting_model` or a `shape_representation`.
+fn mechanical_design_and_draughting_relationship_wr1(ctx: &Ctx, x: u64) -> Option<String> {
+    rep_1_matches_rep_2(ctx, x, "draughting_model")
+}
+
+/// mechanical_design_and_draughting_relationship WR2: likewise a
+/// `mechanical_design_geometric_presentation_representation`.
+fn mechanical_design_and_draughting_relationship_wr2(ctx: &Ctx, x: u64) -> Option<String> {
+    rep_1_matches_rep_2(
+        ctx,
+        x,
+        "mechanical_design_geometric_presentation_representation",
+    )
+}
+
+/// mechanical_design_and_draughting_relationship WR3: likewise a
+/// `mechanical_design_shaded_presentation_representation`.
+fn mechanical_design_and_draughting_relationship_wr3(ctx: &Ctx, x: u64) -> Option<String> {
+    rep_1_matches_rep_2(
+        ctx,
+        x,
+        "mechanical_design_shaded_presentation_representation",
+    )
 }

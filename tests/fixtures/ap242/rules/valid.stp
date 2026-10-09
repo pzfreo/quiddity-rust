@@ -110,5 +110,19 @@ DATA;
 #252=LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(0.1),#8);
 #253=TOLERANCE_VALUE(#251,#252);
 #254=PLUS_MINUS_TOLERANCE(#253,#250);
+/* a surface texture parameter (Ra 3.2) with its one 'surface_condition' association and a measuring direction; the size's association (a dimension: names may differ) */
+#260=PROPERTY_DEFINITION('surface_condition','',#7);
+#261=DESCRIPTIVE_REPRESENTATION_ITEM('measuring method','Ra');
+#262=(LENGTH_MEASURE_WITH_UNIT()MEASURE_REPRESENTATION_ITEM()MEASURE_WITH_UNIT(LENGTH_MEASURE(0.0032),#8)REPRESENTATION_ITEM('characteristic value'));
+#263=SURFACE_TEXTURE_REPRESENTATION('surface texture parameter',(#261,#262),#9);
+#264=PROPERTY_DEFINITION_REPRESENTATION(#260,#263);
+#265=GENERAL_PROPERTY('','surface_condition',$);
+#266=GENERAL_PROPERTY_ASSOCIATION('','',#265,#260);
+#267=REPRESENTATION('measuring direction',(#11),#9);
+#268=REPRESENTATION_RELATIONSHIP('','',#263,#267);
+#269=GENERAL_PROPERTY_ASSOCIATION('','',#265,#250);
+/* a draughting model related from the part's shape */
+#270=DRAUGHTING_MODEL('',(#215),#9);
+#271=MECHANICAL_DESIGN_AND_DRAUGHTING_RELATIONSHIP('','',#12,#270);
 ENDSEC;
 END-ISO-10303-21;

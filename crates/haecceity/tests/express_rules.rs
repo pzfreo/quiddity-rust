@@ -3,7 +3,9 @@
 //! (`tests/fixtures/ap242/rules/{valid,invalid}.stp`, the expected violations in
 //! `invalid.json`), and every NIST AP242 file's violations are pinned by file and rule with a
 //! verdict (`known_nist_rule_violations.json`; `HAECCEITY_RULES_ACTUAL=<dir>` writes the
-//! computed list there).
+//! computed list there). The surface condition and presentation relationship rules are also
+//! checked on the committed AP242 files (violations pinned with a verdict) and on minimal edits
+//! of a written document.
 //!
 //! NIST files: `HAECCEITY_NIST_PMI` names their `NIST-PMI-STEP-Files` directory (else the AP242
 //! track's download); skipped when absent unless `HAECCEITY_NIST_PMI_REQUIRED=1`.
@@ -114,6 +116,15 @@ fn rule_labels_are_the_schemas() {
     want(
         "item_identified_representation_usage",
         &["UR1", "UR2", "WR1"],
+    );
+    want(
+        "surface_texture_representation",
+        &["WR1", "WR2", "WR3", "WR4", "WR5"],
+    );
+    want("general_property_association", &["WR1", "WR2"]);
+    want(
+        "mechanical_design_and_draughting_relationship",
+        &["WR1", "WR2", "WR3"],
     );
 }
 
@@ -287,4 +298,432 @@ fn nist_rule_violations_are_pinned() {
         .unwrap();
     }
     assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
+
+// ---------------------------------------------------------------------------------------------
+// surface_texture_representation, general_property_association and
+// mechanical_design_and_draughting_relationship on written and committed files
+// ---------------------------------------------------------------------------------------------
+
+/// The entities of the surface condition and presentation relationship rules.
+const SURFACE_AND_DRAUGHTING: [&str; 3] = [
+    "surface_texture_representation",
+    "general_property_association",
+    "mechanical_design_and_draughting_relationship",
+];
+
+fn text_of(path: &Path) -> String {
+    use std::io::Read;
+    let raw = std::fs::read(path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+    if path.extension().is_some_and(|e| e == "gz") {
+        let mut out = String::new();
+        flate2::read::GzDecoder::new(raw.as_slice())
+            .read_to_string(&mut out)
+            .unwrap();
+        out
+    } else {
+        String::from_utf8(raw).unwrap()
+    }
+}
+
+/// Every committed AP242 file the writer, reader and removal suites use: the writer's output
+/// (`write/`), specify-core's (`specify/`), the committed NIST models (`nist/`) and the
+/// removal fixture.
+fn committed_files() -> Vec<PathBuf> {
+    let base = common::fixtures().join("ap242");
+    let mut out = vec![base.join("removal/handmade.stp")];
+    for dir in ["write", "specify", "nist"] {
+        let mut names: Vec<PathBuf> = std::fs::read_dir(base.join(dir))
+            .unwrap()
+            .map(|e| e.unwrap().path())
+            .filter(|p| {
+                let p = p.to_string_lossy();
+                p.ends_with(".step.gz") || p.ends_with(".stp.gz")
+            })
+            .collect();
+        names.sort();
+        out.extend(names);
+    }
+    out
+}
+
+/// The violations of the rules declared by `entities`.
+fn violations_of(doc: &Document, entities: &[&str]) -> Vec<String> {
+    check_all(doc)
+        .iter()
+        .filter(|v| {
+            v.rule
+                .split('.')
+                .next()
+                .is_some_and(|e| entities.contains(&e))
+        })
+        .map(ToString::to_string)
+        .collect()
+}
+
+/// The committed files' violations of the surface condition and presentation relationship
+/// rules, by file, instance and rule. Verdict file-wrong, all of them: specify-core's
+/// 'pmi-assist' user defined attributes (threads, knurls) associate a property definition
+/// named for its content ('external thread', 'knurl') with `general_property('', 'user defined
+/// attribute')`, and general_property_association WR2 requires the derived definition's name
+/// to equal the general property's. NIST's files name the two alike ('Density', 'semantic
+/// text'), as haecceity's writer does (its notes and surface textures pass, above and below).
+const KNOWN_SPECIFY_CORE: [(&str, u64, &str); 8] = [
+    (
+        "assembly_plate_pin.step.gz",
+        1553,
+        "general_property_association.WR2",
+    ),
+    (
+        "assembly_plate_pin.step.gz",
+        1649,
+        "general_property_association.WR2",
+    ),
+    (
+        "bolt_thread_knurl.step.gz",
+        470,
+        "general_property_association.WR2",
+    ),
+    (
+        "bolt_thread_knurl.step.gz",
+        497,
+        "general_property_association.WR2",
+    ),
+    (
+        "string_post_tapped.step.gz",
+        3185,
+        "general_property_association.WR2",
+    ),
+    (
+        "thumbwheel_thread_knurl.step.gz",
+        717,
+        "general_property_association.WR2",
+    ),
+    (
+        "thumbwheel_thread_knurl.step.gz",
+        744,
+        "general_property_association.WR2",
+    ),
+    (
+        "thumbwheel_thread_knurl.step.gz",
+        775,
+        "general_property_association.WR2",
+    ),
+];
+
+/// The committed files (writer output, specify-core output, NIST models, the removal
+/// fixture) violate `surface_texture_representation` WR1–WR5, `general_property_association`
+/// WR1–WR2 and `mechanical_design_and_draughting_relationship` WR1–WR3 only as pinned
+/// ([`KNOWN_SPECIFY_CORE`]): the writer's output not at all. Together they hold instances of
+/// all three.
+#[test]
+fn committed_files_meet_the_surface_and_draughting_rules() {
+    let files = committed_files();
+    let results = common::parallel::map(&files, |p| {
+        let text = text_of(p);
+        let held: Vec<bool> = SURFACE_AND_DRAUGHTING
+            .iter()
+            .map(|e| text.contains(&format!("{}(", e.to_ascii_uppercase())))
+            .collect();
+        let doc = Document::parse(text.into_bytes()).unwrap();
+        let v: BTreeSet<(u64, String)> = check_all(&doc)
+            .into_iter()
+            .filter(|v| {
+                v.rule
+                    .split('.')
+                    .next()
+                    .is_some_and(|e| SURFACE_AND_DRAUGHTING.contains(&e))
+            })
+            .map(|v| (v.id, v.rule.to_string()))
+            .collect();
+        (v, held)
+    });
+    let mut held = [false; 3];
+    let mut got = BTreeSet::new();
+    for (p, (v, h)) in files.iter().zip(&results) {
+        for (i, x) in h.iter().enumerate() {
+            held[i] |= x;
+        }
+        let dir = p.parent().unwrap().file_name().unwrap().to_string_lossy();
+        let name = p.file_name().unwrap().to_string_lossy();
+        for (id, rule) in v {
+            got.insert((format!("{dir}/{name}"), *id, rule.clone()));
+        }
+    }
+    let want: BTreeSet<(String, u64, String)> = KNOWN_SPECIFY_CORE
+        .iter()
+        .map(|&(f, id, r)| (format!("specify/{f}"), id, r.to_string()))
+        .collect();
+    assert_eq!(got, want);
+    assert_eq!(held, [true; 3], "{SURFACE_AND_DRAUGHTING:?}");
+}
+
+/// A written document: the writer's every-kind output (notes and surface textures included).
+fn every_kind() -> String {
+    text_of(&common::fixtures().join("ap242/write/every_kind.step.gz"))
+}
+
+/// A line's instance id and what follows its `=` (`#10 = X(…)` and `#10=X(…)` alike).
+fn head(line: &str) -> Option<(u64, &str)> {
+    let (id, rest) = line.strip_prefix('#')?.split_once('=')?;
+    Some((id.trim().parse().ok()?, rest.trim_start()))
+}
+
+/// The line of instance `#id`.
+fn line(text: &str, id: u64) -> &str {
+    text.lines()
+        .find(|l| head(l).is_some_and(|(i, _)| i == id))
+        .unwrap_or_else(|| panic!("no #{id}"))
+}
+
+/// The instances a line references, in order.
+fn refs_in(line: &str) -> Vec<u64> {
+    let body = &line[line.find('=').unwrap()..];
+    body.split('#')
+        .skip(1)
+        .map(|s| {
+            s.chars()
+                .take_while(char::is_ascii_digit)
+                .collect::<String>()
+                .parse()
+                .unwrap()
+        })
+        .collect()
+}
+
+/// The ids of the simple instances of `entity` (upper case), in order.
+fn instances(text: &str, entity: &str) -> Vec<u64> {
+    let tag = format!("{entity}(");
+    text.lines()
+        .filter_map(head)
+        .filter(|(_, rest)| rest.starts_with(&tag))
+        .map(|(id, _)| id)
+        .collect()
+}
+
+/// `text` with `from` replaced by `to` in instance `#id` (which holds it once).
+fn edit(text: &str, id: u64, from: &str, to: &str) -> String {
+    let old = line(text, id);
+    assert_eq!(old.matches(from).count(), 1, "{from} in {old}");
+    text.replacen(old, &old.replacen(from, to, 1), 1)
+}
+
+/// `text` with `lines` appended to its data section.
+fn append(text: &str, lines: &[String]) -> String {
+    let at = text.rfind("ENDSEC;").unwrap();
+    format!("{}{}\n{}", &text[..at], lines.join("\n"), &text[at..])
+}
+
+/// The (instance, rule) violations of `after` that `before` does not have.
+fn new_violations(before: &str, after: &str) -> BTreeSet<(u64, String)> {
+    let set = |t: &str| -> BTreeSet<(u64, String)> {
+        check_all(&Document::parse(t.as_bytes().to_vec()).unwrap())
+            .into_iter()
+            .map(|v| (v.id, v.rule.to_string()))
+            .collect()
+    };
+    let b = set(before);
+    set(after).difference(&b).cloned().collect()
+}
+
+fn pairs(v: &[(u64, &str)]) -> BTreeSet<(u64, String)> {
+    v.iter().map(|&(i, r)| (i, r.to_string())).collect()
+}
+
+/// The written surface texture parameters pass `surface_texture_representation` WR1–WR5 and
+/// the written associations (notes', parameters') `general_property_association` WR1–WR2;
+/// each rule fails on a minimal edit of the written document, with exactly the violations
+/// named.
+#[test]
+fn surface_texture_rules_on_a_written_document() {
+    let text = every_kind();
+    let doc = Document::parse(text.clone().into_bytes()).unwrap();
+    let pass = violations_of(&doc, &SURFACE_AND_DRAUGHTING[..2]);
+    assert!(pass.is_empty(), "{}", pass.join("\n"));
+    let strs = instances(&text, "SURFACE_TEXTURE_REPRESENTATION");
+    assert_eq!(strs.len(), 3);
+    let (s, s2) = (strs[0], strs[1]);
+    // Its items (the 'measuring method', the value), then its context.
+    let [d, m, ctx] = refs_in(line(&text, s))[..] else {
+        panic!("{}", line(&text, s));
+    };
+    assert!(line(&text, d).contains("'measuring method'"));
+    let pdr = instances(&text, "PROPERTY_DEFINITION_REPRESENTATION")
+        .into_iter()
+        .find(|&r| refs_in(line(&text, r))[1] == s)
+        .unwrap();
+    let pd = refs_in(line(&text, pdr))[0];
+    let gpa = instances(&text, "GENERAL_PROPERTY_ASSOCIATION")
+        .into_iter()
+        .find(|&g| refs_in(line(&text, g))[1] == pd)
+        .unwrap();
+    let gp = refs_in(line(&text, gpa))[0];
+    let next = doc.max_id() + 1;
+    let point = instances(&text, "CARTESIAN_POINT")[0];
+
+    // WR1: a point among the items.
+    let t = edit(
+        &text,
+        s,
+        &format!("(#{d},#{m})"),
+        &format!("(#{d},#{m},#{point})"),
+    );
+    assert_eq!(
+        new_violations(&text, &t),
+        pairs(&[(s, "surface_texture_representation.WR1")])
+    );
+    // WR2: the descriptive item not named 'measuring method'.
+    let t = edit(&text, d, "'measuring method'", "'measuring mode'");
+    assert_eq!(
+        new_violations(&text, &t),
+        pairs(&[(s, "surface_texture_representation.WR2")])
+    );
+    // WR3: no measure.
+    let t = edit(&text, s, &format!("(#{d},#{m})"), &format!("(#{d})"));
+    assert_eq!(
+        new_violations(&text, &t),
+        pairs(&[(s, "surface_texture_representation.WR3")])
+    );
+    // WR4: related to a representation not named 'measuring direction' (the next parameter's,
+    // which as a rep_2 violates it too); related to one so named, it passes.
+    let t = append(
+        &text,
+        &[format!(
+            "#{next}=REPRESENTATION_RELATIONSHIP('','',#{s},#{s2});"
+        )],
+    );
+    assert_eq!(
+        new_violations(&text, &t),
+        pairs(&[
+            (s, "surface_texture_representation.WR4"),
+            (s2, "surface_texture_representation.WR4"),
+        ])
+    );
+    let t = append(
+        &text,
+        &[
+            format!("#{next}=REPRESENTATION('measuring direction',(#{point}),#{ctx});"),
+            format!(
+                "#{}=REPRESENTATION_RELATIONSHIP('','',#{s},#{next});",
+                next + 1
+            ),
+        ],
+    );
+    assert!(new_violations(&text, &t).is_empty());
+    // WR5: a second property_definition_representation of it.
+    let t = append(
+        &text,
+        &[format!(
+            "#{next}=PROPERTY_DEFINITION_REPRESENTATION(#{pd},#{s});"
+        )],
+    );
+    assert_eq!(
+        new_violations(&text, &t),
+        pairs(&[(s, "surface_texture_representation.WR5")])
+    );
+    // WR5 also when its general property is not 'surface_condition', which breaks the
+    // association's WR2 too (the names then differ).
+    let t = edit(&text, gp, "'surface_condition'", "'roughness'");
+    assert_eq!(
+        new_violations(&text, &t),
+        pairs(&[
+            (s, "surface_texture_representation.WR5"),
+            (gpa, "general_property_association.WR2"),
+        ])
+    );
+    // The parameter named as the mapping names it (docs/step-ap242.md question 3, open):
+    // 'surface texture parameter' breaks the association's WR2.
+    let t = edit(
+        &text,
+        pd,
+        "'surface_condition'",
+        "'surface texture parameter'",
+    );
+    assert_eq!(
+        new_violations(&text, &t),
+        pairs(&[(gpa, "general_property_association.WR2")])
+    );
+    // general_property_association WR1: a second association of a note's definition.
+    let note = instances(&text, "GENERAL_PROPERTY_ASSOCIATION")
+        .into_iter()
+        .find(|&g| line(&text, refs_in(line(&text, g))[0]).contains("'semantic text'"))
+        .unwrap();
+    let [base, derived] = refs_in(line(&text, note))[..] else {
+        panic!("{}", line(&text, note));
+    };
+    let t = append(
+        &text,
+        &[format!(
+            "#{next}=GENERAL_PROPERTY_ASSOCIATION('',$,#{base},#{derived});"
+        )],
+    );
+    assert_eq!(
+        new_violations(&text, &t),
+        pairs(&[
+            (note, "general_property_association.WR1"),
+            (next, "general_property_association.WR1"),
+        ])
+    );
+    // general_property_association WR2: the note's definition renamed.
+    let t = edit(&text, derived, "'semantic text'", "'note'");
+    assert_eq!(
+        new_violations(&text, &t),
+        pairs(&[(note, "general_property_association.WR2")])
+    );
+}
+
+/// `mechanical_design_and_draughting_relationship` WR1–WR3 on relationships added to a
+/// written document: presentations related from the part's shape, or from their own kind,
+/// pass; each related from the wrong kind of representation fails its rule, and only it.
+#[test]
+fn draughting_relationship_rules_on_a_written_document() {
+    let text = every_kind();
+    let doc = Document::parse(text.clone().into_bytes()).unwrap();
+    let dm = instances(&text, "DRAUGHTING_MODEL")[0];
+    let shape = instances(&text, "ADVANCED_BREP_SHAPE_REPRESENTATION")
+        .into_iter()
+        .chain(instances(&text, "SHAPE_REPRESENTATION"))
+        .next()
+        .unwrap();
+    let ctx = *refs_in(line(&text, dm)).last().unwrap();
+    let axis = instances(&text, "AXIS2_PLACEMENT_3D")[0];
+    let (geometric, shaded) = (doc.max_id() + 1, doc.max_id() + 2);
+    let r = doc.max_id() + 3;
+    let with = |rel: &[(u64, u64)]| {
+        let mut lines = vec![
+            format!(
+                "#{geometric}=MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION('',(#{axis}),#{ctx});"
+            ),
+            format!(
+                "#{shaded}=MECHANICAL_DESIGN_SHADED_PRESENTATION_REPRESENTATION('',(#{axis}),#{ctx});"
+            ),
+        ];
+        for (k, (rep_1, rep_2)) in (r..).zip(rel) {
+            lines.push(format!(
+                "#{k}=MECHANICAL_DESIGN_AND_DRAUGHTING_RELATIONSHIP('','',#{rep_1},#{rep_2});"
+            ));
+        }
+        new_violations(&text, &append(&text, &lines))
+    };
+    assert!(
+        with(&[
+            (shape, dm),
+            (shape, geometric),
+            (shape, shaded),
+            (geometric, geometric),
+        ])
+        .is_empty()
+    );
+    assert_eq!(
+        with(&[(geometric, dm)]),
+        pairs(&[(r, "mechanical_design_and_draughting_relationship.WR1")])
+    );
+    assert_eq!(
+        with(&[(dm, geometric)]),
+        pairs(&[(r, "mechanical_design_and_draughting_relationship.WR2")])
+    );
+    assert_eq!(
+        with(&[(dm, shaded)]),
+        pairs(&[(r, "mechanical_design_and_draughting_relationship.WR3")])
+    );
 }
