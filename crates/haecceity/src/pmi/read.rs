@@ -985,6 +985,88 @@ impl<'a> Reader<'a> {
             }
             self.feature(st, a);
         }
+
+        self.notes_on_faces(st, &aspects);
+    }
+
+    /// specify-core's notes on faces (its `requirements.append`, Python): a thread, knurl or
+    /// finish is a part-level 'manufacturing requirement' note of that kind, written
+    /// immediately followed by a plain `shape_aspect` named as the kind whose
+    /// `geometric_item_specific_usage`s, named alike, identify the faces; nothing semantic
+    /// refers to that aspect (a presentation link does). Each such aspect, read above as a
+    /// feature in its own right, anchors the note of its kind written last before it; a note
+    /// no aspect follows (a part note) stays on the part. An aspect of that form with no
+    /// unanchored note of its kind before it is reported: which note it is for is not stated.
+    fn notes_on_faces(&mut self, st: &mut PartState, aspects: &[u64]) {
+        const KINDS: [&str; 5] = [
+            "internal thread",
+            "external thread",
+            "knurl",
+            "surface finish",
+            "surface texture",
+        ];
+        let part = Some(st.id);
+        for kind in KINDS {
+            // (id, Ok(note index) | Err(aspect)), in file order.
+            let mut events: Vec<(u64, Result<usize, u64>)> = Vec::new();
+            for (i, note) in st.pmi.notes.iter().enumerate() {
+                if note.kind != kind || note.on.is_some() {
+                    continue;
+                }
+                let pdef = st.prov.notes[i].iter().copied().find(|&id| {
+                    self.is(id, "property_definition")
+                        && self.get_str(id, "property_definition", "name").as_deref()
+                            == Some("manufacturing requirement")
+                });
+                if let Some(pdef) = pdef {
+                    events.push((pdef, Ok(i)));
+                }
+            }
+            for &a in aspects {
+                if self.names(a) != ["shape_aspect"]
+                    || self.get_str(a, "shape_aspect", "name").as_deref() != Some(kind)
+                {
+                    continue;
+                }
+                let usages: Vec<u64> = self.usages(a).into_iter().map(|(u, _, _)| u).collect();
+                let named = !usages.is_empty()
+                    && usages.iter().all(|&u| {
+                        self.names(u) == ["geometric_item_specific_usage"]
+                            && self
+                                .get_str(u, "item_identified_representation_usage", "name")
+                                .as_deref()
+                                == Some(kind)
+                    });
+                let only_presented = self.doc.referrers(a).to_vec().into_iter().all(|r| {
+                    usages.contains(&r) || self.is(r, "draughting_model_item_association")
+                });
+                if named && only_presented && st.features.get(&a).copied().flatten().is_some() {
+                    events.push((a, Err(a)));
+                }
+            }
+            events.sort_by_key(|e| e.0);
+            let mut last: Option<usize> = None;
+            for (_, e) in events {
+                match e {
+                    Ok(note) => last = Some(note),
+                    Err(a) => match last.take() {
+                        Some(note) => {
+                            let f = st.features[&a].expect("checked");
+                            st.pmi.notes[note].on = Some(NoteOwner::Feature(f));
+                        }
+                        None => self.find(
+                            FindingKind::Unresolved,
+                            part,
+                            a,
+                            &[],
+                            format!(
+                                "specify-core's {kind:?} aspect follows no {kind:?} note; which note it is for is not stated (its faces are read as a feature)"
+                            ),
+                        ),
+                    },
+                }
+            }
+        }
     }
 
     /// Whether `a` was consumed by an item of the part already (a zone, a target's area, …).
@@ -3695,19 +3777,26 @@ impl<'a> Reader<'a> {
                         "thread runout" => "thread runout usage",
                         _ => continue,
                     };
-                    for r in self.referrers_by(
-                        o,
-                        "shape_defining_relationship",
-                        "shape_aspect_relationship",
-                        "related_shape_aspect",
-                    ) {
-                        if self
-                            .get_str(r, "shape_aspect_relationship", "description")
-                            .as_deref()
-                            != Some(usage)
-                        {
-                            continue;
-                        }
+                    let usages: Vec<u64> = self
+                        .referrers_by(
+                            o,
+                            "shape_defining_relationship",
+                            "shape_aspect_relationship",
+                            "related_shape_aspect",
+                        )
+                        .into_iter()
+                        .filter(|&r| {
+                            self.get_str(r, "shape_aspect_relationship", "description")
+                                .as_deref()
+                                == Some(usage)
+                        })
+                        .collect();
+                    // thread WR16 requires the 'thread runout' aspect and allows it no usage:
+                    // a thread with no runout stated still has it, and it is the thread's.
+                    if usages.is_empty() && is_thread && d == "thread runout" {
+                        prov.push(o);
+                    }
+                    for r in usages {
                         let Some(src) =
                             self.get_ref(r, "shape_aspect_relationship", "relating_shape_aspect")
                         else {

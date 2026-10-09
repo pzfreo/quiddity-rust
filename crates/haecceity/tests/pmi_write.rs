@@ -196,6 +196,11 @@ fn written(f: &File, p: &PartPmi) -> Written {
 
 /// `pmi::verify` of a replace of part 0's PMI with `p` (written into `f`, read back as `w`).
 fn assert_verified(f: &File, w: &Written, p: &PartPmi) {
+    assert_verified_as(f, w, p, Mode::Replace);
+}
+
+/// `pmi::verify` of a write of part 0's PMI `p` with `mode`.
+fn assert_verified_as(f: &File, w: &Written, p: &PartPmi, mode: Mode) {
     let before = pmi::read(&f.doc, &f.parts).unwrap();
     let parts = read_part_definitions(w.doc.bytes()).unwrap();
     let v = pmi::verify(
@@ -206,7 +211,7 @@ fn assert_verified(f: &File, w: &Written, p: &PartPmi) {
         },
         &f.doc,
         &[(PartId(0), p.clone())],
-        Mode::Replace,
+        mode,
         pmi::Snapshot {
             doc: &w.doc,
             defs: &parts,
@@ -228,19 +233,11 @@ fn assert_reads_back(w: &Written, part: PartId, p: &PartPmi) {
             .filter(|f| f.ids.iter().any(|&id| id > w.max))
             .collect::<Vec<_>>()
     );
-    // thread WR16 requires the thread's 'thread runout' shape aspect even when no runout
-    // feature is stated; the reader consumes it only with its usage, so it reports the bare
-    // aspect as unconsumed (a reader gap, not a writer defect).
     let on_written: Vec<&Finding> = w
         .read
         .findings
         .iter()
         .filter(|f| f.ids.iter().any(|&id| id > w.max))
-        .filter(|f| {
-            !(f.kind == FindingKind::Unconsumed
-                && f.entity == "shape_aspect"
-                && w.text(f.ids[0]).contains("'thread runout'"))
-        })
         .collect();
     assert!(
         on_written.is_empty(),
@@ -1406,6 +1403,188 @@ fn threads_knurls_and_general_tolerances_are_standard_entities() {
             }
             other => panic!("a table is refused: {:?}", other.err()),
         }
+    }
+}
+
+fn thread_on(feature: usize, side: ThreadSide, runout: Option<usize>) -> Thread {
+    Thread {
+        feature: FeatureId(feature),
+        partial_area: Some(FeatureId(feature)),
+        side,
+        major_diameter: length("6.", LengthUnit::Millimetre),
+        minor_diameter: Some(length("4.917", LengthUnit::Millimetre)),
+        pitch_diameter: Some(length("5.35", LengthUnit::Millimetre)),
+        number_of_threads: Ratio(dec("1.")),
+        form: "M".into(),
+        fit_class: if side == ThreadSide::Internal {
+            "6H"
+        } else {
+            "6g"
+        }
+        .into(),
+        fit_class_2: None,
+        hand: Hand::Right,
+        crest: None,
+        qualifier: None,
+        nominal_size: None,
+        runout: runout.map(FeatureId),
+    }
+}
+
+/// The schema violations (`express::validate_document`) and rule violations
+/// (`express_rules::check_all`) of `after` that `before` does not have.
+fn new_violations(before: &Document, after: &Document) -> Vec<String> {
+    let schema = express::validate_document(before.graph());
+    let rules = haecceity::express_rules::check_all(before);
+    let mut out: Vec<String> = express::validate_document(after.graph())
+        .into_iter()
+        .filter(|v| !schema.contains(v))
+        .map(|v| v.to_string())
+        .collect();
+    out.extend(
+        haecceity::express_rules::check_all(after)
+            .into_iter()
+            .filter(|v| !rules.contains(v))
+            .map(|v| v.to_string()),
+    );
+    out
+}
+
+/// The `product_definition_shape`s of feature definitions (a thread's or knurl's, thread WR13).
+fn feature_definition_shapes(doc: &Document) -> Vec<u64> {
+    doc.ids()
+        .filter(|&id| match doc.get(id).unwrap() {
+            RawEntity::Simple {
+                name, attributes, ..
+            } if name.eq_ignore_ascii_case("product_definition_shape") => {
+                matches!(attributes.get(2), Some(Attribute::EntityRef(d))
+                    if matches!(doc.get(*d).unwrap(), RawEntity::Simple { name, .. }
+                        if express::is_a(&name.to_ascii_lowercase(), "characterized_object")))
+            }
+            _ => false,
+        })
+        .collect()
+}
+
+/// A part with a thread haecceity wrote is written again (specify-core-rust's U14): read back
+/// with nothing unconsumed (thread WR16's bare 'thread runout' aspect is the thread's), then
+/// replaced with other PMI and removed. Each write takes the feature definition's
+/// `product_definition_shape` with its thread, is schema- and rule-valid, and verifies
+/// (`pmi::verify`: exactly the items written, no consumed instance surviving).
+#[test]
+fn a_written_thread_is_replaced_and_removed() {
+    let f = spool();
+    let free = free_faces(&f, 0, 4);
+    let internal = PartPmi {
+        features: vec![faces(&[free[0]])],
+        threads: vec![thread_on(0, ThreadSide::Internal, None)],
+        ..PartPmi::default()
+    };
+    let external_and_knurl = PartPmi {
+        features: vec![faces(&[free[0]]), faces(&[free[1]]), faces(&[free[2]])],
+        threads: vec![thread_on(0, ThreadSide::External, Some(1))],
+        knurls: vec![Knurl {
+            feature: FeatureId(2),
+            pattern: KnurlPattern::Straight,
+            major_diameter: length("20.", LengthUnit::Millimetre),
+            nominal_diameter: length("19.8", LengthUnit::Millimetre),
+            diametral_pitch: length("0.8", LengthUnit::Millimetre),
+            number_of_teeth: Some(Count(78)),
+            tooth_depth: Some(length("0.4", LengthUnit::Millimetre)),
+            root_fillet: Some(length("0.1", LengthUnit::Millimetre)),
+            helix_angle: None,
+            helix_hand: None,
+        }],
+        ..PartPmi::default()
+    };
+    let other = PartPmi {
+        features: vec![faces(&[free[3]])],
+        tolerances: vec![tolerance(
+            ToleranceKind::Flatness,
+            ToleranceTarget::Feature(FeatureId(0)),
+            "0.05",
+        )],
+        ..PartPmi::default()
+    };
+    for (case, p) in [
+        ("internal", internal),
+        ("external and knurl", external_and_knurl),
+    ] {
+        let w = written(&f, &p);
+        assert_verified(&f, &w, &p);
+        assert!(
+            w.read
+                .findings
+                .iter()
+                .all(|x| x.kind != FindingKind::Unconsumed),
+            "{case}: {:#?}",
+            w.read.findings
+        );
+        let v = new_violations(&f.doc, &w.doc);
+        assert!(v.is_empty(), "{case}: {v:#?}");
+        let shapes = feature_definition_shapes(&w.doc);
+        assert_eq!(shapes.len(), p.threads.len() + p.knurls.len(), "{case}");
+
+        let g = open_bytes(w.doc.bytes().to_vec());
+        for (mode, q) in [(Mode::Replace, &other), (Mode::Remove, &PartPmi::default())] {
+            let w2 = write(&g, &[(PartId(0), q.clone())], mode)
+                .unwrap_or_else(|e| panic!("{case} {mode:?}: {e}"));
+            assert_reads_back(&w2, PartId(0), q);
+            assert_verified_as(&g, &w2, q, mode);
+            let v = new_violations(&g.doc, &w2.doc);
+            assert!(v.is_empty(), "{case} {mode:?}: {v:#?}");
+            for &s in &shapes {
+                assert!(w2.doc.get(s).is_none(), "{case} {mode:?}: #{s} kept");
+            }
+        }
+    }
+}
+
+/// The removal plan takes a feature definition's `product_definition_shape` only with what
+/// uses it (`product_definition_shape` WR1 and UR1: the shape of a characterized object is that
+/// object's), and still refuses a part's own shape as shared infrastructure and a feature
+/// definition's shape that kept instances reference.
+#[test]
+fn removal_takes_a_feature_definitions_shape_only_with_its_feature() {
+    use haecceity::removal::{self, PresentationPolicy as Policy};
+    let f = spool();
+    let free = free_faces(&f, 0, 1);
+    let p = PartPmi {
+        features: vec![faces(&[free[0]])],
+        threads: vec![thread_on(0, ThreadSide::Internal, None)],
+        ..PartPmi::default()
+    };
+    let w = written(&f, &p);
+    let g = open_bytes(w.doc.bytes().to_vec());
+    let [shape] = feature_definition_shapes(&g.doc)[..] else {
+        panic!("one feature definition shape")
+    };
+    let thread: BTreeSet<u64> = w.read.provenance.parts[0].threads[0]
+        .iter()
+        .copied()
+        .collect();
+    assert!(
+        thread.contains(&shape),
+        "the reader consumes it with its thread"
+    );
+    for policy in [Policy::Refuse, Policy::RemovePresentation] {
+        let plan =
+            removal::plan(&g.doc, &thread, policy).unwrap_or_else(|e| panic!("{policy:?}: {e}"));
+        assert!(plan.removed.contains(&shape), "{policy:?}");
+
+        // Alone, the thread's aspects (kept) still reference it.
+        let alone = removal::plan(&g.doc, &BTreeSet::from([shape]), policy).unwrap_err();
+        assert!(alone.infrastructure.is_empty(), "{policy:?}: {alone}");
+        assert!(!alone.blockers.is_empty(), "{policy:?}: {alone}");
+
+        // The part's own shape stays shared infrastructure.
+        let own = g.parts[0].shape;
+        let refused = removal::plan(&g.doc, &BTreeSet::from([own]), policy).unwrap_err();
+        assert_eq!(
+            refused.infrastructure,
+            [(own, "product_definition_shape".to_string())],
+            "{policy:?}"
+        );
     }
 }
 

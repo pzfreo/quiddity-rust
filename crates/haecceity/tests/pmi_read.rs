@@ -1930,6 +1930,13 @@ fn compare_specify(case: &str, intent: &Json, p: &PartPmi, pi: usize) -> Vec<(St
                         }
                     }
                 }
+                // specify-core's note of the requirement, on its faces (its text route).
+                if !p.notes.iter().any(|n| {
+                    n.kind == name
+                        && matches!(n.on, Some(pmi::NoteOwner::Feature(f)) if face_cover(p, f) == faces)
+                }) {
+                    out.push((format!("{k} note"), format!("no {name:?} note on those faces")));
+                }
                 if (kind == "thread" && p.threads.is_empty())
                     || (kind == "knurl" && p.knurls.is_empty())
                 {
@@ -2023,6 +2030,128 @@ fn specify_core_outputs() {
         }
     }
     check_pinned("specify", &diffs);
+}
+
+/// specify-core's notes on faces (specify-core-rust's U10): each thread, knurl or finish note
+/// specify-core wrote is on the faces its aspect names, as specify-core's own reader
+/// (`existing.notes`, Python) reads them; captured with specify-core's venv on these files:
+/// `existing.notes(path, part=k)`. Part notes stay on the part, and every instance is consumed
+/// (no finding names the notes' aspects).
+#[test]
+fn specify_core_notes_on_faces_are_anchored() {
+    let dir = common::fixtures().join("ap242/specify");
+    // (case, part, [(note kind, faces)]).
+    type Notes = &'static [(&'static str, &'static [usize])];
+    let python: &[(&str, usize, Notes)] = &[
+        ("assembly_plate_pin", 0, &[("internal thread", &[11])]),
+        ("assembly_plate_pin", 1, &[("internal thread", &[3])]),
+        (
+            "bolt_thread_knurl",
+            0,
+            &[("external thread", &[0]), ("knurl", &[4])],
+        ),
+        ("string_post_tapped", 0, &[("internal thread", &[17])]),
+        (
+            "thumbwheel_thread_knurl",
+            0,
+            &[
+                ("external thread", &[2]),
+                ("internal thread", &[12]),
+                ("knurl", &[9]),
+            ],
+        ),
+        ("spool_fits", 0, &[]),
+    ];
+    for &(case, part, want) in python {
+        let r = read_bytes(file_bytes(&dir.join(format!("{case}.step.gz"))));
+        let p = &r.parts[part];
+        let mut got: Vec<(String, Vec<usize>)> = p
+            .notes
+            .iter()
+            .filter_map(|n| match n.on {
+                Some(pmi::NoteOwner::Feature(f)) => Some((n.kind.clone(), face_cover(p, f))),
+                _ => None,
+            })
+            .collect();
+        got.sort();
+        let want: Vec<(String, Vec<usize>)> = want
+            .iter()
+            .map(|(k, f)| (k.to_string(), f.to_vec()))
+            .collect();
+        assert_eq!(got, want, "{case} part {part}");
+        for n in &p.notes {
+            if n.on.is_none() {
+                assert!(
+                    ["surface texture", "edge condition", "general tolerances"]
+                        .contains(&n.kind.as_str()),
+                    "{case} part {part}: {n:?} is not on its faces"
+                );
+            }
+        }
+        assert!(
+            r.findings
+                .iter()
+                .all(|f| !f.detail.contains("specify-core's")),
+            "{case}: {:#?}",
+            r.findings
+        );
+    }
+
+    // Two finishes on faces in specify-core's form (`requirements.append`: each note followed by
+    // its aspect), each on its own faces, and an aspect of that form after them that no note
+    // precedes: reported, its faces read as a feature.
+    let r = with_pmi(
+        "#2000=DESCRIPTIVE_REPRESENTATION_ITEM('surface finish','Ra 0.8');
+#2001=REPRESENTATION('surface finish requirement',(#2000),#399);
+#2002=PROPERTY_DEFINITION('manufacturing requirement','surface finish',#5);
+#2003=PROPERTY_DEFINITION_REPRESENTATION(#2002,#2001);
+#2004=SHAPE_ASPECT('surface finish','',#4,.T.);
+#2005=GEOMETRIC_ITEM_SPECIFIC_USAGE('surface finish','',#2004,#10,#17);
+#2010=DESCRIPTIVE_REPRESENTATION_ITEM('surface finish','Ra 1.6');
+#2011=REPRESENTATION('surface finish requirement',(#2010),#399);
+#2012=PROPERTY_DEFINITION('manufacturing requirement','surface finish',#5);
+#2013=PROPERTY_DEFINITION_REPRESENTATION(#2012,#2011);
+#2014=SHAPE_ASPECT('surface finish','',#4,.T.);
+#2015=GEOMETRIC_ITEM_SPECIFIC_USAGE('surface finish','',#2014,#10,#105);
+#2020=SHAPE_ASPECT('surface finish','',#4,.T.);
+#2021=GEOMETRIC_ITEM_SPECIFIC_USAGE('surface finish','',#2020,#10,#105);",
+    );
+    let base = file_bytes(&dir.join("bolt_thread_knurl.step.gz"));
+    let face105 = read_part_definitions(&base).unwrap()[0]
+        .faces
+        .iter()
+        .position(|&f| f == 105)
+        .unwrap();
+    let p = &r.parts[0];
+    let finishes: Vec<(String, Option<Vec<usize>>)> = p
+        .notes
+        .iter()
+        .filter(|n| n.kind == "surface finish")
+        .map(|n| {
+            let faces = match n.on {
+                Some(pmi::NoteOwner::Feature(f)) => Some(face_cover(p, f)),
+                _ => None,
+            };
+            (n.text.clone(), faces)
+        })
+        .collect();
+    assert_eq!(
+        finishes,
+        [
+            ("Ra 0.8".to_string(), Some(vec![0])),
+            ("Ra 1.6".to_string(), Some(vec![face105]))
+        ]
+    );
+    let stray: Vec<&pmi::Finding> = r
+        .findings
+        .iter()
+        .filter(|f| f.detail.contains("specify-core's"))
+        .collect();
+    assert_eq!(stray.len(), 1, "{:#?}", r.findings);
+    assert_eq!(
+        (stray[0].kind, stray[0].ids.as_slice()),
+        (pmi::FindingKind::Unresolved, &[2020][..])
+    );
 }
 
 // ---------------------------------------------------------------------------------------------

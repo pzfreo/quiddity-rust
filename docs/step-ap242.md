@@ -676,9 +676,11 @@ tested; `pmi::write` (and replace built from the removal plan) is the next stage
   PresentationPolicy::{Refuse, RemovePresentation})` and `RemovalPlan::into_edit`. Removes the
   least fixpoint of the seeds plus forward dependencies no kept instance holds; never removes
   shared infrastructure (units, contexts, product structure, topology, part shape
-  representations) or presentation representations; `Refuse` names every blocker,
-  `RemovePresentation` removes presentation and validation-property blockers and rewrites
-  draughting models, views and groups, refusing an emptied `items` set. Checked on all 17 NIST
+  representations; since 2026-10-09 not a feature definition's own `product_definition_shape`:
+  "For specify-core-rust (2026-10-09): U14 and U10" below) or presentation representations;
+  `Refuse` names every blocker, `RemovePresentation` removes presentation and
+  validation-property blockers and rewrites draughting models, views and groups, refusing an
+  emptied `items` set. Checked on all 17 NIST
   files with both policies (counts pinned; kept instances byte-identical; parts and faces
   unchanged) and a hand-made fixture. nist_ctc_01 under `RemovePresentation` is a pinned refusal
   (its PMI draughting model would be emptied); removing emptied models instead is undecided. The
@@ -829,7 +831,8 @@ Settled by the implementation (where the design was open or silent):
 
 Reader gaps the writer found (`pmi/read.rs`, not changed here): a `boolean_representation_item`'s
 value is looked up as its own attribute (it is `boolean_literal.the_value`), so booleans never
-read; a bare 'thread runout' aspect (WR16, no runout feature) is reported unconsumed; a simple
+read; a bare 'thread runout' aspect (WR16, no runout feature) is reported unconsumed (fixed
+2026-10-09: read with its thread, "For specify-core-rust (2026-10-09): U14 and U10" below); a simple
 `RATIO_UNIT` is not resolved as a unit; a tolerance on a `shape_aspect_relationship` from a
 feature is read as that feature's composition.
 
@@ -942,6 +945,82 @@ value is not a Part 21 REAL).
   usages; `every_kind` gains three part notes and two surface textures, one on the two faces of
   its profile tolerance) and re-captured.
 
+**For specify-core-rust (2026-10-09): U14 and U10.** Its upstream needs U14 (a part with a
+thread haecceity wrote written again) and U10 (its Python notes on faces), so its stand-ins
+(`writer::clear`'s restated shapes, the runout exception in `writer::verify`, the
+`GEOMETRIC_ITEM_SPECIFIC_USAGE` scan in `existing.rs`) can go.
+
+- **U14, reader**: thread WR16 requires one 'thread runout' aspect of the thread's shape and
+  allows it no 'thread runout usage' (no runout stated); the reader now consumes such a bare
+  aspect with its thread (a 'partial area occurrence' without its usage, which WR12 forbids,
+  stays unconsumed and reported). `assert_reads_back` (`pmi_write.rs`) no longer excuses it: no
+  write leaves a finding on what it wrote.
+- **U14, removal plan**: a `product_definition_shape` whose definition is a
+  `characterized_object` (a `thread`'s or `turned_knurl`'s own shape, the 'applied shape'
+  construct of thread WR13) is no longer shared infrastructure. `product_definition_shape` WR1
+  allows only a `characterized_product_definition` (product definition, occurrence or
+  relationship: product structure, still infrastructure) or a `characterized_object` as its
+  definition, and UR1 gives each definition one shape, so that shape is its object's alone; the
+  reader consumes it with the thread, and the plan removes it with it. Anything kept that
+  references it (the thread's own aspects, when the shape alone is a seed) is a blocker as
+  before, and a part's own shape is still refused as a seed
+  (`removal_takes_a_feature_definitions_shape_only_with_its_feature`, both policies). The NIST
+  removal pins are unchanged (checked on the 14 of the 17 pinned files available here; none
+  has such a shape).
+  `a_written_thread_is_replaced_and_removed` writes an internal thread (no runout) and,
+  separately, an external thread with a runout and a straight knurl onto the spool; each reads
+  back with no unconsumed instance, is then replaced by a flatness and removed; every output
+  passes `express::validate_document` and `express_rules::check_all` with no new violation and
+  `pmi::verify` (exactly the items written, no consumed instance surviving), and no feature
+  definition's shape is left. Before the change the replace failed with U14's message ("seed
+  #6514 product_definition_shape is shared infrastructure").
+- **U10**: specify-core's Python writer (`requirements.append`) writes a thread, knurl or face
+  finish as a part-level 'manufacturing requirement' note of that kind, immediately followed by
+  a plain `shape_aspect` named as the kind whose `geometric_item_specific_usage`s (named alike)
+  identify the faces, and nothing semantic refers to it (its callout's
+  `draughting_model_item_association` does). The reader already read that aspect as a feature in
+  its own right; it now puts the note of its kind written last before it on that feature
+  (`Note.on`), for the kinds specify-core's `existing.notes` reads ('internal thread', 'external
+  thread', 'knurl', 'surface finish', 'surface texture'). A note no aspect follows (a part note,
+  as 'surface texture' unless otherwise specified) stays on the part; an aspect of that form that
+  no unanchored note of its kind precedes is reported (`unresolved`: which note it is for is not
+  stated) and its faces stay a feature. The pairing rests on the writer's order, the only link
+  the file states. Python's `existing.notes` gives one entry per kind with the union of every
+  such usage's faces and no text; haecceity gives each note its own faces (equal to Python's
+  wherever a part has one note of a kind, as in every specify-core file here).
+  `specify_core_notes_on_faces_are_anchored` (`pmi_read.rs`) checks the committed specify-core
+  files against `existing.notes` run on them with specify-core's venv (the assembly's two parts,
+  the bolt, string post and thumbwheel: 7 notes, faces equal), and two finishes and a stray
+  aspect added to the bolt; oracle 5 (`specify_core_outputs`) now also requires each thread and
+  knurl of the intent to have its note on its faces (no new pin). A live write of
+  specify-core-rust's plate with a face finish (its `tests/existing.rs` script) reads the
+  'surface finish' note on face 2 and the 'internal thread' note on face 12, as `existing.notes`
+  does. The notes' owners are in `pmi read`'s output, so `pmi_json::READER` is now
+  `haecceity-pmi-read/4` (the committed fixtures' output changed only in those owners).
+
+**specify-core needs** (specify-core-rust `docs/upstream-needs.md`, checked at this head):
+
+- **U3** notes and surface finish in `pmi::write`: *met* in the form decided 2026-10-09
+  (decision 3): part notes in words as 'semantic text' attribute sets, surface texture on the
+  part or on faces as `SurfaceTexture`; `PartPmi.notes` (the 'manufacturing requirement' route)
+  stays refused by decision 5. `notes_and_surface_textures_are_standard_forms` (`pmi_write.rs`).
+- **U7** read-back verification as a library function: *met*, `pmi::verify`
+  (`pmi/verify.rs`); `tests/pmi_verify.rs` (`add_reads_back_as_before_plus_exactly_the_items_written`,
+  `replace_reads_back_as_exactly_the_items_written`, `other_parts_and_findings_are_as_before`).
+- **U8** thread pitch and 'number of threads': *open*, a maintainer decision
+  ([question 6](#questions-2026-10-09)).
+- **U9** part display names and one read: *met*, `PartDefinition.name` and `StepFile::read`;
+  `tests/step_parts.rs` (`a_wrapped_part_takes_its_assemblys_name`,
+  `an_empty_product_name_is_its_id`).
+- **U10** notes on faces: *met* (above), `specify_core_notes_on_faces_are_anchored`.
+- **U14** replace and remove of a written thread: *met* (above),
+  `a_written_thread_is_replaced_and_removed`,
+  `removal_takes_a_feature_definitions_shape_only_with_its_feature`.
+- **U15** OpenCascade crash on datum symbols: *met* for specify-core's loader by decision 1
+  (no relationship written; the crash itself is specify-core's `load.py`, question 1):
+  `opencascade_reads_the_written_files` (`pmi_write.rs`) requires every written file, datum
+  symbols included, to load in specify-core's `load.load_all` and read in XCAF.
+
 ### Questions (2026-10-09)
 
 What was done meanwhile is in each.
@@ -976,6 +1055,14 @@ What was done meanwhile is in each.
 5. **Several part notes, one shown by OpenCascade.** One 'semantic text' property per note is
    §7.4's form; one property with a line per note would make them one note (and whether
    OpenCascade would show more of it is untried). *Meanwhile:* one property per note.
+6. **A thread's pitch and 'number of threads'** (specify-core-rust U8). The schema has no pitch
+   item, and thread WR5's 'number of threads' is a ratio whose meaning (starts, or threads per
+   unit length) neither the schema text read so far nor any file here settles. *Meanwhile:*
+   the model keeps 'number of threads' as stated and holds no pitch; the writer writes what the
+   model states (specify-core-rust writes 1, form 'M', the designation as `qualifier`, and the
+   pitch, tapping drill and depths in an attribute set on the thread's feature, as haecceity's
+   own test of specify-core intents does). Where should the pitch go, and what does 'number of
+   threads' count?
 
 ## Out of scope for now
 
