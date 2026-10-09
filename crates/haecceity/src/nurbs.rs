@@ -550,6 +550,39 @@ impl NurbsSurface {
         [acc[0] / acc[3], acc[1] / acc[3], acc[2] / acc[3]]
     }
 
+    /// Where the surface is furthest along *d* within *reach* = (du, dv) of (u, v), inside its
+    /// domain: alternate golden-section searches along u and v from the start, which should be
+    /// the best of a grid of that spacing. Never worse than the start.
+    pub fn extreme_near(&self, (u, v): (f64, f64), (du, dv): (f64, f64), d: V3) -> (f64, f64) {
+        let (u0, u1, v0, v1) = self.domain();
+        let g = |u: f64, v: f64| geom::dot(self.value(u, v), d);
+        let r = 0.5 * (5f64.sqrt() - 1.0);
+        let search = |lo: f64, hi: f64, f: &dyn Fn(f64) -> f64| {
+            let (mut x0, mut x1) = (lo, hi);
+            for _ in 0..50 {
+                let (c, e) = (x1 - r * (x1 - x0), x0 + r * (x1 - x0));
+                if f(c) > f(e) {
+                    x1 = e;
+                } else {
+                    x0 = c;
+                }
+            }
+            0.5 * (x0 + x1)
+        };
+        let (mut bu, mut bv) = (u, v);
+        for _ in 0..4 {
+            let nu = search((u - du).max(u0), (u + du).min(u1), &|s| g(s, bv));
+            if g(nu, bv) > g(bu, bv) {
+                bu = nu;
+            }
+            let nv = search((v - dv).max(v0), (v + dv).min(v1), &|s| g(bu, s));
+            if g(bu, nv) > g(bu, bv) {
+                bv = nv;
+            }
+        }
+        (bu, bv)
+    }
+
     /// The point and its exact first partial derivatives (quotient rule on the homogeneous form).
     pub fn value_and_partials(&self, u: f64, v: f64) -> (V3, V3, V3) {
         let (u0, u1, v0, v1) = self.domain();

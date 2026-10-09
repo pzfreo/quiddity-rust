@@ -6,6 +6,7 @@ undetermined.
     QUIDDITY=../quiddity ../quiddity/.venv/bin/python tools/kernel_evidence.py faces FILE FACE...
     QUIDDITY=../quiddity ../quiddity/.venv/bin/python tools/kernel_evidence.py solids FILE...
     QUIDDITY=../quiddity ../quiddity/.venv/bin/python tools/kernel_evidence.py uv FILE FACE...
+    QUIDDITY=../quiddity ../quiddity/.venv/bin/python tools/kernel_evidence.py boxes FILE FACE...
     QUIDDITY=../quiddity ../quiddity/.venv/bin/python tools/kernel_evidence.py arcs FILE A-B...
 
 ``FILE`` is a corpus path (``nist/nist_ctc_05_asme1_rd.stp``); faces are indexed in
@@ -41,6 +42,9 @@ that share no step with either kernel's integration. With ``--faces`` it also li
 
 ``uv`` gives the parameter range each face's 3D edges reach (``uv_extent``), and ``arcs`` the fold
 between two faces along their shared edges, to first and second order (``arc_reading``).
+``boxes`` gives, per edge of each face, the extent of its 3D curve and of the curve's foot points
+on the face's surface along each axis, with how far the curve strays from the surface and the
+edge's and face's tolerances (``edge_boxes``): where an edge strays, which one bounds the face.
 
 Verdicts on solid masses and body keys built from these follow the policy the divergence
 verdicts set (whose threshold is an open maintainer question, docs/status-2026-10-08.md):
@@ -560,6 +564,36 @@ def uv_extent(face) -> dict:
     return found
 
 
+def edge_boxes(face) -> dict:
+    """Per edge (2001 samples of its 3D curve): the curve's extent along x, y and z, its foot
+    points' extent on the face's surface, its largest stray from the surface and its tolerance."""
+
+    surf = _Surface(face)
+    edges = []
+    explorer = TopExp_Explorer(face, TopAbs_EDGE)
+    while explorer.More():
+        edge = TopoDS.Edge_s(explorer.Current())
+        explorer.Next()
+        if BRep_Tool.Degenerated_s(edge):
+            continue
+        curve = BRepAdaptor_Curve(edge)
+        raw, feet, stray = [], [], 0.0
+        for t in np.linspace(curve.FirstParameter(), curve.LastParameter(), 2001):
+            p = curve.Value(t)
+            q = surf.adaptor.Value(*surf._wrapped(*surf.place(p)))
+            raw.append(p.Coord())
+            feet.append(q.Coord())
+            stray = max(stray, p.Distance(q))
+        raw, feet = np.array(raw), np.array(feet)
+        edges.append({
+            "curve": [list(raw.min(axis=0)), list(raw.max(axis=0))],
+            "feet": [list(feet.min(axis=0)), list(feet.max(axis=0))],
+            "stray": stray,
+            "tolerance": BRep_Tool.Tolerance_s(edge),
+        })
+    return {"tolerance": BRep_Tool.Tolerance_s(face), "edges": edges}
+
+
 def arc_reading(shape, a: int, b: int, steps=(1e-3, 1e-2)) -> list[dict]:
     """The fold between faces ``a`` and ``b`` read without either kernel's walk direction, at 9
     points along each shared edge: each face's outward normal at the edge point's foot on its
@@ -662,6 +696,10 @@ def main() -> None:
         part = _load(args[1])
         faces = [f.wrapped for f in part.faces()]
         print(json.dumps({i: uv_extent(faces[int(i)]) for i in args[2:]}, indent=1))
+    elif args[0] == "boxes":
+        part = _load(args[1])
+        faces = [f.wrapped for f in part.faces()]
+        print(json.dumps({i: edge_boxes(faces[int(i)]) for i in args[2:]}, indent=1))
     elif args[0] == "arcs":
         part = _load(args[1])
         pairs = [tuple(int(x) for x in pair.split("-")) for pair in args[2:]]

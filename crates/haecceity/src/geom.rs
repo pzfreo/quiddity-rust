@@ -346,6 +346,15 @@ impl Surface {
         }
     }
 
+    /// The point of an analytic surface (plane, cylinder, cone, sphere, torus) nearest *p*, by
+    /// its closed-form inversion; `None` on the others.
+    pub fn foot(&self, p: V3) -> Option<V3> {
+        match self {
+            Surface::Freeform { .. } | Surface::Other { .. } => None,
+            _ => self.parameters(p, None).map(|(u, v)| self.value(u, v)),
+        }
+    }
+
     /// The (u, v) parameters of a point on (or near) the surface. Periodic parameters are
     /// returned in `[0, 2π)`; callers unwrap them. *hint* seeds the iterative inversion of a
     /// freeform surface (the analytic kinds invert in closed form and ignore it).

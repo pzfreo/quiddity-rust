@@ -75,11 +75,20 @@ SPECIAL = {
         "(pcurves projected from the edges).",
     ),
     ("cadgenbench_inputs/cgb242.step.gz", 483, "occ"): (
-        "rust-wrong",
-        "A degenerate seam-to-seam sliver: OpenCascade bounds it by one B-spline edge used twice and "
-        "a degenerate edge (a triangulation of it has area 1e-21; face.area {occ}, adaptive {fine}). "
-        "The port reads its two edges as the two sides of a closed v range and integrates the cap "
-        "between them, {rust}; negligible, but not the face's area.",
+        "undetermined",
+        "A degenerate sliver at the tip of a B-spline surface whose side u = 0 collapses to a "
+        "point: its two edges (1618 and 177, at most 3.6e-5 mm apart, about their summed "
+        "tolerances of 1.6e-5 and 2.1e-5) run out to u = 0.0016898 along what the port finds "
+        "are the surface's sides v = 1 and v = 0, which lie 1.2e-5 mm apart there (the surface "
+        "nearly closes at its tip). Read so, the edges bound the whole tip, whose area the port "
+        "gives, {rust} (the exact surface integrated over u < 0.0016898, every v, gives "
+        "5.4618e-8 with OpenCascade's evaluator). OpenCascade's pcurves put both edges near v = "
+        "0.042 instead, joined by a degenerate edge along the collapsed side, and bound a thin "
+        "triangle (face.area {occ}, adaptive {fine}; a triangulation of it has area 1e-21). The "
+        "geometry does not decide which region the file means: the edges lie within their "
+        "tolerance of either reading. Negligible either way (5.5e-13 of the solid's area); no "
+        "principled fix short of reading slivers by their tolerances. (This entry once said "
+        "OpenCascade bounds the face by one edge used twice: its two edges are distinct.)",
     ),
     ("cadgenbench_inputs/cgb202.step.gz", 397, "occ"): (
         "rust-correct",

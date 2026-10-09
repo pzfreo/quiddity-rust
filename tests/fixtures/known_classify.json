@@ -63,15 +63,6 @@
     "evidence": "0.01 mm outside face 94; 0.0100 mm from an edge toleranced 0.024 mm; OpenCascade's rays count 3,4,4,0,0,0,6."
   },
   {
-    "file": "cadgenbench_inputs/cgb242.step.gz",
-    "point": 299,
-    "check": "parity",
-    "observed": "1,1,3,1,1,3,4",
-    "verdict": "rust-wrong",
-    "reason": "The port's trimming domain (uv.rs FaceDomain) of a B-spline face whose edges stray from it excludes crossings well inside the face, so a ray loses crossings OpenCascade's IntCurvesFace_ShapeIntersector counts; the vote still answers as OpenCascade does.",
-    "evidence": "Ray 6 crosses B-spline face 715 at t 5.4819, uv (0.384, 0.052), 0.128 mm from edge 494, and the domain excludes it (edge 968 strays 0.176 mm); OpenCascade rays 1,1,3,1,1,3,5."
-  },
-  {
     "file": "inventory_refusal/13975.step.gz",
     "point": 126,
     "check": "parity",
