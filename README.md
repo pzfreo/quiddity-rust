@@ -89,7 +89,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 118 (2920 answers) | 98 | 8 | 0 | 9 | 3 |
 | `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 9 | 3 | 3 | 0 | 0 | 3 |
 | `tests/fixtures/captured/reconcile/known.json` | `tests/reconcile.rs` | 26 (0 decisions, 26 motions) | 0 | 4 | 0 | 0 | 22 |
-| `tests/fixtures/known_face_sources.json` | `crates/haecceity/tests/face_sources.rs` | 137 | 93 | 0 | 0 | 43 | 1 |
+| `tests/fixtures/known_face_sources.json` | `crates/haecceity/tests/face_sources.rs` | 134 | 90 | 0 | 0 | 43 | 1 |
 | `tests/fixtures/known_pmi.json` "nist" | `crates/haecceity/tests/pmi_read.rs` | 74 | 65 | 0 | 9 | 0 | 0 |
 | `tests/fixtures/known_pmi.json` "occt" | `crates/haecceity/tests/pmi_read.rs` | 403 | 402 | 1 | 0 | 0 | 0 |
 | `tests/fixtures/known_pmi.json` "specify" | `crates/haecceity/tests/pmi_read.rs` | 38 | 20 | 0 | 0 | 0 | 18 |
@@ -120,7 +120,10 @@ with its presentation or refusing; named EXPRESS WHERE and UNIQUE rules (`expres
 back the writer. The writer (`pmi::write`) maps every part's PMI to one edit of the file
 (add, replace, remove) through a typed emission layer, keeping every other byte, with a
 datum feature symbol derived for each datum it adds; refusals, round trips and OpenCascade's
-reading of written files are pinned in `tests/fixtures/known_pmi_write.json`.
+reading of written files are pinned in `tests/fixtures/known_pmi_write.json`. `pmi::verify`
+checks a write by reading it back (what `quiddity pmi write` does), naming each difference. A file
+read once (`step::StepFile`) gives its parts with XCAF's display names, its assemblies, and each
+part as a `Part` in its own coordinates (`step::read_part`).
 specify-core and draftwright reach all of this through the `quiddity` command line, in a
 versioned JSON form of the model (`src/pmi_json.rs`): `quiddity parts`, `quiddity pmi read`,
 `quiddity pmi check` and `quiddity pmi write` (see [Running](#running)).
