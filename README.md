@@ -54,6 +54,7 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 | Oriented slots | `recognise_oriented_slots` | 33/33 | 1 | 100/100 |
 | Oriented slot patterns | `recognise_oriented_slot_patterns` | 26/26 | 0 | 100/100 |
 | Rectangular pads | `recognise_rectangular_pads` | 150/155 (5 known divergences) | 5 | 100/100 |
+| Planar outer profiles (evidence) | `RecognitionEvidence.planar_outer_profile` | 432/433 faces (1 known difference) | 5 | 95/100 (5 known) |
 
 *Captured test calls*: the Python suite's calls replayed by `tests/captured.rs`. *Not captured*:
 calls the suite makes that the capture could not record, outside the replay and pinned by it
@@ -86,6 +87,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/section_recess/known_differences.json` | `tests/section_recess.rs` | 4 | 0 | 0 | 0 | 0 | 4 |
 | `tests/fixtures/captured/section_recess_geometry/known_differences.json` | `tests/section_recess_geometry.rs` | 10 | 0 | 8 | 1 | 0 | 1 |
 | `tests/fixtures/captured/known_section_geometry.json` | `tests/section_geometry.rs` | 2 | 0 | 2 | 0 | 0 | 0 |
+| `tests/fixtures/captured/outer_profiles/known_differences.json` | `tests/outer_profiles.rs` | 7 (2193 faces) | 6 | 1 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 118 (2920 answers) | 98 | 8 | 0 | 9 | 3 |
 | `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 9 | 3 | 3 | 0 | 0 | 3 |
 | `tests/fixtures/captured/reconcile/known.json` | `tests/reconcile.rs` | 26 (0 decisions, 26 motions) | 0 | 4 | 0 | 0 | 22 |
@@ -256,6 +258,23 @@ certificates OpenCascade took over two minutes to mesh, 16 test shapes STEP expo
 and test parts past the first three per test function. Every certificate the port issues also
 agrees with its face's own orientation, and the answers are unchanged under two rigid motions
 (1 listed kernel face: cgb242 face 726).
+Planar outer-profile evidence (`_outer_profile`, `_outer_profile_geometry`,
+`RecognitionEvidence.planar_outer_profile`), which draftwright's profile angles read, is
+`features::outer_profile::planar_outer_profile(part, face)`: one face's line/arc outer wire as
+ordered supports with the material on the left about the outward normal, its inner loops counted,
+the faces of its one valid body and each support's source edge (an index into `Part::edges`), or
+Python's refusal. `tests/outer_profiles.rs` replays every face of the parts quiddity's
+outer-profile tests build, four golden fixtures and the corpus (`tools/capture_outer_profiles.py`,
+11154 faces) and checks every profile's supports against its source edges, the ported test
+cases, and invariance under two rigid motions and a generic rotation. 2193 faces differ, listed
+in `captured/outer_profiles/known_differences.json`: cgb202's and 14052's bodies (BRepCheck, as
+elsewhere), circles and lines OpenCascade's import heals, and tangent cusps. Python signs a cusp
+(a support turning straight back) by the round-off of `atan2` on antiparallel tangents, which
+follows the placement; the port signs it by the supports' curvatures, and its answers are
+unchanged under every motion. Not captured: test parts past four per test, and two solids sharing
+one shell, which STEP export writes as two. Open question for the maintainer: whether the
+recognition document (`quiddity-rust/recognition/2`) should carry outer profiles; Python's
+document does not, and they are not in it.
 The three cylindrical proofs section recesses compose on top of it are ported the same way
 (`tests/section_geometry.rs`, `tools/capture_section_geometry.py`): `prove_cylindrical_channel`,
 `cylindrical_pocket_proofs` and `cylindrical_passage_proofs`, on 178 parts the Python tests

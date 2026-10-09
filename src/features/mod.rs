@@ -47,6 +47,7 @@ pub mod levels;
 pub mod oblique_through_steps;
 pub mod oriented_chamfers;
 pub mod oriented_slots;
+pub mod outer_profile;
 pub mod pads;
 pub mod paired_ramp_steps;
 pub mod passage_compat;
