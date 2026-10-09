@@ -333,7 +333,7 @@ fn recognise_solid(
     part: &Part,
     solid: usize,
     faces: &[usize],
-) -> Option<(CircularFacePattern, Vec<usize>)> {
+) -> Option<(CircularFacePattern, Vec<Vec<usize>>)> {
     if faces.len() < MIN_COUNT * 2 || faces.len() > MAX_FACES {
         return None;
     }
@@ -425,8 +425,11 @@ fn recognise_solid(
                         seed_index: 0,
                         fit_error: py::round_to(fit_error, 6),
                     };
-                    let members = groups.into_iter().flatten().collect();
-                    return Some((record, members));
+                    let groups = groups
+                        .into_iter()
+                        .map(|g| g.into_iter().collect())
+                        .collect();
+                    return Some((record, groups));
                 }
             }
         }
@@ -447,6 +450,17 @@ fn kind_name(surface: &Surface) -> &'static str {
 }
 
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<CircularFacePattern>> {
+    discover_with_groups(ctx)
+        .into_iter()
+        .map(|(o, _)| o)
+        .collect()
+}
+
+/// [`discover`], each pattern with its repeated face groups in order (Python's
+/// `Evidence.groups`; the occurrence's defining faces are their union).
+pub fn discover_with_groups(
+    ctx: &Context<'_>,
+) -> Vec<(Occurrence<CircularFacePattern>, Vec<Vec<usize>>)> {
     let part = ctx.part;
     // Solids in order of their first face, each with its faces, when it is valid.
     let mut solids: Vec<(usize, Vec<usize>)> = Vec::new();
@@ -459,15 +473,18 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<CircularFacePattern>> {
             None => solids.push((s, vec![face])),
         }
     }
-    let mut out: Vec<Occurrence<CircularFacePattern>> = solids
+    let mut out: Vec<(Occurrence<CircularFacePattern>, Vec<Vec<usize>>)> = solids
         .iter()
         .filter_map(|(s, faces)| recognise_solid(part, *s, faces))
-        .map(|(record, defining)| Occurrence {
-            record,
-            defining,
-            context: Vec::new(),
+        .map(|(record, groups)| {
+            let occurrence = Occurrence {
+                record,
+                defining: groups.iter().flatten().copied().collect(),
+                context: Vec::new(),
+            };
+            (occurrence, groups)
         })
         .collect();
-    out.sort_by(|a, b| py::tuple_order(&a.record.sort_key(), &b.record.sort_key()));
+    out.sort_by(|a, b| py::tuple_order(&a.0.record.sort_key(), &b.0.record.sort_key()));
     out
 }

@@ -5,6 +5,7 @@
 //! `quiddity parts` / `quiddity pmi` process boundary.
 
 pub mod correspondence;
+pub mod evidence_view;
 pub mod features;
 pub mod framed_records;
 pub mod frames;
@@ -15,6 +16,7 @@ pub mod serve;
 pub use haecceity as kernel;
 
 pub use correspondence::{Correspondence, Fingerprints, correspond};
+pub use evidence_view::{RecognitionEvidence, build_recognition_evidence};
 pub use features::angled_steps::{AngledStep, recognise_angled_steps};
 pub use features::blends::{
     Blend, BlendPath, CircularBlendPath, StraightBlendPath, recognise_blends,

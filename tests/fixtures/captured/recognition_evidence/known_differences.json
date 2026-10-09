@@ -1,0 +1,3049 @@
+{
+  "candidates": [
+    {
+      "defining": [
+        1450
+      ],
+      "family": "fillets",
+      "file": "cadgenbench_inputs/cgb202.step.gz",
+      "python": {
+        "constituent": [
+          1450
+        ],
+        "index": 285,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "reason": "The same accepted fillet; its position among the physical fillet candidates is two later because the port also has the two fillets Python's local-degradation retry skips on this part (cgb202 faces 698 and 1627, this file's fillets entries, rust-correct).",
+      "rust": {
+        "constituent": [
+          1450
+        ],
+        "index": 287,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-correct"
+    }
+  ],
+  "errors": [],
+  "features": [
+    {
+      "defining": [
+        0,
+        7,
+        11
+      ],
+      "family": "plates",
+      "field": "present",
+      "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
+      "python": 0,
+      "reason": "Not a reconciliation difference: Python's aggregate discovers plates only on solids that own no turned step (plates.py _discover passes the turned steps' solids as excluded_solids), and this part's one solid owns its turned steps (its four bosses are rejected as exactly turned steps). The port's plates::discover has no such exclusion, so the aggregate's plate dependency on turned steps is not ported. (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        0
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "inventory_refusal/13975.step.gz",
+      "python": 0,
+      "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. The shell bounds no volume (edge 15 is used by one face only, edge 4 twice in one direction; known_divergences.json's 13975 entries), so no valid solid owns the record; the port's own degraded evidence paths (holes::discover_locally_degraded, pockets::discover_locally_degraded) skip it as Python does, but recognise does not use them. (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        187,
+        232
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb243.step.gz",
+      "python": 1,
+      "reason": "Not a reconciliation difference: the same hole's candidate defining faces differ. Python's hole claims the \u00d861.62 cylinder 0.47 mm inside the mouth it calls a spotface (with its faces) because it orders segments by their high end in either drilling direction; the port orders by the end nearest the opening, finds no spotface and claims the bore alone. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes spotface entry in known_divergences.json (rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        187
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb243.step.gz",
+      "python": 0,
+      "reason": "Not a reconciliation difference: the same hole's candidate defining faces differ. Python's hole claims the \u00d861.62 cylinder 0.47 mm inside the mouth it calls a spotface (with its faces) because it orders segments by their high end in either drilling direction; the port orders by the end nearest the opening, finds no spotface and claims the bore alone. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes spotface entry in known_divergences.json (rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        156,
+        158,
+        173,
+        185
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb242.step.gz",
+      "python": 0,
+      "reason": "Not a reconciliation difference: the same through hole's candidate defining faces differ with its drilling end. Python drills this \u00d822 hole from the \u00d8102 end (it takes whichever segment comes first in face order at the \u00d8110 end, where the bore and the \u00d8110 segment end level), its counterbore the \u00d8102 one; the port drills from the wider \u00d8110 end, as Python's own rule says and as Python does with the part turned over, so the segments each side claims with the bore differ. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes axis/cbore entry in known_divergences.json (rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        15
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp_holdout/257.step",
+      "python": 1,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        1627
+      ],
+      "family": "fillets",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb202.step.gz",
+      "python": 0,
+      "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. Python skips the fillet because it touches the bad-face region of a solid OpenCascade's BRepCheck calls unorientable after its import healing re-orients wires; the file's own topology is closed and consistently oriented and the port accepts the solid, so publishing it is right (captured/local_degradation/known.json's two cgb202 fillet skips and this file's recognise_fillets evidence entry in known_divergences.json, rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        2,
+        3
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp/10049.step",
+      "python": 0,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        23
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp/10060.step",
+      "python": 1,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        2
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp/10049.step",
+      "python": 1,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        3,
+        23
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp/10060.step",
+      "python": 0,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        315,
+        319,
+        331,
+        333,
+        335,
+        337,
+        339,
+        341,
+        343
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb217.step.gz",
+      "python": 1,
+      "reason": "Not a reconciliation difference: the same hole's candidate defining faces differ. Python's hole claims the internal-groove cylinder it calls a spotface (with its faces) because it orders segments by their high end in either drilling direction; the port orders by the end nearest the opening, finds no spotface and claims the bore alone. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes spotface entry in known_divergences.json (rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        319
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb217.step.gz",
+      "python": 0,
+      "reason": "Not a reconciliation difference: the same hole's candidate defining faces differ. Python's hole claims the internal-groove cylinder it calls a spotface (with its faces) because it orders segments by their high end in either drilling direction; the port orders by the end nearest the opening, finds no spotface and claims the bore alone. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes spotface entry in known_divergences.json (rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        3
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp/10049.step",
+      "python": 1,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        3
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp/10060.step",
+      "python": 1,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        4,
+        5
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp_holdout/20273.step",
+      "python": 0,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        4
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp_holdout/20273.step",
+      "python": 1,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        5,
+        6
+      ],
+      "family": "plates",
+      "field": "present",
+      "file": "inventory_refusal/14052.step.gz",
+      "python": 0,
+      "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. A deliberately malformed corpus part: OpenCascade's BRepCheck reports BRepCheck_BadOrientationOfSubshape on face 1, a geometric fault the port's topological validity check does not look for, so the port calls the solid valid and publishes the record (captured/local_degradation/known.json's 14052 skips, rust-wrong). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        5
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp_holdout/20273.step",
+      "python": 1,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        6,
+        36,
+        43,
+        56,
+        66,
+        103,
+        109,
+        156,
+        158
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb242.step.gz",
+      "python": 1,
+      "reason": "Not a reconciliation difference: the same through hole's candidate defining faces differ with its drilling end. Python drills this \u00d822 hole from the \u00d8102 end (it takes whichever segment comes first in face order at the \u00d8110 end, where the bore and the \u00d8110 segment end level), its counterbore the \u00d8102 one; the port drills from the wider \u00d8110 end, as Python's own rule says and as Python does with the part turned over, so the segments each side claims with the bore differ. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes axis/cbore entry in known_divergences.json (rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        698
+      ],
+      "family": "fillets",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb202.step.gz",
+      "python": 0,
+      "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. Python skips the fillet because it touches the bad-face region of a solid OpenCascade's BRepCheck calls unorientable after its import healing re-orients wires; the file's own topology is closed and consistently oriented and the port accepts the solid, so publishing it is right (captured/local_degradation/known.json's two cgb202 fillet skips and this file's recognise_fillets evidence entry in known_divergences.json, rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        6
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "inventory_refusal/13975.step.gz",
+      "python": 0,
+      "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. The shell bounds no volume (edge 15 is used by one face only, edge 4 twice in one direction; known_divergences.json's 13975 entries), so no valid solid owns the record; the port's own degraded evidence paths (holes::discover_locally_degraded, pockets::discover_locally_degraded) skip it as Python does, but recognise does not use them.",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        8,
+        15
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp_holdout/257.step",
+      "python": 0,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        8
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "inventory_refusal/14052.step.gz",
+      "python": 0,
+      "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. A deliberately malformed corpus part: OpenCascade's BRepCheck reports BRepCheck_BadOrientationOfSubshape on face 1, a geometric fault the port's topological validity check does not look for, so the port calls the solid valid and publishes the record (captured/local_degradation/known.json's 14052 skips, rust-wrong). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        8
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp_holdout/257.step",
+      "python": 1,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 0,
+      "verdict": "rust-correct"
+    }
+  ],
+  "gaps": [
+    {
+      "family": "section_recesses",
+      "file": "inventory_refusal/14052.step.gz",
+      "python": 1,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/1000.step",
+      "python": 9,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10000.step",
+      "python": 2,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10007.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10020.step",
+      "python": 6,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10033.step",
+      "python": 1,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10038.step",
+      "python": 6,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/1004.step",
+      "python": 4,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10046.step",
+      "python": 4,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10047.step",
+      "python": 6,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10049.step",
+      "python": 5,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10060.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10063.step",
+      "python": 5,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/1007.step",
+      "python": 1,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/1008.step",
+      "python": 2,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10092.step",
+      "python": 2,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10096.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10098.step",
+      "python": 2,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10101.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10103.step",
+      "python": 5,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10119.step",
+      "python": 5,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10127.step",
+      "python": 2,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/1013.step",
+      "python": 5,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10131.step",
+      "python": 2,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10138.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10146.step",
+      "python": 4,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10155.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10156.step",
+      "python": 1,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10163.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10167.step",
+      "python": 5,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/1017.step",
+      "python": 1,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10170.step",
+      "python": 2,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10190.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10212.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10224.step",
+      "python": 2,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10245.step",
+      "python": 4,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10247.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10252.step",
+      "python": 1,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10255.step",
+      "python": 2,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp/10278.step",
+      "python": 1,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/118.step",
+      "python": 7,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/119.step",
+      "python": 2,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/163.step",
+      "python": 4,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/16943.step",
+      "python": 4,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/181.step",
+      "python": 2,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/182.step",
+      "python": 1,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/183.step",
+      "python": 2,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/196.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/200.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/20273.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/203.step",
+      "python": 4,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/205.step",
+      "python": 1,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/229.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/238.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/244.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/257.step",
+      "python": 4,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/265.step",
+      "python": 6,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/274.step",
+      "python": 4,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/275.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/317.step",
+      "python": 5,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/340.step",
+      "python": 1,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/363.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/388.step",
+      "python": 4,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/408.step",
+      "python": 4,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/419.step",
+      "python": 1,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/464.step",
+      "python": 8,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/467.step",
+      "python": 2,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/471.step",
+      "python": 1,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/483.step",
+      "python": 1,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/498.step",
+      "python": 4,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/520.step",
+      "python": 3,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_holdout/808.step",
+      "python": 8,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "mfcadpp_regressions/11512.step",
+      "python": 2,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "nist/nist_ctc_01_asme1_rd.stp",
+      "python": 7,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "nist/nist_ctc_02_asme1_rc.stp",
+      "python": 8,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "nist/nist_ctc_03_asme1_rc.stp",
+      "python": 7,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "nist/nist_ctc_04_asme1_rd.stp",
+      "python": 6,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "nist/nist_ctc_05_asme1_rd.stp",
+      "python": 6,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "python": 9,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "nist/nist_ftc_08_asme1_rc.stp",
+      "python": 9,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "nist/nist_ftc_09_asme1_rd.stp",
+      "python": 9,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "section_recesses",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 4,
+      "reason": "The view does not list the section recesses (Python's aggregate projection of the recess source families and its refusals): awaits q-section-recess-family (evidence_view::GAPS).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "cadgenbench/flanged_spool_132.step",
+      "python": 5,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "cadgenbench/threaded_connector_109.step",
+      "python": 8,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "cadgenbench_inputs/cgb202.step.gz",
+      "python": 11,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "cadgenbench_inputs/cgb203.step",
+      "python": 1,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "cadgenbench_inputs/cgb207.step",
+      "python": 7,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "cadgenbench_inputs/cgb217.step.gz",
+      "python": 9,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "cadgenbench_inputs/cgb242.step.gz",
+      "python": 7,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "cadgenbench_inputs/cgb243.step.gz",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "cadgenbench_inputs/cgb245.step",
+      "python": 11,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "gramel/GRM-05_depth_lock_bolt.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "gramel/string_post.step",
+      "python": 4,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "inventory_refusal/14052.step.gz",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/1000.step",
+      "python": 4,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10000.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10007.step",
+      "python": 4,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10020.step",
+      "python": 6,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10033.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10038.step",
+      "python": 5,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/1004.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10046.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10047.step",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10049.step",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10060.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10063.step",
+      "python": 7,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/1007.step",
+      "python": 1,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10077.step",
+      "python": 4,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/1008.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10092.step",
+      "python": 6,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10096.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10098.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10101.step",
+      "python": 6,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10103.step",
+      "python": 5,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10119.step",
+      "python": 6,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10127.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/1013.step",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10138.step",
+      "python": 4,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10146.step",
+      "python": 6,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10155.step",
+      "python": 4,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10156.step",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10167.step",
+      "python": 5,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/1017.step",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10170.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10190.step",
+      "python": 4,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10212.step",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10224.step",
+      "python": 4,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10245.step",
+      "python": 6,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10247.step",
+      "python": 1,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10252.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10255.step",
+      "python": 5,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp/10278.step",
+      "python": 1,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/118.step",
+      "python": 4,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/119.step",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/163.step",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/16943.step",
+      "python": 5,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/18016.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/181.step",
+      "python": 1,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/182.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/196.step",
+      "python": 1,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/200.step",
+      "python": 4,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/20273.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/203.step",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/205.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/229.step",
+      "python": 6,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/238.step",
+      "python": 1,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/244.step",
+      "python": 4,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/257.step",
+      "python": 4,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/265.step",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/274.step",
+      "python": 4,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/275.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/317.step",
+      "python": 8,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/340.step",
+      "python": 1,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/363.step",
+      "python": 1,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/388.step",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/408.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/419.step",
+      "python": 4,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/464.step",
+      "python": 5,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/467.step",
+      "python": 4,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/471.step",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/483.step",
+      "python": 6,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/498.step",
+      "python": 1,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/520.step",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_holdout/808.step",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "mfcadpp_regressions/11512.step",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "nist/nist_ctc_01_asme1_rd.stp",
+      "python": 2,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "nist/nist_ctc_02_asme1_rc.stp",
+      "python": 6,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "nist/nist_ctc_03_asme1_rc.stp",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "nist/nist_ctc_04_asme1_rd.stp",
+      "python": 6,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "nist/nist_ctc_05_asme1_rd.stp",
+      "python": 7,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "python": 6,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "nist/nist_ftc_07_asme1_rd.stp",
+      "python": 10,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "nist/nist_ftc_08_asme1_rc.stp",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "nist/nist_ftc_09_asme1_rd.stp",
+      "python": 15,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 10,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    },
+    {
+      "family": "step_levels",
+      "file": "ttt_inputs/sm-hanger.step",
+      "python": 3,
+      "reason": "The view does not list step levels: the step-level family (levels.STEP_LEVELS, `_discover_step_levels`) is not ported (evidence_view::GAPS; specify-core U12).",
+      "verdict": "rust-wrong"
+    }
+  ],
+  "motions": [
+    {
+      "defining": [
+        0,
+        2,
+        3,
+        4,
+        8,
+        14,
+        18,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        34,
+        35,
+        36,
+        37,
+        39,
+        40,
+        42,
+        43,
+        46,
+        47,
+        50,
+        51,
+        52,
+        53,
+        54,
+        58,
+        60,
+        61,
+        62,
+        63,
+        64,
+        66,
+        72,
+        73,
+        75,
+        76,
+        77,
+        79,
+        85,
+        87,
+        91,
+        93,
+        94,
+        98
+      ],
+      "family": "thin_wall_bodies",
+      "file": "ttt_inputs/sm-hanger.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": null,
+      "reason": "Projected only as the winner of a riser's thin-wall rejection, and risers are not compared under this motion: Risers are read against the part's own axes: a riser faces along x or y and not z (levels.rs riser_orientation, as Python's levels._riser_orientation reads the normal's X and Y). rot_zx_moved turns the part's z axis into x, so other faces are risers and the thin-wall rejections of them change with them, in Python as in the port. A caller-frame measurement, not a placement-invariant record.",
+      "rust": {
+        "constituent": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          90,
+          91,
+          92,
+          93,
+          94,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "not-applicable"
+    },
+    {
+      "defining": [
+        0
+      ],
+      "family": "bosses",
+      "file": "gramel/GRM-05_depth_lock_bolt.step",
+      "list": "candidates",
+      "motion": "rot_y180",
+      "moved": {
+        "constituent": [
+          0
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              0
+            ]
+          ]
+        ]
+      },
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": {
+        "constituent": [
+          0,
+          2
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              0
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        1,
+        182
+      ],
+      "family": "bosses",
+      "file": "nist/nist_ctc_05_asme1_rd.stp",
+      "list": "candidates",
+      "motion": "rot_y180",
+      "moved": {
+        "constituent": [
+          0,
+          1,
+          182
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              1,
+              182
+            ]
+          ]
+        ]
+      },
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": {
+        "constituent": [
+          1,
+          19,
+          182
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              1,
+              182
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10146.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          27
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 13]). (known_invariance.json, mfcadpp/10146.step rot_zx_moved pockets.)",
+      "rust": null,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "family": "pockets",
+      "file": "mfcadpp_holdout/163.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          32
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]). (known_invariance.json, mfcadpp_holdout/163.step rot_zx_moved pockets.)",
+      "rust": null,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "family": "prismatic_pockets",
+      "file": "mfcadpp/10146.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          27
+        ],
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              10,
+              11,
+              12,
+              13
+            ]
+          ]
+        ]
+      },
+      "reason": "The ring is rejected by the same pocket either way; only the winner's defining faces move (known_invariance.json, mfcadpp/10146.step rot_zx_moved pockets): A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 13]).",
+      "rust": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          27
+        ],
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              11,
+              13
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "family": "prismatic_pockets",
+      "file": "mfcadpp_holdout/163.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          32
+        ],
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              10,
+              11,
+              12,
+              13
+            ]
+          ]
+        ]
+      },
+      "reason": "The ring is rejected by the same pocket either way; only the winner's defining faces move (known_invariance.json, mfcadpp_holdout/163.step rot_zx_moved pockets): A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]).",
+      "rust": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          32
+        ],
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              11,
+              12
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        11,
+        12
+      ],
+      "family": "pockets",
+      "file": "mfcadpp_holdout/163.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": null,
+      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]). (known_invariance.json, mfcadpp_holdout/163.step rot_zx_moved pockets.)",
+      "rust": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          32
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        11,
+        13
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10146.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": null,
+      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 13]). (known_invariance.json, mfcadpp/10146.step rot_zx_moved pockets.)",
+      "rust": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          27
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        13,
+        14
+      ],
+      "family": "interior_voids",
+      "field": "present",
+      "file": "mfcadpp_regressions/11512.step",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 0,
+      "reason": "The void grid is anchored at the box's minimum corner with its cell count rounded up, so turned over its cells sit elsewhere on the part, and a void whose widening is two cells deep (faces 17, 30, 31) passes the throat test in one orientation only. Python's grid is anchored the same way. A grid centred on the box would map onto itself under these motions; a decision that does not rest on the grid's phase would fix it outright. (known_invariance.json, mfcadpp_regressions/11512.step rot_y180 interior_voids.)",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        130,
+        132,
+        134,
+        136,
+        146,
+        147,
+        148,
+        149
+      ],
+      "family": "hole_patterns",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 1,
+      "reason": "Follows from the member holes' defining faces moving (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes): Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same.",
+      "rust": 0,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        130,
+        148
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 1,
+      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
+      "rust": 0,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        132,
+        149
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 1,
+      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
+      "rust": 0,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        134,
+        146
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 1,
+      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
+      "rust": 0,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        136,
+        147
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 1,
+      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
+      "rust": 0,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        138,
+        140,
+        142,
+        144,
+        146,
+        147,
+        148,
+        149
+      ],
+      "family": "hole_patterns",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 0,
+      "reason": "Follows from the member holes' defining faces moving (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes): Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same.",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        138,
+        148
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 0,
+      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        14,
+        15,
+        16,
+        17
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10245.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": {
+        "constituent": [
+          14,
+          15,
+          16,
+          17,
+          27
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 14-17, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [14, 15, 16, 17], unmoved [15, 17]). (known_invariance.json, mfcadpp/10245.step rot_zx_moved pockets.)",
+      "rust": null,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        14,
+        15,
+        16,
+        17
+      ],
+      "family": "prismatic_pockets",
+      "file": "mfcadpp/10245.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": {
+        "constituent": [
+          14,
+          15,
+          16,
+          17,
+          27
+        ],
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              14,
+              15,
+              16,
+              17
+            ]
+          ]
+        ]
+      },
+      "reason": "The ring is rejected by the same pocket either way; only the winner's defining faces move (known_invariance.json, mfcadpp/10245.step rot_zx_moved pockets): A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 14-17, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [14, 15, 16, 17], unmoved [15, 17]).",
+      "rust": {
+        "constituent": [
+          14,
+          15,
+          16,
+          17,
+          27
+        ],
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              15,
+              17
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        140,
+        147
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 0,
+      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        142,
+        146
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 0,
+      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        144,
+        149
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 0,
+      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        15,
+        17
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10245.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": null,
+      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 14-17, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [14, 15, 16, 17], unmoved [15, 17]). (known_invariance.json, mfcadpp/10245.step rot_zx_moved pockets.)",
+      "rust": {
+        "constituent": [
+          14,
+          15,
+          16,
+          17,
+          27
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        163
+      ],
+      "family": "bosses",
+      "file": "cadgenbench/threaded_connector_109.step",
+      "list": "candidates",
+      "motion": "rot_y180",
+      "moved": {
+        "constituent": [
+          163
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              163
+            ]
+          ]
+        ]
+      },
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": {
+        "constituent": [
+          163,
+          165
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              163
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        169,
+        173,
+        177,
+        181,
+        185,
+        189,
+        193,
+        197,
+        201,
+        205,
+        209,
+        213
+      ],
+      "family": "bosses",
+      "field": "constituent",
+      "file": "cadgenbench/threaded_connector_109.step",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        169,
+        173,
+        177,
+        181,
+        185,
+        189,
+        193,
+        197,
+        201,
+        205,
+        209,
+        213,
+        215
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        169,
+        173,
+        177,
+        181,
+        185,
+        189,
+        193,
+        197,
+        201,
+        205,
+        209,
+        213
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        169,
+        173,
+        177,
+        181,
+        185,
+        189,
+        193,
+        197,
+        201,
+        205,
+        209,
+        213
+      ],
+      "family": "bosses",
+      "field": "hosts",
+      "file": "cadgenbench/threaded_connector_109.step",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        215
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        217
+      ],
+      "family": "bosses",
+      "field": "hosts",
+      "file": "cadgenbench/threaded_connector_109.step",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        215
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        266
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        218,
+        222,
+        226,
+        230,
+        234,
+        238,
+        242,
+        246,
+        250,
+        254,
+        258,
+        262
+      ],
+      "family": "bosses",
+      "file": "cadgenbench/threaded_connector_109.step",
+      "list": "candidates",
+      "motion": "rot_y180",
+      "moved": {
+        "constituent": [
+          216,
+          218,
+          222,
+          226,
+          230,
+          234,
+          238,
+          242,
+          246,
+          250,
+          254,
+          258,
+          262
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              218,
+              222,
+              226,
+              230,
+              234,
+              238,
+              242,
+              246,
+              250,
+              254,
+              258,
+              262
+            ]
+          ]
+        ]
+      },
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": {
+        "constituent": [
+          218,
+          222,
+          226,
+          230,
+          234,
+          238,
+          242,
+          246,
+          250,
+          254,
+          258,
+          262,
+          267
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              218,
+              222,
+              226,
+              230,
+              234,
+              238,
+              242,
+              246,
+              250,
+              254,
+              258,
+              262
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        21
+      ],
+      "family": "bosses",
+      "field": "constituent",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        21,
+        22
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        11,
+        21
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        21
+      ],
+      "family": "bosses",
+      "field": "hosts",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        11
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        22
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        271,
+        275,
+        279,
+        283,
+        287,
+        291,
+        295,
+        299,
+        303,
+        307,
+        311,
+        315
+      ],
+      "family": "bosses",
+      "file": "cadgenbench/threaded_connector_109.step",
+      "list": "candidates",
+      "motion": "rot_y180",
+      "moved": {
+        "constituent": [
+          271,
+          275,
+          279,
+          283,
+          287,
+          291,
+          295,
+          299,
+          303,
+          307,
+          311,
+          315,
+          317
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              271,
+              275,
+              279,
+              283,
+              287,
+              291,
+              295,
+              299,
+              303,
+              307,
+              311,
+              315
+            ]
+          ]
+        ]
+      },
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": {
+        "constituent": [
+          266,
+          271,
+          275,
+          279,
+          283,
+          287,
+          291,
+          295,
+          299,
+          303,
+          307,
+          311,
+          315
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              271,
+              275,
+              279,
+              283,
+              287,
+              291,
+              295,
+              299,
+              303,
+              307,
+              311,
+              315
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        30,
+        31
+      ],
+      "family": "interior_voids",
+      "field": "present",
+      "file": "mfcadpp_regressions/11512.step",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 1,
+      "reason": "The void grid is anchored at the box's minimum corner with its cell count rounded up, so turned over its cells sit elsewhere on the part, and a void whose widening is two cells deep (faces 17, 30, 31) passes the throat test in one orientation only. Python's grid is anchored the same way. A grid centred on the box would map onto itself under these motions; a decision that does not rest on the grid's phase would fix it outright. (known_invariance.json, mfcadpp_regressions/11512.step rot_y180 interior_voids.)",
+      "rust": 0,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        310,
+        344,
+        345,
+        346
+      ],
+      "family": "bosses",
+      "file": "cadgenbench_inputs/cgb217.step.gz",
+      "list": "candidates",
+      "motion": "rot_y180",
+      "moved": {
+        "constituent": [
+          308,
+          310,
+          344,
+          345,
+          346
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              310,
+              344,
+              345,
+              346
+            ]
+          ]
+        ]
+      },
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": {
+        "constituent": [
+          309,
+          310,
+          344,
+          345,
+          346
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              310,
+              344,
+              345,
+              346
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        33
+      ],
+      "family": "bosses",
+      "field": "constituent",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        33,
+        34
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        11,
+        33
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        33
+      ],
+      "family": "bosses",
+      "field": "hosts",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        11
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        34
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        35,
+        36,
+        37,
+        38
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10103.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": {
+        "constituent": [
+          35,
+          36,
+          37,
+          38,
+          43
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 35-38, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [35, 36, 37, 38], unmoved [36, 38]). (known_invariance.json, mfcadpp/10103.step rot_zx_moved pockets.)",
+      "rust": null,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        35,
+        36,
+        37,
+        38
+      ],
+      "family": "prismatic_pockets",
+      "file": "mfcadpp/10103.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": {
+        "constituent": [
+          35,
+          36,
+          37,
+          38,
+          43
+        ],
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              35,
+              36,
+              37,
+              38
+            ]
+          ]
+        ]
+      },
+      "reason": "The ring is rejected by the same pocket either way; only the winner's defining faces move (known_invariance.json, mfcadpp/10103.step rot_zx_moved pockets): A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 35-38, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [35, 36, 37, 38], unmoved [36, 38]).",
+      "rust": {
+        "constituent": [
+          35,
+          36,
+          37,
+          38,
+          43
+        ],
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              36,
+              38
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        35
+      ],
+      "family": "bosses",
+      "field": "constituent",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        35,
+        36
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        11,
+        35
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        35
+      ],
+      "family": "bosses",
+      "field": "hosts",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        11
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        36
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        36,
+        38
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10103.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": null,
+      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 35-38, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [35, 36, 37, 38], unmoved [36, 38]). (known_invariance.json, mfcadpp/10103.step rot_zx_moved pockets.)",
+      "rust": {
+        "constituent": [
+          35,
+          36,
+          37,
+          38,
+          43
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        37
+      ],
+      "family": "bosses",
+      "field": "constituent",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        37,
+        38
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        11,
+        37
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        37
+      ],
+      "family": "bosses",
+      "field": "hosts",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        11
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        38
+      ],
+      "verdict": "rust-wrong"
+    }
+  ]
+}
