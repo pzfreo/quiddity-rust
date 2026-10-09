@@ -1,0 +1,510 @@
+//! Face triangulation ([`Part::mesh`], [`Part::triangulate`]) over the corpus, at specify-core's
+//! deflections (0.001 of the part's diagonal, 0.3 rad), checked against the exact geometry:
+//!
+//! - every face triangulates or is refused with a reason, and the refusals are the known ones;
+//! - each face's mesh area is within 1% of its [`Part::face_moments`] area, or within what the
+//!   boundary's chords may cut off or add (its length times the deflection);
+//! - each closed shell whose faces all triangulate, none leaving out a folded triangle, is
+//!   watertight: every mesh edge is used exactly once each way;
+//! - triangles of analytic faces face outward (their normal agrees with the face's at the
+//!   centroid), but for the known few;
+//! - the surface lies within the chordal deflection of a converged analytic face's mesh at
+//!   triangle centroids and at the midpoints of a sample of triangle sides (plus the edge
+//!   samples' own chord tolerance, which the boundary inherits);
+//! - two runs give the same mesh to the bit.
+//!
+//! What freeform faces do on these counts (inward triangles, deviation, faces stopped short of
+//! the deflections) is printed, not asserted.
+
+mod common;
+
+use std::collections::{BTreeMap, BTreeSet};
+use std::time::Instant;
+
+use haecceity::Part;
+use haecceity::geom::{self, SurfaceType, V3};
+use haecceity::mesh::{BoundaryPoint, FaceMesh, MeshRefusal};
+use haecceity::read_step_file;
+use haecceity::sampling::CHORD_TOLERANCE;
+
+const DEFLECTION: f64 = 0.001;
+const ANGULAR: f64 = 0.3;
+
+/// Faces refused, each because its boundary crosses itself in parameter space even unthinned,
+/// or spans no area there (cgb242 face 483). On the tori an edge strays across another within
+/// the file's tolerance: cgb207 face 50's edge 63 runs up to v = 1.5719, beyond the line
+/// v = π/2 its edge 153 follows back, meeting it tangentially at vertex 48, and cgb242 face 422's
+/// edge 1608 dips to v = -1.5716 below the line v = -π/2. On cgb243 face 543 (freeform) an
+/// edge's samples reach the corner (1, 0) of a degenerate side in the face's parameter loops.
+/// 14052 is the corpus's malformed file (README: its triangular pocket Python refuses on
+/// validity).
+const KNOWN_REFUSALS: &[(&str, &[usize])] = &[
+    ("cadgenbench_inputs/cgb202.step.gz", &[399, 1034, 1214]),
+    ("cadgenbench_inputs/cgb207.step", &[50, 54, 222]),
+    (
+        "cadgenbench_inputs/cgb242.step.gz",
+        &[
+            422, 426, 429, 430, 483, 501, 505, 509, 513, 551, 552, 856, 863,
+        ],
+    ),
+    ("cadgenbench_inputs/cgb243.step.gz", &[543]),
+    ("inventory_refusal/14052.step.gz", &[1]),
+];
+
+/// Analytic faces with inward triangles, and how many: slivers beside a boundary side (a few
+/// thousandths as high as they are long), where refinement inserted points hard by a side it
+/// may not split (the side is shared with the neighbouring face) and the side's sag tilts the
+/// sliver over. cgb203 face 55: two of 322 triangles, 2.1 and 3.2 mm long along edge 179.
+const KNOWN_INWARD: &[(&str, usize, usize)] = &[
+    ("cadgenbench_inputs/cgb202.step.gz", 1324, 10),
+    ("cadgenbench_inputs/cgb203.step", 55, 2),
+    ("cadgenbench_inputs/cgb203.step", 56, 2),
+    ("cadgenbench_inputs/cgb203.step", 57, 2),
+    ("cadgenbench_inputs/cgb203.step", 58, 2),
+    ("cadgenbench_inputs/cgb203.step", 59, 2),
+    ("cadgenbench_inputs/cgb203.step", 60, 2),
+    ("cadgenbench_inputs/cgb203.step", 61, 2),
+    ("cadgenbench_inputs/cgb207.step", 73, 6),
+    ("cadgenbench_inputs/cgb242.step.gz", 10, 8),
+    ("cadgenbench_inputs/cgb242.step.gz", 46, 4),
+    ("cadgenbench_inputs/cgb242.step.gz", 621, 1),
+    ("cadgenbench_inputs/cgb242.step.gz", 623, 1),
+    ("cadgenbench_inputs/cgb243.step.gz", 159, 4),
+];
+
+fn deflection(part: &Part) -> f64 {
+    let d = part.bounds().diagonal();
+    DEFLECTION * if d > 0.0 && d.is_finite() { d } else { 1.0 }
+}
+
+fn analytic(kind: SurfaceType) -> bool {
+    !matches!(kind, SurfaceType::Freeform | SurfaceType::Other)
+}
+
+/// A mesh vertex across the part: a point on its edges, or a face's own.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+enum Vertex {
+    Boundary(BoundaryPoint),
+    Inner(usize, usize),
+}
+
+fn vertex(face: usize, mesh: &FaceMesh, k: usize) -> Vertex {
+    match mesh.boundary[k] {
+        Some(p) => Vertex::Boundary(p),
+        None => Vertex::Inner(face, k),
+    }
+}
+
+/// Whether every edge of the faces is used twice by them (a seam twice by one face).
+fn closed_shell(part: &Part, faces: &[usize]) -> bool {
+    let mut uses: BTreeMap<usize, usize> = BTreeMap::new();
+    for &f in faces {
+        for lp in &part.faces[f].loops {
+            for &(e, _) in &lp.edges {
+                *uses.entry(e).or_default() += 1;
+            }
+        }
+    }
+    !uses.is_empty() && uses.values().all(|&n| n == 2)
+}
+
+/// How many of the faces' directed mesh edges are not used exactly once, with their reverse
+/// used exactly once.
+fn unpaired_edges(faces: &[usize], meshes: &[Result<FaceMesh, MeshRefusal>]) -> usize {
+    let mut directed: BTreeMap<(Vertex, Vertex), usize> = BTreeMap::new();
+    for &f in faces {
+        let mesh = meshes[f].as_ref().expect("all faces meshed");
+        for t in &mesh.triangles {
+            for i in 0..3 {
+                let (a, b) = (vertex(f, mesh, t[i]), vertex(f, mesh, t[(i + 1) % 3]));
+                *directed.entry((a, b)).or_default() += 1;
+            }
+        }
+    }
+    directed
+        .iter()
+        .filter(|&(&(a, b), &n)| n != 1 || directed.get(&(b, a)) != Some(&1))
+        .count()
+}
+
+fn mean(points: &[V3]) -> V3 {
+    let sum = points.iter().fold([0.0; 3], |s, p| geom::add(s, *p));
+    geom::scale(sum, 1.0 / points.len() as f64)
+}
+
+/// The distance from `p` to the face's surface and its foot's parameters, found from `hint`.
+fn off_surface(part: &Part, face: usize, p: V3, hint: (f64, f64)) -> Option<(f64, (f64, f64))> {
+    let surface = &part.faces[face].surface;
+    let (u, v) = surface.parameters(p, Some(hint))?;
+    Some((geom::dist(surface.value(u, v), p), (u, v)))
+}
+
+/// The length of the face's boundary, along its edges' samples.
+fn perimeter(part: &Part, face: usize) -> f64 {
+    part.faces[face]
+        .loops
+        .iter()
+        .flat_map(|lp| &lp.edges)
+        .map(|&(e, _)| {
+            part.edges[e]
+                .samples
+                .windows(2)
+                .map(|w| geom::dist(w[0], w[1]))
+                .sum::<f64>()
+        })
+        .sum()
+}
+
+#[derive(Default)]
+struct Report {
+    files: usize,
+    unread: Vec<String>,
+    faces: usize,
+    triangles: usize,
+    /// (file, face) → reason, and the count per surface type.
+    refused: BTreeMap<(String, usize), String>,
+    refused_kinds: BTreeMap<String, usize>,
+    unconverged: Vec<String>,
+    folded: Vec<String>,
+    /// Relative area difference per face with a moments area.
+    areas: Vec<f64>,
+    area_failures: Vec<String>,
+    shells: usize,
+    open_shells: usize,
+    folded_shells: Vec<String>,
+    leaky: Vec<String>,
+    /// (file, face) → inward triangles, on analytic faces.
+    inward_analytic: BTreeMap<(String, usize), usize>,
+    inward_freeform: Vec<String>,
+    deviation_analytic: Vec<String>,
+    deviation_other: Vec<String>,
+    worst_deviation: f64,
+    nondeterministic: Vec<String>,
+    seconds: f64,
+}
+
+impl Report {
+    fn absorb(&mut self, r: Report) {
+        self.files += r.files;
+        self.unread.extend(r.unread);
+        self.faces += r.faces;
+        self.triangles += r.triangles;
+        self.refused.extend(r.refused);
+        for (k, n) in r.refused_kinds {
+            *self.refused_kinds.entry(k).or_default() += n;
+        }
+        self.unconverged.extend(r.unconverged);
+        self.folded.extend(r.folded);
+        self.areas.extend(r.areas);
+        self.area_failures.extend(r.area_failures);
+        self.shells += r.shells;
+        self.open_shells += r.open_shells;
+        self.folded_shells.extend(r.folded_shells);
+        self.leaky.extend(r.leaky);
+        self.inward_analytic.extend(r.inward_analytic);
+        self.inward_freeform.extend(r.inward_freeform);
+        self.deviation_analytic.extend(r.deviation_analytic);
+        self.deviation_other.extend(r.deviation_other);
+        self.worst_deviation = self.worst_deviation.max(r.worst_deviation);
+        self.nondeterministic.extend(r.nondeterministic);
+        self.seconds += r.seconds;
+    }
+}
+
+fn check_file(dir: &std::path::Path, file: &str, out: &mut Report) {
+    out.files += 1;
+    let part = match read_step_file(&dir.join(file)) {
+        Ok(part) => part,
+        Err(e) => {
+            out.unread.push(format!("{file}: {e}"));
+            return;
+        }
+    };
+    let deflection = deflection(&part);
+    let start = Instant::now();
+    let meshes = part.mesh(deflection, ANGULAR);
+    out.seconds += start.elapsed().as_secs_f64();
+    assert_eq!(meshes.len(), part.faces.len());
+    for (face, result) in meshes.iter().enumerate() {
+        out.faces += 1;
+        let kind = part.faces[face].surface.kind();
+        let name = format!("{file} face {face} ({kind:?})");
+        let mesh = match result {
+            Ok(mesh) => mesh,
+            Err(why) => {
+                assert!(!why.reason.is_empty(), "{name}: refused without a reason");
+                out.refused
+                    .insert((file.to_owned(), face), why.reason.clone());
+                *out.refused_kinds.entry(format!("{kind:?}")).or_default() += 1;
+                continue;
+            }
+        };
+        assert!(!mesh.triangles.is_empty(), "{name}: no triangles");
+        out.triangles += mesh.triangles.len();
+        if !mesh.converged {
+            out.unconverged.push(name.clone());
+        }
+        if mesh.folded_dropped.0 > 0 {
+            out.folded.push(format!(
+                "{name}: {} triangles, {:.3e} mm2",
+                mesh.folded_dropped.0, mesh.folded_dropped.1
+            ));
+        }
+        if let Some(m) = part.face_moments(face)
+            && m.area > 0.0
+        {
+            let got = mesh.area();
+            out.areas.push((got - m.area) / m.area);
+            if (got - m.area).abs() > 0.01 * m.area
+                && (got - m.area).abs() > perimeter(&part, face) * deflection
+            {
+                out.area_failures
+                    .push(format!("{name}: mesh {got:.6} moments {:.6}", m.area));
+            }
+        }
+        let (mut inward, mut worst) = (0, 0.0_f64);
+        for (t, tri) in mesh.triangles.iter().enumerate() {
+            let corners = tri.map(|k| mesh.points[k]);
+            let uv = tri.map(|k| mesh.uv[k]);
+            let hint = (
+                (uv[0].0 + uv[1].0 + uv[2].0) / 3.0,
+                (uv[0].1 + uv[1].1 + uv[2].1) / 3.0,
+            );
+            let doubled = geom::cross(
+                geom::sub(corners[1], corners[0]),
+                geom::sub(corners[2], corners[0]),
+            );
+            let longest = (0..3)
+                .map(|i| geom::dist(corners[i], corners[(i + 1) % 3]))
+                .fold(0.0, f64::max);
+            if let Some((d, (u, v))) = off_surface(&part, face, mean(&corners), hint) {
+                worst = worst.max(d);
+                // A triangle under a millionth of the deflection high has no direction.
+                if geom::norm(doubled) > 1e-6 * deflection * longest
+                    && part
+                        .face_normal(face, u, v)
+                        .is_some_and(|n| geom::dot(n, doubled) <= 0.0)
+                {
+                    inward += 1;
+                }
+            }
+            if t % 5 == 0 {
+                for i in 0..3 {
+                    let j = (i + 1) % 3;
+                    let hint = ((uv[i].0 + uv[j].0) / 2.0, (uv[i].1 + uv[j].1) / 2.0);
+                    if let Some((d, _)) =
+                        off_surface(&part, face, mean(&[corners[i], corners[j]]), hint)
+                    {
+                        worst = worst.max(d);
+                    }
+                }
+            }
+        }
+        if inward > 0 {
+            if analytic(kind) {
+                out.inward_analytic.insert((file.to_owned(), face), inward);
+            } else {
+                out.inward_freeform
+                    .push(format!("{name}: {inward} of {}", mesh.triangles.len()));
+            }
+        }
+        out.worst_deviation = out.worst_deviation.max(worst / deflection);
+        if worst > deflection + CHORD_TOLERANCE {
+            let line = format!("{name}: {:.3} deflections", worst / deflection);
+            if analytic(kind) && mesh.converged {
+                out.deviation_analytic.push(line);
+            } else {
+                out.deviation_other.push(line);
+            }
+        }
+    }
+    for (s, solid) in part.solids.iter().enumerate() {
+        if !closed_shell(&part, &solid.faces) {
+            out.open_shells += 1;
+            continue;
+        }
+        if solid.faces.iter().any(|&f| meshes[f].is_err()) {
+            continue;
+        }
+        if solid
+            .faces
+            .iter()
+            .any(|&f| meshes[f].as_ref().is_ok_and(|m| m.folded_dropped.0 > 0))
+        {
+            out.folded_shells.push(format!("{file} solid {s}"));
+            continue;
+        }
+        out.shells += 1;
+        let unpaired = unpaired_edges(&solid.faces, &meshes);
+        if unpaired > 0 {
+            out.leaky
+                .push(format!("{file} solid {s}: {unpaired} unpaired mesh edges"));
+        }
+    }
+    if part.mesh(deflection, ANGULAR) != meshes {
+        out.nondeterministic.push(file.to_owned());
+    }
+}
+
+/// Two fixtures without the corpus: a whole torus (two seam edges, both periodic directions)
+/// and a filleted plate with holes. Every face meshes outward, its area within 1% of its
+/// moments area; the solid is watertight; a face meshed alone is the face in the whole part's
+/// mesh (neither needs an edge thinned less); and a deflection that is not a length is refused.
+#[test]
+fn fixture_faces_mesh_watertight_alone_as_in_the_part() {
+    for name in ["full_torus.step", "filleted_plate_with_holes.step"] {
+        let part = read_step_file(&common::fixtures().join(name)).unwrap();
+        let deflection = deflection(&part);
+        let meshes = part.mesh(deflection, ANGULAR);
+        for (face, mesh) in meshes.iter().enumerate() {
+            let mesh = mesh
+                .as_ref()
+                .unwrap_or_else(|e| panic!("{name} face {face}: {e}"));
+            let exact = part.face_moments(face).unwrap().area;
+            assert!(
+                (mesh.area() - exact).abs() <= 0.01 * exact,
+                "{name} face {face}: {} against {exact}",
+                mesh.area()
+            );
+            for tri in &mesh.triangles {
+                let corners = tri.map(|k| mesh.points[k]);
+                let uv = tri.map(|k| mesh.uv[k]);
+                let hint = (
+                    (uv[0].0 + uv[1].0 + uv[2].0) / 3.0,
+                    (uv[0].1 + uv[1].1 + uv[2].1) / 3.0,
+                );
+                let (_, (u, v)) = off_surface(&part, face, mean(&corners), hint).unwrap();
+                let doubled = geom::cross(
+                    geom::sub(corners[1], corners[0]),
+                    geom::sub(corners[2], corners[0]),
+                );
+                assert!(geom::dot(part.face_normal(face, u, v).unwrap(), doubled) > 0.0);
+            }
+            let alone = part.triangulate(face, deflection, ANGULAR).unwrap();
+            assert!(&alone == mesh, "{name} face {face}: alone differs");
+        }
+        for solid in &part.solids {
+            assert!(closed_shell(&part, &solid.faces), "{name}");
+            assert_eq!(unpaired_edges(&solid.faces, &meshes), 0, "{name}");
+        }
+    }
+    let part = read_step_file(&common::fixtures().join("full_torus.step")).unwrap();
+    let refusal = part.triangulate(0, 0.0, ANGULAR).unwrap_err();
+    assert_eq!(refusal.reason, "deflection 0 is not a positive length");
+    assert!(part.mesh(f64::NAN, ANGULAR).iter().all(|m| m.is_err()));
+}
+
+#[test]
+fn corpus_faces_mesh_watertight_outward_and_within_deflection() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let corpus = common::load("corpus.json");
+    let files: Vec<String> = corpus["files"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|e| e["file"].as_str().unwrap().to_owned())
+        .collect();
+    let mut all = Report::default();
+    for r in common::parallel::map(&files, |file| {
+        let mut r = Report::default();
+        check_file(&dir, file, &mut r);
+        r
+    }) {
+        all.absorb(r);
+    }
+
+    println!(
+        "{} files ({} unread), {} faces, {} triangles; meshing took {:.1} s summed over threads",
+        all.files,
+        all.unread.len(),
+        all.faces,
+        all.triangles,
+        all.seconds
+    );
+    println!("refused by surface type: {:?}", all.refused_kinds);
+    for ((file, face), why) in &all.refused {
+        println!("  {file} face {face}: {why}");
+    }
+    let mut areas: Vec<f64> = all.areas.iter().map(|a| a.abs()).collect();
+    areas.sort_by(f64::total_cmp);
+    let n = areas.len();
+    let at = |q: f64| areas[((n - 1) as f64 * q) as usize];
+    println!(
+        "area against face_moments: {} of {n} within 1%; |difference| median {:.2e}, p90 {:.2e}, \
+         p99 {:.2e}, max {:.2e}; {} beyond both 1% and perimeter x deflection",
+        areas.iter().filter(|&&a| a <= 0.01).count(),
+        at(0.5),
+        at(0.9),
+        at(0.99),
+        at(1.0),
+        all.area_failures.len()
+    );
+    println!(
+        "closed shells: {} checked, {} skipped for a folded triangle left out {:?}, {} open",
+        all.shells,
+        all.folded_shells.len(),
+        all.folded_shells,
+        all.open_shells
+    );
+    println!(
+        "{} faces stopped short of the deflections; {} with folded triangles left out; {} \
+         freeform faces with inward triangles; {} freeform or stopped faces beyond the \
+         deflection; worst deviation {:.3} deflections",
+        all.unconverged.len(),
+        all.folded.len(),
+        all.inward_freeform.len(),
+        all.deviation_other.len(),
+        all.worst_deviation
+    );
+
+    for ((file, face), n) in &all.inward_analytic {
+        println!("inward triangles on analytic faces: {file} face {face}: {n}");
+    }
+    for (what, list) in [
+        ("not watertight", &all.leaky),
+        (
+            "beyond the deflection on analytic faces",
+            &all.deviation_analytic,
+        ),
+        ("area beyond both bounds", &all.area_failures),
+    ] {
+        for line in list {
+            println!("{what}: {line}");
+        }
+    }
+
+    assert!(all.unread.is_empty(), "unread: {:#?}", all.unread);
+    let known: BTreeSet<(String, usize)> = KNOWN_REFUSALS
+        .iter()
+        .flat_map(|(file, faces)| faces.iter().map(|&f| ((*file).to_owned(), f)))
+        .collect();
+    let refused: BTreeSet<(String, usize)> = all.refused.keys().cloned().collect();
+    assert_eq!(refused, known, "refusals changed: {:#?}", all.refused);
+    assert!(
+        all.area_failures.is_empty(),
+        "areas: {:#?}",
+        all.area_failures
+    );
+    assert!(all.leaky.is_empty(), "not watertight: {:#?}", all.leaky);
+    let known: BTreeMap<(String, usize), usize> = KNOWN_INWARD
+        .iter()
+        .map(|&(file, face, n)| ((file.to_owned(), face), n))
+        .collect();
+    assert_eq!(
+        all.inward_analytic, known,
+        "inward triangles on analytic faces changed"
+    );
+    assert!(
+        all.deviation_analytic.is_empty(),
+        "beyond the deflection: {:#?}",
+        all.deviation_analytic
+    );
+    assert!(
+        all.nondeterministic.is_empty(),
+        "two runs differ: {:?}",
+        all.nondeterministic
+    );
+}

@@ -325,6 +325,10 @@ crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code
     cloud.rs         faces as point clouds (mesh-like density on the exact geometry), k-d tree
                      nearest neighbours, exact point-to-face distance
     cover.rs         whether faces cover a face (covered_patch), in the face's parameter space
+    mesh.rs          faces as triangle meshes to a chordal and angular deflection
+                     (BRepMesh_IncrementalMesh): constrained Delaunay in parameter space,
+                     edges discretised once for both faces so closed shells are watertight
+                     (tests/mesh.rs)
     classify.rs      point-in-solid (whole part or one solid) by the parity of rays.rs
                      crossings, with on-boundary detection (BRepClass3d)
     rays.rs          every hit of a ray on a solid's trimmed faces, through a box hierarchy

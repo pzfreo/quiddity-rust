@@ -234,6 +234,10 @@ pub struct UvLoop {
     pub winds_u: bool,
     /// Whether it runs round v (a torus elbow with no seam edge).
     pub winds_v: bool,
+    /// Per point, the edge sample it was inverted from: (the edge's place in the face loop, the
+    /// sample's index in the edge's own `samples`). `None` for a point routed along a singular
+    /// line or closing the loop; empty for a loop not made from edges.
+    pub sources: Vec<Option<(usize, usize)>>,
 }
 
 impl Part {
@@ -455,6 +459,7 @@ impl Part {
                         anchors: Vec::new(),
                         winds_u: false,
                         winds_v: false,
+                        sources: Vec::new(),
                     };
                     return Some(FaceDomain::new(
                         &[pole(-PI / 2.0), pole(PI / 2.0)],
@@ -513,6 +518,7 @@ impl Part {
                             anchors: Vec::new(),
                             winds_u: false,
                             winds_v: false,
+                            sources: Vec::new(),
                         }
                     })
                     .collect();
@@ -560,15 +566,19 @@ impl Part {
                     anchors: Vec::new(),
                     winds_u: false,
                     winds_v: false,
+                    sources: Vec::new(),
                 });
                 continue;
             }
             let mut raw: Vec<(f64, f64)> = Vec::new();
             let mut points: Vec<V3> = Vec::new();
             let mut firsts = Vec::with_capacity(lp.edges.len());
-            for &(e, forward) in &lp.edges {
+            let mut origin: Vec<(usize, usize)> = Vec::new();
+            for (place, &(e, forward)) in lp.edges.iter().enumerate() {
                 firsts.push(raw.len());
                 let samples = &self.edges[e].samples;
+                let n = samples.len();
+                origin.extend((0..n).map(|k| (place, if forward { k } else { n - 1 - k })));
                 let ordered: Box<dyn Iterator<Item = &V3>> = if forward {
                     Box::new(samples.iter())
                 } else {
@@ -631,11 +641,18 @@ impl Part {
                         .collect()
                 })
                 .collect();
+            let mut sources = vec![None; pts.len()];
+            for (k, at) in placed.iter().enumerate() {
+                if let Some(i) = *at {
+                    sources[i] = Some(origin[k]);
+                }
+            }
             loops.push(UvLoop {
                 points: pts,
                 anchors,
                 winds_u,
                 winds_v,
+                sources,
             });
         }
         Some(loops)
@@ -1260,6 +1277,7 @@ mod tests {
                 anchors: Vec::new(),
                 winds_u: false,
                 winds_v: false,
+                sources: Vec::new(),
             })
             .collect();
         FaceDomain::new(&loops, periodic)
