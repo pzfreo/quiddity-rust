@@ -870,6 +870,8 @@ reader reproduces:
   Face containment therefore uses orientation-free crossing parity; orientation only breaks
   genuine ties (which way round a sphere's pole a boundary goes, and which side of its two
   loops a seamless torus band lies — files written by OpenCascade always have the seam).
+- A void shell used reversed (`ORIENTED_CLOSED_SHELL` `.F.`) reverses each of its faces with
+  its loops, as OpenCascade's explorer does, not just the faces' normals.
 - A placement without a reference direction takes `gp_Ax2`'s default x axis.
 - Face UV ranges include the control polygons of B-spline pcurves that span their edge,
   because OpenCascade boxes pcurves by their poles; they also hold the edges themselves (a

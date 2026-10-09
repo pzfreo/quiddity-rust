@@ -1206,8 +1206,6 @@ struct Read {
     /// there, if a product definition holds it.
     instances: Vec<Option<usize>>,
     placed: Vec<PlacedDefinition>,
-    /// Per face, its `same_sense` as written.
-    same_sense: Vec<bool>,
 }
 
 fn read_placed(bytes: &[u8], outer: &Placement) -> Result<Read, StepError> {
@@ -1368,7 +1366,7 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
 
     let (mut out_faces, mut edges_out, mut solids) = (Vec::new(), Vec::new(), Vec::new());
     let (mut unresolved_faces, mut unresolved_edges) = (Vec::new(), Vec::new());
-    let (mut face_sources, mut edge_sources, mut same_sense) = (Vec::new(), Vec::new(), Vec::new());
+    let (mut face_sources, mut edge_sources) = (Vec::new(), Vec::new());
     let mut vertex_count = 0;
     for (is_solid, placement, faces, instance) in shells {
         reader.placement = match own {
@@ -1407,7 +1405,10 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
                     };
                     edges.push((index, forward));
                 }
-                if !bound.orientation() {
+                // A face of a void shell used reversed is itself used reversed, its bounds with
+                // it (ISO 10303-42 `oriented_face`; OpenCascade's reversed shell composes onto
+                // its faces' edges the same way).
+                if bound.orientation() == flipped {
                     edges.reverse();
                     for e in &mut edges {
                         e.1 = !e.1;
@@ -1439,7 +1440,6 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
                 entity: ids.face(&face)?,
                 instance,
             });
-            same_sense.push(face.same_sense());
         }
         drop(vertex_id);
         vertex_count += vertex_index.len();
@@ -1469,7 +1469,6 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
         part,
         instances: instance_of,
         placed,
-        same_sense,
     })
 }
 
@@ -1721,7 +1720,6 @@ fn part_definitions(read: Read, assemblies: &[Assembly]) -> Result<Vec<PartDefin
         part,
         instances,
         placed,
-        same_sense,
     } = read;
     if let Some(orphan) = instances.iter().position(Option::is_none) {
         return Err(StepError::Unsupported(format!(
@@ -1763,13 +1761,15 @@ fn part_definitions(read: Read, assemblies: &[Assembly]) -> Result<Vec<PartDefin
         // Edges as OpenCascade's explorer meets them: face by face, loop by loop, a loop's edges
         // in the order the file lists them, backwards when the bound's orientation differs from
         // the face's `same_sense` (a loop's edges here are already backwards when its bound is
-        // used reversed); an edge two faces or two of the part's solids share is one edge.
+        // used reversed, and again when its face is, in a void shell used reversed: so backwards
+        // exactly when the face is reversed); an edge two faces or two of the part's solids
+        // share is one edge.
         let mut edges: Vec<u64> = Vec::new();
         let mut edge_index = HashMap::new();
         for &f in &ours {
             let in_order = |l: &Loop| -> Vec<usize> {
                 let order = l.edges.iter().map(|&(e, _)| e);
-                if same_sense[f] {
+                if !part.faces[f].reversed {
                     order.collect()
                 } else {
                     order.rev().collect()
