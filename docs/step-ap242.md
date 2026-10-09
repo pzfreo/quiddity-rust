@@ -682,8 +682,9 @@ tested; `pmi::write` (and replace built from the removal plan) is the next stage
   "For specify-core-rust (2026-10-09): U14 and U10" below) or presentation representations;
   `Refuse` names every blocker, `RemovePresentation` removes presentation and
   validation-property blockers and rewrites draughting models, views and groups, refusing an
-  emptied `items` set. Checked on all 17 NIST
-  files with both policies (counts pinned; kept instances byte-identical; parts and faces
+  emptied `items` set. Checked on all 17 NIST files (the feature-definition-shape rule of
+  2026-10-09 re-checked only on the 14 present locally; ctc_04 e2, ftc_08 e4-tg and ftc_11 e3
+  still to re-run) with both policies (counts pinned; kept instances byte-identical; parts and faces
   unchanged) and a hand-made fixture. nist_ctc_01 under `RemovePresentation` is a pinned refusal
   (its PMI draughting model would be emptied); removing emptied models instead is undecided. The
   tests' seed stand-in includes id/uuid attributes, property definitions on PMI items and UDA
