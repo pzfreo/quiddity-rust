@@ -1096,14 +1096,6 @@
     "max_differing": 18
   },
   {
-    "file": "ttt_inputs/sm-hanger.step",
-    "check": "caller_space",
-    "family": "sheet_metal_bodies",
-    "verdict": "equivalent",
-    "reason": "Equivalent: only flat-face triangulation vertices of the flat pattern differ (by up to 0.06 mm), and the same happens between placements of the part (this file's translate, rot_zx_moved and generic_framed entries): the kernel's plane triangulation samples the curved boundary at placement-dependent points; the development itself is the same. The fingerprint ignores flat_pattern for this reason.",
-    "max_differing": 1
-  },
-  {
     "file": "mfcadpp/10098.step",
     "check": "generic_framed",
     "family": "pockets",
@@ -1148,23 +1140,7 @@
     "check": "generic_framed",
     "family": "sheet_metal_bodies",
     "verdict": "equivalent",
-    "reason": "Equivalent: only flat-face triangulation vertices of the flat pattern differ (by up to 0.06 mm), and the same happens between placements of the part (this file's translate, rot_zx_moved and generic_framed entries): the kernel's plane triangulation samples the curved boundary at placement-dependent points; the development itself is the same. The fingerprint ignores flat_pattern for this reason.",
-    "max_differing": 1
-  },
-  {
-    "file": "ttt_inputs/sm-hanger.step",
-    "check": "rot_zx_moved",
-    "family": "sheet_metal_bodies",
-    "verdict": "equivalent",
-    "reason": "Equivalent: only flat-face triangulation vertices of the flat pattern differ (by up to 0.06 mm), and the same happens between placements of the part (this file's translate, rot_zx_moved and generic_framed entries): the kernel's plane triangulation samples the curved boundary at placement-dependent points; the development itself is the same. The fingerprint ignores flat_pattern for this reason.",
-    "max_differing": 1
-  },
-  {
-    "file": "ttt_inputs/sm-hanger.step",
-    "check": "translate",
-    "family": "sheet_metal_bodies",
-    "verdict": "equivalent",
-    "reason": "Equivalent: only flat-face triangulation vertices of the flat pattern differ (by up to 0.06 mm), and the same happens between placements of the part (this file's translate, rot_zx_moved and generic_framed entries): the kernel's plane triangulation samples the curved boundary at placement-dependent points; the development itself is the same. The fingerprint ignores flat_pattern for this reason.",
+    "reason": "Equivalent: only the flat pattern's triangulation of three flat faces differs (vertices by up to 0.04 mm, and the triangles over them): the kernel's plane triangulation keeps different boundary samples under this rotation; the development itself is the same. The translate, rot_zx_moved and caller_space differences were thinning choosing between equally far samples by round-off (crates/haecceity/src/cloud.rs now breaks that tie), and are gone; what still differs here under the generic rotation is undetermined. The fingerprint ignores flat_pattern for this reason.",
     "max_differing": 1
   },
   {
