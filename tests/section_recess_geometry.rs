@@ -28,6 +28,9 @@
 //! run), within the two projections' displacement bounds (0.002 each).
 
 mod common;
+#[macro_use]
+#[path = "support/slices.rs"]
+mod slices;
 
 use std::cmp::Ordering;
 use std::collections::BTreeSet;
@@ -865,74 +868,125 @@ fn same_geometry(got: &Value, want: &Value) -> bool {
     })
 }
 
-#[test]
-fn candidates_do_not_depend_on_placement() {
-    require_corpus();
-    let captured = load_gz("calls.json.gz");
-    let runs: Vec<&Value> = captured["runs"]
+/// The runs where Python finds a candidate: those moved by [`candidates_do_not_depend_on_placement`].
+fn moved_runs(captured: &Value) -> Vec<&Value> {
+    captured["runs"]
         .as_array()
         .unwrap()
         .iter()
         .filter(|r| r["candidates"].as_array().is_some_and(|a| !a.is_empty()))
-        .collect();
-    assert!(!runs.is_empty());
-    let found: Vec<(Value, String)> = common::parallel::map(&runs, |run| {
+        .collect()
+}
+
+/// The files of the moved runs, each once, in run order: what the invariance test is sliced by,
+/// so every run of a file (and every listed entry of it) is in one slice.
+fn moved_files() -> Vec<String> {
+    let mut files: Vec<String> = Vec::new();
+    for run in moved_runs(&load_gz("calls.json.gz")) {
         let file = run["file"].as_str().unwrap();
-        let source = run["source"].as_str().unwrap();
-        let (Some(path), Some(part)) = (path(source, file), read(source, file)) else {
-            return Vec::new();
+        if !files.iter().any(|f| f == file) {
+            files.push(file.to_string());
+        }
+    }
+    files
+}
+
+/// The candidates under every motion: one test per slice of the moved runs' files
+/// (`tests/support/slices.rs`).
+fn candidates_invariant(k: usize, n: usize) {
+    require_corpus();
+    let captured = load_gz("calls.json.gz");
+    let all = moved_runs(&captured);
+    assert!(!all.is_empty());
+    let mine = slices::slice(&moved_files(), k, n);
+    let runs: Vec<&Value> = all
+        .into_iter()
+        .filter(|r| mine.iter().any(|f| r["file"] == f.as_str()))
+        .collect();
+    // Every run's part unmoved and under every motion, all spread over every core at once (so a
+    // costly part's readings run side by side); the candidates come back in run order, motion by
+    // motion. A part the corpus does not have reads as `None`.
+    let readings: Vec<(usize, Option<&Motion>)> = (0..runs.len())
+        .flat_map(|i| {
+            std::iter::once(None)
+                .chain(MOTIONS.iter().map(Some))
+                .map(move |m| (i, m))
+        })
+        .collect();
+    let mut read_all = common::parallel::map(&readings, |&(i, motion)| {
+        let file = runs[i]["file"].as_str().unwrap();
+        let source = runs[i]["source"].as_str().unwrap();
+        let part = match motion {
+            None => read(source, file)?,
+            Some((_, r, t)) => {
+                let placement: Placement = [0, 1, 2].map(|i| [r[i][0], r[i][1], r[i][2], t[i]]);
+                read_step_file_placed(&path(source, file)?, &placement)
+                    .unwrap_or_else(|e| panic!("{file}: {e}"))
+            }
         };
         let ctx = Context::new(&part);
         let surfaces = EffectiveFaces::new(&ctx);
-        let want = candidates(&ctx, &surfaces).unwrap();
-        let mut out = Vec::new();
-        for (name, r, t) in MOTIONS {
-            let placement: Placement = [0, 1, 2].map(|i| [r[i][0], r[i][1], r[i][2], t[i]]);
-            let moved =
-                read_step_file_placed(&path, &placement).unwrap_or_else(|e| panic!("{file}: {e}"));
-            let ctx = Context::new(&moved);
-            let surfaces = EffectiveFaces::new(&ctx);
-            let got = candidates(&ctx, &surfaces);
-            let problem = match got {
-                Err(e) => Some(format!("refused: {}", e.0)),
-                Ok(got) if got.len() != want.len() => Some(format!(
-                    "{} candidates moved, {} unmoved: moved {:?}, unmoved {:?}",
-                    got.len(),
-                    want.len(),
-                    got.iter().map(|c| &c.constituent_faces).collect::<Vec<_>>(),
-                    want.iter()
-                        .map(|c| &c.constituent_faces)
-                        .collect::<Vec<_>>()
-                )),
-                Ok(got) => got.iter().zip(&want).find_map(|(g, w)| {
-                    let mut gj = candidate_json(g);
-                    let mut wj = candidate_json(w);
-                    let expected = moved_geometry(&wj["geometry"], &r, t);
-                    let geometry = gj["geometry"].take();
-                    wj["geometry"] = Value::Null;
-                    if gj != wj {
-                        Some(format!("faces or class moved {gj}, unmoved {wj}"))
-                    } else if !same_geometry(&geometry, &expected) {
-                        Some(format!(
-                            "{:?} geometry\n  moved    {geometry}\n  expected {expected}",
-                            g.constituent_faces
-                        ))
-                    } else {
-                        None
-                    }
-                }),
-            };
-            if let Some(text) = problem {
-                out.push((
-                    json!({"case": "invariance", "file": file, "motion": name}),
-                    format!("{file} {name}: {text}"),
-                ));
-            }
-        }
-        out
+        Some(candidates(&ctx, &surfaces))
     })
-    .into_iter()
-    .flatten()
-    .collect();
+    .into_iter();
+    let found: Vec<(Value, String)> = runs
+        .iter()
+        .flat_map(|run| {
+            let file = run["file"].as_str().unwrap();
+            let unmoved = read_all.next().unwrap();
+            let moved: Vec<_> = read_all.by_ref().take(MOTIONS.len()).collect();
+            let Some(want) = unmoved else {
+                return Vec::new();
+            };
+            let want = want.unwrap();
+            let mut out = Vec::new();
+            for ((name, r, t), got) in MOTIONS.iter().zip(moved) {
+                let got = got.unwrap();
+                let problem = match got {
+                    Err(e) => Some(format!("refused: {}", e.0)),
+                    Ok(got) if got.len() != want.len() => Some(format!(
+                        "{} candidates moved, {} unmoved: moved {:?}, unmoved {:?}",
+                        got.len(),
+                        want.len(),
+                        got.iter().map(|c| &c.constituent_faces).collect::<Vec<_>>(),
+                        want.iter()
+                            .map(|c| &c.constituent_faces)
+                            .collect::<Vec<_>>()
+                    )),
+                    Ok(got) => got.iter().zip(&want).find_map(|(g, w)| {
+                        let mut gj = candidate_json(g);
+                        let mut wj = candidate_json(w);
+                        let expected = moved_geometry(&wj["geometry"], r, *t);
+                        let geometry = gj["geometry"].take();
+                        wj["geometry"] = Value::Null;
+                        if gj != wj {
+                            Some(format!("faces or class moved {gj}, unmoved {wj}"))
+                        } else if !same_geometry(&geometry, &expected) {
+                            Some(format!(
+                                "{:?} geometry\n  moved    {geometry}\n  expected {expected}",
+                                g.constituent_faces
+                            ))
+                        } else {
+                            None
+                        }
+                    }),
+                };
+                if let Some(text) = problem {
+                    out.push((
+                        json!({"case": "invariance", "file": file, "motion": name}),
+                        format!("{file} {name}: {text}"),
+                    ));
+                }
+            }
+            out
+        })
+        .collect();
     check_known("invariance", found, &runs_ran(&runs));
 }
+
+sliced!(
+    candidates_do_not_depend_on_placement,
+    super::candidates_invariant,
+    files: super::moved_files,
+    [0 => slice_0, 1 => slice_1, 2 => slice_2, 3 => slice_3]
+);

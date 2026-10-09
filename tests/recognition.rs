@@ -10,6 +10,9 @@
 //! [`the_default_document_agrees_with_caller_space_recognition`].
 
 mod common;
+#[macro_use]
+#[path = "support/slices.rs"]
+mod slices;
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -75,30 +78,21 @@ fn records_are_ordered_typed_and_on_the_parts_faces() {
         .filter(|p| p.extension().is_some_and(|e| e == "step"))
         .collect();
     paths.sort();
-    let threads = std::thread::available_parallelism().map_or(4, |n| n.get());
-    let problems: Vec<String> = std::thread::scope(|s| {
-        let chunks: Vec<_> = paths
-            .chunks(paths.len().div_ceil(threads))
-            .map(|chunk| {
-                s.spawn(move || {
-                    let mut out = Vec::new();
-                    for path in chunk {
-                        let name = path.file_name().unwrap().to_string_lossy();
-                        let Ok((part, recognition, _)) =
-                            serve::recognise_step(&path.to_string_lossy(), &IDENTITY)
-                        else {
-                            continue;
-                        };
-                        let doc = recognition::document(&recognition, part.faces.len());
-                        check(&name, &doc, part.faces.len(), &mut out);
-                        check_labels(&name, &doc, &mut out);
-                    }
-                    out
-                })
-            })
-            .collect();
-        chunks.into_iter().flat_map(|c| c.join().unwrap()).collect()
-    });
+    let problems: Vec<String> = common::parallel::map(&paths, |path| {
+        let mut out = Vec::new();
+        let name = path.file_name().unwrap().to_string_lossy();
+        if let Ok((part, recognition, _)) =
+            serve::recognise_step(&path.to_string_lossy(), &IDENTITY)
+        {
+            let doc = recognition::document(&recognition, part.faces.len());
+            check(&name, &doc, part.faces.len(), &mut out);
+            check_labels(&name, &doc, &mut out);
+        }
+        out
+    })
+    .into_iter()
+    .flatten()
+    .collect();
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 
@@ -613,14 +607,16 @@ fn known_entries() -> Vec<((String, String, String), usize)> {
 }
 
 /// The differences not explained by a listed entry of these *checks*, a listed entry exceeded,
-/// and every listed entry of them no longer seen.
+/// and every listed entry of them whose file is *owned* (the slice's, `tests/support/slices.rs`)
+/// no longer seen.
 fn unexplained(
     checks: &[&str],
+    owned: impl Fn(&str) -> bool,
     found: impl Iterator<Item = (String, String, Vec<Difference>)>,
 ) -> Vec<String> {
     let known: Vec<_> = known_entries()
         .into_iter()
-        .filter(|((_, check, _), _)| checks.contains(&check.as_str()))
+        .filter(|((file, check, _), _)| checks.contains(&check.as_str()) && owned(file))
         .collect();
     let mut problems = Vec::new();
     let mut seen = Vec::new();
@@ -662,8 +658,10 @@ fn unexplained(
 /// frame axis) is compared in the frame: the moved part's frame must be the unmoved one moved, and
 /// the records carried into it must agree. Differences are listed in
 /// `tests/fixtures/known_framed_document.json` under the motion's name.
-#[test]
-fn the_default_document_moves_with_the_part() {
+///
+/// One test per slice of the corpus (`tests/support/slices.rs`); the grid count printed is the
+/// slice's.
+fn moves_with_the_part(k: usize, n: usize) {
     let Some(dir) = common::corpus_dir() else {
         assert!(
             std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
@@ -677,50 +675,69 @@ fn the_default_document_moves_with_the_part() {
         .map(|(name, r, t)| (*name, [0, 1, 2].map(|i| [r[i][0], r[i][1], r[i][2], t[i]])))
         .collect();
     motions.push((GENERIC, rotation([1.0, 2.0, 3.0], 37.0, T)));
-    let files = corpus_files();
-    let found = common::parallel::map(&files, |name| {
-        let path = dir.join(name);
-        // The corpus test reports read failures.
-        let Ok((part, recognition, _)) = serve::recognise_step(&path.to_string_lossy(), &IDENTITY)
-        else {
-            return Vec::new();
-        };
-        let document = recognition::document(&recognition, part.faces.len());
-        let unmoved = (recognition, document);
-        motions
-            .iter()
-            .map(|(motion, placement)| {
-                let mut grid = 0;
-                let moved = default(&path, placement);
-                let d = under_motion(
-                    &unmoved,
-                    &moved,
-                    &Rigid::from_placement(placement),
-                    &mut grid,
-                );
-                (motion.to_string(), d, grid)
-            })
-            .collect()
-    });
-    let mut grid = 0;
-    let found: Vec<(String, String, Vec<Difference>)> = files
-        .iter()
-        .zip(found)
-        .flat_map(|(name, cases)| {
-            cases
-                .into_iter()
-                .map(move |(motion, d, g)| (name.clone(), motion, d, g))
-        })
-        .map(|(name, motion, d, g)| {
-            grid += g;
-            (name, motion, d)
+    let all = corpus_files();
+    let files = slices::slice(&all, k, n);
+    // Every part's default recognition unmoved and under every motion, all spread over every
+    // core at once (so a costly part's readings run side by side).
+    let readings: Vec<(usize, &Placement)> = (0..files.len())
+        .flat_map(|i| {
+            std::iter::once(&IDENTITY)
+                .chain(motions.iter().map(|(_, p)| p))
+                .map(move |p| (i, p))
         })
         .collect();
+    let mut read = common::parallel::map(&readings, |&(i, placement)| {
+        let path = dir.join(&files[i]);
+        serve::recognise_step(&path.to_string_lossy(), placement).map(|(part, recognition, _)| {
+            let document = recognition::document(&recognition, part.faces.len());
+            (recognition, document)
+        })
+    })
+    .into_iter();
+    let mut grid = 0;
+    let mut found: Vec<(String, String, Vec<Difference>)> = Vec::new();
+    for name in &files {
+        let unmoved = read.next().unwrap();
+        let moved: Vec<_> = read.by_ref().take(motions.len()).collect();
+        // The corpus test reports read failures.
+        let Ok(unmoved) = unmoved else {
+            continue;
+        };
+        for ((motion, placement), moved) in motions.iter().zip(moved) {
+            let d = under_motion(
+                &unmoved,
+                &moved.unwrap(),
+                &Rigid::from_placement(placement),
+                &mut grid,
+            );
+            found.push((name.clone(), motion.to_string(), d));
+        }
+    }
     eprintln!("values agreeing only to the two-decimal grid: {grid}");
     let checks: Vec<&str> = motions.iter().map(|m| m.0).collect();
-    let problems = unexplained(&checks, found.into_iter());
+    let owned = |file: &str| slices::owns(&all, k, n, file);
+    let problems = unexplained(&checks, owned, found.into_iter());
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
+
+sliced!(
+    the_default_document_moves_with_the_part,
+    super::moves_with_the_part,
+    [
+        0 => slice_0,
+        1 => slice_1,
+        2 => slice_2,
+        3 => slice_3,
+        4 => slice_4,
+        5 => slice_5,
+        6 => slice_6,
+        7 => slice_7,
+        8 => slice_8,
+        9 => slice_9,
+        10 => slice_10,
+        11 => slice_11,
+    ]
+);
 
 /// The check name of [`the_default_document_agrees_with_caller_space_recognition`].
 const CALLER_SPACE: &str = "caller_space";
@@ -732,8 +749,10 @@ const CALLER_SPACE: &str = "caller_space";
 /// the frame (a part whose frame is not the file's axes up to order and sign) has no file-space
 /// value to compare. Every difference is listed in `tests/fixtures/known_framed_document.json`
 /// under `caller_space`, with a verdict.
-#[test]
-fn the_default_document_agrees_with_caller_space_recognition() {
+///
+/// One test per slice of the corpus (`tests/support/slices.rs`); the counts printed are the
+/// slice's.
+fn agrees_with_caller_space(k: usize, n: usize) {
     let Some(dir) = common::corpus_dir() else {
         assert!(
             std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
@@ -742,7 +761,8 @@ fn the_default_document_agrees_with_caller_space_recognition() {
         eprintln!("corpus not found; set QUIDDITY_CORPUS");
         return;
     };
-    let files = corpus_files();
+    let all = corpus_files();
+    let files = slices::slice(&all, k, n);
     let found = common::parallel::map(&files, |name| {
         let path = dir.join(name);
         let Ok((part, framed, _)) = serve::recognise_step(&path.to_string_lossy(), &IDENTITY)
@@ -778,6 +798,20 @@ fn the_default_document_agrees_with_caller_space_recognition() {
         "against caller space: {grid} values agree only to the two-decimal grid; {local} records \
          have fields left in a frame that is not the file's axes"
     );
-    let problems = unexplained(&[CALLER_SPACE], found.into_iter());
+    let owned = |file: &str| slices::owns(&all, k, n, file);
+    let problems = unexplained(&[CALLER_SPACE], owned, found.into_iter());
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
+
+sliced!(
+    the_default_document_agrees_with_caller_space_recognition,
+    super::agrees_with_caller_space,
+    [
+        0 => slice_0,
+        1 => slice_1,
+        2 => slice_2,
+        3 => slice_3,
+        4 => slice_4,
+        5 => slice_5,
+    ]
+);
