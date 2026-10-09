@@ -95,6 +95,7 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 7 | 3 | 1 | 0 | 0 | 3 |
 | `tests/fixtures/captured/step_levels/known_differences.json` | `tests/step_levels.rs` | 71 | 56 | 11 | 4 | 0 | 0 |
 | `tests/fixtures/captured/reconcile/known.json` | `tests/reconcile.rs` | 35 (0 decisions, 9 accepted, 26 motions) | 4 | 9 | 0 | 0 | 22 |
+| `tests/fixtures/captured/recognition_evidence/known_differences.json` | `tests/recognition_evidence.rs` | 244 (25 features, 1 candidate, 176 gaps, 42 motions) | 21 | 222 | 0 | 0 | 1 |
 | `tests/fixtures/known_face_sources.json` | `crates/haecceity/tests/face_sources.rs` | 134 | 90 | 0 | 0 | 43 | 1 |
 | `tests/fixtures/known_pmi.json` "nist" | `crates/haecceity/tests/pmi_read.rs` | 74 | 65 | 0 | 9 | 0 | 0 |
 | `tests/fixtures/known_pmi.json` "occt" | `crates/haecceity/tests/pmi_read.rs` | 403 | 402 | 1 | 0 | 0 | 0 |
@@ -369,6 +370,34 @@ one shell, which STEP export writes as two. Open question for the maintainer: wh
 recognition document (`quiddity-rust/recognition/2`) should carry outer profiles; Python's
 document does not, and they are not in it.
 
+The recognition evidence view (`quiddity.evidence.build_recognition_evidence`) is
+`evidence_view::build_recognition_evidence(part)` over `features::inventory` and its
+reconciliation: per accepted feature, its family, record, defining faces, constituent faces (a
+hole's bore and floor, its counterbore faces), instance groups, host faces (Python's
+`_axial_host_nodes` for holes and bosses) and, for a hole pattern, its member features by
+position (not copies); and the candidate projection (every rejected candidate and, transitively,
+those it is related to) with outcome, reason, defining and constituent faces and related
+candidates. Python's opaque references are plain indices: faces into `part.faces`, features and
+candidates into the view's own lists. Constituent faces come from the families' occurrences
+(found again on a second run context and checked against the inventory's defining faces), the
+pockets' reconciliation evidence and the section passages' ring proposals; the circular face
+patterns' groups from `circular_face_patterns::discover_with_groups`. The planar outer profile is
+read per face through the view, as Python's is. `tools/capture_evidence.py` records Python's view
+over the corpus (`captured/recognition_evidence/capture.json.gz`: 4308 features, 489 projected
+candidates, 255 rejected), and `tests/recognition_evidence.rs` compares them keyed by family and
+defining faces: every constituent, host, group and member set and every candidate agrees, but
+25 feature and 1 candidate differences, all the accepted-record differences
+`captured/reconcile/known.json` already explains (Python's local-degradation retry, cgb holes'
+spotfaces and drilling ends, GRM-03's plate) and four parts where Python keeps two risers apart
+by OpenCascade's bounding-box round-off (rust-correct). Not ported, and stated in
+`evidence_view::GAPS`: the section recesses (302 on 82 parts; awaits q-section-recess-family) and
+the step levels (378; the family is not ported), one rust-wrong entry per part and family; nor the
+association coverage, the bounded report (`RecognitionReport`, `feature_census`) or the framed
+view. Under two rigid motions the view's faces are unchanged but for 42 differences: bosses whose
+ends classify alike take the high end as free (constituent and host faces flip; Python behaves
+the same), and the families' own invariance exceptions (`known_invariance.json`). The view is
+not in the recognition document (the same open maintainer question as outer profiles).
+
 For draftwright-rust, the kernel draws a part's views without OpenCascade's hidden-line
 algorithm or booleans (`crates/haecceity/src/hlr.rs`): every visible and hidden edge and
 silhouette, and a section view's kept half and cut outline. `crates/haecceity/tests/drawings.rs` checks them
@@ -568,6 +597,9 @@ src/
                      part's plane normals and cylinder axes, the part re-read into it, recognised
   framed_records.rs  records found in the frame carried back to the file's coordinates, fields
                      with no file axis left in the frame and labelled
+  evidence_view.rs   the recognition evidence view (`build_recognition_evidence`): accepted
+                     features' defining, constituent and host faces, pattern members, and the
+                     rejected-candidate projection, as plain indices
   correspondence/    revision matching (docs/correspondence.md): fingerprint.rs (features and
                      faces), align.rs (rigid alignment), assign.rs (Hungarian with an
                      unmatched option), faces.rs (seeded propagation), mod.rs (`correspond`)
@@ -622,6 +654,8 @@ tests/
   reconcile.rs       every reconciliation decision Python's inventory makes over the corpus and
                      13 synthetic scenarios, against the port's decisions, and under rigid motion;
                      the accepted records against Python's
+  recognition_evidence.rs  the evidence view against Python's over the corpus (features,
+                     candidates, stated gaps), and under rigid motion
   pads.rs            each pad's top and four walls on Python's evidence-test parts and the golden
                      fixture; tolerances the capture cannot record (NaN, infinity)
   corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity
@@ -734,6 +768,8 @@ tools/
                      their faces and proofs (captured/step_levels/)
   capture_reconcile.py records every disposition Python's default inventory makes over the
                      corpus, and synthetic scenarios (captured/reconcile/)
+  capture_evidence.py records Python's recognition evidence view over the corpus
+                     (captured/recognition_evidence/)
   capture_frames.py  records Python's part frames (captured/frames.json, the built parts as
                      STEP in captured/frames/); --compare runs a Python recogniser on a corpus
                      part's framed working part, as read and turned
