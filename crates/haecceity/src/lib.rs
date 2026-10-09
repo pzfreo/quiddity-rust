@@ -6,6 +6,7 @@
 //! *Haecceity* is "thisness": the particular thing itself, as *quiddity* is "whatness". The
 //! kernel holds the exact geometry of this part; quiddity says what kind of features it has.
 
+pub mod anchor;
 pub mod brep;
 pub mod classify;
 pub mod cloud;
@@ -16,6 +17,7 @@ pub mod hlr;
 pub mod mass;
 pub mod mesh;
 pub mod nurbs;
+pub mod overlap;
 pub mod p21;
 pub mod pmi;
 pub mod poly;
