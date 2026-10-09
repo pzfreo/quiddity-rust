@@ -1549,47 +1549,68 @@ fn feature_definition_shapes(doc: &Document) -> Vec<u64> {
 /// replaced with other PMI and removed. Each write takes the feature definition's
 /// `product_definition_shape` with its thread, is schema- and rule-valid, and verifies
 /// (`pmi::verify`: exactly the items written, no consumed instance surviving).
+/// specify-core-rust's U14 PMI on the spool's first four free faces: an internal thread (no
+/// runout); an external thread with a runout and a straight knurl; and other PMI (a flatness)
+/// to replace either with.
+struct ThreadSets {
+    internal: PartPmi,
+    external_and_knurl: PartPmi,
+    other: PartPmi,
+}
+
+fn thread_sets(f: &File) -> ThreadSets {
+    let free = free_faces(f, 0, 4);
+    ThreadSets {
+        internal: PartPmi {
+            features: vec![faces(&[free[0]])],
+            threads: vec![thread_on(0, ThreadSide::Internal, None)],
+            ..PartPmi::default()
+        },
+        external_and_knurl: PartPmi {
+            features: vec![faces(&[free[0]]), faces(&[free[1]]), faces(&[free[2]])],
+            threads: vec![thread_on(0, ThreadSide::External, Some(1))],
+            knurls: vec![Knurl {
+                feature: FeatureId(2),
+                pattern: KnurlPattern::Straight,
+                major_diameter: length("20.", LengthUnit::Millimetre),
+                nominal_diameter: length("19.8", LengthUnit::Millimetre),
+                diametral_pitch: length("0.8", LengthUnit::Millimetre),
+                number_of_teeth: Some(Count(78)),
+                tooth_depth: Some(length("0.4", LengthUnit::Millimetre)),
+                root_fillet: Some(length("0.1", LengthUnit::Millimetre)),
+                helix_angle: None,
+                helix_hand: None,
+            }],
+            ..PartPmi::default()
+        },
+        other: PartPmi {
+            features: vec![faces(&[free[3]])],
+            tolerances: vec![tolerance(
+                ToleranceKind::Flatness,
+                ToleranceTarget::Feature(FeatureId(0)),
+                "0.05",
+            )],
+            ..PartPmi::default()
+        },
+    }
+}
+
+/// A part with a thread haecceity wrote is written again (specify-core-rust's U14): read back
+/// with nothing unconsumed (thread WR16's bare 'thread runout' aspect is the thread's), then
+/// replaced with other PMI, replaced with the other thread set, and removed. Each write takes
+/// the feature definition's `product_definition_shape` with its thread, is schema- and
+/// rule-valid, and verifies (`pmi::verify`: exactly the items written, no consumed instance
+/// surviving).
 #[test]
 fn a_written_thread_is_replaced_and_removed() {
     let f = spool();
-    let free = free_faces(&f, 0, 4);
-    let internal = PartPmi {
-        features: vec![faces(&[free[0]])],
-        threads: vec![thread_on(0, ThreadSide::Internal, None)],
-        ..PartPmi::default()
-    };
-    let external_and_knurl = PartPmi {
-        features: vec![faces(&[free[0]]), faces(&[free[1]]), faces(&[free[2]])],
-        threads: vec![thread_on(0, ThreadSide::External, Some(1))],
-        knurls: vec![Knurl {
-            feature: FeatureId(2),
-            pattern: KnurlPattern::Straight,
-            major_diameter: length("20.", LengthUnit::Millimetre),
-            nominal_diameter: length("19.8", LengthUnit::Millimetre),
-            diametral_pitch: length("0.8", LengthUnit::Millimetre),
-            number_of_teeth: Some(Count(78)),
-            tooth_depth: Some(length("0.4", LengthUnit::Millimetre)),
-            root_fillet: Some(length("0.1", LengthUnit::Millimetre)),
-            helix_angle: None,
-            helix_hand: None,
-        }],
-        ..PartPmi::default()
-    };
-    let other = PartPmi {
-        features: vec![faces(&[free[3]])],
-        tolerances: vec![tolerance(
-            ToleranceKind::Flatness,
-            ToleranceTarget::Feature(FeatureId(0)),
-            "0.05",
-        )],
-        ..PartPmi::default()
-    };
-    for (case, p) in [
-        ("internal", internal),
-        ("external and knurl", external_and_knurl),
+    let s = thread_sets(&f);
+    for (case, p, swap) in [
+        ("internal", &s.internal, &s.external_and_knurl),
+        ("external and knurl", &s.external_and_knurl, &s.internal),
     ] {
-        let w = written(&f, &p);
-        assert_verified(&f, &w, &p);
+        let w = written(&f, p);
+        assert_verified(&f, &w, p);
         assert!(
             w.read
                 .findings
@@ -1604,16 +1625,25 @@ fn a_written_thread_is_replaced_and_removed() {
         assert_eq!(shapes.len(), p.threads.len() + p.knurls.len(), "{case}");
 
         let g = open_bytes(w.doc.bytes().to_vec());
-        for (mode, q) in [(Mode::Replace, &other), (Mode::Remove, &PartPmi::default())] {
+        for (mode, q) in [
+            (Mode::Replace, &s.other),
+            (Mode::Replace, swap),
+            (Mode::Remove, &PartPmi::default()),
+        ] {
             let w2 = write(&g, &[(PartId(0), q.clone())], mode)
                 .unwrap_or_else(|e| panic!("{case} {mode:?}: {e}"));
             assert_reads_back(&w2, PartId(0), q);
             assert_verified_as(&g, &w2, q, mode);
             let v = new_violations(&g.doc, &w2.doc);
             assert!(v.is_empty(), "{case} {mode:?}: {v:#?}");
-            for &s in &shapes {
-                assert!(w2.doc.get(s).is_none(), "{case} {mode:?}: #{s} kept");
+            for &id in &shapes {
+                assert!(w2.doc.get(id).is_none(), "{case} {mode:?}: #{id} kept");
             }
+            assert_eq!(
+                feature_definition_shapes(&w2.doc).len(),
+                q.threads.len() + q.knurls.len(),
+                "{case} {mode:?}"
+            );
         }
     }
 }
@@ -2819,11 +2849,15 @@ fn compare_occt(
                 .map(|(_, f)| f)
         };
         let mut dims_left: Vec<bool> = vec![true; p.dimensions.len()];
+        let mut callouts: Vec<Vec<usize>> = Vec::new();
         for o in &odims {
             let t = o["type"].as_str().unwrap();
             let label = o["label"].as_str().unwrap();
             if t == "DimensionPresentation" {
-                continue; // presentation only: OpenCascade's record of a callout, no semantics
+                // Presentation only: OpenCascade's record of a callout, no semantics; its faces
+                // are compared with the notes' below.
+                callouts.extend(on_part(&o["faces"]));
+                continue;
             }
             let Some(f1) = on_part(&o["faces"]) else {
                 continue;
@@ -2904,6 +2938,29 @@ fn compare_occt(
                     occt_dim_type(&p.dimensions[i]),
                 ));
             }
+        }
+        // specify-core's notes on faces (U10): OpenCascade links each note's callout to the
+        // faces of the aspect the reader puts the note on.
+        for n in &p.notes {
+            let Some(NoteOwner::Feature(x)) = n.on else {
+                continue;
+            };
+            let c = face_cover(p, x);
+            match callouts.iter().position(|f| *f == c) {
+                Some(j) => {
+                    callouts.remove(j);
+                }
+                None => out.push((
+                    format!("{name} occt note {:?} {c:?}", n.kind),
+                    "no callout OpenCascade links to those faces".into(),
+                )),
+            }
+        }
+        for c in callouts {
+            out.push((
+                format!("{name} occt callout {c:?}"),
+                "on faces where the reader has no note".into(),
+            ));
         }
         let mut tols_left = vec![true; p.tolerances.len()];
         for o in &otols {
@@ -3125,7 +3182,8 @@ fn compare_occt(
 }
 
 /// The written files OpenCascade is asked to read (`tools/check_pmi_occt.py`): one with every
-/// kind of item the writer makes, on a specify-core part, and specify-core's intents written
+/// kind of item the writer makes, on a specify-core part; a written thread replaced and removed
+/// (U14); an add beside specify-core's notes on faces (U10); and specify-core's intents written
 /// onto their original corpus files. `None` for a case whose input is missing (the corpus).
 fn written_cases() -> Vec<(String, Option<Vec<u8>>)> {
     let mut out = Vec::new();
@@ -3262,8 +3320,59 @@ fn written_cases() -> Vec<(String, Option<Vec<u8>>)> {
         Some(f.doc.apply(&edit).unwrap().bytes),
     ));
 
-    // specify-core's intents onto the original files.
+    // A thread haecceity wrote, written again (U14, `a_written_thread_is_replaced_and_removed`):
+    // the internal thread replaced by the external thread and knurl, and those removed.
+    let f = spool();
+    let s = thread_sets(&f);
+    for (name, first, mode, second) in [
+        (
+            "thread_replaced",
+            &s.internal,
+            Mode::Replace,
+            &s.external_and_knurl,
+        ),
+        (
+            "thread_removed",
+            &s.external_and_knurl,
+            Mode::Remove,
+            &PartPmi::default(),
+        ),
+    ] {
+        let g = open_bytes(written(&f, first).doc.bytes().to_vec());
+        let w = write(&g, &[(PartId(0), second.clone())], mode)
+            .unwrap_or_else(|e| panic!("{name}: {e}"));
+        assert_reads_back(&w, PartId(0), second);
+        out.push((name.to_string(), Some(w.doc.bytes().to_vec())));
+    }
+
+    // specify-core's notes on faces (U10, `specify_core_notes_on_faces_are_anchored`): its
+    // thumbwheel, whose external thread, internal thread and knurl notes the reader puts on
+    // their faces, with a flatness added beside them.
     let dir = common::fixtures().join("ap242/specify");
+    let f = open(&dir.join("thumbwheel_thread_knurl.step.gz"));
+    let free = free_faces(&f, 0, 1);
+    let flat = PartPmi {
+        features: vec![faces(&[free[0]])],
+        tolerances: vec![tolerance(
+            ToleranceKind::Flatness,
+            ToleranceTarget::Feature(FeatureId(0)),
+            "0.05",
+        )],
+        ..PartPmi::default()
+    };
+    let w = write(&f, &[(PartId(0), flat)], Mode::Add).unwrap_or_else(|e| panic!("{e}"));
+    let anchored = w.read.parts[0]
+        .notes
+        .iter()
+        .filter(|n| n.on.is_some())
+        .count();
+    assert_eq!(anchored, 3, "{:#?}", w.read.parts[0].notes);
+    out.push((
+        "thumbwheel_notes_add".to_string(),
+        Some(w.doc.bytes().to_vec()),
+    ));
+
+    // specify-core's intents onto the original files.
     for case in [
         "assembly_plate_pin",
         "spool_fits",
@@ -3391,7 +3500,8 @@ fn opencascade_reads_the_written_files() {
             continue;
         }
         // Every datum in these files is one the writer added, so each has its datum feature
-        // symbol (decision 6), which OpenCascade links to the datum as its presentation.
+        // symbol (decision 6), which OpenCascade links to the datum as its presentation
+        // (thumbwheel_notes_add's are specify-core's, with specify-core's symbols).
         let datums = capture["parts"]
             .as_array()
             .unwrap()

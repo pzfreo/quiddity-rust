@@ -494,6 +494,12 @@
    "key": "every_kind occt part 0 surface texture 1",
    "verdict": "not-applicable",
    "reason": "XCAF has no surface texture: OpenCascade 7.9 reads no AP242 surface condition (ISO 10303-1110 'surface texture' property and its surface_texture_representation parameters), and its metadata reader keeps nothing of them (the capture's metadata). haecceity reads the texture back as written."
+  },
+  {
+   "detail": "#651: value 5.014 vs 10. Millimetre (different); not plus/minus (range true lower_bound 10 upper_bound 0.028)",
+   "key": "thumbwheel_notes_add occt dimension 0:1:4:1",
+   "verdict": "rust-correct",
+   "reason": "specify-core's own Ø10 (kept byte for byte by the add, not written by haecceity): '#648 = (... MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(10.),#633) ... REPRESENTATION_ITEM('nominal value'))', '#651 = DIMENSIONAL_SIZE(#646,'diameter')', '#654 = TOLERANCE_VALUE(#653,#652)' with both bounds below nominal (-0.028, -0.013), '#655 = PLUS_MINUS_TOLERANCE(#654,#651)'. OpenCascade's known misread of both deviations below nominal (the capture's known_misreads; specify-core writer.py) drops the deviations and garbles the value; haecceity reads 10 mm with the stated deviations. The same instance in the input file is pinned alike (known_pmi.json occt 'thumbwheel_thread_knurl occt dimension 0:1:4:1')."
   }
  ]
 }
