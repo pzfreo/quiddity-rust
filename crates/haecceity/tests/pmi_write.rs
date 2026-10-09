@@ -962,6 +962,69 @@ fn a_feature_of_several_faces_has_a_usage_per_face() {
     assert!(violations.is_empty(), "{violations:#?}");
 }
 
+/// Add onto a file whose kept plain shape aspect identifies a feature's faces by one usage of
+/// a `set_representation_item` (§6.5.1, as earlier writes did): the new feature is composed of
+/// that aspect, and no face gains a second usage (item_identified_representation_usage UR1).
+#[test]
+fn add_composes_a_feature_of_an_aspect_of_its_faces() {
+    let f = spool();
+    let def = &f.parts[0];
+    let (face9, face10) = (def.faces[9], def.faces[10]);
+    let gisu = f
+        .doc
+        .ids()
+        .find(|&id| {
+            matches!(f.doc.get(id).unwrap(), RawEntity::Simple { name, .. }
+                if name.eq_ignore_ascii_case("geometric_item_specific_usage"))
+        })
+        .unwrap();
+    let rep = refs_of(&f.doc, gisu)[1];
+    let (aspect, usage) = (f.doc.max_id() + 1, f.doc.max_id() + 2);
+    let mut text = String::from_utf8(f.doc.bytes().to_vec()).unwrap();
+    let at = text.rfind("ENDSEC;").unwrap();
+    text.insert_str(
+        at,
+        &format!(
+            "#{aspect}=SHAPE_ASPECT('','',#{},.T.);\n#{usage}=ITEM_IDENTIFIED_REPRESENTATION_USAGE('','',#{aspect},#{rep},SET_REPRESENTATION_ITEM((#{face9},#{face10})));\n",
+            def.shape
+        ),
+    );
+    let g = open_bytes(text.into_bytes());
+    let add = PartPmi {
+        features: vec![faces(&[9, 10])],
+        tolerances: vec![tolerance(
+            ToleranceKind::SurfaceProfile,
+            ToleranceTarget::Feature(FeatureId(0)),
+            "0.1",
+        )],
+        ..PartPmi::default()
+    };
+    let w = write(&g, &[(PartId(0), add)], Mode::Add).unwrap_or_else(|e| panic!("{e}"));
+    let added = w.added();
+    let compositions: Vec<u64> = added
+        .iter()
+        .copied()
+        .filter(|&id| w.names(id) == ["shape_aspect_relationship"])
+        .collect();
+    assert_eq!(compositions.len(), 1);
+    assert_eq!(refs_of(&w.doc, compositions[0])[1], aspect);
+    assert!(
+        added
+            .iter()
+            .all(|&id| w.names(id) != ["geometric_item_specific_usage"]),
+        "no new usage of faces 9 and 10"
+    );
+    let t = w.read.parts[0]
+        .tolerances
+        .iter()
+        .find(|t| t.kind == ToleranceKind::SurfaceProfile && t.datums.is_none())
+        .expect("the added profile tolerance");
+    let ToleranceTarget::Feature(fid) = t.target else {
+        panic!("{t:?}");
+    };
+    assert_eq!(w.read.parts[0].features[fid.0], faces(&[9, 10]));
+}
+
 /// Part notes in words (coating, heat treatment, edges) as the PMI practice's editable text
 /// (§7.4: 'semantic text', a user defined attribute; on the part, on its
 /// `product_definition_shape`, Table 17).
@@ -1015,9 +1078,13 @@ fn textures(faces: Option<FeatureId>) -> Vec<SurfaceTexture> {
 /// specify-core's U3): part notes as 'semantic text' (PMI practice §7.4) and surface texture as
 /// AP242's surface conditions (ISO 10303-1110: `Surface_texture`, its
 /// `Standard_surface_texture_parameter`s in `surface_texture_representation`s). Both read back
-/// as written; the instances satisfy `surface_texture_representation` WR1–WR5 and the global
-/// rule `restrict_representation_for_surface_condition` (checked here: `express_rules` does
-/// not evaluate them), and the writer's own schema and rule checks.
+/// as written; the instances satisfy `surface_texture_representation` WR1–WR5,
+/// `general_property_association` WR1–WR2 and the global rule
+/// `restrict_representation_for_surface_condition` (checked here: `express_rules` does not
+/// evaluate them), and the writer's own schema and rule checks. WR5 with the association's WR2
+/// makes the parameter 'surface_condition', not the mapping's 'surface texture parameter'
+/// (docs/step-ap242.md, question 3). A parameter without its 'surface_condition' association
+/// is reported, not read.
 #[test]
 fn notes_and_surface_textures_are_standard_forms() {
     let f = spool();
@@ -1031,6 +1098,8 @@ fn notes_and_surface_textures_are_standard_forms() {
     assert_verified(&f, &w, &p);
     let pds = f.parts[0].shape;
     let name_of = |id: u64| w.text(id).split('\'').nth(1).unwrap_or("").to_string();
+    // A general_property's name follows its id.
+    let gp_name = |id: u64| w.text(id).split('\'').nth(3).unwrap_or("").to_string();
     let added = w.added();
     let of = |entity: &str| -> Vec<u64> {
         added
@@ -1075,7 +1144,7 @@ fn notes_and_surface_textures_are_standard_forms() {
             panic!("{}", w.text(r));
         };
         assert!(textures_.contains(&relating));
-        assert_eq!(name_of(related), "surface texture parameter");
+        assert_eq!(name_of(related), "surface_condition");
         let rep = rep_of(related);
         assert_eq!(w.names(rep), ["surface_texture_representation"]);
         // The representation's references: its items, then its context.
@@ -1099,7 +1168,8 @@ fn notes_and_surface_textures_are_standard_forms() {
         );
         assert_eq!(items.len(), 2, "{kinds:?}");
         // WR4: in no representation relationship; WR5: one association with the general
-        // property 'surface_condition'.
+        // property 'surface_condition'; the association's WR1 (the only one on the parameter)
+        // and WR2 (the parameter is not a dimension or tolerance, so the names agree).
         assert!(
             w.doc
                 .referrers(rep)
@@ -1115,10 +1185,49 @@ fn notes_and_surface_textures_are_standard_forms() {
             .collect();
         assert_eq!(gpas.len(), 1);
         let gp = refs_of(&w.doc, gpas[0])[0];
-        assert!(w.text(gp).contains("'surface_condition'"), "{}", w.text(gp));
+        assert_eq!(w.names(gp), ["general_property"]);
+        assert_eq!(gp_name(gp), "surface_condition", "{}", w.text(gp));
+        assert_eq!(refs_of(&w.doc, gpas[0]), [gp, related]);
+        assert_eq!(
+            name_of(related),
+            gp_name(gp),
+            "general_property_association WR2"
+        );
         parameters += 1;
     }
     assert_eq!(parameters, 3);
+    // Every general_property_association the write added meets WR2 (none derives a dimension
+    // or tolerance): the notes' and the textures' alike.
+    for g in of("general_property_association") {
+        let [base, derived] = refs_of(&w.doc, g)[..] else {
+            panic!("{}", w.text(g));
+        };
+        assert_eq!(gp_name(base), name_of(derived), "{}", w.text(g));
+    }
+    // A parameter named as the mapping names it (breaking the association's WR2) reads the
+    // same.
+    let text = String::from_utf8(w.doc.bytes().to_vec()).unwrap();
+    let mapped = text.replace(
+        "PROPERTY_DEFINITION('surface_condition'",
+        "PROPERTY_DEFINITION('surface texture parameter'",
+    );
+    assert_ne!(mapped, text);
+    let r = pmi::read(&Document::parse(mapped.into_bytes()).unwrap(), &f.parts).unwrap();
+    assert_eq!(r.parts[0].surface_textures, p.surface_textures);
+    // A parameter whose general property is not 'surface_condition' breaks WR5: reported, and
+    // its texture not read.
+    let renamed = text.replace(
+        "GENERAL_PROPERTY('','surface_condition',$)",
+        "GENERAL_PROPERTY('','roughness',$)",
+    );
+    assert_ne!(renamed, text);
+    let r = pmi::read(&Document::parse(renamed.into_bytes()).unwrap(), &f.parts).unwrap();
+    assert!(r.parts[0].surface_textures.is_empty());
+    assert!(
+        r.findings.iter().any(|x| x.detail.contains("WR5")),
+        "{:?}",
+        r.findings
+    );
     // Remove: nothing of them is left.
     let again = File {
         parts: read_part_definitions(w.doc.bytes()).unwrap(),

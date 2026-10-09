@@ -3980,9 +3980,16 @@ impl<'a> Reader<'a> {
                 );
                 continue;
             };
-            // A surface texture parameter (ISO 10303-1110) is read with its surface texture.
-            if name == "surface texture parameter" {
-                if !self.has_texture(pdef) {
+            // A surface texture parameter (ISO 10303-1110) is read with its surface texture:
+            // named 'surface texture parameter' as the mapping has it, or 'surface_condition'
+            // as `pmi::write` names it (general_property_association WR2 with
+            // surface_texture_representation WR5).
+            let mapped = name == "surface texture parameter";
+            if mapped || name == "surface_condition" {
+                if self.has_texture(pdef) {
+                    continue;
+                }
+                if mapped {
                     self.find(
                         FindingKind::Unsupported,
                         part,
@@ -3990,8 +3997,8 @@ impl<'a> Reader<'a> {
                         &[owner],
                         "a surface texture parameter of no surface texture (ISO 10303-1110: related from its 'surface texture' by a 'surface texture parameter' property_definition_relationship); not read",
                     );
+                    continue;
                 }
-                continue;
             }
             // User defined attributes (UDA practice §5: associated with a general_property),
             // and editable note text (PMI practice §7.4, UDA practice §6.4.1: 'semantic text',
@@ -4674,20 +4681,50 @@ impl<'a> Reader<'a> {
             ) else {
                 continue;
             };
+            let pname = self
+                .get_str(p, "property_definition", "name")
+                .unwrap_or_default();
+            if pname != "surface texture parameter" && pname != "surface_condition" {
+                self.find(
+                    FindingKind::Nonconformance,
+                    part,
+                    p,
+                    &[pdef],
+                    format!("a surface texture parameter named {pname:?} (ISO 10303-1110: 'surface texture parameter', or 'surface_condition' for general_property_association WR2); texture not read"),
+                );
+                return;
+            }
             prov.extend([r, p]);
             prov.extend(self.id_attributes(p));
-            for g in self.referrers_by(
+            // WR5 of its representation: exactly one association with the general property
+            // 'surface_condition'.
+            let gpas = self.referrers_by(
                 p,
                 "general_property_association",
                 "general_property_association",
                 "derived_definition",
-            ) {
-                prov.push(g);
-                if let Some(gp) = self.get_ref(g, "general_property_association", "base_definition")
-                {
-                    prov.push(gp);
-                }
-            }
+            );
+            let gp = match gpas[..] {
+                [g] => self
+                    .get_ref(g, "general_property_association", "base_definition")
+                    .filter(|&gp| {
+                        self.get_str(gp, "general_property", "name").as_deref()
+                            == Some("surface_condition")
+                    })
+                    .map(|gp| (g, gp)),
+                _ => None,
+            };
+            let Some((g, gp)) = gp else {
+                self.find(
+                    FindingKind::Nonconformance,
+                    part,
+                    p,
+                    &[pdef],
+                    "a surface texture parameter without exactly one association with the general property 'surface_condition' (surface_texture_representation WR5); texture not read",
+                );
+                return;
+            };
+            prov.extend([g, gp]);
             let mut characteristic = None;
             let mut value = None;
             for (pdr, rep) in self.property_representations(p) {

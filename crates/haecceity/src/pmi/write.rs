@@ -2944,6 +2944,9 @@ impl<'a> PartPlan<'a> {
     /// feature's items. One item is identified once per representation (UR1): an item several
     /// features share, or that an existing shape aspect of the file already identifies, is
     /// such a member too, owned by a referenced feature of that item alone where there is one.
+    /// A kept plain shape aspect of the file that identifies exactly all the feature's items
+    /// in one representation by one usage (as earlier writes and §6.5.1 identify several faces)
+    /// is the feature's one member instead.
     fn usages(
         &self,
         em: &mut Emitter<'_>,
@@ -2957,6 +2960,26 @@ impl<'a> PartPlan<'a> {
         let mut per_rep: BTreeMap<R, usize> = BTreeMap::new();
         for (rep, _) in &keys {
             *per_rep.entry(*rep).or_insert(0) += 1;
+        }
+        if let [(rep, n)] = per_rep.iter().map(|(r, n)| (*r, *n)).collect::<Vec<_>>()[..]
+            && n > 1
+            && keys
+                .iter()
+                .all(|k| !st.shared_keys.contains(k) && !st.owners.contains_key(k))
+        {
+            let all: Vec<R> = keys.iter().flat_map(|(_, i)| i.iter().copied()).collect();
+            if let Some(m) = self.existing_owner(em, rep, &all)? {
+                em.simple(
+                    "shape_aspect_relationship",
+                    &[
+                        ("name", s("")),
+                        ("description", s("")),
+                        ("relating_shape_aspect", feature.a()),
+                        ("related_shape_aspect", m.a()),
+                    ],
+                )?;
+                return Ok(());
+            }
         }
         for (rep, items) in keys {
             let [item] = items[..] else {
@@ -4015,11 +4038,14 @@ impl<'a> PartPlan<'a> {
     /// aspect or the part's shape>)` with a `representation('surface texture')` (the global
     /// rule restrict_representation_for_surface_condition: the names agree) holding the
     /// 'material removal condition'; each `Standard_surface_texture_parameter` is a
-    /// `property_definition('surface texture parameter')` on the same owner, related to it by
+    /// `property_definition` on the same owner, related to it by
     /// `property_definition_relationship('surface texture parameter')`, with a
     /// `surface_texture_representation` of the characteristic ('measuring method', WR2) and its
     /// value (a length measure item, WR1, WR3), and associated with a `general_property`
-    /// 'surface_condition' (WR5).
+    /// 'surface_condition' (WR5). The parameter is named 'surface_condition', not the mapping's
+    /// 'surface texture parameter': general_property_association WR2 requires the derived and
+    /// base names to agree, so with WR5 no other name is schema-valid (docs/step-ap242.md,
+    /// question 3).
     fn surface_texture(
         &self,
         em: &mut Emitter<'_>,
@@ -4052,7 +4078,7 @@ impl<'a> PartPlan<'a> {
             let parameter = em.simple(
                 "property_definition",
                 &[
-                    ("name", s("surface texture parameter")),
+                    ("name", s("surface_condition")),
                     ("description", s("")),
                     ("definition", owner.a()),
                 ],

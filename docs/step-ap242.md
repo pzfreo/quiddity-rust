@@ -128,15 +128,21 @@ implemented, with the evidence found doing it; the open points are under
      part's product_definition_shape>)` with `representation('surface texture')` holding
      `descriptive_representation_item('material removal condition', 'any process allowed' |
      'material removal required' | 'no material removal')`; per parameter
-     `property_definition('surface texture parameter','',<same owner>)`, related to the texture by
+     `property_definition('surface_condition','',<same owner>)`, related to the texture by
      `property_definition_relationship('surface texture parameter')`, represented by a
      `surface_texture_representation('surface texture parameter', (descriptive_representation_item(
      'measuring method', 'Ra'), measure_representation_item('characteristic value',
      LENGTH_MEASURE(3.2), µm)))` and associated with `general_property('', 'surface_condition')`.
-     Checked against the schema (the writer's validation), `surface_texture_representation`
-     WR1–WR5 and the global rule `restrict_representation_for_surface_condition`
-     (`notes_and_surface_textures_are_standard_forms`: `express_rules` does not evaluate them).
-     The reader reads exactly this form; anything else of a surface condition (direction,
+     The parameter is named 'surface_condition', not the mapping's 'surface texture parameter':
+     `surface_texture_representation` WR5 requires the association with 'surface_condition', and
+     `general_property_association` WR2 requires the derived definition's name to equal the
+     general property's, so no other name is schema-valid (question 3). Checked against the
+     schema (the writer's validation), `surface_texture_representation` WR1–WR5,
+     `general_property_association` WR1–WR2 and the global rule
+     `restrict_representation_for_surface_condition` (`notes_and_surface_textures_are_standard_forms`:
+     `express_rules` does not evaluate them). The reader reads this form, and the parameter
+     named as the mapping names it; a parameter without exactly one association with
+     'surface_condition' (WR5) is reported and its texture not read, as is anything else of a surface condition (direction,
      manufacturing method, machining allowance, evaluation length, filters, value ranges) is
      reported and the texture not read. OpenCascade XCAF has no surface texture
      (not-applicable). The CLI's JSON carries it (`surface_textures`, terms `any_process_allowed`,
@@ -545,7 +551,7 @@ be read, e.g. the pre-4.0.6 datum forms of §6.5.2):
 | Material | Material practice R2.1 §4.1: `property_definition('material property','material name')` → `representation('material name')` → `descriptive_representation_item(id, name)`, as specify-core's files carry it (decision 2); §4.2 'density' → `measure_representation_item('density measure', POSITIVE_RATIO_MEASURE, derived unit)`, read only |
 | Attributes | UDA practice §5–7: `general_property` 'user defined attribute' |
 | Note in words | §7.4 'semantic text': an attribute set of that name, one per note, on the part's `product_definition_shape` or a feature (decisions of 2026-10-09, 3) |
-| Surface texture | ISO 10303-1110 `Surface_texture` / `Standard_surface_texture_parameter`: `property_definition('surface texture')`, related 'surface texture parameter' property definitions with `surface_texture_representation`s and `general_property` 'surface_condition' (decisions of 2026-10-09, 3) |
+| Surface texture | ISO 10303-1110 `Surface_texture` / `Standard_surface_texture_parameter`: `property_definition('surface texture')`, related (by 'surface texture parameter') 'surface_condition' property definitions with `surface_texture_representation`s and `general_property` 'surface_condition' (decisions of 2026-10-09, 3) |
 | Standard | `applied_document_reference` to the dimensioning standard (§4) |
 
 ## Anti-requirements
@@ -798,7 +804,9 @@ Settled by the implementation (where the design was open or silent):
   representation through a member shape aspect of its own.* Features of equal items are one instance. Items several
   features share (UR1: one usage per item and representation) are owned by one referenced
   feature and the others are composed of it by `shape_aspect_relationship` (§6.5.2, read as
-  the same items); in add, items a kept plain shape aspect already identifies are composed of it.
+  the same items); in add, items a kept plain shape aspect already identifies are composed of it
+  (per face, or all of a feature's faces where one usage of the aspect identifies exactly
+  them, as a `set_representation_item` does).
 - *Datum features*: a datum feature on a pattern applying to each member is the group and the
   datum feature in one complex instance (§6.5.2); a datum feature with exactly one size
   dimension, not otherwise a tolerance's or attribute's feature, is the
@@ -903,6 +911,8 @@ U9, in the library, so its stand-ins can go:
   reported as written) are gone. Since part names are in `pmi read`'s output and `pmi check`
   holds a document to them, `pmi_json::READER` is now `haecceity-pmi-read/2` (of the committed
   fixtures only NIST STC-06 and STC-09 read differently: their names, the id for an empty name).
+  Stage 5 makes it `haecceity-pmi-read/3`: a file's surface textures are now read where they
+  were reported (no committed fixture has one, so the pinned output is otherwise unchanged).
 
 **Stage 5 (2026-10-09): the maintainer's writer decisions of 2026-10-09.** Delivered and tested
 ([decisions](#maintainer-decisions-2026-10-09)): no relationship for the symbols' draughting
@@ -913,7 +923,10 @@ value is not a Part 21 REAL).
 - *Read-back*: `a_feature_of_several_faces_has_a_usage_per_face` and
   `notes_and_surface_textures_are_standard_forms` (`pmi_write.rs`) read each write back equal as
   stated and pass `pmi::verify`; no `set_representation_item` or `item_identified_representation_usage`
-  is written, each face is identified once, and the added instances violate no rule. A remove
+  is written, each face is identified once, and the added instances violate no rule.
+  `add_composes_a_feature_of_an_aspect_of_its_faces`: an add onto a file whose plain shape
+  aspect identifies the feature's two faces by one `set_representation_item` usage composes the
+  feature of that aspect and adds no usage (per-face members would identify each face twice). A remove
   takes everything written except the micrometre unit the write added (the removal plan never
   removes units). The NIST and specify round trips (`pmi_roundtrip.rs`, 13 NIST files here) and
   the add tests are unchanged: their pins needed no update.
@@ -949,7 +962,13 @@ What was done meanwhile is in each.
    `evaluation_length`, copied); it gives a parameter no owner of its own. No practice and no
    NIST file settles them. *Meanwhile:* a plain `representation('surface texture')`, the value
    named 'characteristic value', the parameter on its texture's owner; the reader reads only
-   that. A reference file (CAx-IF or a CAD system's) would settle it.
+   that. And the mapping names the parameter's `property_definition` 'surface texture
+   parameter', while `surface_texture_representation` WR5 (one `general_property_association`
+   with the general property 'surface_condition') and `general_property_association` WR2 (the
+   derived definition's name equals the general property's) require 'surface_condition': no
+   name meets both. *Meanwhile:* 'surface_condition', so every written instance is
+   schema-valid; the reader accepts either name. A reference file (CAx-IF or a CAD system's)
+   would settle it.
 4. **The material removal condition is mandatory** (ISO 1302, ISO 10303-1110) and specify-core's
    finish ('Ra 3.2') does not state one. *Meanwhile:* the model requires it; specify-core must
    state one ('any process allowed' is ISO 1302's basic symbol, which an unqualified 'Ra 3.2'
