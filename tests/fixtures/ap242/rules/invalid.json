@@ -308,6 +308,58 @@
   {
    "id": 885,
    "rule": "item_identified_representation_usage.WR1"
+  },
+  {
+   "id": 900,
+   "rule": "surface_texture_representation.WR1"
+  },
+  {
+   "id": 900,
+   "rule": "surface_texture_representation.WR2"
+  },
+  {
+   "id": 900,
+   "rule": "surface_texture_representation.WR3"
+  },
+  {
+   "id": 900,
+   "rule": "surface_texture_representation.WR4"
+  },
+  {
+   "id": 900,
+   "rule": "surface_texture_representation.WR5"
+  },
+  {
+   "id": 912,
+   "rule": "general_property_association.WR1"
+  },
+  {
+   "id": 912,
+   "rule": "general_property_association.WR2"
+  },
+  {
+   "id": 913,
+   "rule": "general_property_association.WR1"
+  },
+  {
+   "id": 913,
+   "rule": "general_property_association.WR2"
+  },
+  {
+   "id": 914,
+   "rule": "surface_texture_representation.WR5"
+  },
+  {
+   "id": 924,
+   "rule": "mechanical_design_and_draughting_relationship.WR1"
+  },
+  {
+   "id": 925,
+   "rule": "mechanical_design_and_draughting_relationship.WR2"
+  },
+  {
+   "id": 926,
+   "rule": "mechanical_design_and_draughting_relationship.WR3"
   }
  ]
 }

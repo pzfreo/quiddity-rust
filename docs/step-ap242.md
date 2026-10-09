@@ -139,8 +139,10 @@ implemented, with the evidence found doing it; the open points are under
      general property's, so no other name is schema-valid (question 3). Checked against the
      schema (the writer's validation), `surface_texture_representation` WR1–WR5,
      `general_property_association` WR1–WR2 and the global rule
-     `restrict_representation_for_surface_condition` (`notes_and_surface_textures_are_standard_forms`:
-     `express_rules` does not evaluate them). The reader reads this form, and the parameter
+     `restrict_representation_for_surface_condition` (`notes_and_surface_textures_are_standard_forms`;
+     `express_rules` now evaluates the WHERE rules, with
+     `mechanical_design_and_draughting_relationship` WR1–WR3, on every document it checks, but
+     not the global rule). The reader reads this form, and the parameter
      named as the mapping names it; a parameter without exactly one association with
      'surface_condition' (WR5) is reported and its texture not read, as is anything else of a surface condition (direction,
      manufacturing method, machining allowance, evaluation length, filters, value ranges) is
