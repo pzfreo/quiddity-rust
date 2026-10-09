@@ -1544,11 +1544,6 @@ fn feature_definition_shapes(doc: &Document) -> Vec<u64> {
         .collect()
 }
 
-/// A part with a thread haecceity wrote is written again (specify-core-rust's U14): read back
-/// with nothing unconsumed (thread WR16's bare 'thread runout' aspect is the thread's), then
-/// replaced with other PMI and removed. Each write takes the feature definition's
-/// `product_definition_shape` with its thread, is schema- and rule-valid, and verifies
-/// (`pmi::verify`: exactly the items written, no consumed instance surviving).
 /// specify-core-rust's U14 PMI on the spool's first four free faces: an internal thread (no
 /// runout); an external thread with a runout and a straight knurl; and other PMI (a flatness)
 /// to replace either with.
