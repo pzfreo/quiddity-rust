@@ -1,5 +1,6 @@
-//! Corpus loops on every core: the corpus tests are one `#[test]` each (one list of problems,
-//! one stale-entry check), so they spread their per-file work over threads themselves.
+//! Corpus loops on every core: a corpus test (or one slice of it, `tests/support/slices.rs`) is
+//! one `#[test]` (one list of problems, one stale-entry check), so it spreads its per-file work
+//! over threads itself.
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 

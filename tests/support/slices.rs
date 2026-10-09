@@ -8,6 +8,11 @@
 //! slice reports an entry of its own files that no longer differs (or was not checked) exactly as
 //! the whole loop did. An entry naming a file in no slice (not in `corpus.json`) is slice 0's, so
 //! it is still reported.
+//!
+//! Each slice spreads its readings over every core (`common::parallel::map`), as the whole loop
+//! did, so the slices of one loop take turns: under `cargo test`, which runs a binary's tests side
+//! by side, slices at once would hold slices × cores readings, and peak memory would grow with the
+//! core count. Under `cargo nextest` each test is its own process, so the turn is always free.
 
 #![allow(dead_code)]
 
@@ -40,14 +45,18 @@ pub fn check_cover(files: &[String], n: usize) {
 /// `sliced!(name, check, [0 => slice_0, 1 => slice_1, …])`: a module *name* with one test per
 /// slice, each calling `check(k, n)` (*n* being the number of slices listed), and
 /// `slices_cover_the_corpus`, which fails unless the slices listed are exactly `0..n` and together
-/// are the corpus (`super::corpus_files()`), each file once.
+/// are the corpus (`super::corpus_files()`), each file once. The slice tests take turns (the
+/// module's doc).
 macro_rules! sliced {
     ($name:ident, $check:path, [$($k:literal => $test:ident),* $(,)?]) => {
         mod $name {
             const SLICES: usize = [$($k),*].len();
+            static TURN: std::sync::Mutex<()> = std::sync::Mutex::new(());
             $(
                 #[test]
                 fn $test() {
+                    // (A slice that failed leaves the lock poisoned; the next still runs.)
+                    let _turn = TURN.lock().unwrap_or_else(|e| e.into_inner());
                     $check($k, SLICES);
                 }
             )*
