@@ -414,7 +414,8 @@ const KNOWN_SPECIFY_CORE: [(&str, u64, &str); 8] = [
 /// The committed files (writer output, specify-core output, NIST models, the removal
 /// fixture) violate `surface_texture_representation` WR1–WR5, `general_property_association`
 /// WR1–WR2 and `mechanical_design_and_draughting_relationship` WR1–WR3 only as pinned
-/// ([`KNOWN_SPECIFY_CORE`]): the writer's output not at all. Together they hold instances of
+/// ([`KNOWN_SPECIFY_CORE`]): the writer's output not at all (`write/thumbwheel_notes_add` is
+/// an add onto specify-core's thumbwheel and keeps its instances). Together they hold instances of
 /// all three.
 #[test]
 fn committed_files_meet_the_surface_and_draughting_rules() {
@@ -452,7 +453,17 @@ fn committed_files_meet_the_surface_and_draughting_rules() {
     }
     let want: BTreeSet<(String, u64, String)> = KNOWN_SPECIFY_CORE
         .iter()
-        .map(|&(f, id, r)| (format!("specify/{f}"), id, r.to_string()))
+        .flat_map(|&(f, id, r)| {
+            let kept = (f == "thumbwheel_thread_knurl.step.gz").then(|| {
+                (
+                    "write/thumbwheel_notes_add.step.gz".to_string(),
+                    id,
+                    r.to_string(),
+                )
+            });
+            [Some((format!("specify/{f}"), id, r.to_string())), kept]
+        })
+        .flatten()
         .collect();
     assert_eq!(got, want);
     assert_eq!(held, [true; 3], "{SURFACE_AND_DRAUGHTING:?}");
