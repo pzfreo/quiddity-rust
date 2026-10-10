@@ -4,7 +4,7 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
-## 0.1.0-alpha.1 (unreleased)
+## 0.1.0-alpha.1 (2026-10-10)
 
 The first alpha: a pure-Rust port of Python quiddity's feature recognition, on haecceity, a
 B-rep kernel and STEP/AP242 library that replaces OpenCascade.
@@ -44,6 +44,9 @@ B-rep kernel and STEP/AP242 library that replaces OpenCascade.
   `recognise_placed` (recognition in the part's own frame, reported in the file's coordinates),
   `correspond` between two revisions, and a versioned recognition document
   (`quiddity-rust/recognition/2`) for draftwright.
+- **Browser builds**: haecceity runs its hidden-line work on the calling thread when no other
+  thread can be spawned (wasm32-unknown-unknown), with the same results; `HAECCEITY_THREADS`
+  caps the threads (e.g. 1 to time native work as a browser runs it).
 - **Command line** `quiddity`: `parts`, `pmi read`, `pmi check`, `pmi write` (verified by
   reading back), `correspond` and `serve`, with versioned JSON.
 
