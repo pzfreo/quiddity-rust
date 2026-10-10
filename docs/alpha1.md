@@ -7,38 +7,41 @@ recesses wired into recognition; (c) specify-core-rust's upstream needs
 (`specify-core-rust/docs/upstream-needs.md`, U1–U15) done or explicitly deferred with a reason;
 (d) CI green on Linux and macOS, each around 10 minutes.
 
-**Checked at** `bfecbc2` (origin/prototype/rust-port, 2026-10-09). Every *met* line names
+**Checked at** `15b86fc` (origin/prototype/rust-port, 2026-10-09; its code is `cfdc440`'s). Every *met* line names
 tests run green at that head: `QUIDDITY_CORPUS=… QUIDDITY_CORPUS_REQUIRED=1 cargo test
 --workspace --release` on arm64 macOS, 456 passed, 0 failed, 3 ignored (the development aids
 `export_written_files`, `dump`, `face_moment_evidence`). *In progress* names the stream whose branch
 moves the item; *deferred* names the concrete blocker. Questions for the maintainer are under
 [Questions](#questions).
 
-| Gate | Status at `bfecbc2` |
+| Gate | Status at `15b86fc` |
 |---|---|
-| (a) PMI writer decisions | **met** (cross-check of the U14/U10 written files: stream q-pmi-occt-thread-notes, merged locally as `d4e9a45`, not yet pushed) |
+| (a) PMI writer decisions | **met** |
 | (b) 46 recognisers, section recesses wired | **not met**: all 46 ported as functions; 4 not in `Features` (step levels, risers: in progress, q-land-evidence-mesh-risers; section recesses: q-section-recess-remainder and the wiring backlog item; passages: Python's result has no such field) |
 | (c) U1–U15 | **not met**: 10 met (U1, U3, U4, U5, U6, U7, U9, U10, U14, U15), U11 (a) met; 2 in progress (U2, U12); 3 deferred on a maintainer decision (U8, U11 (b), U13) |
-| (d) CI green, about 10 minutes each | **Linux met** (9.9 min), **macOS not met** (23.9 min; blocked on a runner decision); q-ci-test-cost and q-fills-at-most-callers in progress |
+| (d) CI green, about 10 minutes each | **Linux met** (11.2 min), **macOS not met** (25.0 min; blocked on a runner decision); q-ci-test-cost and q-fills-at-most-callers in progress |
 
 ## (a) PMI writer, decisions of 2026-10-09
 
 Landed by `c228f95` (stream q-pmi-writer-occt), with `express_rules` checks from `9dc29b4` and
-`60645bf`. The written files OpenCascade reads are `tests/fixtures/ap242/write/*.step.gz`, each
-with its capture `*.occt.json.gz` (`tools/check_pmi_occt.py`, specify-core's venv, OCP 7.9.3.1):
-`every_kind` and four specify-core intents written onto their corpus files
-(`assembly_plate_pin`, `spool_fits`, `string_post_tapped`, `thumbwheel_thread_knurl`). All five
-captures record `loads: true` (specify-core's `load.load_all`) and `reads: true` (XCAF).
+`60645bf`, and the cross-check of the U14/U10 written files from `d4e9a45` (stream
+q-pmi-occt-thread-notes, `b604d72`, `6e7f9d3`). The written files OpenCascade reads are
+`tests/fixtures/ap242/write/*.step.gz`, each with its capture `*.occt.json.gz` (`tools/check_pmi_occt.py`, specify-core's venv, OCP 7.9.3.1):
+`every_kind`, four specify-core intents written onto their corpus files
+(`assembly_plate_pin`, `spool_fits`, `string_post_tapped`, `thumbwheel_thread_knurl`), a written
+thread replaced and removed (`thread_replaced`, `thread_removed`; U14) and an add beside
+specify-core's notes on faces (`thumbwheel_notes_add`; U10). All eight captures record `loads: true` (specify-core's
+`load.load_all`) and `reads: true` (XCAF).
 `written_files_are_the_writers_current_output` holds the committed files to the writer's
 current bytes, so the captures are of today's output; `opencascade_reads_the_written_files`
 requires each capture to load and read, every datum to have its symbol as presentation, and
-every difference to be pinned (`known_pmi_write.json` "occt": 5, 3 rust-correct and 2
+every difference to be pinned (`known_pmi_write.json` "occt": 6, 4 rust-correct and 2
 not-applicable).
 
 - **No `mechanical_design_and_draughting_relationship` for datum feature symbols**: met.
   Read-back: `datum_feature_symbols_go_with_their_datums` (its `datum_symbols` asserts the
   symbols' draughting model is related by no such relationship). OpenCascade: every datum of
-  `every_kind` and the intents read with its symbol. None of the five written files contains
+  `every_kind` and the intents read with its symbol. None of the eight written files contains
   the entity (counted in the decompressed files).
 - **One `geometric_item_specific_usage` per face**: met. Read-back:
   `a_feature_of_several_faces_has_a_usage_per_face`, `add_composes_a_feature_of_an_aspect_of_its_faces`.
@@ -53,10 +56,12 @@ not-applicable).
   notes ('semantic text') load; XCAF shows the last only (pinned rust-correct) and has no surface
   texture (pinned not-applicable), so surface texture's cross-check is that the file loads and
   reads, not that OpenCascade reports the texture.
-- **Thread replace/remove (U14) and face notes (U10) written files**: their OpenCascade captures
-  (`thread_replaced`, `thread_removed`, `thumbwheel_notes_add`) are stream
-  q-pmi-occt-thread-notes (`b604d72`, `6e7f9d3`), merged on the local integration branch as
-  `d4e9a45` after `bfecbc2`; not at the checked head.
+- **Thread replace/remove (U14) and face notes (U10) written files**: met. `thread_replaced`,
+  `thread_removed` and `thumbwheel_notes_add` load and read; XCAF has no thread semantics, so
+  the threads' cross-check is that the files load and read. `thumbwheel_notes_add`'s callouts
+  read on the faces the reader puts each note on; its one difference is specify-core's own kept
+  Ø10 (`#651`, not written by haecceity), OpenCascade's known misread of two deviations below
+  nominal (pinned rust-correct).
 
 ## (b) Recognisers
 
@@ -94,7 +99,7 @@ Each against its "met when" in `upstream-needs.md`.
   `a_part_of_another_file_is_refused`.
 - **U2** constituent faces and pattern members: *in progress*, stream
   q-land-evidence-mesh-risers (`b332e85`, `build_recognition_evidence`: constituent and host
-  faces per accepted feature, hole-pattern members by position). At `bfecbc2` the
+  faces per accepted feature, hole-pattern members by position). At `15b86fc` the
   reconciliation is applied (`a02b758`, `reconcile.rs`) and `Inventory.constituent` holds
   candidates' constituent faces, but `Features` gives defining faces only and patterns hold
   member copies.
@@ -119,46 +124,51 @@ Each against its "met when" in `upstream-needs.md`.
   (`900c556`); `step_parts.rs` `a_wrapped_part_takes_its_assemblys_name`,
   `an_empty_product_name_is_its_id`.
 - **U10** specify-core's notes on faces: *met* (`0b56d47`); `pmi_read.rs`
-  `specify_core_notes_on_faces_are_anchored`.
+  `specify_core_notes_on_faces_are_anchored`; OpenCascade reads `thumbwheel_notes_add`
+  (`d4e9a45`, `opencascade_reads_the_written_files`).
 - **U11** face moments to 1e-6: (a) *met*, every corpus face has moments (`f0e2104`;
   `face_moments.rs` `cgb217_face_29_has_moments`). (b) *deferred*, blocked on a maintainer
   decision: `face_moments_match_opencascade_adaptive` pins 1358 faces where haecceity and
   OpenCascade's adaptive integral differ by more than 1e-6, 1345 rust-correct (an independent
   Green's-theorem integration agrees with haecceity) and 13 undetermined
-  (`known_face_moments.json`), so the "met when" as written (within 1e-6 of OpenCascade's
-  adaptive reference) cannot be met by a correct kernel.
+  (`known_face_moments.json`). The "met when" reads "within 1e-6 relative of an adaptive
+  reference"; taking that reference to be OpenCascade's `BRepGProp` integral (eps 1e-9, the one
+  its "Missing" paragraph uses), a correct kernel cannot meet it. Which reference is meant is
+  question 2; on any reading the 13 undetermined faces are open.
 - **U12** missing families: *in progress*: `step_levels` and `risers`, stream
   q-land-evidence-mesh-risers (`204b29f`); `section_recesses`, the wiring backlog item (see
   (b)).
 - **U13** simple parameter-space loops: *deferred*. cgb202 face 399 (a neck closed within
   15 µm whose samples cross on the surface) stays refused even after `352a860`; meeting it
   needs a tolerance decision (question below). The other faces U13 names (cgb242 715, 726)
-  triangulate at `bfecbc2`. Its alternative "met when", U4 met, is met: whether that closes U13
+  triangulate at `15b86fc`. Its alternative "met when", U4 met, is met: whether that closes U13
   is for specify-core-rust to state.
 - **U14** replace and remove of a written thread: *met* (`0b56d47`); `pmi_write.rs`
   `a_written_thread_is_replaced_and_removed`,
-  `removal_takes_a_feature_definitions_shape_only_with_its_feature`.
+  `removal_takes_a_feature_definitions_shape_only_with_its_feature`; `thread_replaced` and
+  `thread_removed` load and read in OpenCascade (`d4e9a45`, load and read only: XCAF has no
+  thread semantics).
 - **U15** OpenCascade crash on datum symbols: *met* for specify-core's loader by decision 1
   (`c228f95`); `opencascade_reads_the_written_files`. The crash itself is specify-core's
   `load.py` (`docs/step-ap242.md` question 1).
 
 ## (d) CI
 
-Latest run at `bfecbc2`: CI run 37995727967, green on both platforms (Linux and macOS lint,
+Latest run at `15b86fc`: CI run 38003881960, green on both platforms (Linux and macOS lint,
 build and 15 test shards each). Wall time from the first job's start to the platform's last
-job's end: **Linux 9.9 min** (build 2.7, slowest shard 7.1), **macOS 23.9 min** (build 5.0,
-shards 3.2–7.5 min each, but started in waves). The macOS figure is GitHub's limit of 5
-concurrent macOS jobs on this account over about 80 macOS runner-minutes (status round 22,
-`91a352a`): reaching about 10 minutes needs a maintainer decision (question below). Streams
+job's end: **Linux 11.2 min** (build 2.8, slowest shard 8.4), **macOS 25.0 min** (build 4.7,
+shards 3.0–8.8 min each, but started in waves). The previous run (37995727967, `bfecbc2`) took
+9.9 and 23.9. The macOS figure is GitHub's limit of 5 concurrent macOS jobs on this account
+over about 80 macOS runner-minutes (status round 22, `91a352a`): reaching about 10 minutes needs a maintainer decision (question below). Streams
 q-ci-test-cost and q-fills-at-most-callers are reducing test cost meanwhile.
 
 ## Questions
 
 1. **macOS CI time** (gate d): a higher-concurrency plan, larger paid macOS runners or another
-   provider, or accept about 24 minutes for alpha 1?
-2. **U11 (b)'s reference**: restate "met when" against a correct reference (OpenCascade's
-   adaptive integral is the inaccurate side on 1345 faces), and treat the 13 undetermined faces
-   as known limitations?
+   provider, or accept about 25 minutes for alpha 1?
+2. **U11 (b)'s reference**: is the "adaptive reference" OpenCascade's `BRepGProp` integral (the
+   inaccurate side on 1345 faces) or an independent one (Green's-theorem integration agrees with
+   haecceity there)? And are the 13 undetermined faces known limitations for alpha 1?
 3. **U13, cgb202 face 399**: refuse the face (as now), or adopt a tolerance under which a neck
    closed within 15 µm is meshed?
 4. **U8**: `docs/step-ap242.md` question 6 (where the pitch goes; what 'number of threads'

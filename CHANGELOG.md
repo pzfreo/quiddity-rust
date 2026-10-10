@@ -62,10 +62,10 @@ B-rep kernel and STEP/AP242 library that replaces OpenCascade.
   (`GLOBAL_RULES`); it is not a general EXPRESS rule engine.
 - Face triangulation refuses 21 corpus faces and the face anchor 4, each pinned in
   `crates/haecceity/tests/mesh.rs` and `anchor.rs`.
-- Face moments differ from OpenCascade's adaptive integral by more than 1e-6 on 1358 faces
+- Face moments differ from OpenCascade's adaptive integral (`BRepGProp`) by more than 1e-6 on 1358 faces
   (1345 rust-correct, 13 undetermined; `known_face_moments.json`).
 - 13975's and 14052's local-degradation retry is not ported: their section-recess documents
   are refused where Python publishes (rust-wrong, `section_recesses/known_differences.json`).
 - Every other difference from Python is listed with a verdict in the known-differences files
   the README's table names.
-- CI on macOS takes about 24 minutes (GitHub's 5 concurrent macOS jobs); Linux about 10.
+- CI on macOS takes about 25 minutes (GitHub's 5 concurrent macOS jobs); Linux about 10.
