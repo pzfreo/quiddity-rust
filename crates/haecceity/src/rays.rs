@@ -72,6 +72,10 @@ pub struct RayCaster<'a> {
     /// Per part face: a box that certainly contains it (freeform faces use their control points).
     pub(super) face_boxes: Vec<Bounds>,
     pub(super) edge_boxes: Vec<Bounds>,
+    /// Per part edge: the box of each run of [`RUN`] polyline segments, padded by
+    /// [`run_slack`], so that a search near an edge skips the runs out of reach
+    /// ([`Self::polyline_within`]).
+    edge_runs: Vec<Vec<Bounds>>,
     root: Node,
     pub(super) root_box: Bounds,
     /// A hit this close to a face's boundary is on the boundary. It exceeds the edges' polyline
@@ -114,6 +118,7 @@ impl<'a> RayCaster<'a> {
                 b
             })
             .collect();
+        let edge_runs = part.edges.iter().map(|e| runs(&e.samples)).collect();
         let mut root_box = Bounds::empty();
         for &f in &faces {
             root_box.merge(&face_boxes[f]);
@@ -125,6 +130,7 @@ impl<'a> RayCaster<'a> {
             faces,
             face_boxes,
             edge_boxes,
+            edge_runs,
             root,
             root_box,
             edge_tol,
@@ -181,7 +187,7 @@ impl<'a> RayCaster<'a> {
                             unanswered = true;
                             continue;
                         };
-                        let met = ts.into_iter().filter(|&(t, _)| t > t_min).any(|(t, uv)| {
+                        let met = ts.iter().filter(|&(t, _)| t > t_min).any(|(t, uv)| {
                             self.contact(i, geom::add(origin, geom::scale(dir, t)), uv, false)
                                 .is_some()
                         });
@@ -268,7 +274,7 @@ impl<'a> RayCaster<'a> {
                         let (ts, tangent) =
                             surface_hits(&self.part.faces[i].surface, origin, dir, t_max)?;
                         in_surface |= tangent && ts.is_empty();
-                        for (t, uv) in ts {
+                        for (t, uv) in ts.iter() {
                             let q = geom::add(origin, geom::scale(dir, t));
                             if let Some(contact) = self.contact(i, q, uv, true)
                                 && !self.overshoots(i, q)
@@ -288,6 +294,9 @@ impl<'a> RayCaster<'a> {
         }
         let order = |a: &Hit, b: &Hit| a.t.total_cmp(&b.t).then(a.face.cmp(&b.face));
         out.sort_by(|a, b| order(&a.hit, &b.hit));
+        if !out.iter().any(|c| matches!(c.contact, Contact::Band(..))) {
+            return Some((out, in_surface));
+        }
         let edge_faces = self.part.edge_faces();
         let (mut kept, banded): (Vec<Crossing>, Vec<Crossing>) = out
             .into_iter()
@@ -382,6 +391,13 @@ impl<'a> RayCaster<'a> {
         })
     }
 
+    /// Whether edge *e*'s polyline passes within *reach* of *q*: `polyline_distance(q, samples)
+    /// <= reach`, the same distances compared.
+    fn polyline_within(&self, e: usize, q: V3, reach: f64) -> bool {
+        segments_near(&self.part.edges[e].samples, &self.edge_runs[e], q, reach)
+            .any(|w| point_segment_distance(q, w[0], w[1]) <= reach)
+    }
+
     /// Whether a point on face *i*'s surface lies on the face: inside its trim, on its boundary
     /// or in the band of an edge that strays from its surface.
     pub(super) fn claims(&self, i: usize, q: V3) -> bool {
@@ -464,7 +480,7 @@ impl<'a> RayCaster<'a> {
             let edge = &part.edges[e];
             // The polyline strays from the curve by less than the edge tolerance.
             let find = self.edge_tol + crack;
-            if !self.edge_boxes[e].contains(q, find) || polyline_distance(q, &edge.samples) > find {
+            if !self.edge_boxes[e].contains(q, find) || !self.polyline_within(e, q, find) {
                 continue;
             }
             // The polyline only finds the edges near; the distance that decides is the curve's,
@@ -494,7 +510,15 @@ impl<'a> RayCaster<'a> {
         }
         if let Some(uv) = uv {
             for &(e, c, reach) in &near {
-                if misplaces(surface, q, uv, &part.edges[e].samples, c, reach) {
+                if misplaces(
+                    surface,
+                    q,
+                    uv,
+                    &part.edges[e].samples,
+                    &self.edge_runs[e],
+                    c,
+                    reach,
+                ) {
                     inside = !inside;
                 }
             }
@@ -519,23 +543,40 @@ type SurfaceHit = (f64, Option<(f64, f64)>);
 /// sample of a folded surface (cgb243's combs, faces 225, 223, 238 and 239) the inversion can
 /// settle on a boundary 1.3 to 1.5 mm from the point, and the trim test then misses a crossing
 /// well inside the face.
-fn surface_hits(
-    surface: &Surface,
-    origin: V3,
-    dir: V3,
-    t_max: f64,
-) -> Option<(Vec<SurfaceHit>, bool)> {
+fn surface_hits(surface: &Surface, origin: V3, dir: V3, t_max: f64) -> Option<(SurfaceHits, bool)> {
     if let Surface::Freeform { surface, .. } = surface {
-        let (hits, grazing) = surface.ray_hits(origin, dir, t_max);
-        let hits = hits
-            .into_iter()
-            .filter(|&(t, _, _)| t > 1e-12 && t <= t_max)
-            .map(|(t, u, v)| (t, Some((u, v))))
-            .collect();
-        return Some((hits, grazing));
+        let (mut hits, grazing) = surface.ray_hits(origin, dir, t_max);
+        hits.retain(|&(t, _, _)| t > 1e-12 && t <= t_max);
+        return Some((SurfaceHits::Freeform(hits), grazing));
     }
     let (ts, tangent) = surface.ray_hits(origin, dir, t_max)?;
-    Some((ts.into_iter().map(|t| (t, None)).collect(), tangent))
+    Some((SurfaceHits::Analytic(ts), tangent))
+}
+
+/// A surface's hits as the intersection returns them, read as [`SurfaceHit`]s without copying
+/// them: a ray meets a great many surfaces.
+enum SurfaceHits {
+    Analytic(Vec<f64>),
+    Freeform(Vec<(f64, f64, f64)>),
+}
+
+impl SurfaceHits {
+    fn is_empty(&self) -> bool {
+        match self {
+            SurfaceHits::Analytic(ts) => ts.is_empty(),
+            SurfaceHits::Freeform(hits) => hits.is_empty(),
+        }
+    }
+
+    fn iter(&self) -> impl Iterator<Item = SurfaceHit> + '_ {
+        let (ts, hits): (&[f64], &[(f64, f64, f64)]) = match self {
+            SurfaceHits::Analytic(ts) => (ts, &[]),
+            SurfaceHits::Freeform(hits) => (&[], hits),
+        };
+        ts.iter()
+            .map(|&t| (t, None))
+            .chain(hits.iter().map(|&(t, u, v)| (t, Some((u, v)))))
+    }
 }
 
 /// Whether a surface is analytic (exact), not a B-spline that may approximate a neighbour.
@@ -570,7 +611,15 @@ fn nearest_on_edge(edge: &Edge, q: V3) -> (V3, bool) {
 /// way from *q* through *c*, the curve's nearest point, to *beyond* past it crosses the curve
 /// once, and must cross the polyline an odd number of times too. Only segments within the
 /// length of that way of *q* can cross it.
-fn misplaces(surface: &Surface, q: V3, uv: (f64, f64), samples: &[V3], c: V3, beyond: f64) -> bool {
+fn misplaces(
+    surface: &Surface,
+    q: V3,
+    uv: (f64, f64),
+    samples: &[V3],
+    runs: &[Bounds],
+    c: V3,
+    beyond: f64,
+) -> bool {
     let (pu, pv) = surface.periodic();
     let at = |p: V3| {
         surface.parameters(p, Some(uv)).map(|(u, v)| {
@@ -593,7 +642,7 @@ fn misplaces(surface: &Surface, q: V3, uv: (f64, f64), samples: &[V3], c: V3, be
     let side = |p: (f64, f64)| way.0 * (p.1 - uv.1) - way.1 * (p.0 - uv.0);
     let along = |p: (f64, f64)| way.0 * (p.0 - uv.0) + way.1 * (p.1 - uv.1);
     let mut crossings = 0;
-    for w in samples.windows(2) {
+    for w in segments_near(samples, runs, q, d + beyond) {
         if point_segment_distance(q, w[0], w[1]) > d + beyond {
             continue;
         }
@@ -613,6 +662,49 @@ fn misplaces(surface: &Surface, q: V3, uv: (f64, f64), samples: &[V3], c: V3, be
         }
     }
     crossings % 2 == 0
+}
+
+/// How many polyline segments a box of [`RayCaster::edge_runs`] holds.
+const RUN: usize = 8;
+
+/// The boxes of a polyline's runs of [`RUN`] segments, each padded by [`run_slack`]: a
+/// segment's computed distance from a point outside a box so grown by a reach exceeds the
+/// reach, whatever the rounding of the nearest point and its distance.
+fn runs(samples: &[V3]) -> Vec<Bounds> {
+    (0..samples.len().saturating_sub(1).div_ceil(RUN))
+        .map(|r| {
+            let mut b = Bounds::empty();
+            samples[r * RUN..samples.len().min(r * RUN + RUN + 1)]
+                .iter()
+                .for_each(|p| b.add(*p));
+            let slack = run_slack(&b);
+            Bounds {
+                min: b.min.map(|x| x - slack),
+                max: b.max.map(|x| x + slack),
+            }
+        })
+        .collect()
+}
+
+/// The padding of a run's box: far beyond the rounding of a nearest point on its segments
+/// (a few units in the last place of its coordinates) and of a distance from it.
+fn run_slack(b: &Bounds) -> f64 {
+    let size = (0..3).fold(0.0f64, |m, k| m.max(b.min[k].abs()).max(b.max[k].abs()));
+    1e-9 * (1.0 + size)
+}
+
+/// A polyline's segments (as sample pairs, in order) but for the runs whose box (of [`runs`])
+/// leaves *q* out by more than *reach*: those segments all lie further than *reach* from it.
+fn segments_near<'s>(
+    samples: &'s [V3],
+    runs: &'s [Bounds],
+    q: V3,
+    reach: f64,
+) -> impl Iterator<Item = &'s [V3]> {
+    runs.iter()
+        .enumerate()
+        .filter(move |(_, b)| b.contains(q, reach))
+        .flat_map(move |(r, _)| samples[r * RUN..samples.len().min(r * RUN + RUN + 1)].windows(2))
 }
 
 /// The distance from *p* to a polyline.
@@ -850,6 +942,29 @@ mod tests {
         let o = geom::sub(touch, geom::scale(along, 3.0));
         assert_eq!(rays.any_hit(o, along, 0.0, 6.0), Some(true));
         assert_eq!(rays.crossing_count(o, along, 6.0), None);
+    }
+
+    #[test]
+    fn the_runs_skip_only_segments_out_of_reach() {
+        // Every edge of the bored box, from points about and on it, at reaches from rounding
+        // to the box's size: the runs give the answer the whole polyline does.
+        let (part, centre, ..) = bore_rim();
+        let rays = RayCaster::for_solid(&part, 0);
+        for (e, edge) in part.edges.iter().enumerate() {
+            let probes = edge.samples.iter().flat_map(|&p| {
+                [0.0, 1e-7, 0.3, 2.0].map(|k| geom::add(p, geom::scale(geom::sub(p, centre), k)))
+            });
+            for q in probes.chain([centre, [20.0, -3.0, 4.0]]) {
+                let d = polyline_distance(q, &edge.samples);
+                for reach in [1e-12, 1e-7, 0.01, 0.5, 3.0, 50.0, d, d * (1.0 - 1e-15)] {
+                    assert_eq!(
+                        rays.polyline_within(e, q, reach),
+                        d <= reach,
+                        "{e} {q:?} {reach}"
+                    );
+                }
+            }
+        }
     }
 
     #[test]
