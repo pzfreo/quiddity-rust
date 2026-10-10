@@ -648,5 +648,68 @@
       "freeform_surfaces/98"
     ],
     "faces": 0
+  },
+  {
+    "test": "revisions",
+    "case": "hole_moved",
+    "check": "other step_levels/0: carried",
+    "verdict": "rust-correct",
+    "reason": "The plate's top (z 10) is the step level's defining face (an interior level: the boss rises above it), and the revision moves a hole in that face, so the level's faces' centroid changed: adapted, partner its own level, is the class the change deserves. The test's default for unnamed features (carried) assumes their faces are untouched."
+  },
+  {
+    "test": "revisions",
+    "case": "boss_resized",
+    "check": "other step_levels/0: carried",
+    "verdict": "rust-correct",
+    "reason": "The plate's top (z 10) is the step level's defining face (an interior level: the boss rises above it), and the revision widens the boss standing on that face, so the level's faces' centroid changed: adapted, partner its own level, is the class the change deserves. The test's default for unnamed features (carried) assumes their faces are untouched."
+  },
+  {
+    "test": "revisions",
+    "case": "hole_added",
+    "check": "other step_levels/0: carried",
+    "verdict": "rust-correct",
+    "reason": "The plate's top (z 10) is the step level's defining face (an interior level: the boss rises above it), and the revision adds a hole through that face, so the level's faces' centroid and neighbourhood (the new hole's cylinder) changed: adapted, partner its own level, is the class the change deserves. The test's default for unnamed features (carried) assumes their faces are untouched."
+  },
+  {
+    "test": "revisions",
+    "case": "hole_removed",
+    "check": "other step_levels/0: carried",
+    "verdict": "rust-correct",
+    "reason": "The plate's top (z 10) is the step level's defining face (an interior level: the boss rises above it), and the revision removes a hole from that face, so the level's faces' centroid and neighbourhood (the removed hole's cylinder) changed: adapted, partner its own level, is the class the change deserves. The test's default for unnamed features (carried) assumes their faces are untouched."
+  },
+  {
+    "test": "revisions",
+    "case": "boss_removed",
+    "check": "other step_levels/0: carried",
+    "verdict": "rust-correct",
+    "reason": "Without the boss the plate's top (z 10) is the solid's top, outside the end margin (bounded_end_margin), so the revised part has no step level there: the old level has no counterpart, and orphaned is right. The test's default for unnamed features (carried) does not hold for a feature the removed boss made."
+  },
+  {
+    "test": "revisions",
+    "case": "whole_part_moved",
+    "check": "other step_levels/0: carried",
+    "verdict": "not-applicable",
+    "reason": "The whole part is turned (Rot(90, 0, 90): the file's z becomes horizontal). Caller-space recognition reads step levels and risers along world Z by specification (quiddity.levels; tests/invariance.rs WORLD_Z), so the turned part's are other faces' readings: the old level has no counterpart and the turned part's vertical walls give a riser. Not a correspondence question."
+  },
+  {
+    "test": "revisions",
+    "case": "whole_part_moved",
+    "check": "other new risers/0",
+    "verdict": "not-applicable",
+    "reason": "The whole part is turned (Rot(90, 0, 90): the file's z becomes horizontal). Caller-space recognition reads step levels and risers along world Z by specification (quiddity.levels; tests/invariance.rs WORLD_Z), so the turned part's are other faces' readings: the old level has no counterpart and the turned part's vertical walls give a riser. Not a correspondence question."
+  },
+  {
+    "test": "revisions",
+    "case": "part_and_hole_moved",
+    "check": "other step_levels/0: carried",
+    "verdict": "not-applicable",
+    "reason": "The whole part is turned (Rot(90, 0, 90): the file's z becomes horizontal). Caller-space recognition reads step levels and risers along world Z by specification (quiddity.levels; tests/invariance.rs WORLD_Z), so the turned part's are other faces' readings: the old level has no counterpart and the turned part's vertical walls give a riser. Not a correspondence question."
+  },
+  {
+    "test": "revisions",
+    "case": "part_and_hole_moved",
+    "check": "other new risers/0",
+    "verdict": "not-applicable",
+    "reason": "The whole part is turned (Rot(90, 0, 90): the file's z becomes horizontal). Caller-space recognition reads step levels and risers along world Z by specification (quiddity.levels; tests/invariance.rs WORLD_Z), so the turned part's are other faces' readings: the old level has no counterpart and the turned part's vertical walls give a riser. Not a correspondence question."
   }
 ]

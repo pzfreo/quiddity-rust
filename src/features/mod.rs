@@ -105,8 +105,7 @@ use crate::kernel::brep::Part;
 /// Every ported family's records for one part, computed in one run that shares its analysis.
 /// [`recognise`] gives the records the Python aggregate's cross-family reconciliation
 /// (`_reconcile_existing`, [`reconcile`]) accepts, with patterns derived from accepted members
-/// only; [`inventory`] keeps every candidate and the decisions. Face levels and risers are
-/// measurements with no evidence path yet, so they are called on their own.
+/// only; [`inventory`] keeps every candidate and the decisions.
 #[derive(Clone, Debug, Serialize)]
 pub struct Features {
     pub fillets: Vec<fillets::Fillet>,
@@ -154,6 +153,12 @@ pub struct Features {
     pub oriented_slots: Vec<oriented_slots::OrientedSlot>,
     pub oriented_slot_patterns: Vec<oriented_slots::OrientedSlotPattern>,
     pub pads: Vec<pads::RaisedPad>,
+    /// The aggregate's step levels (`RecognitionResult.step_levels`, `_discover_step_levels`),
+    /// unproved like every family here (Python's proof: [`levels::proved`]).
+    pub step_levels: Vec<levels::FaceLevel>,
+    /// The aggregate's risers (`RecognitionResult.risers`, `_discover_risers`), less those
+    /// reconciliation rejects for a thin-wall body.
+    pub risers: Vec<levels::RiserEvidence>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole, gusset rib, slot, pocket and oriented slot patterns) have none of their own: their
     /// members' faces are theirs ([`crate::correspondence`]).
@@ -230,8 +235,13 @@ impl Inventory {
                 F::Pockets => drop_rejected(&mut f.pockets, indices),
                 F::PrismaticPockets => drop_rejected(&mut f.prismatic_pockets, indices),
                 F::RectangularBlindSlots => drop_rejected(&mut f.rectangular_blind_slots, indices),
-                // Risers are not carried (they are called on their own).
-                F::Risers => continue,
+                F::Risers => {
+                    // Not a reconciliation field (`Family::field`), so dropped here.
+                    drop_rejected(&mut f.risers, indices);
+                    let defining = f.defining.get_mut("risers").expect("risers are carried");
+                    drop_rejected(defining, indices);
+                    continue;
+                }
                 F::Slots => drop_rejected(&mut f.slots, indices),
                 F::ThinWallBodies => drop_rejected(&mut f.thin_wall_bodies, indices),
                 F::TurnedSteps => drop_rejected(&mut f.turned_steps, indices),
@@ -298,6 +308,13 @@ pub(crate) fn inventory_in(ctx: &Context<'_>) -> Result<Inventory, reconcile::Re
         "freeform_surfaces",
         freeform_surfaces::discover(ctx, &thin_wall_bodies),
     );
+    let step_level_occurrences = levels::discover_step_levels(ctx);
+    let risers = kept(
+        &mut defining,
+        "risers",
+        levels::discover_risers(ctx, &step_level_occurrences),
+    );
+    let step_levels = kept(&mut defining, "step_levels", step_level_occurrences);
     let physical = Features {
         fillets: kept(
             &mut defining,
@@ -426,8 +443,13 @@ pub(crate) fn inventory_in(ctx: &Context<'_>) -> Result<Inventory, reconcile::Re
             pads::discover(ctx, &Default::default())
                 .unwrap_or_else(|e| panic!("rectangular pads refused: {e}")),
         ),
+        step_levels,
+        risers,
         defining: defining.defining,
     };
+    // The thin-wall rule reads the risers this inventory carries, in its order.
+    let mut evidence = evidence;
+    evidence.risers = physical.defining["risers"].clone();
     let dispositions = reconcile::reconcile(&physical, &evidence)?;
     Ok(Inventory {
         physical,

@@ -574,6 +574,21 @@ impl Part {
             let mut points: Vec<V3> = Vec::new();
             let mut firsts = Vec::with_capacity(lp.edges.len());
             let mut origin: Vec<(usize, usize)> = Vec::new();
+            // A point on a B-spline side collapsed to a point has its parameter along the side
+            // wherever its own seed left it: followed on from, it would start the next sample's
+            // inversion anywhere along that side, where the surface's derivative along it
+            // vanishes and the search can stall on the side, far from the sample (cgb202 face
+            // 1034's samples beside its apex stopped there 0.05 mm off). The next sample is
+            // inverted from seeds beside the side instead (`beside_collapsed`).
+            let collapsed = crate::mass::collapsed_sides(&f.surface);
+            let on_collapsed = |q: (f64, f64)| {
+                let on = |c: Option<f64>, x: f64| c.is_some_and(|c| (x - c).abs() <= 1e-9);
+                on(collapsed.0, q.0) || on(collapsed.1, q.1)
+            };
+            let invert = |p: V3, hint: Option<(f64, f64)>| match hint {
+                Some(q) if on_collapsed(q) => beside_collapsed(&f.surface, p, collapsed),
+                _ => f.surface.parameters(p, hint),
+            };
             for (place, &(e, forward)) in lp.edges.iter().enumerate() {
                 firsts.push(raw.len());
                 let samples = &self.edges[e].samples;
@@ -585,8 +600,7 @@ impl Part {
                     Box::new(samples.iter().rev())
                 };
                 for p in ordered {
-                    let hint = raw.last().copied();
-                    raw.push(f.surface.parameters(*p, hint)?);
+                    raw.push(invert(*p, raw.last().copied())?);
                     points.push(*p);
                 }
             }
@@ -596,7 +610,7 @@ impl Part {
             if !pu && !pv && raw.len() > 2 {
                 let mut hint = raw[raw.len() - 1];
                 for k in 0..raw.len() - 1 {
-                    let again = f.surface.parameters(points[k], Some(hint))?;
+                    let again = invert(points[k], Some(hint))?;
                     let same = (again.0 - raw[k].0).abs() + (again.1 - raw[k].1).abs() < 1e-9;
                     raw[k] = again;
                     hint = again;
@@ -1195,6 +1209,41 @@ fn route_collapsed_sides(surface: &Surface, points: &[V3], raw: &mut [(f64, f64)
             }
         }
     }
+}
+
+/// *p*'s parameters on a B-spline surface with a side *collapsed* to a point (`collapsed_sides`),
+/// found with no point to follow on from: the best of an unhinted inversion and inversions seeded
+/// a hundredth of the range inside each collapsed side, at seventeen places along it. Seeded on
+/// the side itself (or at a grid node there, as the unhinted inversion may be) the search cannot
+/// leave it, the surface's derivative along the side being zero.
+fn beside_collapsed(
+    surface: &Surface,
+    p: V3,
+    collapsed: (Option<f64>, Option<f64>),
+) -> Option<(f64, f64)> {
+    let mut best = surface.parameters(p, None)?;
+    let Surface::Freeform { surface: nurbs, .. } = surface else {
+        return Some(best);
+    };
+    let (u0, u1, v0, v1) = nurbs.domain();
+    let off = |q: (f64, f64)| geom::dist(surface.value(q.0, q.1), p);
+    let mut residual = off(best);
+    let inside = |c: f64, lo: f64, hi: f64| c + 0.01 * (hi - lo) * if c <= lo { 1.0 } else { -1.0 };
+    for k in 0..=16 {
+        let t = k as f64 / 16.0;
+        let seeds = [
+            collapsed.0.map(|c| (inside(c, u0, u1), v0 + t * (v1 - v0))),
+            collapsed.1.map(|c| (u0 + t * (u1 - u0), inside(c, v0, v1))),
+        ];
+        for seed in seeds.into_iter().flatten() {
+            let q = surface.parameters(p, Some(seed))?;
+            let d = off(q);
+            if d < residual {
+                (best, residual) = (q, d);
+            }
+        }
+    }
+    Some(best)
 }
 
 /// Whether the face reaches the singular point (pole or apex) at *v*: the point is a whole

@@ -20,7 +20,8 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 | Hole patterns | `recognise_hole_patterns` | 470/470 | 0 | 99/100 (1 known) |
 | Oriented chamfers | `recognise_oriented_chamfers` | 15/15 | 0 | 100/100 |
 | Face levels | `recognise_face_levels` | 36/36 | 0 | — |
-| Risers | `recognise_risers` | 66/66 | 0 | — |
+| Step levels (aggregate) | `_discover_step_levels` | — | — | 89/100 (11 known) |
+| Risers | `recognise_risers` | 66/66 | 0 | 94/100 (6 known, aggregate) |
 | Circular face patterns | `recognise_circular_face_patterns` | 5/5 | 0 | 99/100 (1 known) |
 | Thin-wall bodies | `recognise_thin_wall_bodies` | 10/14 (4 known divergences) | 0 | 97/100 (3 known) |
 | Interior voids | `recognise_interior_voids` | 6/6 | 2 | 98/100 (2 known) |
@@ -66,17 +67,19 @@ them test ids changes the call content, not only the skips (4210 calls against 2
 old call identities gone, 5 shared calls with different Python answers), so it needs every
 family re-verified; whether to do that or to recapture family by family over each family's own
 test files is not decided. *Corpus runs*: runs whose records match Python's over the 100-file
-corpus in `tests/corpus.rs` (one per file and option set; face levels and risers are not in the
-corpus export). Every difference, in records, defining faces or kernel answers, is listed with
-its verdict and reason in a verdict file:
+corpus in `tests/corpus.rs` (one per file and option set; face levels, step levels and risers are
+not in the corpus export: step levels and the aggregate's risers are compared part by part in
+`tests/step_levels.rs` against `tools/capture_step_levels.py`'s capture). Every difference, in
+records, defining faces or kernel answers, is listed with its verdict and reason in a verdict
+file:
 
 | Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
 |---|---|---|---|---|---|---|---|
 | `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 136 (903 problems) | 109 | 4 | 22 | 0 | 1 |
 | `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 39 (40 calls) | 4 | 1 | 3 | 3 | 28 |
-| `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 21 | 0 | 21 | 0 | 0 | 0 |
+| `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 22 | 0 | 22 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
-| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 35 | 9 | 26 | 0 | 0 | 0 |
+| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 44 | 14 | 26 | 0 | 0 | 4 |
 | `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 8 (20 probes) | 7 | 0 | 0 | 0 | 1 |
 | `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 63 | 58 | 0 | 0 | 1 | 4 |
 | `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 40 | 5 | 0 | 2 | 0 | 33 |
@@ -91,7 +94,9 @@ its verdict and reason in a verdict file:
 | `tests/fixtures/captured/outer_profiles/known_differences.json` | `tests/outer_profiles.rs` | 6 (2168 faces) | 6 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 116 (2894 answers) | 98 | 6 | 0 | 9 | 3 |
 | `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 7 | 3 | 1 | 0 | 0 | 3 |
+| `tests/fixtures/captured/step_levels/known_differences.json` | `tests/step_levels.rs` | 71 | 56 | 11 | 4 | 0 | 0 |
 | `tests/fixtures/captured/reconcile/known.json` | `tests/reconcile.rs` | 35 (0 decisions, 9 accepted, 26 motions) | 4 | 9 | 0 | 0 | 22 |
+| `tests/fixtures/captured/recognition_evidence/known_differences.json` | `tests/recognition_evidence.rs` | 83 (36 features, 1 candidate, 2 errors, 44 motions) | 36 | 46 | 0 | 0 | 1 |
 | `tests/fixtures/known_face_sources.json` | `crates/haecceity/tests/face_sources.rs` | 134 | 90 | 0 | 0 | 43 | 1 |
 | `tests/fixtures/known_pmi.json` "nist" | `crates/haecceity/tests/pmi_read.rs` | 74 | 65 | 0 | 9 | 0 | 0 |
 | `tests/fixtures/known_pmi.json` "occt" | `crates/haecceity/tests/pmi_read.rs` | 403 | 402 | 1 | 0 | 0 | 0 |
@@ -163,9 +168,29 @@ oriented-slot passages, thin walls) is ported (`src/features/reconcile.rs`) and 
 the caller-space and default recognitions, the recognition document and correspondence) drops
 every rejected candidate with its defining faces and derives hole, slot, pocket, gusset-rib and
 oriented-slot patterns from accepted members only, as Python's `_take_inventory_once` does.
-Reconciliation adds no records (step levels and risers are physical families in Python, not
-derived from it), so the document keeps its shape (`recognition/2`); a reconciliation refusal
-panics, as the passages' does. `tools/capture_reconcile.py` records
+Reconciliation adds no records, so the document keeps its shape (`recognition/2`); a
+reconciliation refusal panics, as the passages' does. Step levels and risers, physical families in
+Python's aggregate, are carried in `Features` (`step_levels`, `risers`, with their defining
+faces): `levels::discover_step_levels` (`_discover_step_levels`: each solid's area-filtered
+horizontal face levels strictly inside `bounded_end_margin` of its height) and
+`levels::discover_risers` (`_discover_risers`, each riser carrying its solid's step levels), and
+the thin-wall rule rejects risers from that list, so `recognise` drops them. `levels::proved` is
+Python's proof of either (strictly a refusal when one has no valid solid, under local degradation
+a skip); `features::inventory`, like every family there, publishes them unproved (the retry
+question above). `tests/step_levels.rs` compares, part by part over the corpus, the public
+`step_level_records`, the proposals with their faces and proofs, the proved aggregate and what
+`inventory` and `recognise` carry: 378 Python step levels, 316 identical on 89 parts, the other
+62 (11 parts) differing in the body key alone (solid masses and BRepCheck, as for other families)
+but for 13975's two, which Python's retry skips; 134 Python risers (124 accepted, 10 rejected),
+118 identical, 16 differing on 6 parts (two coplanar faces of one ramp Python splits by 1e-11 of
+round-off, rust-correct; cgb207's body key; 13975's skip). The recognition document carries both
+families, as Python's document does (`FaceLevel`, `RiserEvidence`; still `recognition/2`, the
+change being additive). They are read along a z axis by specification: in the default document
+the frame's, which is not the file's z on 72 of the corpus parts with either family, so there
+their z-dependent fields are listed `local` and they hold other faces than caller-space
+recognition's
+(`known_framed_document.json`, not-applicable); caller-space correspondence leaves them out of
+the motions that turn z (`tests/correspondence.rs`). `tools/capture_reconcile.py` records
 every disposition Python's default inventory makes over the corpus, local-degradation retry
 included (`captured/reconcile/capture.json.gz`): 261 decisions on 62 of 100 parts (127 blends
 superseded by fillets, 27 bosses by turned steps, 27 rings by pockets, 24 fillets by circular
@@ -191,8 +216,8 @@ not the file's axes, other fillets, so it keeps 16 blends caller space rejects a
 caller space keeps; on cgb217 no turned step for one boss; on 10060 and 10103 an edge-open
 circular pocket that rejects one pocket each. No pattern changes. `tests/recognition.rs` checks
 that no rejected candidate is in `recognise` or the document on parts where every rejecting rule
-the corpus reaches fires, and that a pattern loses a member reconciliation rejects. Risers, which
-`recognise` does not run, are found for the thin-wall rule with the aggregate's options.
+the corpus reaches fires, and that a pattern loses a member reconciliation rejects. The thin-wall
+rule reads the risers `inventory` carries.
 
 The kernel also answers the questions the unported families ask of OpenCascade's booleans,
 checked against every one Python asks over the corpus: the volume a probe shares with a solid
@@ -347,6 +372,43 @@ one shell, which STEP export writes as two. Open question for the maintainer: wh
 recognition document (`quiddity-rust/recognition/2`) should carry outer profiles; Python's
 document does not, and they are not in it.
 
+The recognition evidence view (`quiddity.evidence.build_recognition_evidence`) is
+`evidence_view::build_recognition_evidence(part)` over `features::inventory` and its
+reconciliation: per accepted feature, its family, record, defining faces, constituent faces (a
+hole's bore and floor, its counterbore faces), instance groups, host faces (Python's
+`_axial_host_nodes` for holes and bosses) and, for a hole pattern, its member features by
+position (not copies); and the candidate projection (every rejected candidate and, transitively,
+those it is related to) with outcome, reason, defining and constituent faces and related
+candidates. Step levels and risers come from the inventory like every physical family; the
+section recesses and their refusals follow the physical families, as in Python, from
+`section_recess_projection` (a second recognition of the part), each with its record's own
+defining and constituent faces. Python's opaque references are plain indices: faces into
+`part.faces`, features and candidates into the view's own lists. Constituent faces come from the
+families' occurrences (found again on a second run context and checked against the inventory's
+defining faces), the pockets' reconciliation evidence and the section passages' ring proposals;
+the circular face patterns' groups from `circular_face_patterns::discover_with_groups`. The
+planar outer profile is read per face through the view, as Python's is.
+`tools/capture_evidence.py` records Python's view over the corpus
+(`captured/recognition_evidence/capture.json.gz`: 4308 features, among them 378 step levels and
+302 section recesses and refusals; 489 projected candidates, 255 rejected), and
+`tests/recognition_evidence.rs` compares them keyed by family and defining faces: every
+constituent, host, group and member set and every candidate agrees, but for 36 feature, 1
+candidate and 2 refusal differences: the accepted-record differences
+`captured/reconcile/known.json` already explains (Python's local-degradation retry on cgb202, cgb
+holes' spotfaces and drilling ends, GRM-03's plate), four parts where Python keeps two risers
+apart by OpenCascade's bounding-box round-off (rust-correct), the 15 nist open channels whose
+closed run end the port's volume probe measures (rust-correct), and 13975 and 14052, where
+Python's local-degradation retry (not ported) lets its projection through and the port's
+projection refuses the whole recognition with Python's message, so the view refuses too
+(rust-wrong; `captured/section_recesses/known_differences.json` gives the same verdicts). Not
+ported: the association coverage, the bounded report (`RecognitionReport`, `feature_census`) and
+the framed view. Under two rigid motions the view's faces are unchanged but for 44 differences:
+bosses whose ends classify alike take the high end as free (constituent and host faces flip;
+Python behaves the same), and the families' own invariance exceptions (`known_invariance.json`;
+on 163 the pocket tie moves its section-recess refusal's defining faces too). The view is not in
+the recognition document, and the section recesses are not in `Features` or the document (open
+maintainer questions).
+
 For draftwright-rust, the kernel draws a part's views without OpenCascade's hidden-line
 algorithm or booleans (`crates/haecceity/src/hlr.rs`): every visible and hidden edge and
 silhouette, and a section view's kept half and cut outline. `crates/haecceity/tests/drawings.rs` checks them
@@ -386,7 +448,8 @@ crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code
     mesh.rs          faces as triangle meshes to a chordal and angular deflection
                      (BRepMesh_IncrementalMesh): constrained Delaunay in parameter space,
                      edges discretised once for both faces so closed shells are watertight
-                     (tests/mesh.rs)
+                     (tests/mesh.rs); 2 of the corpus's 10,669 faces refused with the reason
+                     (a neck closed within tolerance, the malformed 14052)
     classify.rs      point-in-solid (whole part or one solid) by the parity of rays.rs
                      crossings, with on-boundary detection (BRepClass3d)
     rays.rs          every hit of a ray on a solid's trimmed faces, through a box hierarchy
@@ -546,6 +609,9 @@ src/
                      part's plane normals and cylinder axes, the part re-read into it, recognised
   framed_records.rs  records found in the frame carried back to the file's coordinates, fields
                      with no file axis left in the frame and labelled
+  evidence_view.rs   the recognition evidence view (`build_recognition_evidence`): accepted
+                     features' defining, constituent and host faces, pattern members, and the
+                     rejected-candidate projection, as plain indices
   correspondence/    revision matching (docs/correspondence.md): fingerprint.rs (features and
                      faces), align.rs (rigid alignment), assign.rs (Hungarian with an
                      unmatched option), faces.rs (seeded propagation), mod.rs (`correspond`)
@@ -595,9 +661,13 @@ tests/
                      parts
   local_degradation.rs  which corpus parts take Python's local-degradation retry and what it
                      skips there, against the port's evidence paths, and under rigid motion
+  step_levels.rs     step levels and the aggregate's risers (records, faces, proofs, what
+                     `inventory` and `recognise` carry) against Python's over the corpus
   reconcile.rs       every reconciliation decision Python's inventory makes over the corpus and
                      13 synthetic scenarios, against the port's decisions, and under rigid motion;
                      the accepted records against Python's
+  recognition_evidence.rs  the evidence view against Python's over the corpus (features,
+                     candidates, refusals), and under rigid motion
   pads.rs            each pad's top and four walls on Python's evidence-test parts and the golden
                      fixture; tolerances the capture cannot record (NaN, infinity)
   corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity
@@ -706,8 +776,12 @@ tools/
                      (captured/effective_surfaces/)
   capture_local_degradation.py records which corpus parts take Python's local-degradation retry
                      and every record it skips there (captured/local_degradation/)
+  capture_step_levels.py records Python's step levels and aggregate risers over the corpus, with
+                     their faces and proofs (captured/step_levels/)
   capture_reconcile.py records every disposition Python's default inventory makes over the
                      corpus, and synthetic scenarios (captured/reconcile/)
+  capture_evidence.py records Python's recognition evidence view over the corpus
+                     (captured/recognition_evidence/)
   capture_frames.py  records Python's part frames (captured/frames.json, the built parts as
                      STEP in captured/frames/); --compare runs a Python recogniser on a corpus
                      part's framed working part, as read and turned

@@ -52,6 +52,7 @@ use crate::features::gussets::{GussetRib, GussetRibPattern};
 use crate::features::hole_patterns::HolePattern;
 use crate::features::holes::{CounterBore, HoleRecord};
 use crate::features::interior_voids::InteriorVoid;
+use crate::features::levels::{FaceLevel, RiserEvidence};
 use crate::features::oblique_through_steps::ObliqueThroughStep;
 use crate::features::oriented_chamfers::OrientedChamfer;
 use crate::features::oriented_slots::{OrientedSlot, OrientedSlotPattern};
@@ -425,6 +426,8 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
         oriented_slots,
         oriented_slot_patterns,
         pads,
+        step_levels,
+        risers,
         defining,
     } = features;
     let mut local = LocalFields::new();
@@ -530,6 +533,8 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
             oriented_slot_pattern
         ),
         pads: each!("pads", pads, raised_pad),
+        step_levels: each!("step_levels", step_levels, face_level),
+        risers: each!("risers", risers, riser),
         // The working part's faces are the caller's, under the same indices.
         defining,
     };
@@ -1969,6 +1974,137 @@ fn raised_pad(out: &mut Out, r: RaisedPad) -> RaisedPad {
         z1: b[5],
         direction: out.sign(i, direction, "direction"),
         axis: out.letter_string(axis, "axis"),
+    }
+}
+
+/// Whether the frame's z is the file's, in either sense: face levels and risers are read along
+/// the frame's z by specification (`quiddity.levels`), so carried only then.
+fn z_kept(out: &Out) -> Option<[(usize, f64); 3]> {
+    out.axes.filter(|axes| axes[2].0 == 2)
+}
+
+/// A horizontal level: carried when [`z_kept`] (the spans exchanged where the frame's x is the
+/// file's y), and left local otherwise.
+fn face_level(out: &mut Out, r: FaceLevel) -> FaceLevel {
+    let FaceLevel {
+        z,
+        x_span,
+        y_span,
+        body_key,
+    } = r;
+    let body_key = out.body_key(body_key, "body_key");
+    let Some(axes) = z_kept(out) else {
+        out.mark("z");
+        for (path, span) in [("x_span", x_span), ("y_span", y_span)] {
+            if span.is_some() {
+                out.mark(path);
+            }
+        }
+        return FaceLevel {
+            z,
+            x_span,
+            y_span,
+            body_key,
+        };
+    };
+    let z = out.coordinate(2, z, "z");
+    let x = x_span.map(|s| out.interval(0, s, "x_span"));
+    let y = y_span.map(|s| out.interval(1, s, "y_span"));
+    let (x_span, y_span) = if axes[0].0 == 0 { (x, y) } else { (y, x) };
+    FaceLevel {
+        z,
+        x_span,
+        y_span,
+        body_key,
+    }
+}
+
+/// A riser: carried when [`z_kept`], its positions and body levels kept ascending and, along a
+/// reversed z, its ends (and which of them is at the envelope) exchanged; left local otherwise.
+fn riser(out: &mut Out, r: RiserEvidence) -> RiserEvidence {
+    let RiserEvidence {
+        vertical,
+        axis,
+        positions,
+        other_axis,
+        other_positions,
+        z_lo,
+        z_hi,
+        lo_at_envelope,
+        hi_at_envelope,
+        tol,
+        body_levels,
+        body_key,
+    } = r;
+    let body_key = out.body_key(body_key, "body_key");
+    let mut levels = Out::new(out.motion, "body_levels[].");
+    let mut body_levels: Vec<FaceLevel> = body_levels
+        .into_iter()
+        .map(|l| face_level(&mut levels, l))
+        .collect();
+    out.local.extend(levels.done());
+    let Some(axes) = z_kept(out) else {
+        for path in [
+            "axis",
+            "positions",
+            "other_axis",
+            "other_positions",
+            "z_lo",
+            "z_hi",
+            "lo_at_envelope",
+            "hi_at_envelope",
+        ] {
+            out.mark(path);
+        }
+        return RiserEvidence {
+            vertical,
+            axis,
+            positions,
+            other_axis,
+            other_positions,
+            z_lo,
+            z_hi,
+            lo_at_envelope,
+            hi_at_envelope,
+            tol,
+            body_levels,
+            body_key,
+        };
+    };
+    let mut along = |letter: char, values: Vec<f64>, path: &str| {
+        let i = index(letter);
+        let mut moved: Vec<f64> = values
+            .into_iter()
+            .map(|v| out.coordinate(i, v, path))
+            .collect();
+        if axes[i].1 < 0.0 {
+            moved.reverse();
+        }
+        moved
+    };
+    let positions = along(axis, positions, "positions");
+    let other_positions = along(other_axis, other_positions, "other_positions");
+    let (z_lo, z_hi) = out.interval(2, (z_lo, z_hi), "z_lo");
+    let (lo_at_envelope, hi_at_envelope) = if axes[2].1 > 0.0 {
+        (lo_at_envelope, hi_at_envelope)
+    } else {
+        // The body's levels, distinct heights in ascending order, stay ascending.
+        body_levels.reverse();
+        (hi_at_envelope, lo_at_envelope)
+    };
+    RiserEvidence {
+        vertical,
+        axis: out.letter(axis, "axis"),
+        positions,
+        other_axis: out.letter(other_axis, "other_axis"),
+        other_positions,
+        z_lo,
+        z_hi,
+        lo_at_envelope,
+        hi_at_envelope,
+        tol,
+        body_levels,
+        body_key,
     }
 }
 

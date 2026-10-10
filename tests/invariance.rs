@@ -60,9 +60,9 @@ fn placement(r: &[[f64; 3]; 3], t: &[f64; 3]) -> Placement {
     [0, 1, 2].map(|i| [r[i][0], r[i][1], r[i][2], t[i]])
 }
 
-/// Each family's occurrences (`features::recognise`'s defining faces, under its field names), and
-/// face levels' and risers' faces, as a sorted list of sorted face sets: what was found, and
-/// where, independent of the record's coordinates.
+/// Each family's occurrences (`features::recognise`'s defining faces, under its field names, step
+/// levels and risers among them), and face levels' faces, as a sorted list of sorted face sets:
+/// what was found, and where, independent of the record's coordinates.
 fn signature(part: &Part) -> BTreeMap<&'static str, Vec<Vec<usize>>> {
     fn sorted(found: impl IntoIterator<Item = Vec<usize>>) -> Vec<Vec<usize>> {
         let mut out: Vec<Vec<usize>> = found
@@ -82,16 +82,14 @@ fn signature(part: &Part) -> BTreeMap<&'static str, Vec<Vec<usize>>> {
         .collect();
     let found = levels::face_levels_with_faces(part, &Default::default());
     out.insert("face_levels", sorted(found.into_iter().map(|(_, f)| f)));
-    let found = levels::risers_with_faces(part, &Default::default());
-    out.insert("risers", sorted(found.into_iter().map(|(_, f)| f)));
     out
 }
 
 /// Families read along world Z by specification (`quiddity.levels`: the levels of a part's
-/// horizontal planes, and the risers between them), so compared only under motions that keep the
-/// Z axis vertical (translate, rot_z90, rot_y180): under the others the part's horizontal faces
-/// are other faces, in Python as here.
-const WORLD_Z: [&str; 2] = ["face_levels", "risers"];
+/// horizontal planes, the step levels among them, and the risers between them), so compared only
+/// under motions that keep the Z axis vertical (translate, rot_z90, rot_y180): under the others
+/// the part's horizontal faces are other faces, in Python as here.
+const WORLD_Z: [&str; 3] = ["face_levels", "risers", "step_levels"];
 
 /// The listed exceptions for these motions whose file is *owned* (the slice's,
 /// `tests/support/slices.rs`), keyed by (file, motion, family), with the most occurrences each
@@ -301,10 +299,10 @@ fn rotation(axis: [f64; 3], degrees: f64, translation: [f64; 3]) -> Placement {
 }
 
 /// Every corpus part recognised in its own frame (`frames::prepare_framed`), unmoved and under
-/// the generic rotation: each family, face levels and risers included (in the frame they are read
-/// along the frame's z), must find the same features on the same faces. Where a part's frame is
-/// not full the two working frames may differ by the gauge's freedom (a sign or interchange, a
-/// roll about the axis), and the listed exceptions say so.
+/// the generic rotation: each family, face levels, step levels and risers included (in the frame
+/// they are read along the frame's z), must find the same features on the same faces. Where a
+/// part's frame is not full the two working frames may differ by the gauge's freedom (a sign or
+/// interchange, a roll about the axis), and the listed exceptions say so.
 ///
 /// Also prints, without failing, how many family results caller-space recognition changes under
 /// the same rotation (review M8's measure).

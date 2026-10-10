@@ -1,0 +1,428 @@
+[
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "check": "records",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs: Python's is None because OpenCascade's BRepCheck calls this solid unorientable after its import healing re-orients wires (this file's evidence entries in tests/fixtures/known_divergences.json, rust-correct); the file's own topology is closed and consistently oriented, so the port keys the solid (its masses are rust-correct in this file's 'solid masses' entry). The levels, their faces and the risers agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "check": "proposals",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs: Python's is None because OpenCascade's BRepCheck calls this solid unorientable after its import healing re-orients wires (this file's evidence entries in tests/fixtures/known_divergences.json, rust-correct); the file's own topology is closed and consistently oriented, so the port keys the solid (its masses are rust-correct in this file's 'solid masses' entry). The levels, their faces and the risers agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "check": "proofs",
+    "verdict": "rust-correct",
+    "reason": "Python's strict proof fails on every level: OpenCascade's BRepCheck calls this solid unorientable after its import healing (this file's evidence entries in tests/fixtures/known_divergences.json, rust-correct); the port proves the solid. Both prove it under local degradation, where Python's aggregate (which took the retry) publishes the same levels."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "check": "aggregate_step_levels",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs: Python's is None because OpenCascade's BRepCheck calls this solid unorientable after its import healing re-orients wires (this file's evidence entries in tests/fixtures/known_divergences.json, rust-correct); the file's own topology is closed and consistently oriented, so the port keys the solid (its masses are rust-correct in this file's 'solid masses' entry). The levels, their faces and the risers agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "check": "inventory_step_levels",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs: Python's is None because OpenCascade's BRepCheck calls this solid unorientable after its import healing re-orients wires (this file's evidence entries in tests/fixtures/known_divergences.json, rust-correct); the file's own topology is closed and consistently oriented, so the port keys the solid (its masses are rust-correct in this file's 'solid masses' entry). The levels, their faces and the risers agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "check": "records",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "check": "proposals",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "check": "aggregate_step_levels",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb203.step",
+    "check": "inventory_step_levels",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "check": "records",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "check": "proposals",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "check": "riser_proposals",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "check": "aggregate_step_levels",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "check": "aggregate_risers",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "check": "inventory_step_levels",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb207.step",
+    "check": "inventory_risers",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "check": "records",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "check": "proposals",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "check": "aggregate_step_levels",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "check": "inventory_step_levels",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "check": "records",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "check": "proposals",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "check": "aggregate_step_levels",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "check": "inventory_step_levels",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "check": "records",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "check": "proposals",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "check": "aggregate_step_levels",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "check": "inventory_step_levels",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb245.step",
+    "check": "records",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb245.step",
+    "check": "proposals",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb245.step",
+    "check": "aggregate_step_levels",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb245.step",
+    "check": "inventory_step_levels",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "gramel/string_post.step",
+    "check": "records",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "gramel/string_post.step",
+    "check": "proposals",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "gramel/string_post.step",
+    "check": "aggregate_step_levels",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "gramel/string_post.step",
+    "check": "inventory_step_levels",
+    "verdict": "rust-correct",
+    "reason": "Only the body key differs, in the solid's volume and area (and, on cgb207 and cgb242, OpenCascade's 1e-7 box padding across the rounding step): the key is the solid's box and masses, and the port's masses are rust-correct in this file's 'solid masses' entry in tests/fixtures/known_divergences.json (independent integration over the 3D edges agrees with the port; Python's are OpenCascade's fixed Gauss rule), in the records and in the body levels risers carry. Every other field and the defining faces agree."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "check": "proposals",
+    "verdict": "equivalent",
+    "reason": "The same records on the same faces under another face numbering: the port's faces 15, 16 and 6 are OpenCascade's 8, 11 and 2 (this file's inventory entries in tests/fixtures/known_divergences.json: OpenCascade's import heals the non-orientable shell and reorders its 17 faces). Neither side proves a solid for them."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "check": "proofs",
+    "verdict": "equivalent",
+    "reason": "The same records on the same faces under another face numbering: the port's faces 15, 16 and 6 are OpenCascade's 8, 11 and 2 (this file's inventory entries in tests/fixtures/known_divergences.json: OpenCascade's import heals the non-orientable shell and reorders its 17 faces). Neither side proves a solid for them."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "check": "riser_proposals",
+    "verdict": "equivalent",
+    "reason": "The same records on the same faces under another face numbering: the port's faces 15, 16 and 6 are OpenCascade's 8, 11 and 2 (this file's inventory entries in tests/fixtures/known_divergences.json: OpenCascade's import heals the non-orientable shell and reorders its 17 faces). Neither side proves a solid for them."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "check": "riser_proofs",
+    "verdict": "equivalent",
+    "reason": "The same records on the same faces under another face numbering: the port's faces 15, 16 and 6 are OpenCascade's 8, 11 and 2 (this file's inventory entries in tests/fixtures/known_divergences.json: OpenCascade's import heals the non-orientable shell and reorders its 17 faces). Neither side proves a solid for them."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "check": "inventory_step_levels",
+    "verdict": "rust-wrong",
+    "reason": "Python's inventory takes the local-degradation retry on this part (an unproved hole) and its step levels and risers skip these, whose faces are the loose shell's with no solid; features::inventory takes no retry (README: the retry and whether an unproved solid should panic or carry a refusal are an open maintainer question), so it publishes them unproved, as it does this file's hole and pockets (captured/reconcile/known.json, rust-wrong). levels::proved under local degradation skips them as Python does ('aggregate_*' agree)."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "check": "inventory_risers",
+    "verdict": "rust-wrong",
+    "reason": "Python's inventory takes the local-degradation retry on this part (an unproved hole) and its step levels and risers skip these, whose faces are the loose shell's with no solid; features::inventory takes no retry (README: the retry and whether an unproved solid should panic or carry a refusal are an open maintainer question), so it publishes them unproved, as it does this file's hole and pockets (captured/reconcile/known.json, rust-wrong). levels::proved under local degradation skips them as Python does ('aggregate_*' agree)."
+  },
+  {
+    "file": "inventory_refusal/13975.step.gz",
+    "check": "accepted_risers",
+    "verdict": "rust-wrong",
+    "reason": "Python's inventory takes the local-degradation retry on this part (an unproved hole) and its step levels and risers skip these, whose faces are the loose shell's with no solid; features::inventory takes no retry (README: the retry and whether an unproved solid should panic or carry a refusal are an open maintainer question), so it publishes them unproved, as it does this file's hole and pockets (captured/reconcile/known.json, rust-wrong). levels::proved under local degradation skips them as Python does ('aggregate_*' agree)."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "check": "records",
+    "verdict": "rust-wrong",
+    "reason": "Only the body key differs: Python's is None because OpenCascade's BRepCheck faults face 1 (BRepCheck_IntersectingWires as written). The port's proofs agree (the kernel finds the fault, Part::bad_faces, so 'proofs' match), but the body key comes from the topological check (Part::solid_is_valid), as for this file's plate in tests/fixtures/known_divergences.json (rust-wrong)."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "check": "proposals",
+    "verdict": "rust-wrong",
+    "reason": "Only the body key differs: Python's is None because OpenCascade's BRepCheck faults face 1 (BRepCheck_IntersectingWires as written). The port's proofs agree (the kernel finds the fault, Part::bad_faces, so 'proofs' match), but the body key comes from the topological check (Part::solid_is_valid), as for this file's plate in tests/fixtures/known_divergences.json (rust-wrong)."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "check": "aggregate_step_levels",
+    "verdict": "rust-wrong",
+    "reason": "Only the body key differs: Python's is None because OpenCascade's BRepCheck faults face 1 (BRepCheck_IntersectingWires as written). The port's proofs agree (the kernel finds the fault, Part::bad_faces, so 'proofs' match), but the body key comes from the topological check (Part::solid_is_valid), as for this file's plate in tests/fixtures/known_divergences.json (rust-wrong)."
+  },
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "check": "inventory_step_levels",
+    "verdict": "rust-wrong",
+    "reason": "Only the body key differs: Python's is None because OpenCascade's BRepCheck faults face 1 (BRepCheck_IntersectingWires as written). The port's proofs agree (the kernel finds the fault, Part::bad_faces, so 'proofs' match), but the body key comes from the topological check (Part::solid_is_valid), as for this file's plate in tests/fixtures/known_divergences.json (rust-wrong)."
+  },
+  {
+    "file": "mfcadpp/10049.step",
+    "check": "riser_proposals",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp/10049.step",
+    "check": "riser_proofs",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp/10049.step",
+    "check": "aggregate_risers",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp/10049.step",
+    "check": "inventory_risers",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp/10049.step",
+    "check": "accepted_risers",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp/10060.step",
+    "check": "riser_proposals",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp/10060.step",
+    "check": "riser_proofs",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp/10060.step",
+    "check": "aggregate_risers",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp/10060.step",
+    "check": "inventory_risers",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp/10060.step",
+    "check": "accepted_risers",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp_holdout/20273.step",
+    "check": "riser_proposals",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp_holdout/20273.step",
+    "check": "riser_proofs",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp_holdout/20273.step",
+    "check": "aggregate_risers",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp_holdout/20273.step",
+    "check": "inventory_risers",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp_holdout/20273.step",
+    "check": "accepted_risers",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp_holdout/257.step",
+    "check": "riser_proposals",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp_holdout/257.step",
+    "check": "riser_proofs",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp_holdout/257.step",
+    "check": "aggregate_risers",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp_holdout/257.step",
+    "check": "inventory_risers",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "mfcadpp_holdout/257.step",
+    "check": "accepted_risers",
+    "verdict": "rust-correct",
+    "reason": "Python reports two risers where the port reports one with both faces: two coplanar slanted faces of one ramp give records equal but for z_lo or z_hi, which OpenCascade reads about 1e-11 apart (e.g. 18.701015806022216 against 18.701015806022) while the port reads both from the shared vertex exactly as the file gives it. Python's own rule deduplicates equal records within a solid (_riser_proposals_one), so the port's single record is that rule applied to the file's values; the faces are the same. The aggregate, inventory and accepted risers inherit the merge (the same faces, one candidate fewer)."
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "check": "records",
+    "verdict": "rust-wrong",
+    "reason": "Only the body key differs. Its volume and area are the port's (this file's 'solid masses' entry, rust-correct), but its box's z max is 40.002124 where the solid reaches 40: the tilted \u00d820 bores (faces 210, 212, 217, 219, 317, 319, 354, 356, 361, 363) end at the top plane z = 40 on B-spline edges that stray up to 0.033 mm off their cylinder (edge tolerance 0.0328, measured with OpenCascade); the kernel's face box projects edge points onto the face's surface (brep.rs face_extreme_points), which lifts them 0.0021 above the plane along the tilted cylinder's normal. OpenCascade's optimal box of the solid gives 40.0000001. A kernel box defect, not the levels'."
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "check": "proposals",
+    "verdict": "rust-wrong",
+    "reason": "Only the body key differs. Its volume and area are the port's (this file's 'solid masses' entry, rust-correct), but its box's z max is 40.002124 where the solid reaches 40: the tilted \u00d820 bores (faces 210, 212, 217, 219, 317, 319, 354, 356, 361, 363) end at the top plane z = 40 on B-spline edges that stray up to 0.033 mm off their cylinder (edge tolerance 0.0328, measured with OpenCascade); the kernel's face box projects edge points onto the face's surface (brep.rs face_extreme_points), which lifts them 0.0021 above the plane along the tilted cylinder's normal. OpenCascade's optimal box of the solid gives 40.0000001. A kernel box defect, not the levels'."
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "check": "aggregate_step_levels",
+    "verdict": "rust-wrong",
+    "reason": "Only the body key differs. Its volume and area are the port's (this file's 'solid masses' entry, rust-correct), but its box's z max is 40.002124 where the solid reaches 40: the tilted \u00d820 bores (faces 210, 212, 217, 219, 317, 319, 354, 356, 361, 363) end at the top plane z = 40 on B-spline edges that stray up to 0.033 mm off their cylinder (edge tolerance 0.0328, measured with OpenCascade); the kernel's face box projects edge points onto the face's surface (brep.rs face_extreme_points), which lifts them 0.0021 above the plane along the tilted cylinder's normal. OpenCascade's optimal box of the solid gives 40.0000001. A kernel box defect, not the levels'."
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "check": "inventory_step_levels",
+    "verdict": "rust-wrong",
+    "reason": "Only the body key differs. Its volume and area are the port's (this file's 'solid masses' entry, rust-correct), but its box's z max is 40.002124 where the solid reaches 40: the tilted \u00d820 bores (faces 210, 212, 217, 219, 317, 319, 354, 356, 361, 363) end at the top plane z = 40 on B-spline edges that stray up to 0.033 mm off their cylinder (edge tolerance 0.0328, measured with OpenCascade); the kernel's face box projects edge points onto the face's surface (brep.rs face_extreme_points), which lifts them 0.0021 above the plane along the tilted cylinder's normal. OpenCascade's optimal box of the solid gives 40.0000001. A kernel box defect, not the levels'."
+  }
+]

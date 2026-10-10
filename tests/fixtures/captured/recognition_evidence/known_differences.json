@@ -1,0 +1,2012 @@
+{
+  "candidates": [
+    {
+      "defining": [
+        1450
+      ],
+      "family": "fillets",
+      "file": "cadgenbench_inputs/cgb202.step.gz",
+      "python": {
+        "constituent": [
+          1450
+        ],
+        "index": 285,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "reason": "The same accepted fillet; its position among the physical fillet candidates is two later because the port also has the two fillets Python's local-degradation retry skips on this part (cgb202 faces 698 and 1627, this file's fillets entries, rust-correct).",
+      "rust": {
+        "constituent": [
+          1450
+        ],
+        "index": 287,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-correct"
+    }
+  ],
+  "errors": [
+    {
+      "file": "inventory_refusal/13975.step.gz",
+      "python": "viewed",
+      "reason": "The section-recess projection refuses this part's whole recognition, so the view refuses with its message, as Python's view refuses wherever its aggregate's projection raises: Python reads no solid here (its document's body roster is empty) and its aggregate takes the local-degradation retry, which skips the two pockets on the part (captured/local_degradation). The port reads one solid its validity check rejects, takes no retry (README: not ported), and keeps the pockets, whose defining faces have no valid solid, so the projection refuses the whole document with Python's message (\"accepted recess candidate lost body authority\"). (captured/section_recesses/known_differences.json, the same refusal.) This replaces the view's four record differences on 13975 and 14052 (a hole and a riser on 13975, a hole and a plate on 14052, the records Python's local-degradation retry skips), which the refused view no longer reaches.",
+      "rust": {
+        "error": "accepted recess candidate lost body authority"
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "file": "inventory_refusal/14052.step.gz",
+      "python": "viewed",
+      "reason": "The section-recess projection refuses this part's whole recognition, so the view refuses with its message, as Python's view refuses wherever its aggregate's projection raises: The deliberately malformed corpus part (OpenCascade's BRepCheck faults face 1; the kernel's per-face geometric validity faults the same face). Python's strict run refuses and its aggregate takes the local-degradation retry (captured/local_degradation), whose graph admits the solid with one faulted face, so it publishes one triangular pocket on walls 15, 16, 17 and floor 21 from the accepted prismatic pocket. The port's inventory takes no retry (README: not ported), so the accepted prismatic pocket's defining faces have no valid solid and the projection refuses the whole document with Python's message (\"accepted section feature lost its body authority\"). (captured/section_recesses/known_differences.json, the same refusal.) This replaces the view's four record differences on 13975 and 14052 (a hole and a riser on 13975, a hole and a plate on 14052, the records Python's local-degradation retry skips), which the refused view no longer reaches.",
+      "rust": {
+        "error": "accepted section feature lost its body authority"
+      },
+      "verdict": "rust-wrong"
+    }
+  ],
+  "features": [
+    {
+      "defining": [
+        0,
+        7,
+        11
+      ],
+      "family": "plates",
+      "field": "present",
+      "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
+      "python": 0,
+      "reason": "Not a reconciliation difference: Python's aggregate discovers plates only on solids that own no turned step (plates.py _discover passes the turned steps' solids as excluded_solids), and this part's one solid owns its turned steps (its four bosses are rejected as exactly turned steps). The port's plates::discover has no such exclusion, so the aggregate's plate dependency on turned steps is not ported. (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        187,
+        232
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb243.step.gz",
+      "python": 1,
+      "reason": "Not a reconciliation difference: the same hole's candidate defining faces differ. Python's hole claims the \u00d861.62 cylinder 0.47 mm inside the mouth it calls a spotface (with its faces) because it orders segments by their high end in either drilling direction; the port orders by the end nearest the opening, finds no spotface and claims the bore alone. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes spotface entry in known_divergences.json (rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        187
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb243.step.gz",
+      "python": 0,
+      "reason": "Not a reconciliation difference: the same hole's candidate defining faces differ. Python's hole claims the \u00d861.62 cylinder 0.47 mm inside the mouth it calls a spotface (with its faces) because it orders segments by their high end in either drilling direction; the port orders by the end nearest the opening, finds no spotface and claims the bore alone. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes spotface entry in known_divergences.json (rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        156,
+        158,
+        173,
+        185
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb242.step.gz",
+      "python": 0,
+      "reason": "Not a reconciliation difference: the same through hole's candidate defining faces differ with its drilling end. Python drills this \u00d822 hole from the \u00d8102 end (it takes whichever segment comes first in face order at the \u00d8110 end, where the bore and the \u00d8110 segment end level), its counterbore the \u00d8102 one; the port drills from the wider \u00d8110 end, as Python's own rule says and as Python does with the part turned over, so the segments each side claims with the bore differ. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes axis/cbore entry in known_divergences.json (rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        15
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp_holdout/257.step",
+      "python": 1,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        1627
+      ],
+      "family": "fillets",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb202.step.gz",
+      "python": 0,
+      "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. Python skips the fillet because it touches the bad-face region of a solid OpenCascade's BRepCheck calls unorientable after its import healing re-orients wires; the file's own topology is closed and consistently oriented and the port accepts the solid, so publishing it is right (captured/local_degradation/known.json's two cgb202 fillet skips and this file's recognise_fillets evidence entry in known_divergences.json, rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        2,
+        3
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp/10049.step",
+      "python": 0,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        23
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp/10060.step",
+      "python": 1,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        2
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp/10049.step",
+      "python": 1,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        3,
+        23
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp/10060.step",
+      "python": 0,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        315,
+        319,
+        331,
+        333,
+        335,
+        337,
+        339,
+        341,
+        343
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb217.step.gz",
+      "python": 1,
+      "reason": "Not a reconciliation difference: the same hole's candidate defining faces differ. Python's hole claims the internal-groove cylinder it calls a spotface (with its faces) because it orders segments by their high end in either drilling direction; the port orders by the end nearest the opening, finds no spotface and claims the bore alone. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes spotface entry in known_divergences.json (rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        319
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb217.step.gz",
+      "python": 0,
+      "reason": "Not a reconciliation difference: the same hole's candidate defining faces differ. Python's hole claims the internal-groove cylinder it calls a spotface (with its faces) because it orders segments by their high end in either drilling direction; the port orders by the end nearest the opening, finds no spotface and claims the bore alone. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes spotface entry in known_divergences.json (rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        3
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp/10049.step",
+      "python": 1,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        3
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp/10060.step",
+      "python": 1,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        4,
+        5
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp_holdout/20273.step",
+      "python": 0,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        4
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp_holdout/20273.step",
+      "python": 1,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        5
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp_holdout/20273.step",
+      "python": 1,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        6,
+        36,
+        43,
+        56,
+        66,
+        103,
+        109,
+        156,
+        158
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb242.step.gz",
+      "python": 1,
+      "reason": "Not a reconciliation difference: the same through hole's candidate defining faces differ with its drilling end. Python drills this \u00d822 hole from the \u00d8102 end (it takes whichever segment comes first in face order at the \u00d8110 end, where the bore and the \u00d8110 segment end level), its counterbore the \u00d8102 one; the port drills from the wider \u00d8110 end, as Python's own rule says and as Python does with the part turned over, so the segments each side claims with the bore differ. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes axis/cbore entry in known_divergences.json (rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        698
+      ],
+      "family": "fillets",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb202.step.gz",
+      "python": 0,
+      "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. Python skips the fillet because it touches the bad-face region of a solid OpenCascade's BRepCheck calls unorientable after its import healing re-orients wires; the file's own topology is closed and consistently oriented and the port accepts the solid, so publishing it is right (captured/local_degradation/known.json's two cgb202 fillet skips and this file's recognise_fillets evidence entry in known_divergences.json, rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        8,
+        15
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp_holdout/257.step",
+      "python": 0,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 1,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        8
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "mfcadpp_holdout/257.step",
+      "python": 1,
+      "reason": "Python's aggregate lists two risers whose records differ only in the last digits of z_lo/z_hi (OpenCascade's per-face bounding boxes, e.g. 6.27084319078125 against 6.270843190786 on mfcadpp/10049.step faces 3 and 2), so `_riser_proposals_one` keeps them apart; the port reads exact face bounds, the two records are equal and are merged with both faces, as the proposal step means equal riser values to be (one oblique shoulder read from two coplanar faces). The riser geometry is the same.",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        105,
+        123
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ctc_01_asme1_rd.stp",
+      "python": 1,
+      "reason": "The section recess on walls [105, 123], constituent faces [105, 123, 125]: Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        112,
+        114
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ctc_01_asme1_rd.stp",
+      "python": 1,
+      "reason": "The section recess on walls [112, 114], constituent faces [112, 114, 125]: Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        126,
+        128
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ctc_01_asme1_rd.stp",
+      "python": 1,
+      "reason": "The section recess on walls [126, 128], constituent faces [126, 128, 138]: Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        110,
+        112
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ctc_03_asme1_rc.stp",
+      "python": 1,
+      "reason": "The section recess on walls [110, 112], constituent faces [110, 112, 117]: Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        124,
+        126
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ctc_03_asme1_rc.stp",
+      "python": 1,
+      "reason": "The section recess on walls [124, 126], constituent faces [124, 126, 138]: Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        133,
+        135
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ctc_03_asme1_rc.stp",
+      "python": 1,
+      "reason": "The section recess on walls [133, 135], constituent faces [133, 135, 138]: Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        496,
+        500
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ctc_04_asme1_rd.stp",
+      "python": 1,
+      "reason": "The section recess on walls [496, 500], constituent faces [496, 499, 500]: Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        506,
+        508
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ctc_04_asme1_rd.stp",
+      "python": 1,
+      "reason": "The section recess on walls [506, 508], constituent faces [499, 506, 508]: Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        114,
+        116
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "python": 1,
+      "reason": "The section recess on walls [114, 116], constituent faces [114, 116, 122]: Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        125,
+        127
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "python": 1,
+      "reason": "The section recess on walls [125, 127], constituent faces [125, 127, 143]: Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        134,
+        136
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "python": 1,
+      "reason": "The section recess on walls [134, 136], constituent faces [134, 136, 143]: Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        238,
+        239
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ftc_08_asme1_rc.stp",
+      "python": 1,
+      "reason": "The section recess on walls [238, 239], constituent faces [237, 238, 239]: Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        249,
+        253
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ftc_08_asme1_rc.stp",
+      "python": 1,
+      "reason": "The section recess on walls [249, 253], constituent faces [249, 252, 253]: Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        259,
+        261
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ftc_08_asme1_rc.stp",
+      "python": 1,
+      "reason": "The section recess on walls [259, 261], constituent faces [252, 259, 261]: Python publishes this pocket record as a two-ended open channel; its low run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the low end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        132,
+        134
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "nist/nist_ftc_09_asme1_rd.stp",
+      "python": 1,
+      "reason": "The section recess on walls [132, 134], constituent faces [132, 134, 144]: Python publishes this pocket record as a two-ended open channel; its high run end is closed by material. OpenCascade's own classifier puts the section centre 0.01 mm beyond the high end inside the solid (BRepClass3d IN, while the run's middle is OUT), and the port's volume probe of `prove_open_channel`'s end slab there measures it full. Python's `material_fraction` answered 0 for that slab, whose side faces lie exactly in the slot's wall planes: on nist_ctc_01 the same slab inset 1.3e-4 mm across the width measures 1.0 in Python too (a boolean on coplanar faces). The record is a closed slot, not an open channel; its region lies within the native pocket's, so neither side refuses it. (captured/section_recesses/known_differences.json, the same record.)",
+      "rust": 0,
+      "verdict": "rust-correct"
+    }
+  ],
+  "motions": [
+    {
+      "defining": [
+        0,
+        2,
+        3,
+        4,
+        8,
+        14,
+        18,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        34,
+        35,
+        36,
+        37,
+        39,
+        40,
+        42,
+        43,
+        46,
+        47,
+        50,
+        51,
+        52,
+        53,
+        54,
+        58,
+        60,
+        61,
+        62,
+        63,
+        64,
+        66,
+        72,
+        73,
+        75,
+        76,
+        77,
+        79,
+        85,
+        87,
+        91,
+        93,
+        94,
+        98
+      ],
+      "family": "thin_wall_bodies",
+      "file": "ttt_inputs/sm-hanger.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": null,
+      "reason": "Projected only as the winner of a riser's thin-wall rejection, and risers are not compared under this motion: Risers are read against the part's own axes: a riser faces along x or y and not z (levels.rs riser_orientation, as Python's levels._riser_orientation reads the normal's X and Y). rot_zx_moved turns the part's z axis into x, so other faces are risers and the thin-wall rejections of them change with them, in Python as in the port. A caller-frame measurement, not a placement-invariant record.",
+      "rust": {
+        "constituent": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          90,
+          91,
+          92,
+          93,
+          94,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "not-applicable"
+    },
+    {
+      "defining": [
+        0
+      ],
+      "family": "bosses",
+      "file": "gramel/GRM-05_depth_lock_bolt.step",
+      "list": "candidates",
+      "motion": "rot_y180",
+      "moved": {
+        "constituent": [
+          0
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              0
+            ]
+          ]
+        ]
+      },
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": {
+        "constituent": [
+          0,
+          2
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              0
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        1,
+        182
+      ],
+      "family": "bosses",
+      "file": "nist/nist_ctc_05_asme1_rd.stp",
+      "list": "candidates",
+      "motion": "rot_y180",
+      "moved": {
+        "constituent": [
+          0,
+          1,
+          182
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              1,
+              182
+            ]
+          ]
+        ]
+      },
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": {
+        "constituent": [
+          1,
+          19,
+          182
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              1,
+              182
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10146.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          27
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 13]). (known_invariance.json, mfcadpp/10146.step rot_zx_moved pockets.)",
+      "rust": null,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "family": "pockets",
+      "file": "mfcadpp_holdout/163.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          32
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]). (known_invariance.json, mfcadpp_holdout/163.step rot_zx_moved pockets.)",
+      "rust": null,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "family": "prismatic_pockets",
+      "file": "mfcadpp/10146.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          27
+        ],
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              10,
+              11,
+              12,
+              13
+            ]
+          ]
+        ]
+      },
+      "reason": "The ring is rejected by the same pocket either way; only the winner's defining faces move (known_invariance.json, mfcadpp/10146.step rot_zx_moved pockets): A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 13]).",
+      "rust": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          27
+        ],
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              11,
+              13
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "family": "prismatic_pockets",
+      "file": "mfcadpp_holdout/163.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          32
+        ],
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              10,
+              11,
+              12,
+              13
+            ]
+          ]
+        ]
+      },
+      "reason": "The ring is rejected by the same pocket either way; only the winner's defining faces move (known_invariance.json, mfcadpp_holdout/163.step rot_zx_moved pockets): A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]).",
+      "rust": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          32
+        ],
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              11,
+              12
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        11,
+        12
+      ],
+      "family": "pockets",
+      "file": "mfcadpp_holdout/163.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": null,
+      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]). (known_invariance.json, mfcadpp_holdout/163.step rot_zx_moved pockets.)",
+      "rust": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          32
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        11,
+        13
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10146.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": null,
+      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 13]). (known_invariance.json, mfcadpp/10146.step rot_zx_moved pockets.)",
+      "rust": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          27
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        13,
+        14
+      ],
+      "family": "interior_voids",
+      "field": "present",
+      "file": "mfcadpp_regressions/11512.step",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 0,
+      "reason": "The void grid is anchored at the box's minimum corner with its cell count rounded up, so turned over its cells sit elsewhere on the part, and a void whose widening is two cells deep (faces 17, 30, 31) passes the throat test in one orientation only. Python's grid is anchored the same way. A grid centred on the box would map onto itself under these motions; a decision that does not rest on the grid's phase would fix it outright. (known_invariance.json, mfcadpp_regressions/11512.step rot_y180 interior_voids.)",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        130,
+        132,
+        134,
+        136,
+        146,
+        147,
+        148,
+        149
+      ],
+      "family": "hole_patterns",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 1,
+      "reason": "Follows from the member holes' defining faces moving (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes): Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same.",
+      "rust": 0,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        130,
+        148
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 1,
+      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
+      "rust": 0,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        132,
+        149
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 1,
+      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
+      "rust": 0,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        134,
+        146
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 1,
+      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
+      "rust": 0,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        136,
+        147
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 1,
+      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
+      "rust": 0,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        138,
+        140,
+        142,
+        144,
+        146,
+        147,
+        148,
+        149
+      ],
+      "family": "hole_patterns",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 0,
+      "reason": "Follows from the member holes' defining faces moving (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes): Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same.",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        138,
+        148
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 0,
+      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        14,
+        15,
+        16,
+        17
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10245.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": {
+        "constituent": [
+          14,
+          15,
+          16,
+          17,
+          27
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 14-17, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [14, 15, 16, 17], unmoved [15, 17]). (known_invariance.json, mfcadpp/10245.step rot_zx_moved pockets.)",
+      "rust": null,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        14,
+        15,
+        16,
+        17
+      ],
+      "family": "prismatic_pockets",
+      "file": "mfcadpp/10245.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": {
+        "constituent": [
+          14,
+          15,
+          16,
+          17,
+          27
+        ],
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              14,
+              15,
+              16,
+              17
+            ]
+          ]
+        ]
+      },
+      "reason": "The ring is rejected by the same pocket either way; only the winner's defining faces move (known_invariance.json, mfcadpp/10245.step rot_zx_moved pockets): A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 14-17, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [14, 15, 16, 17], unmoved [15, 17]).",
+      "rust": {
+        "constituent": [
+          14,
+          15,
+          16,
+          17,
+          27
+        ],
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              15,
+              17
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        140,
+        147
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 0,
+      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        142,
+        146
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 0,
+      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        144,
+        149
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 0,
+      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        15,
+        17
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10245.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": null,
+      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 14-17, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [14, 15, 16, 17], unmoved [15, 17]). (known_invariance.json, mfcadpp/10245.step rot_zx_moved pockets.)",
+      "rust": {
+        "constituent": [
+          14,
+          15,
+          16,
+          17,
+          27
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        163
+      ],
+      "family": "bosses",
+      "file": "cadgenbench/threaded_connector_109.step",
+      "list": "candidates",
+      "motion": "rot_y180",
+      "moved": {
+        "constituent": [
+          163
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              163
+            ]
+          ]
+        ]
+      },
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": {
+        "constituent": [
+          163,
+          165
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              163
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        169,
+        173,
+        177,
+        181,
+        185,
+        189,
+        193,
+        197,
+        201,
+        205,
+        209,
+        213
+      ],
+      "family": "bosses",
+      "field": "constituent",
+      "file": "cadgenbench/threaded_connector_109.step",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        169,
+        173,
+        177,
+        181,
+        185,
+        189,
+        193,
+        197,
+        201,
+        205,
+        209,
+        213,
+        215
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        169,
+        173,
+        177,
+        181,
+        185,
+        189,
+        193,
+        197,
+        201,
+        205,
+        209,
+        213
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        169,
+        173,
+        177,
+        181,
+        185,
+        189,
+        193,
+        197,
+        201,
+        205,
+        209,
+        213
+      ],
+      "family": "bosses",
+      "field": "hosts",
+      "file": "cadgenbench/threaded_connector_109.step",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        215
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        217
+      ],
+      "family": "bosses",
+      "field": "hosts",
+      "file": "cadgenbench/threaded_connector_109.step",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        215
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        266
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        218,
+        222,
+        226,
+        230,
+        234,
+        238,
+        242,
+        246,
+        250,
+        254,
+        258,
+        262
+      ],
+      "family": "bosses",
+      "file": "cadgenbench/threaded_connector_109.step",
+      "list": "candidates",
+      "motion": "rot_y180",
+      "moved": {
+        "constituent": [
+          216,
+          218,
+          222,
+          226,
+          230,
+          234,
+          238,
+          242,
+          246,
+          250,
+          254,
+          258,
+          262
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              218,
+              222,
+              226,
+              230,
+              234,
+              238,
+              242,
+              246,
+              250,
+              254,
+              258,
+              262
+            ]
+          ]
+        ]
+      },
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": {
+        "constituent": [
+          218,
+          222,
+          226,
+          230,
+          234,
+          238,
+          242,
+          246,
+          250,
+          254,
+          258,
+          262,
+          267
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              218,
+              222,
+              226,
+              230,
+              234,
+              238,
+              242,
+              246,
+              250,
+              254,
+              258,
+              262
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        21
+      ],
+      "family": "bosses",
+      "field": "constituent",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        21,
+        22
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        11,
+        21
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        21
+      ],
+      "family": "bosses",
+      "field": "hosts",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        11
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        22
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        271,
+        275,
+        279,
+        283,
+        287,
+        291,
+        295,
+        299,
+        303,
+        307,
+        311,
+        315
+      ],
+      "family": "bosses",
+      "file": "cadgenbench/threaded_connector_109.step",
+      "list": "candidates",
+      "motion": "rot_y180",
+      "moved": {
+        "constituent": [
+          271,
+          275,
+          279,
+          283,
+          287,
+          291,
+          295,
+          299,
+          303,
+          307,
+          311,
+          315,
+          317
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              271,
+              275,
+              279,
+              283,
+              287,
+              291,
+              295,
+              299,
+              303,
+              307,
+              311,
+              315
+            ]
+          ]
+        ]
+      },
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": {
+        "constituent": [
+          266,
+          271,
+          275,
+          279,
+          283,
+          287,
+          291,
+          295,
+          299,
+          303,
+          307,
+          311,
+          315
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              271,
+              275,
+              279,
+              283,
+              287,
+              291,
+              295,
+              299,
+              303,
+              307,
+              311,
+              315
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        30,
+        31
+      ],
+      "family": "interior_voids",
+      "field": "present",
+      "file": "mfcadpp_regressions/11512.step",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": 1,
+      "reason": "The void grid is anchored at the box's minimum corner with its cell count rounded up, so turned over its cells sit elsewhere on the part, and a void whose widening is two cells deep (faces 17, 30, 31) passes the throat test in one orientation only. Python's grid is anchored the same way. A grid centred on the box would map onto itself under these motions; a decision that does not rest on the grid's phase would fix it outright. (known_invariance.json, mfcadpp_regressions/11512.step rot_y180 interior_voids.)",
+      "rust": 0,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        310,
+        344,
+        345,
+        346
+      ],
+      "family": "bosses",
+      "file": "cadgenbench_inputs/cgb217.step.gz",
+      "list": "candidates",
+      "motion": "rot_y180",
+      "moved": {
+        "constituent": [
+          308,
+          310,
+          344,
+          345,
+          346
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              310,
+              344,
+              345,
+              346
+            ]
+          ]
+        ]
+      },
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": {
+        "constituent": [
+          309,
+          310,
+          344,
+          345,
+          346
+        ],
+        "outcome": "rejected",
+        "reason": "turned.boss_superseded_by_step",
+        "related": [
+          [
+            "turned_steps",
+            [
+              310,
+              344,
+              345,
+              346
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        33
+      ],
+      "family": "bosses",
+      "field": "constituent",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        33,
+        34
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        11,
+        33
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        33
+      ],
+      "family": "bosses",
+      "field": "hosts",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        11
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        34
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        35,
+        36,
+        37,
+        38
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10103.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": {
+        "constituent": [
+          35,
+          36,
+          37,
+          38,
+          43
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 35-38, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [35, 36, 37, 38], unmoved [36, 38]). (known_invariance.json, mfcadpp/10103.step rot_zx_moved pockets.)",
+      "rust": null,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        35,
+        36,
+        37,
+        38
+      ],
+      "family": "prismatic_pockets",
+      "file": "mfcadpp/10103.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": {
+        "constituent": [
+          35,
+          36,
+          37,
+          38,
+          43
+        ],
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              35,
+              36,
+              37,
+              38
+            ]
+          ]
+        ]
+      },
+      "reason": "The ring is rejected by the same pocket either way; only the winner's defining faces move (known_invariance.json, mfcadpp/10103.step rot_zx_moved pockets): A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 35-38, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [35, 36, 37, 38], unmoved [36, 38]).",
+      "rust": {
+        "constituent": [
+          35,
+          36,
+          37,
+          38,
+          43
+        ],
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              36,
+              38
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        35
+      ],
+      "family": "bosses",
+      "field": "constituent",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        35,
+        36
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        11,
+        35
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        35
+      ],
+      "family": "bosses",
+      "field": "hosts",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        11
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        36
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        36,
+        38
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10103.step",
+      "list": "candidates",
+      "motion": "rot_zx_moved",
+      "moved": null,
+      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 35-38, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [35, 36, 37, 38], unmoved [36, 38]). (known_invariance.json, mfcadpp/10103.step rot_zx_moved pockets.)",
+      "rust": {
+        "constituent": [
+          35,
+          36,
+          37,
+          38,
+          43
+        ],
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        37
+      ],
+      "family": "bosses",
+      "field": "constituent",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        37,
+        38
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        11,
+        37
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        37
+      ],
+      "family": "bosses",
+      "field": "hosts",
+      "file": "nist/nist_ftc_06_asme1_rd.stp",
+      "list": "features",
+      "motion": "rot_y180",
+      "moved": [
+        11
+      ],
+      "reason": "A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "rust": [
+        38
+      ],
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "mfcadpp_holdout/163.step",
+      "list": "features",
+      "motion": "rot_zx_moved",
+      "moved": 1,
+      "reason": "The section-recess refusal of the square-footprint pocket (constituent faces 10-13 and floor 32) carries the pocket's defining faces, [11, 12] unmoved and [10, 11, 12, 13] moved; same region and reason (captured/section_recesses/known_differences.json, 163 invariance). The pocket's own tie: A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]). (known_invariance.json, mfcadpp_holdout/163.step rot_zx_moved pockets.)",
+      "rust": 0,
+      "verdict": "rust-wrong"
+    },
+    {
+      "defining": [
+        11,
+        12
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "mfcadpp_holdout/163.step",
+      "list": "features",
+      "motion": "rot_zx_moved",
+      "moved": 0,
+      "reason": "The section-recess refusal of the square-footprint pocket (constituent faces 10-13 and floor 32) carries the pocket's defining faces, [11, 12] unmoved and [10, 11, 12, 13] moved; same region and reason (captured/section_recesses/known_differences.json, 163 invariance). The pocket's own tie: A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]). (known_invariance.json, mfcadpp_holdout/163.step rot_zx_moved pockets.)",
+      "rust": 1,
+      "verdict": "rust-wrong"
+    }
+  ]
+}
