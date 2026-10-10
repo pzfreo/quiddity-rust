@@ -68,4 +68,4 @@ B-rep kernel and STEP/AP242 library that replaces OpenCascade.
   are refused where Python publishes (rust-wrong, `section_recesses/known_differences.json`).
 - Every other difference from Python is listed with a verdict in the known-differences files
   the README's table names.
-- CI on macOS takes about 25 minutes (GitHub's 5 concurrent macOS jobs); Linux about 10.
+- CI on macOS takes about 24 minutes (GitHub's 5 concurrent macOS jobs); Linux about 10.

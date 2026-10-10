@@ -7,19 +7,21 @@ recesses wired into recognition; (c) specify-core-rust's upstream needs
 (`specify-core-rust/docs/upstream-needs.md`, U1–U15) done or explicitly deferred with a reason;
 (d) CI green on Linux and macOS, each around 10 minutes.
 
-**Checked at** `15b86fc` (origin/prototype/rust-port, 2026-10-09; its code is `cfdc440`'s). Every *met* line names
-tests run green at that head: `QUIDDITY_CORPUS=… QUIDDITY_CORPUS_REQUIRED=1 cargo test
---workspace --release` on arm64 macOS, 456 passed, 0 failed, 3 ignored (the development aids
-`export_written_files`, `dump`, `face_moment_evidence`). *In progress* names the stream whose branch
+**Checked at** `c2ce06a` (origin/prototype/rust-port, 2026-10-10). Every *met* line names tests
+run green: `QUIDDITY_CORPUS=… QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release` on
+arm64 macOS at `15b86fc`, 456 passed, 0 failed, 3 ignored (the development aids
+`export_written_files`, `dump`, `face_moment_evidence`); the only test changed since,
+`tests/effective_surfaces.rs` (`1c2e4cb`, the rest is CI configuration, README and tools), passes
+at `c2ce06a`. *In progress* names the stream whose branch
 moves the item; *deferred* names the concrete blocker. Questions for the maintainer are under
 [Questions](#questions).
 
-| Gate | Status at `15b86fc` |
+| Gate | Status at `c2ce06a` |
 |---|---|
 | (a) PMI writer decisions | **met** |
 | (b) 46 recognisers, section recesses wired | **not met**: all 46 ported as functions; 4 not in `Features` (step levels, risers: in progress, q-land-evidence-mesh-risers; section recesses: q-section-recess-remainder and the wiring backlog item; passages: Python's result has no such field) |
 | (c) U1–U15 | **not met**: 10 met (U1, U3, U4, U5, U6, U7, U9, U10, U14, U15), U11 (a) met; 2 in progress (U2, U12); 3 deferred on a maintainer decision (U8, U11 (b), U13) |
-| (d) CI green, about 10 minutes each | **Linux met** (11.2 min), **macOS not met** (25.0 min; blocked on a runner decision); q-ci-test-cost and q-fills-at-most-callers in progress |
+| (d) CI green, about 10 minutes each | **Linux met** (10.8 min), **macOS not met** (24.2 min; blocked on a runner decision); q-fills-at-most-callers in progress |
 
 ## (a) PMI writer, decisions of 2026-10-09
 
@@ -99,7 +101,7 @@ Each against its "met when" in `upstream-needs.md`.
   `a_part_of_another_file_is_refused`.
 - **U2** constituent faces and pattern members: *in progress*, stream
   q-land-evidence-mesh-risers (`b332e85`, `build_recognition_evidence`: constituent and host
-  faces per accepted feature, hole-pattern members by position). At `15b86fc` the
+  faces per accepted feature, hole-pattern members by position). At `c2ce06a` the
   reconciliation is applied (`a02b758`, `reconcile.rs`) and `Inventory.constituent` holds
   candidates' constituent faces, but `Features` gives defining faces only and patterns hold
   member copies.
@@ -141,7 +143,7 @@ Each against its "met when" in `upstream-needs.md`.
 - **U13** simple parameter-space loops: *deferred*. cgb202 face 399 (a neck closed within
   15 µm whose samples cross on the surface) stays refused even after `352a860`; meeting it
   needs a tolerance decision (question below). The other faces U13 names (cgb242 715, 726)
-  triangulate at `15b86fc`. Its alternative "met when", U4 met, is met: whether that closes U13
+  triangulate at `c2ce06a`. Its alternative "met when", U4 met, is met: whether that closes U13
   is for specify-core-rust to state.
 - **U14** replace and remove of a written thread: *met* (`0b56d47`); `pmi_write.rs`
   `a_written_thread_is_replaced_and_removed`,
@@ -154,18 +156,20 @@ Each against its "met when" in `upstream-needs.md`.
 
 ## (d) CI
 
-Latest run at `15b86fc`: CI run 38003881960, green on both platforms (Linux and macOS lint,
+Latest run at `c2ce06a`: CI run 38007924732, green on both platforms (Linux and macOS lint,
 build and 15 test shards each). Wall time from the first job's start to the platform's last
-job's end: **Linux 11.2 min** (build 2.8, slowest shard 8.4), **macOS 25.0 min** (build 4.7,
-shards 3.0–8.8 min each, but started in waves). The previous run (37995727967, `bfecbc2`) took
-9.9 and 23.9. The macOS figure is GitHub's limit of 5 concurrent macOS jobs on this account
-over about 80 macOS runner-minutes (status round 22, `91a352a`): reaching about 10 minutes needs a maintainer decision (question below). Streams
-q-ci-test-cost and q-fills-at-most-callers are reducing test cost meanwhile.
+job's end: **Linux 10.8 min** (build 3.6, slowest shard 7.2), **macOS 24.2 min** (build 3.3,
+shards 2.0–6.7 min each, but started in waves). It is the first run with q-ci-test-cost's
+regenerated shard times (`1c2e4cb`); the two before took 9.9/23.9 (`bfecbc2`) and 11.2/25.0
+(`15b86fc`). The macOS figure is GitHub's limit of 5 concurrent macOS jobs on this account
+over about 80 macOS runner-minutes (status round 22, `91a352a`): reaching about 10 minutes
+needs a maintainer decision (question below). Stream q-fills-at-most-callers is reducing test
+cost meanwhile.
 
 ## Questions
 
 1. **macOS CI time** (gate d): a higher-concurrency plan, larger paid macOS runners or another
-   provider, or accept about 25 minutes for alpha 1?
+   provider, or accept about 24 minutes for alpha 1?
 2. **U11 (b)'s reference**: is the "adaptive reference" OpenCascade's `BRepGProp` integral (the
    inaccurate side on 1345 faces) or an independent one (Green's-theorem integration agrees with
    haecceity there)? And are the 13 undetermined faces known limitations for alpha 1?
