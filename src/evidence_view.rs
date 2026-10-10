@@ -23,7 +23,7 @@
 //! Features come family by family in Python's registry order (`PHYSICAL_DEFINITIONS`), leaving
 //! out the recess source families and the section recesses as Python does, then the section
 //! recesses and their refusals (the aggregate's projection of the recess source families,
-//! [`section_recess_projection`]: family `section_recesses`, indexed recesses first), then the
+//! [`section_recess_projection`](features::section_recess_family::section_recess_projection): family `section_recesses`, indexed recesses first), then the
 //! hole patterns; candidates in that family order, then by index. The planar outer-profile
 //! evidence is read per face on demand ([`RecognitionEvidence::planar_outer_profile`]), as
 //! Python's view reads it.
@@ -39,7 +39,7 @@ use serde_json::Value;
 
 use crate::features::reconcile::{Disposition, Family, Outcome, ReasonCode, ReconcileError};
 use crate::features::section_recess_family::{
-    SectionRecessFamilyError, SectionRecessProjection, section_recess_projection,
+    SectionRecessFamilyError, SectionRecessProjection, section_recess_projection_in,
 };
 use crate::features::{
     self, Context, Features, Inventory, angled_steps, bosses, circular_face_patterns, countersinks,
@@ -227,14 +227,16 @@ fn sorted(faces: &[usize]) -> Vec<usize> {
 }
 
 /// Recognise *part* and project the outcome onto its faces (`build_recognition_evidence`), or
-/// the reconciliation's or the section-recess projection's refusal. The projection
-/// ([`section_recess_projection`]) recognises the part again, on its own run context: the same
-/// deterministic run Python's single one is.
+/// the reconciliation's or the section-recess projection's refusal. The section recesses are
+/// projected from the same run ([`section_recess_projection_in`]), as Python's single run
+/// projects them, and the wider constituent evidence is read in it too.
 pub fn build_recognition_evidence(
     part: &Part,
 ) -> Result<RecognitionEvidence<'_>, EvidenceViewError> {
-    let inventory = features::inventory(part)?;
-    project(part, inventory, section_recess_projection(part)?)
+    let ctx = Context::new(part);
+    let inventory = features::inventory_in(&ctx)?;
+    let section_recesses = section_recess_projection_in(&ctx, &inventory)?;
+    project(&ctx, inventory, section_recesses)
 }
 
 /// Each physical family's candidates' defining and constituent faces (sorted), by Python family.
@@ -249,12 +251,12 @@ struct Faces {
 type Pairs = Vec<(Vec<usize>, Vec<usize>)>;
 
 /// The candidates' faces. Where Python publishes wider constituent evidence, the port's
-/// occurrences hold it as their consulted faces, so those families are found again here on a
-/// fresh run context and each occurrence checked against the inventory's defining faces;
+/// occurrences hold it as their consulted faces, so those families are found again here in the
+/// inventory's run and each occurrence checked against the inventory's defining faces;
 /// pockets' constituent faces are the reconciliation's evidence, and section passages' come
 /// from their ring proposals (`proposal.constituent or proposal.nodes`). Every other family's
 /// constituent faces are its defining faces, as Python's.
-fn faces(part: &Part, inventory: &Inventory) -> Result<Faces, EvidenceViewError> {
+fn faces(ctx: &Context<'_>, inventory: &Inventory) -> Result<Faces, EvidenceViewError> {
     let mut defining = BTreeMap::new();
     for family in PHYSICAL_FAMILIES {
         let found: Vec<Vec<usize>> = match family {
@@ -269,7 +271,6 @@ fn faces(part: &Part, inventory: &Inventory) -> Result<Faces, EvidenceViewError>
         };
         defining.insert(family, found.iter().map(|f| sorted(f)).collect::<Vec<_>>());
     }
-    let ctx = Context::new(part);
     let mut wider: BTreeMap<&'static str, Pairs> = BTreeMap::new();
     fn pairs<R>(found: Vec<features::evidence::Occurrence<R>>) -> Pairs {
         found
@@ -371,13 +372,14 @@ fn faces(part: &Part, inventory: &Inventory) -> Result<Faces, EvidenceViewError>
     })
 }
 
-/// Project one completed inventory (`_project_recognition_evidence`).
-fn project(
-    part: &Part,
+/// Project one completed inventory of *ctx*'s run (`_project_recognition_evidence`).
+fn project<'a>(
+    ctx: &Context<'a>,
     inventory: Inventory,
     section_recesses: SectionRecessProjection,
-) -> Result<RecognitionEvidence<'_>, EvidenceViewError> {
-    let faces = faces(part, &inventory)?;
+) -> Result<RecognitionEvidence<'a>, EvidenceViewError> {
+    let part = ctx.part;
+    let faces = faces(ctx, &inventory)?;
     let family_of = |family: Family| -> &'static str {
         PHYSICAL_FAMILIES
             .into_iter()

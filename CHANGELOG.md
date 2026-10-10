@@ -46,6 +46,9 @@ B-rep kernel and STEP/AP242 library that replaces OpenCascade.
   (`quiddity-rust/recognition/2`) for draftwright.
 - **Command line** `quiddity`: `parts`, `pmi read`, `pmi check`, `pmi write` (verified by
   reading back), `correspond` and `serve`, with versioned JSON.
+- **Speed**: the recognition evidence view recognises the part once, its section recesses and
+  wider constituent evidence read in the same run (13% fewer instructions over the corpus),
+  and NURBS surface partials inline again; output unchanged.
 
 ### Known limitations
 
