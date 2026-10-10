@@ -4,7 +4,7 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
-## [0.1.0-alpha.1] (unreleased)
+## 0.1.0-alpha.1 (unreleased)
 
 The first alpha: a pure-Rust port of Python quiddity's feature recognition, on haecceity, a
 B-rep kernel and STEP/AP242 library that replaces OpenCascade.
@@ -14,7 +14,7 @@ B-rep kernel and STEP/AP242 library that replaces OpenCascade.
 - **haecceity kernel** (`crates/haecceity`, re-exported as `quiddity::kernel`): B-rep from STEP
   (via `step-io`) with face and edge provenance by `#N`; exact surfaces and curves (analytic,
   NURBS), face moments, volumes, rays and point classification, per-face geometric validity,
-  hidden-line evidence, face triangulation (`Part::mesh`, `Part::triangulate`), a point on each
+  hidden-line and section views for drawings (`hlr`), face triangulation (`Part::mesh`, `Part::triangulate`), a point on each
   trimmed face (`Part::face_anchor`) and the common area of two coplanar faces
   (`overlap::common_area`).
 - **STEP and AP242 reading**: assemblies and distinct parts (`StepFile::read`, `read_part`,
@@ -35,8 +35,8 @@ B-rep kernel and STEP/AP242 library that replaces OpenCascade.
   `restrict_representation_for_surface_condition`; every written document is checked.
 - **Feature recognition**: all 46 of Python quiddity's `recognise_*` entry points, each checked
   call by call against captured Python calls and over a 100-part corpus; `features::recognise`
-  runs 45 families, step levels, risers and section recesses among them, as one reconciled inventory (Python's
-  aggregate reconciliation); the recognition evidence view
+  runs 45 families, step levels, risers and section recesses among them, as one reconciled
+  inventory (Python's aggregate reconciliation); the recognition evidence view
   (`evidence_view::build_recognition_evidence`: constituent and host faces, hole-pattern members
   by position, section recesses); the section-recess family (`recognise_section_recesses`,
   `build_section_recess_document`) as library API; planar outer-profile evidence.
@@ -69,7 +69,9 @@ B-rep kernel and STEP/AP242 library that replaces OpenCascade.
 - Face moments differ from OpenCascade's adaptive integral (`BRepGProp`) by more than 1e-6 on 1358 faces
   (1345 rust-correct, 13 undetermined; `known_face_moments.json`).
 - 13975's and 14052's local-degradation retry is not ported: their section-recess documents
-  and recognition evidence views are refused where Python publishes (rust-wrong, `section_recesses/known_differences.json`).
+  and recognition evidence views are refused where Python publishes (rust-wrong,
+  `section_recesses/known_differences.json`).
 - Every other difference from Python is listed with a verdict in the known-differences files
   the README's table names.
-- CI on macOS takes about 24 minutes (GitHub's 5 concurrent macOS jobs); Linux about 11.
+- CI takes 23 to 29 minutes on macOS (GitHub's 5 concurrent macOS jobs) and 11 to 16 on Linux
+  (runs 38017180699 to 38031639949), against alpha 1's target of about 10 each.
