@@ -5,7 +5,52 @@ geometry-only feature recognition for STEP B-Rep. No OpenCascade: STEP is read w
 [`step-io`](https://crates.io/crates/step-io) and everything the Python implementation asks of
 OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::kernel`).
 
-**Status: prototype.** Ported so far, each checked against Python call by call:
+**Status: 0.1.0-alpha.1 (unreleased).** Changes are in [CHANGELOG.md](CHANGELOG.md); the alpha 1
+gates and their evidence in [docs/alpha1.md](docs/alpha1.md).
+
+What alpha 1 does:
+
+- **Kernel** (`haecceity`): STEP import (assemblies, distinct parts in their own frames, face and
+  edge provenance), exact surfaces and curves, rays and point classification, volumes and face
+  moments, per-face validity, hidden-line and section views, face meshing, a lossless Part 21
+  document with AP242 schema validation, and semantic PMI read and write (written PMI is
+  verified by reading it back).
+- **Recognition**: all 46 of Python quiddity's `recognise_*` entry points (table below), each
+  checked call by call against captured Python calls and over a 100-part corpus;
+  `features::recognise` runs them as one reconciled inventory, section recesses included;
+  fingerprints and correspondence between revisions; a versioned recognition document; the
+  recognition evidence view.
+
+Using it as a library (a path or git dependency on this repository; the crate is not on
+crates.io):
+
+```rust
+let part = quiddity::read_step_file(std::path::Path::new("part.step"))?;
+let features = quiddity::features::recognise(&part); // every family, caller space
+let holes = quiddity::recognise_holes(&part, &Default::default()); // one family
+let recognition = quiddity::correspondence::recognise(&part); // with fingerprints
+```
+
+From the command line (see [Running](#running)): `quiddity part.step` (records, fingerprints,
+recognition document), `quiddity correspond`, `quiddity serve`, `quiddity parts part.step` (the
+distinct parts and the face numbering PMI anchors use), and `quiddity pmi read|check|write`
+(AP242 semantic PMI as versioned JSON; `write` verifies by reading back before replacing the
+output).
+
+Known limitations:
+
+- Section recesses are in `Features` and correspondence, not in the recognition document or the
+  CLI's records (fingerprints only); on corpus parts 13975 and 14052 the family refuses where
+  Python recovers by its local-degradation retry, which is not ported.
+- `Features` gives defining faces only; constituent faces and pattern members are in the
+  recognition evidence view.
+- The PMI writer refuses datum targets, tolerance relations, the 'manufacturing requirement' note
+  route, general tolerance tables and material density; a thread's pitch is not modelled.
+- Every other difference from Python or OpenCascade is listed with a verdict in the files the
+  second table names; the rust-wrong entries are known port defects.
+- CI takes about 11 to 16 minutes on Linux and 23 to 29 on macOS.
+
+Ported, each checked against Python call by call:
 
 | Family | Python entry point | Captured test calls | Not captured | Corpus runs |
 |---|---|---|---|---|
@@ -50,6 +95,7 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 | Polygonal bosses | `recognise_polygonal_bosses` | 133/139 (6 known divergences) | 4 | 100/100 |
 | Polygonal stock | `recognise_polygonal_stock` | 70/70 | 1 | 100/100 |
 | Section passages | `recognise_section_passages` | 83/83 | 3 | 100/100 |
+| Section recesses | `recognise_section_recesses` | 320/321 documents (1 known difference) | 6 | 92/100 (8 known) |
 | Passages (legacy roster) | `recognise_passages` | 60/60 | 2 | 100/100 |
 | Prismatic pockets | `recognise_prismatic_pockets` | 82/82 | 6 | 100/100 |
 | Oriented slots | `recognise_oriented_slots` | 33/33 | 1 | 100/100 |
@@ -57,7 +103,10 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 | Rectangular pads | `recognise_rectangular_pads` | 150/155 (5 known divergences) | 5 | 100/100 |
 | Planar outer profiles (evidence) | `RecognitionEvidence.planar_outer_profile` | 432/433 faces (1 known difference) | 5 | 95/100 (5 known) |
 
-*Captured test calls*: the Python suite's calls replayed by `tests/captured.rs`. *Not captured*:
+*Captured test calls*: the Python suite's calls replayed by `tests/captured.rs` (for section
+recesses, the documents of the parts the section-recess Python tests build and the two golden
+fixtures, compared item by item in `tests/section_recesses.rs`; *Corpus runs* is then the
+corpus files' documents). *Not captured*:
 calls the suite makes that the capture could not record, outside the replay and pinned by it
 (`tools/capture_plugin.py` now lists each with its test and reason; the counts here predate
 that: the committed `calls.json` still holds them as counts per function, all
@@ -154,9 +203,10 @@ does, the step levels' and risers' degraded proof (`levels::proved`), which skip
 and two levels as Python does, and Python's admission of a solid with at most three faulted faces
 (`evidence::locally_valid_solid`, on the kernel's per-face check `Part::bad_faces`, which faults
 14052's face 1 and no other face in the corpus: `crates/haecceity/tests/validity.rs`). Not
-ported: the retry itself (the port's `recognise` checks no family's evidence, so there is no
-refusal to retry on; whether it should panic or carry a refusal is an open maintainer
-question) and the fillet and plate skips (in `fillets.rs` and `plates.rs`; 14052's plate
+ported: the retry itself (the port's `recognise` checks no family's evidence but the
+section-recess projection's, whose refusal on 13975 and 14052 it carries,
+`Features::section_recess_refusal`; whether it should panic, carry a refusal or port the retry
+is an open maintainer question) and the fillet and plate skips (in `fillets.rs` and `plates.rs`; 14052's plate
 evidence is refused, not skipped). `tests/local_degradation.rs` compares which parts retry and
 every skip against the port's evidence paths, with each difference's verdict in
 `captured/local_degradation/known.json`, and checks the degraded holes and pockets under two
@@ -220,7 +270,7 @@ that no rejected candidate is in `recognise` or the document on parts where ever
 the corpus reaches fires, and that a pattern loses a member reconciliation rejects. The thin-wall
 rule reads the risers `inventory` carries.
 
-The kernel also answers the questions the unported families ask of OpenCascade's booleans,
+The kernel also answers the questions the families ask of OpenCascade's booleans,
 checked against every one Python asks over the corpus: the volume a probe shares with a solid
 (`crates/haecceity/src/volume.rs`, `crates/haecceity/tests/probes.rs`) and whether faces cover
 a face (`crates/haecceity/src/cover.rs`, `crates/haecceity/tests/patches.rs`). Faces stored as
@@ -894,8 +944,9 @@ missing or changed. After re-exporting at a new revision, update the `ref:` in
 The corpus tests spread their parts over every core (`tests/common/parallel.rs`) and report in
 corpus order. CI runs the suite in 15 shards per platform, one test at a time, dealt by each test's
 time in a recent run (`.config/test-times.json`, written by `tools/ci_durations.py RUN`; a test
-missing from it counts as one second, so refresh it after adding a costly test): about 11 minutes
-from push on Linux, and about 24 on macOS, which runs five jobs at a time (run 38007924732). Pins
+missing from it counts as one second, so refresh it after adding a costly test): 11 to 16
+minutes from push on Linux, and 23 to 29 on macOS, which runs five jobs at a time (runs
+38017180699 to 38031639949). Pins
 that depend on float round-off across a threshold (`faces_at_most` in `known_correspondence.json`)
 are set so CI's Linux job passes: Linux is the reference platform for them, and macOS may give a
 different count within the bound. CI runs the suite on macOS as well, so the bounds must hold there too.
