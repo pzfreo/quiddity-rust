@@ -609,14 +609,7 @@ impl NurbsSurface {
             }
         }
         let point = [a[0] / a[3], a[1] / a[3], a[2] / a[3]];
-        // Written out rather than `[0, 1, 2].map`, which the compiler stopped inlining here.
-        let derive = |d: [f64; 4]| {
-            [
-                (d[0] - d[3] * point[0]) / a[3],
-                (d[1] - d[3] * point[1]) / a[3],
-                (d[2] - d[3] * point[2]) / a[3],
-            ]
-        };
+        let derive = |d: [f64; 4]| [0, 1, 2].map(|k| (d[k] - d[3] * point[k]) / a[3]);
         (point, derive(a_u), derive(a_v))
     }
 
