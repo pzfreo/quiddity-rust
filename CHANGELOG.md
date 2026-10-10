@@ -35,7 +35,7 @@ B-rep kernel and STEP/AP242 library that replaces OpenCascade.
   `restrict_representation_for_surface_condition`; every written document is checked.
 - **Feature recognition**: all 46 of Python quiddity's `recognise_*` entry points, each checked
   call by call against captured Python calls and over a 100-part corpus; `features::recognise`
-  runs 44 families, step levels and risers among them, as one reconciled inventory (Python's
+  runs 45 families, step levels, risers and section recesses among them, as one reconciled inventory (Python's
   aggregate reconciliation); the recognition evidence view
   (`evidence_view::build_recognition_evidence`: constituent and host faces, hole-pattern members
   by position, section recesses); the section-recess family (`recognise_section_recesses`,
@@ -49,8 +49,10 @@ B-rep kernel and STEP/AP242 library that replaces OpenCascade.
 
 ### Known limitations
 
-- Section recesses are not yet in `Features`, so not in recognition, correspondence or the
-  recognition document, only in the recognition evidence view (docs/alpha1.md (b)).
+- Section recesses are in `Features` and correspondence but not in the recognition document
+  (`quiddity <file>` lists their fingerprints without records); on corpus parts 13975 and 14052
+  the family refuses where Python recovers by local degradation, and the refusal is carried, not
+  published (docs/alpha1.md (b), questions 5 and 6).
 - `Features` gives defining faces only and its patterns hold member copies; constituent faces
   and pattern members are in the recognition evidence view.
 - The writer refuses datum targets, tolerance relations, the 'manufacturing requirement' note
