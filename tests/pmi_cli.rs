@@ -229,8 +229,8 @@ fn pmi_read_of_one_part() {
 /// whenever the reader's output does: when this fails, bump `pmi_json::READER` if `pmi::read`
 /// changed (a JSON-form change bumps `VERSION` instead), then re-pin both.
 const READER_PIN: (&str, &str) = (
-    "haecceity-pmi-read/4",
-    "3a2b4ca955d2f41587816e1b3d490c7037c7cd01e0706e4f0f3c596bfb313e5c",
+    "haecceity-pmi-read/5",
+    "c487367ad3d4286e6872f31a82d1c8c3591ebd603675bec3858207f3858c81db",
 );
 
 #[test]

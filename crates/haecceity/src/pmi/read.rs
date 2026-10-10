@@ -987,6 +987,7 @@ impl<'a> Reader<'a> {
         }
 
         self.notes_on_faces(st, &aspects);
+        self.note_callouts(st);
     }
 
     /// specify-core's notes on faces (its `requirements.append`, Python): a thread, knurl or
@@ -1066,6 +1067,104 @@ impl<'a> Reader<'a> {
                     },
                 }
             }
+        }
+    }
+
+    /// The callouts presenting each note (§7.3): the draughting callouts and annotation
+    /// occurrences a `draughting_model_item_association` relates to the note's property
+    /// definition, or to a shape aspect of the feature it is on that is the note's alone
+    /// (nothing refers to the aspect but its usages, presentation associations and the note's
+    /// property definition: specify-core's notes on faces). A callout's features are those of
+    /// the part's shape aspects its associations relate it to (another part's aspect is that
+    /// part's presentation). What cannot be held is reported: an associated item that is no
+    /// callout or annotation occurrence, an aspect of the part that is no feature. Presentation
+    /// is not consumed: it stays counted, and a replace takes it by its removal policy.
+    fn note_callouts(&mut self, st: &mut PartState) {
+        const DMIA: &str = "draughting_model_item_association";
+        const IIRU: &str = "item_identified_representation_usage";
+        let part = Some(st.id);
+        for i in 0..st.pmi.notes.len() {
+            let Some(pdef) = st.prov.notes[i]
+                .iter()
+                .copied()
+                .find(|&id| self.is(id, "property_definition"))
+            else {
+                continue;
+            };
+            let mut subjects = vec![pdef];
+            if let Some(NoteOwner::Feature(f)) = st.pmi.notes[i].on {
+                let mut aspects: Vec<u64> = st
+                    .features
+                    .iter()
+                    .filter(|(_, v)| **v == Some(f))
+                    .map(|(&a, _)| a)
+                    .collect();
+                aspects.sort_unstable();
+                for a in aspects {
+                    let usages: Vec<u64> = self.usages(a).into_iter().map(|(u, _, _)| u).collect();
+                    let own = self
+                        .doc
+                        .referrers(a)
+                        .to_vec()
+                        .into_iter()
+                        .all(|r| r == pdef || usages.contains(&r) || self.is(r, DMIA));
+                    if own {
+                        subjects.push(a);
+                    }
+                }
+            }
+            let mut callouts = BTreeSet::new();
+            for s in subjects {
+                for assoc in self.referrers_by(s, DMIA, IIRU, "definition") {
+                    for item in self.get_refs(assoc, IIRU, "identified_item") {
+                        if self.is(item, "draughting_callout")
+                            || self.is(item, "annotation_occurrence")
+                        {
+                            callouts.insert(item);
+                        } else {
+                            let what = self.entity_label(item);
+                            self.find(
+                                FindingKind::NotModelled,
+                                part,
+                                assoc,
+                                &[item, s],
+                                format!("a note's presentation association names a {what}, which is no callout or annotation occurrence; not held as the note's callout"),
+                            );
+                        }
+                    }
+                }
+            }
+            let mut held = Vec::new();
+            for c in callouts {
+                let mut features = BTreeSet::new();
+                for assoc in self.referrers_by(c, DMIA, IIRU, "identified_item") {
+                    let Some(d) = self.get_ref(assoc, IIRU, "definition") else {
+                        continue;
+                    };
+                    if !self.is(d, "shape_aspect")
+                        || self.get_ref(d, "shape_aspect", "of_shape") != Some(st.part.shape)
+                    {
+                        continue;
+                    }
+                    match st.features.get(&d).copied().flatten() {
+                        Some(f) => {
+                            features.insert(f);
+                        }
+                        None => self.find(
+                            FindingKind::NotModelled,
+                            part,
+                            assoc,
+                            &[c, d],
+                            "a note's callout is associated with a shape aspect of the part that is not read as a feature; that association is not held",
+                        ),
+                    }
+                }
+                held.push(Callout {
+                    name: self.name_of(c),
+                    features: features.into_iter().collect(),
+                });
+            }
+            st.pmi.notes[i].callouts = held;
         }
     }
 
@@ -4283,12 +4382,67 @@ impl<'a> Reader<'a> {
                 items.push((key, v));
             }
         }
+        let description = self
+            .get_str(pdef, "property_definition", "description")
+            .filter(|d| !d.is_empty());
+        let general_property = self.general_property(part, pdef, gpas);
         st.pmi.attributes.push(AttributeSet {
             name: name.to_string(),
             on,
             items,
+            description,
+            general_property,
         });
         st.prov.attributes.push(ids(prov));
+    }
+
+    /// The `general_property` an attribute's property definition is associated with by its
+    /// associations `gpas`: one, naming a `general_property`; otherwise none, reported
+    /// (several: `general_property_association` WR1; a base that is not one: unresolved).
+    fn general_property(
+        &mut self,
+        part: Option<PartId>,
+        pdef: u64,
+        gpas: &[u64],
+    ) -> Option<GeneralProperty> {
+        let g = match gpas {
+            [] => return None,
+            [g] => *g,
+            _ => {
+                self.find(
+                    FindingKind::Nonconformance,
+                    part,
+                    pdef,
+                    gpas,
+                    format!("a user defined attribute derived by {} general property associations (general_property_association WR1: exactly 1); its general property is not held", gpas.len()),
+                );
+                return None;
+            }
+        };
+        match self.get_ref(g, "general_property_association", "base_definition") {
+            Some(gp) if self.is(gp, "general_property") => Some(GeneralProperty {
+                id: self
+                    .get_str(gp, "general_property", "id")
+                    .unwrap_or_default(),
+                name: self
+                    .get_str(gp, "general_property", "name")
+                    .unwrap_or_default(),
+                description: self.get_str(gp, "general_property", "description"),
+            }),
+            gp => {
+                self.find(
+                    FindingKind::Unresolved,
+                    part,
+                    g,
+                    &[pdef],
+                    format!(
+                        "general property association's base definition {} is not a general_property; the attribute's general property is not held",
+                        gp.map_or("(unset)".to_string(), |gp| format!("#{gp}"))
+                    ),
+                );
+                None
+            }
+        }
     }
 
     /// The general tolerance (decision 3): 'tolerance class' items of the 'default
@@ -4634,6 +4788,7 @@ impl<'a> Reader<'a> {
             kind: kind.to_string(),
             text: text.clone(),
             on,
+            callouts: Vec::new(),
         });
         st.prov.notes.push(ids(prov));
     }
