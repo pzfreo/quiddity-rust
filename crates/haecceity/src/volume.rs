@@ -491,7 +491,14 @@ fn shared(
     // The integrators take plain lengths: a line either shape cannot resolve is noted here, and
     // the whole answer refused.
     let unresolved = std::cell::Cell::new(false);
+    let seen = std::cell::RefCell::new(std::collections::HashSet::new());
+    let calls = std::cell::Cell::new(0usize);
+    let empties = std::cell::Cell::new(0usize);
+    let c0 = crate::rays::CONTACTS.load(std::sync::atomic::Ordering::Relaxed);
+    let t0 = std::time::Instant::now();
     let length = |h: f64, s: f64| {
+        calls.set(calls.get() + 1);
+        seen.borrow_mut().insert((h.to_bits(), s.to_bits()));
         let origin = geom::add(
             geom::add(geom::scale(frame.z, h), geom::scale(frame.x, s)),
             geom::scale(frame.y, start),
@@ -503,6 +510,7 @@ fn shared(
             unresolved.set(true);
             return [0.0, 0.0];
         };
+        if probed.is_empty() { empties.set(empties.get() + 1); }
         let inside: Vec<(f64, f64)> = probed
             .into_iter()
             .map(|(a, b)| (a + inset, b - inset))
@@ -566,6 +574,20 @@ fn shared(
         integrate(&|s| length(h, s), across, ss, rule.per(h1 - h0))
     };
     let total = integrate_until(&area, (h0, h1), hs, rule, stop);
+    eprintln!(
+        "VP kind={} inset={inset} curved={} lines={} distinct={} probe_empty={} contacts={} ms={:.1} unresolved={} total={:?} pb={:?} sb={:?}",
+        match probe { Probe::Box(_) => "box", Probe::Solid(_) => "solid", Probe::Prism(_) => "prism" },
+        mine.curved || theirs.curved,
+        calls.get(),
+        seen.borrow().len(),
+        empties.get(),
+        crate::rays::CONTACTS.load(std::sync::atomic::Ordering::Relaxed) - c0,
+        t0.elapsed().as_secs_f64() * 1e3,
+        unresolved.get(),
+        total,
+        pb,
+        sb
+    );
     (!unresolved.get()).then_some(total)
 }
 

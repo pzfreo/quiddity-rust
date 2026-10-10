@@ -463,6 +463,7 @@ impl<'a> RayCaster<'a> {
     /// *uv* are the point's parameters where the ray's intersection found them; otherwise they
     /// are found by inverting the surface at *q*.
     fn contact(&self, i: usize, q: V3, uv: Option<(f64, f64)>, across: bool) -> Option<Contact> {
+        CONTACTS.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         let part = self.part;
         let surface = &part.faces[i].surface;
         let exact = !matches!(surface, Surface::Freeform { .. });
@@ -753,6 +754,7 @@ impl Part {
     }
 }
 
+pub static CONTACTS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 const LEAF: usize = 4;
 
 fn build(mut faces: Vec<usize>, boxes: &[Bounds]) -> Node {
