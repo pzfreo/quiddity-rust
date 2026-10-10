@@ -1,48 +1,6 @@
 [
   {
     "case": "candidates",
-    "file": "parts/45e9d1ade38c84f9.step.gz",
-    "verdict": "rust-wrong",
-    "reason": "The one candidate Python finds is the mixed floor reading the port refuses (this part's floor entry for face 14). A test part's tilted (run 0.515038, -0.250611, 0.819713) mixed line/arc pocket on floor 14: Python proves it from its exact swept floor. The port reads the same floor section, walls, mouth and solid, and its swept floor is covered, but the kernel's ray-cast volume probe cannot answer the first probe (the floor swept from low+1e-6 to high-1e-6, its own volume 461.16 known): kernel::volume::common_volume returns None, its rays unresolved (trimmed hits or odd parity) against this oblique line/arc extrusion; the same prism measured against its own classifier is unanswered for 4 of 5 sweep lengths tried (1, -1, 4.9 and 5; 2 is answered). An unanswered probe proves nothing, so the port refuses the reading: a kernel ray-casting limitation on oblique cylinder sides."
-  },
-  {
-    "case": "floor",
-    "file": "parts/45e9d1ade38c84f9.step.gz",
-    "floor": 14,
-    "kind": "mixed",
-    "verdict": "rust-wrong",
-    "reason": "A test part's tilted (run 0.515038, -0.250611, 0.819713) mixed line/arc pocket on floor 14: Python proves it from its exact swept floor. The port reads the same floor section, walls, mouth and solid, and its swept floor is covered, but the kernel's ray-cast volume probe cannot answer the first probe (the floor swept from low+1e-6 to high-1e-6, its own volume 461.16 known): kernel::volume::common_volume returns None, its rays unresolved (trimmed hits or odd parity) against this oblique line/arc extrusion; the same prism measured against its own classifier is unanswered for 4 of 5 sweep lengths tried (1, -1, 4.9 and 5; 2 is answered). An unanswered probe proves nothing, so the port refuses the reading: a kernel ray-casting limitation on oblique cylinder sides."
-  },
-  {
-    "case": "candidates",
-    "file": "parts/9bca23df92c97e5c.step.gz",
-    "verdict": "rust-wrong",
-    "reason": "The one candidate Python finds is the mixed floor reading the port refuses (this part's floor entry for face 14). A test part's tilted (run 0.515038, -0.250611, 0.819713) mixed line/arc pocket on floor 14: Python proves it from its exact swept floor. The port reads the same floor section, walls, mouth and solid, and its swept floor is covered, but the kernel's ray-cast volume probe cannot answer the first probe (the floor swept from low+1e-6 to high-1e-6, its own volume 461.16 known): kernel::volume::common_volume returns None, its rays unresolved (trimmed hits or odd parity) against this oblique line/arc extrusion; the same prism measured against its own classifier is unanswered for 4 of 5 sweep lengths tried (1, -1, 4.9 and 5; 2 is answered). An unanswered probe proves nothing, so the port refuses the reading: a kernel ray-casting limitation on oblique cylinder sides."
-  },
-  {
-    "case": "floor",
-    "file": "parts/9bca23df92c97e5c.step.gz",
-    "floor": 14,
-    "kind": "mixed",
-    "verdict": "rust-wrong",
-    "reason": "A test part's tilted (run 0.515038, -0.250611, 0.819713) mixed line/arc pocket on floor 14: Python proves it from its exact swept floor. The port reads the same floor section, walls, mouth and solid, and its swept floor is covered, but the kernel's ray-cast volume probe cannot answer the first probe (the floor swept from low+1e-6 to high-1e-6, its own volume 461.16 known): kernel::volume::common_volume returns None, its rays unresolved (trimmed hits or odd parity) against this oblique line/arc extrusion; the same prism measured against its own classifier is unanswered for 4 of 5 sweep lengths tried (1, -1, 4.9 and 5; 2 is answered). An unanswered probe proves nothing, so the port refuses the reading: a kernel ray-casting limitation on oblique cylinder sides."
-  },
-  {
-    "case": "candidates",
-    "file": "parts/aa10cea8dede61f3.step.gz",
-    "verdict": "rust-wrong",
-    "reason": "The one candidate Python finds is the mixed floor reading the port refuses (this part's floor entry for face 14). A test part's tilted (run 0.515038, -0.250611, 0.819713) mixed line/arc pocket on floor 14: Python proves it from its exact swept floor. The port reads the same floor section, walls, mouth and solid, and its swept floor is covered, but the kernel's ray-cast volume probe cannot answer the first probe (the floor swept from low+1e-6 to high-1e-6, its own volume 461.16 known): kernel::volume::common_volume returns None, its rays unresolved (trimmed hits or odd parity) against this oblique line/arc extrusion; the same prism measured against its own classifier is unanswered for 4 of 5 sweep lengths tried (1, -1, 4.9 and 5; 2 is answered). An unanswered probe proves nothing, so the port refuses the reading: a kernel ray-casting limitation on oblique cylinder sides."
-  },
-  {
-    "case": "floor",
-    "file": "parts/aa10cea8dede61f3.step.gz",
-    "floor": 14,
-    "kind": "mixed",
-    "verdict": "rust-wrong",
-    "reason": "A test part's tilted (run 0.515038, -0.250611, 0.819713) mixed line/arc pocket on floor 14: Python proves it from its exact swept floor. The port reads the same floor section, walls, mouth and solid, and its swept floor is covered, but the kernel's ray-cast volume probe cannot answer the first probe (the floor swept from low+1e-6 to high-1e-6, its own volume 461.16 known): kernel::volume::common_volume returns None, its rays unresolved (trimmed hits or odd parity) against this oblique line/arc extrusion; the same prism measured against its own classifier is unanswered for 4 of 5 sweep lengths tried (1, -1, 4.9 and 5; 2 is answered). An unanswered probe proves nothing, so the port refuses the reading: a kernel ray-casting limitation on oblique cylinder sides."
-  },
-  {
-    "case": "candidates",
     "file": "parts/2e5c3ece457e6e43.step.gz",
     "verdict": "equivalent",
     "reason": "The passage on walls 10, 11, 12 publishes frame origin z 91.234 here and 91.235 in Python, a three-decimal rounding tie: the test part places it at 91.2345, the port's passage prover gives 91.2345 (the double just below) and Python's 91.23450000000001, one ulp apart (tests/section_geometry.rs agrees at 1e-6). Everything else agrees, and from Python's own proof the port's projection gives Python's 91.235 (this part's passage call agrees). One geometry, rounded to either side of a tie."

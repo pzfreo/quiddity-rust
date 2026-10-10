@@ -582,7 +582,8 @@ impl Part {
     /// The topological half of `BRepCheck` validity that the evidence path depends on: every
     /// edge of the solid is used by exactly two faces (or twice by one, as a seam), and two
     /// different faces sharing an open edge run it in opposite directions, so the shell is closed
-    /// and orientable.
+    /// and orientable. An edge used more often is valid as `BRepCheck_Shell` reads it: as often
+    /// each way, the shell not parted there ([`Self::multi_edges_join_one_set`]).
     ///
     /// A closed edge (a full circle) is exempt from the direction test: it joins itself
     /// whichever way it is run, so its recorded direction is not evidence. OpenCascade writes
@@ -640,11 +641,49 @@ impl Part {
                 }
             }
         }
-        !uses.is_empty()
+        let sound = !uses.is_empty()
             && !uses.keys().any(|e| self.unresolved_edges.contains(e))
             && uses.iter().all(|(&e, u)| match u.as_slice() {
                 [(fa, da), (fb, db)] => fa == fb || da != db || self.edges[e].is_closed(),
-                _ => false,
-            })
+                [_] => false,
+                _ => {
+                    let forward = u.iter().filter(|(_, d)| *d).count();
+                    2 * forward == u.len()
+                }
+            });
+        sound && self.multi_edges_join_one_set(&uses)
+    }
+
+    /// `BRepCheck_Shell`'s multiple connexity: an edge used more than twice (by more than two
+    /// face sides, a seam's two counted) is valid when its uses run as often each way and the
+    /// faces around every such edge are one set joined through the other edges. A bore
+    /// tangent inside a wall meets the wall along one edge four times (the wall, its neighbour
+    /// and the bore's seam twice) and stays one shell; two boxes sewn at an edge fall apart into
+    /// two sets there (`InvalidMultiConnexity`).
+    fn multi_edges_join_one_set(
+        &self,
+        uses: &std::collections::BTreeMap<usize, Vec<(usize, bool)>>,
+    ) -> bool {
+        let multi: Vec<&Vec<(usize, bool)>> = uses.values().filter(|u| u.len() > 2).collect();
+        if multi.is_empty() {
+            return true;
+        }
+        let mut set: std::collections::BTreeMap<usize, usize> = Default::default();
+        fn root(set: &mut std::collections::BTreeMap<usize, usize>, f: usize) -> usize {
+            let parent = *set.entry(f).or_insert(f);
+            if parent == f {
+                return f;
+            }
+            let top = root(set, parent);
+            set.insert(f, top);
+            top
+        }
+        for u in uses.values().filter(|u| u.len() <= 2) {
+            let (a, b) = (root(&mut set, u[0].0), root(&mut set, u[u.len() - 1].0));
+            set.insert(a, b);
+        }
+        let mut roots = multi.iter().flat_map(|u| u.iter()).map(|&(f, _)| f);
+        let first = roots.next().map(|f| root(&mut set, f));
+        roots.all(|f| Some(root(&mut set, f)) == first)
     }
 }
