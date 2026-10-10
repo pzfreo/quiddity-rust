@@ -1173,6 +1173,15 @@ impl<'a> Reader<'a> {
                 Some(fid)
             }
             Built::Alias(member, prov) => {
+                if st.holes.remove(&id).is_some() {
+                    self.find(
+                        FindingKind::NotModelled,
+                        Some(st.id),
+                        id,
+                        &[],
+                        "the occurrence is read as the feature of its one member; its feature definition (basic_round_hole) is not held there",
+                    );
+                }
                 let fid = self.feature(st, member);
                 if let Some(f) = fid {
                     let p = &mut st.prov.features[f.0];
@@ -1184,7 +1193,7 @@ impl<'a> Reader<'a> {
             }
             Built::None => None,
         };
-        // A hole read with a feature that then failed is reported by that failure.
+        // A hole whose feature failed is reported by that failure.
         st.holes.remove(&id);
         st.features.insert(id, r);
         r

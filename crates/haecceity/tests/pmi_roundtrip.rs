@@ -370,8 +370,9 @@ fn strip(p: &PartPmi, refused: &[ItemRef]) -> PartPmi {
         holes: p
             .holes
             .iter()
-            .filter(|h| f_ok(h.feature))
-            .map(|h| {
+            .enumerate()
+            .filter(|(i, h)| !has(ItemRef::Hole(*i)) && f_ok(h.feature))
+            .map(|(_, h)| {
                 let mut h = h.clone();
                 h.feature = f(h.feature);
                 h

@@ -770,12 +770,14 @@ fn refusal_key(kind: &str, why: &str) -> String {
     format!("{kind}: {why}")
 }
 
-/// The items no other item references (notes, tolerance relations, attribute sets), by their
-/// refusal kind and JSON list: a document without them keeps every other reference valid.
-const LEAF_ITEMS: [(&str, &str); 3] = [
+/// The items no other item references (notes, tolerance relations, attribute sets, hole
+/// definitions), by their refusal kind and JSON list: a document without them keeps every other
+/// reference valid.
+const LEAF_ITEMS: [(&str, &str); 4] = [
     ("Note", "notes"),
     ("ToleranceRelation", "tolerance_relations"),
     ("Attribute", "attributes"),
+    ("Hole", "holes"),
 ];
 
 /// `doc` without the refused leaf items, or `None` when a refused item is not a leaf.
@@ -845,8 +847,8 @@ fn read_back_differences(doc: &Json, back: &Json, label: &str) -> Vec<String> {
 ///
 /// - The JSON `pmi read` printed is written back as it is. Where the writer refuses items, the
 ///   write is refused (exit 1, nothing created), naming exactly the pinned refusals. Where those
-///   are all items no other item references (notes, tolerance relations, attribute sets), they
-///   are left out of the JSON and the write repeated.
+///   are all items no other item references (notes, tolerance relations, attribute sets,
+///   holes), they are left out of the JSON and the write repeated.
 /// - A write the pin records as refused by the removal plan is refused so.
 /// - Otherwise the output reads back as the JSON written (by meaning, every value's text and
 ///   unit as stated), with the pinned number of presentation instances removed and the pinned
@@ -1047,7 +1049,7 @@ fn pmi_write_is_deterministic_and_keeps_inch_values_as_stated() {
             let pmi = part["pmi"].as_object_mut().unwrap();
             pmi.remove("tolerance_relations");
             pmi.remove("attributes");
-            // The writer does not write hole definitions (docs/step-ap242.md, Q-holes).
+            // The writer refuses hole definitions (docs/step-ap242.md, Q-holes).
             pmi.remove("holes");
         }
         let (out, output) = write_cli(p, &doc, &format!("inch-{n}"), &args);

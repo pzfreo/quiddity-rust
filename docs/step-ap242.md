@@ -1043,12 +1043,12 @@ finding stays, naming what is not held, for any other definition (counterbore, c
 explicit), a `limits_and_fits` diameter tolerance, anything else referring to the definition (a
 `round_hole_bottom_condition`, a property), a placement that is not one `axis2_placement_3d`,
 several mapped items or one that maps something else, and an occurrence read only as a member of
-another feature; WR7 (through XOR depth) violated is a nonconformance, read as stated. All 25
-occurrences of STC-09 are held (`reads_hole_occurrences_with_their_definition`, with each
+another feature or as the feature of its one member; WR7 (through XOR depth) violated is a
+nonconformance, read as stated. All 25 occurrences of STC-09 are held (`reads_hole_occurrences_with_their_definition`, with each
 diameter dimension on them stating its holes' diameter and deviations;
 `hole_definition_not_held_is_reported`). OpenCascade's XCAF reads no hole definition (its
 capture has the dimensions only), so the file is the oracle. `pmi read`'s JSON carries `holes`
-(`haecceity-pmi-read/5`).
+(`haecceity-pmi-read/5`). The writer refuses holes (question 7).
 
 ### Questions (2026-10-09)
 
@@ -1093,12 +1093,11 @@ What was done meanwhile is in each.
    own test of specify-core intents does). Where should the pitch go, and what does 'number of
    threads' count?
 7. **Q-holes: the writer and hole occurrences** (2026-10-10). The reader now holds
-   `PartPmi.holes`; `pmi::write` (not changed with it) neither writes nor refuses them, and
-   `differences` does not compare them, so a model carrying holes written in `Add` or `Replace`
-   writes the occurrences' faces as plain features and drops the definitions without a
-   refusal (`Remove` refuses a non-empty model already). Should the writer refuse holes for now
-   (listed with the other refusals) or write `basic_round_hole_occurrence`s? *Meanwhile:*
-   unchanged; specify-core writes no holes.
+   `PartPmi.holes`; `pmi::write` refuses each by name (`ItemRef::Hole`, "read but not written
+   yet", like datum targets and tolerance relations), so a model carrying holes is never
+   written with its definitions silently dropped. Should the writer go on to write
+   `basic_round_hole_occurrence`s (definition, tolerance values, mapped-item placement), or
+   keep refusing them? *Meanwhile:* refused; specify-core writes no holes.
 
 ## Out of scope for now
 

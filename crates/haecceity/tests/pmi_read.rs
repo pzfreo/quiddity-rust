@@ -3168,6 +3168,30 @@ fn reads_hole_occurrences_with_their_definition() {
         checked += 1;
     }
     assert!(checked >= 8, "{checked} diameter dimensions on holes");
+    // The writer does not write hole definitions: each is refused by name, never dropped
+    // (docs/step-ap242.md, Q-holes).
+    let dir = common::fixtures().join("ap242/nist");
+    let bytes = file_bytes(&dir.join("nist_stc_09_asme1_ap242-e4.stp.gz"));
+    let parts = read_part_definitions(&bytes).expect("part definitions");
+    use pmi::write::{ItemRef, PresentationPolicy, WriteError};
+    let pmi = [(PartId(0), p.clone())];
+    match pmi::write::write(
+        &doc,
+        &parts,
+        &pmi,
+        Mode::Replace,
+        PresentationPolicy::RemovePresentation,
+    ) {
+        Err(WriteError::Refused(list)) => {
+            for i in 0..p.holes.len() {
+                assert!(
+                    list.iter().any(|r| r.item == ItemRef::Hole(i)),
+                    "hole {i} not refused: {list:?}"
+                );
+            }
+        }
+        other => panic!("holes not refused: {:?}", other.err()),
+    }
 }
 
 /// What is not held of a hole definition keeps the occurrence's finding, naming it: here a
