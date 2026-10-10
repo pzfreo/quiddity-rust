@@ -99,6 +99,19 @@ impl CylindricalEndSurface {
         self.branch
     }
 
+    /// The axis point: its section coordinates, then its height along the run.
+    pub fn axis_point(&self) -> V3 {
+        self.axis_point
+    }
+
+    pub fn axis_direction(&self) -> V2 {
+        self.axis_direction
+    }
+
+    pub fn radius(&self) -> f64 {
+        self.radius
+    }
+
     /// The signed distance of a section point from the axis, across it (`_offset`).
     fn offset(&self, point: V2) -> Checked<f64> {
         if !finite(&point) {

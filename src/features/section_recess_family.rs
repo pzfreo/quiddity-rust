@@ -135,12 +135,22 @@ pub fn section_recess_projection(
 ) -> Result<SectionRecessProjection, SectionRecessFamilyError> {
     let ctx = Context::new(part);
     let inventory = inventory_in(&ctx)?;
-    let surfaces = EffectiveFaces::new(&ctx);
-    let native = discover_section_recesses(&ctx, &surfaces)?
+    section_recess_projection_in(&ctx, &inventory)
+}
+
+/// The section-recess projection of a run the caller keeps: the native records discovered on
+/// *ctx* and the projection of *inventory*, that run's recognition and reconciliation
+/// ([`super::recognise`] reads its section recesses so, from its one inventory run).
+pub(crate) fn section_recess_projection_in(
+    ctx: &Context<'_>,
+    inventory: &Inventory,
+) -> Result<SectionRecessProjection, SectionRecessFamilyError> {
+    let surfaces = EffectiveFaces::new(ctx);
+    let native = discover_section_recesses(ctx, &surfaces)?
         .into_iter()
         .map(|o| o.record)
         .collect();
-    project(&ctx, &surfaces, &inventory, native)
+    project(ctx, &surfaces, inventory, native)
 }
 
 /// `dataclasses.replace(record, index=index)`, which validates the record again.

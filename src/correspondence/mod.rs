@@ -106,7 +106,7 @@ fn frame_axes(
     if local.is_empty() {
         return;
     }
-    let json = serde_json::to_value(features).expect("records serialise");
+    let json = fingerprint::records_json(features);
     for f in &mut fingerprints.features {
         let Some(paths) = local.get(&f.id) else {
             continue;

@@ -160,9 +160,10 @@
     "file": "nist/nist_ctc_05_asme1_rd.stp",
     "motion": "translate",
     "verdict": "rust-wrong",
-    "reason": "A hole's depth, rounded to 0.01 mm as Python rounds it, lies on a half-way point of that grid (92.075, 59.075), so round-off from the placement decides which way it rounds: the record itself changes, and the correspondence honestly reports the hole adapted (to itself). The recogniser's rounding, not correspondence, is at fault; Python behaves the same.",
+    "reason": "A hole's depth, rounded to 0.01 mm as Python rounds it, lies on a half-way point of that grid (92.075, 59.075), so round-off from the placement decides which way it rounds: the record itself changes, and the correspondence honestly reports the hole adapted (to itself). The recogniser's rounding, not correspondence, is at fault; Python behaves the same. The section recess on the same walls: The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
     "features": [
-      "holes/14"
+      "holes/14",
+      "section_recesses/3"
     ],
     "faces": 0
   },
@@ -351,9 +352,10 @@
     "file": "mfcadpp/10047.step",
     "motion": "translate",
     "verdict": "rust-wrong",
-    "reason": "The record's length moves by one 0.01 mm step: Python publishes recess coordinates on a two-decimal grid in absolute coordinates and derives length from the rounded ends extended by the obround end radius, so the motion shifts the grid under the feature and the rounded value changes. Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked: translated, Python's length is 4.13 against 4.12 unmoved).",
+    "reason": "The record's length moves by one 0.01 mm step: Python publishes recess coordinates on a two-decimal grid in absolute coordinates and derives length from the rounded ends extended by the obround end radius, so the motion shifts the grid under the feature and the rounded value changes. Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked: translated, Python's length is 4.13 against 4.12 unmoved). The section recess on the same walls: The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
     "features": [
-      "pockets/0"
+      "pockets/0",
+      "section_recesses/5"
     ],
     "faces": 0
   },
@@ -417,9 +419,10 @@
     "file": "mfcadpp/10119.step",
     "motion": "rot_zx_moved",
     "verdict": "rust-wrong",
-    "reason": "The record's depth moves by one 0.01 mm step: Python publishes recess coordinates on a two-decimal grid in absolute coordinates and derives depth from the end caps' already-rounded depth extent (an obround pocket recovered from its caps), so the motion shifts the grid under the feature and the rounded value changes. Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's depth is 2.92 against 2.93 unmoved).",
+    "reason": "The record's depth moves by one 0.01 mm step: Python publishes recess coordinates on a two-decimal grid in absolute coordinates and derives depth from the end caps' already-rounded depth extent (an obround pocket recovered from its caps), so the motion shifts the grid under the feature and the rounded value changes. Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's depth is 2.92 against 2.93 unmoved). The section recess on the same walls: The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
     "features": [
-      "pockets/2"
+      "pockets/2",
+      "section_recesses/3"
     ],
     "faces": 0
   },
@@ -711,5 +714,302 @@
     "check": "other new risers/0",
     "verdict": "not-applicable",
     "reason": "The whole part is turned (Rot(90, 0, 90): the file's z becomes horizontal). Caller-space recognition reads step levels and risers along world Z by specification (quiddity.levels; tests/invariance.rs WORLD_Z), so the turned part's are other faces' readings: the old level has no counterpart and the turned part's vertical walls give a riser. Not a correspondence question."
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp_holdout/119.step",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/1"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp_holdout/419.step",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp_holdout/419.step",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/5"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/5"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10020.step",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/5"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10020.step",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/5"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp_holdout/317.step",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/4"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp_holdout/317.step",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/4"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/2"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10060.step",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/2"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10224.step",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/2"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/1008.step",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/1008.step",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10255.step",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/1"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10255.step",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/1"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp_holdout/238.step",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/2"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp_holdout/238.step",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/2"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp_holdout/363.step",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp_holdout/363.step",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10170.step",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10170.step",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/0"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp_holdout/244.step",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/2"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp/10047.step",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/5"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp_holdout/118.step",
+    "motion": "translate",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/6"
+    ],
+    "faces": 0
+  },
+  {
+    "test": "invariance",
+    "file": "mfcadpp_holdout/118.step",
+    "motion": "rot_zx_moved",
+    "verdict": "rust-wrong",
+    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "features": [
+      "section_recesses/6"
+    ],
+    "faces": 0
   }
 ]

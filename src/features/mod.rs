@@ -159,6 +159,17 @@ pub struct Features {
     /// The aggregate's risers (`RecognitionResult.risers`, `_discover_risers`), less those
     /// reconciliation rejects for a thin-wall body.
     pub risers: Vec<levels::RiserEvidence>,
+    /// The aggregate's section recesses (`RecognitionResult.section_recesses`, projected by
+    /// `_project_result` from the same run: [`section_recess_family`]), in Python's order, each
+    /// defined by its record's own defining faces. [`recognise`] fills them; the inventory's
+    /// candidates have none. Not serialised: whether the recognition document carries them (and
+    /// instead of section passages) is an open maintainer question.
+    #[serde(skip)]
+    pub section_recesses: Vec<section_recess::SectionRecess>,
+    /// The section-recess projection's refusal, where [`recognise`] carries one (and so has no
+    /// section recesses).
+    #[serde(skip)]
+    pub section_recess_refusal: Option<section_recess_family::SectionRecessFamilyError>,
     /// Each family's defining faces, record by record, under the family's field name. Derived
     /// families (hole, gusset rib, slot, pocket and oriented slot patterns) have none of their own: their
     /// members' faces are theirs ([`crate::correspondence`]).
@@ -172,13 +183,31 @@ pub type Defining = BTreeMap<&'static str, Vec<Vec<usize>>>;
 /// Recognise every ported family on *part* with default options, as Python's aggregate does:
 /// holes carry their countersinks, every candidate the reconciliation rejects is dropped (with
 /// its defining faces), and patterns are found among the accepted holes, gusset ribs, slots,
-/// pockets and oriented slots (`_take_inventory_once`). Python refuses the whole recognition
-/// where two rules decide one candidate; `recognise` has no refusal to return, so it panics with
-/// the message.
+/// pockets and oriented slots (`_take_inventory_once`); the section recesses are projected from
+/// the same run (`_project_result`). Python refuses the whole recognition where two rules decide
+/// one candidate; `recognise` has no refusal to return, so it panics with the message. Python
+/// also refuses it where the section-recess projection raises, which on the corpus happens to
+/// the port only where it lacks Python's local-degradation retry (13975, 14052: an accepted
+/// record whose faces have no valid solid); there the other families are kept and the
+/// projection's refusal is carried in [`Features::section_recess_refusal`], with no section
+/// recesses (whether to panic or carry a refusal is an open maintainer question).
 pub fn recognise(part: &Part) -> Features {
-    inventory(part)
-        .unwrap_or_else(|e| panic!("reconciliation refused: {e}"))
-        .accepted()
+    let ctx = Context::new(part);
+    let inventory = inventory_in(&ctx).unwrap_or_else(|e| panic!("reconciliation refused: {e}"));
+    let projection = section_recess_family::section_recess_projection_in(&ctx, &inventory);
+    let mut features = inventory.accepted();
+    let (section_recesses, refusal) = match projection {
+        Ok(p) => (p.section_recesses, None),
+        Err(e) => (Vec::new(), Some(e)),
+    };
+    let defining = section_recesses
+        .iter()
+        .map(|r| r.evidence().defining_faces().to_vec())
+        .collect();
+    features.defining.insert("section_recesses", defining);
+    features.section_recesses = section_recesses;
+    features.section_recess_refusal = refusal;
+    features
 }
 
 /// One run's physical candidates and the aggregate's decisions on them (Python's
@@ -202,7 +231,7 @@ pub struct Inventory {
 impl Inventory {
     /// The accepted inventory (`accepted_set` on every family) with its patterns derived
     /// (`_derive_patterns`): each rejected candidate's record and defining faces dropped, in
-    /// order.
+    /// order. Section recesses are not projected here ([`recognise`] does, from the run).
     pub fn accepted(self) -> Features {
         let mut f = self.physical;
         let mut rejected: BTreeMap<reconcile::Family, BTreeSet<usize>> = BTreeMap::new();
@@ -445,6 +474,8 @@ pub(crate) fn inventory_in(ctx: &Context<'_>) -> Result<Inventory, reconcile::Re
         ),
         step_levels,
         risers,
+        section_recesses: Vec::new(),
+        section_recess_refusal: None,
         defining: defining.defining,
     };
     // The thin-wall rule reads the risers this inventory carries, in its order.

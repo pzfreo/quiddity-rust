@@ -13,9 +13,11 @@
 //!   solids are not all valid;
 //! - on every part Python retried, each record Python skipped: what the port's evidence path for
 //!   that family does with it. Holes and pockets have the degraded path
-//!   (`discover_locally_degraded`); the other families' strict paths answer `refused` (the
-//!   whole family), `published` (a record on those faces) or `skipped` (no record there). A
-//!   face is found by its box, so a part the port reads in another face order still compares.
+//!   (`discover_locally_degraded`), and step levels and risers Python's degraded proof
+//!   (`levels::proved` under local degradation); the other families' strict paths answer
+//!   `refused` (the whole family), `published` (a record on those faces) or `skipped` (no record
+//!   there). A face is found by its box, so a part the port reads in another face order still
+//!   compares.
 //!
 //! Every difference is listed in `captured/local_degradation/known.json` with a verdict and a
 //! reason: `{"file", "kind": "retry", "rust"}` for a part only one side retries, `{"file",
@@ -30,7 +32,7 @@ use std::path::PathBuf;
 
 use quiddity::Part;
 use quiddity::features::evidence::EvidenceError;
-use quiddity::features::{Context, countersinks, holes, pockets};
+use quiddity::features::{Context, Occurrence, countersinks, holes, levels, pockets};
 use quiddity::kernel::step::{Placement, read_step_file, read_step_file_placed};
 use serde_json::{Value, json};
 
@@ -210,26 +212,52 @@ fn port_face(part: &Part, python: &Value) -> Option<usize> {
     (matches.len() == 1).then(|| matches[0])
 }
 
-/// The Python entry point whose evidence path a skipping family function is part of; `None`
-/// for one the port has no evidence path for (face levels and risers are measurements there).
-fn entry_point(module: &str, function: &str) -> Option<&'static str> {
-    Some(match (module, function) {
+/// The Python entry point whose evidence path a skipping family function is part of (for step
+/// levels and risers, the aggregate's own discovery).
+fn entry_point(module: &str, function: &str) -> &'static str {
+    match (module, function) {
         ("holes", "_discover_holes") => "recognise_holes",
         ("fillets", "_discover_fillets") => "recognise_fillets",
         ("_recess_features", "_discover_pockets") => "recognise_pockets",
         ("plates", "_discover_plates") => "recognise_plates",
-        ("levels", "_discover_step_levels" | "_discover_risers") => return None,
+        ("levels", "_discover_step_levels") => "_discover_step_levels",
+        ("levels", "_discover_risers") => "_discover_risers",
         other => panic!("{other:?}: no evidence path mapped for this skip"),
-    })
+    }
+}
+
+/// The aggregate's step levels (or risers) that its proof under local degradation keeps
+/// (`levels::proved`): each one's defining faces.
+fn degraded_levels(part: &Part, risers: bool) -> Result<Vec<Vec<usize>>, String> {
+    fn faces<R>(found: Vec<Occurrence<R>>) -> Vec<Vec<usize>> {
+        found
+            .into_iter()
+            .map(|o| {
+                let mut faces = o.defining;
+                faces.sort_unstable();
+                faces
+            })
+            .collect()
+    }
+    let ctx = Context::new(part);
+    let step_levels = levels::discover_step_levels(&ctx);
+    let found = if risers {
+        let found = levels::discover_risers(&ctx, &step_levels);
+        levels::proved(part, found, true).map(faces)
+    } else {
+        levels::proved(part, step_levels, true).map(faces)
+    };
+    found.map_err(|e| e.to_string())
 }
 
 /// What the port's evidence path does with the record whose proof faces are *faces*.
-fn port_outcome(part: &Part, function: Option<&str>, faces: &[usize]) -> &'static str {
+fn port_outcome(part: &Part, function: &str, faces: &[usize]) -> &'static str {
     let defining = match function {
-        None => return "no evidence path",
-        Some("recognise_holes") => Ok(hole_paths(part).1),
-        Some("recognise_pockets") => degraded_pockets(part).map_err(|e| e.to_string()),
-        Some(f) => common::defining(f, part, &json!({})),
+        "recognise_holes" => Ok(hole_paths(part).1),
+        "recognise_pockets" => degraded_pockets(part).map_err(|e| e.to_string()),
+        "_discover_step_levels" => degraded_levels(part, false),
+        "_discover_risers" => degraded_levels(part, true),
+        f => common::defining(f, part, &json!({})),
     };
     match defining {
         Err(_) => "refused",
