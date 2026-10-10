@@ -3057,3 +3057,152 @@ fn counts_are_whole_and_measure_errors_are_typed() {
     let f = r.findings.iter().find(|f| f.ids[0] == 1522).unwrap();
     assert_eq!(f.kind, pmi::FindingKind::Nonconformance, "{f:?}");
 }
+
+/// NIST STC-09 (AP242 edition 4): every BASIC_ROUND_HOLE_OCCURRENCE is read with its
+/// definition (#8367 'Hole.2': Ø0.25 in -0/+0.003, through) and the placement its mapped item
+/// gives it (#8373), as the file states them, and no finding says a hole definition is not
+/// held. Each diameter dimension on hole occurrences (the NIST and OpenCascade cross-checks
+/// check those against their oracles) states the nominal and deviations of the holes' own
+/// definition.
+#[test]
+fn reads_hole_occurrences_with_their_definition() {
+    use pmi::*;
+    let (_, r, doc) = nist_fixture("nist_stc_09");
+    let p = &r.parts[0];
+    let prov = &r.provenance.parts[0];
+    assert_eq!(p.holes.len(), 25, "25 BASIC_ROUND_HOLE_OCCURRENCEs");
+    let left: Vec<&Finding> = r
+        .findings
+        .iter()
+        .filter(|f| f.entity == "basic_round_hole_occurrence")
+        .collect();
+    assert!(left.is_empty(), "{left:?}");
+    let occurrence = |h: &Hole| {
+        root(
+            &doc,
+            &prov.features[h.feature.0],
+            &["basic_round_hole_occurrence"],
+        )
+    };
+    let d = |s: &str| Decimal::parse(s).unwrap();
+    let inch = |s: &str| Length {
+        value: d(s),
+        unit: LengthUnit::Inch,
+    };
+    let hole2 = p.holes.iter().find(|h| occurrence(h) == 8369).unwrap();
+    let def = &hole2.definition;
+    assert_eq!(def.name, "Hole.2");
+    assert_eq!(def.diameter, inch("0.25"));
+    let tol = def.diameter_tolerance.as_ref().unwrap();
+    assert_eq!(tol.lower().as_length(), Some(&inch("-0.0")));
+    assert_eq!(tol.upper().as_length(), Some(&inch("0.003")));
+    assert!(def.through && def.depth.is_none() && def.depth_tolerance.is_none());
+    assert_eq!(
+        def.placement,
+        Placement {
+            origin: [inch("0."), inch("0."), inch("0.")],
+            axis: Some(Direction([d("0."), d("0."), d("1.")])),
+            ref_direction: Some(Direction([d("1."), d("0."), d("0.")])),
+        }
+    );
+    assert_eq!(
+        hole2.placement,
+        Some(Placement {
+            origin: [inch("0.75"), inch("0.1196"), inch("-5.1")],
+            axis: Some(Direction([d("0.0"), d("-1.0"), d("0.0")])),
+            ref_direction: None,
+        })
+    );
+    // Its occurrences share it; the definition's id is in each one's provenance only.
+    let mut shared: Vec<u64> = p
+        .holes
+        .iter()
+        .filter(|h| h.definition == *def)
+        .map(occurrence)
+        .collect();
+    shared.sort_unstable();
+    assert_eq!(shared, [8369, 8378, 8387, 8617, 8626, 8635]);
+    for h in &p.holes {
+        assert_eq!(
+            prov.features[h.feature.0].contains(&8367),
+            h.definition == *def
+        );
+    }
+    // Every diameter dimension on hole occurrences (directly or as a group of them) states
+    // its holes' definition.
+    let holes_of = |f: FeatureId| -> Vec<&Hole> {
+        let members = match &p.features[f.0] {
+            Feature::Group { members, .. } => members.clone(),
+            _ => vec![f],
+        };
+        p.holes
+            .iter()
+            .filter(|h| members.contains(&h.feature))
+            .collect()
+    };
+    let mut checked = 0;
+    for dim in &p.dimensions {
+        let DimensionKind::Size {
+            feature,
+            kind: SizeKind::Diameter,
+            ..
+        } = &dim.kind
+        else {
+            continue;
+        };
+        let hs = holes_of(*feature);
+        if hs.is_empty() {
+            continue;
+        }
+        let nominal = dim.nominal.as_ref().unwrap();
+        let DimTolerance::Deviations(b) = &dim.tolerance else {
+            panic!("{dim:?}");
+        };
+        for h in hs {
+            let def = &h.definition;
+            assert_eq!(nominal.as_length(), Some(&def.diameter), "{}", def.name);
+            let t = def.diameter_tolerance.as_ref().unwrap();
+            assert_eq!(b.lower().si(), t.lower().si(), "{}", def.name);
+            assert_eq!(b.upper().si(), t.upper().si(), "{}", def.name);
+        }
+        checked += 1;
+    }
+    assert!(checked >= 8, "{checked} diameter dimensions on holes");
+}
+
+/// What is not held of a hole definition keeps the occurrence's finding, naming it: here a
+/// property of definition #8405 ('Hole.3', four occurrences) added to STC-09; the other
+/// definitions' occurrences are still held.
+#[test]
+fn hole_definition_not_held_is_reported() {
+    let dir = common::fixtures().join("ap242/nist");
+    let text =
+        String::from_utf8(file_bytes(&dir.join("nist_stc_09_asme1_ap242-e4.stp.gz"))).unwrap();
+    let data = text.find("DATA;").unwrap();
+    let at = data + text[data..].find("ENDSEC;").unwrap();
+    let edited = format!(
+        "{}#999999=PROPERTY_DEFINITION('extra','',#8405);\n{}",
+        &text[..at],
+        &text[at..]
+    );
+    let r = read_bytes(edited.into_bytes());
+    let mut occ: Vec<u64> = r
+        .findings
+        .iter()
+        .filter(|f| f.entity == "basic_round_hole_occurrence")
+        .inspect(|f| {
+            assert_eq!(f.kind, pmi::FindingKind::NotModelled, "{f:?}");
+            assert!(
+                f.detail.contains(
+                    "what refers to the definition is not held: property_definition #999999"
+                ),
+                "{f:?}"
+            );
+            assert!(f.ids.contains(&8405), "{f:?}");
+        })
+        .map(|f| f.ids[0])
+        .collect();
+    occ.sort_unstable();
+    assert_eq!(occ, [8406, 8415, 8424, 8433]);
+    assert_eq!(r.parts[0].holes.len(), 21);
+}

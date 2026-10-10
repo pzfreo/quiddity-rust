@@ -229,8 +229,8 @@ fn pmi_read_of_one_part() {
 /// whenever the reader's output does: when this fails, bump `pmi_json::READER` if `pmi::read`
 /// changed (a JSON-form change bumps `VERSION` instead), then re-pin both.
 const READER_PIN: (&str, &str) = (
-    "haecceity-pmi-read/4",
-    "3a2b4ca955d2f41587816e1b3d490c7037c7cd01e0706e4f0f3c596bfb313e5c",
+    "haecceity-pmi-read/5",
+    "cf63cee8a527b4e733e1044520afa3b0df2203c47ab2ed3f93e58c6de0474871",
 );
 
 #[test]
@@ -1047,6 +1047,8 @@ fn pmi_write_is_deterministic_and_keeps_inch_values_as_stated() {
             let pmi = part["pmi"].as_object_mut().unwrap();
             pmi.remove("tolerance_relations");
             pmi.remove("attributes");
+            // The writer does not write hole definitions (docs/step-ap242.md, Q-holes).
+            pmi.remove("holes");
         }
         let (out, output) = write_cli(p, &doc, &format!("inch-{n}"), &args);
         write_ok(&output, &n);

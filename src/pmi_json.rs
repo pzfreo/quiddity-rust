@@ -48,7 +48,7 @@ pub const PARTS_FORMAT: &str = "quiddity-parts";
 pub const VERSION: u64 = 1;
 /// The reader the anchors and items were produced by; bumped whenever `pmi::read`'s output for
 /// a file can change, so a document read by another reader version is refused, not trusted.
-pub const READER: &str = "haecceity-pmi-read/4";
+pub const READER: &str = "haecceity-pmi-read/5";
 
 /// Why a JSON document was refused: the JSON path and the reason.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -1795,6 +1795,60 @@ fn knurl_from(v: &Json, path: &str) -> R<Knurl> {
     })
 }
 
+fn hole_json(h: &Hole) -> Json {
+    let d = &h.definition;
+    let definition = Out::new()
+        .put("name", json!(d.name))
+        .put("diameter", length_json(&d.diameter))
+        .opt(
+            "diameter_tolerance",
+            d.diameter_tolerance.as_ref().map(bounds_json),
+        )
+        .opt("depth", d.depth.as_ref().map(length_json))
+        .opt(
+            "depth_tolerance",
+            d.depth_tolerance.as_ref().map(bounds_json),
+        )
+        .put("through", json!(d.through))
+        .put("placement", placement_json(&d.placement))
+        .done();
+    Out::new()
+        .put("feature", json!(h.feature.0))
+        .put("definition", definition)
+        .opt("placement", h.placement.as_ref().map(placement_json))
+        .done()
+}
+
+fn hole_from(v: &Json, path: &str) -> R<Hole> {
+    let o = object(v, path, &["feature", "definition", "placement"])?;
+    let definition = o.req_with("definition", |x, p| {
+        let keys = [
+            "name",
+            "diameter",
+            "diameter_tolerance",
+            "depth",
+            "depth_tolerance",
+            "through",
+            "placement",
+        ];
+        let d = object(x, p, &keys)?;
+        Ok(RoundHole {
+            name: d.req_with("name", string)?,
+            diameter: d.req_with("diameter", length_from)?,
+            diameter_tolerance: d.opt_with("diameter_tolerance", bounds_from)?,
+            depth: d.opt_with("depth", length_from)?,
+            depth_tolerance: d.opt_with("depth_tolerance", bounds_from)?,
+            through: d.req_with("through", boolean)?,
+            placement: d.req_with("placement", placement_from)?,
+        })
+    })?;
+    Ok(Hole {
+        feature: o.req_with("feature", feature_id)?,
+        definition,
+        placement: o.opt_with("placement", placement_from)?,
+    })
+}
+
 fn material_json(m: &Material) -> Json {
     Out::new()
         .put("id", json!(m.id))
@@ -2025,6 +2079,7 @@ pub fn to_json(p: &PartPmi) -> Json {
         .list("general", p.general.iter().map(general_json).collect())
         .list("threads", p.threads.iter().map(thread_json).collect())
         .list("knurls", p.knurls.iter().map(knurl_json).collect())
+        .list("holes", p.holes.iter().map(hole_json).collect())
         .opt("material", p.material.as_ref().map(material_json))
         .list("notes", p.notes.iter().map(note_json).collect())
         .list(
@@ -2058,6 +2113,7 @@ pub fn from_json(v: &Json, path: &str) -> Result<PartPmi, JsonError> {
         "general",
         "threads",
         "knurls",
+        "holes",
         "material",
         "notes",
         "surface_textures",
@@ -2077,6 +2133,7 @@ pub fn from_json(v: &Json, path: &str) -> Result<PartPmi, JsonError> {
         general: o.list("general", general_from)?,
         threads: o.list("threads", thread_from)?,
         knurls: o.list("knurls", knurl_from)?,
+        holes: o.list("holes", hole_from)?,
         material: o.opt_with("material", material_from)?,
         notes: o.list("notes", note_from)?,
         surface_textures: o.list("surface_textures", surface_texture_from)?,
@@ -2716,7 +2773,7 @@ mod tests {
                     TargetShape::CircularCurve {
                         diameter: len("0.5", inch()),
                     },
-                    Some(placement),
+                    Some(placement.clone()),
                     Some(Direction([d("1."), d("0."), d("0.")])),
                     Some(FeatureId(0)),
                 )
@@ -2933,6 +2990,25 @@ mod tests {
                     unit: AngleUnit::Degree,
                 }),
                 helix_hand: Some(Hand::Right),
+            }],
+            holes: vec![Hole {
+                feature: FeatureId(4),
+                definition: RoundHole {
+                    name: "Hole.2".into(),
+                    diameter: len("0.25", inch()),
+                    diameter_tolerance: Some(
+                        Bounds::new(
+                            Value::length(d("0.003"), inch()),
+                            Value::length(d("-0.0"), inch()),
+                        )
+                        .unwrap(),
+                    ),
+                    depth: Some(len("0.5", inch())),
+                    depth_tolerance: None,
+                    through: false,
+                    placement: placement.clone(),
+                },
+                placement: Some(placement.clone()),
             }],
             material: Some(Material {
                 id: "AMS4928".into(),
