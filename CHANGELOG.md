@@ -35,9 +35,11 @@ B-rep kernel and STEP/AP242 library that replaces OpenCascade.
   `restrict_representation_for_surface_condition`; every written document is checked.
 - **Feature recognition**: all 46 of Python quiddity's `recognise_*` entry points, each checked
   call by call against captured Python calls and over a 100-part corpus; `features::recognise`
-  runs 42 families as one reconciled inventory (Python's aggregate reconciliation); the
-  section-recess family (`recognise_section_recesses`, `build_section_recess_document`) as
-  library API; planar outer-profile evidence.
+  runs 44 families, step levels and risers among them, as one reconciled inventory (Python's
+  aggregate reconciliation); the recognition evidence view
+  (`evidence_view::build_recognition_evidence`: constituent and host faces, hole-pattern members
+  by position, section recesses); the section-recess family (`recognise_section_recesses`,
+  `build_section_recess_document`) as library API; planar outer-profile evidence.
 - **Correspondence**: revision-stable fingerprints, `correspondence::recognise` /
   `recognise_placed` (recognition in the part's own frame, reported in the file's coordinates),
   `correspond` between two revisions, and a versioned recognition document
@@ -47,10 +49,10 @@ B-rep kernel and STEP/AP242 library that replaces OpenCascade.
 
 ### Known limitations
 
-- Step levels, risers and section recesses are not yet in `Features`, so not in recognition,
-  correspondence or the recognition document (in progress; docs/alpha1.md (b)).
-- Features give defining faces only; constituent faces and pattern member indices are not
-  exposed (specify-core-rust U2, in progress).
+- Section recesses are not yet in `Features`, so not in recognition, correspondence or the
+  recognition document, only in the recognition evidence view (docs/alpha1.md (b)).
+- `Features` gives defining faces only and its patterns hold member copies; constituent faces
+  and pattern members are in the recognition evidence view.
 - The writer refuses datum targets, tolerance relations, the 'manufacturing requirement' note
   route, general tolerance tables and material density; PMI on assembly occurrences is reported,
   not modelled (`docs/step-ap242.md`).
@@ -60,12 +62,12 @@ B-rep kernel and STEP/AP242 library that replaces OpenCascade.
   `known_pmi_write.json`).
 - `express_rules` evaluates only the WHERE rules named above and one of AP242's global rules
   (`GLOBAL_RULES`); it is not a general EXPRESS rule engine.
-- Face triangulation refuses 21 corpus faces and the face anchor 4, each pinned in
+- Face triangulation refuses 2 corpus faces and the face anchor 1, each pinned in
   `crates/haecceity/tests/mesh.rs` and `anchor.rs`.
 - Face moments differ from OpenCascade's adaptive integral (`BRepGProp`) by more than 1e-6 on 1358 faces
   (1345 rust-correct, 13 undetermined; `known_face_moments.json`).
 - 13975's and 14052's local-degradation retry is not ported: their section-recess documents
-  are refused where Python publishes (rust-wrong, `section_recesses/known_differences.json`).
+  and recognition evidence views are refused where Python publishes (rust-wrong, `section_recesses/known_differences.json`).
 - Every other difference from Python is listed with a verdict in the known-differences files
   the README's table names.
-- CI on macOS takes about 24 minutes (GitHub's 5 concurrent macOS jobs); Linux about 10.
+- CI on macOS takes about 24 minutes (GitHub's 5 concurrent macOS jobs); Linux about 11.
