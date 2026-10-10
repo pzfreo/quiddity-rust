@@ -36,42 +36,6 @@
   },
   {
     "faces": [
-      2
-    ],
-    "file": "inventory_refusal/13975.step.gz",
-    "function": "_discover_risers",
-    "kind": "skip",
-    "module": "levels",
-    "reason": "Python's levels skip this face level or riser in the degraded run (its face is one of the loose shell's, which OpenCascade's import leaves without a solid). The port's face levels and risers are measurements with no evidence path and are not in the corpus export, so there is no record to compare.",
-    "rust": "no evidence path",
-    "verdict": "not-applicable"
-  },
-  {
-    "faces": [
-      8
-    ],
-    "file": "inventory_refusal/13975.step.gz",
-    "function": "_discover_step_levels",
-    "kind": "skip",
-    "module": "levels",
-    "reason": "Python's levels skip this face level or riser in the degraded run (its face is one of the loose shell's, which OpenCascade's import leaves without a solid). The port's face levels and risers are measurements with no evidence path and are not in the corpus export, so there is no record to compare.",
-    "rust": "no evidence path",
-    "verdict": "not-applicable"
-  },
-  {
-    "faces": [
-      11
-    ],
-    "file": "inventory_refusal/13975.step.gz",
-    "function": "_discover_step_levels",
-    "kind": "skip",
-    "module": "levels",
-    "reason": "Python's levels skip this face level or riser in the degraded run (its face is one of the loose shell's, which OpenCascade's import leaves without a solid). The port's face levels and risers are measurements with no evidence path and are not in the corpus export, so there is no record to compare.",
-    "rust": "no evidence path",
-    "verdict": "not-applicable"
-  },
-  {
-    "faces": [
       6
     ],
     "file": "inventory_refusal/14052.step.gz",

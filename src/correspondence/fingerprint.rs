@@ -845,7 +845,52 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("body_key", Placement),
         ],
     },
+    FamilyFingerprint {
+        family: "section_recesses",
+        members: None,
+        variants: false,
+        fields: &[
+            // The record's place in the family, its body's and the faces' indices, its tag.
+            ("index", Ignored),
+            ("body", Ignored),
+            ("geometry.type", Ignored),
+            ("evidence", Ignored),
+            ("geometry.frame.run", Axis),
+            ("geometry.frame.origin", Placement),
+            ("geometry.frame.u", Placement),
+            ("geometry.frame.v", Placement),
+            ("geometry.run_interval", Derived),
+            ("geometry.profile.closure", Trait),
+            ("geometry.profile.boundary[].point", Derived),
+            // A bulge's sign follows the boundary's direction, which the frame chooses.
+            ("geometry.profile.boundary[].bulge", Derived),
+            ("geometry.profile.opening", Derived),
+            // The chain's canonical direction is chosen in the frame's u and v.
+            ("geometry.profile.material_side", Placement),
+            // Which end is low (so which is capped, curved or an envelope) follows the run's
+            // canonical sense; heights are along it, gradients and the cylinder's axis across the
+            // section in u and v. How many ends are capped is the feature kind.
+            ("geometry.ends.low", Placement),
+            ("geometry.ends.high", Placement),
+            ("geometry.ends.low.surface.radius", Derived),
+            ("geometry.ends.high.surface.radius", Derived),
+            ("classification.feature_kind", Trait),
+            ("classification.section_shape", Trait),
+        ],
+    },
 ];
+
+/// *features*' records as JSON by family, as [`fingerprint`] reads them: their serialisation
+/// with the section recesses, which `Features` does not serialise (the recognition document does
+/// not carry them), added under their field name.
+pub fn records_json(features: &Features) -> Value {
+    let mut json = serde_json::to_value(features).expect("records serialise");
+    json.as_object_mut().expect("an object").insert(
+        "section_recesses".into(),
+        serde_json::to_value(&features.section_recesses).expect("records serialise"),
+    );
+    json
+}
 
 /// The fingerprint table of the family with this serde key.
 pub fn family(key: &str) -> Option<&'static FamilyFingerprint> {
@@ -879,7 +924,7 @@ pub fn fingerprint(part: &Part, features: &Features) -> Fingerprints {
         .sum::<f64>()
         .sqrt()
         .max(1e-3);
-    let json = serde_json::to_value(features).expect("records serialise");
+    let json = records_json(features);
     let mut out = Vec::new();
     for (key, records) in json.as_object().expect("an object") {
         let Some(records) = records.as_array() else {
@@ -1138,6 +1183,36 @@ fn derived_sizes(family: &str, r: &Value, sizes: &mut BTreeMap<String, f64>) {
             if let Some(first) = points.first().cloned() {
                 points.push(first);
             }
+            let sides = points.windows(2).map(|w| distance(&w[0], &w[1])).collect();
+            insert_sorted(sizes, "section.sides", sides);
+        }
+        "section_recesses" => {
+            put("run_length", interval("geometry.run_interval"));
+            // The boundary's chords (an arc's too), closed where the profile is, whatever vertex
+            // it starts at; an open profile's opening is its width.
+            let mut points: Vec<Vec<f64>> = at(r, "geometry.profile.boundary[].point")
+                .iter()
+                .filter_map(|v| point(v))
+                .collect();
+            let closed = at(r, "geometry.profile.closure")
+                .first()
+                .and_then(|v| v.as_str())
+                == Some("closed");
+            if closed && let Some(first) = points.first().cloned() {
+                points.push(first);
+            }
+            let opening = at(r, "geometry.profile.opening")
+                .first()
+                .map(|s| chain_lengths(s));
+            put("opening_width", opening.and_then(|o| o.first().copied()));
+            // A cylindrical end's radius, at whichever end the run's sense puts it.
+            let radius = ["low", "high"]
+                .iter()
+                .find_map(|end| number(&format!("geometry.ends.{end}.surface.radius")));
+            put("end_radius", radius);
+            let bulges = at(r, "geometry.profile.boundary[].bulge");
+            let bulges = bulges.iter().filter_map(|v| v.as_f64()).map(f64::abs);
+            insert_sorted(sizes, "section.bulges", bulges.collect());
             let sides = points.windows(2).map(|w| distance(&w[0], &w[1])).collect();
             insert_sorted(sizes, "section.sides", sides);
         }

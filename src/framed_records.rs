@@ -36,6 +36,7 @@ use crate::features::chamfers::Chamfer;
 use crate::features::circular_blind_steps::CircularBlindStep;
 use crate::features::circular_face_patterns::CircularFacePattern;
 use crate::features::countersinks::CounterSink;
+use crate::features::cylindrical_end_surface::CylindricalEndSurface;
 use crate::features::edge_open_circular::{
     EdgeOpenCircularPocket, OpenCircularSection, OpenCircularSectionSegment,
 };
@@ -71,6 +72,10 @@ use crate::features::recess_records::{Channel, Pocket, Slot};
 use crate::features::rectangular_blind_slots::RectangularBlindSlot;
 use crate::features::repeating_profiles::RepeatingRadialProfile;
 use crate::features::round_bottom_slots::RoundBottomBlindSlot;
+use crate::features::section_recess::{
+    EndSurface, PlanarEndTerm, PlanarEnvelopeEndSurface, SectionEnd, SectionRecess,
+    SectionRecessEnds, SectionRecessGeometry,
+};
 use crate::features::sheet_metal::{
     FlatOverlapWitness, FlatPatternPlan, FormedSheetFeature, SheetBend, SheetEdgeTreatment,
     SheetFlange, SheetMetalBody, UnfoldedBendStrip, UnfoldedFlangeFace,
@@ -428,6 +433,8 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
         pads,
         step_levels,
         risers,
+        section_recesses,
+        section_recess_refusal,
         defining,
     } = features;
     let mut local = LocalFields::new();
@@ -535,6 +542,8 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
         pads: each!("pads", pads, raised_pad),
         step_levels: each!("step_levels", step_levels, face_level),
         risers: each!("risers", risers, riser),
+        section_recesses: each!("section_recesses", section_recesses, section_recess),
+        section_recess_refusal,
         // The working part's faces are the caller's, under the same indices.
         defining,
     };
@@ -1849,6 +1858,95 @@ fn section_passage(out: &mut Out, r: SectionPassage) -> SectionPassage {
         section: passage_section(section),
         ends: passage_ends(ends),
     }
+}
+
+/// A section recess's frame as a section passage's ([`section_passage`]), its section, its ends'
+/// gradients and a cylindrical end's axis across the section unchanged (they are in the frame's
+/// `u` and `v`, which turn with it), and its run coordinates (the interval, an envelope's terms'
+/// heights, a cylinder's axis height) moved by the shift along `run`. Those are published on the
+/// three- and six-decimal grids the record checks, so the shift is taken on the three-decimal
+/// grid and the frame's origin set off along `run` by the rest (at most 0.0005 mm): each
+/// coordinate then moves exactly on its grid, and the geometry is the same. A record whose
+/// checks still refuse the moved values (a rounding tie) stays in the frame, its placed fields
+/// listed local.
+fn section_recess(out: &mut Out, r: SectionRecess) -> SectionRecess {
+    match moved_section_recess(out, &r) {
+        Some(moved) => moved,
+        None => {
+            for path in ["geometry.frame", "geometry.run_interval", "geometry.ends"] {
+                out.mark(path);
+            }
+            r
+        }
+    }
+}
+
+/// [`section_recess`]'s moved record, or `None` where its checks refuse it.
+fn moved_section_recess(out: &Out, r: &SectionRecess) -> Option<SectionRecess> {
+    let geometry = r.geometry();
+    let PassageFrame { origin, run, u, v } = geometry.frame().clone();
+    let run = out.direction(run);
+    let shift = py::round_to(py::dot(&out.motion.translation, &run), 3);
+    let q = out.point(origin);
+    let frame = PassageFrame {
+        origin: [0, 1, 2].map(|i| q[i] - shift * run[i]),
+        run,
+        u: out.direction(u),
+        v: out.direction(v),
+    };
+    let (lo, hi) = geometry.run_interval();
+    let run_interval = (py::round_to(lo + shift, 3), py::round_to(hi + shift, 3));
+    let end = |end: &SectionEnd| -> Option<SectionEnd> {
+        let surface = match end.surface() {
+            EndSurface::Planar(p) => EndSurface::Planar(p.clone()),
+            EndSurface::Cylindrical(c) => {
+                let [a, b, height] = c.axis_point();
+                EndSurface::Cylindrical(
+                    CylindricalEndSurface::new(
+                        "cylinder",
+                        [a, b, py::round_to(height + shift, 6)],
+                        c.axis_direction(),
+                        c.radius(),
+                        c.branch(),
+                    )
+                    .ok()?,
+                )
+            }
+            EndSurface::PlanarEnvelope(e) => {
+                let term = |t: &PlanarEndTerm| {
+                    PlanarEndTerm::new(py::round_to(t.height() + shift, 6), t.gradient()).ok()
+                };
+                let [t0, t1] = e.terms();
+                EndSurface::PlanarEnvelope(
+                    PlanarEnvelopeEndSurface::new(
+                        "plane_envelope",
+                        e.operator(),
+                        [term(t0)?, term(t1)?],
+                    )
+                    .ok()?,
+                )
+            }
+        };
+        SectionEnd::new(end.condition(), surface).ok()
+    };
+    let ends = geometry.ends();
+    let ends = SectionRecessEnds::new(end(ends.low())?, end(ends.high())?).ok()?;
+    let geometry = SectionRecessGeometry::new(
+        "section_recess",
+        frame,
+        run_interval,
+        geometry.profile().clone(),
+        ends,
+    )
+    .ok()?;
+    SectionRecess::new(
+        r.index(),
+        r.body(),
+        geometry,
+        r.classification().clone(),
+        r.evidence().clone(),
+    )
+    .ok()
 }
 
 /// `section` is the void's corners in the two axes across `axis`, walked canonically in the

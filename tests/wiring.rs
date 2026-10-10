@@ -9,7 +9,9 @@ mod common;
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::PathBuf;
 
-use quiddity::correspondence::fingerprint::{FAMILIES, classify, family, fingerprint};
+use quiddity::correspondence::fingerprint::{
+    FAMILIES, classify, family, fingerprint, records_json,
+};
 use quiddity::features::{self, gussets, oriented_slots, recess_patterns};
 use serde_json::Value;
 
@@ -124,7 +126,7 @@ fn families_are_wired_and_their_records_fingerprinted_field_by_field() {
             return None;
         };
         let features = features::recognise(&part);
-        let json = serde_json::to_value(&features).unwrap();
+        let json = records_json(&features);
         let name = path.file_name().unwrap().to_string_lossy();
         let (mut problems, leaves) = check(&name, &json, &features.defining);
         // A feature with no size would be carried through any resize.

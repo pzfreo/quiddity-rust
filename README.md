@@ -79,7 +79,7 @@ file:
 | `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 39 (40 calls) | 4 | 1 | 3 | 3 | 28 |
 | `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 22 | 0 | 22 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
-| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 44 | 14 | 26 | 0 | 0 | 4 |
+| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 71 | 14 | 53 | 0 | 0 | 4 |
 | `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 8 (20 probes) | 7 | 0 | 0 | 0 | 1 |
 | `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 63 | 58 | 0 | 0 | 1 | 4 |
 | `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 40 | 5 | 0 | 2 | 0 | 33 |
@@ -93,7 +93,7 @@ file:
 | `tests/fixtures/captured/known_section_geometry.json` | `tests/section_geometry.rs` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `tests/fixtures/captured/outer_profiles/known_differences.json` | `tests/outer_profiles.rs` | 6 (2168 faces) | 6 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 116 (2894 answers) | 98 | 6 | 0 | 9 | 3 |
-| `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 7 | 3 | 1 | 0 | 0 | 3 |
+| `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 4 | 3 | 1 | 0 | 0 | 0 |
 | `tests/fixtures/captured/step_levels/known_differences.json` | `tests/step_levels.rs` | 71 | 56 | 11 | 4 | 0 | 0 |
 | `tests/fixtures/captured/reconcile/known.json` | `tests/reconcile.rs` | 35 (0 decisions, 9 accepted, 26 motions) | 4 | 9 | 0 | 0 | 22 |
 | `tests/fixtures/captured/recognition_evidence/known_differences.json` | `tests/recognition_evidence.rs` | 83 (36 features, 1 candidate, 2 errors, 44 motions) | 36 | 46 | 0 | 0 | 1 |
@@ -150,7 +150,8 @@ polygonal bosses, sheet metal, thin walls, pads and oblique through steps, among
 reach their check. Ported: the holes' degraded evidence path
 (`holes::discover_locally_degraded`), which skips 13975's hole and 14052's as Python does, the
 pockets' one (`pockets::discover_locally_degraded`), which skips 13975's two pockets as Python
-does, and Python's admission of a solid with at most three faulted faces
+does, the step levels' and risers' degraded proof (`levels::proved`), which skips 13975's riser
+and two levels as Python does, and Python's admission of a solid with at most three faulted faces
 (`evidence::locally_valid_solid`, on the kernel's per-face check `Part::bad_faces`, which faults
 14052's face 1 and no other face in the corpus: `crates/haecceity/tests/validity.rs`). Not
 ported: the retry itself (the port's `recognise` checks no family's evidence, so there is no
@@ -328,8 +329,15 @@ have no edge but its rings and seams. Not compared: 6 test shapes STEP export re
 the translation and a quarter turn about z, on the 82 corpus parts where Python publishes anything, the documents name the same faces and classifications but one refusal's
 source pocket (the pocket recogniser's listed `width > length` tie; rust-wrong); geometry is not
 compared under motion. Passages' consulted faces are now kept on their occurrences (entry
-treatments, regions), which the projection's evidence reads. Section recesses are not in the
-recognition document, the CLI or correspondence (the open question above).
+treatments, regions), which the projection's evidence reads. `features::recognise` and
+`correspondence::recognise` carry the section recesses (`Features::section_recesses`, projected
+from the same run, each defined by its record's defining faces, fingerprinted, carried back from
+the part's frame and checked under the invariance motions), but `Features` does not serialise
+them: they are not in the recognition document or the CLI's records, only its fingerprints (the
+open question above). Where the projection refuses (13975 and 14052, for want of Python's
+local-degradation retry) `recognise` keeps the other families and carries the refusal
+(`Features::section_recess_refusal`), provisionally: whether to panic or carry a refusal is an
+open maintainer question.
 The effective-surface query the rectangular pads, cylindrical channels, pockets and passages
 and section recesses read (`_effective_surfaces`: each face's native or recovered analytic fact
 or typed refusal, `recovery_nominal` / `recovery_tolerance`, and surface uses with a
@@ -407,8 +415,7 @@ the framed view. Under two rigid motions the view's faces are unchanged but for 
 bosses whose ends classify alike take the high end as free (constituent and host faces flip;
 Python behaves the same), and the families' own invariance exceptions (`known_invariance.json`;
 on 163 the pocket tie moves its section-recess refusal's defining faces too). The view is not in
-the recognition document, and the section recesses are not in `Features` or the document (open
-maintainer questions).
+the recognition document, and neither are the section recesses (open maintainer questions).
 
 For draftwright-rust, the kernel draws a part's views without OpenCascade's hidden-line
 algorithm or booleans (`crates/haecceity/src/hlr.rs`): every visible and hidden edge and

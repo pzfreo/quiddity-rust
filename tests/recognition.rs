@@ -18,6 +18,7 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use quiddity::correspondence::{self, Recognition};
+use quiddity::features::section_recess_family::recognise_section_recesses;
 use quiddity::features::{self, Features, reconcile};
 use quiddity::framed_records::{self, Rigid, map_features};
 use quiddity::frames::{self, PartFrame, RecordFrame};
@@ -1037,3 +1038,102 @@ fn a_pattern_never_includes_a_rejected_member() {
         );
     }
 }
+
+/// On every corpus part `features::recognise` (through `correspondence::recognise`) carries the
+/// section recesses `recognise_section_recesses` gives, or its refusal, each defined by its
+/// record's own defining faces and fingerprinted; the default (framed) recognition fingerprints
+/// those its run finds, and the document carries none (whether it should is an open maintainer
+/// question). One test per slice of the corpus (`tests/support/slices.rs`).
+fn carries_section_recesses(k: usize, n: usize) {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(
+            std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
+            "QUIDDITY_CORPUS_REQUIRED is set but the corpus was not found"
+        );
+        return;
+    };
+    let files = slices::slice(&corpus_files(), k, n);
+    let problems = common::parallel::map(&files, |file| {
+        let part = quiddity::read_step_file(&dir.join(file)).unwrap();
+        let recognition = correspondence::recognise(&part);
+        let features = &recognition.features;
+        let mut out = Vec::new();
+        match recognise_section_recesses(&part) {
+            Ok(records) => {
+                if features.section_recesses != records || features.section_recess_refusal.is_some()
+                {
+                    out.push(format!("{file}: recognise's section recesses differ"));
+                }
+            }
+            Err(e) => {
+                if features.section_recess_refusal.as_ref() != Some(&e)
+                    || !features.section_recesses.is_empty()
+                {
+                    out.push(format!("{file}: recognise does not carry the refusal {e}"));
+                }
+            }
+        }
+        let defining = &features.defining["section_recesses"];
+        if defining.len() != features.section_recesses.len() {
+            out.push(format!(
+                "{file}: not one defining-face list per section recess"
+            ));
+        }
+        for (i, r) in features.section_recesses.iter().enumerate() {
+            let id = format!("section_recesses/{i}");
+            if defining
+                .get(i)
+                .is_none_or(|d| d != r.evidence().defining_faces() || d.is_empty())
+            {
+                out.push(format!(
+                    "{file}: {id}'s defining faces are not its record's"
+                ));
+            }
+            let print = recognition
+                .fingerprints
+                .features
+                .iter()
+                .find(|f| f.id == id);
+            if !print.is_some_and(|f| !f.faces.is_empty() && !f.sizes.is_empty()) {
+                out.push(format!(
+                    "{file}: {id} has no fingerprint with faces and sizes"
+                ));
+            }
+        }
+        let (framed, doc) = default(&dir.join(file), &IDENTITY);
+        let printed = framed
+            .fingerprints
+            .features
+            .iter()
+            .filter(|f| f.family == "section_recesses" && !f.faces.is_empty())
+            .count();
+        if printed != framed.features.section_recesses.len() {
+            out.push(format!(
+                "{file}: the framed section recesses are not all fingerprinted"
+            ));
+        }
+        // A record whose moved values its checks refuse stays in the frame, labelled.
+        for (id, paths) in &framed.local {
+            if id.starts_with("section_recesses/") {
+                eprintln!("{file}: {id} left in the frame: {paths:?}");
+            }
+        }
+        if doc.records.iter().any(|r| r.family == "section_recesses") {
+            out.push(format!("{file}: the document carries section recesses"));
+        }
+        out
+    });
+    let problems: Vec<String> = problems.into_iter().flatten().collect();
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
+
+sliced!(
+    recognition_carries_section_recesses,
+    super::carries_section_recesses,
+    [
+        0 => slice_0,
+        1 => slice_1,
+        2 => slice_2,
+        3 => slice_3,
+    ]
+);
