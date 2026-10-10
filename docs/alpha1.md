@@ -21,7 +21,7 @@ names the stream whose branch moves the item; *deferred* names the concrete bloc
 |---|---|
 | (a) PMI writer decisions | **met** |
 | (b) 46 recognisers, section recesses wired | **met in recognition, open in the document** (status round 37): all 46 ported as functions; section recesses in `Features` and `correspondence::recognise` (q-section-recesses-in-recognise `3ecccc1`), with a carried refusal on 13975 and 14052 (provisional, question 6); not in the recognition document (question 5); passages: Python's result has no such field |
-| (c) U1–U15 | **not met**: 11 met (U1, U2, U3, U4, U5, U6, U7, U9, U10, U14, U15), U11 (a) met; U12 met at `3ecccc1` (13975 and 14052 carry a refusal, question 6); 3 deferred on a maintainer decision (U8, U11 (b), U13) |
+| (c) U1–U15 | **not met**: 11 met (U1, U2, U3, U4, U5, U6, U7, U9, U10, U14, U15), U11 (a) met; U12 met at `3ecccc1` (13975 and 14052 carry a refusal, question 6); 3 deferred on a maintainer decision (U8, U11 (b): 1357 rust-correct, 1 equivalent, 0 undetermined at `694dc17` + q-face-moments-undetermined; U13) |
 | (d) CI green, about 10 minutes each | **Linux met** (10.8 min), **macOS not met** (24.2 min; blocked on a runner decision); q-fills-at-most-callers in progress |
 
 ## (a) PMI writer, decisions of 2026-10-09
@@ -140,12 +140,17 @@ Each against its "met when" in `upstream-needs.md`.
 - **U11** face moments to 1e-6: (a) *met*, every corpus face has moments (`f0e2104`;
   `face_moments.rs` `cgb217_face_29_has_moments`). (b) *deferred*, blocked on a maintainer
   decision: `face_moments_match_opencascade_adaptive` pins 1358 faces where haecceity and
-  OpenCascade's adaptive integral differ by more than 1e-6, 1345 rust-correct (an independent
-  Green's-theorem integration agrees with haecceity) and 13 undetermined
-  (`known_face_moments.json`). The "met when" reads "within 1e-6 relative of an adaptive
-  reference"; taking that reference to be OpenCascade's `BRepGProp` integral (eps 1e-9, the one
-  its "Missing" paragraph uses), a correct kernel cannot meet it. Which reference is meant is
-  question 2; on any reading the 13 undetermined faces are open.
+  OpenCascade's adaptive integral differ by more than 1e-6 (`known_face_moments.json`, verified
+  on `694dc17` with stream q-face-moments-undetermined): 1357 rust-correct (an independent
+  Green's-theorem integration agrees with haecceity; for the 13 B-spline faces once undetermined,
+  `tools/face_area_evidence.py --moments`, OpenCascade's evaluator along the edges' foot points,
+  agrees with the port to 2.2e-7 or better, within its own panel change) and 1 equivalent
+  (cgb242 face 483, a sliver narrower than its edges' stray off the surface: every reading,
+  the port's and OpenCascade's, lies in the 4.98e-7 mm² strip the edges' tolerances allow, nine
+  times the face); 0 undetermined, `mass.rs` unchanged. The "met when" reads "within 1e-6
+  relative of an adaptive reference"; taking that reference to be OpenCascade's `BRepGProp`
+  integral (eps 1e-9, the one its "Missing" paragraph uses), a correct kernel cannot meet it.
+  Which reference is meant is question 2.
 - **U12** missing families: *met* (status round 37): `step_levels` and `risers` are in
   `Features` and so `correspondence::recognise` (`204b29f`, merged `36483c1`), and so is
   `section_recesses` (`3ecccc1`), checked against `recognise_section_recesses` on all 100 corpus
