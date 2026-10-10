@@ -212,7 +212,7 @@ fn attribute_sets_carry_their_description_and_general_property() {
         name: name.into(),
         description: None,
     };
-    // (file, property definition, its name, its general property's association): each
+    // (file, property definition, its name; associations in each case's comment): each
     // property definition's description is 'pmi-assist', each general property
     // ('', 'user defined attribute', $).
     let cases: [(&str, u64, &str); 6] = [

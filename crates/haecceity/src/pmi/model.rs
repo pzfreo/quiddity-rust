@@ -2303,8 +2303,7 @@ pub struct Note {
     pub text: String,
     pub on: Option<NoteOwner>,
     /// The callouts that present it (§7.3), in the order of their instances. Read only:
-    /// `pmi::write` refuses notes of this route by name, and neither `pmi::write`'s comparison
-    /// nor the JSON document carries them.
+    /// `pmi::write` refuses notes of this route by name, and its comparison does not carry them.
     pub callouts: Vec<Callout>,
 }
 
@@ -2402,7 +2401,7 @@ pub struct AttributeSet {
     pub items: Vec<(String, AttributeValue)>,
     /// The property definition's description (specify-core's structured requirements:
     /// 'pmi-assist'); `None` when unset or empty. Read only: `pmi::write` writes 'user defined
-    /// attribute', and neither its comparison nor the JSON document carries this.
+    /// attribute', and its comparison does not carry this.
     pub description: Option<String>,
     /// The `general_property` it is associated with (UDA practice §5,
     /// `general_property_association`). `None` when none is stated (editable note text written
