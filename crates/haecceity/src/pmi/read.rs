@@ -143,6 +143,8 @@ struct PartState<'a> {
     absorbed: BTreeSet<u64>,
     /// Supplemental geometry item → its geometry.
     geometry: HashMap<u64, GeometryId>,
+    /// Hole occurrence → its definition and placement, until its feature is registered.
+    holes: HashMap<u64, (RoundHole, Option<Placement>)>,
 }
 
 impl<'a> PartState<'a> {
@@ -160,6 +162,7 @@ impl<'a> PartState<'a> {
             targets: HashMap::new(),
             absorbed: BTreeSet::new(),
             geometry: HashMap::new(),
+            holes: HashMap::new(),
         }
     }
 }
@@ -986,6 +989,21 @@ impl<'a> Reader<'a> {
             self.feature(st, a);
         }
 
+        // Hole occurrences read only as members of another feature: their faces are that
+        // feature's, and no feature of their own carries the definition.
+        let mut absorbed_holes: Vec<u64> = st.holes.keys().copied().collect();
+        absorbed_holes.sort_unstable();
+        for occ in absorbed_holes {
+            st.holes.remove(&occ);
+            self.find(
+                FindingKind::NotModelled,
+                Some(st.id),
+                occ,
+                &[],
+                "the occurrence is read only as a member of another feature; its feature definition (basic_round_hole) is not held there",
+            );
+        }
+
         self.notes_on_faces(st, &aspects);
         self.note_callouts(st);
     }
@@ -1244,9 +1262,25 @@ impl<'a> Reader<'a> {
                 let fid = FeatureId(st.pmi.features.len());
                 st.pmi.features.push(f);
                 st.prov.features.push(ids(prov));
+                if let Some((definition, placement)) = st.holes.remove(&id) {
+                    st.pmi.holes.push(Hole {
+                        feature: fid,
+                        definition,
+                        placement,
+                    });
+                }
                 Some(fid)
             }
             Built::Alias(member, prov) => {
+                if st.holes.remove(&id).is_some() {
+                    self.find(
+                        FindingKind::NotModelled,
+                        Some(st.id),
+                        id,
+                        &[],
+                        "the occurrence is read as the feature of its one member; its feature definition (basic_round_hole) is not held there",
+                    );
+                }
                 let fid = self.feature(st, member);
                 if let Some(f) = fid {
                     let p = &mut st.prov.features[f.0];
@@ -1258,6 +1292,8 @@ impl<'a> Reader<'a> {
             }
             Built::None => None,
         };
+        // A hole whose feature failed is reported by that failure.
+        st.holes.remove(&id);
         st.features.insert(id, r);
         r
     }
@@ -1274,7 +1310,10 @@ impl<'a> Reader<'a> {
                 q.extend(p);
                 (f, q)
             }),
-            Built::None => None,
+            Built::None => {
+                st.holes.remove(&id);
+                None
+            }
         };
         st.contents.insert(id, c.clone());
         c
@@ -1331,7 +1370,7 @@ impl<'a> Reader<'a> {
                 match self.anchor(st, item) {
                     Some(a) => anchors.push(a),
                     None if occurrence && self.is(item, "mapped_item") => {
-                        placed_definition.push(item);
+                        placed_definition.push((item, rep));
                     }
                     None if !derived_shape && self.is_supplemental(item) => {
                         match self.geometry(st, item, rep) {
@@ -1348,34 +1387,57 @@ impl<'a> Reader<'a> {
         }
         if occurrence {
             // An occurrence of a feature definition (edition 4 holes): its faces are the
-            // feature; the definition's parameters and placement are not held.
+            // feature; a basic_round_hole's parameters and placement are held as its Hole,
+            // any other definition is not.
             let definition = self.get_ref(id, "shape_aspect_occurrence", "definition");
-            let mut named: Vec<u64> = definition.into_iter().collect();
-            named.extend(&placed_definition);
-            // The definition's own semantic parts (a hole's TOLERANCE_VALUE) go with it.
-            if let Some(d) = definition
-                && let Some(e) = self.doc.get(d)
-            {
-                let mut fw = Vec::new();
-                visit_attributes(e, &mut |a| {
-                    if let Attribute::EntityRef(n) = a {
-                        fw.push(*n);
-                    }
-                });
-                for n in fw {
-                    if self.family(n) == Family::SemanticPmi {
-                        named.push(n);
+            let held = match definition {
+                Some(d) if self.is(d, "basic_round_hole") => {
+                    let mut c = Vec::new();
+                    self.round_hole(st, d, &placed_definition, &mut c)
+                        .map(|h| (h, c))
+                }
+                Some(d) => Err(format!(
+                    "{} is not a basic_round_hole, the one definition held",
+                    self.entity_label(d)
+                )),
+                None => Err("the occurrence has no definition".to_string()),
+            };
+            let why = match held {
+                Ok((h, c)) => {
+                    prov.extend(c);
+                    st.holes.insert(id, h);
+                    None
+                }
+                Err(why) => Some(why),
+            };
+            if let Some(why) = why {
+                let mut named: Vec<u64> = definition.into_iter().collect();
+                named.extend(placed_definition.iter().map(|&(m, _)| m));
+                // The definition's own semantic parts (a hole's TOLERANCE_VALUE) go with it.
+                if let Some(d) = definition
+                    && let Some(e) = self.doc.get(d)
+                {
+                    let mut fw = Vec::new();
+                    visit_attributes(e, &mut |a| {
+                        if let Attribute::EntityRef(n) = a {
+                            fw.push(*n);
+                        }
+                    });
+                    for n in fw {
+                        if self.family(n) == Family::SemanticPmi {
+                            named.push(n);
+                        }
                     }
                 }
+                let def_type = definition.map(|d| self.entity_label(d)).unwrap_or_default();
+                self.find(
+                    FindingKind::NotModelled,
+                    part,
+                    id,
+                    &named,
+                    format!("the feature definition of the occurrence ({def_type}: its parameters, tolerances and placement) is not held: {why}; the occurrence's faces are read as the feature"),
+                );
             }
-            let def_type = definition.map(|d| self.entity_label(d)).unwrap_or_default();
-            self.find(
-                FindingKind::NotModelled,
-                part,
-                id,
-                &named,
-                format!("the feature definition of the occurrence ({def_type}: its parameters, tolerances and placement) is not held; the occurrence's faces are read as the feature"),
-            );
         }
 
         // Derived features.
@@ -1606,6 +1668,169 @@ impl<'a> Reader<'a> {
             }
         }
         Built::Feature(Feature::Items(dedup_anchors(anchors)), prov)
+    }
+
+    /// A `basic_round_hole` definition `def` and the placement of its occurrence, from the
+    /// occurrence's mapped items (with the representations they are identified in), or why
+    /// it is not held. The ids read go to `consumed` (on success only).
+    fn round_hole(
+        &mut self,
+        st: &PartState,
+        def: u64,
+        placed: &[(u64, Option<u64>)],
+        consumed: &mut Vec<u64>,
+    ) -> Result<(RoundHole, Option<Placement>), String> {
+        const E: &str = "basic_round_hole";
+        let mut c = vec![def];
+        // What else refers to the definition (a round_hole_bottom_condition, a property of
+        // it) is not held.
+        let others: Vec<u64> = self
+            .doc
+            .referrers(def)
+            .to_vec()
+            .into_iter()
+            .filter(|&r| {
+                !(self.is(r, "shape_aspect_occurrence")
+                    && self.get_ref(r, "shape_aspect_occurrence", "definition") == Some(def))
+            })
+            .collect();
+        if !others.is_empty() {
+            let labels: Vec<String> = others
+                .iter()
+                .map(|&r| format!("{} #{r}", self.entity_label(r)))
+                .collect();
+            return Err(format!(
+                "what refers to the definition is not held: {}",
+                labels.join(", ")
+            ));
+        }
+        let name = self
+            .get_str(def, "characterized_object", "name")
+            .unwrap_or_default();
+        let length = |r: &mut Self, attr: &str, c: &mut Vec<u64>| -> Result<_, String> {
+            let Some(m) = r.get_ref(def, E, attr) else {
+                return Ok(None);
+            };
+            match r.measure(m) {
+                Ok(Measured::Length(l)) => {
+                    c.push(m);
+                    Ok(Some(l))
+                }
+                Ok(other) => Err(format!("its {attr} #{m} is not a length ({other:?})")),
+                Err(e) => Err(format!("its {attr} #{m} is not read ({})", e.why)),
+            }
+        };
+        let diameter = length(self, "diameter", &mut c)?.ok_or("it has no diameter")?;
+        let depth = length(self, "depth", &mut c)?;
+        let bounds = |r: &mut Self, attr: &str, c: &mut Vec<u64>| -> Result<_, String> {
+            let Some(t) = r.get_ref(def, E, attr) else {
+                return Ok(None);
+            };
+            if !r.is(t, "tolerance_value") {
+                return Err(format!("its {attr} is a {}", r.entity_label(t)));
+            }
+            let (Some(lo), Some(hi)) = (
+                r.get_ref(t, "tolerance_value", "lower_bound"),
+                r.get_ref(t, "tolerance_value", "upper_bound"),
+            ) else {
+                return Err(format!("its {attr} #{t} lacks a bound"));
+            };
+            let mut v = Vec::new();
+            let (Some(lo_v), Some(hi_v)) = (
+                r.value(st, lo, Want::Length, &mut v),
+                r.value(st, hi, Want::Length, &mut v),
+            ) else {
+                return Err(format!(
+                    "its {attr} #{t} is not read (its finding says why)"
+                ));
+            };
+            let b = Bounds::new(hi_v, lo_v)
+                .map_err(|e| format!("its {attr} #{t}: {} (tolerance_value WR1)", e.0))?;
+            c.push(t);
+            c.extend(v);
+            Ok(Some(b))
+        };
+        let diameter_tolerance = bounds(self, "diameter_tolerance", &mut c)?;
+        let depth_tolerance = bounds(self, "depth_tolerance", &mut c)?;
+        let through = match enum_value(self.get(def, E, "through_hole")) {
+            Some("T") => true,
+            Some("F") => false,
+            v => return Err(format!("its through_hole {v:?} is not a boolean")),
+        };
+        // WR1, WR2: the placement is the representation's one item, an axis2_placement_3d.
+        let rep = self
+            .get_ref(def, E, "placement")
+            .ok_or("it has no placement")?;
+        let axis = match self.get_refs(rep, "representation", "items")[..] {
+            [a] if self.is(a, "axis2_placement_3d") => a,
+            _ => {
+                return Err(format!(
+                    "its placement #{rep} is not one axis2_placement_3d (WR1, WR2)"
+                ));
+            }
+        };
+        let unit = self.context_length_unit(rep);
+        let placement = self
+            .placement(axis, unit)
+            .map_err(|e| format!("its placement #{axis}: {e}"))?;
+        c.extend([rep, axis]);
+        // The occurrence's placement: the one mapped item mapping the definition's placement.
+        let located = match placed {
+            [] => None,
+            [(mi, used)] => {
+                let map = self.get_ref(*mi, "mapped_item", "mapping_source");
+                let origin =
+                    map.and_then(|m| self.get_ref(m, "representation_map", "mapping_origin"));
+                let mapped = map
+                    .and_then(|m| self.get_ref(m, "representation_map", "mapped_representation"));
+                if origin != Some(axis) || mapped != Some(rep) {
+                    return Err(format!(
+                        "the occurrence's mapped item #{mi} does not map the definition's placement"
+                    ));
+                }
+                let target = self
+                    .get_ref(*mi, "mapped_item", "mapping_target")
+                    .filter(|&t| self.is(t, "axis2_placement_3d"))
+                    .ok_or_else(|| {
+                        format!("the occurrence's mapped item #{mi} targets no axis2_placement_3d")
+                    })?;
+                let unit = used.and_then(|u| self.context_length_unit(u));
+                let p = self
+                    .placement(target, unit)
+                    .map_err(|e| format!("the occurrence's placement #{target}: {e}"))?;
+                c.extend([*mi]);
+                c.extend(map);
+                Some(p)
+            }
+            _ => {
+                return Err(format!(
+                    "the occurrence states {} mapped items; which places it is not stated",
+                    placed.len()
+                ));
+            }
+        };
+        if through == depth.is_some() {
+            self.find(
+                FindingKind::Nonconformance,
+                Some(st.id),
+                def,
+                &[],
+                "a hole that is through and has a depth, or neither (basic_round_hole WR7); read as stated",
+            );
+        }
+        consumed.extend(c);
+        Ok((
+            RoundHole {
+                name,
+                diameter,
+                diameter_tolerance,
+                depth,
+                depth_tolerance,
+                through,
+                placement,
+            },
+            located,
+        ))
     }
 
     /// Whether `item` is geometry that is not part topology: points, curves, surfaces,

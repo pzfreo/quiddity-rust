@@ -112,9 +112,7 @@
    "unconsumed|measure_qualification|part of geometric_tolerance+geometric_tolerance_with_datum_reference+surface_profile_tolerance N, which is not read (its finding says why)": 1,
    "unresolved-reference|geometric_tolerance+geometric_tolerance_with_datum_reference+surface_profile_tolerance|the toleranced feature was not read; tolerance not read": 1
   },
-  "nist_stc_09_asme1_ap242-e4": {
-   "not-modelled|basic_round_hole_occurrence|the feature definition of the occurrence (basic_round_hole: its parameters, tolerances and placement) is not held; the occurrence's faces are read as the feature": 25
-  },
+  "nist_stc_09_asme1_ap242-e4": {},
   "nist_stc_10_asme1_ap242-e2": {
    "nonconformance|default_model_geometric_view|shape aspect identifies no face or edge; not read": 1,
    "nonconformance|shape_aspect|shape aspect identifies no face or edge; not read": 6,
@@ -147,7 +145,6 @@
   "not-modelled|property \"…\" (\"…\") is not a construct the reader knows; not read": "Property definitions on the part or its PMI that are neither PMI nor UDA constructs: specify-core's private 'pmi-assist answers' data, and CAD-system properties ('shape for solid data…', untyped '' properties). Reported, not read.",
   "not-modelled|qualifier type_qualifier \"…\" on a value (through a measure_qualification) is not held; the value is read without it": "NIST CTC-05 qualifies the deviations of two toleranced dimensions (#990-#993) with TYPE_QUALIFIER('designed') #935 and #938 through MEASURE_QUALIFICATION #927-#930. The model's value holds a quantity and decimal places, not a type qualifier; the deviations are read, the qualifier is reported.",
   "not-modelled|the datum reference frame's axis system (§N Figure N) is not held": "NIST STC-07 gives datum systems an axis placement by a usage (§6.9.7 Figure 64, for degree-of-freedom modifiers); the model's datum system holds its compartments and modifiers, not this placement.",
-  "not-modelled|the feature definition of the occurrence (basic_round_hole: its parameters, tolerances and placement) is not held; the occurrence's faces are read as the feature": "AP242 edition 4 hole features (NIST STC-09): BASIC_ROUND_HOLE_OCCURRENCEs identify the hole's faces and its placed definition (diameter, depth, tolerance). The faces are read as the feature (the dimensions and tolerances on them are read); the hole definition is not modelled.",
   "unconsumed|not reached from any part's PMI": "Semantic instances that no part's PMI reaches: qualifiers and measure qualifications on product definitions that are not parts (NIST FTC-09's shape-less product definitions), instances referenced by nothing (NIST CTC-05's TYPE_QUALIFIER('designed') #936, #937, #939, #940), and the tessellated-only FTC-08 e4 file's PMI (no B-rep part).",
   "unconsumed|on a product definition that is not one of the parts read (no B-rep shape to anchor to)": "PMI on a product definition the reader has no part for: NIST FTC-09's product definitions #30 and #8155 (no B-rep shape, no assembly relationship) and the tessellated-only FTC-08 e4 file (read_part_definitions refuses it). Not attributed to any part.",
   "unconsumed|part of geometric_tolerance+geometric_tolerance_with_datum_reference+surface_profile_tolerance N, which is not read (its finding says why)": "Part of a tolerance that is not read (its toleranced feature identifies nothing).",

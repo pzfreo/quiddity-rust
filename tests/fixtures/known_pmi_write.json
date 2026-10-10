@@ -5,6 +5,7 @@
   "DatumTarget: datum targets are read but not written yet (design: Out of scope)": "Writing datum targets is out of scope for this stage (design: Out of scope); refused by name.",
   "Dimension: a dimension without a nominal value (§N.N.N: it shall always be given)": "NIST CTC-01 states dimensions without a dimensional_characteristic_representation (a nonconformance the reader reads through, pinned in read/findings.json); PMI practice §5.2.1 requires the nominal value, so the writer refuses to write the nonconformance.",
   "Feature: a group of unstated kind (§N.N requires 'multiple elements' or 'pattern of features')": "NIST FTC-09's composite_group_shape_aspects state neither 'multiple elements' nor 'pattern of features' (read as GroupKind::Unstated with a finding); writing a group whose kind is not stated would write the nonconformance, so it is refused with what depends on it.",
+  "Hole: hole definitions (basic_round_hole) are read but not written yet (design: question Q-holes)": "Edition 4 hole occurrences' basic_round_hole definitions (NIST STC-09) are read into PartPmi.holes, but the writer does not write them yet (docs/step-ap242.md question 7, Q-holes); refused by name so that a replace never drops them silently. The occurrences' faces are still written as their features (the written file is unchanged).",
   "Note: notes are the non-standard 'manufacturing requirement' text route, which is not written (decision N)": "specify-core's 'manufacturing requirement' properties (threads, knurls, finish, edge condition, general tolerances as text) are not a standard AP242 form; maintainer decision 5: not written.",
   "Tolerance: a projected tolerance zone without its projection end (§N.N.N.N)": "NIST CTC-04's projected zone names a projection end that identifies no face (read through with a finding); §6.9.2.2 requires the end, so the writer refuses the tolerance rather than write an empty shape aspect.",
   "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": "Writing tolerance relations (composite feature control frames) is out of scope for this stage (design: Out of scope); refused by name, left out of the round trip.",
@@ -218,6 +219,7 @@
    "refuse policy": "refused: 115 presentation blockers of 196",
    "refused": {
     "Attribute: \"\": N units of the file are named \"derived_unit\"; which one is not stated": 12,
+    "Hole: hole definitions (basic_round_hole) are read but not written yet (design: question Q-holes)": 25,
     "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 2
    },
    "sha256": "41026b1f0d81830c6092b5147e0e084d2fa163169161c31af4ce06493d3c7d33"

@@ -2271,6 +2271,37 @@ pub enum KnurlPattern {
     Straight,
 }
 
+/// A hole occurrence's feature definition and placement (AP242 edition 4: a
+/// `basic_round_hole_occurrence` of a `basic_round_hole`, whose faces are [`Hole::feature`]).
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct Hole {
+    /// The occurrence: its faces.
+    pub feature: FeatureId,
+    pub definition: RoundHole,
+    /// The occurrence's placement: the target its `mapped_item` maps the definition's
+    /// placement (the mapping origin) onto, in the length unit of the representation the
+    /// occurrence identifies it in. `None` when the occurrence states no mapped item.
+    pub placement: Option<Placement>,
+}
+
+/// A `basic_round_hole`, exactly its schema attributes (WR1–WR8). A definition is shared by
+/// its occurrences; each [`Hole`] holds it by value.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct RoundHole {
+    /// The definition's name (`characterized_object.name`: 'Hole.2').
+    pub name: String,
+    pub diameter: Length,
+    /// Deviations from the diameter (a `tolerance_value`).
+    pub diameter_tolerance: Option<Bounds>,
+    /// Required unless through (WR7).
+    pub depth: Option<Length>,
+    pub depth_tolerance: Option<Bounds>,
+    pub through: bool,
+    /// The definition's own placement (its `shape_representation`'s one `axis2_placement_3d`,
+    /// WR1–WR2), in that representation's length unit.
+    pub placement: Placement,
+}
+
 /// The part's material (CAx-IF *Material Identification and Density* §4.1–4.2).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Material {
@@ -2457,6 +2488,9 @@ pub struct PartPmi {
     pub general: Vec<GeneralTolerance>,
     pub threads: Vec<Thread>,
     pub knurls: Vec<Knurl>,
+    /// Hole occurrences' definitions. Read only: the writer neither writes nor refuses them
+    /// (`docs/step-ap242.md`, Q-holes).
+    pub holes: Vec<Hole>,
     pub material: Option<Material>,
     pub notes: Vec<Note>,
     pub surface_textures: Vec<SurfaceTexture>,
@@ -2726,6 +2760,11 @@ impl PartPmi {
                 if !feature(f) {
                     bad(format!("thread {i} names missing feature {}", f.0));
                 }
+            }
+        }
+        for (i, h) in self.holes.iter().enumerate() {
+            if !feature(h.feature) {
+                bad(format!("hole {i} names missing feature {}", h.feature.0));
             }
         }
         for (i, k) in self.knurls.iter().enumerate() {

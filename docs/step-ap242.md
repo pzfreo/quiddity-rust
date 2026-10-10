@@ -229,6 +229,7 @@ pub struct PartPmi {                            // the PMI of one product defini
     pub general: Vec<GeneralTolerance>,
     pub threads: Vec<Thread>,
     pub knurls: Vec<Knurl>,
+    pub holes: Vec<Hole>,                       // edition 4 hole occurrences' definitions (read only)
     pub material: Option<Material>,
     pub notes: Vec<Note>,
     pub attributes: Vec<AttributeSet>,          // UDA practice, on the part or on a feature
@@ -1052,6 +1053,26 @@ thread haecceity wrote written again) and U10 (its Python notes on faces), so it
   `opencascade_reads_the_written_files` (`pmi_write.rs`) requires every written file, datum
   symbols included, to load in specify-core's `load.load_all` and read in XCAF.
 
+**Hole occurrences** (AP242 edition 4, NIST STC-09). A `basic_round_hole_occurrence`'s faces
+are its feature, as before; its `basic_round_hole` is now held as a `Hole` on that feature
+(`PartPmi.holes`): the definition's name, diameter, diameter and depth tolerances (deviations, a
+`tolerance_value`), depth, through, and its own placement (the one `axis2_placement_3d`, WR1–WR2),
+each as stated in its unit, and the occurrence's placement (the target of the one
+`mapped_item` mapping the definition's placement). The definition's instances, its measures,
+`tolerance_value`s and the mapped item and its map are the feature's provenance; a replace
+removed them already (removal rule 2), so `nist_remove.json` is unchanged. The not-modelled
+finding stays, naming what is not held, for any other definition (counterbore, countersink,
+explicit), a `limits_and_fits` diameter tolerance, anything else referring to the definition (a
+`round_hole_bottom_condition`, a property), a placement that is not one `axis2_placement_3d`,
+several mapped items or one that maps something else, and an occurrence read only as a member of
+another feature or as the feature of its one member; WR7 (through XOR depth) violated is a
+nonconformance, read as stated. All 25 occurrences of STC-09 are held (`reads_hole_occurrences_with_their_definition`, with each
+diameter dimension on them stating its holes' diameter and deviations;
+`hole_definition_not_held_is_reported`). OpenCascade's XCAF reads no hole definition (its
+capture has the dimensions only), so the file is the oracle. `pmi read`'s JSON carries `holes`
+(`haecceity-pmi-read/6`: both this and the notes' callouts above took /5 on separate branches,
+so the merged reader is /6). The writer refuses holes (question 7).
+
 ### Questions (2026-10-09)
 
 What was done meanwhile is in each.
@@ -1094,6 +1115,12 @@ What was done meanwhile is in each.
    pitch, tapping drill and depths in an attribute set on the thread's feature, as haecceity's
    own test of specify-core intents does). Where should the pitch go, and what does 'number of
    threads' count?
+7. **Q-holes: the writer and hole occurrences** (2026-10-10). The reader now holds
+   `PartPmi.holes`; `pmi::write` refuses each by name (`ItemRef::Hole`, "read but not written
+   yet", like datum targets and tolerance relations), so a model carrying holes is never
+   written with its definitions silently dropped. Should the writer go on to write
+   `basic_round_hole_occurrence`s (definition, tolerance values, mapped-item placement), or
+   keep refusing them? *Meanwhile:* refused; specify-core writes no holes.
 
 ## Out of scope for now
 

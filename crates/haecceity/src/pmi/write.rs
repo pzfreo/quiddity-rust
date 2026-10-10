@@ -96,6 +96,7 @@ pub enum ItemRef {
     Note(usize),
     SurfaceTexture(usize),
     Attribute(usize),
+    Hole(usize),
 }
 
 /// One item the writer will not write, and why.
@@ -1596,6 +1597,12 @@ impl<'a> PartPlan<'a> {
             self.refuse(
                 ItemRef::ToleranceRelation(i),
                 "tolerance relations (composite frames) are read but not written yet (design: Out of scope)",
+            );
+        }
+        for i in 0..p.holes.len() {
+            self.refuse(
+                ItemRef::Hole(i),
+                "hole definitions (basic_round_hole) are read but not written yet (design: question Q-holes)",
             );
         }
         for i in 0..p.notes.len() {
