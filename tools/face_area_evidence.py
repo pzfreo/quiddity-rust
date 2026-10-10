@@ -3,6 +3,7 @@ behind the verdicts in ``tests/fixtures/known_face_areas.json``.
 
     QUIDDITY=../quiddity ../quiddity/.venv/bin/python tools/face_area_evidence.py faces.json
     QUIDDITY=../quiddity ../quiddity/.venv/bin/python tools/face_area_evidence.py --show FILE FACE...
+    QUIDDITY=../quiddity ../quiddity/.venv/bin/python tools/face_area_evidence.py --moments faces.json
 
 ``faces.json`` lists ``[file, face]`` pairs (face indices in OpenCascade's traversal, as in
 ``tests/fixtures/face_areas.json.gz``); their areas are merged into
@@ -20,6 +21,12 @@ surfaces), giving a polygon in the surface's parameters. Its area integral is ta
   in slices across u broken at every polygon vertex (a 3-point Gauss rule per slice, the
   crossings of the slice paired even-odd), and along each slice by an 8-point Gauss rule per
   knot span of the surface; no tabulation, no Green's theorem.
+
+- ``moments`` (on request with ``--moments``, for ``tools/known_face_moments.py``): the area
+  and centroid, by ``tools/kernel_evidence.py``'s Green's theorem along the edges' foot points
+  (high-order panels on the edge curves, no polygon) with the densities w and w·p, at 8 and 16
+  panels per curve interval; ``moments_change`` is the largest difference between the two, scaled
+  as ``crates/haecceity/tests/face_moments.rs`` compares moments.
 
 The slices take minutes on the largest faces (the recorded evidence omits them on nine
 cgb243 faces, run without ``--slices``). Each is taken with 2000 and 4000 samples per edge and extrapolated (the polygon's chords are
@@ -368,13 +375,57 @@ def evidence(face, slices: bool) -> dict:
     return out
 
 
+def moments(face, panels=(8, 16)) -> dict:
+    """[area, cx, cy, cz] over the region the 3D edges bound, by ``tools/kernel_evidence.py``'s
+    Green's theorem along the edges' foot points (OpenCascade's evaluator and projection, high-
+    order panels; nothing from either kernel's integration or pcurves) with the densities w and
+    w·p in place of the area and flux densities, at two panel counts: the finer one's moments and
+    ``change``, the largest difference between the two scaled as the test compares them."""
+
+    import kernel_evidence
+
+    class Moments(kernel_evidence._Surface):
+        # Two components per pass: kernel_evidence integrates pairs.
+        pair = (0, 1)
+
+        def densities(self, u, v):
+            u, v = self._wrapped(u, v)
+            p, du, dv = gp_Pnt(), gp_Vec(), gp_Vec()
+            self.adaptor.D1(u, v, p, du, dv)
+            w = du.Crossed(dv).Magnitude()
+            values = (w, w * p.X(), w * p.Y(), w * p.Z())
+            return np.array([values[k] for k in self.pair])
+
+    surf = Moments(face)
+    found = []
+    for n in panels:
+        signed = []
+        for pair in ((0, 1), (2, 3)):
+            surf.pair = pair
+            pass_ = kernel_evidence._integrate(face, surf, n)
+            if pass_ is None:
+                return {"moments": None}
+            signed += list(pass_)
+        area = abs(signed[0])
+        found.append([area] + [s / signed[0] for s in signed[1:]])
+    coarse, fine = found
+    change = max(
+        [abs(fine[0] - coarse[0]) / fine[0]] + [abs(fine[k] - coarse[k]) / max(abs(fine[k]), 1.0) for k in (1, 2, 3)]
+    )
+    return {"moments": fine, "change": change}
+
+
 def _work(job):
-    file, faces, slices = job
+    file, faces, slices, with_moments = job
     all_faces = list(_load(file).faces())
     out = {}
     for i in faces:
         try:
-            out[f"{file}#{i}"] = evidence(all_faces[i].wrapped, slices)
+            if with_moments:
+                found = moments(all_faces[i].wrapped)
+                out[f"{file}#{i}"] = {"moments": found["moments"], "moments_change": found.get("change")}
+            else:
+                out[f"{file}#{i}"] = evidence(all_faces[i].wrapped, slices)
         except Exception as error:  # noqa: BLE001 - recorded as no evidence
             print("failed", file, i, error, file=sys.stderr)
             out[f"{file}#{i}"] = {}
@@ -383,17 +434,23 @@ def _work(job):
 
 
 def main() -> None:
-    if sys.argv[1] == "--show":
-        slices = "--slices" in sys.argv
-        args = [a for a in sys.argv[2:] if a != "--slices"]
-        print(json.dumps(_work((args[0], [int(i) for i in args[1:]], slices)), indent=1))
-        return
     slices = "--slices" in sys.argv
-    pairs = json.loads(Path(sys.argv[1]).read_text())
+    with_moments = "--moments" in sys.argv
+    args = [a for a in sys.argv[1:] if a not in ("--slices", "--moments")]
+    if args[0] == "--show":
+        print(json.dumps(_work((args[1], [int(i) for i in args[2:]], slices, with_moments)), indent=1))
+        return
+    pairs = json.loads(Path(args[0]).read_text())
     jobs: dict[str, list[int]] = {}
     for file, face in pairs:
         jobs.setdefault(file, []).append(face)
-    chunks = [(f, faces[k : k + 4], slices) for f, faces in jobs.items() for k in range(0, len(faces), 4)]
+    # The moments take minutes on a large B-spline face: one face per job.
+    size = 1 if with_moments else 4
+    chunks = [
+        (f, faces[k : k + size], slices, with_moments)
+        for f, faces in jobs.items()
+        for k in range(0, len(faces), size)
+    ]
     found = json.loads(gzip.decompress(OUT.read_bytes())) if OUT.exists() else {"faces": {}}
     found["quiddity"] = subprocess.run(
         ["git", "-C", str(QUIDDITY), "rev-parse", "HEAD"], capture_output=True, text=True, check=True

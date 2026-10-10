@@ -206,8 +206,8 @@
   {
     "file": "cadgenbench/threaded_connector_109.step",
     "face": 36,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 6.157341036e-05, centroid (-15.95322607, 49.02013515, 374.2821854); with its pcurves rebuilt from the 3D edges: area 6.157356664e-05, centroid (-15.95329999, 49.02011101, 374.282187). The port: area 6.157348045e-05, centroid (-15.95329804, 49.0201117, 374.2821869). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 6.224813512e-05, centroid (-15.97538815, 49.01135866, 374.2826529) (estimated error 2.5e-07): 1.1e-02 from the port, 1.1e-02 from OpenCascade.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 6.157341036e-05, centroid (-15.95322607, 49.02013515, 374.2821854); with its pcurves rebuilt from the 3D edges: area 6.157356664e-05, centroid (-15.95329999, 49.02011101, 374.282187). The port: area 6.157348045e-05, centroid (-15.95329804, 49.0201117, 374.2821869). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 6.224813512e-05, centroid (-15.97538815, 49.01135866, 374.2826529) (estimated error 2.5e-07): 1.1e-02 from the port, 1.1e-02 from OpenCascade. tools/face_area_evidence.py --moments (Green's theorem along the edges' foot points, tools/kernel_evidence.py's panels) gives area 6.157348042e-05, centroid (-15.95329804, 49.0201117, 374.2821869) (8-to-16-panel change 1.0e-11): 5.0e-10 from the port, 4.5e-06 from OpenCascade. face_moment_evidence misses this sliver (4.4 mm long, about 1.4e-5 mm wide) by 1%: its inner integral runs from the B-spline domain's lower u, so the face's area is a small difference of large integrals whose quadrature error its estimate (the chords only) does not measure; started at the face's own lowest u it gives 6.157355e-5 on face 36, 1.2e-6 from the port.",
     "rust": [
       6.157348045104685e-05,
       -15.953298040634701,
@@ -446,8 +446,8 @@
   {
     "file": "cadgenbench/threaded_connector_109.step",
     "face": 75,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 6.157175504e-05, centroid (-15.95322336, 49.0201362, 386.9821854); with its pcurves rebuilt from the 3D edges: area 6.157190741e-05, centroid (-15.95329752, 49.02011199, 386.9821869). The port: area 6.157181352e-05, centroid (-15.95329615, 49.02011249, 386.9821869). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 6.220141441e-05, centroid (-15.97392637, 49.01193792, 386.9826221) (estimated error 2.5e-07): 1.0e-02 from the port, 1.0e-02 from OpenCascade.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 6.157175504e-05, centroid (-15.95322336, 49.0201362, 386.9821854); with its pcurves rebuilt from the 3D edges: area 6.157190741e-05, centroid (-15.95329752, 49.02011199, 386.9821869). The port: area 6.157181352e-05, centroid (-15.95329615, 49.02011249, 386.9821869). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 6.220141441e-05, centroid (-15.97392637, 49.01193792, 386.9826221) (estimated error 2.5e-07): 1.0e-02 from the port, 1.0e-02 from OpenCascade. tools/face_area_evidence.py --moments (Green's theorem along the edges' foot points, tools/kernel_evidence.py's panels) gives area 6.157181349e-05, centroid (-15.95329615, 49.02011249, 386.9821869) (8-to-16-panel change 5.2e-12): 4.5e-10 from the port, 4.6e-06 from OpenCascade. face_moment_evidence misses this sliver (4.4 mm long, about 1.4e-5 mm wide) by 1%: its inner integral runs from the B-spline domain's lower u, so the face's area is a small difference of large integrals whose quadrature error its estimate (the chords only) does not measure; started at the face's own lowest u it gives 6.157355e-5 on face 36, 1.2e-6 from the port.",
     "rust": [
       6.157181351700511e-05,
       -15.953296152509807,
@@ -806,8 +806,8 @@
   {
     "file": "cadgenbench/threaded_connector_109.step",
     "face": 132,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 6.156529229e-05, centroid (-15.95321467, 49.02013971, 406.0321852); with its pcurves rebuilt from the 3D edges: area 6.156544655e-05, centroid (-15.95328883, 49.0201155, 406.0321867). The port: area 6.156535011e-05, centroid (-15.95328728, 49.02011607, 406.0321867). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 6.2232452e-05, centroid (-15.97513462, 49.0114592, 406.0326476) (estimated error 2.5e-07): 1.1e-02 from the port, 1.1e-02 from OpenCascade.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 6.156529229e-05, centroid (-15.95321467, 49.02013971, 406.0321852); with its pcurves rebuilt from the 3D edges: area 6.156544655e-05, centroid (-15.95328883, 49.0201155, 406.0321867). The port: area 6.156535011e-05, centroid (-15.95328728, 49.02011607, 406.0321867). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 6.2232452e-05, centroid (-15.97513462, 49.0114592, 406.0326476) (estimated error 2.5e-07): 1.1e-02 from the port, 1.1e-02 from OpenCascade. tools/face_area_evidence.py --moments (Green's theorem along the edges' foot points, tools/kernel_evidence.py's panels) gives area 6.156535019e-05, centroid (-15.95328728, 49.02011607, 406.0321867) (8-to-16-panel change 1.2e-10): 1.2e-09 from the port, 4.6e-06 from OpenCascade. face_moment_evidence misses this sliver (4.4 mm long, about 1.4e-5 mm wide) by 1%: its inner integral runs from the B-spline domain's lower u, so the face's area is a small difference of large integrals whose quadrature error its estimate (the chords only) does not measure; started at the face's own lowest u it gives 6.157355e-5 on face 36, 1.2e-6 from the port.",
     "rust": [
       6.156535011438682e-05,
       -15.953287278143339,
@@ -6218,8 +6218,8 @@
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "face": 1351,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 19.46777944, centroid (40.40721573, 152.1423968, -99.09610273); with its pcurves rebuilt from the 3D edges: area 19.48030234, centroid (40.40686955, 152.1408758, -99.09518662). The port: area 19.46910269, centroid (40.40841156, 152.1400183, -99.09568939). tools/face_area_evidence.py's independent area: 19.46910268.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 19.46777944, centroid (40.40721573, 152.1423968, -99.09610273); with its pcurves rebuilt from the 3D edges: area 19.48030234, centroid (40.40686955, 152.1408758, -99.09518662). The port: area 19.46910269, centroid (40.40841156, 152.1400183, -99.09568939). tools/face_area_evidence.py's independent area: 19.46910268. tools/face_area_evidence.py --moments (Green's theorem along the edges' foot points, tools/kernel_evidence.py's panels) gives area 19.46909843, centroid (40.40841154, 152.1400185, -99.09568953) (8-to-16-panel change 2.8e-07): 2.2e-07 from the port, 6.8e-05 from OpenCascade.",
     "rust": [
       19.469102694647532,
       40.408411559065364,
@@ -10046,8 +10046,8 @@
   {
     "file": "cadgenbench_inputs/cgb207.step",
     "face": 126,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 19.05449503, centroid (63.18526386, -15.20634209, 24.74227207); with its pcurves rebuilt from the 3D edges: area 19.05447651, centroid (63.18526596, -15.20634333, 24.74227119). The port: area 19.05467412, centroid (63.18524977, -15.20633928, 24.74230296).",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 19.05449503, centroid (63.18526386, -15.20634209, 24.74227207); with its pcurves rebuilt from the 3D edges: area 19.05447651, centroid (63.18526596, -15.20634333, 24.74227119). The port: area 19.05467412, centroid (63.18524977, -15.20633928, 24.74230296). tools/face_area_evidence.py --moments (Green's theorem along the edges' foot points, tools/kernel_evidence.py's panels) gives area 19.05467412, centroid (63.18524977, -15.20633928, 24.74230296) (8-to-16-panel change 9.4e-11): 5.7e-11 from the port, 9.4e-06 from OpenCascade.",
     "rust": [
       19.05467412325482,
       63.185249767445015,
@@ -12074,8 +12074,8 @@
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "face": 483,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 5.908447598e-10, centroid (-62.53735528, 21.14073352, 2.693086912); with its pcurves rebuilt from the 3D edges: area 9.404544951e-10, centroid (-62.53679131, 21.14247982, 2.693086951). The port: area 5.462467436e-08, centroid (-62.53798554, 21.13876554, 2.693086787).",
+    "verdict": "equivalent",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 5.908447598e-10, centroid (-62.53735528, 21.14073352, 2.693086912); with its pcurves rebuilt from the 3D edges: area 9.404544951e-10, centroid (-62.53679131, 21.14247982, 2.693086951). The port: area 5.462467436e-08, centroid (-62.53798554, 21.13876554, 2.693086787). tools/face_area_evidence.py --moments (Green's theorem along the edges' foot points, tools/kernel_evidence.py's panels) gives area 5.445441793e-08, centroid (-62.53799266, 21.1387434, 2.693086787) (8-to-16-panel change 3.0e-04): 3.1e-03 from the port, 9.9e-01 from OpenCascade. The file does not define this face to the precision compared: a sliver 0.0138 mm long at the tip of a B-spline surface that nearly closes there (its sides v = 0 and v = 1 lie 1.2e-5 mm apart), bounded by two edges that stray up to 2.0e-5 mm off the surface (tools/kernel_evidence.py boxes; their tolerances 1.6e-5 and 2.1e-5), so wider than the tip itself; the strip their tolerances allow the boundary is 4.98e-7 mm\u00b2, nine times the face. Every reading lies inside it: the port's, the edges along the sides bounding the whole tip (5.4618e-8 by the exact surface over u < 0.0016898, every v, known_face_areas.json); the edges' foot points (5.4455e-8 at 32 and 64 panels too, change 2.7e-4: the feet of points straying farther than the tip is wide land on either side, so no refinement converges; tools/face_area_evidence.py's slices 5.4459e-8 and polygon 5.4399e-8); and OpenCascade's pcurves, a thin triangle near v = 0.042. Negligible either way (5.5e-13 of the solid's area); a single answer needs a rule for slivers narrower than their edges' tolerance, which is a maintainer decision, not evidence.",
     "rust": [
       5.462467436247263e-08,
       -62.537985537746906,
@@ -12566,8 +12566,8 @@
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "face": 665,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 2.933128119, centroid (-25.62402483, 54.57710482, 16.60500217); with its pcurves rebuilt from the 3D edges: area 2.933124502, centroid (-25.62402622, 54.57710481, 16.60500243). The port: area 2.933132275, centroid (-25.62403098, 54.5771041, 16.60500541). tools/face_area_evidence.py's independent area: 2.933132275.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 2.933128119, centroid (-25.62402483, 54.57710482, 16.60500217); with its pcurves rebuilt from the 3D edges: area 2.933124502, centroid (-25.62402622, 54.57710481, 16.60500243). The port: area 2.933132275, centroid (-25.62403098, 54.5771041, 16.60500541). tools/face_area_evidence.py --moments (Green's theorem along the edges' foot points, tools/kernel_evidence.py's panels) gives area 2.933131985, centroid (-25.62403103, 54.57710409, 16.60500543) (8-to-16-panel change 4.2e-07): 9.9e-08 from the port, 1.3e-06 from OpenCascade.",
     "rust": [
       2.9331322747778126,
       -25.624030979196938,
@@ -13586,8 +13586,8 @@
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "face": 878,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 2.933128119, centroid (-64.21265187, 9.004679653, 16.60500217); with its pcurves rebuilt from the 3D edges: area 2.933124502, centroid (-64.21265229, 9.004678335, 16.60500243). The port: area 2.933132275, centroid (-64.21265308, 9.004673583, 16.60500541). tools/face_area_evidence.py's independent area: 2.933132275.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 2.933128119, centroid (-64.21265187, 9.004679653, 16.60500217); with its pcurves rebuilt from the 3D edges: area 2.933124502, centroid (-64.21265229, 9.004678335, 16.60500243). The port: area 2.933132275, centroid (-64.21265308, 9.004673583, 16.60500541). tools/face_area_evidence.py --moments (Green's theorem along the edges' foot points, tools/kernel_evidence.py's panels) gives area 2.933131985, centroid (-64.21265308, 9.004673535, 16.60500543) (8-to-16-panel change 4.2e-07): 9.9e-08 from the port, 1.3e-06 from OpenCascade.",
     "rust": [
       2.9331322749191235,
       -64.21265307683478,
@@ -13898,8 +13898,8 @@
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "face": 225,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 1456.697361, centroid (60.78950784, 0.19685987, -0.7683622691); with its pcurves rebuilt from the 3D edges: area 1456.69736, centroid (60.78950784, 0.1968598889, -0.7683622564). The port: area 1456.702593, centroid (60.78951444, 0.1968738882, -0.7683501874). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 1456.698519, centroid (60.78951229, 0.1968778743, -0.7683487508) (estimated error 4.0e-06): 4.0e-06 from the port, 1.8e-05 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 1456.69016. tools/face_area_evidence.py's independent area: 1456.69016.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 1456.697361, centroid (60.78950784, 0.19685987, -0.7683622691); with its pcurves rebuilt from the 3D edges: area 1456.69736, centroid (60.78950784, 0.1968598889, -0.7683622564). The port: area 1456.702593, centroid (60.78951444, 0.1968738882, -0.7683501874). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 1456.698519, centroid (60.78951229, 0.1968778743, -0.7683487508) (estimated error 4.0e-06): 4.0e-06 from the port, 1.8e-05 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 1456.69016. tools/face_area_evidence.py --moments (Green's theorem along the edges' foot points, tools/kernel_evidence.py's panels) gives area 1456.702593, centroid (60.78951444, 0.1968738882, -0.7683501874) (8-to-16-panel change 1.6e-12): 4.9e-12 from the port, 1.4e-05 from OpenCascade.",
     "rust": [
       1456.7025934478545,
       60.78951443595405,
@@ -13922,8 +13922,8 @@
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "face": 233,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 1194.062166, centroid (-13.76019533, -0.0426259178, -43.26598619); with its pcurves rebuilt from the 3D edges: area 1194.062079, centroid (-13.7601974, -0.04262648858, -43.26598582). The port: area 1194.066369, centroid (-13.7601875, -0.04261501111, -43.26599242). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 1194.063029, centroid (-13.76018632, -0.04261174361, -43.26599027) (estimated error 3.3e-06): 3.3e-06 from the port, 1.4e-05 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 1194.056177. tools/face_area_evidence.py's independent area: 1194.056177.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 1194.062166, centroid (-13.76019533, -0.0426259178, -43.26598619); with its pcurves rebuilt from the 3D edges: area 1194.062079, centroid (-13.7601974, -0.04262648858, -43.26598582). The port: area 1194.066369, centroid (-13.7601875, -0.04261501111, -43.26599242). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 1194.063029, centroid (-13.76018632, -0.04261174361, -43.26599027) (estimated error 3.3e-06): 3.3e-06 from the port, 1.4e-05 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 1194.056177. tools/face_area_evidence.py --moments (Green's theorem along the edges' foot points, tools/kernel_evidence.py's panels) gives area 1194.066368, centroid (-13.76018749, -0.04261498105, -43.26599242) (8-to-16-panel change 3.0e-08): 3.0e-08 from the port, 1.1e-05 from OpenCascade.",
     "rust": [
       1194.0663692162427,
       -13.760187501416194,
@@ -13934,8 +13934,8 @@
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "face": 234,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 1194.304844, centroid (-13.76008749, -0.04262458628, -42.61170887); with its pcurves rebuilt from the 3D edges: area 1193.959579, centroid (-13.76007579, -0.04224289232, -42.61223991). The port: area 1194.012578, centroid (-13.76017625, -0.04261338945, -42.61224696). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 1194.012599, centroid (-13.76017651, -0.04261377426, -42.61224696) (estimated error 6.8e-08): 3.8e-07 from the port, 2.4e-04 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 1194.010347. tools/face_area_evidence.py's independent area: 1194.010347.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 1194.304844, centroid (-13.76008749, -0.04262458628, -42.61170887); with its pcurves rebuilt from the 3D edges: area 1193.959579, centroid (-13.76007579, -0.04224289232, -42.61223991). The port: area 1194.012578, centroid (-13.76017625, -0.04261338945, -42.61224696). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 1194.012599, centroid (-13.76017651, -0.04261377426, -42.61224696) (estimated error 6.8e-08): 3.8e-07 from the port, 2.4e-04 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 1194.010347. tools/face_area_evidence.py --moments (Green's theorem along the edges' foot points, tools/kernel_evidence.py's panels) gives area 1194.012565, centroid (-13.76017598, -0.04261333732, -42.61224697) (8-to-16-panel change 2.5e-07): 5.2e-08 from the port, 2.4e-04 from OpenCascade.",
     "rust": [
       1194.0125778157676,
       -13.76017625045937,
@@ -13958,8 +13958,8 @@
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "face": 238,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 955.2454773, centroid (-13.91719348, 0.2295831592, 45.76318666); with its pcurves rebuilt from the 3D edges: area 955.2454773, centroid (-13.91719348, 0.2295831592, 45.76318666). The port: area 955.2531627, centroid (-13.91735427, 0.2296099336, 45.76318142). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 955.2533475, centroid (-13.91742929, 0.2296345685, 45.76318061) (estimated error 1.4e-05): 2.5e-05 from the port, 5.1e-05 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 955.2507191. tools/face_area_evidence.py's independent area: 955.2507191.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 955.2454773, centroid (-13.91719348, 0.2295831592, 45.76318666); with its pcurves rebuilt from the 3D edges: area 955.2454773, centroid (-13.91719348, 0.2295831592, 45.76318666). The port: area 955.2531627, centroid (-13.91735427, 0.2296099336, 45.76318142). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 955.2533475, centroid (-13.91742929, 0.2296345685, 45.76318061) (estimated error 1.4e-05): 2.5e-05 from the port, 5.1e-05 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 955.2507191. tools/face_area_evidence.py --moments (Green's theorem along the edges' foot points, tools/kernel_evidence.py's panels) gives area 955.2531627, centroid (-13.91735427, 0.2296099336, 45.76318142) (8-to-16-panel change 1.3e-13): 1.5e-13 from the port, 2.7e-05 from OpenCascade.",
     "rust": [
       955.253162687696,
       -13.91735426881096,
@@ -14006,8 +14006,8 @@
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "face": 337,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 201.3521879, centroid (-13.29725003, 43.12917844, 35.21147091); with its pcurves rebuilt from the 3D edges: area 201.352191, centroid (-13.29725004, 43.12917838, 35.21147083). The port: area 201.3538126, centroid (-13.29728401, 43.12917314, 35.21146519). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 201.3538516, centroid (-13.29729985, 43.12917234, 35.21145998) (estimated error 6.8e-07): 1.2e-06 from the port, 8.3e-06 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 201.3533061. tools/face_area_evidence.py's independent area: 201.3533061.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 201.3521879, centroid (-13.29725003, 43.12917844, 35.21147091); with its pcurves rebuilt from the 3D edges: area 201.352191, centroid (-13.29725004, 43.12917838, 35.21147083). The port: area 201.3538126, centroid (-13.29728401, 43.12917314, 35.21146519). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 201.3538516, centroid (-13.29729985, 43.12917234, 35.21145998) (estimated error 6.8e-07): 1.2e-06 from the port, 8.3e-06 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 201.3533061. tools/face_area_evidence.py --moments (Green's theorem along the edges' foot points, tools/kernel_evidence.py's panels) gives area 201.3538126, centroid (-13.29728401, 43.12917314, 35.21146519) (8-to-16-panel change 6.5e-14): 2.8e-13 from the port, 8.1e-06 from OpenCascade.",
     "rust": [
       201.3538125637462,
       -13.297284012461827,

@@ -31,7 +31,15 @@ the larger of its magnitude and 1 mm. Verdicts, by the first rule that holds:
   (|Δarea| over the area, times the diagonal of the face's box): rust-correct, on that
   evidence;
 - the independent integration agrees with OpenCascade and not with the port: rust-wrong;
+- ``tools/face_area_evidence.py --moments`` (the area and centroid by ``tools/kernel_evidence.py``'s
+  Green's theorem along the edges' foot points, OpenCascade's evaluator and high-order panels,
+  for the faces the rules above leave open) agrees with the port (to 1e-6, or three times its
+  8-to-16-panel change if larger) and not with OpenCascade: rust-correct; the reverse:
+  rust-wrong;
 - otherwise undetermined, with all the numbers.
+
+A face with its own reason (``SPECIAL``) has it appended to the numbers, and takes its verdict
+where it gives one.
 """
 
 from __future__ import annotations
@@ -44,6 +52,36 @@ from pathlib import Path
 FIXTURES = Path(__file__).resolve().parent.parent / "tests" / "fixtures"
 OUT = FIXTURES / "known_face_moments.json"
 TOLERANCE = 1e-6
+
+THIN = (
+    "face_moment_evidence misses this sliver (4.4 mm long, about 1.4e-5 mm wide) by 1%: its "
+    "inner integral runs from the B-spline domain's lower u, so the face's area is a small "
+    "difference of large integrals whose quadrature error its estimate (the chords only) does "
+    "not measure; started at the face's own lowest u it gives 6.157355e-5 on face 36, 1.2e-6 "
+    "from the port."
+)
+
+SPECIAL = {
+    ("cadgenbench/threaded_connector_109.step", 36): (None, THIN),
+    ("cadgenbench/threaded_connector_109.step", 75): (None, THIN),
+    ("cadgenbench/threaded_connector_109.step", 132): (None, THIN),
+    ("cadgenbench_inputs/cgb242.step.gz", 483): (
+        "equivalent",
+        "The file does not define this face to the precision compared: a sliver 0.0138 mm long at "
+        "the tip of a B-spline surface that nearly closes there (its sides v = 0 and v = 1 lie "
+        "1.2e-5 mm apart), bounded by two edges that stray up to 2.0e-5 mm off the surface "
+        "(tools/kernel_evidence.py boxes; their tolerances 1.6e-5 and 2.1e-5), so wider than the "
+        "tip itself; the strip their tolerances allow the boundary is 4.98e-7 mm², nine times the "
+        "face. Every reading lies inside it: the port's, the edges along the sides bounding the "
+        "whole tip (5.4618e-8 by the exact surface over u < 0.0016898, every v, "
+        "known_face_areas.json); the edges' foot points (5.4455e-8 at 32 and 64 panels too, "
+        "change 2.7e-4: the feet of points straying farther than the tip is wide land on either "
+        "side, so no refinement converges; tools/face_area_evidence.py's slices 5.4459e-8 and "
+        "polygon 5.4399e-8); and OpenCascade's pcurves, a thin triangle near v = 0.042. Negligible "
+        "either way (5.5e-13 of the solid's area); a single answer needs a rule for slivers "
+        "narrower than their edges' tolerance, which is a maintainer decision, not evidence.",
+    ),
+}
 
 
 def rel(a, b) -> float:
@@ -77,6 +115,7 @@ def main(dump_path: str, evidence_path: str) -> None:
             head += f". The port: {fmt(rust)}."
             found = evidence[f"{file}#{face}"]
             area = areas.get(f"{file}#{face}", {})
+            kernel, change = area.get("moments"), area.get("moments_change")
             area = area.get("slices") or area.get("green")
             # An area 1e-3 from both the port's and OpenCascade's is that tool's failure (it
             # unwraps a longitude across a pole, cgb242 face 790), not evidence.
@@ -132,8 +171,24 @@ def main(dump_path: str, evidence_path: str) -> None:
                         f"port; OpenCascade's area differs by {d_area:.2g}, which at the face's extent "
                         f"accounts for its centroid's {shift:.2g} mm."
                     )
-                else:
+                elif f"{area:.10g}" not in reason:
                     reason += f" tools/face_area_evidence.py's independent area: {area:.10g}."
+            if verdict == "undetermined" and kernel is not None:
+                tol = max(TOLERANCE, 3 * change)
+                reason += (
+                    f" tools/face_area_evidence.py --moments (Green's theorem along the edges' foot "
+                    f"points, tools/kernel_evidence.py's panels) gives {fmt(kernel)} (8-to-16-panel "
+                    f"change {change:.1e}): {rel(rust, kernel):.1e} from the port, "
+                    f"{rel(occ, kernel):.1e} from OpenCascade."
+                )
+                if rel(rust, kernel) <= tol < rel(occ, kernel):
+                    verdict = "rust-correct"
+                elif rel(occ, kernel) <= tol < rel(rust, kernel):
+                    verdict = "rust-wrong"
+            if (file, face) in SPECIAL:
+                special, extra = SPECIAL[(file, face)]
+                verdict = special or verdict
+                reason += " " + extra
         counts[verdict] = counts.get(verdict, 0) + 1
         out.append({"file": file, "face": face, "verdict": verdict, "reason": reason, "rust": rust})
     OUT.write_text(json.dumps(out, indent=2) + "\n")
