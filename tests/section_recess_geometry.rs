@@ -46,10 +46,10 @@ use quiddity::features::effective_surfaces::EffectiveFaces;
 use quiddity::features::passages::PassageSectionVertex;
 use quiddity::features::plane_envelope_passages::PlaneEnvelopePassageProof;
 use quiddity::features::section_recess::{SectionRecessError, open_profile_material_side};
-use quiddity::features::section_recess_discovery::discover_section_recesses;
+use quiddity::features::section_recess_discovery::section_recesses_of;
 use quiddity::features::section_recess_geometry::{
-    Candidate, candidates, cylindrical_candidate, cylindrical_channel_geometry,
-    cylindrical_passage_geometry, floor_readings, has_physical_planar_floor,
+    Candidate, candidates, candidates_and_floor_readings, cylindrical_candidate,
+    cylindrical_channel_geometry, cylindrical_passage_geometry, has_physical_planar_floor,
     plane_envelope_geometry, seat_geometry,
 };
 use quiddity::features::sections::{LocalFrame, PlanarSection, SectionVertex};
@@ -299,10 +299,10 @@ fn require_corpus() {
 }
 
 /// The candidates as the capture lists them, or the refusal.
-fn candidates_json(ctx: &Context<'_>, surfaces: &EffectiveFaces<'_, '_>) -> Value {
-    match candidates(ctx, surfaces) {
+fn candidates_json(found: &Result<Vec<Candidate>, SectionRecessError>) -> Value {
+    match found {
         Ok(found) => json!(found.iter().map(candidate_json).collect::<Vec<_>>()),
-        Err(e) => json!({ "refused": raised(&e) }),
+        Err(e) => json!({ "refused": raised(e) }),
     }
 }
 
@@ -347,16 +347,20 @@ fn replay(run: &Value, part: &Part) -> Tally {
     let mut tally = Tally::default();
     let ctx = Context::new(part);
     let surfaces = EffectiveFaces::new(&ctx);
+    // The candidates and every planar face's three readings, each reader asked once (the
+    // candidates are what `candidates` finds, their floor readings taken from these).
+    let (found, floor_readings) = candidates_and_floor_readings(&ctx, &surfaces);
     tally.compare(
         "candidates",
         id("candidates", json!({})),
-        &candidates_json(&ctx, &surfaces),
+        &candidates_json(&found),
         &run["candidates"],
     );
     // Discovery numbers the candidates as records: one per candidate, its faces as evidence
     // (Python's `discover_section_recesses` builds the same records from the same candidates).
     if let Some(want) = run["candidates"].as_array() {
-        let found = discover_section_recesses(&ctx, &surfaces)
+        let found = found
+            .and_then(section_recesses_of)
             .unwrap_or_else(|e| panic!("{file}: discovery refused: {}", e.0));
         let got: Vec<Value> = found
             .iter()
@@ -386,12 +390,17 @@ fn replay(run: &Value, part: &Part) -> Tally {
     let kinds = ["obround", "polygonal", "mixed"];
     let mut planar = 0;
     let mut readings = Vec::new();
+    let mut floor_readings = floor_readings.into_iter();
     for floor in 0..part.faces.len() {
         if !quiddity::features::graph::is_planar(part, floor) {
             continue;
         }
         planar += 1;
-        for (kind, reading) in kinds.iter().zip(floor_readings(&ctx, floor)) {
+        let (read, three) = floor_readings
+            .next()
+            .expect("a reading of every planar face");
+        assert_eq!(read, floor, "{file}: planar faces read in order");
+        for (kind, reading) in kinds.iter().zip(three) {
             match reading {
                 Ok(None) => {}
                 Ok(Some(c)) => readings
@@ -402,6 +411,10 @@ fn replay(run: &Value, part: &Part) -> Tally {
             }
         }
     }
+    assert!(
+        floor_readings.next().is_none(),
+        "{file}: only planar faces read"
+    );
     assert_eq!(
         planar,
         run["planar"].as_u64().unwrap() as usize,
