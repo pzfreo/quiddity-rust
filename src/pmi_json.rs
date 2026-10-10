@@ -48,7 +48,7 @@ pub const PARTS_FORMAT: &str = "quiddity-parts";
 pub const VERSION: u64 = 1;
 /// The reader the anchors and items were produced by; bumped whenever `pmi::read`'s output for
 /// a file can change, so a document read by another reader version is refused, not trusted.
-pub const READER: &str = "haecceity-pmi-read/4";
+pub const READER: &str = "haecceity-pmi-read/5";
 
 /// Why a JSON document was refused: the JSON path and the reason.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -1861,15 +1861,34 @@ fn note_json(n: &Note) -> Json {
         .put("kind", json!(n.kind))
         .put("text", json!(n.text))
         .opt("on", n.on.as_ref().map(owner_json))
+        .list(
+            "callouts",
+            n.callouts
+                .iter()
+                .map(|c| {
+                    Out::new()
+                        .put("name", json!(c.name))
+                        .list("features", c.features.iter().map(|f| json!(f.0)).collect())
+                        .done()
+                })
+                .collect(),
+        )
         .done()
 }
 
 fn note_from(v: &Json, path: &str) -> R<Note> {
-    let o = object(v, path, &["kind", "text", "on"])?;
+    let o = object(v, path, &["kind", "text", "on", "callouts"])?;
     Ok(Note {
         kind: o.req_with("kind", string)?,
         text: o.req_with("text", string)?,
         on: o.opt_with("on", owner_from)?,
+        callouts: o.list("callouts", |x, p| {
+            let c = object(x, p, &["name", "features"])?;
+            Ok(Callout {
+                name: c.req_with("name", string)?,
+                features: c.list("features", feature_id)?,
+            })
+        })?,
     })
 }
 
@@ -1905,11 +1924,26 @@ fn attributes_json(a: &AttributeSet) -> Json {
                 })
                 .collect(),
         )
+        .opt("description", a.description.as_ref().map(|d| json!(d)))
+        .opt(
+            "general_property",
+            a.general_property.as_ref().map(|g| {
+                Out::new()
+                    .put("id", json!(g.id))
+                    .put("name", json!(g.name))
+                    .opt("description", g.description.as_ref().map(|d| json!(d)))
+                    .done()
+            }),
+        )
         .done()
 }
 
 fn attributes_from(v: &Json, path: &str) -> R<AttributeSet> {
-    let o = object(v, path, &["name", "on", "items"])?;
+    let o = object(
+        v,
+        path,
+        &["name", "on", "items", "description", "general_property"],
+    )?;
     let kinds = [
         "text",
         "integer",
@@ -1956,6 +1990,15 @@ fn attributes_from(v: &Json, path: &str) -> R<AttributeSet> {
                 })?,
             };
             Ok((name, value))
+        })?,
+        description: o.opt_with("description", string)?,
+        general_property: o.opt_with("general_property", |x, p| {
+            let g = object(x, p, &["id", "name", "description"])?;
+            Ok(GeneralProperty {
+                id: g.req_with("id", string)?,
+                name: g.req_with("name", string)?,
+                description: g.opt_with("description", string)?,
+            })
         })?,
     })
 }
@@ -2946,6 +2989,16 @@ mod tests {
                 kind: "semantic text".into(),
                 text: "#10-32 UNF".into(),
                 on: Some(NoteOwner::DatumTarget(DatumTargetId(0))),
+                callouts: vec![
+                    Callout {
+                        name: "Text.1".into(),
+                        features: vec![FeatureId(0), FeatureId(4)],
+                    },
+                    Callout {
+                        name: String::new(),
+                        features: vec![],
+                    },
+                ],
             }],
             surface_textures: vec![SurfaceTexture {
                 on: Some(FeatureId(0)),
@@ -2973,6 +3026,12 @@ mod tests {
                         },
                     ),
                 ],
+                description: Some("pmi-assist".into()),
+                general_property: Some(GeneralProperty {
+                    id: "g1".into(),
+                    name: "user defined attribute".into(),
+                    description: None,
+                }),
             }],
             geometry: vec![Geometry {
                 item,

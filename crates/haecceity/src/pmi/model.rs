@@ -2302,6 +2302,25 @@ pub struct Note {
     /// The text, decoded.
     pub text: String,
     pub on: Option<NoteOwner>,
+    /// The callouts that present it (§7.3), in the order of their instances. Read only:
+    /// `pmi::write` refuses notes of this route by name, and neither `pmi::write`'s comparison
+    /// nor the JSON document carries them.
+    pub callouts: Vec<Callout>,
+}
+
+/// A presentation of a note: a `draughting_callout` (or an annotation occurrence) that a
+/// `draughting_model_item_association` relates to the note (PMI practice §7.3, the link from
+/// semantic PMI to its presentation): to the note's property definition, or to a shape aspect
+/// that is the note's alone (the aspect it is on, which nothing refers to but its usages, its
+/// presentation and the note: specify-core's notes on faces).
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct Callout {
+    /// The callout's name (e.g. 'External thread requirement'), decoded.
+    pub name: String,
+    /// The features of the part whose shape aspects an association relates the callout to,
+    /// ascending: the faces it is attached to. Empty when it is related only to the note's
+    /// property definition.
+    pub features: Vec<FeatureId>,
 }
 
 /// What a note or attribute set is on.
@@ -2381,6 +2400,28 @@ pub struct AttributeSet {
     pub on: Option<NoteOwner>,
     /// The values by item name, in the representation's order.
     pub items: Vec<(String, AttributeValue)>,
+    /// The property definition's description (specify-core's structured requirements:
+    /// 'pmi-assist'); `None` when unset or empty. Read only: `pmi::write` writes 'user defined
+    /// attribute', and neither its comparison nor the JSON document carries this.
+    pub description: Option<String>,
+    /// The `general_property` it is associated with (UDA practice §5,
+    /// `general_property_association`). `None` when none is stated (editable note text written
+    /// without one), or when what is stated is not one property (several associations,
+    /// `general_property_association` WR1, or one naming no `general_property`: a finding).
+    /// Read only, as `description`: `pmi::write` names its own after the attribute.
+    pub general_property: Option<GeneralProperty>,
+}
+
+/// A `general_property` (ISO 10303-41): the kind of property a property definition is.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct GeneralProperty {
+    /// `general_property.id`, decoded.
+    pub id: String,
+    /// `general_property.name`: 'user defined attribute' in specify-core's files, the
+    /// attribute's own name where `general_property_association` WR2 is kept.
+    pub name: String,
+    /// `general_property.description`; `None` when unset.
+    pub description: Option<String>,
 }
 
 /// One value of a user defined attribute (UDA practice §7).
@@ -2723,6 +2764,13 @@ impl PartPmi {
                         "surface texture {i}: the characteristic {:?} is not a name",
                         p.characteristic
                     ));
+                }
+            }
+        }
+        for (i, n) in self.notes.iter().enumerate() {
+            for f in n.callouts.iter().flat_map(|c| &c.features) {
+                if !feature(*f) {
+                    bad(format!("note {i}'s callout names missing feature {}", f.0));
                 }
             }
         }

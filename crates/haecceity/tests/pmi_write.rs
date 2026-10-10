@@ -1036,6 +1036,8 @@ fn part_notes() -> Vec<AttributeSet> {
         name: "semantic text".into(),
         on: None,
         items: vec![(k.into(), AttributeValue::Text(v.into()))],
+        description: None,
+        general_property: None,
     })
     .collect()
 }
@@ -2007,6 +2009,7 @@ fn refusals_name_every_item() {
             kind: "surface texture".into(),
             text: "Ra 1.6".into(),
             on: None,
+            callouts: Vec::new(),
         }],
         material: Some(Material {
             id: "steel".into(),
@@ -2279,6 +2282,8 @@ fn intent_pmi(intent: &Json) -> (PartPmi, Vec<String>) {
                     name: "thread manufacturing".into(),
                     on: Some(NoteOwner::Feature(f)),
                     items,
+                    description: None,
+                    general_property: None,
                 });
             }
             other => not_written.push(format!(
@@ -3299,6 +3304,8 @@ fn written_cases() -> Vec<(String, Option<Vec<u8>>)> {
         name: "inspection".into(),
         on: Some(NoteOwner::Feature(FeatureId(4))),
         items: vec![("gauge".into(), AttributeValue::Text("plug".into()))],
+        description: None,
+        general_property: None,
     }];
     p.attributes.extend(part_notes());
     p.surface_textures = textures(Some(FeatureId(9)));

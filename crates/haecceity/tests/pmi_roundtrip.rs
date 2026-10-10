@@ -377,6 +377,8 @@ fn strip(p: &PartPmi, refused: &[ItemRef]) -> PartPmi {
                 kind: n.kind.clone(),
                 text: n.text.clone(),
                 on: owner(&n.on),
+                // Read-only presentation, which the writer does not write.
+                callouts: Vec::new(),
             })
             .collect(),
         surface_textures: p
@@ -398,6 +400,8 @@ fn strip(p: &PartPmi, refused: &[ItemRef]) -> PartPmi {
                 name: a.name.clone(),
                 on: owner(&a.on),
                 items: a.items.clone(),
+                description: a.description.clone(),
+                general_property: a.general_property.clone(),
             })
             .collect(),
         geometry: p.geometry.clone(),

@@ -403,7 +403,8 @@ name as specify-core's files carry it; density is read only.
 
 **Notes and attributes.** `Note { text, on: Option<FeatureId> }` for descriptive requirements;
 `AttributeSet { name, on: AttributeOwner (Part | Feature), items: Vec<(String, AttributeValue)> }`
-per the UDA practice §5–7.
+per the UDA practice §5–7. Read only, a note also holds the callouts that present it and an
+attribute set its property definition's description and `general_property` ([Status](#status)).
 
 **Invariants**, checked by constructors and by the reader (a violation is a reported finding,
 never a silent fix):
@@ -1006,6 +1007,27 @@ thread haecceity wrote written again) and U10 (its Python notes on faces), so it
   'surface finish' note on face 2 and the 'internal thread' note on face 12, as `existing.notes`
   does. The notes' owners are in `pmi read`'s output, so `pmi_json::READER` is now
   `haecceity-pmi-read/4` (the committed fixtures' output changed only in those owners).
+- **Note callouts and attribute properties** (for draftwright-rust, which read both from raw
+  Part 21): `Note.callouts` holds the callouts that present a note (§7.3): each
+  `draughting_callout` or annotation occurrence a `draughting_model_item_association` relates
+  to the note's property definition, or to a shape aspect of the note's feature that is the
+  note's alone (nothing refers to it but its usages, presentation and the note: specify-core's
+  notes on faces), as `Callout { name, features }`, the features those of the part's aspects
+  its associations relate it to (the faces it is attached to; another part's aspect is that
+  part's presentation). An associated item that is no callout, or an aspect of the part that is
+  no feature, is a `not-modelled` finding. `AttributeSet.description` is the property
+  definition's description (`None` when unset or empty: specify-core's 'pmi-assist') and
+  `AttributeSet.general_property` its `general_property` (`id`, `name`, `description`); several
+  associations (`general_property_association` WR1) or a base that is no `general_property`
+  leave it `None` with a finding. Presentation is still not consumed (it stays counted and the
+  removal policy takes it). All three are read only: `pmi::write` refuses notes of this route,
+  writes its own description ('user defined attribute') and general property (named after the
+  attribute), and its read-back comparison does not compare them. The JSON form carries them
+  (optional fields, `VERSION` unchanged), so `pmi_json::READER` is now `haecceity-pmi-read/5`.
+  `tests/pmi_notes.rs` checks the specify-core and NIST fixtures against their Part 21 text
+  (the callouts' faces equal those draftwright-rust's `PartReader::presentation` reads; Python
+  draftwright, matching callout names across the file, takes both of the assembly's 'internal
+  thread' callouts for each part's note, and keeps neither).
 
 **specify-core needs** (specify-core-rust `docs/upstream-needs.md`, checked at this head):
 
