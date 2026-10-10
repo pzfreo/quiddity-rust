@@ -9,6 +9,9 @@
 //! reported with its failure and must be pinned in `FAILING_IN_BOTH_RUNS`.
 
 mod common;
+#[macro_use]
+#[path = "support/slices.rs"]
+mod slices;
 
 use quiddity::correspondence;
 use serde_json::Value;
@@ -63,8 +66,18 @@ fn differing_keys(a: &str, b: &str) -> Vec<String> {
     keys
 }
 
-#[test]
-fn recognition_json_is_the_same_twice_in_one_process() {
+fn corpus_files() -> Vec<String> {
+    common::load("corpus.json")["files"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|e| e["file"].as_str().unwrap().to_owned())
+        .collect()
+}
+
+/// Every corpus part of slice *k* of *n* (`tests/support/slices.rs`) twice; a guarded part, and
+/// an entry of `FAILING_IN_BOTH_RUNS`, is checked by the slice that has its file.
+fn same_twice(k: usize, n: usize) {
     let Some(dir) = common::corpus_dir() else {
         assert!(
             std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
@@ -73,12 +86,8 @@ fn recognition_json_is_the_same_twice_in_one_process() {
         eprintln!("corpus not found; set QUIDDITY_CORPUS");
         return;
     };
-    let files: Vec<String> = common::load("corpus.json")["files"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .map(|e| e["file"].as_str().unwrap().to_owned())
-        .collect();
+    let all = corpus_files();
+    let files = slices::slice(&all, k, n);
     // Each part twice, as two work items: the runs get fresh seeds and usually separate threads,
     // and the slowest part's two runs overlap rather than ending two passes.
     let runs: Vec<&String> = files.iter().flat_map(|name| [name, name]).collect();
@@ -113,8 +122,10 @@ fn recognition_json_is_the_same_twice_in_one_process() {
         }
     }
     for (guarded, family) in GUARDED {
-        let i = files.iter().position(|f| f == guarded);
-        let i = i.unwrap_or_else(|| panic!("{guarded} is not in corpus.json"));
+        assert!(all.iter().any(|f| f == guarded), "{guarded} is not in corpus.json");
+        let Some(i) = files.iter().position(|f| f == guarded) else {
+            continue;
+        };
         let exercised = found[2 * i].as_ref().is_ok_and(|(recognition, _)| {
             let json: Value = serde_json::from_str(recognition).unwrap();
             json[family].as_array().is_some_and(|a| !a.is_empty())
@@ -126,9 +137,13 @@ fn recognition_json_is_the_same_twice_in_one_process() {
         files.len(),
         failing.len()
     );
-    if failing != FAILING_IN_BOTH_RUNS {
+    let pinned: Vec<(&str, &str)> = FAILING_IN_BOTH_RUNS
+        .into_iter()
+        .filter(|(file, _)| slices::owns(&all, k, n, file))
+        .collect();
+    if failing != pinned {
         problems.push(format!(
-            "parts failing in both runs {failing:?}, FAILING_IN_BOTH_RUNS {FAILING_IN_BOTH_RUNS:?}"
+            "parts failing in both runs {failing:?}, FAILING_IN_BOTH_RUNS (this slice's) {pinned:?}"
         ));
     }
     let known = common::load("known_divergences.json");
@@ -152,3 +167,9 @@ fn recognition_json_is_the_same_twice_in_one_process() {
     );
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
+
+sliced!(
+    recognition_json_is_the_same_twice_in_one_process,
+    super::same_twice,
+    [0 => slice_0, 1 => slice_1, 2 => slice_2]
+);

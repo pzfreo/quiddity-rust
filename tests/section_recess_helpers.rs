@@ -26,6 +26,9 @@
 //! same placement-free values (`case` `invariance`, identified by `file` and `motion`).
 
 mod common;
+#[macro_use]
+#[path = "support/slices.rs"]
+mod slices;
 
 use std::collections::BTreeSet;
 use std::io::Read;
@@ -529,10 +532,10 @@ fn placement_free(part: &Part) -> Value {
     json!({"seats": seats, "envelopes": envelopes})
 }
 
-#[test]
-fn proofs_do_not_depend_on_placement() {
-    let captured = load_gz("proofs.json.gz");
-    let runs: Vec<&Value> = captured["runs"]
+/// The runs on which Python proves something: those moved by
+/// [`proofs_do_not_depend_on_placement`].
+fn moved_runs(captured: &Value) -> Vec<&Value> {
+    captured["runs"]
         .as_array()
         .unwrap()
         .iter()
@@ -541,8 +544,33 @@ fn proofs_do_not_depend_on_placement() {
                 .iter()
                 .any(|k| r[k].as_array().is_some_and(|a| !a.is_empty()))
         })
+        .collect()
+}
+
+/// The files of the moved runs, each once, in run order: what the invariance test is sliced by,
+/// so every run of a file (and every listed entry of it) is in one slice.
+fn moved_files() -> Vec<String> {
+    let mut files: Vec<String> = Vec::new();
+    for run in moved_runs(&load_gz("proofs.json.gz")) {
+        let file = run["file"].as_str().unwrap();
+        if !files.iter().any(|f| f == file) {
+            files.push(file.to_string());
+        }
+    }
+    files
+}
+
+/// The proofs under every motion: one test per slice of the moved runs' files
+/// (`tests/support/slices.rs`).
+fn proofs_invariant(k: usize, n: usize) {
+    let captured = load_gz("proofs.json.gz");
+    let all = moved_runs(&captured);
+    assert!(!all.is_empty());
+    let mine = slices::slice(&moved_files(), k, n);
+    let runs: Vec<&Value> = all
+        .into_iter()
+        .filter(|r| mine.iter().any(|f| r["file"] == f.as_str()))
         .collect();
-    assert!(!runs.is_empty());
     let found: Vec<(Value, String)> = common::parallel::map(&runs, |run| {
         let file = run["file"].as_str().unwrap();
         let source = run["source"].as_str().unwrap();
@@ -586,3 +614,10 @@ fn proofs_do_not_depend_on_placement() {
         .collect();
     check_known("invariance", found, Some(&ran));
 }
+
+sliced!(
+    proofs_do_not_depend_on_placement,
+    super::proofs_invariant,
+    files: super::moved_files,
+    [0 => slice_0, 1 => slice_1, 2 => slice_2]
+);

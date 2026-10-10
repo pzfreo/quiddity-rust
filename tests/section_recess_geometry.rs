@@ -532,11 +532,31 @@ fn replay(run: &Value, part: &Part) -> Tally {
     tally
 }
 
-#[test]
-fn section_recess_geometry_agrees_with_python() {
+/// The files of the captured runs, each once, in run order: what the replay is sliced by, so
+/// every run of a file (and every listed entry of it) is in one slice.
+fn run_files() -> Vec<String> {
+    let mut files: Vec<String> = Vec::new();
+    for run in load_gz("calls.json.gz")["runs"].as_array().unwrap() {
+        let file = run["file"].as_str().unwrap();
+        if !files.iter().any(|f| f == file) {
+            files.push(file.to_string());
+        }
+    }
+    files
+}
+
+/// Every captured run replayed: one test per slice of the runs' files
+/// (`tests/support/slices.rs`); the counts printed are the slice's.
+fn agrees_with_python(k: usize, n: usize) {
     require_corpus();
     let captured = load_gz("calls.json.gz");
-    let runs: Vec<&Value> = captured["runs"].as_array().unwrap().iter().collect();
+    let mine = slices::slice(&run_files(), k, n);
+    let runs: Vec<&Value> = captured["runs"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|r| mine.iter().any(|f| r["file"] == f.as_str()))
+        .collect();
     let ran = runs_ran(&runs);
     let tallies = common::parallel::map(&runs, |run| {
         let Some(part) = read(
@@ -585,6 +605,13 @@ fn section_recess_geometry_agrees_with_python() {
     );
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
+
+sliced!(
+    section_recess_geometry_agrees_with_python,
+    super::agrees_with_python,
+    files: super::run_files,
+    [0 => slice_0, 1 => slice_1, 2 => slice_2, 3 => slice_3]
+);
 
 #[test]
 fn channel_geometry_agrees_with_python() {
