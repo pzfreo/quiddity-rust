@@ -887,11 +887,11 @@ missing or changed. After re-exporting at a new revision, update the `ref:` in
 The corpus tests spread their parts over every core (`tests/common/parallel.rs`) and report in
 corpus order. CI runs the suite in 15 shards per platform, one test at a time, dealt by each test's
 time in a recent run (`.config/test-times.json`, written by `tools/ci_durations.py RUN`; a test
-missing from it counts as one second, so refresh it after adding a costly test): about 10 minutes
-from push on Linux, and about 20 on macOS, which runs five jobs at a time. Pins that depend on float
-round-off across a threshold (`faces_at_most` in `known_correspondence.json`) are set so CI's Linux
-job passes: Linux is the reference platform for them, and macOS may give a different count within
-the bound. CI runs the suite on macOS as well, so the bounds must hold there too.
+missing from it counts as one second, so refresh it after adding a costly test): about 11 minutes
+from push on Linux, and about 24 on macOS, which runs five jobs at a time (run 38007924732). Pins
+that depend on float round-off across a threshold (`faces_at_most` in `known_correspondence.json`)
+are set so CI's Linux job passes: Linux is the reference platform for them, and macOS may give a
+different count within the bound. CI runs the suite on macOS as well, so the bounds must hold there too.
 
 ## How a family is ported
 
