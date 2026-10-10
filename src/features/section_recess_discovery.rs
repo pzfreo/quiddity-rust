@@ -16,14 +16,22 @@ use super::evidence::Occurrence;
 use super::section_recess::{
     SectionRecess, SectionRecessClassification, SectionRecessError, SectionRecessEvidence,
 };
-use super::section_recess_geometry::candidates;
+use super::section_recess_geometry::{Candidate, candidates};
 
 /// The part's native section recesses (`discover_section_recesses`), in candidate order.
 pub fn discover_section_recesses(
     ctx: &Context<'_>,
     surfaces: &EffectiveFaces<'_, '_>,
 ) -> Result<Vec<Occurrence<SectionRecess>>, SectionRecessError> {
-    candidates(ctx, surfaces)?
+    section_recesses_of(candidates(ctx, surfaces)?)
+}
+
+/// The section recesses [`discover_section_recesses`] numbers from the part's candidates, for a
+/// caller that already has them.
+pub fn section_recesses_of(
+    candidates: Vec<Candidate>,
+) -> Result<Vec<Occurrence<SectionRecess>>, SectionRecessError> {
+    candidates
         .into_iter()
         .enumerate()
         .map(|(index, candidate)| {

@@ -1589,6 +1589,9 @@ pub fn seat_geometry(seat: &CylindricalSeatProof) -> Checked<SectionRecessGeomet
 /// reader, from a value Python computes outside its guards) a refusal.
 pub type FloorReading = Checked<Option<Candidate>>;
 
+/// Each planar face with its three [`floor_readings`], in face order.
+pub type PlanarFloorReadings = Vec<(usize, [FloorReading; 3])>;
+
 /// The three floor readers on one face, each asked on its own: obround, polygonal, mixed.
 pub fn floor_readings(ctx: &Context<'_>, floor: usize) -> [FloorReading; 3] {
     [
@@ -1624,11 +1627,70 @@ fn section_points(section: &PlanarSection) -> Vec<V2> {
     section.boundary().iter().map(|v| v.point).collect()
 }
 
+/// The reading `_candidates` takes of one planar face: the existing proved specific
+/// classification first, the general reader only as a fallback for this floor (not a second
+/// occurrence of the same pocket). The later readers are asked only when needed.
+fn preferred(
+    obround: Option<Candidate>,
+    polygonal: impl FnOnce() -> FloorReading,
+    mixed: impl FnOnce() -> Option<Candidate>,
+) -> FloorReading {
+    Ok(match obround {
+        Some(c) => Some(c),
+        None => match polygonal()? {
+            Some(c) => Some(c),
+            None => mixed(),
+        },
+    })
+}
+
 /// Every candidate on the part (`_candidates`), each once, ordered by constituent faces, shape
 /// and mouth: seats, then each planar face's specific reading before the general one, then
 /// cylindrical pockets and passages and plane-envelope passages. A proof whose projection
 /// refuses is dropped; a refusal outside the projections refuses the whole discovery.
 pub fn candidates(ctx: &Context<'_>, surfaces: &EffectiveFaces<'_, '_>) -> Checked<Vec<Candidate>> {
+    candidates_reading(ctx, surfaces, |floor| {
+        preferred(
+            one_obround_candidate(ctx, floor),
+            || one_polygonal_candidate(ctx, floor),
+            || one_mixed_candidate(ctx, floor),
+        )
+    })
+}
+
+/// [`candidates`] together with every planar face's three [`floor_readings`], in face order,
+/// each reader asked once: the candidates take their floor readings from these (the readers
+/// answer the same whenever they are asked), so a caller that wants both does not read every
+/// floor twice.
+pub fn candidates_and_floor_readings(
+    ctx: &Context<'_>,
+    surfaces: &EffectiveFaces<'_, '_>,
+) -> (Checked<Vec<Candidate>>, PlanarFloorReadings) {
+    let readings: PlanarFloorReadings = (0..ctx.part.faces.len())
+        .filter(|&node| is_planar(ctx.part, node))
+        .map(|node| (node, floor_readings(ctx, node)))
+        .collect();
+    let found = candidates_reading(ctx, surfaces, |floor| {
+        let [obround, polygonal, mixed] = &readings
+            .iter()
+            .find(|(node, _)| *node == floor)
+            .expect("every planar face was read")
+            .1;
+        preferred(
+            obround.clone().expect("the obround reader never refuses"),
+            || polygonal.clone(),
+            || mixed.clone().expect("the mixed reader never refuses"),
+        )
+    });
+    (found, readings)
+}
+
+/// The candidates, each planar face's reading taken from *floor*.
+fn candidates_reading(
+    ctx: &Context<'_>,
+    surfaces: &EffectiveFaces<'_, '_>,
+    mut floor: impl FnMut(usize) -> FloorReading,
+) -> Checked<Vec<Candidate>> {
     let part = ctx.part;
     let mut found: Vec<Candidate> = Vec::new();
     let mut add = |candidate: Candidate| {
@@ -1653,16 +1715,7 @@ pub fn candidates(ctx: &Context<'_>, surfaces: &EffectiveFaces<'_, '_>) -> Check
         if !is_planar(part, node) {
             continue;
         }
-        // Prefer the existing proved specific classification. The general reader is a fallback
-        // for this floor, not a second occurrence of the same pocket.
-        let candidate = match one_obround_candidate(ctx, node) {
-            Some(c) => Some(c),
-            None => match one_polygonal_candidate(ctx, node)? {
-                Some(c) => Some(c),
-                None => one_mixed_candidate(ctx, node),
-            },
-        };
-        if let Some(c) = candidate {
+        if let Some(c) = floor(node)? {
             add(c);
         }
     }
