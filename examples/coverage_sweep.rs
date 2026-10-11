@@ -25,7 +25,10 @@ fn sweep(path: &std::path::Path) -> serde_json::Value {
                     _ => unreachable!(),
                 };
             // Serde skips these two; the census counts the first.
-            counts.insert("section_recesses".into(), features.section_recesses.len().into());
+            counts.insert(
+                "section_recesses".into(),
+                features.section_recesses.len().into(),
+            );
             serde_json::json!({
                 "status": "ok",
                 "faces": faces,
@@ -73,7 +76,7 @@ fn main() {
                         let mut out = out.lock().unwrap();
                         writeln!(out, "{line}").unwrap();
                         out.flush().unwrap();
-                        if i % 1000 == 0 {
+                        if i.is_multiple_of(1000) {
                             eprintln!("{i}/{}", ids.len());
                         }
                     }

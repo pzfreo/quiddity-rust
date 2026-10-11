@@ -119,6 +119,7 @@ def main() -> None:
             "models": len(lines),
             "ok": ok,
             "failed": len(failures),
+            "failed_by_status": dict(Counter(f["status"] for f in failures)),
             "silent": silent,
             "total_records": sum(families.values()),
             "records_per_instance_median": round(statistics.median(ratios), 4),
