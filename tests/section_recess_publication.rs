@@ -197,6 +197,9 @@ fn inferred_frame_section_recesses_are_published() {
     assert!(published > 0, "no framed section recesses published");
 }
 
+/// `package.version` at the baseline revision (`quiddity_rust_revision` in the fixture).
+const BASELINE_PACKAGE_VERSION: &str = "0.1.0-alpha.1";
+
 #[test]
 fn publication_preserves_existing_document_bytes() {
     for run in runs() {
@@ -218,6 +221,9 @@ fn publication_preserves_existing_document_bytes() {
         for (name, doc) in [("caller", &run.caller), ("framed", &run.framed)] {
             let mut old = doc.clone();
             old.records.retain(|r| r.family != "section_recesses");
+            // The baseline was hashed at 4583c74, whose package version was 0.1.0-alpha.1;
+            // release bumps change only that field.
+            old.package.version = BASELINE_PACKAGE_VERSION.into();
             assert_eq!(
                 hash(&serde_json::to_vec(&old).unwrap()),
                 run.baseline[format!("{name}_document_sha256")],

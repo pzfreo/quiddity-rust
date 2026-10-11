@@ -135,3 +135,13 @@ time. Workspace totals: **481 passed, 0 failed, 3 existing ignored tests**, acro
 lines, including haecceity. All 31 recognition tests and all 3 publication tests passed.
 `git diff --check` is clean. No commits or pushes; the pre-existing staged changes were left
 untouched. No Python or draftwright repository files changed.
+
+## 0.1.0-alpha.2 release (2026-10-11)
+
+Released from G7a rebased onto PRs #1 and #2. Overturnable judgement calls:
+
+- The CHANGELOG entry adds a "Fixed" line for PR #1's mass kink-budget fix, which ships in this
+  release but had no entry.
+- `publication_preserves_existing_document_bytes` now sets `package.version` to the baseline's
+  `0.1.0-alpha.1` before hashing: the document carries `CARGO_PKG_VERSION`, so the release bump
+  would otherwise change the old-bytes hashes. Every other byte is still compared.
