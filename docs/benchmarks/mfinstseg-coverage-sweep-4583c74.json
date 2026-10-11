@@ -1,0 +1,263 @@
+{
+  "dataset": {
+    "models": 62495,
+    "name": "mfinstseg",
+    "selection": "every model, lexical order"
+  },
+  "failures": [
+    {
+      "id": "20221121_154648_21526",
+      "message": "incomplete STEP geometry: #617 PARABOLA was dropped (Unimplemented: PARABOLA) (14 shape entities lost)",
+      "status": "unreadable"
+    },
+    {
+      "id": "20221121_154648_4306",
+      "message": "incomplete STEP geometry: #383 PARABOLA was dropped (Unimplemented: PARABOLA) (14 shape entities lost)",
+      "status": "unreadable"
+    },
+    {
+      "id": "20221123_142528_10559",
+      "message": "incomplete STEP geometry: #767 PARABOLA was dropped (Unimplemented: PARABOLA) (14 shape entities lost)",
+      "status": "unreadable"
+    },
+    {
+      "id": "20221123_142528_11595",
+      "message": "section passages refused: section boundary must be canonical and origin-centred",
+      "status": "panicked"
+    },
+    {
+      "id": "20221123_142528_13568",
+      "message": "incomplete STEP geometry: #255 PARABOLA was dropped (Unimplemented: PARABOLA) (14 shape entities lost)",
+      "status": "unreadable"
+    },
+    {
+      "id": "20221123_142528_19464",
+      "message": "incomplete STEP geometry: #60 PARABOLA was dropped (Unimplemented: PARABOLA); #300 PARABOLA was dropped (Unimplemented: PARABOLA) (22 shape entities lost)",
+      "status": "unreadable"
+    },
+    {
+      "id": "20221124_154714_13230",
+      "message": "incomplete STEP geometry: #490 PARABOLA was dropped (Unimplemented: PARABOLA) (14 shape entities lost)",
+      "status": "unreadable"
+    },
+    {
+      "id": "20221124_154714_16830",
+      "message": "incomplete STEP geometry: #519 PARABOLA was dropped (Unimplemented: PARABOLA) (14 shape entities lost)",
+      "status": "unreadable"
+    },
+    {
+      "id": "20221124_154714_5499",
+      "message": "section passages refused: rich passage cannot reproduce its historical legacy value",
+      "status": "panicked"
+    },
+    {
+      "id": "20221123_142528_16681",
+      "message": "killed after >14 min at 100% CPU",
+      "status": "hung"
+    }
+  ],
+  "families": {
+    "angled_step": 15588,
+    "blend": 11847,
+    "boss": 19712,
+    "chamfer": 12074,
+    "circular_blind_step": 14981,
+    "countersink": 563,
+    "fillet": 10866,
+    "flat": 170,
+    "groove": 0,
+    "hole": 61540,
+    "hole_pattern": 1,
+    "oriented_slot": 1114,
+    "paired_ramp_step": 11109,
+    "plate": 26458,
+    "section_recess": 143044,
+    "slot": 4032,
+    "step": 0,
+    "through_step": 12222
+  },
+  "families_outside_f1b02ab_census": {
+    "freeform_surfaces": 832,
+    "interior_voids": 52,
+    "oblique_through_steps": 4133,
+    "oriented_chamfers": 2575,
+    "pads": 1347,
+    "thin_wall_bodies": 6
+  },
+  "format": "quiddity-coverage-sweep",
+  "format_version": 1,
+  "kind": "coverage-sweep",
+  "not_an_effectiveness_baseline": true,
+  "package": {
+    "name": "quiddity-rust"
+  },
+  "per_class": {
+    "0": {
+      "models": 17419,
+      "name": "Chamfer",
+      "silent": 42,
+      "status": "supported"
+    },
+    "1": {
+      "models": 17542,
+      "name": "Through hole",
+      "silent": 1,
+      "status": "supported"
+    },
+    "10": {
+      "models": 17568,
+      "name": "Slanted through step",
+      "silent": 72,
+      "status": "unsupported"
+    },
+    "11": {
+      "models": 17330,
+      "name": "O-ring",
+      "silent": 0,
+      "status": "supported"
+    },
+    "12": {
+      "models": 17339,
+      "name": "Blind hole",
+      "silent": 2,
+      "status": "supported"
+    },
+    "13": {
+      "models": 17155,
+      "name": "Triangular pocket",
+      "silent": 6,
+      "status": "supported"
+    },
+    "14": {
+      "models": 17656,
+      "name": "Rectangular pocket",
+      "silent": 4,
+      "status": "supported"
+    },
+    "15": {
+      "models": 17463,
+      "name": "6-sided pocket",
+      "silent": 6,
+      "status": "supported"
+    },
+    "16": {
+      "models": 17481,
+      "name": "Circular end pocket",
+      "silent": 12,
+      "status": "supported"
+    },
+    "17": {
+      "models": 4191,
+      "name": "Rectangular blind slot",
+      "silent": 4,
+      "status": "supported"
+    },
+    "18": {
+      "models": 4122,
+      "name": "Vertical circular end blind slot",
+      "silent": 11,
+      "status": "supported"
+    },
+    "19": {
+      "models": 4089,
+      "name": "Horizontal circular end blind slot",
+      "silent": 7,
+      "status": "supported"
+    },
+    "2": {
+      "models": 17709,
+      "name": "Triangular passage",
+      "silent": 12,
+      "status": "supported"
+    },
+    "20": {
+      "models": 17804,
+      "name": "Triangular blind step",
+      "silent": 15,
+      "status": "supported"
+    },
+    "21": {
+      "models": 17963,
+      "name": "Circular blind step",
+      "silent": 10,
+      "status": "supported"
+    },
+    "22": {
+      "models": 17648,
+      "name": "Rectangular blind step",
+      "silent": 17,
+      "status": "supported"
+    },
+    "23": {
+      "models": 16747,
+      "name": "Round",
+      "silent": 9,
+      "status": "supported"
+    },
+    "24": {
+      "models": 62494,
+      "name": "Stock",
+      "silent": 133,
+      "status": "incomparable"
+    },
+    "3": {
+      "models": 17732,
+      "name": "Rectangular passage",
+      "silent": 12,
+      "status": "supported"
+    },
+    "4": {
+      "models": 17519,
+      "name": "6-sided passage",
+      "silent": 16,
+      "status": "supported"
+    },
+    "5": {
+      "models": 3754,
+      "name": "Triangular through slot",
+      "silent": 6,
+      "status": "unsupported"
+    },
+    "6": {
+      "models": 3635,
+      "name": "Rectangular through slot",
+      "silent": 0,
+      "status": "partial"
+    },
+    "7": {
+      "models": 3605,
+      "name": "Circular through slot",
+      "silent": 3,
+      "status": "unsupported"
+    },
+    "8": {
+      "models": 17708,
+      "name": "Rectangular through step",
+      "silent": 21,
+      "status": "supported"
+    },
+    "9": {
+      "models": 17799,
+      "name": "2-sided through step",
+      "silent": 35,
+      "status": "supported"
+    }
+  },
+  "summary": {
+    "failed": 10,
+    "failed_by_status": {
+      "hung": 1,
+      "panicked": 2,
+      "unreadable": 7
+    },
+    "median_seconds": 0.0763,
+    "models": 62495,
+    "models_below_one": 35057,
+    "ok": 62485,
+    "ratio_denominator": 62485,
+    "records_per_instance_median": 0.875,
+    "section_recess_refusals": 298,
+    "silent": 133,
+    "total_records": 345321
+  }
+}
