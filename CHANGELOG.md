@@ -4,6 +4,24 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
+## Unreleased
+
+### Added
+
+- Publish `section_recesses` in `Features` JSON and as `SectionRecess` records in the
+  recognition document consumed by draftwright (maintainer decision, 2026-10-11). Each record
+  keeps Python's `index`, `body`, `geometry`, `classification` and `evidence`, its projection
+  order and defining faces, and the existing caller/file coordinate mapping and `local` labels.
+  Native recesses, uncovered prismatic pockets, passages, edge-open recesses, blind slots,
+  pockets and channels use the existing reconciled projection; overlapping regions are
+  published once. Existing source families and records are retained byte-for-byte.
+- Schema note: this is an additive family under `quiddity-rust/recognition/2`, as for step
+  levels and risers; package and schema versions are unchanged. Readers that validate a family
+  allowlist must add `section_recesses` / `SectionRecess`. Refusals and derived section-recess
+  patterns are still available through the section-recess API, rather than new document keys.
+  Corpus document tests compare all 30 draftwright quality parts with captured Python records
+  and preserve the existing verdicts for 15 incorrectly open NIST channels.
+
 ## 0.1.0-alpha.1 (2026-10-10)
 
 The first alpha: a pure-Rust port of Python quiddity's feature recognition, on haecceity, a

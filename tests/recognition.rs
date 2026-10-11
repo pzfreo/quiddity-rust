@@ -1042,8 +1042,8 @@ fn a_pattern_never_includes_a_rejected_member() {
 /// On every corpus part `features::recognise` (through `correspondence::recognise`) carries the
 /// section recesses `recognise_section_recesses` gives, or its refusal, each defined by its
 /// record's own defining faces and fingerprinted; the default (framed) recognition fingerprints
-/// those its run finds, and the document carries none (whether it should is an open maintainer
-/// question). One test per slice of the corpus (`tests/support/slices.rs`).
+/// those its run finds, and the document publishes every one with its file-space geometry,
+/// defining faces and local labels. One test per slice of the corpus (`tests/support/slices.rs`).
 fn carries_section_recesses(k: usize, n: usize) {
     let Some(dir) = common::corpus_dir() else {
         assert!(
@@ -1118,8 +1118,28 @@ fn carries_section_recesses(k: usize, n: usize) {
                 eprintln!("{file}: {id} left in the frame: {paths:?}");
             }
         }
-        if doc.records.iter().any(|r| r.family == "section_recesses") {
-            out.push(format!("{file}: the document carries section recesses"));
+        let published: Vec<_> = doc
+            .records
+            .iter()
+            .filter(|r| r.family == "section_recesses")
+            .collect();
+        if published.len() != framed.features.section_recesses.len() {
+            out.push(format!("{file}: the document loses section recesses"));
+        }
+        for (i, (record, recess)) in published
+            .iter()
+            .zip(&framed.features.section_recesses)
+            .enumerate()
+        {
+            let id = format!("section_recesses/{i}");
+            if record.id != id
+                || record.record_type != "SectionRecess"
+                || record.faces != recess.evidence().defining_faces()
+                || Value::Object(record.parameters.clone()) != serde_json::to_value(recess).unwrap()
+                || record.local != framed.local.get(&id).cloned().unwrap_or_default()
+            {
+                out.push(format!("{file}: {id} is not published faithfully"));
+            }
         }
         out
     });

@@ -2470,5 +2470,557 @@
     "verdict": "rust-wrong",
     "reason": "As tests/fixtures/known_invariance.json's step_levels entry for this file: faces 107 and 206 lie exactly the 0.5 mm level tolerance apart in the frame, so round-off from the placement decides whether the level holds both (unmoved) or face 107 alone (moved). The recogniser's threshold is at fault.",
     "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/1000.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 8
+  },
+  {
+    "file": "mfcadpp/10000.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10007.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp/10020.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 6
+  },
+  {
+    "file": "mfcadpp/10038.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/1004.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 4
+  },
+  {
+    "file": "mfcadpp/10046.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 4
+  },
+  {
+    "file": "mfcadpp/10047.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 6
+  },
+  {
+    "file": "mfcadpp/10049.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 5
+  },
+  {
+    "file": "mfcadpp/10060.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "undetermined",
+    "reason": "Besides equivalent section-basis changes, caller space publishes a rectangular channel on defining faces [11, 13], while the inferred-frame run publishes an edge-open obround on [11, 12, 13, 14]. Python raw and prepared-frame results reproduce both (oracle 6d544e0). This follows the existing edge_open_circular_pockets and pockets caller_space verdicts for this file: a placement-round-off-sensitive proof changes reconciliation. Which reading is right remains undetermined.",
+    "max_differing": 4
+  },
+  {
+    "file": "mfcadpp/10063.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 4
+  },
+  {
+    "file": "mfcadpp/1007.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/1008.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10098.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10103.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "undetermined",
+    "reason": "Besides equivalent section-basis changes, the inferred-frame run publishes the edge-open obround on [24, 25, 26, 27]; caller space refuses the pocket source on [24, 26] instead. Python raw and prepared-frame results reproduce both (oracle 6d544e0). This follows the existing edge_open_circular_pockets and pockets caller_space verdicts for this file: a placement-round-off-sensitive proof changes reconciliation. Which reading is right remains undetermined.",
+    "max_differing": 4
+  },
+  {
+    "file": "mfcadpp/10119.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "undetermined",
+    "reason": "Besides equivalent section-basis changes and the resulting index shift, the inferred-frame run publishes an obround pocket on [15, 16, 17, 18], while caller space refuses its source pocket on [15, 18]. Python build_raw_recognition_result(part) and prepare_framed_part(part).recognise().result reproduce the same occurrence/refusal difference (oracle 6d544e0). The projection proof depends on placement round-off; which reading is right is not established.",
+    "max_differing": 5
+  },
+  {
+    "file": "mfcadpp/10127.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/1013.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp/10131.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10138.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10146.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 4
+  },
+  {
+    "file": "mfcadpp/10155.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp/10156.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10167.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 5
+  },
+  {
+    "file": "mfcadpp/10170.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10190.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10212.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp/10224.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10245.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 4
+  },
+  {
+    "file": "mfcadpp/10247.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10252.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp/10255.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp/10278.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/118.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 7
+  },
+  {
+    "file": "mfcadpp_holdout/119.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/163.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp_holdout/16943.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 4
+  },
+  {
+    "file": "mfcadpp_holdout/181.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/183.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/196.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 2
+  },
+  {
+    "file": "mfcadpp_holdout/200.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp_holdout/20273.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp_holdout/203.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 4
+  },
+  {
+    "file": "mfcadpp_holdout/205.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/229.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp_holdout/238.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp_holdout/244.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp_holdout/257.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 4
+  },
+  {
+    "file": "mfcadpp_holdout/274.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 4
+  },
+  {
+    "file": "mfcadpp_holdout/317.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 5
+  },
+  {
+    "file": "mfcadpp_holdout/340.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/363.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp_holdout/388.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 4
+  },
+  {
+    "file": "mfcadpp_holdout/419.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/464.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 4
+  },
+  {
+    "file": "mfcadpp_holdout/467.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/471.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/483.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 1
+  },
+  {
+    "file": "mfcadpp_holdout/498.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 4
+  },
+  {
+    "file": "mfcadpp_holdout/520.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 3
+  },
+  {
+    "file": "mfcadpp_holdout/808.step",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 6
+  },
+  {
+    "file": "nist/nist_ctc_01_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 4
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 4
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 4
+  },
+  {
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 2
+  },
+  {
+    "file": "nist/nist_ftc_06_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 6
+  },
+  {
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 6
+  },
+  {
+    "file": "nist/nist_ftc_09_asme1_rd.stp",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 8
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "check": "caller_space",
+    "family": "section_recesses",
+    "verdict": "equivalent",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 4
   }
 ]

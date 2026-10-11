@@ -36,7 +36,8 @@ use crate::features::oriented_slots::OrientedSlotPattern;
 use crate::features::recess_patterns::{PocketPattern, SlotPattern};
 use crate::frames::RecordFrame;
 
-/// Bumped whenever the document's shape or a field's meaning changes; a reader refuses another.
+/// Bumped for incompatible document changes; additive families retain the version (step levels,
+/// risers and section recesses). Readers with a family allowlist must admit each new family.
 pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/2";
 
 /// One part's recognition, as draftwright reads it.
@@ -142,6 +143,7 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
     ("pads", &["RaisedPad"]),
     ("step_levels", &["FaceLevel"]),
     ("risers", &["RiserEvidence"]),
+    ("section_recesses", &["SectionRecess"]),
 ];
 
 /// The record class names a family's records can have.

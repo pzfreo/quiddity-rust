@@ -162,9 +162,8 @@ pub struct Features {
     /// The aggregate's section recesses (`RecognitionResult.section_recesses`, projected by
     /// `_project_result` from the same run: [`section_recess_family`]), in Python's order, each
     /// defined by its record's own defining faces. [`recognise`] fills them; the inventory's
-    /// candidates have none. Not serialised: whether the recognition document carries them (and
-    /// instead of section passages) is an open maintainer question.
-    #[serde(skip)]
+    /// candidates have none. Published alongside the source families in the recognition
+    /// document (maintainer decision, 2026-10-11).
     pub section_recesses: Vec<section_recess::SectionRecess>,
     /// The section-recess projection's refusal, where [`recognise`] carries one (and so has no
     /// section recesses).
