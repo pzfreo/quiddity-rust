@@ -10,10 +10,12 @@ Overturnable judgement calls:
 
 - Keep `quiddity-rust/recognition/2` and the package version: this is additive, follows the
   step-level/riser precedent, and preserves the requested old document bytes. A strict family
-  allowlist reader must explicitly admit `section_recesses` and `SectionRecess`.
-- Retain all existing source families beside the new family. Publish only `section_recesses`;
-  adding refusals or derived patterns to this document would exceed the requested single-key
-  addition. They remain in the dedicated section-recess API. The carried projection refusal on
+  allowlist reader must explicitly admit `section_recesses`, `SectionRecess` and `SectionRecessRefusal` before moving its tag pin
+  (G7b). This version decision preserves the acceptance requirement's existing document bytes;
+  the strict reader's family allowlist still makes the addition a coordinated reader change.
+- Retain all existing source families beside the new family. The review correctly overturned
+  the refusal omission: occurrences and source refusals both belong under `section_recesses`.
+  Derived patterns remain in the dedicated section-recess API. The carried projection refusal on
   13975/14052 and the missing local-degradation retry are unchanged.
 - Use the committed Python capture at `6d544e060cd0eeb4442d2196e5df757b5a15ea55`, which matches
   the read-only oracle's HEAD. Its 15 NIST channel omissions have rust-correct verdicts backed
@@ -94,3 +96,42 @@ Files changed: `src/features/mod.rs`, `src/recognition.rs`,
 `tests/section_recess_publication.rs`, `tests/fixtures/section_recess_publication_baseline.json`,
 `tests/fixtures/known_framed_document.json`, `README.md`, `CHANGELOG.md`, `docs/alpha1.md` and
 this file. No commits or pushes. No Python or draftwright repository changes.
+
+## G7a fix round (2026-10-11)
+
+`Features::section_recess_refusals` now retains the same projection's source refusals.
+`recognition::families` appends them after occurrences under `section_recesses`, and the
+document publishes their Python class and defining faces. Refusals carry no geometry and
+receive no correspondence fingerprint or local geometry labels; their body and face indices
+are unchanged by the inferred-frame mapping. The whole-projection error on 13975/14052 is
+distinct and still carried provisionally, as before. The quality-part parity test now compares
+all 12 refusals on 5 parts against Python's capture, in order, as well as all occurrences.
+
+The earlier independent reconstruction is now enforced by
+`tests/support/recess_samples.rs` in the caller-space document tests for every equivalent
+section-recess verdict. It compares body, classification, both evidence lists and symmetric
+file-space boundary/end samples (vertices and bulged-edge midpoints), allowing only the
+existing 0.01 mm serialization bound. This checks equivalent regions despite section basis,
+run direction and record-order changes. The three undetermined proof verdicts remain open.
+
+Overturnable judgement call: retain schema v2 for this fix, preserving all previous document
+bytes apart from the new family as required. G7b must admit both classes before draftwright
+updates its pin; a future incompatible schema revision should be coordinated there.
+
+Refusal publication exposed three verdict-count changes: 10103 and 10119 now include their
+caller-only source refusal for the already documented placement-dependent proof (+1 each).
+On holdout 163, the same refused constituent region [10, 11, 12, 13, 32] has caller defining
+faces [11, 12] and framed defining faces [10, 11, 12, 13] (+2 unmatched records). A direct
+read-only Python run at 6d544e0 reproduces both evidence associations and the same refusal
+reason. Overturnable judgement call: retain its equivalent verdict because the refused region
+and warning are identical; the committed check pins both alternative source associations.
+No comparison tolerance changed; bounds increased only by these newly published records.
+
+Fix-round final validation: `cargo fmt --all --check`,
+`cargo clippy --workspace --all-targets --release -- -D warnings`, and
+`QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release` all passed with
+`CARGO_BUILD_JOBS=8`, `RUST_TEST_THREADS=8` and the corpus path above, one Cargo command at a
+time. Workspace totals: **481 passed, 0 failed, 3 existing ignored tests**, across 60 result
+lines, including haecceity. All 31 recognition tests and all 3 publication tests passed.
+`git diff --check` is clean. No commits or pushes; the pre-existing staged changes were left
+untouched. No Python or draftwright repository files changed.

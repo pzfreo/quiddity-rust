@@ -165,6 +165,10 @@ pub struct Features {
     /// candidates have none. Published alongside the source families in the recognition
     /// document (maintainer decision, 2026-10-11).
     pub section_recesses: Vec<section_recess::SectionRecess>,
+    /// Accepted source candidates that cannot publish unified geometry, in Python's order.
+    /// The recognition document appends these to the section-recess family.
+    #[serde(skip)]
+    pub section_recess_refusals: Vec<section_recess::SectionRecessRefusal>,
     /// The section-recess projection's refusal, where [`recognise`] carries one (and so has no
     /// section recesses).
     #[serde(skip)]
@@ -195,9 +199,9 @@ pub fn recognise(part: &Part) -> Features {
     let inventory = inventory_in(&ctx).unwrap_or_else(|e| panic!("reconciliation refused: {e}"));
     let projection = section_recess_family::section_recess_projection_in(&ctx, &inventory);
     let mut features = inventory.accepted();
-    let (section_recesses, refusal) = match projection {
-        Ok(p) => (p.section_recesses, None),
-        Err(e) => (Vec::new(), Some(e)),
+    let (section_recesses, refusals, refusal) = match projection {
+        Ok(p) => (p.section_recesses, p.refusals, None),
+        Err(e) => (Vec::new(), Vec::new(), Some(e)),
     };
     let defining = section_recesses
         .iter()
@@ -205,6 +209,7 @@ pub fn recognise(part: &Part) -> Features {
         .collect();
     features.defining.insert("section_recesses", defining);
     features.section_recesses = section_recesses;
+    features.section_recess_refusals = refusals;
     features.section_recess_refusal = refusal;
     features
 }
@@ -474,6 +479,7 @@ pub(crate) fn inventory_in(ctx: &Context<'_>) -> Result<Inventory, reconcile::Re
         step_levels,
         risers,
         section_recesses: Vec::new(),
+        section_recess_refusals: Vec::new(),
         section_recess_refusal: None,
         defining: defining.defining,
     };

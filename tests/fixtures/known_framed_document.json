@@ -2588,16 +2588,16 @@
     "check": "caller_space",
     "family": "section_recesses",
     "verdict": "undetermined",
-    "reason": "Besides equivalent section-basis changes, the inferred-frame run publishes the edge-open obround on [24, 25, 26, 27]; caller space refuses the pocket source on [24, 26] instead. Python raw and prepared-frame results reproduce both (oracle 6d544e0). This follows the existing edge_open_circular_pockets and pockets caller_space verdicts for this file: a placement-round-off-sensitive proof changes reconciliation. Which reading is right remains undetermined.",
-    "max_differing": 4
+    "reason": "Besides equivalent section-basis changes, the inferred-frame run publishes the edge-open obround on [24, 25, 26, 27]; caller space refuses the pocket source on [24, 26] instead. Python raw and prepared-frame results reproduce both (oracle 6d544e0). This follows the existing edge_open_circular_pockets and pockets caller_space verdicts for this file: a placement-round-off-sensitive proof changes reconciliation. Which reading is right remains undetermined. Publishing refusals adds the caller-only unsupported_support_geometry source refusal (defining faces [24, 26]) for the same pre-existing placement-dependent proof, previously absent from the document. The bound includes this additional record; no new recogniser difference is admitted.",
+    "max_differing": 5
   },
   {
     "file": "mfcadpp/10119.step",
     "check": "caller_space",
     "family": "section_recesses",
     "verdict": "undetermined",
-    "reason": "Besides equivalent section-basis changes and the resulting index shift, the inferred-frame run publishes an obround pocket on [15, 16, 17, 18], while caller space refuses its source pocket on [15, 18]. Python build_raw_recognition_result(part) and prepare_framed_part(part).recognise().result reproduce the same occurrence/refusal difference (oracle 6d544e0). The projection proof depends on placement round-off; which reading is right is not established.",
-    "max_differing": 5
+    "reason": "Besides equivalent section-basis changes and the resulting index shift, the inferred-frame run publishes an obround pocket on [15, 16, 17, 18], while caller space refuses its source pocket on [15, 18]. Python build_raw_recognition_result(part) and prepare_framed_part(part).recognise().result reproduce the same occurrence/refusal difference (oracle 6d544e0). The projection proof depends on placement round-off; which reading is right is not established. Publishing refusals adds the caller-only unsupported_support_geometry source refusal (defining faces [15, 18]) for the same pre-existing placement-dependent proof, previously absent from the document. The bound includes this additional record; no new recogniser difference is admitted.",
+    "max_differing": 6
   },
   {
     "file": "mfcadpp/10127.step",
@@ -2756,8 +2756,8 @@
     "check": "caller_space",
     "family": "section_recesses",
     "verdict": "equivalent",
-    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
-    "max_differing": 3
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts. Refusal publication additionally exposes the same refused constituent region [10, 11, 12, 13, 32] with caller defining faces [11, 12] and framed defining faces [10, 11, 12, 13] (two unmatched defining-face records). A direct read-only oracle run at 6d544e0 reproduces both associations and the same unsupported_support_geometry reason; this is equivalent source coverage, with placement-dependent defining-face choice. tests/support/recess_samples.rs pins that alternative and checks all equivalent occurrences and refusal regions.",
+    "max_differing": 5
   },
   {
     "file": "mfcadpp_holdout/16943.step",

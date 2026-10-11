@@ -56,7 +56,13 @@ fn runs() -> &'static [Run] {
                 features: serde_json::to_string(&caller.features).unwrap(),
                 caller: caller_doc,
                 framed: recognition::document(&framed, part.faces.len()),
-                framed_recesses: serde_json::to_value(&framed.features.section_recesses).unwrap(),
+                framed_recesses: json!(
+                    recognition::families(&framed.features)
+                        .into_iter()
+                        .find(|(f, _)| f == "section_recesses")
+                        .unwrap()
+                        .1
+                ),
             }
         })
     })
@@ -69,7 +75,14 @@ fn recesses(doc: &RecognitionDocument) -> Vec<Value> {
         .enumerate()
         .map(|(index, r)| {
             assert_eq!(r.id, format!("section_recesses/{index}"));
-            assert_eq!(r.record_type, "SectionRecess");
+            assert_eq!(
+                r.record_type,
+                if r.parameters.contains_key("reason") {
+                    "SectionRecessRefusal"
+                } else {
+                    "SectionRecess"
+                }
+            );
             assert_eq!(json!(r.faces), r.parameters["evidence"]["defining_faces"]);
             Value::Object(r.parameters.clone())
         })
@@ -95,6 +108,8 @@ fn quality_part_section_recesses_match_python() {
     let mut used = Vec::new();
     let mut counts = [0; 4];
     let mut parts = [0; 4];
+    let mut refusals = 0;
+    let mut refusal_parts = 0;
     for run in runs() {
         let file = run.baseline["file"].as_str().unwrap();
         let capture = python["runs"]
@@ -122,6 +137,10 @@ fn quality_part_section_recesses_match_python() {
                 expected.push(record);
             }
         }
+        let expected_refusals = capture["document"]["refusals"].as_array().unwrap();
+        refusals += expected_refusals.len();
+        refusal_parts += usize::from(!expected_refusals.is_empty());
+        expected.extend(expected_refusals.iter().cloned());
         let got = recesses(&run.caller);
         assert!(
             common::same(&json!(got), &json!(expected)),
@@ -129,7 +148,7 @@ fn quality_part_section_recesses_match_python() {
             common::diff(&json!(got), &json!(expected))
         );
         let mut present = [false; 4];
-        for r in &got {
+        for r in got.iter().filter(|r| r.get("reason").is_none()) {
             let kind = r["classification"]["feature_kind"].as_str().unwrap();
             let i = ["pocket", "channel", "passage", "edge_open_recess"]
                 .iter()
@@ -142,6 +161,7 @@ fn quality_part_section_recesses_match_python() {
             parts[i] += usize::from(found);
         }
     }
+    assert_eq!((refusals, refusal_parts), (12, 5));
     let relevant: Vec<usize> = known
         .iter()
         .enumerate()

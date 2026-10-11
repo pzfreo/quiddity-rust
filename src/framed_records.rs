@@ -434,6 +434,7 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
         step_levels,
         risers,
         section_recesses,
+        section_recess_refusals,
         section_recess_refusal,
         defining,
     } = features;
@@ -543,6 +544,7 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
         step_levels: each!("step_levels", step_levels, face_level),
         risers: each!("risers", risers, riser),
         section_recesses: each!("section_recesses", section_recesses, section_recess),
+        section_recess_refusals,
         section_recess_refusal,
         // The working part's faces are the caller's, under the same indices.
         defining,

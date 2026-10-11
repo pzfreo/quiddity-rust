@@ -17,9 +17,12 @@ in [docs/alpha1.md](docs/alpha1.md).
   published once. Existing source families and records are retained byte-for-byte.
 - Schema note: this is an additive family under `quiddity-rust/recognition/2`, as for step
   levels and risers; package and schema versions are unchanged. Readers that validate a family
-  allowlist must add `section_recesses` / `SectionRecess`. Refusals and derived section-recess
-  patterns are still available through the section-recess API, rather than new document keys.
-  Corpus document tests compare all 30 draftwright quality parts with captured Python records
+  allowlist must add `section_recesses`, `SectionRecess` and `SectionRecessRefusal` before
+  updating its tag pin (the G7b reader stream). Refusals follow occurrences under the same
+  family, preserving Python's source evidence and order for downstream lint warnings. Derived
+  patterns remain available through the dedicated section-recess API.
+  Corpus document tests compare occurrences and refusals on all 30 draftwright quality parts
+  with captured Python records
   and preserve the existing verdicts for 15 incorrectly open NIST channels.
 
 ## 0.1.0-alpha.1 (2026-10-10)

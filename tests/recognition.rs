@@ -13,6 +13,8 @@ mod common;
 #[macro_use]
 #[path = "support/slices.rs"]
 mod slices;
+#[path = "support/recess_samples.rs"]
+mod recess_samples;
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -779,6 +781,15 @@ fn agrees_with_caller_space(k: usize, n: usize) {
             return (Vec::new(), 0, 0);
         };
         let caller = correspondence::recognise(&part);
+        let known = common::load("known_framed_document.json");
+        if known.as_array().unwrap().iter().any(|v| {
+            v["file"] == *name
+                && v["check"] == CALLER_SPACE
+                && v["family"] == "section_recesses"
+                && v["verdict"] == "equivalent"
+        }) {
+            recess_samples::check(name, &caller, &framed);
+        }
         let (df, dc) = (
             recognition::document(&framed, part.faces.len()),
             recognition::document(&caller, part.faces.len()),
@@ -1121,7 +1132,7 @@ fn carries_section_recesses(k: usize, n: usize) {
         let published: Vec<_> = doc
             .records
             .iter()
-            .filter(|r| r.family == "section_recesses")
+            .filter(|r| r.family == "section_recesses" && r.record_type == "SectionRecess")
             .collect();
         if published.len() != framed.features.section_recesses.len() {
             out.push(format!("{file}: the document loses section recesses"));
@@ -1139,6 +1150,34 @@ fn carries_section_recesses(k: usize, n: usize) {
                 || record.local != framed.local.get(&id).cloned().unwrap_or_default()
             {
                 out.push(format!("{file}: {id} is not published faithfully"));
+            }
+        }
+        let refusals: Vec<_> = doc
+            .records
+            .iter()
+            .filter(|r| r.family == "section_recesses" && r.record_type == "SectionRecessRefusal")
+            .collect();
+        if refusals.len() != framed.features.section_recess_refusals.len() {
+            out.push(format!(
+                "{file}: the document loses section recess refusals"
+            ));
+        }
+        for (i, (record, refusal)) in refusals
+            .iter()
+            .zip(&framed.features.section_recess_refusals)
+            .enumerate()
+        {
+            let id = format!(
+                "section_recesses/{}",
+                framed.features.section_recesses.len() + i
+            );
+            if record.id != id
+                || record.faces != refusal.evidence().defining_faces()
+                || Value::Object(record.parameters.clone())
+                    != serde_json::to_value(refusal).unwrap()
+                || !record.local.is_empty()
+            {
+                out.push(format!("{file}: {id} refusal is not published faithfully"));
             }
         }
         out
