@@ -5,7 +5,7 @@ geometry-only feature recognition for STEP B-Rep. No OpenCascade: STEP is read w
 [`step-io`](https://crates.io/crates/step-io) and everything the Python implementation asks of
 OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::kernel`).
 
-**Status: 0.1.0-alpha.1 (2026-10-10).** Changes are in [CHANGELOG.md](CHANGELOG.md); the alpha 1
+**Status: 0.1.0-alpha.2 (2026-10-11).** Changes are in [CHANGELOG.md](CHANGELOG.md); the alpha 1
 gates and their evidence in [docs/alpha1.md](docs/alpha1.md).
 
 What alpha 1 does:
@@ -39,10 +39,10 @@ output).
 
 Known limitations:
 
-- Section recesses are in `Features` and correspondence, not in the recognition document or the
-  CLI's records (fingerprints only); on corpus parts 13975 and 14052 the family refuses where
+- On corpus parts 13975 and 14052 the section-recess family refuses where
   Python recovers by its local-degradation retry, which is not ported.
-- `Features` gives defining faces only; constituent faces and pattern members are in the
+- `Features::defining` gives defining faces; section recess records also carry constituent
+  faces in `evidence`. Other families' constituent faces and pattern members are in the
   recognition evidence view.
 - The PMI writer refuses datum targets, tolerance relations, the 'manufacturing requirement' note
   route, general tolerance tables and material density; a thread's pitch is not modelled.
@@ -305,10 +305,9 @@ for the records and the reconciliation's compatibility views, and a ring's empti
 measuring once the material met settles the answer (`volume::fills_at_most`, the same answers):
 the inventory of the seven section-recess test parts on which measuring whole probes took 76 to
 224 s now takes under 3 s each.
-Open question for the maintainer: Python 0.4 publishes passages through the unified
-`section_recess` projection rather than as a family of their own; whether the recognition
-document should keep `section_passages` as a family (as now) or wait for that projection is not
-decided.
+Python 0.4 publishes passages through the unified `section_recess` projection. By the
+maintainer's 2026-10-11 decision the recognition document now publishes `section_recesses`
+alongside the existing `section_passages` source records.
 Three of the helpers section recesses compose are ported the same way
 (`tests/section_recess_helpers.rs`, `tools/capture_section_recess_helpers.py`):
 `_cylindrical_end_surface` (257 values from the Python tests, refusals by message),
@@ -382,10 +381,15 @@ compared under motion. Passages' consulted faces are now kept on their occurrenc
 treatments, regions), which the projection's evidence reads. `features::recognise` and
 `correspondence::recognise` carry the section recesses (`Features::section_recesses`, projected
 from the same run, each defined by its record's defining faces, fingerprinted, carried back from
-the part's frame and checked under the invariance motions), but `Features` does not serialise
-them: they are not in the recognition document or the CLI's records, only its fingerprints (the
-open question above). Where the projection refuses (13975 and 14052, for want of Python's
-local-degradation retry) `recognise` keeps the other families and carries the refusal
+the part's frame and checked under the invariance motions). `Features` serialises them under
+`section_recesses`, and the recognition document and CLI publish `SectionRecess` records in
+that same order, with Python's record fields and the existing file-space mapping and `local`
+labels. `tests/section_recess_publication.rs` checks Python parity on all 30 draftwright quality
+parts, including the 15 existing rust-correct NIST channel verdicts, and hashes the old caller
+and framed document bytes after removing only the new family. The additive family keeps
+`quiddity-rust/recognition/2`; readers with family allowlists must admit it. Where the projection
+refuses (13975 and 14052, for want of Python's local-degradation retry) `recognise` keeps the
+other families and carries the refusal
 (`Features::section_recess_refusal`), provisionally: whether to panic or carry a refusal is an
 open maintainer question.
 The effective-surface query the rectangular pads, cylindrical channels, pockets and passages
@@ -465,7 +469,7 @@ the framed view. Under two rigid motions the view's faces are unchanged but for 
 bosses whose ends classify alike take the high end as free (constituent and host faces flip;
 Python behaves the same), and the families' own invariance exceptions (`known_invariance.json`;
 on 163 the pocket tie moves its section-recess refusal's defining faces too). The view is not in
-the recognition document, and neither are the section recesses (open maintainer questions).
+the recognition document (an open maintainer question); section recesses are published there.
 
 For draftwright-rust, the kernel draws a part's views without OpenCascade's hidden-line
 algorithm or booleans (`crates/haecceity/src/hlr.rs`): every visible and hidden edge and
@@ -738,6 +742,9 @@ tests/
   recognition.rs     the document: a record type for every family, order, faces, round trip,
                      labels; over the corpus, moved and turned (carried back) and against
                      caller-space recognition (known_framed_document.json)
+  section_recess_publication.rs  the published section recesses against Python on draftwright's
+                     30 quality parts, caller/inferred-frame publication, and byte preservation
+                     of the previous Features JSON and both documents (SHA256 baselines)
   cli.rs             the binary's usage, exit codes and refusal of broken STEP files
                      (fixtures/broken/), for every subcommand
   serve.rs           `quiddity serve`: results equal to the CLI's, every error code, many

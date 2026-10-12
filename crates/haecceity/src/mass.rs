@@ -322,7 +322,10 @@ fn kronrod<S, const N: usize>(
 /// carrying a state (`eval` runs one rule over (a, b) from a state, and may name a kink inside,
 /// where the panel is then split instead of halved; a kink its rule cannot have seen, short of
 /// its outermost nodes, splits it even where its error estimate is resolved), so a refined half
-/// restarts from where the walk stood.
+/// restarts from where the walk stood. Kink splits are budgeted per interval, not per panel: both
+/// halves of a split inherit the panel's count, so a per-panel budget bounds only each path, and
+/// a kink that reappears just past every split (an inversion jumping between branches along a
+/// stretch of boundary) would grow the tree as 2^`MAX_KINKS`.
 fn adaptive<S: Copy, const N: usize>(
     cuts: &[f64],
     start: S,
@@ -333,13 +336,14 @@ fn adaptive<S: Copy, const N: usize>(
     let (mut total, mut excess, mut magnitude) = ([0.0; N], 0.0f64, 0.0);
     let resolved = |error: f64, size: f64, floor: f64| error <= (1e-9 * size).max(floor);
     for w in cuts.windows(2) {
-        // Pending panels, the next on top, with how often they have been halved and split at a
-        // kink (each finite in number, so splitting there spends no halving).
-        let mut stack = vec![(w[0], w[1], 0, 0)];
-        while let Some((a, b, depth, kinks)) = stack.pop() {
+        // Pending panels, the next on top, with how often they have been halved; and the
+        // interval's kink splits left (finite in number, so splitting there spends no halving).
+        let mut stack = vec![(w[0], w[1], 0)];
+        let mut kinks = MAX_KINKS;
+        while let Some((a, b, depth)) = stack.pop() {
             let ((sum, error, size, end), kink) = eval(state, a, b)?;
             let inside = |t: f64| (t - a) * (t - b) < 0.0 && t != a && t != b;
-            let kink = kink.filter(|&(t, _)| inside(t) && kinks < MAX_KINKS);
+            let kink = kink.filter(|&(t, _)| inside(t) && kinks > 0);
             let unseen = kink.is_some_and(|(_, unseen)| unseen);
             let settled = match floor {
                 None => true,
@@ -355,19 +359,22 @@ fn adaptive<S: Copy, const N: usize>(
                 }
                 state = end;
             } else {
-                let (m, depth, kinks) = match kink {
-                    Some((t, _)) => (t, depth, kinks + 1),
-                    None => (0.5 * (a + b), depth + 1, kinks),
+                let (m, depth) = match kink {
+                    Some((t, _)) => {
+                        kinks -= 1;
+                        (t, depth)
+                    }
+                    None => (0.5 * (a + b), depth + 1),
                 };
-                stack.push((m, b, depth, kinks));
-                stack.push((a, m, depth, kinks));
+                stack.push((m, b, depth));
+                stack.push((a, m, depth));
             }
         }
     }
     Some((total, excess, magnitude, state))
 }
 
-/// How many times a boundary panel may be halved (to a 4096th), and split at a kink.
+/// How many times a boundary panel may be halved (to a 4096th), and an interval split at kinks.
 const MAX_DEPTH: usize = 12;
 const MAX_KINKS: usize = 64;
 
@@ -1274,5 +1281,24 @@ mod tests {
         };
         let (sum, ..) = adaptive(&[0.0, 1.0], (), Some(0.0), &mut split).unwrap();
         assert!((sum[0] - 5.0 / 18.0).abs() < 1e-15);
+    }
+
+    /// A kink named just inside every panel, never resolved (as an inversion jumping between
+    /// branches along a boundary names one, MFInstSeg 20221123_142528_16681's face 15): the
+    /// interval's kink budget bounds the panels, where a per-panel one let both halves of every
+    /// split spend it again.
+    #[test]
+    fn a_kink_named_in_every_panel_spends_one_budget() {
+        let mut evals = 0usize;
+        let mut eval = |(): (), a: f64, b: f64| {
+            evals += 1;
+            let w = (b - a).abs();
+            Some((([b - a], w, w, ()), Some((a + 1e-3 * (b - a), false))))
+        };
+        adaptive(&[0.0, 1.0], (), Some(0.0), &mut eval).unwrap();
+        assert!(
+            evals <= (MAX_KINKS + 1) << (MAX_DEPTH + 1),
+            "{evals} panels"
+        );
     }
 }
