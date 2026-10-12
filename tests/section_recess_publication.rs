@@ -197,6 +197,22 @@ fn inferred_frame_section_recesses_are_published() {
     assert!(published > 0, "no framed section recesses published");
 }
 
+/// Asserts `got` is the baseline's `key` hash. Platform libm differences change last-bit results
+/// (tests/correspondence.rs, `Faces`): Linux (CI) is the reference platform, so `key` holds the
+/// value 4583c74 gives on x86_64 Linux (GitHub Actions run 38220722701), and
+/// `{key}_other_platforms` lists the values it gives elsewhere (macOS, where the baseline was
+/// first captured), accepted only beside the Linux one.
+fn assert_baseline(baseline: &Value, key: &str, got: &str, what: &str) {
+    let others = baseline[format!("{key}_other_platforms")].as_array();
+    assert!(
+        baseline[key] == got || others.is_some_and(|o| o.iter().any(|h| h == got)),
+        "{}: {what}\n  got {got}\n  expected {} (Linux) or {:?}",
+        baseline["file"].as_str().unwrap(),
+        baseline[key],
+        others.cloned().unwrap_or_default()
+    );
+}
+
 /// `package.version` at the baseline revision (`quiddity_rust_revision` in the fixture).
 const BASELINE_PACKAGE_VERSION: &str = "0.1.0-alpha.1";
 
@@ -213,10 +229,11 @@ fn publication_preserves_existing_document_bytes() {
                 panic!("{file}: Features does not publish the section_recesses key")
             });
         let old = run.features[..start].to_string() + "}";
-        assert_eq!(
-            hash(old.as_bytes()),
-            run.baseline["features_sha256"],
-            "{file}: old Features bytes"
+        assert_baseline(
+            &run.baseline,
+            "features_sha256",
+            &hash(old.as_bytes()),
+            "old Features bytes",
         );
         for (name, doc) in [("caller", &run.caller), ("framed", &run.framed)] {
             let mut old = doc.clone();
@@ -224,10 +241,11 @@ fn publication_preserves_existing_document_bytes() {
             // The baseline was hashed at 4583c74, whose package version was 0.1.0-alpha.1;
             // release bumps change only that field.
             old.package.version = BASELINE_PACKAGE_VERSION.into();
-            assert_eq!(
-                hash(&serde_json::to_vec(&old).unwrap()),
-                run.baseline[format!("{name}_document_sha256")],
-                "{file}: old {name} document bytes"
+            assert_baseline(
+                &run.baseline,
+                &format!("{name}_document_sha256"),
+                &hash(&serde_json::to_vec(&old).unwrap()),
+                &format!("old {name} document bytes"),
             );
         }
     }
