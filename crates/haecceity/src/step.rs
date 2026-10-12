@@ -442,6 +442,53 @@ impl Reader<'_> {
         }
     }
 
+    /// The arc of a hyperbola between an edge's vertices *a* and *b*, exactly, as one rational
+    /// quadratic segment (a hyperbola has no whole-curve NURBS form: it is unbounded). `None`
+    /// when the curve is no hyperbola, or a vertex is off it or both at one point (no arc).
+    fn hyperbola_arc(&self, r: &m::CurveRef, a: V3, b: V3) -> Option<Curve> {
+        let h = match r {
+            m::CurveRef::Hyperbola(i) => self.model.hyperbola_arena.get(i.0),
+            m::CurveRef::SurfaceCurve(i) => {
+                return self.hyperbola_arc(&self.model.surface_curve_arena.get(i.0).curve_3d, a, b);
+            }
+            m::CurveRef::SeamCurve(i) => {
+                return self.hyperbola_arc(&self.model.seam_curve_arena.get(i.0).curve_3d, a, b);
+            }
+            _ => return None,
+        };
+        let m::Axis2PlacementRef::Axis2Placement3d(p) = &h.position else {
+            return None;
+        };
+        let frame = self.frame3(*p)?;
+        let (major, minor) = (h.semi_axis * self.to_mm, h.semi_imag_axis * self.to_mm);
+        if major <= 0.0 || minor <= 0.0 {
+            return None;
+        }
+        // ISO 10303-42: C + major·cosh(t)·x + minor·sinh(t)·y, the branch on +x only.
+        let on = |t: f64, w: f64| {
+            geom::add(
+                frame.origin,
+                frame.dir_to_world([major * t.cosh() / w, minor * t.sinh() / w, 0.0]),
+            )
+        };
+        let param = |p: V3| {
+            let t = (frame.to_local(p)[1] / minor).asinh();
+            (geom::dist(on(t, 1.0), p) <= 1e-4).then_some(t)
+        };
+        let (ta, tb) = (param(a)?, param(b)?);
+        let (t0, t1) = (ta.min(tb), ta.max(tb));
+        if t1 - t0 < 1e-9 {
+            return None;
+        }
+        // The conic arc's middle pole is where the end tangents meet, weighted cosh of the
+        // half-span (the hyperbolic counterpart of a circular arc's cos of half its angle).
+        let half = 0.5 * (t1 - t0);
+        let w = half.cosh();
+        let points = vec![on(t0, 1.0), on(0.5 * (t0 + t1), w), on(t1, 1.0)];
+        let knots = vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0];
+        NurbsCurve::new(2, points, vec![1.0, w, 1.0], knots).map(Curve::Nurbs)
+    }
+
     /// *vertex_id* numbers the vertices of the instance being read. The flag is `false` when
     /// the edge's curve did not resolve and its chord stands in for it.
     fn edge(
@@ -462,8 +509,9 @@ impl Reader<'_> {
             unreachable!("both vertices resolved above")
         };
         let vertices = (vertex_id(v0.key()), vertex_id(v1.key()));
-        // Exact analytic curves first; otherwise the whole curve in NURBS form, which the edge
-        // is cut from by inverting its vertices (wrapping round a closed curve if it must). The
+        // Exact analytic curves first; then a hyperbola's arc between the vertices, exactly;
+        // otherwise the whole curve in NURBS form, which the edge is cut from by inverting its
+        // vertices (wrapping round a closed curve if it must). The
         // edge-bounded NURBS step-io offers is the last resort: it cuts the short span out of a
         // nearly closed curve even when the edge runs the long way round.
         let to_curve = |n: step_io::scene::NurbsCurve| {
@@ -477,6 +525,7 @@ impl Reader<'_> {
         let raw = raw_edge_curve(self.model, edge);
         let curve = self
             .curve(&raw)
+            .or_else(|| self.hyperbola_arc(&raw, start, end))
             .or_else(|| edge.curve().to_nurbs().and_then(to_curve))
             .or_else(|| edge.to_nurbs().and_then(to_curve));
         let resolved = curve.is_some();
@@ -2052,8 +2101,8 @@ mod tests {
         assert_eq!(section(&part, &plane).unwrap_err(), refused);
     }
 
-    /// The same cylinder with its seam line written as a hyperbola: the open edge's chord stands
-    /// in for it, recorded, and the solid is not valid.
+    /// The same cylinder with its seam line written as a hyperbola that misses one of its
+    /// vertices: the open edge's chord stands in for it, recorded, and the solid is not valid.
     #[test]
     fn an_unresolved_open_edge_is_recorded() {
         let part = read_step_file(&fixture("broken/unresolved_open_curve.step")).unwrap();
@@ -2062,6 +2111,42 @@ mod tests {
         assert!(!part.solid_is_valid(0));
         let view = View::new([0.0, -1.0, 0.0], [0.0, 0.0, 1.0]).unwrap();
         assert_eq!(project(&part, &view).unwrap_err().edges, [1]);
+    }
+
+    /// A cone frustum (radii 10 and 5, height 10) cut by the plane x = 4, which meets the cone
+    /// in a hyperbola. OpenCascade 7.6.3 wrote the file (`BRepAlgoAPI_Cut`, AP214) and gives
+    /// the volume 1484.900072670101 and area 793.444301743642. The hyperbola edges resolve
+    /// exactly: each lies on both the plane and the cone, and the solid is valid.
+    #[test]
+    fn a_hyperbola_edge_resolves_exactly() {
+        let part = read_step_file(&fixture("hyperbola_cut_cone.step")).unwrap();
+        assert!(part.unresolved_faces().is_empty() && part.unresolved_edges().is_empty());
+        assert!(part.solid_is_valid(0));
+        let on_cut = |p: V3| {
+            let off_plane = (p[0] - 4.0).abs();
+            let off_cone = (p[0].hypot(p[1]) - (10.0 - 0.5 * p[2])).abs();
+            off_plane.max(off_cone)
+        };
+        let hyperbolas: Vec<_> = part
+            .edges
+            .iter()
+            .filter_map(|e| match &e.curve {
+                Curve::Nurbs(c) => Some(c),
+                _ => None,
+            })
+            .collect();
+        assert!(!hyperbolas.is_empty());
+        for c in hyperbolas {
+            for i in 0..=64 {
+                assert!(on_cut(c.value(f64::from(i) / 64.0)) < 1e-9);
+            }
+        }
+        let (volume, area) = part.solid_mass(0).unwrap();
+        assert!(
+            (volume - 1484.900072670101).abs() < 1e-6 * 1484.9,
+            "{volume}"
+        );
+        assert!((area - 793.444301743642).abs() < 1e-6 * 793.4, "{area}");
     }
 
     /// The unbroken cylinder records nothing, stays valid and is drawn.
