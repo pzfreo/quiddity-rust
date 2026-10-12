@@ -880,16 +880,9 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
     },
 ];
 
-/// *features*' records as JSON by family, as [`fingerprint`] reads them: their serialisation
-/// with the section recesses, which `Features` does not serialise (the recognition document does
-/// not carry them), added under their field name.
+/// *features*' published records as JSON by family, as [`fingerprint`] reads them.
 pub fn records_json(features: &Features) -> Value {
-    let mut json = serde_json::to_value(features).expect("records serialise");
-    json.as_object_mut().expect("an object").insert(
-        "section_recesses".into(),
-        serde_json::to_value(&features.section_recesses).expect("records serialise"),
-    );
-    json
+    serde_json::to_value(features).expect("records serialise")
 }
 
 /// The fingerprint table of the family with this serde key.

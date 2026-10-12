@@ -36,7 +36,8 @@ use crate::features::oriented_slots::OrientedSlotPattern;
 use crate::features::recess_patterns::{PocketPattern, SlotPattern};
 use crate::frames::RecordFrame;
 
-/// Bumped whenever the document's shape or a field's meaning changes; a reader refuses another.
+/// Bumped for incompatible document changes; additive families retain the version (step levels,
+/// risers and section recesses). Readers with a family allowlist must admit each new family.
 pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/2";
 
 /// One part's recognition, as draftwright reads it.
@@ -142,6 +143,10 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
     ("pads", &["RaisedPad"]),
     ("step_levels", &["FaceLevel"]),
     ("risers", &["RiserEvidence"]),
+    (
+        "section_recesses",
+        &["SectionRecess", "SectionRecessRefusal"],
+    ),
 ];
 
 /// The record class names a family's records can have.
@@ -155,6 +160,13 @@ pub fn record_types(family: &str) -> Option<&'static [&'static str]> {
 /// Python's record class name for record *n* of *family*.
 pub fn record_type(features: &Features, family: &str, n: usize) -> &'static str {
     match family {
+        "section_recesses" => {
+            if n < features.section_recesses.len() {
+                "SectionRecess"
+            } else {
+                "SectionRecessRefusal"
+            }
+        }
         "hole_patterns" => match &features.hole_patterns[n] {
             HolePattern::RectGrid { .. } => "RectGrid",
             HolePattern::RectangularHoleSet { .. } => "RectangularHoleSet",
@@ -187,7 +199,8 @@ pub fn record_type(features: &Features, family: &str, n: usize) -> &'static str 
     }
 }
 
-/// Each family's records as JSON, in [`Features`]' field order (a `serde_json::Value` object
+/// Each family's document records as JSON, in [`Features`]' field order, with section-recess
+/// source refusals appended after occurrences (a `serde_json::Value` object
 /// would sort the families by name).
 pub fn families(features: &Features) -> Vec<(String, Vec<Value>)> {
     struct Ordered(Vec<(String, Vec<Value>)>);
@@ -211,13 +224,24 @@ pub fn families(features: &Features) -> Vec<(String, Vec<Value>)> {
         }
     }
     let text = serde_json::to_string(features).expect("records serialise");
-    serde_json::from_str::<Ordered>(&text)
+    let mut families = serde_json::from_str::<Ordered>(&text)
         .expect("every family is a list of records")
-        .0
+        .0;
+    let (_, recesses) = families
+        .iter_mut()
+        .find(|(f, _)| f == "section_recesses")
+        .unwrap();
+    recesses.extend(
+        features
+            .section_recess_refusals
+            .iter()
+            .map(|r| serde_json::to_value(r).expect("refusal serialises")),
+    );
+    families
 }
 
 /// The document of *recognition*, a part of *face_count* faces: each record with its
-/// fingerprint's faces.
+/// fingerprint's faces (or source evidence's defining faces for a refusal).
 pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocument {
     let faces: BTreeMap<&str, &Vec<usize>> = recognition
         .fingerprints
@@ -232,12 +256,24 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
             let Value::Object(parameters) = record else {
                 panic!("{id} is not a record");
             };
-            let faces = faces
-                .get(id.as_str())
-                .unwrap_or_else(|| panic!("{id} has no fingerprint"));
+            // Refusals describe source evidence, not recognised geometry to fingerprint.
+            let faces = if family == "section_recesses"
+                && n >= recognition.features.section_recesses.len()
+            {
+                recognition.features.section_recess_refusals
+                    [n - recognition.features.section_recesses.len()]
+                .evidence()
+                .defining_faces()
+                .to_vec()
+            } else {
+                faces
+                    .get(id.as_str())
+                    .unwrap_or_else(|| panic!("{id} has no fingerprint"))
+                    .to_vec()
+            };
             records.push(Record {
                 record_type: record_type(&recognition.features, &family, n).into(),
-                faces: faces.to_vec(),
+                faces,
                 local: recognition.local.get(&id).cloned().unwrap_or_default(),
                 id,
                 family: family.clone(),

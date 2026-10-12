@@ -17,10 +17,10 @@ the development aids `export_written_files`, `dump`, `face_moment_evidence`). *I
 names the stream whose branch moves the item; *deferred* names the concrete blocker. Questions for the maintainer are under
 [Questions](#questions).
 
-| Gate | Status at `a2e9721` |
+| Gate | Status at `a2e9721`, with later updates named below |
 |---|---|
 | (a) PMI writer decisions | **met** |
-| (b) 46 recognisers, section recesses wired | **met in recognition, open in the document** (status round 37): all 46 ported as functions; section recesses in `Features` and `correspondence::recognise` (q-section-recesses-in-recognise `3ecccc1`), with a carried refusal on 13975 and 14052 (provisional, question 6); not in the recognition document (question 5); passages: Python's result has no such field |
+| (b) 46 recognisers, section recesses wired | **met in recognition and the document** (G7a, 2026-10-11): all 46 ported as functions; section recesses in `Features`, `correspondence::recognise` and the recognition document alongside the existing source families; carried refusal on 13975 and 14052 remains provisional (question 6) |
 | (c) U1–U15 | **not met**: 11 met (U1, U2, U3, U4, U5, U6, U7, U9, U10, U14, U15), U11 (a) met; U12 met at `3ecccc1` (13975 and 14052 carry a refusal, question 6); 3 deferred on a maintainer decision (U8, U11 (b), U13) |
 | (d) CI green, about 10 minutes each | **Linux met** (10.8 min), **macOS not met** (24.2 min; blocked on a runner decision); q-fills-at-most-callers in progress |
 
@@ -81,8 +81,8 @@ Status round 37 (`3ecccc1`): `features::recognise` and `correspondence::recognis
 section recesses (defining faces, fingerprints, framed mapping, rigid-motion invariance), checked
 against `recognise_section_recesses` on all 100 corpus parts by `tests/recognition.rs`
 `recognition_carries_section_recesses`; 13975 and 14052 carry the projection's refusal
-(question 6); the recognition document does not carry them (question 5), though
-`quiddity <file>` now lists their fingerprints. The text below is as at `a2e9721`.
+(question 6). G7a (2026-10-11) also publishes them as `SectionRecess` document records and in
+the CLI's records, preserving the source families. The text below is as at `a2e9721`.
 
 `features::recognise` (and so `correspondence::recognise`, `recognise_placed` and the
 recognition document) carries 44 families: step levels and risers (Python's
@@ -152,7 +152,7 @@ Each against its "met when" in `upstream-needs.md`.
   parts by `tests/recognition.rs` `recognition_carries_section_recesses`. On 13975 and 14052 the
   projection refuses (Python recognises both through its local-degradation retry, which the port
   lacks), so they carry `Features::section_recess_refusal` and no section recesses (question 6).
-  The recognition document still does not carry them (question 5).
+  G7a (2026-10-11) also publishes them in the recognition document (question 5 resolved).
 - **U13** simple parameter-space loops: *deferred*. cgb202 face 399 (a neck closed within
   15 µm whose samples cross on the surface) stays refused even after `352a860`; meeting it
   needs a tolerance decision (question below). The other faces U13 names (cgb242 715, 726)
@@ -190,8 +190,9 @@ cost meanwhile.
    closed within 15 µm is meshed?
 4. **U8**: `docs/step-ap242.md` question 6 (where the pitch goes; what 'number of threads'
    counts).
-5. **Section recesses in the recognition document** (gate b): carry them instead of, or beside,
-   section passages?
+5. **Resolved, 2026-10-11:** quiddity-rust publishes section recesses in the recognition
+   document handed to draftwright. G7a adds them beside the existing source families to preserve
+   document compatibility; see CHANGELOG's Unreleased schema note.
 6. **Section-recess refusal in `features::recognise`** (gate b, U12): on 13975 and 14052 the
    section-recess projection refuses where Python recovers by its local-degradation retry.
    `features::recognise` now carries the refusal (`Features::section_recess_refusal`, not
