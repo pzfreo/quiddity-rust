@@ -884,8 +884,9 @@ dropped (a deleted face, a file cut at an entity and closed), or has a closed ed
 the kernel cannot resolve. A face or open edge whose geometry does not resolve is kept and
 recorded (`Part::unresolved_faces`, `unresolved_edges`): its solid is not valid, so its
 features are not recognised, `hlr` refuses to draw the part, and the CLI warns on stderr. Python
-(OpenCascade) reads a file with a deleted face as a loose shell, and resolves hyperbolas and
-offset surfaces, which this kernel does not model.
+(OpenCascade) reads a file with a deleted face as a loose shell, and resolves offset surfaces,
+which this kernel does not model. A hyperbola edge is read exactly, as a rational quadratic arc
+between its vertices.
 
 `pmi write` writes every part the document lists in one edit: `add` (the default) beside the
 part's PMI, `replace` in place of it (afterwards `pmi read` gives the document's PMI), `remove`
