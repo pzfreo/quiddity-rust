@@ -13,17 +13,21 @@ mod slices;
 use std::collections::BTreeMap;
 
 use quiddity::Part;
+use quiddity::correspondence::{self, Class, Correspondence, Fingerprints};
 use quiddity::features::{self, levels};
 use quiddity::frames;
 use quiddity::kernel::step::{IDENTITY, Placement, read_step_file_placed};
+use serde_json::Value;
 
-/// A non-round translation (so rounding grids are not trivially aligned) and five rotations with
-/// exact ±1/0 entries, so the placement itself adds no round-off.
+/// A non-round translation (so rounding grids are not trivially aligned) and four rotations with
+/// exact ±1/0 entries, so the placement itself adds no round-off. (A fifth, the axis cycle
+/// without the translation, was dropped: `rot_zx_moved` is the same rotation moved, and every
+/// difference listed under the cycle was listed under it too.)
 const T: [f64; 3] = [123.456, -78.9, 41.3];
 /// A named motion: rotation rows and translation.
 type Motion = (&'static str, [[f64; 3]; 3], [f64; 3]);
 
-const MOTIONS: [Motion; 6] = [
+const MOTIONS: [Motion; 5] = [
     (
         "translate",
         [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
@@ -45,11 +49,6 @@ const MOTIONS: [Motion; 6] = [
         [0.0; 3],
     ),
     (
-        "cycle_xyz",
-        [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
-        [0.0; 3],
-    ),
-    (
         "rot_zx_moved",
         [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
         T,
@@ -64,6 +63,14 @@ fn placement(r: &[[f64; 3]; 3], t: &[f64; 3]) -> Placement {
 /// levels and risers among them), and face levels' faces, as a sorted list of sorted face sets:
 /// what was found, and where, independent of the record's coordinates.
 fn signature(part: &Part) -> BTreeMap<&'static str, Vec<Vec<usize>>> {
+    signature_of(part, features::recognise(part))
+}
+
+/// [`signature`] from *features*, *part*'s recognition.
+fn signature_of(
+    part: &Part,
+    features: features::Features,
+) -> BTreeMap<&'static str, Vec<Vec<usize>>> {
     fn sorted(found: impl IntoIterator<Item = Vec<usize>>) -> Vec<Vec<usize>> {
         let mut out: Vec<Vec<usize>> = found
             .into_iter()
@@ -75,7 +82,7 @@ fn signature(part: &Part) -> BTreeMap<&'static str, Vec<Vec<usize>>> {
         out.sort();
         out
     }
-    let mut out: BTreeMap<_, _> = features::recognise(part)
+    let mut out: BTreeMap<_, _> = features
         .defining
         .into_iter()
         .map(|(family, found)| (family, sorted(found)))
@@ -133,7 +140,10 @@ struct Difference {
 }
 
 /// Every corpus part under every motion: one test per slice of the corpus
-/// (`tests/support/slices.rs`).
+/// (`tests/support/slices.rs`). Each reading is recognised once, and serves two checks: the
+/// families find the same features on the same faces (`known_invariance.json`), and the moved part
+/// corresponds with its unmoved self, every feature and face carried to itself
+/// (`known_correspondence.json`'s invariance entries; `tests/correspondence.rs`).
 fn invariant_under_rigid_motion(k: usize, n: usize) {
     let Some(dir) = common::corpus_dir() else {
         assert!(
@@ -161,28 +171,47 @@ fn invariant_under_rigid_motion(k: usize, n: usize) {
         let at = motion.map_or(IDENTITY, |(_, r, t)| placement(r, t));
         // (The error as text: the kernel's error is not `Send`.)
         read_step_file_placed(&dir.join(&files[i]), &at)
-            .map(|p| (p.faces.len(), signature(&p)))
+            .map(|p| {
+                let found = features::recognise(&p);
+                let prints = correspondence::fingerprint(&p, &found);
+                (p.faces.len(), signature_of(&p, found), prints)
+            })
             .map_err(|e| e.to_string())
     })
     .into_iter();
     let mut found = Vec::new();
+    let (mut unmoved_prints, mut moved_prints) = (Vec::new(), Vec::new());
     for name in &files {
         let unmoved = read.next().unwrap();
         let moved: Vec<_> = read.by_ref().take(MOTIONS.len()).collect();
         // The corpus test reports read failures.
-        let Ok((faces, expected)) = unmoved else {
+        let Ok((faces, expected, prints)) = unmoved else {
+            unmoved_prints.push(None);
+            moved_prints.push(Vec::new());
             continue;
         };
+        let mut moved_prints_here = Vec::new();
         for ((motion, r, _), moved) in MOTIONS.iter().zip(moved) {
-            let (moved_faces, got) = moved.unwrap();
+            let (moved_faces, got, got_prints) = moved.unwrap();
             assert_eq!(moved_faces, faces, "{name} {motion}");
             let d = differences(&expected, &got, |family| {
                 WORLD_Z.contains(&family) && r[2][2].abs() != 1.0
             });
             found.push((name, *motion, d));
+            moved_prints_here.push(got_prints);
         }
+        unmoved_prints.push(Some(prints));
+        moved_prints.push(moved_prints_here);
     }
-    let problems = unexplained(&known, found.into_iter());
+    let mut problems = unexplained(&known, found.into_iter());
+    problems.extend(correspondence_problems(
+        &all,
+        k,
+        n,
+        &files,
+        &unmoved_prints,
+        &moved_prints,
+    ));
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 
@@ -497,4 +526,274 @@ fn repeating_radial_profiles_are_invariant_on_captured_parts() {
         );
         assert_eq!(framed(&generic), unmoved, "{name} {GENERIC}");
     }
+}
+
+/// Correspondence's families read along world Z (`quiddity.levels`): [`WORLD_Z`] less face levels,
+/// which are not a correspondence family.
+const WORLD_Z_FEATURES: [&str; 2] = ["risers", "step_levels"];
+
+fn faces_of<'a>(f: &'a Fingerprints, id: &str) -> &'a [usize] {
+    &f.features.iter().find(|x| x.id == id).unwrap().faces
+}
+
+/// What a correspondence of a part with itself moved gets wrong: the old features not carried
+/// to themselves (and new features, as `new:<id>`), the faces not carried to themselves, and a
+/// description. Families whose recognition is listed as not invariant (`known_invariance.json`)
+/// are left out, with the patterns made of them.
+struct Problems {
+    features: Vec<String>,
+    faces: usize,
+    text: Vec<String>,
+}
+
+fn invariance_problems(
+    old: &Fingerprints,
+    new: &Fingerprints,
+    c: &Correspondence,
+    skip: &[String],
+) -> Problems {
+    let skipped = |id: &str| {
+        let family = id.split('/').next().unwrap();
+        skip.iter().any(|s| {
+            family == s
+                || (s == "holes" && family == "hole_patterns")
+                || (s == "slots" && family == "slot_patterns")
+                || (s == "pockets" && family == "pocket_patterns")
+                || (s == "oriented_slots" && family == "oriented_slot_patterns")
+        })
+    };
+    let mut out = Problems {
+        features: Vec::new(),
+        faces: 0,
+        text: Vec::new(),
+    };
+    for e in &c.features {
+        if skipped(&e.old) {
+            continue;
+        }
+        let ok = e.class == Class::Carried
+            && e.new
+                .as_deref()
+                .is_some_and(|n| faces_of(new, n) == faces_of(old, &e.old));
+        if !ok {
+            out.features.push(e.old.clone());
+            out.text.push(format!(
+                "feature {} {:?} → {:?} {:?} {:?}",
+                e.old, e.class, e.new, e.candidates, e.changes
+            ));
+        }
+    }
+    for id in &c.new_features {
+        if !skipped(id) {
+            out.features.push(format!("new:{id}"));
+            out.text.push(format!("feature {id} new"));
+        }
+    }
+    let faces: Vec<String> = c
+        .faces
+        .iter()
+        .filter(|e| !(e.class == Class::Carried && e.new == Some(e.old)))
+        .map(|e| format!("face {} {:?} → {:?} {:?}", e.old, e.class, e.new, e.changes))
+        .collect();
+    out.faces = faces.len();
+    if !faces.is_empty() {
+        out.text.push(format!(
+            "{} faces not carried to themselves, e.g. {}",
+            faces.len(),
+            faces[0]
+        ));
+    }
+    out
+}
+
+/// A listed invariance case: (file, motion), and the features and faces that differ.
+type Case = (String, String);
+type Listed = (Vec<String>, Faces);
+
+/// How many faces a listed case leaves not carried to themselves. `faces` pins the count exactly
+/// (the default). `faces_at_most` bounds it, for a case whose count depends on a float threshold:
+/// a face is not carried when its kernel area moves with the placement by more than the freeform
+/// tolerance, and whether a wrong area lands just over or just under it depends on the platform's
+/// libm (cgb207 under `rot_zx_moved`: 2 faces on macOS, 1 on Linux). The features stay pinned
+/// exactly either way. Linux (CI) is the reference platform for these pins: a bound is at least
+/// the count CI gives, and no lower than the count seen on any other platform.
+#[derive(Clone, Copy, PartialEq)]
+enum Faces {
+    Exactly(usize),
+    AtMost(usize),
+}
+
+impl Faces {
+    fn read(k: &Value) -> Option<Faces> {
+        match (k["faces"].as_u64(), k["faces_at_most"].as_u64()) {
+            (Some(n), None) => Some(Faces::Exactly(n as usize)),
+            (None, Some(n)) => Some(Faces::AtMost(n as usize)),
+            _ => None,
+        }
+    }
+
+    fn admits(self, n: usize) -> bool {
+        match self {
+            Faces::Exactly(m) => n == m,
+            Faces::AtMost(m) => n <= m,
+        }
+    }
+}
+
+#[test]
+fn listed_face_counts_are_pinned_or_bounded() {
+    let exact = Faces::read(&serde_json::json!({"faces": 2})).unwrap();
+    let bound = Faces::read(&serde_json::json!({"faces_at_most": 2})).unwrap();
+    assert!(exact.admits(2) && !exact.admits(1) && !exact.admits(3));
+    assert!(bound.admits(2) && bound.admits(1) && !bound.admits(3));
+    assert!(Faces::read(&serde_json::json!({"faces": 2, "faces_at_most": 2})).is_none());
+    assert!(Faces::read(&serde_json::json!({})).is_none());
+}
+
+impl std::fmt::Display for Faces {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Faces::Exactly(n) => write!(f, "{n} faces"),
+            Faces::AtMost(n) => write!(f, "at most {n} faces"),
+        }
+    }
+}
+
+/// One part moved: what its correspondence with the unmoved part gets wrong, its alignment, and
+/// how much there was to carry.
+struct Moved {
+    found: Problems,
+    alignment: String,
+    features: usize,
+    faces: usize,
+}
+
+fn known_correspondence() -> Vec<Value> {
+    let known = common::load("known_correspondence.json");
+    let known = known.as_array().unwrap().clone();
+    common::check_verdicts("known_correspondence.json", &known);
+    known
+}
+
+/// What correspondence gets wrong between each part of slice *k* of *n* (`files`) and itself
+/// under each motion, from the readings' fingerprints (`unmoved[i]`, `None` where the part did
+/// not read; `moved[i][m]` under `MOTIONS[m]`): every unlisted difference, every listed case
+/// that differs otherwise or no longer differs, and every listed case not checked.
+fn correspondence_problems(
+    all: &[String],
+    k: usize,
+    n: usize,
+    files: &[String],
+    unmoved: &[Option<Fingerprints>],
+    moved: &[Vec<Fingerprints>],
+) -> Vec<String> {
+    // Each listed case pins exactly which features and how many faces differ (or, for a
+    // threshold-dependent count, at most how many), so any other difference in it still fails.
+    let known: Vec<(Case, Listed)> = known_correspondence()
+        .iter()
+        .filter(|e| {
+            e["test"] == "invariance" && slices::owns(all, k, n, e["file"].as_str().unwrap())
+        })
+        .map(|k| {
+            let mut features: Vec<String> = k["features"]
+                .as_array()
+                .expect("an invariance entry lists its features")
+                .iter()
+                .map(|x| x.as_str().unwrap().to_string())
+                .collect();
+            features.sort();
+            (
+                (
+                    k["file"].as_str().unwrap().to_string(),
+                    k["motion"].as_str().unwrap().to_string(),
+                ),
+                (
+                    features,
+                    Faces::read(k).unwrap_or_else(|| {
+                        panic!("an invariance entry gives one of faces and faces_at_most: {k}")
+                    }),
+                ),
+            )
+        })
+        .collect();
+    let invariance = common::load("known_invariance.json");
+    let cases: Vec<(usize, usize, &Motion)> = (0..files.len())
+        .filter(|&i| unmoved[i].is_some()) // the corpus test reports read failures
+        .flat_map(|i| {
+            MOTIONS
+                .iter()
+                .enumerate()
+                .map(move |(m, motion)| (i, m, motion))
+        })
+        .collect();
+    let checked = common::parallel::map(&cases, |&(i, m, (motion, r, _))| {
+        let name = &files[i];
+        let old = unmoved[i].as_ref().unwrap();
+        let new = &moved[i][m];
+        let c = correspondence::correspond(old, new).unwrap();
+        let mut skip: Vec<String> = invariance
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|k| k["file"] == name.as_str() && k["motion"] == *motion)
+            .map(|k| k["family"].as_str().unwrap().to_string())
+            .collect();
+        // Read along world Z by specification: where the motion does not keep Z vertical, the
+        // moved part's levels and risers are other faces.
+        if r[2][2].abs() != 1.0 {
+            skip.extend(WORLD_Z_FEATURES.map(String::from));
+        }
+        Moved {
+            found: invariance_problems(old, new, &c, &skip),
+            alignment: format!(
+                "aligned {}, symmetric {}, fold {:?}",
+                c.alignment.found, c.alignment.symmetric, c.alignment.fold
+            ),
+            features: old.features.len(),
+            faces: old.faces.len(),
+        }
+    });
+    let mut problems = Vec::new();
+    let mut seen = Vec::new();
+    let (mut pairs, mut features, mut faces) = (0, 0, 0);
+    for (&(i, _, (motion, _, _)), m) in cases.iter().zip(checked) {
+        let name = &files[i];
+        let found = m.found;
+        pairs += 1;
+        features += m.features;
+        faces += m.faces;
+        let key = (name.to_string(), motion.to_string());
+        let mut got = found.features.clone();
+        got.sort();
+        if let Some((_, listed)) = known.iter().find(|k| k.0 == key) {
+            if found.text.is_empty() {
+                problems.push(format!("{key:?} is listed but now carried: remove it"));
+            } else if got != listed.0 || !listed.1.admits(found.faces) {
+                problems.push(format!(
+                    "{key:?} is listed with features {:?} and {}, but now {got:?} and {} faces: {}",
+                    listed.0,
+                    listed.1,
+                    found.faces,
+                    found.text.join("; ")
+                ));
+            }
+            seen.push(key);
+            continue;
+        }
+        if !found.text.is_empty() {
+            problems.push(format!(
+                "{name} {motion} ({}): {} | features {got:?}, faces {}",
+                m.alignment,
+                found.text.join("; "),
+                found.faces
+            ));
+        }
+    }
+    for (key, _) in &known {
+        if !seen.contains(key) {
+            problems.push(format!("{key:?} is listed but was not checked"));
+        }
+    }
+    eprintln!("{pairs} moved parts corresponded: {features} features, {faces} faces");
+    problems
 }

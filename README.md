@@ -867,6 +867,9 @@ cargo build --release
 QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release
 # corpus tests read ../quiddity/tests/corpus or $QUIDDITY_CORPUS; without
 # QUIDDITY_CORPUS_REQUIRED=1 they pass by skipping when the corpus is missing
+QUIDDITY_CORPUS=off cargo test --workspace --release
+# a quick local run: the corpus tests skip (most of the suite's time); run the
+# whole suite before pushing, as CI does
 HAECCEITY_NIST_PMI=<NIST-PMI-STEP-Files> HAECCEITY_NIST_PMI_REQUIRED=1 \
   cargo test --release -p haecceity --test p21 --test express --test face_sources --test pmi_read \
   --test pmi_write --test pmi_roundtrip

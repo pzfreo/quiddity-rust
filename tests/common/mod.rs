@@ -440,8 +440,12 @@ pub fn load(name: &str) -> Value {
     serde_json::from_str(&std::fs::read_to_string(fixtures().join(name)).unwrap()).unwrap()
 }
 
-/// The shared corpus: `QUIDDITY_CORPUS`, else the sibling Python checkout's.
+/// The shared corpus: `QUIDDITY_CORPUS`, else the sibling Python checkout's; none where
+/// `QUIDDITY_CORPUS` is `off` (a quick local run: the corpus tests skip, as when it is missing).
 pub fn corpus_dir() -> Option<PathBuf> {
+    if std::env::var("QUIDDITY_CORPUS").is_ok_and(|v| v == "off") {
+        return None;
+    }
     let dir = std::env::var("QUIDDITY_CORPUS")
         .map(PathBuf::from)
         .unwrap_or_else(|_| Path::new(env!("CARGO_MANIFEST_DIR")).join("../quiddity/tests/corpus"));
