@@ -1371,6 +1371,7 @@ fn datums_belong_to_their_part() {
     )
     .unwrap_or_else(|e| panic!("{e}"));
     assert!(matches!(w.report.schema, SchemaChange::Upgraded { .. }));
+    assert!(w.report.repairs.is_empty(), "valid AP214 needs no repair");
     assert_eq!(w.doc.file_schema().unwrap(), [express::TARGET_SCHEMA]);
     assert_reads_back(&w, PartId(0), &p0);
     assert_reads_back(&w, PartId(1), &p1);
@@ -3543,4 +3544,313 @@ fn opencascade_reads_the_written_files() {
         }
     }
     assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
+
+/// These six AP203 files (the corpus's copies of NIST's) have only the two closed upgrade
+/// defects. Adding a datum must upgrade them and read it back; an empty add must preserve even
+/// their defective bytes.
+#[test]
+fn nist_ap203_upgrade_repairs() {
+    let Some(root) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let mut failures = Vec::new();
+    use haecceity::pmi::write::UpgradeRepairKind::*;
+    for (name, repair, ids) in [
+        (
+            "nist_ctc_01_asme1_rd.stp",
+            R1ApprovalAssignment,
+            vec![14, 15],
+        ),
+        (
+            "nist_ctc_02_asme1_rc.stp",
+            R2ConversionUnitDimensions,
+            vec![20750],
+        ),
+        (
+            "nist_ctc_03_asme1_rc.stp",
+            R1ApprovalAssignment,
+            vec![14, 15],
+        ),
+        (
+            "nist_ctc_05_asme1_rd.stp",
+            R2ConversionUnitDimensions,
+            vec![6596, 6599, 6625, 6634, 6651, 6660, 6669],
+        ),
+        (
+            "nist_ftc_06_asme1_rd.stp",
+            R1ApprovalAssignment,
+            vec![14, 15],
+        ),
+        (
+            "nist_ftc_09_asme1_rd.stp",
+            R2ConversionUnitDimensions,
+            vec![5778, 5781, 5805, 5814, 5827, 5836],
+        ),
+    ] {
+        let f = open(&root.join("nist").join(name));
+        let empty = write(&f, &[(PartId(0), PartPmi::default())], Mode::Add).unwrap();
+        assert_eq!(empty.doc.bytes(), f.doc.bytes(), "{name}: empty add");
+        assert!(empty.report.repairs.is_empty());
+        let p = PartPmi {
+            features: vec![faces(&[0])],
+            datums: vec![datum("Z", 0)],
+            ..PartPmi::default()
+        };
+        let w = match write(&f, &[(PartId(0), p.clone())], Mode::Add) {
+            Ok(w) => w,
+            Err(e) => {
+                failures.push(format!("{name}: {e}"));
+                continue;
+            }
+        };
+        assert_eq!(w.doc.file_schema().unwrap(), [express::TARGET_SCHEMA]);
+        assert_reads_back(&w, PartId(0), &p);
+        assert_eq!(
+            w.report
+                .repairs
+                .iter()
+                .map(|r| (r.id, r.repair))
+                .collect::<Vec<_>>(),
+            ids.into_iter().map(|id| (id, repair)).collect::<Vec<_>>(),
+            "{name}"
+        );
+        assert_repair_bytes(&f.doc, &w.doc, &w.report);
+        assert!(express::TARGET.validate_document(w.doc.graph()).is_empty());
+        assert!(new_violations(&f.doc, &w.doc).is_empty());
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+fn ap214_with_records(records: &str) -> File {
+    let f = fixture("ap242/assembly/assembly.step");
+    let mut bytes = f.doc.bytes().to_vec();
+    let end = bytes.windows(7).rposition(|w| w == b"ENDSEC;").unwrap();
+    bytes.splice(end..end, records.bytes());
+    open_bytes(bytes)
+}
+
+fn upgrade_datum() -> PartPmi {
+    PartPmi {
+        features: vec![faces(&[0])],
+        datums: vec![datum("Z", 0)],
+        ..PartPmi::default()
+    }
+}
+
+#[test]
+fn upgrade_refuses_approval_items_outside_both_selects() {
+    // Edition 4's approval_item takes any representation_item, so the item is an entity in
+    // neither select and with no supertype in either.
+    let f = ap214_with_records(
+        "#900000000=APPROVAL_STATUS('approved');\n\
+         #900000001=APPROVAL(#900000000,'');\n\
+         #900000002=DIMENSIONAL_EXPONENTS(0.,0.,0.,0.,0.,0.,0.);\n\
+         #900000003=CC_DESIGN_APPROVAL(#900000001,(#900000002));\n",
+    );
+    assert_eq!(
+        write(&f, &[(PartId(0), PartPmi::default())], Mode::Add)
+            .unwrap()
+            .doc
+            .bytes(),
+        f.doc.bytes()
+    );
+    match write(&f, &[(PartId(0), upgrade_datum())], Mode::Add) {
+        Err(WriteError::Edition { violations, .. }) => {
+            assert!(
+                violations.iter().any(|v| v.id == 900000003
+                    && v.attribute.as_deref() == Some("cc_design_approval.items"))
+            );
+        }
+        other => panic!("not refused: {:?}", other.err()),
+    }
+}
+
+#[test]
+fn conversion_dimensions_reuse_and_follow_conversion_and_derived_units() {
+    let f = ap214_with_records(
+        "#900000000=DIMENSIONAL_EXPONENTS(1.,0.,0.,0.,0.,0.,0.);\n\
+         #900000001=(LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.));\n\
+         #900000002=LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(25.4),#900000001);\n\
+         #900000003=(CONVERSION_BASED_UNIT('INCH',#900000002) LENGTH_UNIT() NAMED_UNIT(*));\n\
+         #900000004=(NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.));\n\
+         #900000005=PLANE_ANGLE_MEASURE_WITH_UNIT(PLANE_ANGLE_MEASURE(0.0174532925199433),#900000004);\n\
+         #900000006=(CONVERSION_BASED_UNIT('DEGREE',#900000005) NAMED_UNIT(*) PLANE_ANGLE_UNIT());\n\
+         #900000007=LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(12.),#900000003);\n\
+         #900000008=(CONVERSION_BASED_UNIT('FOOT',#900000007) LENGTH_UNIT() NAMED_UNIT(*));\n\
+         #900000009=DERIVED_UNIT_ELEMENT(#900000001,2.);\n\
+         #900000010=DERIVED_UNIT_ELEMENT(#900000001,-1.);\n\
+         #900000011=DERIVED_UNIT((#900000009,#900000010));\n\
+         #900000012=LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.),#900000011);\n\
+         #900000013=(CONVERSION_BASED_UNIT('DERIVED LENGTH',#900000012) LENGTH_UNIT() NAMED_UNIT(*));\n\
+         #900000014=(CONVERSION_BASED_UNIT('SECOND ANGLE UNIT',#900000005) NAMED_UNIT(*) PLANE_ANGLE_UNIT());\n\
+         #900000015=(CONVERSION_BASED_UNIT('EXPLICIT INCH',#900000002) LENGTH_UNIT() NAMED_UNIT(#900000000));\n",
+    );
+    let empty = write(&f, &[(PartId(0), PartPmi::default())], Mode::Add).unwrap();
+    assert!(empty.report.repairs.is_empty());
+    assert_eq!(empty.doc.bytes(), f.doc.bytes());
+    let mut p = upgrade_datum();
+    // The repair must also share exponents the PMI emitter just added, using its provisional id.
+    p.attributes.push(AttributeSet {
+        name: "inspection angle".into(),
+        on: None,
+        items: vec![(
+            "angle".into(),
+            AttributeValue::Measure(Value::angle(dec("30."), AngleUnit::Degree)),
+        )],
+        description: None,
+        general_property: None,
+    });
+    let w = write(&f, &[(PartId(0), p.clone())], Mode::Add).unwrap();
+    assert_reads_back(&w, PartId(0), &p);
+    assert_eq!(
+        w.added()
+            .iter()
+            .filter(|&&id| w.names(id) == ["dimensional_exponents"])
+            .count(),
+        1
+    );
+    assert_eq!(
+        w.report
+            .repairs
+            .iter()
+            .map(|r| (r.id, r.repair))
+            .collect::<Vec<_>>(),
+        [900000003, 900000006, 900000008, 900000013, 900000014].map(|id| (
+            id,
+            haecceity::pmi::write::UpgradeRepairKind::R2ConversionUnitDimensions
+        ))
+    );
+    for (id, dimensions) in [
+        (900000003, [1., 0., 0., 0., 0., 0., 0.]),
+        (900000006, [0.; 7]),
+        (900000014, [0.; 7]),
+        (900000008, [1., 0., 0., 0., 0., 0., 0.]),
+        (900000013, [1., 0., 0., 0., 0., 0., 0.]),
+    ] {
+        let RawEntity::Complex { parts, .. } = w.doc.get(id).unwrap() else {
+            panic!()
+        };
+        let named = parts.iter().find(|p| p.name == "NAMED_UNIT").unwrap();
+        let Attribute::EntityRef(dim_id) = named.attributes[0] else {
+            panic!()
+        };
+        if id != 900000006 && id != 900000014 {
+            assert_eq!(dim_id, 900000000, "reuse length dimensions");
+        }
+        let RawEntity::Simple {
+            name, attributes, ..
+        } = w.doc.get(dim_id).unwrap()
+        else {
+            panic!()
+        };
+        assert_eq!(name, "DIMENSIONAL_EXPONENTS");
+        assert_eq!(attributes, &dimensions.map(Attribute::Real));
+        let RawEntity::Complex {
+            parts: original, ..
+        } = f.doc.get(id).unwrap()
+        else {
+            panic!()
+        };
+        assert_eq!(
+            parts
+                .iter()
+                .filter(|p| p.name != "NAMED_UNIT")
+                .collect::<Vec<_>>(),
+            original
+                .iter()
+                .filter(|p| p.name != "NAMED_UNIT")
+                .collect::<Vec<_>>()
+        );
+        assert!(parts.windows(2).all(|p| p[0].name < p[1].name));
+    }
+    assert_repair_bytes(&f.doc, &w.doc, &w.report);
+}
+
+#[test]
+fn conversion_dimensions_that_cannot_be_determined_are_refused() {
+    for unit in ["#900000000", "#900000002"] {
+        let f = ap214_with_records(&format!(
+            "#900000000=DIRECTION('',(1.,0.,0.));\n\
+             #900000001=LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.),{unit});\n\
+             #900000002=(CONVERSION_BASED_UNIT('UNKNOWN',#900000001) LENGTH_UNIT() NAMED_UNIT(*));\n"
+        ));
+        let error = write(&f, &[(PartId(0), upgrade_datum())], Mode::Add)
+            .err()
+            .unwrap();
+        assert!(matches!(error, WriteError::Edition { .. }));
+        assert!(error.to_string().contains("#900000002"));
+        assert!(error.to_string().contains("cannot determine"));
+    }
+}
+
+/// Check the report's exact records and all intervening original bytes (including comments
+/// and whitespace); only FILE_SCHEMA, repaired records and appended instances may differ.
+fn assert_repair_bytes(before: &Document, after: &Document, report: &WriteReport) {
+    let repaired: BTreeSet<u64> = report.repairs.iter().map(|r| r.id).collect();
+    for id in before.ids() {
+        if !repaired.contains(&id) {
+            assert_eq!(
+                before.bytes()[before.span(id).unwrap()],
+                after.bytes()[after.span(id).unwrap()],
+                "untouched #{id}"
+            );
+        }
+    }
+    for r in &report.repairs {
+        assert_eq!(
+            r.original_record.as_bytes(),
+            &before.bytes()[before.span(r.id).unwrap()]
+        );
+        assert_eq!(
+            r.new_record.as_bytes(),
+            &after.bytes()[after.span(r.id).unwrap()]
+        );
+        assert!(r.to_string().contains(&format!("#{}", r.id)));
+    }
+    // Reconstruct the output directly from original bytes plus the reported replacements,
+    // the schema replacement and exactly the added records. This also verifies non-record bytes.
+    let schema_span = |doc: &Document| {
+        let start = doc
+            .bytes()
+            .windows(11)
+            .position(|w| w == b"FILE_SCHEMA")
+            .unwrap();
+        let end = start
+            + doc.bytes()[start..]
+                .iter()
+                .position(|&b| b == b';')
+                .unwrap()
+            + 1;
+        start..end
+    };
+    let mut replacements: Vec<_> = report
+        .repairs
+        .iter()
+        .map(|r| (before.span(r.id).unwrap(), r.new_record.as_bytes().to_vec()))
+        .collect();
+    replacements.push((
+        schema_span(before),
+        after.bytes()[schema_span(after)].to_vec(),
+    ));
+    replacements.sort_by_key(|(span, _)| span.start);
+    let mut expected = before.bytes().to_vec();
+    for (span, text) in replacements.into_iter().rev() {
+        expected.splice(span, text);
+    }
+    let new_ids: Vec<_> = after.ids().filter(|&id| id > before.max_id()).collect();
+    assert_eq!(report.added, new_ids.len());
+    let insertion = expected.windows(7).rposition(|w| w == b"ENDSEC;").unwrap();
+    let first = after.span(*new_ids.first().unwrap()).unwrap().start;
+    let end = after
+        .bytes()
+        .windows(7)
+        .rposition(|w| w == b"ENDSEC;")
+        .unwrap();
+    expected.splice(
+        insertion..insertion,
+        after.bytes()[first..end].iter().copied(),
+    );
+    assert_eq!(expected, after.bytes(), "all untouched bytes");
 }

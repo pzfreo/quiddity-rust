@@ -1,458 +1,636 @@
 {
   "_comment": [
-    "Every corpus file validated against the target AP242 edition 4 as if its FILE_SCHEMA were",
-    "changed to it: upgradable when there is no violation, else the violations grouped by entity,",
-    "kind and attribute, with a verdict and the schema text that decides it."
+    "Every corpus file checked for upgrade to AP242 edition 4: without-repairs, with-repairs",
+    "(the closed R1/R2 list, with instance ids), or refused. The original violations remain",
+    "grouped by entity, kind and attribute, with their verdict and deciding schema text."
   ],
   "files": {
     "cadgenbench/flanged_spool_132.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "cadgenbench/threaded_connector_109.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "cadgenbench_inputs/cgb202.step.gz": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "cadgenbench_inputs/cgb203.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "cadgenbench_inputs/cgb207.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "cadgenbench_inputs/cgb217.step.gz": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "cadgenbench_inputs/cgb241.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "cadgenbench_inputs/cgb242.step.gz": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "cadgenbench_inputs/cgb243.step.gz": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "cadgenbench_inputs/cgb245.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "gramel/GRM-03_thumbwheel_drive_screw.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "gramel/GRM-05_depth_lock_bolt.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "gramel/string_post.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "inventory_refusal/13975.step.gz": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "inventory_refusal/14052.step.gz": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/1000.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10000.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10007.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10020.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10033.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10038.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/1004.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10046.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10047.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10049.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10060.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10063.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/1007.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10077.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/1008.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10092.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10096.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10098.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10101.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10103.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10119.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10127.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/1013.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10131.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10138.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10146.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10155.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10156.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10163.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10167.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/1017.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10170.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10190.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10212.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10224.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10245.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10247.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10252.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10255.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp/10278.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/118.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/119.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/163.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/16943.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/18016.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/181.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/182.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/183.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/196.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/200.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/20273.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/203.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/205.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/229.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/238.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/244.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/257.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/265.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/274.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/275.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/317.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/340.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/363.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/388.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/408.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/419.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/464.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/467.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/471.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/483.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/498.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/520.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_holdout/808.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "mfcadpp_regressions/11512.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "nist/nist_ctc_01_asme1_rd.stp": {
       "file_schema": "AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF { 1 0 10303 403 2 1 2}",
-      "upgradable": false,
+      "upgradable": true,
       "violations": [
         {
           "entity": "cc_design_approval",
@@ -462,11 +640,22 @@
           "verdict": "file-wrong",
           "reason": "CC_DESIGN_APPROVAL(#26,(#84)) approves a product_definition or product_definition_formation_with_specified_source; approved_item is (certification, change, change_request, configuration_effectivity, configuration_item, contract, product, security_classification, start_request, start_work) in AP242 edition 4 (line 981) and in the files' own AP203 edition 2 (N2635 line 179) alike; only AP203 edition 1 allowed them"
         }
-      ]
+      ],
+      "repairs": [
+        {
+          "id": 14,
+          "repair": "R1"
+        },
+        {
+          "id": 15,
+          "repair": "R1"
+        }
+      ],
+      "outcome": "with-repairs"
     },
     "nist/nist_ctc_02_asme1_rc.stp": {
       "file_schema": "AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF { 1 0 10303 403 2 1 2 }",
-      "upgradable": false,
+      "upgradable": true,
       "violations": [
         {
           "entity": "(conversion_based_unit named_unit plane_angle_unit)",
@@ -474,13 +663,20 @@
           "attribute": "named_unit.dimensions",
           "count": 1,
           "verdict": "file-wrong",
-          "reason": "(CONVERSION_BASED_UNIT('DEGREE',#…) NAMED_UNIT(*) PLANE_ANGLE_UNIT()): as for the length unit, named_unit.dimensions is explicit in a conversion_based_unit and must not be `*`"
+          "reason": "(CONVERSION_BASED_UNIT('DEGREE',#\u2026) NAMED_UNIT(*) PLANE_ANGLE_UNIT()): as for the length unit, named_unit.dimensions is explicit in a conversion_based_unit and must not be `*`"
         }
-      ]
+      ],
+      "repairs": [
+        {
+          "id": 20750,
+          "repair": "R2"
+        }
+      ],
+      "outcome": "with-repairs"
     },
     "nist/nist_ctc_03_asme1_rc.stp": {
       "file_schema": "AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF { 1 0 10303 403 2 1 2}",
-      "upgradable": false,
+      "upgradable": true,
       "violations": [
         {
           "entity": "cc_design_approval",
@@ -490,16 +686,29 @@
           "verdict": "file-wrong",
           "reason": "CC_DESIGN_APPROVAL(#26,(#84)) approves a product_definition or product_definition_formation_with_specified_source; approved_item is (certification, change, change_request, configuration_effectivity, configuration_item, contract, product, security_classification, start_request, start_work) in AP242 edition 4 (line 981) and in the files' own AP203 edition 2 (N2635 line 179) alike; only AP203 edition 1 allowed them"
         }
-      ]
+      ],
+      "repairs": [
+        {
+          "id": 14,
+          "repair": "R1"
+        },
+        {
+          "id": 15,
+          "repair": "R1"
+        }
+      ],
+      "outcome": "with-repairs"
     },
     "nist/nist_ctc_04_asme1_rd.stp": {
       "file_schema": "AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF  { 1 0 10303 403 3 1 4}",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "nist/nist_ctc_05_asme1_rd.stp": {
       "file_schema": "AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF { 1 0 10303 403 2 1 2 }",
-      "upgradable": false,
+      "upgradable": true,
       "violations": [
         {
           "entity": "(conversion_based_unit length_unit named_unit)",
@@ -507,7 +716,7 @@
           "attribute": "named_unit.dimensions",
           "count": 6,
           "verdict": "file-wrong",
-          "reason": "(CONVERSION_BASED_UNIT('INCH',#…) LENGTH_UNIT() NAMED_UNIT(*)): only si_unit redeclares named_unit.dimensions as derived; conversion_based_unit has no DERIVE (AP242 edition 4 line 12361, AP203 edition 2 N2635 line 3990 alike), so dimensions references a dimensional_exponents"
+          "reason": "(CONVERSION_BASED_UNIT('INCH',#\u2026) LENGTH_UNIT() NAMED_UNIT(*)): only si_unit redeclares named_unit.dimensions as derived; conversion_based_unit has no DERIVE (AP242 edition 4 line 12361, AP203 edition 2 N2635 line 3990 alike), so dimensions references a dimensional_exponents"
         },
         {
           "entity": "(conversion_based_unit named_unit plane_angle_unit)",
@@ -515,13 +724,44 @@
           "attribute": "named_unit.dimensions",
           "count": 1,
           "verdict": "file-wrong",
-          "reason": "(CONVERSION_BASED_UNIT('DEGREE',#…) NAMED_UNIT(*) PLANE_ANGLE_UNIT()): as for the length unit, named_unit.dimensions is explicit in a conversion_based_unit and must not be `*`"
+          "reason": "(CONVERSION_BASED_UNIT('DEGREE',#\u2026) NAMED_UNIT(*) PLANE_ANGLE_UNIT()): as for the length unit, named_unit.dimensions is explicit in a conversion_based_unit and must not be `*`"
         }
-      ]
+      ],
+      "repairs": [
+        {
+          "id": 6596,
+          "repair": "R2"
+        },
+        {
+          "id": 6599,
+          "repair": "R2"
+        },
+        {
+          "id": 6625,
+          "repair": "R2"
+        },
+        {
+          "id": 6634,
+          "repair": "R2"
+        },
+        {
+          "id": 6651,
+          "repair": "R2"
+        },
+        {
+          "id": 6660,
+          "repair": "R2"
+        },
+        {
+          "id": 6669,
+          "repair": "R2"
+        }
+      ],
+      "outcome": "with-repairs"
     },
     "nist/nist_ftc_06_asme1_rd.stp": {
       "file_schema": "AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF { 1 0 10303 403 2 1 2}",
-      "upgradable": false,
+      "upgradable": true,
       "violations": [
         {
           "entity": "cc_design_approval",
@@ -531,21 +771,36 @@
           "verdict": "file-wrong",
           "reason": "CC_DESIGN_APPROVAL(#26,(#84)) approves a product_definition or product_definition_formation_with_specified_source; approved_item is (certification, change, change_request, configuration_effectivity, configuration_item, contract, product, security_classification, start_request, start_work) in AP242 edition 4 (line 981) and in the files' own AP203 edition 2 (N2635 line 179) alike; only AP203 edition 1 allowed them"
         }
-      ]
+      ],
+      "repairs": [
+        {
+          "id": 14,
+          "repair": "R1"
+        },
+        {
+          "id": 15,
+          "repair": "R1"
+        }
+      ],
+      "outcome": "with-repairs"
     },
     "nist/nist_ftc_07_asme1_rd.stp": {
       "file_schema": "CONFIG_CONTROL_DESIGN",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "nist/nist_ftc_08_asme1_rc.stp": {
       "file_schema": "AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF  { 1 0 10303 403 3 1 4}",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "nist/nist_ftc_09_asme1_rd.stp": {
       "file_schema": "AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF { 1 0 10303 403 2 1 2 }",
-      "upgradable": false,
+      "upgradable": true,
       "violations": [
         {
           "entity": "(conversion_based_unit length_unit named_unit)",
@@ -553,7 +808,7 @@
           "attribute": "named_unit.dimensions",
           "count": 5,
           "verdict": "file-wrong",
-          "reason": "(CONVERSION_BASED_UNIT('INCH',#…) LENGTH_UNIT() NAMED_UNIT(*)): only si_unit redeclares named_unit.dimensions as derived; conversion_based_unit has no DERIVE (AP242 edition 4 line 12361, AP203 edition 2 N2635 line 3990 alike), so dimensions references a dimensional_exponents"
+          "reason": "(CONVERSION_BASED_UNIT('INCH',#\u2026) LENGTH_UNIT() NAMED_UNIT(*)): only si_unit redeclares named_unit.dimensions as derived; conversion_based_unit has no DERIVE (AP242 edition 4 line 12361, AP203 edition 2 N2635 line 3990 alike), so dimensions references a dimensional_exponents"
         },
         {
           "entity": "(conversion_based_unit named_unit plane_angle_unit)",
@@ -561,19 +816,50 @@
           "attribute": "named_unit.dimensions",
           "count": 1,
           "verdict": "file-wrong",
-          "reason": "(CONVERSION_BASED_UNIT('DEGREE',#…) NAMED_UNIT(*) PLANE_ANGLE_UNIT()): as for the length unit, named_unit.dimensions is explicit in a conversion_based_unit and must not be `*`"
+          "reason": "(CONVERSION_BASED_UNIT('DEGREE',#\u2026) NAMED_UNIT(*) PLANE_ANGLE_UNIT()): as for the length unit, named_unit.dimensions is explicit in a conversion_based_unit and must not be `*`"
         }
-      ]
+      ],
+      "repairs": [
+        {
+          "id": 5778,
+          "repair": "R2"
+        },
+        {
+          "id": 5781,
+          "repair": "R2"
+        },
+        {
+          "id": 5805,
+          "repair": "R2"
+        },
+        {
+          "id": 5814,
+          "repair": "R2"
+        },
+        {
+          "id": 5827,
+          "repair": "R2"
+        },
+        {
+          "id": 5836,
+          "repair": "R2"
+        }
+      ],
+      "outcome": "with-repairs"
     },
     "nist/nist_ftc_10_asme1_rb.stp": {
       "file_schema": "CONFIG_CONTROL_DESIGN",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     },
     "ttt_inputs/sm-hanger.step": {
       "file_schema": "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }",
       "upgradable": true,
-      "violations": []
+      "violations": [],
+      "repairs": [],
+      "outcome": "without-repairs"
     }
   }
 }

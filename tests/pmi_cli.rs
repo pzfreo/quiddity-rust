@@ -1270,6 +1270,7 @@ fn pmi_write_add_then_remove_returns_a_corpus_part_to_its_pmi() {
         "AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }"
     );
     assert_eq!(report["datum_symbols"], json!([{"part": 0, "labels": "A"}]));
+    assert_eq!(report["repairs"], json!([]));
     let added = out.to_str().unwrap().to_string();
     let (back, _) = ok(&["pmi", "read", &added]);
     let d = read_back_differences(&add, &back, "add");
@@ -1291,6 +1292,47 @@ fn pmi_write_add_then_remove_returns_a_corpus_part_to_its_pmi() {
     let (read, _) = ok(&["pmi", "read", p]);
     let mut doc = read.clone();
     doc["parts"] = json!([{"part": 0, "pmi": {"general": [{"class": {"text": "ISO 2768-m"}}]}}]);
+    let (out, o) = write_cli(p, &doc, "edition-repaired", &[]);
+    let (report, _) = write_ok(&o, "edition repaired");
+    let repairs = report["repairs"].as_array().unwrap();
+    assert_eq!(
+        repairs
+            .iter()
+            .map(|r| (r["id"].as_u64().unwrap(), r["repair"].as_str().unwrap()))
+            .collect::<Vec<_>>(),
+        [(14, "R1"), (15, "R1")]
+    );
+    let before = haecceity::p21::Document::parse(std::fs::read(p).unwrap()).unwrap();
+    let after = haecceity::p21::Document::parse(std::fs::read(&out).unwrap()).unwrap();
+    for r in repairs {
+        let id = r["id"].as_u64().unwrap();
+        assert_eq!(
+            r["original_record"].as_str().unwrap().as_bytes(),
+            &before.bytes()[before.span(id).unwrap()]
+        );
+        assert_eq!(
+            r["new_record"].as_str().unwrap().as_bytes(),
+            &after.bytes()[after.span(id).unwrap()]
+        );
+    }
+    let (back, _) = ok(&["pmi", "read", out.to_str().unwrap()]);
+    assert!(read_back_differences(&doc, &back, "add").is_empty());
+
+    // The edition refusal remains for anything outside the closed repair list (an approved
+    // item in neither select: edition 4 approval_item takes any representation_item).
+    let mut bad_bytes = std::fs::read(p).unwrap();
+    let at = bad_bytes.windows(7).rposition(|w| w == b"ENDSEC;").unwrap();
+    bad_bytes.splice(
+        at..at,
+        b"#900000000=DIMENSIONAL_EXPONENTS(0.,0.,0.,0.,0.,0.,0.);\n#900000001=CC_DESIGN_APPROVAL(#26,(#900000000));\n"
+            .iter()
+            .copied(),
+    );
+    let bad = scratch().join("bad-upgrade.step");
+    std::fs::write(&bad, bad_bytes).unwrap();
+    let p = bad.to_str().unwrap();
+    let (read, _) = ok(&["pmi", "read", p]);
+    doc["binding"] = read["binding"].clone();
     let (out, o) = write_cli(p, &doc, "edition", &[]);
     let err = write_refused(&out, &o, "edition");
     assert!(
@@ -1298,4 +1340,5 @@ fn pmi_write_add_then_remove_returns_a_corpus_part_to_its_pmi() {
         "{err}"
     );
     assert!(err.contains("instances violate it: #"), "{err}");
+    assert!(err.contains("#900000001"), "{err}");
 }

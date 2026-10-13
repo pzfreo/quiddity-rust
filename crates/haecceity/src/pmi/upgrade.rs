@@ -1,0 +1,220 @@
+//! Closed, reported repairs for an AP203/AP214 file gaining PMI. No general cleanup.
+
+use super::{UpgradeRepairKind, WriteError, attr, attr_ref, is_a, leaf_names};
+use crate::express::{self, Kind, TypeDef};
+use crate::p21::{self, Attribute as A, Complex, Document, Edit, RawEntity};
+use std::collections::BTreeSet;
+
+type Dimensions = [f64; 7];
+type Repairs = Vec<(u64, UpgradeRepairKind)>;
+
+/// Exact record text, never a lossy decoding of original bytes.
+pub(super) fn record_text(doc: &Document, id: u64) -> Result<String, WriteError> {
+    String::from_utf8(doc.bytes()[doc.span(id).ok_or(p21::P21Error::Missing(id))?].to_vec())
+        .map_err(|_| {
+            WriteError::P21(p21::P21Error::Encode(format!(
+                "repair #{id}: original record is not UTF-8; cannot report its exact text"
+            )))
+        })
+}
+
+pub(super) fn repair(
+    doc: &Document,
+    edit: &mut Edit,
+    excluded: &BTreeSet<u64>,
+    emitted_dimensions: Vec<(Dimensions, A)>,
+) -> Result<(Repairs, usize), WriteError> {
+    let mut repairs = Vec::new();
+    let mut added = 0;
+    // Ascending ids choose the first equal existing dimensions deterministically. Provisional
+    // references also let every repaired unit share one addition per distinct exponent set.
+    let mut dimensions: Vec<(Dimensions, A)> = doc
+        .ids()
+        .filter(|id| !excluded.contains(id))
+        .filter_map(|id| exponents(doc, id).map(|d| (d, A::EntityRef(id))))
+        .collect();
+    dimensions.extend(emitted_dimensions);
+    for id in doc.ids().filter(|id| !excluded.contains(id)) {
+        let record = doc.get(id).expect("document id");
+        match record {
+            RawEntity::Simple {
+                name, attributes, ..
+            } if name.eq_ignore_ascii_case("cc_design_approval") => {
+                let Some(A::List(items)) = attr(doc, id, "cc_design_approval", "items") else {
+                    continue; // The unchanged schema validator refuses malformed attributes.
+                };
+                let member = |item: &A, select| match item {
+                    A::EntityRef(target) => in_select(doc, *target, select),
+                    _ => false,
+                };
+                if items.iter().any(|a| !member(a, "approved_item"))
+                    && items.iter().all(|a| member(a, "approval_item"))
+                {
+                    record_text(doc, id)?;
+                    edit.replace(
+                        id,
+                        p21::simple("APPLIED_APPROVAL_ASSIGNMENT", attributes.clone()),
+                    );
+                    repairs.push((id, UpgradeRepairKind::R1ApprovalAssignment));
+                }
+            }
+            RawEntity::Complex { parts, .. }
+                if is_a(doc, id, "conversion_based_unit")
+                    && matches!(attr(doc, id, "named_unit", "dimensions"), Some(A::Derived)) =>
+            {
+                let Some(d) = unit_dimensions(doc, id, &mut BTreeSet::new()) else {
+                    let mut violations = express::TARGET.validate_document(doc.graph());
+                    // Keep the schema refusal and its offending id, with the failed resolution
+                    // named as well (even when the original has other upgrade violations).
+                    for v in &mut violations {
+                        if v.id == id && v.kind == Kind::Derived {
+                            v.detail.push_str(
+                                "; R2 cannot determine conversion factor unit dimensions",
+                            );
+                        }
+                    }
+                    return Err(WriteError::Edition {
+                        file_schema: doc.file_schema()?.first().cloned().unwrap_or_default(),
+                        violations,
+                    });
+                };
+                record_text(doc, id)?;
+                let reference = match dimensions.iter().find(|(existing, _)| *existing == d) {
+                    Some((_, reference)) => reference.clone(),
+                    None => {
+                        let reference = edit
+                            .add(p21::simple(
+                                "DIMENSIONAL_EXPONENTS",
+                                d.into_iter().map(A::Real).collect(),
+                            ))
+                            .to_ref();
+                        dimensions.push((d, reference.clone()));
+                        added += 1;
+                        reference
+                    }
+                };
+                let mut leaves = parts.clone();
+                let named = leaves
+                    .iter_mut()
+                    .find(|p| p.name.eq_ignore_ascii_case("named_unit"))
+                    .expect("dimensions attribute has named_unit leaf");
+                named.attributes[0] = reference;
+                edit.replace(id, Complex::new(leaves)?);
+                repairs.push((id, UpgradeRepairKind::R2ConversionUnitDimensions));
+            }
+            _ => {}
+        }
+    }
+    Ok((repairs, added))
+}
+
+fn in_select(doc: &Document, id: u64, select: &str) -> bool {
+    let Some(TypeDef::Select(members)) = express::TARGET.type_decl(select).map(|t| &t.def) else {
+        return false;
+    };
+    // These two selects contain entity types, checked through the target's supertype table.
+    leaf_names(doc, id)
+        .iter()
+        .any(|n| members.iter().any(|m| express::TARGET.is_a(n, m)))
+}
+
+fn number(a: &A) -> Option<f64> {
+    match a {
+        A::Real(n) if n.is_finite() => Some(*n),
+        A::Integer(n) => Some(*n as f64),
+        _ => None,
+    }
+}
+
+fn exponents(doc: &Document, id: u64) -> Option<Dimensions> {
+    let RawEntity::Simple {
+        name, attributes, ..
+    } = doc.get(id)?
+    else {
+        return None;
+    };
+    if !name.eq_ignore_ascii_case("dimensional_exponents") || attributes.len() != 7 {
+        return None;
+    }
+    let mut d = [0.; 7];
+    for (out, a) in d.iter_mut().zip(attributes) {
+        *out = number(a)?;
+    }
+    Some(d)
+}
+
+fn unit_dimensions(doc: &Document, id: u64, active: &mut BTreeSet<u64>) -> Option<Dimensions> {
+    // Cycles and excessive depth are indeterminate, never guessed from LENGTH_UNIT etc.
+    if active.len() >= 128 || !active.insert(id) {
+        return None;
+    }
+    let result = (|| {
+        if is_a(doc, id, "si_unit") {
+            let A::Enum(name) = attr(doc, id, "si_unit", "name")? else {
+                return None;
+            };
+            return dimensions_for_si_unit(name);
+        }
+        if is_a(doc, id, "conversion_based_unit") {
+            let factor = attr_ref(doc, id, "conversion_based_unit", "conversion_factor")?;
+            let unit = attr_ref(doc, factor, "measure_with_unit", "unit_component")?;
+            return unit_dimensions(doc, unit, active);
+        }
+        if is_a(doc, id, "derived_unit") {
+            let A::List(elements) = attr(doc, id, "derived_unit", "elements")? else {
+                return None;
+            };
+            if elements.is_empty() {
+                return None;
+            }
+            let mut sum = [0.; 7];
+            for element in elements {
+                let A::EntityRef(element) = element else {
+                    return None;
+                };
+                let unit = attr_ref(doc, *element, "derived_unit_element", "unit")?;
+                let exponent = number(attr(doc, *element, "derived_unit_element", "exponent")?)?;
+                let d = unit_dimensions(doc, unit, active)?;
+                for (out, x) in sum.iter_mut().zip(d) {
+                    *out += x * exponent;
+                }
+            }
+            return sum.iter().all(|x| x.is_finite()).then_some(sum);
+        }
+        exponents(doc, attr_ref(doc, id, "named_unit", "dimensions")?)
+    })();
+    active.remove(&id);
+    result
+}
+
+/// ISO 10303-41 `dimensions_for_si_unit`, as published in the target MIM long form
+/// (express::TARGET.source_url). Prefixes change scale, never dimensions.
+fn dimensions_for_si_unit(name: &str) -> Option<Dimensions> {
+    let d = match name.to_ascii_lowercase().as_str() {
+        "metre" => [1, 0, 0, 0, 0, 0, 0],
+        "gram" => [0, 1, 0, 0, 0, 0, 0],
+        "second" => [0, 0, 1, 0, 0, 0, 0],
+        "ampere" => [0, 0, 0, 1, 0, 0, 0],
+        "kelvin" | "degree_celsius" => [0, 0, 0, 0, 1, 0, 0],
+        "mole" => [0, 0, 0, 0, 0, 1, 0],
+        "candela" | "lumen" => [0, 0, 0, 0, 0, 0, 1],
+        "radian" | "steradian" => [0, 0, 0, 0, 0, 0, 0],
+        "hertz" | "becquerel" => [0, 0, -1, 0, 0, 0, 0],
+        "newton" => [1, 1, -2, 0, 0, 0, 0],
+        "pascal" => [-1, 1, -2, 0, 0, 0, 0],
+        "joule" => [2, 1, -2, 0, 0, 0, 0],
+        "watt" => [2, 1, -3, 0, 0, 0, 0],
+        "coulomb" => [0, 0, 1, 1, 0, 0, 0],
+        "volt" => [2, 1, -3, -1, 0, 0, 0],
+        "farad" => [-2, -1, 4, 2, 0, 0, 0],
+        "ohm" => [2, 1, -3, -2, 0, 0, 0],
+        "siemens" => [-2, -1, 3, 2, 0, 0, 0],
+        "weber" => [2, 1, -2, -1, 0, 0, 0],
+        "tesla" => [0, 1, -2, -1, 0, 0, 0],
+        "henry" => [2, 1, -2, -2, 0, 0, 0],
+        "lux" => [-2, 0, 0, 0, 0, 0, 1],
+        "gray" | "sievert" => [2, 0, -2, 0, 0, 0, 0],
+        _ => return None,
+    };
+    Some(d.map(f64::from))
+}

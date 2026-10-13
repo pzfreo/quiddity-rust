@@ -2547,7 +2547,7 @@ pub fn write_report_json(
             "instances",
             json!({
                 "added": report.added,
-                "replaced": report.rewritten.len(),
+                "replaced": report.rewritten.len() + report.repairs.len(),
                 "removed": report.removed.len(),
             }),
         )
@@ -2557,6 +2557,24 @@ pub fn write_report_json(
         )
         .put("left_unreferenced", json!(typed(&report.left_unreferenced)))
         .put("file_schema", schema)
+        .put(
+            "repairs",
+            json!(
+                report
+                    .repairs
+                    .iter()
+                    .map(|r| json!({
+                        "id": r.id,
+                        "repair": match r.repair {
+                            write::UpgradeRepairKind::R1ApprovalAssignment => "R1",
+                            write::UpgradeRepairKind::R2ConversionUnitDimensions => "R2",
+                        },
+                        "original_record": r.original_record,
+                        "new_record": r.new_record,
+                    }))
+                    .collect::<Vec<_>>()
+            ),
+        )
         .put("validated_against", json!(report.validated_against))
         .opt(
             "edition_undetermined",

@@ -43,7 +43,8 @@
 //! **Validation before returning.** The edit is applied; every added or replaced instance must
 //! pass `express` validation against the table of the file's edition (the target edition for
 //! an AP242 edition without a table, and for an AP214/AP203 file that gains PMI, whose every
-//! instance must then pass); and `express_rules::check_all` of the result (the WHERE, UNIQUE
+//! instance must then pass, after only the closed R1 approval assignment and R2 conversion
+//! unit dimensions repairs in `upgrade.rs`, each recorded in [`WriteReport::repairs`]); and `express_rules::check_all` of the result (the WHERE, UNIQUE
 //! and global rules it evaluates, `restrict_representation_for_surface_condition` among them)
 //! must have no violation the original lacked. Violations the original already had are
 //! reported. The plan's own refusals that cite a rule (thread WR1 and WR12, turned_knurl WR2)
@@ -62,6 +63,9 @@ use crate::removal::{self, RemovalRefusal};
 use crate::step::PartDefinition;
 
 pub use crate::removal::PresentationPolicy;
+
+#[path = "upgrade.rs"]
+mod upgrade;
 
 type A = Attribute;
 
@@ -213,10 +217,50 @@ pub enum SchemaChange {
     Upgraded { from: Vec<String>, to: String },
 }
 
+/// The closed list of repairs allowed only on an AP203/AP214 upgrade that adds PMI.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum UpgradeRepairKind {
+    /// R1: retain an approval's items using AP242's broader approval assignment.
+    R1ApprovalAssignment,
+    /// R2: make a conversion unit's dimensions explicit, from its factor's unit.
+    R2ConversionUnitDimensions,
+}
+
+impl std::fmt::Display for UpgradeRepairKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::R1ApprovalAssignment => "R1 approval assignment",
+            Self::R2ConversionUnitDimensions => "R2 conversion unit dimensions",
+        })
+    }
+}
+
+/// One repaired record, including its exact text (`#N` through `;`) before and after.
+/// Recovering the original bytes of this record requires keeping this report.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct UpgradeRepair {
+    pub id: u64,
+    pub repair: UpgradeRepairKind,
+    pub original_record: String,
+    pub new_record: String,
+}
+
+impl std::fmt::Display for UpgradeRepair {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "#{} {}: {} -> {}",
+            self.id, self.repair, self.original_record, self.new_record
+        )
+    }
+}
+
 /// What a write did.
 #[derive(Clone, Debug, PartialEq)]
 pub struct WriteReport {
     pub schema: SchemaChange,
+    /// R1/R2 upgrade repairs, in instance id order; empty whenever no upgrade occurs.
+    pub repairs: Vec<UpgradeRepair>,
     /// The `FILE_SCHEMA` of the table the written instances were validated against.
     pub validated_against: &'static str,
     /// Instances added.
@@ -313,6 +357,7 @@ pub fn write(
     let mut edit = Edit::new();
     let mut report = WriteReport {
         schema: SchemaChange::Kept(schema.clone()),
+        repairs: Vec::new(),
         validated_against: edition.file_schema,
         added: 0,
         removed: Vec::new(),
@@ -422,12 +467,37 @@ pub fn write(
     for plan in &plans {
         plan.emit(&mut em, &mut report)?;
     }
+    let emitted_dimensions = em
+        .exponents
+        .iter()
+        .map(|(kind, r)| {
+            let mut d = [0.; 7];
+            if *kind == "length" {
+                d[0] = 1.;
+            }
+            (d, r.a())
+        })
+        .collect();
     let added = em.count;
     drop(em);
     report.added = added;
 
     // Decision 1: an AP214/AP203 file that gains PMI becomes AP242, if it can.
     let upgrade = added > 0 && !ap242;
+    let repaired = if upgrade {
+        // Work on the original records; removal/presentation rewrites are never repaired.
+        let excluded = removed
+            .iter()
+            .copied()
+            .chain(report.rewritten.iter().copied())
+            .collect();
+        let (repairs, added_dimensions) =
+            upgrade::repair(doc, &mut edit, &excluded, emitted_dimensions)?;
+        report.added += added_dimensions;
+        repairs
+    } else {
+        Vec::new()
+    };
     if upgrade {
         edit.set_file_schema(vec![express::TARGET_SCHEMA.to_string()]);
         report.schema = SchemaChange::Upgraded {
@@ -439,6 +509,14 @@ pub fn write(
     // The backstop: apply, validate what was made, compare the rules.
     let written = doc.apply(&edit)?;
     let after = Document::parse(written.bytes)?;
+    for (id, repair) in repaired {
+        report.repairs.push(UpgradeRepair {
+            id,
+            repair,
+            original_record: upgrade::record_text(doc, id)?,
+            new_record: upgrade::record_text(&after, id)?,
+        });
+    }
     let made: BTreeSet<u64> = written
         .ids
         .values()
