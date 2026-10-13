@@ -670,7 +670,8 @@ fn nist_files_violations_are_pinned() {
 }
 
 /// Every corpus file (AP214 and AP203), validated against the target as if its FILE_SCHEMA
-/// were changed to it: whether it could be upgraded, and why not.
+/// were changed to it: with no repair, with the closed reported repairs, or refused.
+/// The original violations retain their verdicts and reasons even when repaired.
 #[test]
 fn corpus_upgrades_are_pinned() {
     let Some(dir) = common::corpus_dir() else {
@@ -704,12 +705,44 @@ fn corpus_upgrades_are_pinned() {
                 .unwrap();
             bytes = out;
         }
-        let g = parse_bytes(&bytes).unwrap();
-        (file_schema(&g), groups(&TARGET.validate_document(&g)))
+        let doc = haecceity::p21::Document::parse(bytes).unwrap();
+        let original = groups(&TARGET.validate_document(doc.graph()));
+        // No repair is needed when the original already passes. Exercise the actual writer
+        // for every original that fails; its all-instance and no-new-rule checks are the verdict.
+        let (upgradable, repairs) = if original.is_empty() {
+            (true, Vec::new())
+        } else {
+            use haecceity::pmi::{self, *};
+            let parts = haecceity::step::read_part_definitions(doc.bytes()).unwrap();
+            let pmi = PartPmi {
+                features: vec![Feature::Items(vec![Anchor::Face(FaceIndex(0))])],
+                datums: vec![
+                    Datum::new(
+                        DatumLabel::new("Z").unwrap(),
+                        Some(FeatureId(0)),
+                        Vec::new(),
+                    )
+                    .unwrap(),
+                ],
+                ..PartPmi::default()
+            };
+            match pmi::write(&doc, &parts, &[(PartId(0), pmi)], pmi::Mode::Add,
+                pmi::write::PresentationPolicy::RemovePresentation) {
+                Ok((_, report)) => (true, report.repairs.iter().map(|r| json!({
+                    "id": r.id,
+                    "repair": match r.repair {
+                        pmi::write::UpgradeRepairKind::R1ApprovalAssignment => "R1",
+                        pmi::write::UpgradeRepairKind::R2ConversionUnitDimensions => "R2",
+                    }
+                })).collect()),
+                Err(_) => (false, Vec::new()),
+            }
+        };
+        (file_schema(doc.graph()), original, upgradable, repairs)
     });
     let mut problems = Vec::new();
     let mut now = serde_json::Map::new();
-    for (name, (schema, up)) in names.iter().zip(results) {
+    for (name, (schema, up, upgradable, repairs)) in names.iter().zip(results) {
         let p = &pinned["files"][name.as_str()];
         if p["file_schema"].as_str() != Some(schema.as_str()) {
             problems.push(format!(
@@ -717,19 +750,41 @@ fn corpus_upgrades_are_pinned() {
                 p["file_schema"]
             ));
         }
-        if p["upgradable"].as_bool() != Some(up.is_empty()) {
+        if p["upgradable"].as_bool() != Some(upgradable) {
             problems.push(format!(
                 "{name}: upgradable {}, pinned {}",
-                up.is_empty(),
-                p["upgradable"]
+                upgradable, p["upgradable"]
+            ));
+        }
+        let outcome = if !upgradable {
+            "refused"
+        } else if repairs.is_empty() {
+            "without-repairs"
+        } else {
+            "with-repairs"
+        };
+        if p["repairs"] != json!(repairs) || p["outcome"] != json!(outcome) {
+            problems.push(format!(
+                "{name}: outcome {outcome}, repairs {repairs:?}, pinned {p}"
             ));
         }
         let groups = compare(name, &up, &p["violations"], &mut problems);
         now.insert(
             name.clone(),
-            json!({"file_schema": schema, "upgradable": up.is_empty(), "violations": groups}),
+            json!({"file_schema": schema, "upgradable": upgradable, "violations": groups,
+                   "outcome": outcome, "repairs": repairs}),
         );
     }
+    assert_eq!(
+        now.values().filter(|p| p["upgradable"] == true).count(),
+        100
+    );
+    assert_eq!(
+        now.values()
+            .filter(|p| p["outcome"] == "with-repairs")
+            .count(),
+        6
+    );
     write_actual("corpus_upgrade.json", &json!({"files": now}));
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }

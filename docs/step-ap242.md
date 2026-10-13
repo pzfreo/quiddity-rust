@@ -2,7 +2,8 @@
 
 **Status:** implemented (2026-10-08): stages 1–4 (foundations; model, reader, removal plan,
 rule checks; writer; the `quiddity` command line `parts`, `pmi read`, `pmi check` and, stage 4,
-`pmi write` verified by reading back).
+`pmi write` verified by reading back). Since 2026-10-13 the writer upgrades all 100 corpus
+files, six with the closed, reported R1/R2 repairs below.
 Still refused by the writer, by name: datum targets, tolerance relations, notes, general tolerance
 tables and decimal places, and material density (the material name is written). See
 [Status](#status). Since 2026-10-09 ([decisions](#maintainer-decisions-2026-10-09)) part notes
@@ -32,9 +33,21 @@ These override anything below and any stream brief that says otherwise.
    AP214 and AP203 cannot carry semantic PMI: its `FILE_SCHEMA` becomes the target AP242
    edition's identifier, and that claim must be true, so every instance of the edited file must
    pass `validate_document` against the target table; otherwise the edit is refused, naming the
-   violating instances (never repaired silently). An AP242 file stays AP242. Which corpus and
-   NIST AP214/AP203 files pass is pinned per file with the violations and reasons, and reported
-   to the maintainer if many fail.
+   violating instances. Only two named upgrade repairs are allowed, only when an AP203/AP214
+   file gains PMI: **R1 approval assignment**, a `cc_design_approval` with items outside
+   `approved_item` but all in `approval_item` becomes `applied_approval_assignment`, keeping
+   its attributes and id; **R2 conversion unit dimensions**, a conversion unit's `named_unit(*)`
+   becomes an explicit reference to `dimensional_exponents` computed from its conversion
+   factor's unit (SI dimensions per ISO 10303-41, recursively through conversion and derived
+   units). Equal exponents already in the file are reused, else one instance per exponent set
+   is added; indeterminate dimensions are refused, naming the unit. Every repair is reported
+   with its id, R1/R2 and exact original and new record text; never repaired silently. Every
+   instance must still pass the target table and no new `express_rules` violation may appear.
+   Every other byte stays as it was, apart from `FILE_SCHEMA` and added instances; a repaired
+   file's original record bytes are recoverable only through the report's original records.
+   An AP242 file stays AP242 and receives no upgrade repairs. Which corpus and NIST AP214/AP203
+   files pass without repairs, pass with the listed repairs, or are refused is pinned per file;
+   the original violations keep their verdicts and reasons.
 2. **Material as specify-core writes it.** The writer writes the material's name in the CAx-IF
    'material name' construct exactly as specify-core's files carry it (a `REPRESENTATION('material
    name', …)` whose `DESCRIPTIVE_REPRESENTATION_ITEM` holds the name, related to the part as
@@ -462,7 +475,10 @@ never a silent fix):
    **Editions.** The writer targets exactly the edition the express table represents (one table
    per edition if other long forms are found). The file's schema follows decision 1: unchanged
    unless PMI is added; an AP214/AP203 file gaining PMI becomes AP242 only if every instance
-   validates against the target table, else the edit is refused naming the violations. For an
+   validates against the target table after only decision 1's closed R1/R2 repairs, else the
+   edit is refused naming the violations. Repairs retain instance ids and are reported with
+   exact original and new records; recovering repaired original bytes requires that report.
+   No new `express_rules` violation is allowed. For an
    AP242 file, the edit is refused if it introduces a violation the original did not have;
    violations the original already had are reported, not repaired.
 3. **Face provenance** in `step.rs`: each `Part` face and edge records its `advanced_face` /
@@ -793,8 +809,14 @@ Settled by the implementation (where the design was open or silent):
   report names the table (`validated_against`). For an edition 2 or 3 file, whether the written
   instances are valid instances of the file's own edition is therefore undetermined: the report
   says so (`edition_undetermined`) and the round-trip pins record it per file (8 NIST files).
-  An AP214/AP203 file that gains PMI becomes `TARGET_SCHEMA` only when every instance validates (refused otherwise, naming them). A replace or remove that adds
-  nothing keeps the schema.
+  An AP214/AP203 file that gains PMI becomes `TARGET_SCHEMA` only when every instance validates
+  after decision 1's closed **R1 approval assignment** / **R2 conversion unit dimensions**
+  repairs (refused otherwise, naming them), with no new rule violations. `WriteReport.repairs`
+  and the CLI JSON list every repaired id, kind and exact original/new record. Original bytes
+  of repaired records are recoverable only through this report; every untouched byte stays.
+  All 100 corpus files are upgradable: 94 without repair and six NIST AP203 files with their
+  repairs pinned in `corpus_upgrade.json`, alongside the original violations and reasons.
+  A replace or remove that adds nothing keeps the schema and applies no upgrade repair.
 - *Supplemental geometry* is the part's geometry, not PMI: a replace keeps it (it is not a
   seed of the removal plan) and what is written uses the file's item of equal value, so the
   geometry is not duplicated; new geometry goes into one `constructive_geometry_representation`
