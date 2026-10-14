@@ -4,6 +4,35 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
+## 0.1.0-alpha.3 (2026-10-14)
+
+### Added
+
+- Upgrading an AP203 or AP214 file to AP242 to add PMI now repairs two closed classes of
+  defect that are also invalid in the file's own AP203 edition 2 schema, so six NIST AP203 files
+  (CTC-01, CTC-02, CTC-03, CTC-05, FTC-06, FTC-09) take PMI: a `CC_DESIGN_APPROVAL` of a product
+  definition becomes `APPLIED_APPROVAL_ASSIGNMENT`, and an inch or degree `NAMED_UNIT(*)` gets
+  explicit `DIMENSIONAL_EXPONENTS` from its conversion factor's unit. Any other invalid
+  instance is still refused. `WriteReport.repairs` and the CLI JSON report each repaired id, its
+  kind and its original and new record text; every other byte is unchanged. Removing the PMI
+  later does not restore the repaired records' original bytes (`docs/step-ap242.md` decision 1).
+- `QUIDDITY_CORPUS=off` skips the corpus tests for a quick local run.
+
+### Fixed
+
+- haecceity reads hyperbola edges exactly, as one rational quadratic arc between the edge's
+  vertices, when both vertices lie on the curve. Such edges were previously unresolved and their
+  solids invalid, which turned off recognition on them (155 MFInstSeg models contain one).
+
+### Changed
+
+- The correspondence-under-motion check runs inside `tests/invariance.rs` on the same
+  recognitions as the invariance check; the duplicate `cycle_xyz` corpus motion is dropped.
+- The section-recess publication byte baseline is referenced on Linux, with the macOS values
+  as alternatives.
+- CI runs on pushes to `main`, now the only branch. Contributions are covered by a contributor
+  licence agreement (`CLA.md`).
+
 ## 0.1.0-alpha.2 (2026-10-11)
 
 ### Added
