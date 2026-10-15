@@ -4,6 +4,16 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
+## Unreleased
+
+### Added
+
+- `PartDefinition.product_id`: the part's `PRODUCT.id`, escapes decoded, reported beside its
+  index and display name (assemblies design D1).
+- Tests on the assembly fixture downstream uses: a part read in its own coordinates, one part's
+  PMI written alone (the other part's instances unchanged) with OpenCascade's reading of the
+  result, and a nested sub-assembly flattened to its leaf parts.
+
 ## 0.1.0-alpha.3 (2026-10-14)
 
 ### Added

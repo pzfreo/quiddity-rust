@@ -267,3 +267,113 @@ fn an_empty_product_name_is_its_id() {
         assert_eq!(parts[0].name, name, "{file}");
     }
 }
+
+/// The translation of `p`, to 1e-9 mm.
+fn assert_translation(name: &str, p: &Placement, want: [f64; 3]) {
+    for k in 0..3 {
+        assert!(
+            (p[k][3] - want[k]).abs() < 1e-9,
+            "{name}: placed at {:?}, not {want:?}",
+            [p[0][3], p[1][3], p[2][3]]
+        );
+    }
+}
+
+/// The pin's own shape: Ø10 at most about its axis, z from 0 to 32 (`make_assembly.py`).
+fn assert_pin_at_its_origin(name: &str, pin: &Part) {
+    let b = pin.bounds();
+    for k in 0..2 {
+        assert!(
+            b.min[k] > -5.0 - 1e-6 && b.max[k] < 5.0 + 1e-6,
+            "{name}: pin bounds {b:?} are not about its own axis"
+        );
+    }
+    assert!(
+        b.min[2].abs() < 1e-6 && (b.max[2] - 32.0).abs() < 1e-6,
+        "{name}: pin bounds {b:?} are not z 0..32"
+    );
+}
+
+/// The draftwright-editor's assembly fixture (`editor_assembly.step`, a copy of its
+/// `scripts/fixtures/assembly.step`, which is also specify-core's `tests/fixtures/parts/`
+/// copy): a plate, and a pin placed twice, at x=−30 and x=+30 (z=5), both unturned. Part 1,
+/// the pin, read once: its 7 faces in `def.faces` order with those sources, at its own origin,
+/// not at either placement; each product's id beside its name.
+#[test]
+fn the_editor_fixtures_pin_is_read_at_its_own_origin() {
+    let bytes = bytes(&common::fixtures().join("ap242/assembly/editor_assembly.step"));
+    let file = StepFile::read(&bytes).unwrap();
+    let ids: Vec<(&str, &str)> = file
+        .parts
+        .iter()
+        .map(|p| (p.name.as_str(), p.product_id.as_str()))
+        .collect();
+    assert_eq!(ids, [("plate", "plate"), ("pin", "pin")]);
+    let def = &file.parts[1];
+    assert_eq!(def.product_definition, 972);
+    assert_eq!(def.faces.len(), 7);
+    assert_eq!(def.placements.len(), 2);
+    assert_translation("pin 0", &def.placements[0].placement, [-30.0, 0.0, 5.0]);
+    assert_translation("pin 1", &def.placements[1].placement, [30.0, 0.0, 5.0]);
+    let pin = file.part(1).unwrap();
+    assert_eq!(pin.faces.len(), 7);
+    let sources: Vec<u64> = (0..pin.faces.len())
+        .map(|f| pin.face_source(f).unwrap().entity)
+        .collect();
+    assert_eq!(sources, def.faces);
+    assert_pin_at_its_origin("editor pin", &pin);
+    check_own("editor pin", def, &pin, &read_step(&bytes).unwrap());
+}
+
+/// `PartDefinition.product_id` is `PRODUCT.id`, decoded, whatever the display name: NIST
+/// CTC-01 names its product 'NIST Complex Test Case 1' with id 'NIST Test Case 1'; the wrapped
+/// part's display name is its wrapper's ('Gehäuse Ø') but its own product's id is kept.
+#[test]
+fn a_parts_product_id_is_its_products_id() {
+    let ctc = bytes(&common::fixtures().join("ap242/nist/nist_ctc_01_asme1_ap242-e1.stp.gz"));
+    let parts = read_part_definitions(&ctc).unwrap();
+    assert_eq!(parts.len(), 1);
+    assert_eq!(parts[0].name, "NIST Complex Test Case 1");
+    assert_eq!(parts[0].product_id, "NIST Test Case 1");
+    let wrapped = bytes(&common::fixtures().join("ap242/assembly/wrapped.step"));
+    let parts = read_part_definitions(&wrapped).unwrap();
+    assert_eq!(parts[0].name, "Gehäuse Ø");
+    assert_eq!(parts[0].product_id, "plate");
+}
+
+/// A nested sub-assembly (D2: flattened to its distinct leaf parts; `nested.step`, from
+/// `make_nested.py`): `assembly` holds the plate and `pins`, placed at z=5, which holds the
+/// pin twice (x=−30, and x=+30 turned). The parts are the plate and the pin alone, the pin's
+/// placements composed through both levels, and the pin read once at its own origin.
+#[test]
+fn a_nested_sub_assembly_flattens_to_its_leaf_parts() {
+    let bytes = bytes(&common::fixtures().join("ap242/assembly/nested.step"));
+    let file = StepFile::read(&bytes).unwrap();
+    let names: Vec<&str> = file.parts.iter().map(|p| p.name.as_str()).collect();
+    assert_eq!(names, ["plate", "pin"]);
+    let assemblies: Vec<(&str, usize)> = file
+        .assemblies
+        .iter()
+        .map(|a| (a.name.as_str(), a.components.len()))
+        .collect();
+    assert_eq!(assemblies, [("assembly", 2), ("pins", 2)]);
+    assert_eq!(
+        file.assemblies[0].components[1].definition, file.assemblies[1].product_definition,
+        "pins is a component of assembly"
+    );
+    let pin = &file.parts[1];
+    assert_eq!(pin.faces.len(), 7);
+    assert_eq!(pin.placements.len(), 2);
+    assert_translation("pin 0", &pin.placements[0].placement, [-30.0, 0.0, 5.0]);
+    assert_translation("pin 1", &pin.placements[1].placement, [30.0, 0.0, 5.0]);
+    assert!(
+        (pin.placements[1].placement[0][0] - 1.0).abs() > 1e-3,
+        "the second pin is turned"
+    );
+    let placed = read_step(&bytes).unwrap();
+    assert_eq!(placed.faces.len(), file.parts[0].faces.len() + 2 * 7);
+    for (index, def) in file.parts.iter().enumerate() {
+        check_own(&def.name, def, &file.part(index).unwrap(), &placed);
+    }
+    assert_pin_at_its_origin("nested pin", &file.part(1).unwrap());
+}

@@ -1404,6 +1404,79 @@ fn datums_belong_to_their_part() {
     );
 }
 
+/// The draftwright-editor's assembly fixture (a plate, and a pin placed twice, part 1) and
+/// specify-core's intent for the pin of the same parts (`assembly_plate_pin.intent.json`,
+/// binding part 1: datums, a thread, a position, a fit, a runout and part notes).
+fn editor_pin() -> (File, PartPmi) {
+    let f = fixture("ap242/assembly/editor_assembly.step");
+    let intents: Json = serde_json::from_str(
+        &std::fs::read_to_string(
+            common::fixtures().join("ap242/specify/assembly_plate_pin.intent.json"),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    let pin = intents
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|i| i["binding"]["part"] == 1)
+        .unwrap();
+    assert_eq!(pin["binding"]["face_count"], 7);
+    (f, intent_pmi(pin).0)
+}
+
+/// One part of an assembly written alone (assemblies slice 1): the pin's PMI, replacing part 1
+/// only, reads back on part 1 and nothing is read on part 0; every instance of the original,
+/// part 0's shape among them, keeps its bytes. OpenCascade's reading of the result
+/// (`write/editor_assembly_pin_alone`, checked in `opencascade_reads_the_written_files` and
+/// `opencascade_puts_a_parts_pmi_on_its_prototype`) puts it on the pin's own label, so both
+/// placements show it.
+#[test]
+fn one_part_of_an_assembly_is_written_alone() {
+    let (f, p) = editor_pin();
+    assert_eq!(f.parts.len(), 2);
+    assert!(
+        pmi::read(&f.doc, &f.parts)
+            .unwrap()
+            .parts
+            .iter()
+            .all(|q| differences_as_stated(&PartPmi::default(), q).is_empty()),
+        "the fixture has no PMI"
+    );
+    let w = write(&f, &[(PartId(1), p.clone())], Mode::Replace).unwrap_or_else(|e| panic!("{e}"));
+    assert!(matches!(w.report.schema, SchemaChange::Upgraded { .. }));
+    assert!(w.report.repairs.is_empty());
+    assert_reads_back(&w, PartId(1), &p);
+    let d = differences_as_stated(&PartPmi::default(), &w.read.parts[0]);
+    assert!(d.is_empty(), "PMI read on part 0: {}", d.join("; "));
+    assert!(w.read.provenance.parts[0].all().is_empty());
+    // Part 0's shape: its product definition, its product_definition_shape and everything its
+    // faces reach, and with them every other original instance, byte for byte.
+    let plate = &f.parts[0];
+    let mut reach: Vec<u64> = [plate.product_definition, plate.shape]
+        .into_iter()
+        .chain(plate.faces.iter().copied())
+        .collect();
+    let mut seen = BTreeSet::new();
+    while let Some(id) = reach.pop() {
+        if seen.insert(id) {
+            reach.extend(refs_of(&f.doc, id));
+        }
+    }
+    assert!(seen.len() > plate.faces.len() * 10, "{}", seen.len());
+    let same =
+        |id: u64| f.doc.bytes()[f.doc.span(id).unwrap()] == w.doc.bytes()[w.doc.span(id).unwrap()];
+    for &id in &seen {
+        assert!(same(id), "part 0's #{id} changed");
+    }
+    let changed: Vec<u64> = f.doc.ids().filter(|&id| !same(id)).collect();
+    assert!(
+        changed.is_empty(),
+        "original instances changed: {changed:?}"
+    );
+}
+
 fn open_bytes(bytes: Vec<u8>) -> File {
     let parts = read_part_definitions(&bytes).unwrap();
     let doc = Document::parse(bytes).unwrap();
@@ -3375,6 +3448,21 @@ fn written_cases() -> Vec<(String, Option<Vec<u8>>)> {
         Some(w.doc.bytes().to_vec()),
     ));
 
+    // One part of an assembly written alone (`one_part_of_an_assembly_is_written_alone`).
+    let (f, p) = editor_pin();
+    let (edit, _) = pmi::write(
+        &f.doc,
+        &f.parts,
+        &[(PartId(1), p)],
+        Mode::Replace,
+        PresentationPolicy::RemovePresentation,
+    )
+    .unwrap_or_else(|e| panic!("{e}"));
+    out.push((
+        "editor_assembly_pin_alone".to_string(),
+        Some(f.doc.apply(&edit).unwrap().bytes),
+    ));
+
     // specify-core's intents onto the original files.
     for case in [
         "assembly_plate_pin",
@@ -3544,6 +3632,63 @@ fn opencascade_reads_the_written_files() {
         }
     }
     assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
+
+/// OpenCascade XCAF on one part of an assembly written alone
+/// (`write/editor_assembly_pin_alone`, from `one_part_of_an_assembly_is_written_alone`): every
+/// item it reads is on the pin's own prototype label (a direct child of the shape tool's
+/// label, not a component of the assembly, so both placements show it), on the pin's faces as
+/// haecceity numbers them; the plate's label has nothing and nothing is unattached.
+#[test]
+fn opencascade_puts_a_parts_pmi_on_its_prototype() {
+    let name = "editor_assembly_pin_alone";
+    let capture: Json = serde_json::from_slice(&file_bytes(
+        &write_dir().join(format!("{name}.occt.json.gz")),
+    ))
+    .unwrap();
+    let f = open(&write_dir().join(format!("{name}.step.gz")));
+    assert_eq!(capture["loads"], true);
+    assert_eq!(capture["reads"], true);
+    let parts = capture["parts"].as_array().unwrap();
+    let names: Vec<&str> = parts.iter().map(|p| p["name"].as_str().unwrap()).collect();
+    assert_eq!(names, ["plate", "pin"]);
+    const KINDS: [&str; 3] = ["dimensions", "geometric_tolerances", "datums"];
+    for k in KINDS {
+        assert!(parts[0][k].as_array().unwrap().is_empty(), "plate has {k}");
+        assert!(
+            capture["unattached"][k].as_array().unwrap().is_empty(),
+            "unattached {k}"
+        );
+    }
+    let pin = &parts[1];
+    let label = pin["label"].as_str().unwrap();
+    assert_eq!(
+        label.split(':').count(),
+        4,
+        "the pin's label {label} is not a prototype"
+    );
+    assert_eq!(pin["faces"], 7);
+    let counts: Vec<usize> = KINDS
+        .iter()
+        .map(|k| pin[k].as_array().unwrap().len())
+        .collect();
+    assert_eq!(counts, [1, 2, 4], "dimensions, tolerances, datums");
+    let def = &f.parts[1];
+    for k in KINDS {
+        for item in pin[k].as_array().unwrap() {
+            for face in item["faces"].as_array().unwrap() {
+                assert_eq!(face["part"], 1, "{k} {item}");
+                let n: u64 = face["advanced_face"].as_str().unwrap()[1..]
+                    .parse()
+                    .unwrap();
+                assert_eq!(
+                    def.face_index(n),
+                    face["face"].as_u64().map(|i| i as usize),
+                    "{k}: {face}"
+                );
+            }
+        }
+    }
 }
 
 /// These six AP203 files (the corpus's copies of NIST's) have only the two closed upgrade
