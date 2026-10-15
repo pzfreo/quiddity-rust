@@ -1245,6 +1245,8 @@ struct PlacedDefinition {
     shape: Result<u64, String>,
     /// Its product's name ([`product_name`]).
     name: String,
+    /// Its product's id ([`product_id`]).
+    product_id: String,
     placement: Placement,
 }
 
@@ -1507,6 +1509,7 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
                 definition,
                 shape: ids.definition_shape(&def, &rg),
                 name: product_name(&graph.entities, definition),
+                product_id: product_id(&graph.entities, definition),
                 placement,
             })
         })
@@ -1541,6 +1544,11 @@ pub struct PartDefinition {
     /// solid), else its product's name ([`product_name`]: `PRODUCT.name`, or `PRODUCT.id` when
     /// the name is empty, escapes decoded).
     pub name: String,
+    /// Its product's id: `PRODUCT.id`, escapes decoded, as the file states it whatever the
+    /// name (empty when the product chain does not resolve). Reported beside the part's index,
+    /// which is how a part is identified; it need not be unique (exporters often repeat the
+    /// name).
+    pub product_id: String,
     /// Face index → the `#N` of the `ADVANCED_FACE` (or `FACE_SURFACE`) it was read from.
     pub faces: Vec<u64>,
     /// Edge index → the `#N` of its `EDGE_CURVE`.
@@ -1682,6 +1690,22 @@ fn own_part(parsed: &Parsed, def: &PartDefinition) -> Result<Part, StepError> {
 /// decoded is given as the file states it (a name is never refused for that); empty when the
 /// chain does not resolve.
 fn product_name(graph: &std::collections::BTreeMap<u64, RawEntity>, definition: u64) -> String {
+    let [id, name] = product_texts(graph, definition);
+    if name.is_empty() { id } else { name }
+}
+
+/// A product definition's `PRODUCT.id`, through the same chain as [`product_name`] and decoded
+/// the same way; empty when the chain does not resolve.
+fn product_id(graph: &std::collections::BTreeMap<u64, RawEntity>, definition: u64) -> String {
+    let [id, _] = product_texts(graph, definition);
+    id
+}
+
+/// `[PRODUCT.id, PRODUCT.name]` of a product definition (see [`product_name`]).
+fn product_texts(
+    graph: &std::collections::BTreeMap<u64, RawEntity>,
+    definition: u64,
+) -> [String; 2] {
     let attribute = |id: u64, index: usize| match graph.get(&id)? {
         RawEntity::Simple { attributes, .. } => attributes.get(index),
         RawEntity::Complex { .. } => None,
@@ -1692,14 +1716,13 @@ fn product_name(graph: &std::collections::BTreeMap<u64, RawEntity>, definition: 
     };
     let Some(product) = reference(definition, 2).and_then(|formation| reference(formation, 2))
     else {
-        return String::new();
+        return [String::new(), String::new()];
     };
     let text = |index: usize| match attribute(product, index) {
         Some(Attribute::String(raw)) => crate::p21::decode(raw).unwrap_or_else(|_| raw.clone()),
         _ => String::new(),
     };
-    let name = text(1);
-    if name.is_empty() { text(0) } else { name }
+    [text(0), text(1)]
 }
 
 /// The file's assemblies (see [`StepFile::assemblies`]).
@@ -1847,6 +1870,7 @@ fn part_definitions(read: Read, assemblies: &[Assembly]) -> Result<Vec<PartDefin
             product_definition: def.definition,
             shape,
             name,
+            product_id: def.product_id.clone(),
             faces,
             edges,
             placements: vec![placement],

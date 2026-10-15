@@ -1,3 +1,25 @@
+# G1: assemblies slice 1, haecceity (2026-10-15)
+
+`PartDefinition.product_id` (decoded `PRODUCT.id`, D1: reported beside the index); the editor's
+assembly fixture read part by part; one part of it written alone and read by OpenCascade; one
+nested sub-assembly fixture (D2: flattened to leaf parts). U1 itself was already met
+(`read_part`, `StepFile::part`); these tests pin it on the files downstream uses.
+
+Overturnable judgement calls:
+
+- The editor's `scripts/fixtures/assembly.step` is not byte-identical to haecceity's
+  `ap242/assembly/assembly.step` (header time, a plate direction, NAUO ids), so it is copied as
+  `ap242/assembly/editor_assembly.step` beside it rather than replacing it.
+- The single-part write uses specify-core's committed intent for the pin
+  (`specify/assembly_plate_pin.intent.json`, binding part 1), so the PMI is realistic rather than
+  made up. It is a new `written_cases` entry (`editor_assembly_pin_alone`), so the existing
+  current-output and OpenCascade oracles cover it too; no new `known_pmi_write.json` pin was
+  needed. Its capture was made for that file alone (the other captures are unchanged).
+- "Part 0's instances byte-identical" is checked as everything part 0's product definition,
+  product_definition_shape and faces reach, and also every original instance of the file.
+- `product_id` is `PRODUCT.id` even when the display name comes from a wrapper assembly
+  (wrapped.step: name 'Gehäuse Ø', id 'plate').
+
 # G7a: section recess publication (2026-10-11)
 
 The maintainer assigned publication of `SectionRecess` records to quiddity-rust. The existing
