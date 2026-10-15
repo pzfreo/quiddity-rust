@@ -240,24 +240,6 @@
     "reason": "The same records on the same faces under another face numbering: the port's faces 15, 16 and 6 are OpenCascade's 8, 11 and 2 (this file's inventory entries in tests/fixtures/known_divergences.json: OpenCascade's import heals the non-orientable shell and reorders its 17 faces). Neither side proves a solid for them."
   },
   {
-    "file": "inventory_refusal/13975.step.gz",
-    "check": "inventory_step_levels",
-    "verdict": "rust-wrong",
-    "reason": "Python's inventory takes the local-degradation retry on this part (an unproved hole) and its step levels and risers skip these, whose faces are the loose shell's with no solid; features::inventory takes no retry (README: the retry and whether an unproved solid should panic or carry a refusal are an open maintainer question), so it publishes them unproved, as it does this file's hole and pockets (captured/reconcile/known.json, rust-wrong). levels::proved under local degradation skips them as Python does ('aggregate_*' agree)."
-  },
-  {
-    "file": "inventory_refusal/13975.step.gz",
-    "check": "inventory_risers",
-    "verdict": "rust-wrong",
-    "reason": "Python's inventory takes the local-degradation retry on this part (an unproved hole) and its step levels and risers skip these, whose faces are the loose shell's with no solid; features::inventory takes no retry (README: the retry and whether an unproved solid should panic or carry a refusal are an open maintainer question), so it publishes them unproved, as it does this file's hole and pockets (captured/reconcile/known.json, rust-wrong). levels::proved under local degradation skips them as Python does ('aggregate_*' agree)."
-  },
-  {
-    "file": "inventory_refusal/13975.step.gz",
-    "check": "accepted_risers",
-    "verdict": "rust-wrong",
-    "reason": "Python's inventory takes the local-degradation retry on this part (an unproved hole) and its step levels and risers skip these, whose faces are the loose shell's with no solid; features::inventory takes no retry (README: the retry and whether an unproved solid should panic or carry a refusal are an open maintainer question), so it publishes them unproved, as it does this file's hole and pockets (captured/reconcile/known.json, rust-wrong). levels::proved under local degradation skips them as Python does ('aggregate_*' agree)."
-  },
-  {
     "file": "inventory_refusal/14052.step.gz",
     "check": "records",
     "verdict": "rust-wrong",

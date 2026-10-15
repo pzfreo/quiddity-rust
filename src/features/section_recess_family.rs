@@ -2,7 +2,7 @@
 //! `build_section_recess_document`): the aggregate's section-recess projection
 //! (`_project_result`) over one completed, reconciled run.
 //!
-//! Recognition and reconciliation run once ([`super::inventory_in`]); the native section
+//! Recognition and reconciliation run once (`super::take_inventory`); the native section
 //! recesses ([`discover_section_recesses`]) are discovered in the same run, as Python's registry
 //! runs them among the physical families. The accepted records of the legacy recess families
 //! are then projected into the unified view, in Python's order: native records, prismatic
@@ -52,7 +52,7 @@ use super::section_recess_geometry::{
 };
 use super::sections::{LocalFrame, PlanarSection, SectionVertex, V2};
 use super::support_patches::{covered_patch, polygon_face, ruled_prism};
-use super::{Inventory, inventory_in};
+use super::{Inventory, take_inventory};
 use crate::kernel::brep::{Edge, Face, Loop, Part};
 use crate::kernel::geom::{self, Curve, Frame, Surface, V3};
 use crate::kernel::py;
@@ -129,13 +129,14 @@ pub fn build_section_recess_document(
     )?)
 }
 
-/// One recognition and reconciliation of *part* and its section-recess projection.
+/// One recognition and reconciliation of *part* and its section-recess projection, locally
+/// degraded where Python's aggregate retries so (`features::take_inventory`).
 pub fn section_recess_projection(
     part: &Part,
 ) -> Result<SectionRecessProjection, SectionRecessFamilyError> {
-    let ctx = Context::new(part);
-    let inventory = inventory_in(&ctx)?;
-    section_recess_projection_in(&ctx, &inventory)
+    take_inventory(part, |ctx, inventory| {
+        section_recess_projection_in(ctx, &inventory)
+    })?
 }
 
 /// The section-recess projection of a run the caller keeps: the native records discovered on

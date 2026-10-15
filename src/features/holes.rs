@@ -8,8 +8,8 @@
 //! Python's default inventory retries with `local_degradation` set when this family's strict
 //! evidence refuses on a part whose solids are not all valid; three corpus parts take it
 //! (`tests/local_degradation.rs`). [`discover_locally_degraded`] is that run's evidence path: a
-//! hole proving no one valid solid is skipped, not refused. Not ported: the retry itself (the
-//! port's `recognise` checks no evidence, so has no refusal to retry on).
+//! hole proving no one valid solid is skipped, not refused. The aggregate's inventory takes the
+//! retry where `strict_refusal_retries` says Python's would (`super::inventory_in`).
 
 use std::collections::BTreeSet;
 
@@ -114,12 +114,28 @@ pub fn discover_locally_degraded(
     csinks: &[Occurrence<CounterSink>],
 ) -> Result<Vec<Occurrence<HoleRecord>>, EvidenceError> {
     let mut found = discover(ctx, csinks);
-    found.retain(|h| {
-        let faces: Vec<usize> = h.defining.iter().chain(&h.context).copied().collect();
-        !h.defining.is_empty() && evidence::locally_valid_solid(ctx.part, &faces).is_some()
-    });
+    found.retain(|h| evidence::locally_proved(ctx.part, h));
     seats_once(csinks, &found)?;
     Ok(found)
+}
+
+/// Whether the aggregate retries locally degraded on these holes (`_take_inventory`): Python's
+/// strict hole evidence refuses for want of one valid solid (countersinks seating one hole each,
+/// [`discover_verified`]'s order), and the part's solids are not all valid
+/// (`BRepCheck_Analyzer(solid).IsValid()`, so faulted faces count; a part with no solid
+/// retries too).
+pub(crate) fn strict_refusal_retries(
+    part: &Part,
+    csinks: &[Occurrence<CounterSink>],
+    found: &[Occurrence<HoleRecord>],
+) -> bool {
+    let unproved = |h: &Occurrence<HoleRecord>| {
+        let faces: Vec<usize> = h.defining.iter().chain(&h.context).copied().collect();
+        h.defining.is_empty() || evidence::common_valid_solid(part, &faces).is_none()
+    };
+    let all_valid = !part.solids.is_empty()
+        && (0..part.solids.len()).all(|s| part.solid_is_geometrically_valid(s));
+    seats_once(csinks, found).is_ok() && found.iter().any(unproved) && !all_valid
 }
 
 /// No countersink may seat two holes.

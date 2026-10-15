@@ -187,17 +187,22 @@ pub type Defining = BTreeMap<&'static str, Vec<Vec<usize>>>;
 /// holes carry their countersinks, every candidate the reconciliation rejects is dropped (with
 /// its defining faces), and patterns are found among the accepted holes, gusset ribs, slots,
 /// pockets and oriented slots (`_take_inventory_once`); the section recesses are projected from
-/// the same run (`_project_result`). Python refuses the whole recognition where two rules decide
-/// one candidate; `recognise` has no refusal to return, so it panics with the message. Python
-/// also refuses it where the section-recess projection raises, which on the corpus happens to
-/// the port only where it lacks Python's local-degradation retry (13975, 14052: an accepted
-/// record whose faces have no valid solid); there the other families are kept and the
-/// projection's refusal is carried in [`Features::section_recess_refusal`], with no section
-/// recesses (whether to panic or carry a refusal is an open maintainer question).
+/// the same run (`_project_result`). Where Python's strict run refuses an unproved hole on a
+/// part whose solids are not all valid, the run is a locally degraded one, as Python's retry
+/// is (`take_inventory`). Python refuses the whole recognition where two rules decide one
+/// candidate; `recognise` has no refusal to return, so it panics with the message. Python also
+/// refuses it where the section-recess projection raises (an accepted record whose faces have
+/// no valid solid, which on the corpus no part reaches since the retry is ported); there the
+/// other families are kept and the projection's refusal is carried in
+/// [`Features::section_recess_refusal`], with no section recesses (whether to panic or carry a
+/// refusal is an open maintainer question).
 pub fn recognise(part: &Part) -> Features {
-    let ctx = Context::new(part);
-    let inventory = inventory_in(&ctx).unwrap_or_else(|e| panic!("reconciliation refused: {e}"));
-    let projection = section_recess_family::section_recess_projection_in(&ctx, &inventory);
+    take_inventory(part, recognise_in).unwrap_or_else(|e| panic!("reconciliation refused: {e}"))
+}
+
+/// [`recognise`] over one completed run.
+fn recognise_in(ctx: &Context<'_>, inventory: Inventory) -> Features {
+    let projection = section_recess_family::section_recess_projection_in(ctx, &inventory);
     let mut features = inventory.accepted();
     let (section_recesses, refusals, refusal) = match projection {
         Ok(p) => (p.section_recesses, p.refusals, None),
@@ -307,20 +312,83 @@ fn drop_rejected<T>(items: &mut Vec<T>, indices: &BTreeSet<usize>) {
 }
 
 /// Every ported family's candidates on *part* with default options and the reconciliation's
-/// decisions on them, or the reconciliation's refusal.
+/// decisions on them, or the reconciliation's refusal; locally degraded where Python's
+/// aggregate retries so (`take_inventory`).
 pub fn inventory(part: &Part) -> Result<Inventory, reconcile::ReconcileError> {
-    inventory_in(&Context::new(part))
+    take_inventory(part, |_, inventory| inventory)
 }
 
-/// [`inventory`] in a run the caller keeps, so a projection of it reads the same analysis.
-pub(crate) fn inventory_in(ctx: &Context<'_>) -> Result<Inventory, reconcile::ReconcileError> {
+/// Python's `_take_inventory` with its bounded fallback: one strict run, or, where that run's
+/// hole evidence refuses for want of one valid solid on a part whose solids are not all valid
+/// ([`holes::strict_refusal_retries`]), one run again from scratch with `local_degradation`
+/// set ([`evidence::locally_degraded`]). *then* reads the completed run (its context and
+/// inventory) inside the same mode, so a projection of it answers as that run's graph does.
+///
+/// The port's strict run proves no other family's evidence, so this hole refusal is the only
+/// strict refusal it retries on, as Python's aggregate retries on no other.
+pub(crate) fn take_inventory<'p, T>(
+    part: &'p Part,
+    then: impl FnOnce(&Context<'p>, Inventory) -> T,
+) -> Result<T, reconcile::ReconcileError> {
+    if !evidence::local_degradation() {
+        let ctx = Context::new(part);
+        if let Some(inventory) = inventory_in(&ctx)? {
+            return Ok(then(&ctx, inventory));
+        }
+    }
+    evidence::locally_degraded(|| {
+        let ctx = Context::new(part);
+        let inventory = inventory_in(&ctx)?.expect("a locally degraded run does not retry");
+        Ok(then(&ctx, inventory))
+    })
+}
+
+/// *found* less, in a locally degraded run, the occurrences *proved* fails: the records such a
+/// run skips rather than refuses. A strict run keeps them all (it publishes unproved).
+fn degraded_skip<R>(
+    found: Vec<Occurrence<R>>,
+    proved: impl Fn(&Occurrence<R>) -> bool,
+) -> Vec<Occurrence<R>> {
+    if !evidence::local_degradation() {
+        return found;
+    }
+    found.into_iter().filter(|o| proved(o)).collect()
+}
+
+/// [`degraded_skip`] on each occurrence's defining and consulted faces together
+/// ([`evidence::locally_proved`]): the check most of Python's families make on a degraded graph.
+fn skip_unproved<R>(part: &Part, found: Vec<Occurrence<R>>) -> Vec<Occurrence<R>> {
+    degraded_skip(found, |o| evidence::locally_proved(part, o))
+}
+
+/// One run of [`inventory`] on a context the caller keeps, so a projection of it reads the same
+/// analysis, in the current mode ([`evidence::local_degradation`]). `None` where a strict run
+/// would retry ([`take_inventory`]): as Python's raises, the run stops at its holes. A locally
+/// degraded run skips the records Python's families skip in that mode where the port has the
+/// family's check: holes, pockets, slots, channels, fillets, prismatic pockets and edge-open
+/// prismatic and circular recesses (on defining and consulted faces, [`skip_unproved`]), step
+/// levels and risers (on their defining faces, as [`levels::proved`]), plates (in
+/// [`plates::discover`]) and rectangular pads (in [`pads::discover`]).
+pub(crate) fn inventory_in(
+    ctx: &Context<'_>,
+) -> Result<Option<Inventory>, reconcile::ReconcileError> {
+    let part = ctx.part;
     let seats = countersinks::discover(ctx);
+    let found_holes = holes::discover(ctx, &seats);
+    if !evidence::local_degradation() && holes::strict_refusal_retries(part, &seats, &found_holes) {
+        return Ok(None);
+    }
+    let found_holes = skip_unproved(part, found_holes);
     let mut defining = Kept::default();
-    let holes = kept(&mut defining, "holes", holes::discover(ctx, &seats));
+    let holes = kept(&mut defining, "holes", found_holes);
     let countersinks = kept(&mut defining, "countersinks", seats);
     let gusset_ribs = kept(&mut defining, "gusset_ribs", gussets::discover(ctx));
-    let slots = kept(&mut defining, "slots", slots::discover(ctx));
-    let pocket_occurrences = pockets::discover(ctx);
+    let slots = kept(
+        &mut defining,
+        "slots",
+        skip_unproved(part, slots::discover(ctx)),
+    );
+    let pocket_occurrences = skip_unproved(part, pockets::discover(ctx));
     let thin_wall_bodies = kept(&mut defining, "thin_wall_bodies", thin_walls::discover(ctx));
     // Python's aggregate raises on the same internal inconsistencies, refusing the whole
     // recognition; `inventory` carries only the reconciliation's refusal, so it panics with the
@@ -341,18 +409,21 @@ pub(crate) fn inventory_in(ctx: &Context<'_>) -> Result<Inventory, reconcile::Re
         "freeform_surfaces",
         freeform_surfaces::discover(ctx, &thin_wall_bodies),
     );
-    let step_level_occurrences = levels::discover_step_levels(ctx);
-    let risers = kept(
-        &mut defining,
-        "risers",
-        levels::discover_risers(ctx, &step_level_occurrences),
-    );
+    // A degraded run's risers carry the step levels it kept, as Python's carry that run's
+    // completed levels (`levels::proved` skips only in a degraded run).
+    let step_level_occurrences = degraded_skip(levels::discover_step_levels(ctx), |o| {
+        evidence::locally_valid_solid(part, &o.defining).is_some()
+    });
+    let found_risers = degraded_skip(levels::discover_risers(ctx, &step_level_occurrences), |o| {
+        evidence::locally_valid_solid(part, &o.defining).is_some()
+    });
+    let risers = kept(&mut defining, "risers", found_risers);
     let step_levels = kept(&mut defining, "step_levels", step_level_occurrences);
     let physical = Features {
         fillets: kept(
             &mut defining,
             "fillets",
-            fillets::discover(ctx, &Default::default()),
+            skip_unproved(part, fillets::discover(ctx, &Default::default())),
         ),
         chamfers: kept(
             &mut defining,
@@ -428,12 +499,12 @@ pub(crate) fn inventory_in(ctx: &Context<'_>) -> Result<Inventory, reconcile::Re
         edge_open_circular_pockets: kept(
             &mut defining,
             "edge_open_circular_pockets",
-            edge_open_circular::discover(ctx),
+            skip_unproved(part, edge_open_circular::discover(ctx)),
         ),
         edge_open_prismatic_recesses: kept(
             &mut defining,
             "edge_open_prismatic_recesses",
-            edge_open_prismatic::discover(ctx),
+            skip_unproved(part, edge_open_prismatic::discover(ctx)),
         ),
         blends: kept(&mut defining, "blends", blends::discover(ctx)),
         sheet_metal_bodies: kept(
@@ -445,7 +516,11 @@ pub(crate) fn inventory_in(ctx: &Context<'_>) -> Result<Inventory, reconcile::Re
         slots,
         pocket_patterns: Vec::new(),
         pockets,
-        channels: kept(&mut defining, "channels", channels::discover(ctx)),
+        channels: kept(
+            &mut defining,
+            "channels",
+            skip_unproved(part, channels::discover(ctx)),
+        ),
         repeating_radial_profiles: kept(
             &mut defining,
             "repeating_radial_profiles",
@@ -466,7 +541,7 @@ pub(crate) fn inventory_in(ctx: &Context<'_>) -> Result<Inventory, reconcile::Re
         prismatic_pockets: kept(
             &mut defining,
             "prismatic_pockets",
-            prismatic_pockets::discover(ctx),
+            skip_unproved(part, prismatic_pockets::discover(ctx)),
         ),
         oriented_slot_patterns: Vec::new(),
         oriented_slots,
@@ -487,12 +562,12 @@ pub(crate) fn inventory_in(ctx: &Context<'_>) -> Result<Inventory, reconcile::Re
     let mut evidence = evidence;
     evidence.risers = physical.defining["risers"].clone();
     let dispositions = reconcile::reconcile(&physical, &evidence)?;
-    Ok(Inventory {
+    Ok(Some(Inventory {
         physical,
         evidence,
         dispositions,
         constituent: defining.constituent,
-    })
+    }))
 }
 
 /// Defining and constituent faces by family field name, then record.

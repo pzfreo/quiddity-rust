@@ -4,7 +4,7 @@
    "family": "fillets",
    "file": "cadgenbench_inputs/cgb202.step.gz",
    "python": [],
-   "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. Python skips the fillet because it touches the bad-face region of a solid OpenCascade's BRepCheck calls unorientable after its import healing re-orients wires; the file's own topology is closed and consistently oriented and the port accepts the solid, so publishing it is right (captured/local_degradation/known.json's two cgb202 fillet skips and this file's recognise_fillets evidence entry in known_divergences.json, rust-correct).",
+   "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` takes the retry only where its own strict hole evidence refuses, which on this part it does not (captured/local_degradation/known.json, retry), so it publishes it. Python skips the fillet because it touches the bad-face region of a solid OpenCascade's BRepCheck calls unorientable after its import healing re-orients wires; the file's own topology is closed and consistently oriented and the port accepts the solid, so publishing it is right (captured/local_degradation/known.json's two cgb202 fillet skips and this file's recognise_fillets evidence entry in known_divergences.json, rust-correct).",
    "rust": [
     [
      1627
@@ -121,62 +121,6 @@
      0,
      7,
      11
-    ]
-   ],
-   "verdict": "rust-wrong"
-  },
-  {
-   "family": "holes",
-   "file": "inventory_refusal/13975.step.gz",
-   "python": [],
-   "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. The shell bounds no volume (edge 15 is used by one face only, edge 4 twice in one direction; known_divergences.json's 13975 entries), so no valid solid owns the record; the port's own degraded evidence paths (holes::discover_locally_degraded, pockets::discover_locally_degraded) skip it as Python does, but recognise does not use them.",
-   "rust": [
-    [
-     0
-    ]
-   ],
-   "verdict": "rust-wrong"
-  },
-  {
-   "family": "pockets",
-   "file": "inventory_refusal/13975.step.gz",
-   "python": [],
-   "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. The shell bounds no volume (edge 15 is used by one face only, edge 4 twice in one direction; known_divergences.json's 13975 entries), so no valid solid owns the record; the port's own degraded evidence paths (holes::discover_locally_degraded, pockets::discover_locally_degraded) skip it as Python does, but recognise does not use them.",
-   "rust": [
-    [
-     9,
-     11,
-     15
-    ],
-    [
-     5,
-     7,
-     16
-    ]
-   ],
-   "verdict": "rust-wrong"
-  },
-  {
-   "family": "holes",
-   "file": "inventory_refusal/14052.step.gz",
-   "python": [],
-   "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. A deliberately malformed corpus part: OpenCascade's BRepCheck reports BRepCheck_BadOrientationOfSubshape on face 1, a geometric fault the port's topological validity check does not look for, so the port calls the solid valid and publishes the record (captured/local_degradation/known.json's 14052 skips, rust-wrong).",
-   "rust": [
-    [
-     8
-    ]
-   ],
-   "verdict": "rust-wrong"
-  },
-  {
-   "family": "plates",
-   "file": "inventory_refusal/14052.step.gz",
-   "python": [],
-   "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. A deliberately malformed corpus part: OpenCascade's BRepCheck reports BRepCheck_BadOrientationOfSubshape on face 1, a geometric fault the port's topological validity check does not look for, so the port calls the solid valid and publishes the record (captured/local_degradation/known.json's 14052 skips, rust-wrong).",
-   "rust": [
-    [
-     5,
-     6
     ]
    ],
    "verdict": "rust-wrong"

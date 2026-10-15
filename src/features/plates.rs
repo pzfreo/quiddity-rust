@@ -91,6 +91,17 @@ pub fn discover_verified(
     Ok(found)
 }
 
+/// The evidence path as Python's locally degraded run takes it (`_discover_plates` on a graph
+/// with `local_degradation` set): a plate any of whose low or high faces proves no one valid
+/// solid ([`evidence::locally_valid_solid`]) is skipped instead of refusing every plate, before
+/// plates are deduplicated by key; the reuse check is made over the plates kept.
+pub fn discover_locally_degraded(
+    ctx: &Context<'_>,
+    opts: &PlateOptions,
+) -> Result<Vec<Occurrence<Plate>>, EvidenceError> {
+    evidence::locally_degraded(|| discover_verified(ctx, opts))
+}
+
 /// One planar face on one side: its plane coordinate, area, area-weighted centre on the two
 /// other axes, and the face.
 type Entry = (f64, f64, f64, f64, usize);
@@ -138,6 +149,13 @@ pub fn discover(ctx: &Context<'_>, opts: &PlateOptions) -> Vec<Occurrence<Plate>
     for scope in &scopes {
         let mut seen: Vec<(char, f64, f64)> = Vec::new();
         for mut o in proposals(part, scope, opts, tol) {
+            // A locally degraded run skips a plate whose faces prove no one valid solid
+            // (`_discover_plates` on a degraded graph, before it binds plate keys).
+            if evidence::local_degradation()
+                && evidence::locally_valid_solid(part, &o.defining).is_none()
+            {
+                continue;
+            }
             let key = (o.record.axis, o.record.lo, o.record.hi);
             if seen.contains(&key) {
                 continue;

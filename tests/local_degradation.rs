@@ -3,21 +3,22 @@
 //!
 //! Python's default inventory runs strictly and, when that refuses an unproved hole on a part
 //! whose solids are not all valid, runs again with `local_degradation` set, where each family
-//! skips a record that proves no one valid solid instead of refusing. The port's `recognise`
-//! verifies no family's evidence, so it has no strict refusal to retry on (whether it should
-//! panic or carry a refusal is an open maintainer question); what is compared here is each
-//! family's evidence path:
+//! skips a record that proves no one valid solid instead of refusing. The port's inventory
+//! (`features::recognise` and the other whole-inventory entry points) takes the same retry, on
+//! the strict hole refusal alone, since it verifies no other family's evidence. Compared here:
 //!
 //! - which corpus parts reach the retry: in the port, the strict hole evidence path (countersinks
 //!   composed, as the aggregate composes them) refusing for want of a valid solid on a part whose
 //!   solids are not all valid;
 //! - on every part Python retried, each record Python skipped: what the port's evidence path for
-//!   that family does with it. Holes and pockets have the degraded path
+//!   that family does with it. Holes, pockets and plates have the degraded path
 //!   (`discover_locally_degraded`), and step levels and risers Python's degraded proof
 //!   (`levels::proved` under local degradation); the other families' strict paths answer
 //!   `refused` (the whole family), `published` (a record on those faces) or `skipped` (no record
 //!   there). A face is found by its box, so a part the port reads in another face order still
-//!   compares.
+//!   compares;
+//! - on every part both sides retry, what `features::recognise` publishes: none of the records
+//!   Python skipped, and Python's section recesses.
 //!
 //! Every difference is listed in `captured/local_degradation/known.json` with a verdict and a
 //! reason: `{"file", "kind": "retry", "rust"}` for a part only one side retries, `{"file",
@@ -32,7 +33,7 @@ use std::path::PathBuf;
 
 use quiddity::Part;
 use quiddity::features::evidence::EvidenceError;
-use quiddity::features::{Context, Occurrence, countersinks, holes, levels, pockets};
+use quiddity::features::{Context, Occurrence, countersinks, holes, levels, plates, pockets};
 use quiddity::kernel::step::{Placement, read_step_file, read_step_file_placed};
 use serde_json::{Value, json};
 
@@ -226,6 +227,20 @@ fn entry_point(module: &str, function: &str) -> &'static str {
     }
 }
 
+/// The locally degraded plate evidence path over one part: each plate's defining faces.
+fn degraded_plates(part: &Part) -> Result<Vec<Vec<usize>>, EvidenceError> {
+    plates::discover_locally_degraded(&Context::new(part), &Default::default()).map(|found| {
+        found
+            .into_iter()
+            .map(|o| {
+                let mut faces = o.defining;
+                faces.sort_unstable();
+                faces
+            })
+            .collect()
+    })
+}
+
 /// The aggregate's step levels (or risers) that its proof under local degradation keeps
 /// (`levels::proved`): each one's defining faces.
 fn degraded_levels(part: &Part, risers: bool) -> Result<Vec<Vec<usize>>, String> {
@@ -257,6 +272,7 @@ fn port_outcome(part: &Part, function: &str, faces: &[usize]) -> &'static str {
         "recognise_pockets" => degraded_pockets(part).map_err(|e| e.to_string()),
         "_discover_step_levels" => degraded_levels(part, false),
         "_discover_risers" => degraded_levels(part, true),
+        "recognise_plates" => degraded_plates(part).map_err(|e| e.to_string()),
         f => common::defining(f, part, &json!({})),
     };
     match defining {
@@ -320,6 +336,117 @@ fn skips_agree_with_python() {
         retried.len()
     );
     check_known(found.into_iter().flatten().collect(), "skip");
+}
+
+/// The `Features` field a skipping family function's records are published under.
+fn features_field(module: &str, function: &str) -> &'static str {
+    match (module, function) {
+        ("holes", "_discover_holes") => "holes",
+        ("fillets", "_discover_fillets") => "fillets",
+        ("_recess_features", "_discover_pockets") => "pockets",
+        ("plates", "_discover_plates") => "plates",
+        ("levels", "_discover_step_levels") => "step_levels",
+        ("levels", "_discover_risers") => "risers",
+        other => panic!("{other:?}: no features field mapped for this skip"),
+    }
+}
+
+/// Python's section-recess document for a corpus file
+/// (`captured/section_recesses/documents.json.gz`).
+fn python_section_recess_document(file: &str) -> Value {
+    let path = common::fixtures().join("captured/section_recesses/documents.json.gz");
+    let captured: Value = serde_json::from_reader(flate2::read::GzDecoder::new(
+        std::fs::File::open(path).unwrap(),
+    ))
+    .unwrap();
+    captured["runs"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|r| r["source"] == "corpus" && r["file"] == file)
+        .unwrap_or_else(|| panic!("{file}: no captured section-recess document"))["document"]
+        .clone()
+}
+
+/// Each record's (defining, constituent) faces in a section-recess document's list.
+fn evidence_faces(records: &Value) -> Vec<(Value, Value)> {
+    records
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|r| {
+            (
+                r["evidence"]["defining_faces"].clone(),
+                r["evidence"]["constituent_faces"].clone(),
+            )
+        })
+        .collect()
+}
+
+/// On every part both sides retry, `features::recognise` takes the locally degraded run as
+/// Python's aggregate does: no record Python's retry skips is published, and the section-recess
+/// projection, which strictly refuses there for want of a valid solid, publishes Python's
+/// section recesses and refusals.
+#[test]
+fn recognise_takes_the_retry() {
+    let Some(dir) = corpus() else { return };
+    let capture = common::load(CAPTURE);
+    let retried: Vec<&Value> = parts(&capture)
+        .iter()
+        .filter(|p| p.get("degraded").is_some())
+        .collect();
+    let problems = common::parallel::map(&retried, |p| {
+        let file = p["file"].as_str().unwrap();
+        let part = read_step_file(&dir.join(file)).unwrap_or_else(|e| panic!("{file}: {e}"));
+        let mut out = Vec::new();
+        if !port_retries(&part) {
+            return (false, out);
+        }
+        let features = quiddity::features::recognise(&part);
+        if let Some(e) = &features.section_recess_refusal {
+            out.push(format!(
+                "{file}: the section-recess projection refuses: {e}"
+            ));
+        }
+        for skip in p["skips"].as_array().unwrap() {
+            let field = features_field(
+                skip["module"].as_str().unwrap(),
+                skip["function"].as_str().unwrap(),
+            );
+            let faces: Vec<usize> = skip["boxes"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|b| port_face(&part, b).unwrap_or_else(|| panic!("{file}: {b}")))
+                .collect();
+            let on = |d: &Vec<usize>| {
+                !d.is_empty()
+                    && (d.iter().all(|f| faces.contains(f)) || faces.iter().all(|f| d.contains(f)))
+            };
+            if features.defining[field].iter().any(on) {
+                out.push(format!(
+                    "{file}: {field} on {faces:?} is published; Python's retry skips it"
+                ));
+            }
+        }
+        let want = python_section_recess_document(file);
+        let got = serde_json::to_value(&features.section_recesses).unwrap();
+        let got_refusals = serde_json::to_value(&features.section_recess_refusals).unwrap();
+        if evidence_faces(&got) != evidence_faces(&want["occurrences"])
+            || evidence_faces(&got_refusals) != evidence_faces(&want["refusals"])
+        {
+            out.push(format!(
+                "{file}: section recesses {got} refusals {got_refusals}, Python's {} {}",
+                want["occurrences"], want["refusals"]
+            ));
+        }
+        (true, out)
+    });
+    let compared = problems.iter().filter(|(ran, _)| *ran).count();
+    eprintln!("local degradation: recognise retried on {compared} parts");
+    assert!(compared > 0, "no part both sides retry");
+    let problems: Vec<String> = problems.into_iter().flat_map(|(_, p)| p).collect();
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 
 /// Two of `tests/invariance.rs`'s rigid motions: one moving every axis and the origin, and one
