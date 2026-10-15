@@ -42,9 +42,8 @@ use crate::features::section_recess_family::{
     SectionRecessFamilyError, SectionRecessProjection, section_recess_projection,
 };
 use crate::features::{
-    self, Context, Features, Inventory, angled_steps, bosses, circular_face_patterns, countersinks,
-    edge_open_circular, holes, interior_voids, policy, polygonal_bosses, prismatic_pockets,
-    section_passages, thin_walls,
+    self, Context, Features, Inventory, angled_steps, bosses, circular_face_patterns, holes,
+    interior_voids, policy, polygonal_bosses, section_passages, thin_walls,
 };
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, Surface};
@@ -229,12 +228,14 @@ fn sorted(faces: &[usize]) -> Vec<usize> {
 /// Recognise *part* and project the outcome onto its faces (`build_recognition_evidence`), or
 /// the reconciliation's or the section-recess projection's refusal. The projection
 /// ([`section_recess_projection`]) recognises the part again, on its own run context: the same
-/// deterministic run Python's single one is.
+/// deterministic run Python's single one is. Where Python's aggregate retries locally degraded,
+/// all of it runs in that mode (`features::take_inventory`).
 pub fn build_recognition_evidence(
     part: &Part,
 ) -> Result<RecognitionEvidence<'_>, EvidenceViewError> {
-    let inventory = features::inventory(part)?;
-    project(part, inventory, section_recess_projection(part)?)
+    features::take_inventory(part, |_, inventory| {
+        project(part, inventory, section_recess_projection(part)?)
+    })?
 }
 
 /// Each physical family's candidates' defining and constituent faces (sorted), by Python family.
@@ -280,8 +281,17 @@ fn faces(part: &Part, inventory: &Inventory) -> Result<Faces, EvidenceViewError>
             })
             .collect()
     }
-    let seats = countersinks::discover(&ctx);
-    wider.insert("holes", pairs(holes::discover(&ctx, &seats)));
+    // The inventory's own holes, prismatic pockets and edge-open circular pockets (constituent:
+    // defining and consulted faces), since a locally degraded run skips some that a discovery
+    // here would find again.
+    let own = |family: &'static str| -> Pairs {
+        defining[family]
+            .iter()
+            .cloned()
+            .zip(inventory.constituent[field(family)].iter().cloned())
+            .collect()
+    };
+    wider.insert("holes", own("holes"));
     wider.insert("bosses", pairs(bosses::discover(&ctx)));
     wider.insert("angled_steps", pairs(angled_steps::discover(&ctx)));
     wider.insert(
@@ -290,13 +300,10 @@ fn faces(part: &Part, inventory: &Inventory) -> Result<Faces, EvidenceViewError>
     );
     wider.insert("interior_voids", pairs(interior_voids::discover(&ctx)));
     wider.insert("thin_wall_bodies", pairs(thin_walls::discover(&ctx)));
-    wider.insert(
-        "prismatic_pockets",
-        pairs(prismatic_pockets::discover(&ctx)),
-    );
+    wider.insert("prismatic_pockets", own("prismatic_pockets"));
     wider.insert(
         "edge_open_circular_pockets",
-        pairs(edge_open_circular::discover(&ctx)),
+        own("edge_open_circular_pockets"),
     );
     let patterns = circular_face_patterns::discover_with_groups(&ctx);
     let groups: Vec<Vec<Vec<usize>>> = patterns

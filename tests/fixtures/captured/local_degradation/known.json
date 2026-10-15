@@ -33,17 +33,5 @@
     "reason": "Python skips this fillet because it touches the bad-face region (unsafe faces 700, 1217, 1653, 1654, 2087, 2091) of a solid it admits as locally degraded; the port publishes it on a solid it calls valid. OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid (on face 1654, the capture's bad_face_status) after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid, as for this file's evidence entries in known_divergences.json (recognise_holes, recognise_fillets, rust-correct).",
     "rust": "published",
     "verdict": "rust-correct"
-  },
-  {
-    "faces": [
-      6
-    ],
-    "file": "inventory_refusal/14052.step.gz",
-    "function": "_discover_plates",
-    "kind": "skip",
-    "module": "plates",
-    "reason": "Python skips this plate because face 6 touches face 1's bad-face region in a solid it admits as locally degraded (face 1 is faulted: as written its circular hole crosses the outer loop, BRepCheck_IntersectingWires; after OpenCascade's import healing BRepCheck_BadOrientationOfSubshape, the capture's bad_face_status). The port faults face 1 too (Part::bad_faces), so its strict plate evidence refuses, as Python's strict run does; but the plates family has no locally degraded evidence path in the port (holes and pockets do), so the whole family is refused where Python's retry skips the one plate.",
-    "rust": "refused",
-    "verdict": "rust-wrong"
   }
 ]

@@ -23,7 +23,7 @@ use serde::{Deserialize, Serialize};
 
 use super::Context;
 use super::effective_surfaces::EffectiveFaces;
-use super::evidence::{Occurrence, common_valid_solid};
+use super::evidence::{self, Occurrence, common_valid_solid};
 use super::experimental_geometry::{GeometryGraph, SurfaceKind};
 use super::graph;
 use super::policy::{AXIS_ALIGNED_COS, AXIS_ZERO_COS};
@@ -815,8 +815,9 @@ pub fn recognise_rectangular_pads(
 
 /// `_discover_rectangular_pads` with an evidence writer: each pad defined by its top and its
 /// four perimeter walls (one face per role), five distinct faces of one valid solid, no top
-/// defining two pads, and equal records only where they read the same faces. Python's
-/// `local_degradation` (skipping, not refusing, a pad off any valid solid) is not ported.
+/// defining two pads, and equal records only where they read the same faces. In a locally
+/// degraded run ([`evidence::local_degradation`]) a pad off any valid solid is skipped, not
+/// refused, as Python's `local_degradation` does.
 pub fn discover(
     ctx: &Context<'_>,
     opts: &PadOptions,
@@ -852,6 +853,10 @@ pub fn discover(
         let mut ordered = signature.to_vec();
         ordered.sort_unstable();
         if common_valid_solid(part, &ordered).is_none() {
+            // A locally degraded run skips the pad instead (`_discover_rectangular_pads`).
+            if evidence::local_degradation() {
+                continue;
+            }
             return Err(PadError::NoValidSolid);
         }
         used_tops.insert(signature[0]);

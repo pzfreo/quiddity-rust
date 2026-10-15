@@ -28,26 +28,7 @@
       "verdict": "rust-correct"
     }
   ],
-  "errors": [
-    {
-      "file": "inventory_refusal/13975.step.gz",
-      "python": "viewed",
-      "reason": "The section-recess projection refuses this part's whole recognition, so the view refuses with its message, as Python's view refuses wherever its aggregate's projection raises: Python reads no solid here (its document's body roster is empty) and its aggregate takes the local-degradation retry, which skips the two pockets on the part (captured/local_degradation). The port reads one solid its validity check rejects, takes no retry (README: not ported), and keeps the pockets, whose defining faces have no valid solid, so the projection refuses the whole document with Python's message (\"accepted recess candidate lost body authority\"). (captured/section_recesses/known_differences.json, the same refusal.) This replaces the view's four record differences on 13975 and 14052 (a hole and a riser on 13975, a hole and a plate on 14052, the records Python's local-degradation retry skips), which the refused view no longer reaches.",
-      "rust": {
-        "error": "accepted recess candidate lost body authority"
-      },
-      "verdict": "rust-wrong"
-    },
-    {
-      "file": "inventory_refusal/14052.step.gz",
-      "python": "viewed",
-      "reason": "The section-recess projection refuses this part's whole recognition, so the view refuses with its message, as Python's view refuses wherever its aggregate's projection raises: The deliberately malformed corpus part (OpenCascade's BRepCheck faults face 1; the kernel's per-face geometric validity faults the same face). Python's strict run refuses and its aggregate takes the local-degradation retry (captured/local_degradation), whose graph admits the solid with one faulted face, so it publishes one triangular pocket on walls 15, 16, 17 and floor 21 from the accepted prismatic pocket. The port's inventory takes no retry (README: not ported), so the accepted prismatic pocket's defining faces have no valid solid and the projection refuses the whole document with Python's message (\"accepted section feature lost its body authority\"). (captured/section_recesses/known_differences.json, the same refusal.) This replaces the view's four record differences on 13975 and 14052 (a hole and a riser on 13975, a hole and a plate on 14052, the records Python's local-degradation retry skips), which the refused view no longer reaches.",
-      "rust": {
-        "error": "accepted section feature lost its body authority"
-      },
-      "verdict": "rust-wrong"
-    }
-  ],
+  "errors": [],
   "features": [
     {
       "defining": [
@@ -151,7 +132,7 @@
       "field": "present",
       "file": "cadgenbench_inputs/cgb202.step.gz",
       "python": 0,
-      "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. Python skips the fillet because it touches the bad-face region of a solid OpenCascade's BRepCheck calls unorientable after its import healing re-orients wires; the file's own topology is closed and consistently oriented and the port accepts the solid, so publishing it is right (captured/local_degradation/known.json's two cgb202 fillet skips and this file's recognise_fillets evidence entry in known_divergences.json, rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` takes the retry only where its own strict hole evidence refuses, which on this part it does not (captured/local_degradation/known.json, retry), so it publishes it. Python skips the fillet because it touches the bad-face region of a solid OpenCascade's BRepCheck calls unorientable after its import healing re-orients wires; the file's own topology is closed and consistently oriented and the port accepts the solid, so publishing it is right (captured/local_degradation/known.json's two cgb202 fillet skips and this file's recognise_fillets evidence entry in known_divergences.json, rust-correct). (captured/reconcile/known.json accepted, the same record.)",
       "rust": 1,
       "verdict": "rust-correct"
     },
@@ -326,7 +307,7 @@
       "field": "present",
       "file": "cadgenbench_inputs/cgb202.step.gz",
       "python": 0,
-      "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` does not take the retry (whether it should panic or carry a refusal is an open maintainer question, README), so it publishes it. Python skips the fillet because it touches the bad-face region of a solid OpenCascade's BRepCheck calls unorientable after its import healing re-orients wires; the file's own topology is closed and consistently oriented and the port accepts the solid, so publishing it is right (captured/local_degradation/known.json's two cgb202 fillet skips and this file's recognise_fillets evidence entry in known_divergences.json, rust-correct). (captured/reconcile/known.json accepted, the same record.)",
+      "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` takes the retry only where its own strict hole evidence refuses, which on this part it does not (captured/local_degradation/known.json, retry), so it publishes it. Python skips the fillet because it touches the bad-face region of a solid OpenCascade's BRepCheck calls unorientable after its import healing re-orients wires; the file's own topology is closed and consistently oriented and the port accepts the solid, so publishing it is right (captured/local_degradation/known.json's two cgb202 fillet skips and this file's recognise_fillets evidence entry in known_divergences.json, rust-correct). (captured/reconcile/known.json accepted, the same record.)",
       "rust": 1,
       "verdict": "rust-correct"
     },

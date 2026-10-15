@@ -1,3 +1,60 @@
+# K3: Python's local-degradation retry (2026-10-15)
+
+`features::take_inventory` ports `_take_inventory`'s bounded fallback: a strict run, or, where
+its hole evidence refuses for want of one valid solid on a part whose solids are not all valid
+(`holes::strict_refusal_retries`, the condition `tests/local_degradation.rs` already used), a
+second run from scratch in which `evidence::common_valid_solid` answers as Python's degraded graph
+(`locally_valid_solid`) and holes, pockets, fillets, plates, step levels, risers, rectangular
+pads, slots, channels, prismatic pockets and edge-open prismatic and circular recesses skip what
+Python's skip. `recognise`, `inventory`, `section_recess_projection` and
+`build_recognition_evidence` go through it. 13975 and 14052 now publish Python's section recesses
+and match Python's inventory and evidence view; no other corpus part's output changes.
+
+MFInstSeg sample re-run (`examples/coverage_sweep`, every fifth model of the sorted `steps/`
+listing, 12,499 models, base `0d601d2` against this branch):
+
+| | base | K3 |
+| --- | ---: | ---: |
+| section-recess refusals | 47 (0.38%) | 8 (0.06%) |
+| recognition completed / panicked / unreadable | 12,496 / 2 / 1 | 12,496 / 2 / 1 |
+| section recesses | 28,536 | 28,583 |
+
+68 models change: the 39 that no longer refuse and 29 others that take the retry. Over them:
+holes −62, risers −43, step levels −26, fillets −22, plates −19, pockets −14, prismatic pockets
+−1, section passages +10, circular blind steps +5, blends +3, freeform surfaces +2, pads +1,
+edge-open prismatic recesses +1 (the gains are the degraded solid admitted where it was not).
+These are not compared with Python (no Python capture of MFInstSeg). The 8 still refusing have
+no hole, so neither Python's aggregate nor the port retries; Python's strict run would refuse
+them too (inferred from its code, not run). The two panics are the Python-shared ones the
+4583c74 sweep lists. On a 32-file corpus subset, `build_recognition_evidence` plus `recognise`
+retire 305.3e9 instructions against base's 306.1e9 (three runs each, −0.24%; the view no
+longer discovers holes and two pocket families a second time).
+
+Overturnable judgement calls:
+
+- The run's mode is a thread-local flag (`evidence::locally_degraded`), not a parameter, because
+  Python's flag is a property of the whole run's graph and `common_valid_solid(part, faces)` is
+  called from some fifty modules with only the part; threading a flag through all of them was a
+  far larger change to shared code. The flag is set only for the retried run and restored on exit
+  (also on panic); recognition spawns no threads.
+- Explicit skips were ported for the families whose skips the corpus capture shows (holes,
+  pockets, fillets, plates, step levels, risers) and, beyond the corpus, for those the MFInstSeg
+  sample showed mattering: rectangular pads (whose strict refusal panicked a retried run,
+  20221123_142528_202) and the section-recess source families (slots, channels, prismatic
+  pockets, edge-open prismatic and circular recesses), whose unproved records made the
+  projection refuse. Each is Python's filter on the faces Python checks (defining and consulted
+  faces; for prismatic pockets Python checks the constituent faces, which the port's walls and
+  consulted faces together are). Python's remaining degraded skips (through steps, angled steps,
+  countersinks, bosses, grooves and others) are not ported: in a retried run those families
+  publish unproved records, as the strict run does.
+- The retry fires only on the strict hole refusal, as Python's aggregate does; the port proves no
+  other family strictly, so Python's other strict refusals (which raise without retrying) are not
+  modelled. Python's recognition *document* retries on any refusal with an invalid solid
+  (`document.py`); the port's document comes from `recognise` and keeps the aggregate's narrower
+  condition. The document does not say that a run was degraded (Python's `"proof"` field).
+- `build_recognition_evidence` now reads the holes' constituent faces from the inventory
+  (`Inventory::constituent`) instead of discovering them again, since a degraded run skips some.
+
 # G1: assemblies slice 1, haecceity (2026-10-15)
 
 `PartDefinition.product_id` (decoded `PRODUCT.id`, D1: reported beside the index); the editor's

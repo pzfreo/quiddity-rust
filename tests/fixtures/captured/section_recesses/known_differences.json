@@ -2,18 +2,10 @@
   {
     "file": "inventory_refusal/13975.step.gz",
     "item": "document",
-    "key": null,
+    "key": "bodies",
     "kind": "differs",
-    "verdict": "rust-wrong",
-    "reason": "Python reads no solid here (its document's body roster is empty) and its aggregate takes the local-degradation retry, which skips the two pockets on the part (captured/local_degradation). The port reads one solid its validity check rejects, takes no retry (README: not ported), and keeps the pockets, whose defining faces have no valid solid, so the projection refuses the whole document with Python's message (\"accepted recess candidate lost body authority\")."
-  },
-  {
-    "file": "inventory_refusal/14052.step.gz",
-    "item": "document",
-    "key": null,
-    "kind": "differs",
-    "verdict": "rust-wrong",
-    "reason": "The deliberately malformed corpus part (OpenCascade's BRepCheck faults face 1; the kernel's per-face geometric validity faults the same face). Python's strict run refuses and its aggregate takes the local-degradation retry (captured/local_degradation), whose graph admits the solid with one faulted face, so it publishes one triangular pocket on walls 15, 16, 17 and floor 21 from the accepted prismatic pocket. The port's inventory takes no retry (README: not ported), so the accepted prismatic pocket's defining faces have no valid solid and the projection refuses the whole document with Python's message (\"accepted section feature lost its body authority\")."
+    "verdict": "equivalent",
+    "reason": "The body roster alone: the port lists the one MANIFOLD_SOLID_BREP the file declares, which it reads and reports invalid (an unclosed, non-orientable shell: known_divergences.json's 13975 solid count entry), where OpenCascade's import heals the faces into a loose shell and Python's roster is empty. Both sides publish no section recess and no refusal: Python's aggregate takes the local-degradation retry, and so does the port's, which skips the two pockets, the hole, the riser and the two step levels with no valid solid, as Python does (captured/local_degradation)."
   },
   {
     "file": "mfcadpp_holdout/163.step",
