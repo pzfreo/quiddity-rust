@@ -119,6 +119,13 @@ impl FaceDomain {
         let periodic = self.index.periodic;
         let mut count = 0usize;
         for &s in self.index.candidates(a) {
+            // The bin runs from the highest segment down: one wholly below the ray's start
+            // cannot cross it above, nor can any after it (the margin far exceeds the rounding
+            // of the crossing's `bc`, which lies between the segment's ends).
+            let top = self.index.top[s as usize];
+            if top + 1e-9 * (1.0 + top.abs()) < b {
+                break;
+            }
             let [mut a0, b0, mut a1, b1] = self.index.segments[s as usize];
             if periodic {
                 let shift = geom::nearest_turn(a0, a) - a0;
@@ -141,7 +148,10 @@ impl FaceDomain {
 /// their span in the ray's fixed coordinate `a`: over the period when `a` is periodic (a segment
 /// spanning more than half a turn goes in every bin, as which turn it is wrapped to depends on
 /// the query), else over the loops' range. Bins are padded, so a segment is only ever left out
-/// of a bin it cannot cross a ray in.
+/// of a bin it cannot cross a ray in. A segment along the ray's direction (one `a` at both
+/// ends) crosses no ray and is in no bin; each bin lists its segments from the highest `b` down
+/// (a dense boundary along one side of a face, as cgb243's combs have, fills one bin with
+/// thousands of segments, most of them below any ray's start).
 #[derive(Debug)]
 struct SegmentIndex {
     periodic: bool,
@@ -149,8 +159,11 @@ struct SegmentIndex {
     width: f64,
     /// Every segment's `[a0, b0, a1, b1]`, loop by loop.
     segments: Vec<[f64; 4]>,
-    /// Per bin, the segments (indices into `segments`) that may cross a ray in it.
+    /// Per bin, the segments (indices into `segments`) that may cross a ray in it, by
+    /// decreasing `top`.
     bins: Vec<Vec<u32>>,
+    /// Per segment, its higher end's `b`.
+    top: Vec<f64>,
 }
 
 impl SegmentIndex {
@@ -174,6 +187,9 @@ impl SegmentIndex {
             let s = s as u32;
             let lp = &loops[l as usize];
             let (a0, a1) = (a(&lp[k as usize]), a(&lp[k as usize + 1]));
+            if a0 == a1 {
+                continue;
+            }
             let (mut s0, mut s1) = (a0.min(a1), a0.max(a1));
             if periodic {
                 if s1 - s0 > std::f64::consts::PI {
@@ -199,7 +215,7 @@ impl SegmentIndex {
             b.dedup();
         }
         let pick = |p: &(f64, f64)| if swap { (p.1, p.0) } else { (p.0, p.1) };
-        let segments = segments
+        let segments: Vec<[f64; 4]> = segments
             .into_iter()
             .map(|(l, k)| {
                 let lp = &loops[l as usize];
@@ -207,12 +223,17 @@ impl SegmentIndex {
                 [a0, b0, a1, b1]
             })
             .collect();
+        let top: Vec<f64> = segments.iter().map(|s| s[1].max(s[3])).collect();
+        for b in &mut bins {
+            b.sort_by(|&x, &y| top[y as usize].total_cmp(&top[x as usize]));
+        }
         SegmentIndex {
             periodic,
             lo,
             width,
             segments,
             bins,
+            top,
         }
     }
 

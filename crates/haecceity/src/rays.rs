@@ -84,6 +84,10 @@ pub struct RayCaster<'a> {
     /// Per part edge, once asked: the furthest it strays from any face's surface it bounds
     /// ([`Self::crack`]).
     cracks: Vec<std::sync::OnceLock<f64>>,
+    /// Per part face: whether rays meet it (it is one of `faces`).
+    member: Vec<bool>,
+    /// Whether every face rays meet can be intersected, so that [`Self::hits`] never gives up.
+    intersectable: bool,
 }
 
 impl<'a> RayCaster<'a> {
@@ -125,6 +129,11 @@ impl<'a> RayCaster<'a> {
         }
         let edge_tol = (4.0 * CHORD_TOLERANCE).max(root_box.diagonal() * 1e-9);
         let root = build(faces.clone(), &face_boxes);
+        let mut member = vec![false; part.faces.len()];
+        faces.iter().for_each(|&f| member[f] = true);
+        let intersectable = faces
+            .iter()
+            .all(|&f| !matches!(part.faces[f].surface, Surface::Other { .. }));
         RayCaster {
             part,
             faces,
@@ -137,6 +146,8 @@ impl<'a> RayCaster<'a> {
             cracks: (0..part.edges.len())
                 .map(|_| std::sync::OnceLock::new())
                 .collect(),
+            member,
+            intersectable,
         }
     }
 
@@ -161,44 +172,138 @@ impl<'a> RayCaster<'a> {
         Some(crossings.into_iter().map(|c| c.hit).collect())
     }
 
+    /// The hits on *faces* alone, exactly as [`Self::hits`] lists them, where those faces
+    /// decide them: `None` when some face rays meet cannot be intersected (`hits` may then give
+    /// up) or one of these faces' crossings lies only in an edge's band (it yields to a face
+    /// across the edge, which these faces alone cannot say). A ray along a thread's axis
+    /// crosses every turn, so asking only about the faces wanted saves the rest.
+    pub fn hits_on(&self, faces: &[usize], origin: V3, dir: V3, t_max: f64) -> Option<Vec<Hit>> {
+        if !self.intersectable {
+            return None;
+        }
+        let mut out = Vec::new();
+        let mut in_surface = false;
+        let mut asked: Vec<usize> = faces.iter().copied().filter(|&f| self.member[f]).collect();
+        asked.sort_unstable();
+        asked.dedup();
+        for i in asked {
+            // The hierarchy's boxes hold the face's, so it reaches the face exactly when the
+            // ray meets the face's own box.
+            if ray_meets_box(origin, dir, t_max, &self.face_boxes[i], self.edge_tol) {
+                self.face_crossings(i, (origin, dir, t_max), &mut out, &mut in_surface)?;
+            }
+        }
+        if out.iter().any(|c| matches!(c.contact, Contact::Band(..))) {
+            return None;
+        }
+        out.sort_by(|a, b| crossing_order(&a.hit, &b.hit));
+        Some(out.into_iter().map(|c| c.hit).collect())
+    }
+
     /// Whether the ray meets any face beyond `t_min` (and within `t_max`): the question
     /// visibility asks, answered at the first such face. `None` when no face is met but one the
     /// ray reaches has a surface the kernel cannot intersect (as [`Self::hits`]).
     pub fn any_hit(&self, origin: V3, dir: V3, t_min: f64, t_max: f64) -> Option<bool> {
         let mut unanswered = false;
-        let mut stack = vec![(&self.root_box, &self.root)];
-        while let Some((b, node)) = stack.pop() {
-            if !ray_meets_box(origin, dir, t_max, b, self.edge_tol) {
-                continue;
+        let met = self.near_first(origin, dir, t_max, |i| {
+            let Some((ts, _)) = surface_hits(&self.part.faces[i].surface, origin, dir, t_max)
+            else {
+                unanswered = true;
+                return false;
+            };
+            ts.iter().filter(|&(t, _)| t > t_min).any(|(t, uv)| {
+                self.contact(i, geom::add(origin, geom::scale(dir, t)), uv, false)
+                    .is_some()
+            })
+        });
+        if met {
+            return Some(true);
+        }
+        (!unanswered).then_some(false)
+    }
+
+    /// Whether [`Self::hits`] lists a hit beyond `after` and up to `until` on a face not among
+    /// *skip*, where that is decided without the crossings of *skip* (and of the faces beyond
+    /// the first such hit): `None` when some face rays meet cannot be intersected, or the only
+    /// crossings found in that stretch lie in an edge's band (they may yield to a face across
+    /// the edge). Asked from a face about the others, the face's own crossings, often the
+    /// costliest (the ray grazes it at a silhouette), are left out.
+    pub fn other_hit(
+        &self,
+        (origin, dir, t_max): (V3, V3, f64),
+        skip: &[usize],
+        (after, until): (f64, f64),
+    ) -> Option<bool> {
+        if !self.intersectable {
+            return None;
+        }
+        let mut banded = false;
+        let mut out = Vec::new();
+        let met = self.near_first(origin, dir, t_max, |i| {
+            if skip.contains(&i) {
+                return false;
             }
+            out.clear();
+            let mut in_surface = false;
+            // Every face here can be intersected.
+            let _ = self.face_crossings(i, (origin, dir, t_max), &mut out, &mut in_surface);
+            out.iter()
+                .filter(|c| c.hit.t > after && c.hit.t <= until)
+                .any(|c| {
+                    let band = matches!(c.contact, Contact::Band(..));
+                    banded |= band;
+                    !band
+                })
+        });
+        if met {
+            Some(true)
+        } else {
+            (!banded).then_some(false)
+        }
+    }
+
+    /// Calls *f* with each face whose box the ray meets (within `t_max`), nearer boxes first,
+    /// until it answers true; whether it did. Nearer first because any face met answers a
+    /// question of whether one is, and along a stack of faces (a thread's turns seen along its
+    /// axis) the nearest is the likeliest to.
+    fn near_first(
+        &self,
+        origin: V3,
+        dir: V3,
+        t_max: f64,
+        mut f: impl FnMut(usize) -> bool,
+    ) -> bool {
+        let entry = |b: &Bounds| ray_box_entry(origin, dir, t_max, b, self.edge_tol);
+        let Some(root) = entry(&self.root_box) else {
+            return false;
+        };
+        let mut stack = vec![(root, &self.root)];
+        while let Some((_, node)) = stack.pop() {
             match node {
                 Node::Split(lb, l, rb, r) => {
-                    stack.push((lb, l));
-                    stack.push((rb, r));
+                    let mut children = [(entry(lb), &**l), (entry(rb), &**r)];
+                    // The farther pushed first, so the nearer is taken next.
+                    if children[0].0 < children[1].0 {
+                        children.swap(0, 1);
+                    }
+                    for (at, child) in children {
+                        if let Some(at) = at {
+                            stack.push((at, child));
+                        }
+                    }
                 }
                 Node::Leaf(faces) => {
                     for &i in faces {
-                        if !ray_meets_box(origin, dir, t_max, &self.face_boxes[i], self.edge_tol) {
-                            continue;
-                        }
-                        let Some((ts, _)) =
-                            surface_hits(&self.part.faces[i].surface, origin, dir, t_max)
-                        else {
-                            unanswered = true;
-                            continue;
-                        };
-                        let met = ts.iter().filter(|&(t, _)| t > t_min).any(|(t, uv)| {
-                            self.contact(i, geom::add(origin, geom::scale(dir, t)), uv, false)
-                                .is_some()
-                        });
-                        if met {
-                            return Some(true);
+                        if ray_meets_box(origin, dir, t_max, &self.face_boxes[i], self.edge_tol)
+                            && f(i)
+                        {
+                            return true;
                         }
                     }
                 }
             }
         }
-        (!unanswered).then_some(false)
+        false
     }
 
     /// The hits that lie on their faces' trimmed regions themselves, not merely within the
@@ -271,28 +376,12 @@ impl<'a> RayCaster<'a> {
                         if !ray_meets_box(origin, dir, t_max, &self.face_boxes[i], self.edge_tol) {
                             continue;
                         }
-                        let (ts, tangent) =
-                            surface_hits(&self.part.faces[i].surface, origin, dir, t_max)?;
-                        in_surface |= tangent && ts.is_empty();
-                        for (t, uv) in ts.iter() {
-                            let q = geom::add(origin, geom::scale(dir, t));
-                            if let Some(contact) = self.contact(i, q, uv, true)
-                                && !self.overshoots(i, q)
-                            {
-                                let hit = Hit { t, face: i };
-                                out.push(Crossing {
-                                    hit,
-                                    contact,
-                                    tangent,
-                                    uv,
-                                });
-                            }
-                        }
+                        self.face_crossings(i, (origin, dir, t_max), &mut out, &mut in_surface)?;
                     }
                 }
             }
         }
-        let order = |a: &Hit, b: &Hit| a.t.total_cmp(&b.t).then(a.face.cmp(&b.face));
+        let order = crossing_order;
         out.sort_by(|a, b| order(&a.hit, &b.hit));
         if !out.iter().any(|c| matches!(c.contact, Contact::Band(..))) {
             return Some((out, in_surface));
@@ -316,6 +405,35 @@ impl<'a> RayCaster<'a> {
         }
         kept.sort_by(|a, b| order(&a.hit, &b.hit));
         Some((kept, in_surface))
+    }
+
+    /// Face *i*'s crossings along the ray, before any yields to a face across an edge
+    /// ([`Self::crossings`]), added to *out*; *in_surface* set when the ray lies in its surface.
+    /// `None` when its surface cannot be intersected.
+    fn face_crossings(
+        &self,
+        i: usize,
+        (origin, dir, t_max): (V3, V3, f64),
+        out: &mut Vec<Crossing>,
+        in_surface: &mut bool,
+    ) -> Option<()> {
+        let (ts, tangent) = surface_hits(&self.part.faces[i].surface, origin, dir, t_max)?;
+        *in_surface |= tangent && ts.is_empty();
+        for (t, uv) in ts.iter() {
+            let q = geom::add(origin, geom::scale(dir, t));
+            if let Some(contact) = self.contact(i, q, uv, true)
+                && !self.overshoots(i, q)
+            {
+                let hit = Hit { t, face: i };
+                out.push(Crossing {
+                    hit,
+                    contact,
+                    tangent,
+                    uv,
+                });
+            }
+        }
+        Some(())
     }
 
     /// Whether face *i* holds a point *q* of its surface (by its trim, or an edge's band) only
@@ -534,6 +652,11 @@ impl<'a> RayCaster<'a> {
     }
 }
 
+/// Hits nearest first, equal distances in face order.
+fn crossing_order(a: &Hit, b: &Hit) -> std::cmp::Ordering {
+    a.t.total_cmp(&b.t).then(a.face.cmp(&b.face))
+}
+
 /// A ray's hit on a surface: its distance and, where known, its surface parameters.
 type SurfaceHit = (f64, Option<(f64, f64)>);
 
@@ -545,12 +668,92 @@ type SurfaceHit = (f64, Option<(f64, f64)>);
 /// well inside the face.
 fn surface_hits(surface: &Surface, origin: V3, dir: V3, t_max: f64) -> Option<(SurfaceHits, bool)> {
     if let Surface::Freeform { surface, .. } = surface {
-        let (mut hits, grazing) = surface.ray_hits(origin, dir, t_max);
-        hits.retain(|&(t, _, _)| t > 1e-12 && t <= t_max);
+        let solve = || {
+            let (mut hits, grazing) = surface.ray_hits(origin, dir, t_max);
+            hits.retain(|&(t, _, _)| t > 1e-12 && t <= t_max);
+            (hits, grazing)
+        };
+        let (hits, grazing) = remembered(surface, (origin, dir, t_max), solve);
         return Some((SurfaceHits::Freeform(hits), grazing));
     }
     let (ts, tangent) = surface.ray_hits(origin, dir, t_max)?;
     Some((SurfaceHits::Analytic(ts), tangent))
+}
+
+/// One B-spline surface's hits along one ray, as [`surface_hits`] gives them.
+type FreeformHits = (Vec<(f64, f64, f64)>, bool);
+
+/// The rays [`remembering`] keeps the B-spline hits of, at most: one point's visibility asks
+/// along its ray to the viewer, and from a point or two beside it, several times.
+const REMEMBERED_RAYS: usize = 4;
+
+/// Per ray (origin, direction and reach, as bits), each B-spline surface's hits along it (the
+/// surface by address): while [`remembering`], the latest rays asked.
+type Remembered = Vec<([u64; 7], Vec<(usize, FreeformHits)>)>;
+
+thread_local! {
+    static REMEMBERED: std::cell::RefCell<Option<Remembered>> =
+        const { std::cell::RefCell::new(None) };
+}
+
+/// Runs *f* with this thread remembering B-spline surfaces' hits along the rays it asks
+/// ([`REMEMBERED_RAYS`] at a time), so that asking a ray again (the same surface, origin,
+/// direction and reach) reuses the answer rather than solving it again: the answer is the
+/// same. Within one question about one part only, as a surface is known by its address.
+pub(super) fn remembering<R>(f: impl FnOnce() -> R) -> R {
+    struct Forget;
+    impl Drop for Forget {
+        fn drop(&mut self) {
+            REMEMBERED.with(|r| *r.borrow_mut() = None);
+        }
+    }
+    REMEMBERED.with(|r| *r.borrow_mut() = Some(Vec::new()));
+    let _forget = Forget;
+    f()
+}
+
+/// *solve*'s hits of *surface* along *ray*, remembered while [`remembering`].
+fn remembered(
+    surface: &super::nurbs::NurbsSurface,
+    (origin, dir, t_max): (V3, V3, f64),
+    solve: impl FnOnce() -> FreeformHits,
+) -> FreeformHits {
+    let key = [
+        origin[0], origin[1], origin[2], dir[0], dir[1], dir[2], t_max,
+    ]
+    .map(f64::to_bits);
+    let id = surface as *const _ as usize;
+    let known = REMEMBERED.with(|r| {
+        let r = r.borrow();
+        let rays = r.as_ref()?;
+        let (_, surfaces) = rays.iter().find(|(k, _)| *k == key)?;
+        surfaces
+            .iter()
+            .find(|(s, _)| *s == id)
+            .map(|(_, h)| h.clone())
+    });
+    if let Some(hits) = known {
+        return hits;
+    }
+    let hits = solve();
+    REMEMBERED.with(|r| {
+        let mut r = r.borrow_mut();
+        let Some(rays) = r.as_mut() else {
+            return;
+        };
+        let at = match rays.iter().position(|(k, _)| *k == key) {
+            Some(at) => at,
+            None => {
+                if rays.len() == REMEMBERED_RAYS {
+                    rays.remove(0);
+                }
+                rays.push((key, Vec::new()));
+                rays.len() - 1
+            }
+        };
+        rays[at].1.push((id, hits.clone()));
+    });
+    hits
 }
 
 /// A surface's hits as the intersection returns them, read as [`SurfaceHit`]s without copying
@@ -796,12 +999,18 @@ fn point_segment_distance(p: V3, a: V3, b: V3) -> f64 {
 }
 
 pub(super) fn ray_meets_box(p: V3, dir: V3, t_max: f64, b: &Bounds, pad: f64) -> bool {
+    ray_box_entry(p, dir, t_max, b, pad).is_some()
+}
+
+/// Where the ray enters box *b* (padded by *pad*), as [`ray_meets_box`] decides it meets the
+/// box; `None` when it does not.
+fn ray_box_entry(p: V3, dir: V3, t_max: f64, b: &Bounds, pad: f64) -> Option<f64> {
     let (mut t0, mut t1) = (0.0f64, t_max + pad);
     for i in 0..3 {
         let (lo, hi) = (b.min[i] - pad, b.max[i] + pad);
         if dir[i].abs() < 1e-300 {
             if p[i] < lo || p[i] > hi {
-                return false;
+                return None;
             }
             continue;
         }
@@ -812,10 +1021,10 @@ pub(super) fn ray_meets_box(p: V3, dir: V3, t_max: f64, b: &Bounds, pad: f64) ->
         t0 = t0.max(a);
         t1 = t1.min(c);
         if t0 > t1 {
-            return false;
+            return None;
         }
     }
-    true
+    Some(t0)
 }
 
 #[cfg(test)]
