@@ -39,8 +39,11 @@ output).
 
 Known limitations:
 
-- On corpus parts 13975 and 14052 the section-recess family refuses where
-  Python recovers by its local-degradation retry, which is not ported.
+- Python's local-degradation retry is ported for every validity query of the run and for the
+  degraded skips of holes, pockets, fillets, plates, step levels, risers, rectangular pads and
+  the section-recess source families (slots, channels, prismatic pockets, edge-open prismatic and
+  circular recesses); the other families' own degraded skips are not, so on a degraded solid
+  they publish where Python would skip.
 - `Features::defining` gives defining faces; section recess records also carry constituent
   faces in `evidence`. Other families' constituent faces and pattern members are in the
   recognition evidence view.
@@ -95,7 +98,7 @@ Ported, each checked against Python call by call:
 | Polygonal bosses | `recognise_polygonal_bosses` | 133/139 (6 known divergences) | 4 | 100/100 |
 | Polygonal stock | `recognise_polygonal_stock` | 70/70 | 1 | 100/100 |
 | Section passages | `recognise_section_passages` | 83/83 | 3 | 100/100 |
-| Section recesses | `recognise_section_recesses` | 320/321 documents (1 known difference) | 6 | 92/100 (8 known) |
+| Section recesses | `recognise_section_recesses` | 320/321 documents (1 known difference) | 6 | 93/100 (7 known) |
 | Passages (legacy roster) | `recognise_passages` | 60/60 | 2 | 100/100 |
 | Prismatic pockets | `recognise_prismatic_pockets` | 82/82 | 6 | 100/100 |
 | Oriented slots | `recognise_oriented_slots` | 33/33 | 1 | 100/100 |
@@ -138,14 +141,14 @@ file:
 | `tests/fixtures/captured/known_section_recess_helpers.json` | `tests/section_recess_helpers.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/section_recess/known_differences.json` | `tests/section_recess.rs` | 4 | 0 | 0 | 0 | 0 | 4 |
 | `tests/fixtures/captured/section_recess_geometry/known_differences.json` | `tests/section_recess_geometry.rs` | 2 | 0 | 0 | 1 | 0 | 1 |
-| `tests/fixtures/captured/section_recesses/known_differences.json` | `tests/section_recesses.rs` | 19 | 15 | 3 | 1 | 0 | 0 |
+| `tests/fixtures/captured/section_recesses/known_differences.json` | `tests/section_recesses.rs` | 18 | 15 | 1 | 2 | 0 | 0 |
 | `tests/fixtures/captured/known_section_geometry.json` | `tests/section_geometry.rs` | 2 | 0 | 2 | 0 | 0 | 0 |
 | `tests/fixtures/captured/outer_profiles/known_differences.json` | `tests/outer_profiles.rs` | 6 (2168 faces) | 6 | 0 | 0 | 0 | 0 |
 | `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 116 (2894 answers) | 98 | 6 | 0 | 9 | 3 |
-| `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 4 | 3 | 1 | 0 | 0 | 0 |
-| `tests/fixtures/captured/step_levels/known_differences.json` | `tests/step_levels.rs` | 71 | 56 | 11 | 4 | 0 | 0 |
-| `tests/fixtures/captured/reconcile/known.json` | `tests/reconcile.rs` | 35 (0 decisions, 9 accepted, 26 motions) | 4 | 9 | 0 | 0 | 22 |
-| `tests/fixtures/captured/recognition_evidence/known_differences.json` | `tests/recognition_evidence.rs` | 83 (36 features, 1 candidate, 2 errors, 44 motions) | 36 | 46 | 0 | 0 | 1 |
+| `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 3 | 3 | 0 | 0 | 0 | 0 |
+| `tests/fixtures/captured/step_levels/known_differences.json` | `tests/step_levels.rs` | 68 | 56 | 8 | 4 | 0 | 0 |
+| `tests/fixtures/captured/reconcile/known.json` | `tests/reconcile.rs` | 31 (0 decisions, 5 accepted, 26 motions) | 4 | 5 | 0 | 0 | 22 |
+| `tests/fixtures/captured/recognition_evidence/known_differences.json` | `tests/recognition_evidence.rs` | 81 (36 features, 1 candidate, 44 motions) | 36 | 44 | 0 | 0 | 1 |
 | `tests/fixtures/known_face_sources.json` | `crates/haecceity/tests/face_sources.rs` | 134 | 90 | 0 | 0 | 43 | 1 |
 | `tests/fixtures/known_pmi.json` "nist" | `crates/haecceity/tests/pmi_read.rs` | 74 | 65 | 0 | 9 | 0 | 0 |
 | `tests/fixtures/known_pmi.json` "occt" | `crates/haecceity/tests/pmi_read.rs` | 403 | 402 | 1 | 0 | 0 | 0 |
@@ -196,21 +199,27 @@ family skips a record that proves no one valid solid instead of refusing it.
 pockets, double-D bores, through steps, angled steps, circular blind steps and seven other
 families check the flag there and skip nothing; passages, oriented slots, repeating profiles,
 polygonal bosses, sheet metal, thin walls, pads and oblique through steps, among others, never
-reach their check. Ported: the holes' degraded evidence path
-(`holes::discover_locally_degraded`), which skips 13975's hole and 14052's as Python does, the
-pockets' one (`pockets::discover_locally_degraded`), which skips 13975's two pockets as Python
-does, the step levels' and risers' degraded proof (`levels::proved`), which skips 13975's riser
-and two levels as Python does, and Python's admission of a solid with at most three faulted faces
-(`evidence::locally_valid_solid`, on the kernel's per-face check `Part::bad_faces`, which faults
-14052's face 1 and no other face in the corpus: `crates/haecceity/tests/validity.rs`). Not
-ported: the retry itself (the port's `recognise` checks no family's evidence but the
-section-recess projection's, whose refusal on 13975 and 14052 it carries,
-`Features::section_recess_refusal`; whether it should panic, carry a refusal or port the retry
-is an open maintainer question) and the fillet and plate skips (in `fillets.rs` and `plates.rs`; 14052's plate
-evidence is refused, not skipped). `tests/local_degradation.rs` compares which parts retry and
-every skip against the port's evidence paths, with each difference's verdict in
-`captured/local_degradation/known.json`, and checks the degraded holes and pockets under two
-rigid motions.
+reach their check. Ported: the retry itself (`features::take_inventory`, behind `recognise`,
+`inventory`, `section_recess_projection` and `build_recognition_evidence`): where the strict
+hole evidence refuses for want of one valid solid on a part whose solids are not all valid
+(`holes::strict_refusal_retries`; the port proves no other family's evidence strictly, so this is
+the only refusal it retries on), the run starts again with every validity query answering as
+Python's degraded graph does (`evidence::locally_degraded`: `common_valid_solid` becomes
+`evidence::locally_valid_solid`, Python's admission of a solid with at most three faulted faces,
+on the kernel's per-face check `Part::bad_faces`, which faults 14052's face 1 and no other face
+in the corpus: `crates/haecceity/tests/validity.rs`), and the families whose skips the corpus
+shows skip as Python's do: holes (`holes::discover_locally_degraded`, 13975's hole and 14052's),
+pockets (`pockets::discover_locally_degraded`, 13975's two), step levels and risers
+(`levels::proved`, 13975's riser and two levels), fillets (cgb202's two, but the port calls that
+solid valid and does not retry there) and plates (`plates::discover_locally_degraded`, 14052's
+plate); and, though no corpus part reaches them, the skips of the families whose refusal would
+otherwise end a retried run (rectangular pads) or refuse its section-recess projection (slots,
+channels, prismatic pockets, edge-open prismatic and circular recesses). The other families' own
+degraded skips are not ported (they publish unproved, as in a strict run). With the retry, 13975 and 14052 publish Python's section recesses (none, and
+14052's triangular pocket) instead of refusing the projection. `tests/local_degradation.rs`
+compares which parts retry, every skip against the port's evidence paths (each difference's
+verdict in `captured/local_degradation/known.json`) and what `recognise` publishes on the
+retried parts, and checks the degraded holes and pockets under two rigid motions.
 
 The aggregate's cross-family reconciliation (`_reconcile_existing`: recess precedence, bevels,
 circular-step fillets, blends, Double-D bores, bosses and turned steps, steps and grooves,
@@ -227,17 +236,18 @@ horizontal face levels strictly inside `bounded_end_margin` of its height) and
 `levels::discover_risers` (`_discover_risers`, each riser carrying its solid's step levels), and
 the thin-wall rule rejects risers from that list, so `recognise` drops them. `levels::proved` is
 Python's proof of either (strictly a refusal when one has no valid solid, under local degradation
-a skip); `features::inventory`, like every family there, publishes them unproved (the retry
-question above). `tests/step_levels.rs` compares, part by part over the corpus, the public
+a skip); `features::inventory`, like every family there, publishes them unproved, but skips as
+`levels::proved` does in a locally degraded run (the retry above). `tests/step_levels.rs` compares, part by part over the corpus, the public
 `step_level_records`, the proposals with their faces and proofs, the proved aggregate and what
 `inventory` and `recognise` carry: 378 Python step levels, 316 identical on 89 parts, the other
 62 (11 parts) differing in the body key alone (solid masses and BRepCheck, as for other families)
-but for 13975's two, which Python's retry skips; 134 Python risers (124 accepted, 10 rejected),
+but for 13975's two, which Python's retry skips (and so do `inventory` and `recognise`, which take
+it); 134 Python risers (124 accepted, 10 rejected),
 118 identical, 16 differing on 6 parts (two coplanar faces of one ramp Python splits by 1e-11 of
 round-off, rust-correct; cgb207's body key; 13975's skip). The recognition document carries both
 families, as Python's document does (`FaceLevel`, `RiserEvidence`; still `recognition/2`, the
 change being additive). They are read along a z axis by specification: in the default document
-the frame's, which is not the file's z on 72 of the corpus parts with either family, so there
+the frame's, which is not the file's z on 71 of the corpus parts with either family, so there
 their z-dependent fields are listed `local` and they hold other faces than caller-space
 recognition's
 (`known_framed_document.json`, not-applicable); caller-space correspondence leaves them out of
@@ -252,11 +262,9 @@ reason and winners: all 261 agree. Thirteen synthetic scenarios run through Pyth
 `_reconcile_existing` (`captured/reconcile/scenarios.json`) cover the branches the corpus never
 reaches, including a candidate two rules decide, which Python refuses; all agree. The accepted
 records are compared too, family by family among those a rule reads, with Python's candidates
-less its rejected ones: all agree but 9 candidate differences no rule causes (listed under
+less its rejected ones: all agree but 5 candidate differences no rule causes (listed under
 `accepted`): 3 holes whose spotface or drilling end the port reads differently and 2 cgb202
-fillets on a solid only OpenCascade calls invalid (rust-correct); 13975's hole and pockets and
-14052's hole and plate, which Python's local-degradation retry skips and `recognise`, which takes
-no retry, publishes, and GRM-03's plate on a solid that owns turned steps, which Python's
+fillets on a solid only OpenCascade calls invalid (rust-correct), and GRM-03's plate on a solid that owns turned steps, which Python's
 aggregate never offers to plates (`excluded_solids`, not ported) (rust-wrong). Over the corpus
 caller-space recognition loses Python's 245 rejected records of carried families on 62 parts
 (127 blends, 36 bosses, 27 prismatic pockets, 24 fillets, 13 chamfers, 12 pockets, 3 slots, 2
@@ -364,13 +372,14 @@ pockets' derived patterns re-expressed over the published section midpoints. A p
 refusal drops one candidate (it becomes a refusal); any other Python `ValueError` is the
 projection's `SectionRecessFamilyError` with Python's message. The documents of 312 parts the
 section-recess Python tests build (up to 3 per test case), the two golden fixtures and the
-100 corpus files (cgb203 included, 591 s in Python) are compared item by item: 412 of 421
-agree, with 667 of 684 occurrences, all 48 refusals and all 20 patterns. The 18 differences
+100 corpus files (cgb203 included, 591 s in Python) are compared item by item: 413 of 421
+agree, with 668 of 684 occurrences, all 48 refusals and all 20 patterns. The 17 differences
 (`captured/section_recesses/known_differences.json`): 15 NIST channels Python proves open at an
 end OpenCascade's own classifier puts in material (its boolean answered 0 for a slab whose
-sides lie in the slot's wall planes; rust-correct); 13975's and 14052's missing
-local-degradation retry, which refuses each whole document (rust-wrong); and one passage origin
-on a rounding tie (equivalent). The kernel's validity check admits an edge used more than twice
+sides lie in the slot's wall planes; rust-correct); 13975's body roster, where the port lists
+the invalid solid the file declares and OpenCascade's healed import has none (equivalent; both
+take the local-degradation retry and publish nothing); and one passage origin on a rounding tie
+(equivalent). The kernel's validity check admits an edge used more than twice
 as `BRepCheck_Shell` does (as often each way, the shell not parted there), so the two aperture
 test parts whose bore's seam lies on the wall's edge agree. The kernel's cover misses a hole in a cylindrical support whose loops it places
 on different turns (mfcadpp/10138), so the aperture proof first requires the bore's face to
@@ -388,8 +397,8 @@ labels. `tests/section_recess_publication.rs` checks Python parity on all 30 dra
 parts, including the 15 existing rust-correct NIST channel verdicts, and hashes the old caller
 and framed document bytes after removing only the new family. The additive family keeps
 `quiddity-rust/recognition/2`; readers with family allowlists must admit it. Where the projection
-refuses (13975 and 14052, for want of Python's local-degradation retry) `recognise` keeps the
-other families and carries the refusal
+refuses (no corpus part since the local-degradation retry is ported; before it, 13975 and
+14052) `recognise` keeps the other families and carries the refusal
 (`Features::section_recess_refusal`), provisionally: whether to panic or carry a refusal is an
 open maintainer question.
 The effective-surface query the rectangular pads, cylindrical channels, pockets and passages
@@ -455,15 +464,13 @@ planar outer profile is read per face through the view, as Python's is.
 (`captured/recognition_evidence/capture.json.gz`: 4308 features, among them 378 step levels and
 302 section recesses and refusals; 489 projected candidates, 255 rejected), and
 `tests/recognition_evidence.rs` compares them keyed by family and defining faces: every
-constituent, host, group and member set and every candidate agrees, but for 36 feature, 1
-candidate and 2 refusal differences: the accepted-record differences
+constituent, host, group and member set and every candidate agrees, but for 36 feature and 1
+candidate differences: the accepted-record differences
 `captured/reconcile/known.json` already explains (Python's local-degradation retry on cgb202, cgb
 holes' spotfaces and drilling ends, GRM-03's plate), four parts where Python keeps two risers
 apart by OpenCascade's bounding-box round-off (rust-correct), the 15 nist open channels whose
-closed run end the port's volume probe measures (rust-correct), and 13975 and 14052, where
-Python's local-degradation retry (not ported) lets its projection through and the port's
-projection refuses the whole recognition with Python's message, so the view refuses too
-(rust-wrong; `captured/section_recesses/known_differences.json` gives the same verdicts). Not
+closed run end the port's volume probe measures (rust-correct). On 13975 and 14052 both sides
+take the local-degradation retry and the views agree. Not
 ported: the association coverage, the bounded report (`RecognitionReport`, `feature_census`) and
 the framed view. Under two rigid motions the view's faces are unchanged but for 44 differences:
 bosses whose ends classify alike take the high end as free (constituent and host faces flip;
@@ -722,7 +729,8 @@ tests/
   prismatic_pockets.rs  prismatic pocket walls and consulted floors on Python's evidence-test
                      parts
   local_degradation.rs  which corpus parts take Python's local-degradation retry and what it
-                     skips there, against the port's evidence paths, and under rigid motion
+                     skips there, against the port's evidence paths and `recognise`, and
+                     under rigid motion
   step_levels.rs     step levels and the aggregate's risers (records, faces, proofs, what
                      `inventory` and `recognise` carry) against Python's over the corpus
   reconcile.rs       every reconciliation decision Python's inventory makes over the corpus and

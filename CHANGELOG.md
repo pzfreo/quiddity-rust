@@ -13,6 +13,14 @@ in [docs/alpha1.md](docs/alpha1.md).
 - Tests on the assembly fixture downstream uses: a part read in its own coordinates, one part's
   PMI written alone (the other part's instances unchanged) with OpenCascade's reading of the
   result, and a nested sub-assembly flattened to its leaf parts.
+- Python's local-degradation retry (`_take_inventory`): where the strict hole evidence refuses
+  for want of one valid solid on a part whose solids are not all valid, `features::recognise`,
+  `features::inventory`, `section_recess_projection` and `build_recognition_evidence` run again
+  with every validity query answering as Python's degraded graph does, and holes, pockets,
+  fillets, plates, step levels, risers, rectangular pads, slots, channels, prismatic pockets and
+  edge-open recesses skip what Python skips there (`plates::discover_locally_degraded` is new). Corpus parts 13975 and 14052 now publish
+  Python's section recesses (none; 14052's triangular pocket) instead of carrying the
+  projection's refusal, and their inventories and evidence views match Python's.
 - `RayCaster::hits_on` and `RayCaster::other_hit`: the hits on some faces alone, and whether a
   face other than some meets a ray within a stretch, answered without intersecting the other
   faces wherever that gives the same answer as `hits` (`None` otherwise).
