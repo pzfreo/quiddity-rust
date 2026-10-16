@@ -328,7 +328,9 @@ fn k3_degraded_records_remain_pythons_in_the_published_document() {
         return;
     };
     for (name, count) in [("13975", 0), ("14052", 1)] {
-        let part = quiddity::read_step_file(&corpus.join(format!("inventory_refusal/{name}.step.gz"))).unwrap();
+        let part =
+            quiddity::read_step_file(&corpus.join(format!("inventory_refusal/{name}.step.gz")))
+                .unwrap();
         let rec = correspondence::recognise(&part);
         assert!(rec.features.section_recess_refusal.is_none());
         let doc = recognition::document(&rec, part.faces.len());
