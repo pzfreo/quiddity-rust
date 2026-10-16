@@ -29,9 +29,21 @@ impl std::ops::Deref for Basis {
 
 /// The `degree + 1` non-zero basis functions at *t* in *span* (Piegl & Tiller A2.2).
 fn basis(knots: &[f64], degree: usize, span: usize, t: f64) -> Basis {
-    let mut n = [0.0; MAX_DEGREE + 1];
-    let mut left = [0.0; MAX_DEGREE + 1];
-    let mut right = [0.0; MAX_DEGREE + 1];
+    if degree < SMALL_DEGREE {
+        return basis_in::<SMALL_DEGREE>(knots, degree, span, t);
+    }
+    basis_in::<{ MAX_DEGREE + 1 }>(knots, degree, span, t)
+}
+
+/// Degrees below this (nearly all) work in arrays this long rather than `MAX_DEGREE + 1`, so
+/// a basis does not clear hundreds of bytes it never reads. The same numbers either way.
+const SMALL_DEGREE: usize = 8;
+
+/// [`basis`], working in arrays of `N > degree`.
+fn basis_in<const N: usize>(knots: &[f64], degree: usize, span: usize, t: f64) -> Basis {
+    let mut n = [0.0; N];
+    let mut left = [0.0; N];
+    let mut right = [0.0; N];
     n[0] = 1.0;
     for j in 1..=degree {
         left[j] = t - knots[span + 1 - j];
@@ -49,15 +61,64 @@ fn basis(knots: &[f64], degree: usize, span: usize, t: f64) -> Basis {
         }
         n[j] = saved;
     }
+    let mut values = [0.0; MAX_DEGREE + 1];
+    values[..N].copy_from_slice(&n);
     Basis {
-        values: n,
+        values,
         len: degree + 1,
     }
 }
 
+/// [`basis`] of *degree*, and of the degree below it: A2.2 builds each degree from the one
+/// below, so the lower one is its last step but one, the same numbers `basis` gives it, for
+/// one pass instead of two.
+fn basis_and_lower(knots: &[f64], degree: usize, span: usize, t: f64) -> (Basis, Basis) {
+    if degree < SMALL_DEGREE {
+        return basis_and_lower_in::<SMALL_DEGREE>(knots, degree, span, t);
+    }
+    basis_and_lower_in::<{ MAX_DEGREE + 1 }>(knots, degree, span, t)
+}
+
+/// [`basis_and_lower`], working in arrays of `N > degree`.
+fn basis_and_lower_in<const N: usize>(
+    knots: &[f64],
+    degree: usize,
+    span: usize,
+    t: f64,
+) -> (Basis, Basis) {
+    let mut n = [0.0; N];
+    let mut left = [0.0; N];
+    let mut right = [0.0; N];
+    n[0] = 1.0;
+    let mut below = n;
+    for j in 1..=degree {
+        below = n;
+        left[j] = t - knots[span + 1 - j];
+        right[j] = knots[span + j] - t;
+        let mut saved = 0.0;
+        for r in 0..j {
+            let denom = right[r + 1] + left[j - r];
+            let temp = if denom.abs() < 1e-300 {
+                0.0
+            } else {
+                n[r] / denom
+            };
+            n[r] = saved + right[r + 1] * temp;
+            saved = left[j - r] * temp;
+        }
+        n[j] = saved;
+    }
+    let read = |n: [f64; N], len: usize| {
+        let mut values = [0.0; MAX_DEGREE + 1];
+        values[..N].copy_from_slice(&n);
+        Basis { values, len }
+    };
+    (read(n, degree + 1), read(below, degree))
+}
+
 /// The basis functions and their first derivatives at *t* in *span*.
 fn basis_and_derivative(knots: &[f64], degree: usize, span: usize, t: f64) -> (Basis, Basis) {
-    let n = basis(knots, degree, span, t);
+    let (n, lower) = basis_and_lower(knots, degree, span, t);
     let mut d = Basis {
         values: [0.0; MAX_DEGREE + 1],
         len: degree + 1,
@@ -65,8 +126,8 @@ fn basis_and_derivative(knots: &[f64], degree: usize, span: usize, t: f64) -> (B
     if degree == 0 {
         return (n, d);
     }
-    // dN(i,p) = p (N(i,p-1) / (k[i+p]-k[i]) - N(i+1,p-1) / (k[i+p+1]-k[i+1])).
-    let lower = basis(knots, degree - 1, span, t);
+    // dN(i,p) = p (N(i,p-1) / (k[i+p]-k[i]) - N(i+1,p-1) / (k[i+p+1]-k[i+1])), N(·,p-1) from
+    // the same pass.
     let p = degree as f64;
     let ratio = |num: f64, den: f64| if den.abs() < 1e-300 { 0.0 } else { num / den };
     for j in 0..=degree {
@@ -683,9 +744,18 @@ impl NurbsSurface {
                 g.points[i + 1][j + 1],
                 g.points[i][j + 1],
             ];
+            let deviation = g.deviation[i][j];
+            // A cell seeds only from its two triangles, where the line passes within the pad of
+            // them, unless it is split (`seed_cell`): the line then passes the corners' padded
+            // box, a far cheaper test than the triangles' when it misses.
+            if deviation <= 0.25 * diagonal(&quad)
+                && !line_near(origin, dir, &quad, seed_pad(deviation))
+            {
+                continue;
+            }
             let cell = [g.us[i], g.us[i + 1], g.vs[j], g.vs[j + 1]];
             let ray = (origin, dir, t_max);
-            self.seed_cell(ray, cell, quad, g.deviation[i][j], 0, &mut seeds);
+            self.seed_cell(ray, cell, quad, deviation, 0, &mut seeds);
         }
         let mut hits: Vec<(f64, f64, f64)> = Vec::new();
         let mut grazing = false;
@@ -915,6 +985,34 @@ fn ray_triangle(o: V3, d: V3, p0: V3, p1: V3, p2: V3, pad: f64) -> Option<(f64, 
         }
     }
     best.map(|(_, t, a, b)| (t, a, b))
+}
+
+/// Whether the line through *o* along *d* (both ways, as [`ray_triangle`] takes it) passes
+/// the box of *corners* padded by *pad*, and a hair more for rounding: it does wherever it
+/// passes within *pad* of a triangle of them.
+fn line_near(o: V3, d: V3, corners: &[V3; 4], pad: f64) -> bool {
+    let pad = pad * (1.0 + 1e-9) + 1e-12;
+    let (mut t0, mut t1) = (f64::NEG_INFINITY, f64::INFINITY);
+    for k in 0..3 {
+        let lo = corners.iter().map(|c| c[k]).fold(f64::INFINITY, f64::min) - pad;
+        let hi = corners
+            .iter()
+            .map(|c| c[k])
+            .fold(f64::NEG_INFINITY, f64::max)
+            + pad;
+        if d[k].abs() < 1e-300 {
+            if o[k] < lo || o[k] > hi {
+                return false;
+            }
+            continue;
+        }
+        let (a, b) = ((lo - o[k]) / d[k], (hi - o[k]) / d[k]);
+        (t0, t1) = (t0.max(a.min(b)), t1.min(a.max(b)));
+        if t0 > t1 {
+            return false;
+        }
+    }
+    true
 }
 
 /// The nearest the line through *o* along the unit *d* comes to the segment from *p* along
