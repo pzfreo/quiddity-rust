@@ -231,3 +231,10 @@ Released from `main` at a6add55 (PRs #3 to #8 since alpha.2), for a consistent s
 specify-core-rust 0.1.0-alpha.2 and draftwright-rust 0.1.0-alpha.2. Overturnable judgement call:
 none of PRs #3 to #8 had a CHANGELOG entry, so the release commit writes one from their
 descriptions.
+
+## 0.1.0-alpha.4 release (2026-10-16)
+
+Released from `main` at 1decc37 (PRs #10 to #12 since alpha.3), for a consistent stack with
+specify-core-rust 0.1.0-alpha.3 and draftwright-rust 0.1.0-alpha.3, which pin this release's
+merge commit by rev. The Unreleased CHANGELOG entries already covered all three PRs, so the
+release commit only dates them.
