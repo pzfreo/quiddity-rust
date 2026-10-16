@@ -6,6 +6,15 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## 0.1.0-alpha.4 (2026-10-16)
 
+- Recognition document `quiddity-rust/recognition/3` retains Python-shaped
+  `section_recesses` occurrences and source refusals, and now publishes
+  `section_recess_patterns` (`SectionRecessArray`, `SectionRecessGrid`). Members are
+  occurrence indices into `section_recesses`, never source-pocket indices. Pattern
+  faces are the union of members' defining faces; frame mapping carries directions
+  and the grid centre. Step levels and risers were already published in version 2.
+  Existing record payloads and the K3 local-degradation behavior are preserved.
+
+
 ### Added
 
 - `PartDefinition.product_id`: the part's `PRODUCT.id`, escapes decoded, reported beside its

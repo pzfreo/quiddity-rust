@@ -74,7 +74,7 @@ use crate::features::repeating_profiles::RepeatingRadialProfile;
 use crate::features::round_bottom_slots::RoundBottomBlindSlot;
 use crate::features::section_recess::{
     EndSurface, PlanarEndTerm, PlanarEnvelopeEndSurface, SectionEnd, SectionRecess,
-    SectionRecessEnds, SectionRecessGeometry,
+    SectionRecessArray, SectionRecessEnds, SectionRecessGeometry, SectionRecessPattern,
 };
 use crate::features::sheet_metal::{
     FlatOverlapWitness, FlatPatternPlan, FormedSheetFeature, SheetBend, SheetEdgeTreatment,
@@ -435,6 +435,7 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
         risers,
         section_recesses,
         section_recess_refusals,
+        section_recess_patterns,
         section_recess_refusal,
         defining,
     } = features;
@@ -545,6 +546,11 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
         risers: each!("risers", risers, riser),
         section_recesses: each!("section_recesses", section_recesses, section_recess),
         section_recess_refusals,
+        section_recess_patterns: each!(
+            "section_recess_patterns",
+            section_recess_patterns,
+            section_recess_pattern
+        ),
         section_recess_refusal,
         // The working part's faces are the caller's, under the same indices.
         defining,
@@ -2325,4 +2331,26 @@ fn passage_ends(e: PassageEnds) -> PassageEnds {
         low_gradient,
         high_gradient,
     }
+}
+
+/// Patterns retain run-local occurrence references; only their spatial fields move.
+fn section_recess_pattern(out: &mut Out, r: SectionRecessPattern) -> SectionRecessPattern {
+    let moved = match &r {
+        SectionRecessPattern::Array(a) => SectionRecessArray::new(
+            a.members().to_vec(),
+            a.pitch(),
+            out.direction(a.direction()),
+        )
+        .map(SectionRecessPattern::Array),
+        SectionRecessPattern::Grid(g) => g
+            .mapped(|d| out.direction(d), |p| out.point(p))
+            .map(SectionRecessPattern::Grid),
+    };
+    moved.unwrap_or_else(|_| {
+        out.mark("direction");
+        out.mark("row_direction");
+        out.mark("col_direction");
+        out.mark("center");
+        r
+    })
 }

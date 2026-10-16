@@ -986,6 +986,20 @@ impl SectionRecessGrid {
     pub fn members(&self) -> &[usize] {
         &self.members
     }
+
+    /// Carry the lattice into another rigid coordinate frame, retaining its member indices.
+    pub fn mapped(&self, direction: impl Fn(V3) -> V3, point: impl Fn(V3) -> V3) -> Checked<Self> {
+        Self::new(
+            self.members.clone(),
+            self.rows,
+            self.cols,
+            self.row_pitch,
+            self.col_pitch,
+            direction(self.row_direction),
+            direction(self.col_direction),
+            point(self.center),
+        )
+    }
 }
 
 /// A pattern among a document's occurrences.

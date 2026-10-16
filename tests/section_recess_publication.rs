@@ -237,7 +237,13 @@ fn publication_preserves_existing_document_bytes() {
         );
         for (name, doc) in [("caller", &run.caller), ("framed", &run.framed)] {
             let mut old = doc.clone();
-            old.records.retain(|r| r.family != "section_recesses");
+            old.records.retain(|r| {
+                !matches!(
+                    r.family.as_str(),
+                    "section_recesses" | "section_recess_patterns"
+                )
+            });
+            old.schema_version = "quiddity-rust/recognition/2".into();
             // The baseline was hashed at 4583c74, whose package version was 0.1.0-alpha.1;
             // release bumps change only that field.
             old.package.version = BASELINE_PACKAGE_VERSION.into();
@@ -246,6 +252,99 @@ fn publication_preserves_existing_document_bytes() {
                 &format!("{name}_document_sha256"),
                 &hash(&serde_json::to_vec(&old).unwrap()),
                 &format!("old {name} document bytes"),
+            );
+        }
+    }
+}
+
+/// The payload actually published, including patterns that used to be discarded. The Python
+/// capture includes rectangular, obround and rounded profiles, arrays and grids.
+#[test]
+fn pattern_publication_matches_python() {
+    let mut text = String::new();
+    flate2::read::GzDecoder::new(
+        std::fs::File::open(common::fixtures().join("captured/section_recesses/documents.json.gz"))
+            .unwrap(),
+    )
+    .read_to_string(&mut text)
+    .unwrap();
+    let capture: Value = serde_json::from_str(&text).unwrap();
+    let mut checked = 0;
+    for run in capture["runs"].as_array().unwrap().iter().filter(|r| {
+        r["source"] == "test"
+            && r["document"]["patterns"]
+                .as_array()
+                .is_some_and(|p| !p.is_empty())
+    }) {
+        let path = common::fixtures()
+            .join("captured/section_recesses")
+            .join(run["file"].as_str().unwrap());
+        let part = quiddity::read_step_file(&path).unwrap();
+        let rec = correspondence::recognise(&part);
+        let doc = recognition::document(&rec, part.faces.len());
+        assert_eq!(doc.schema_version, "quiddity-rust/recognition/3");
+        let patterns: Vec<_> = doc
+            .records
+            .iter()
+            .filter(|r| r.family == "section_recess_patterns")
+            .map(|r| Value::Object(r.parameters.clone()))
+            .collect();
+        assert!(
+            common::same(&json!(patterns), &run["document"]["patterns"]),
+            "{}",
+            run["file"]
+        );
+        for p in doc
+            .records
+            .iter()
+            .filter(|r| r.family == "section_recess_patterns")
+        {
+            let mut faces: Vec<usize> = Vec::new();
+            for m in p.parameters["members"].as_array().unwrap() {
+                let index = m.as_u64().unwrap();
+                let member = doc
+                    .records
+                    .iter()
+                    .find(|r| {
+                        r.family == "section_recesses"
+                            && r.record_type == "SectionRecess"
+                            && r.parameters["index"] == index
+                    })
+                    .unwrap();
+                faces.extend(&member.faces);
+            }
+            faces.sort_unstable();
+            faces.dedup();
+            assert_eq!(p.faces, faces);
+        }
+        checked += 1;
+    }
+    assert!(checked >= 2);
+}
+
+#[test]
+fn k3_degraded_records_remain_pythons_in_the_published_document() {
+    let Some(corpus) = common::corpus_dir() else {
+        return;
+    };
+    for (name, count) in [("13975", 0), ("14052", 1)] {
+        let part = quiddity::read_step_file(&corpus.join(format!("inventory_refusal/{name}.step.gz"))).unwrap();
+        let rec = correspondence::recognise(&part);
+        assert!(rec.features.section_recess_refusal.is_none());
+        let doc = recognition::document(&rec, part.faces.len());
+        let records: Vec<_> = doc
+            .records
+            .iter()
+            .filter(|r| r.family == "section_recesses" && r.record_type == "SectionRecess")
+            .collect();
+        assert_eq!(records.len(), count, "{name}");
+        if count == 1 {
+            assert_eq!(
+                records[0].parameters["geometry"]["profile"]["boundary"]
+                    .as_array()
+                    .unwrap()
+                    .len(),
+                3
             );
         }
     }
