@@ -13,6 +13,21 @@ in [docs/alpha1.md](docs/alpha1.md).
 - Tests on the assembly fixture downstream uses: a part read in its own coordinates, one part's
   PMI written alone (the other part's instances unchanged) with OpenCascade's reading of the
   result, and a nested sub-assembly flattened to its leaf parts.
+- `RayCaster::hits_on` and `RayCaster::other_hit`: the hits on some faces alone, and whether a
+  face other than some meets a ray within a stretch, answered without intersecting the other
+  faces wherever that gives the same answer as `hits` (`None` otherwise).
+
+### Changed
+
+- Hidden-line projection is faster on parts whose faces stack up along the view (a thread seen
+  along its axis, a comb's teeth): threaded_connector_109 renders in 4.1 rather than 23.5
+  trillion instructions, cgb243 in 2.7 (draftwright #43 item 3). Every drawing is unchanged:
+  each saving gives the same answer by construction. A stretch's visibility asks about only the
+  faces it needs (`hits_on`, `other_hit`), skips asking its edge's own faces again when the ray
+  is stopped past them anyway, and reuses a B-spline face's hits along a ray it has already
+  asked; rays meet nearer boxes first; a B-spline face's grid cell is tested against its padded
+  box before its triangles; a basis and its derivative come from one pass; a face domain's
+  segment bins leave out segments parallel to the parity ray and stop below the ray's start.
 
 ## 0.1.0-alpha.3 (2026-10-14)
 

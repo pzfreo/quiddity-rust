@@ -5,7 +5,7 @@
 
 mod common;
 
-use haecceity::rays::RayCaster;
+use haecceity::rays::{Hit, RayCaster};
 use haecceity::read_step_file;
 
 /// A line along an axis from *start*, the length cast, and the crossings (distance along the
@@ -24,6 +24,7 @@ fn check(file: &str, lines: &[Line]) {
     };
     let part = read_step_file(&dir.join(file)).unwrap();
     let rays = RayCaster::for_solid(&part, 0);
+    let mut answered = [0; 2];
     for line in lines {
         let along = [0, 1, 2].map(|a| if a == line.axis { 1.0 } else { 0.0 });
         let hits = rays.hits(line.start, along, line.length).unwrap();
@@ -43,7 +44,54 @@ fn check(file: &str, lines: &[Line]) {
             }
         }
         assert_eq!(ts.len() % 2, 0, "{file}: {:?} {hits:?}", line.start);
+        let alone = alone_as_together(&rays, (line.start, along, line.length), &hits);
+        (0..2).for_each(|k| answered[k] += alone[k]);
     }
+    assert!(
+        answered.iter().all(|&n| n > 0),
+        "{file}: answered alone {answered:?}"
+    );
+}
+
+/// The questions about some faces alone (`hits_on`, `other_hit`) answer as the whole list of
+/// hits does, where they answer at all (these lines meet B-spline combs and the bands of
+/// cracked edges, where a crossing may yield to a face across the edge).
+/// How many times each answered.
+fn alone_as_together(rays: &RayCaster, ray: ([f64; 3], [f64; 3], f64), hits: &[Hit]) -> [usize; 2] {
+    let (origin, dir, t_max) = ray;
+    let mut answered = [0; 2];
+    let mut faces: Vec<usize> = hits.iter().map(|h| h.face).collect();
+    faces.sort_unstable();
+    faces.dedup();
+    for (k, &face) in faces.iter().enumerate() {
+        let on: Vec<Hit> = hits.iter().copied().filter(|h| h.face == face).collect();
+        if let Some(alone) = rays.hits_on(&[face], origin, dir, t_max) {
+            assert_eq!(alone, on, "hits on face {face} from {origin:?}");
+            answered[0] += 1;
+        }
+        let pair = [face, faces[(k + 1) % faces.len()]];
+        let both: Vec<Hit> = hits
+            .iter()
+            .copied()
+            .filter(|h| pair.contains(&h.face))
+            .collect();
+        if let Some(alone) = rays.hits_on(&pair, origin, dir, t_max) {
+            assert_eq!(alone, both, "hits on faces {pair:?} from {origin:?}");
+        }
+        for (after, until) in [(0.0, t_max), (0.0, 0.5 * t_max), (0.5 * t_max, t_max)] {
+            let met = hits
+                .iter()
+                .any(|h| !pair.contains(&h.face) && h.t > after && h.t <= until);
+            if let Some(other) = rays.other_hit(ray, &pair, (after, until)) {
+                assert_eq!(
+                    other, met,
+                    "other than {pair:?} in ({after}, {until}] from {origin:?}"
+                );
+                answered[1] += 1;
+            }
+        }
+    }
+    answered
 }
 
 /// Crossings inside B-spline comb faces, 0.03 to 0.42 mm from their edges, that the trim test
