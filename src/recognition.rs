@@ -34,11 +34,13 @@ use crate::features::gussets::GussetRibPattern;
 use crate::features::hole_patterns::HolePattern;
 use crate::features::oriented_slots::OrientedSlotPattern;
 use crate::features::recess_patterns::{PocketPattern, SlotPattern};
+use crate::features::section_recess::SectionRecessPattern;
 use crate::frames::RecordFrame;
 
-/// Bumped for incompatible document changes; additive families retain the version (step levels,
-/// risers and section recesses). Readers with a family allowlist must admit each new family.
-pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/2";
+/// Version 3 publishes unified recess patterns whose members name the section-recess
+/// occurrence indices (not source-pocket indices). Occurrences and source refusals share
+/// `section_recesses`, as in Python; step levels and risers remain evidence families.
+pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/3";
 
 /// One part's recognition, as draftwright reads it.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -147,6 +149,10 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
         "section_recesses",
         &["SectionRecess", "SectionRecessRefusal"],
     ),
+    (
+        "section_recess_patterns",
+        &["SectionRecessArray", "SectionRecessGrid"],
+    ),
 ];
 
 /// The record class names a family's records can have.
@@ -160,6 +166,10 @@ pub fn record_types(family: &str) -> Option<&'static [&'static str]> {
 /// Python's record class name for record *n* of *family*.
 pub fn record_type(features: &Features, family: &str, n: usize) -> &'static str {
     match family {
+        "section_recess_patterns" => match &features.section_recess_patterns[n] {
+            SectionRecessPattern::Array(_) => "SectionRecessArray",
+            SectionRecessPattern::Grid(_) => "SectionRecessGrid",
+        },
         "section_recesses" => {
             if n < features.section_recesses.len() {
                 "SectionRecess"
@@ -237,6 +247,14 @@ pub fn families(features: &Features) -> Vec<(String, Vec<Value>)> {
             .iter()
             .map(|r| serde_json::to_value(r).expect("refusal serialises")),
     );
+    families.push((
+        "section_recess_patterns".into(),
+        features
+            .section_recess_patterns
+            .iter()
+            .map(|r| serde_json::to_value(r).expect("pattern serialises"))
+            .collect(),
+    ));
     families
 }
 
@@ -257,7 +275,22 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
                 panic!("{id} is not a record");
             };
             // Refusals describe source evidence, not recognised geometry to fingerprint.
-            let faces = if family == "section_recesses"
+            let faces = if family == "section_recess_patterns" {
+                let mut faces: Vec<_> = recognition.features.section_recess_patterns[n]
+                    .members()
+                    .iter()
+                    .flat_map(|&m| {
+                        recognition.features.section_recesses[m]
+                            .evidence()
+                            .defining_faces()
+                            .iter()
+                            .copied()
+                    })
+                    .collect();
+                faces.sort_unstable();
+                faces.dedup();
+                faces
+            } else if family == "section_recesses"
                 && n >= recognition.features.section_recesses.len()
             {
                 recognition.features.section_recess_refusals
