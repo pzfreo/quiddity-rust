@@ -1,7 +1,7 @@
 //! The recognition fast path must answer exactly as the complete volume query does.
-use quiddity::kernel as haecceity;
 use quiddity::features::Context;
 use quiddity::features::volume_probe::{Spans, prism_is_empty, prism_material_fraction};
+use quiddity::kernel as haecceity;
 use std::path::Path;
 
 #[test]
@@ -9,7 +9,11 @@ fn bounded_emptiness_matches_complete_volume_on_planar_and_curved_parts() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures");
     let mut empty = 0;
     let mut occupied = 0;
-    for name in ["filleted_plate_with_holes.step", "golden_blind_pockets_and_pocket_patterns.step", "filleted_stepped_shaft.step"] {
+    for name in [
+        "filleted_plate_with_holes.step",
+        "golden_blind_pockets_and_pocket_patterns.step",
+        "filleted_stepped_shaft.step",
+    ] {
         let part = haecceity::read_step(&std::fs::read(root.join(name)).unwrap()).unwrap();
         let ctx = Context::new(&part);
         let b = part.bounds();
