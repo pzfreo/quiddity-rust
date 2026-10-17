@@ -238,3 +238,10 @@ Released from `main` at 1decc37 (PRs #10 to #12 since alpha.3), for a consistent
 specify-core-rust 0.1.0-alpha.3 and draftwright-rust 0.1.0-alpha.3, which pin this release's
 merge commit by rev. The Unreleased CHANGELOG entries already covered all three PRs, so the
 release commit only dates them.
+
+## 0.1.0-alpha.5 release (2026-10-17)
+
+Released from `main` at 0fdf5dcb (PR #14 since alpha.4): recognition document 3 publishes
+section recess occurrences, unified patterns and refusals for downstream readers. PR #14's
+CHANGELOG entry had been placed under alpha.4; the release commit moves it into the dated
+alpha.5 section, leaving alpha.4's original entries intact.

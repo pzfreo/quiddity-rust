@@ -4,7 +4,9 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
-## 0.1.0-alpha.4 (2026-10-16)
+## 0.1.0-alpha.5 (2026-10-17)
+
+### Added
 
 - Recognition document `quiddity-rust/recognition/3` retains Python-shaped
   `section_recesses` occurrences and source refusals, and now publishes
@@ -14,6 +16,7 @@ in [docs/alpha1.md](docs/alpha1.md).
   and the grid centre. Step levels and risers were already published in version 2.
   Existing record payloads and the K3 local-degradation behavior are preserved.
 
+## 0.1.0-alpha.4 (2026-10-16)
 
 ### Added
 
