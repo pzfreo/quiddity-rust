@@ -697,6 +697,7 @@ pub struct DerivedGeometry {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum DerivedGeometryKind {
     Axis,
+    /// One face's own plane, or the median of two parallel deriving faces.
     MedianPlane,
 }
 
@@ -2622,9 +2623,11 @@ impl PartPmi {
             if g.deriving_faces.is_empty() {
                 bad(format!("derived geometry {i} has no deriving faces"));
             }
-            if g.kind == DerivedGeometryKind::MedianPlane && g.deriving_faces.len() != 2 {
+            if g.kind == DerivedGeometryKind::MedianPlane
+                && !matches!(g.deriving_faces.len(), 1 | 2)
+            {
                 bad(format!(
-                    "derived geometry {i} median plane requires two deriving faces"
+                    "derived geometry {i} plane requires one or two deriving faces"
                 ));
             }
             if g.point.iter().any(|p| !p.mm().is_finite()) {

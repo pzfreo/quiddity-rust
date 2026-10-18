@@ -4,6 +4,35 @@ use crate::geom::V3;
 use crate::pmi::derived::{self, Explicit, Surface, SurfaceKind};
 
 impl Reader<'_> {
+    /// Each plane is well-defined in isolation; only the distance is ambiguous.
+    /// Keep those reusable feature records and report the refusal on the dimension.
+    pub(super) fn check_derived_plane_distance(
+        &mut self,
+        st: &PartState,
+        dimension: u64,
+        from: FeatureId,
+        to: FeatureId,
+        aspects: &[u64],
+    ) {
+        let get = |f: FeatureId| match &st.pmi.features[f.0] {
+            Feature::Derived {
+                geometry: Some(g), ..
+            } => Some(&st.pmi.derived_geometry[g.0]),
+            _ => None,
+        };
+        if let (Some(a), Some(b)) = (get(from), get(to))
+            && a.kind == DerivedGeometryKind::MedianPlane
+            && b.kind == DerivedGeometryKind::MedianPlane
+            && !derived::parallel(
+                a.direction.0.each_ref().map(Decimal::to_f64),
+                b.direction.0.each_ref().map(Decimal::to_f64),
+            )
+        {
+            self.find(FindingKind::NotModelled, Some(st.id), dimension, aspects,
+                "derived plane-plane distance refused: non-parallel planes; semantic value retained");
+        }
+    }
+
     pub(super) fn derived_geometry(
         &mut self,
         st: &mut PartState,
@@ -41,7 +70,7 @@ impl Reader<'_> {
                     }
                     let shape = self.explicit_derived_item(item, rep)?;
                     geometry
-                        .cross_check(shape, explicit_tolerance)
+                        .cross_check(shape, &surfaces, explicit_tolerance)
                         .map_err(|why| format!("#{item}: {why}"))?;
                     explicit.push((item, rep));
                 }
@@ -209,17 +238,35 @@ impl Reader<'_> {
             return Err(format!("surface #{surface} has an invalid length unit"));
         }
         let kind = if self.is(surface, "cylindrical_surface") {
-            let a = self
-                .get(surface, "cylindrical_surface", "radius")
-                .ok_or("cylinder without a radius")?;
-            let r = self
-                .real_text(surface, a)
-                .ok_or("cylinder radius is not numeric")?;
             SurfaceKind::Cylinder(
-                Decimal::parse(&r).map_err(|e| e.0)?.to_f64() * unit.millimetres(),
+                self.surface_parameter(surface, "cylindrical_surface", "radius")?
+                    * unit.millimetres(),
             )
-        } else if self.is(surface, "conical_surface") || self.is(surface, "toroidal_surface") {
-            SurfaceKind::Revolution
+        } else if self.is(surface, "conical_surface") {
+            let ctx = self
+                .get_ref(rep, "representation", "context_of_items")
+                .ok_or("cone representation has no context")?;
+            let angle_unit = self
+                .get_refs(ctx, "global_unit_assigned_context", "units")
+                .into_iter()
+                .find_map(|u| match self.unit(u) {
+                    Ok(Unit::Angle(a)) => Some(a),
+                    _ => None,
+                })
+                .ok_or("cone context has no plane-angle unit")?;
+            SurfaceKind::Cone {
+                radius: self.surface_parameter(surface, "conical_surface", "radius")?
+                    * unit.millimetres(),
+                semi_angle: self.surface_parameter(surface, "conical_surface", "semi_angle")?
+                    * angle_unit.radians(),
+            }
+        } else if self.is(surface, "toroidal_surface") {
+            SurfaceKind::Torus {
+                major: self.surface_parameter(surface, "toroidal_surface", "major_radius")?
+                    * unit.millimetres(),
+                minor: self.surface_parameter(surface, "toroidal_surface", "minor_radius")?
+                    * unit.millimetres(),
+            }
         } else if self.is(surface, "plane") {
             SurfaceKind::Plane
         } else {
@@ -237,6 +284,14 @@ impl Reader<'_> {
             point,
             direction,
         })
+    }
+
+    fn surface_parameter(&mut self, surface: u64, entity: &str, name: &str) -> Result<f64, String> {
+        let value = self
+            .get(surface, entity, name)
+            .and_then(|a| self.real_text(surface, a))
+            .ok_or_else(|| format!("surface #{surface} has no numeric {name}"))?;
+        Ok(Decimal::parse(&value).map_err(|e| e.0)?.to_f64())
     }
 
     fn derived_point(&mut self, point: u64, unit: &LengthUnit) -> Result<V3, String> {

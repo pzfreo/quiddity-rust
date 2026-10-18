@@ -3259,6 +3259,10 @@ mod tests {
         assert_eq!(from_json(&j, "pmi").unwrap(), p);
         p.derived_geometry[0].kind = DerivedGeometryKind::MedianPlane;
         p.derived_geometry[0].radius = None;
+        // A single face's own plane uses the same record as a two-face median.
+        let j = to_json(&p);
+        assert_eq!(j["derived_geometry"][0]["kind"], "median_plane");
+        assert_eq!(from_json(&j, "pmi").unwrap(), p);
         p.derived_geometry[0].deriving_faces.push(FaceIndex(1));
         let j = to_json(&p);
         assert_eq!(j["derived_geometry"][0]["kind"], "median_plane");
@@ -3267,6 +3271,7 @@ mod tests {
             ("kind", json!("guessed")),
             ("direction", json!(["0", "0", "0"])),
             ("deriving_faces", json!([])),
+            ("deriving_faces", json!([0, 1, 2])),
             ("supplemental", json!([9])),
             ("radius", length_json(&length("2"))),
         ] {

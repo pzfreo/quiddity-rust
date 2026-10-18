@@ -72,84 +72,87 @@ fn dimension(r: &PmiRead, id: u64) -> &Dimension {
 }
 
 #[test]
-fn grm_all_ten_dimensions_retain_values_with_exact_geometry_refusals() {
+fn grm_all_ten_dimensions_resolve_and_match_unchanged_nominals_and_qualifiers() {
     let r = read(&grm());
     assert_eq!(r.parts[0].dimensions.len(), 10);
-    assert!(r.parts[0].derived_geometry.is_empty());
-    for (dim, aspects, why) in [
-        (
-            841,
-            vec![835],
-            "explicit geometry disagrees with derived axis",
-        ),
-        (
-            877,
-            vec![871],
-            "explicit geometry disagrees with derived axis",
-        ),
-        (
-            914,
-            vec![907],
-            "explicit geometry disagrees with derived axis",
-        ),
-        (
-            958,
-            vec![952],
-            "explicit geometry disagrees with derived axis",
-        ),
-        (
-            994,
-            vec![988],
-            "explicit geometry disagrees with derived axis",
-        ),
-        (
-            1040,
-            vec![1030, 1034],
-            "median plane requires exactly two parallel planar deriving faces; found 1",
-        ),
-        (
-            1086,
-            vec![1076, 1080],
-            "median plane requires exactly two parallel planar deriving faces; found 1",
-        ),
-        (
-            1132,
-            vec![1122, 1126],
-            "median plane requires exactly two parallel planar deriving faces; found 1",
-        ),
-        (
-            1174,
-            vec![1164, 1168],
-            "median plane requires exactly two parallel planar deriving faces; found 1",
-        ),
-        (
-            1216,
-            vec![1206, 1210],
-            "median plane requires exactly two parallel planar deriving faces; found 1",
-        ),
+    assert_eq!(r.parts[0].derived_geometry.len(), 15);
+    let mut refused = 0;
+    for (id, aspects, nominal) in [
+        (841, vec![835], "4."),
+        (877, vec![871], "6."),
+        (914, vec![907], "10."),
+        (958, vec![952], "5."),
+        (994, vec![988], "1.6"),
+        (1040, vec![1030, 1034], "3.2"),
+        (1086, vec![1076, 1080], "0.5"),
+        (1132, vec![1122, 1126], "2."),
+        (1174, vec![1164, 1168], "3."),
+        (1216, vec![1206, 1210], "20."),
     ] {
-        let d = dimension(&r, dim);
-        assert!(d.nominal.is_some(), "#{dim}");
-        for a in aspects {
-            assert!(geometry(&r, a).is_none());
-            let f = r
-                .findings
-                .iter()
-                .find(|f| f.ids[0] == a && f.detail.contains(why))
-                .unwrap_or_else(|| panic!("#{dim} aspect #{a}: missing {why}: {:?}", r.findings));
-            println!("dimension #{dim}, aspect #{a}: {}", f.detail);
-            assert_eq!(
-                f.kind,
-                if a < 1000 {
-                    FindingKind::Conflict
-                } else {
-                    FindingKind::NotModelled
-                }
-            );
+        let d = dimension(&r, id);
+        let expected = Length {
+            value: Decimal::parse(nominal).unwrap(),
+            unit: LengthUnit::Millimetre,
+        };
+        assert_eq!(
+            d.nominal.as_ref().unwrap().quantity,
+            Quantity::Length(expected.clone()),
+            "#{id}"
+        );
+        assert_eq!(
+            d.qualifier,
+            if id == 914 {
+                Some(Qualifier::Maximum)
+            } else {
+                None
+            },
+            "#{id}"
+        );
+        if aspects.iter().any(|&a| geometry(&r, a).is_none()) {
+            refused += 1;
+            continue;
         }
+        let a = geometry(&r, aspects[0]).unwrap();
+        let measured = if aspects.len() == 1 {
+            assert_eq!(a.kind, DerivedGeometryKind::Axis);
+            assert_eq!(a.supplemental.len(), 1);
+            assert!(
+                matches!(d.kind, DimensionKind::Size { feature: f, kind: SizeKind::Diameter, .. } if f == feature(&r, aspects[0]))
+            );
+            a.radius.as_ref().unwrap().mm() * 2.
+        } else {
+            let b = geometry(&r, aspects[1]).unwrap();
+            assert!(
+                matches!(d.kind, DimensionKind::Location { from, to, kind: LocationKind::LinearDistance, .. } if from == feature(&r, aspects[0]) && to == feature(&r, aspects[1]))
+            );
+            assert_eq!(a.kind, DerivedGeometryKind::MedianPlane);
+            assert_eq!(b.kind, DerivedGeometryKind::MedianPlane);
+            assert_eq!(a.deriving_faces.len(), 1);
+            assert_eq!(b.deriving_faces.len(), 1);
+            let n = a.direction.0.each_ref().map(Decimal::to_f64);
+            let m = b.direction.0.each_ref().map(Decimal::to_f64);
+            let dot: f64 = n.iter().zip(m).map(|(x, y)| x * y).sum();
+            assert!((dot.abs() - 1.).abs() < 1e-12);
+            a.point
+                .iter()
+                .zip(&b.point)
+                .zip(n)
+                .map(|((p, q), n)| (q.mm() - p.mm()) * n)
+                .sum::<f64>()
+                .abs()
+        };
+        assert!(
+            (measured - expected.mm()).abs() < 1e-7,
+            "#{id}: geometry {measured}, nominal {nominal}"
+        );
     }
-    assert_eq!(dimension(&r, 914).qualifier, Some(Qualifier::Maximum));
-    assert!((dimension(&r, 1040).nominal.as_ref().unwrap().quantity.si() - 3.2).abs() < 1e-12);
+    assert_eq!(refused, 0, "{:?}", r.findings);
+    assert!(
+        !r.findings
+            .iter()
+            .any(|f| f.detail.contains("derived geometry refused")
+                || f.detail.contains("plane-plane distance refused"))
+    );
 }
 
 fn agreeing() -> String {
@@ -299,7 +302,7 @@ fn explicit_only_cycles_and_disagreeing_chains_are_refused() {
             .any(|f| f.ids[0] == 835 && f.detail.contains("explicit geometry alone"))
     );
     let chained = append(
-        &grm(),
+        &replace(&grm(), 836, "#836=CARTESIAN_POINT('',(-1.6,0.,1.));"),
         "
 #3000=DERIVED_SHAPE_ASPECT('','',#4,.F.);
 #3001=SHAPE_ASPECT_DERIVING_RELATIONSHIP('',$,#3000,#835);
@@ -543,4 +546,127 @@ fn a_looser_explicit_context_cannot_relax_a_different_items_cross_check() {
     assert!(r.findings.iter().any(|f| f.ids[0] == 835
         && f.detail.contains("#3003: explicit geometry disagrees")
         && f.detail.contains("tolerance 1.000000000000e-7 mm")));
+}
+
+#[test]
+fn a_point_off_both_axis_and_deriving_surface_keeps_the_conflict_finding() {
+    let r = read(&replace(
+        &grm(),
+        836,
+        "#836=CARTESIAN_POINT('',(-1.6,0.,1.));",
+    ));
+    assert!(geometry(&r, 835).is_none());
+    assert!(dimension(&r, 841).nominal.is_some());
+    assert!(r.findings.iter().any(|f| {
+        f.kind == FindingKind::Conflict
+            && f.ids[0] == 835
+            && f.ids.contains(&836)
+            && f.ids.contains(&573)
+            && f.detail
+                .contains("explicit geometry disagrees with derived axis")
+    }));
+}
+
+#[test]
+fn non_parallel_single_plane_aspects_refuse_the_distance_and_keep_the_planes() {
+    // #1030 and #1034 each derive exactly one plane. Rotate only the second
+    // normal; its explicit point is still on that plane, so both aspects resolve.
+    let r = read(&replace(&grm(), 525, "#525=DIRECTION('',(0.,1.,0.));"));
+    for aspect in [1030, 1034] {
+        let g = geometry(&r, aspect).unwrap();
+        assert_eq!(g.kind, DerivedGeometryKind::MedianPlane);
+        assert_eq!(g.deriving_faces.len(), 1);
+    }
+    assert_eq!(
+        dimension(&r, 1040).nominal.as_ref().unwrap().quantity.si(),
+        3.2
+    );
+    assert!(r.findings.iter().any(|f| {
+        f.kind == FindingKind::NotModelled
+            && f.ids[0] == 1040
+            && f.ids.contains(&1030)
+            && f.ids.contains(&1034)
+            && f.detail
+                .contains("plane-plane distance refused: non-parallel planes")
+    }));
+}
+
+#[test]
+fn surface_points_use_cone_station_and_torus_tube_not_a_constant_radius() {
+    for (surface, points) in [
+        (
+            "#562=CONICAL_SURFACE('',#563,2.,0.7853981633974483);",
+            vec![("(-2.2,0.,3.)", true), ("(-2.2,0.,2.)", false)],
+        ),
+        (
+            "#562=TOROIDAL_SURFACE('',#563,2.,0.5);",
+            vec![
+                ("(-3.2,0.,2.5)", true),
+                ("(-3.2,0.,1.5)", true),
+                ("(-2.9,0.,2.4)", true),
+                ("(-2.9,0.,1.6)", true),
+                ("(-2.7,0.,2.)", true),
+                ("(-2.2,0.,2.5)", false),
+                ("(-2.9,0.,2.5)", false),
+            ],
+        ),
+        (
+            "#562=TOROIDAL_SURFACE('',#563,0.5,1.);",
+            vec![("(-3.2,0.,0.5)", true), ("(-3.2,0.,0.75)", false)],
+        ),
+    ] {
+        let text = replace(&grm(), 562, surface);
+        for (point, agrees) in points {
+            let r = read(&replace(
+                &text,
+                836,
+                &format!("#836=CARTESIAN_POINT('',{point});"),
+            ));
+            assert_eq!(
+                geometry(&r, 835).is_some(),
+                agrees,
+                "{surface}: {point}: {:?}",
+                r.findings
+            );
+        }
+    }
+    // The cone angle must be converted from its context, just like length units.
+    let text = replace(&grm(), 562, "#562=CONICAL_SURFACE('',#563,2.,45.);");
+    let text = replace(
+        &text,
+        771,
+        "#771=(CONVERSION_BASED_UNIT('degree',#3000) NAMED_UNIT(#3002) PLANE_ANGLE_UNIT());",
+    );
+    let text = append(
+        &text,
+        "
+#3000=PLANE_ANGLE_MEASURE_WITH_UNIT(PLANE_ANGLE_MEASURE(0.017453292519943295),#3001);
+#3001=(NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.));
+#3002=DIMENSIONAL_EXPONENTS(0.,0.,0.,0.,0.,0.,0.);
+",
+    );
+    let r = read(&replace(
+        &text,
+        836,
+        "#836=CARTESIAN_POINT('',(-2.2,0.,3.));",
+    ));
+    assert!(geometry(&r, 835).is_some(), "{:?}", r.findings);
+}
+
+#[test]
+fn surface_point_tolerance_tracks_model_uncertainty_without_accepting_arbitrary_offsets() {
+    for (offset, agrees) in [(0.00000005, true), (0.0000002, false)] {
+        let text = replace(
+            &grm(),
+            836,
+            &format!("#836=CARTESIAN_POINT('',(-1.6,0.,{}));", 2. + offset),
+        );
+        assert_eq!(geometry(&read(&text), 835).is_some(), agrees);
+        let text = replace(
+            &text,
+            773,
+            "#773=UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(0.000001),#770,'distance_accuracy_value','confusion accuracy');",
+        );
+        assert!(geometry(&read(&text), 835).is_some());
+    }
 }

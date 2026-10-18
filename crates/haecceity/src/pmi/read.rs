@@ -2639,6 +2639,9 @@ impl<'a> Reader<'a> {
             }
             let path = self.dimension_path(st, id, "dimensional_location_with_path")?;
             let kind = LocationKind::from_name(&name);
+            if !angular && kind == LocationKind::LinearDistance {
+                self.check_derived_plane_distance(st, id, from, to, &[a, b]);
+            }
             if !angular && matches!(kind, LocationKind::Other(_)) {
                 self.find(
                     FindingKind::Nonconformance,

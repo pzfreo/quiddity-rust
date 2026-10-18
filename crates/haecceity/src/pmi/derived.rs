@@ -10,7 +10,8 @@ pub(super) const DIRECTION_TOLERANCE: f64 = 1e-9;
 #[derive(Clone, Copy, Debug)]
 pub(super) enum SurfaceKind {
     Cylinder(f64),
-    Revolution,
+    Cone { radius: f64, semi_angle: f64 },
+    Torus { major: f64, minor: f64 },
     Plane,
 }
 
@@ -29,7 +30,7 @@ pub(super) struct Derived {
     pub radius: Option<f64>,
 }
 
-fn parallel(a: V3, b: V3) -> bool {
+pub(super) fn parallel(a: V3, b: V3) -> bool {
     norm(cross(a, b)) <= DIRECTION_TOLERANCE
 }
 
@@ -49,10 +50,22 @@ pub(super) fn derive(faces: &[Surface], tolerance: f64) -> Result<Derived, Strin
             return Err("a deriving surface has a non-finite point".into());
         }
         f.direction = unit(f.direction).ok_or("a deriving surface has an invalid direction")?;
-        if let SurfaceKind::Cylinder(r) = f.kind
-            && (!r.is_finite() || r <= 0.0)
-        {
-            return Err("a deriving cylinder has an invalid radius".into());
+        let valid = match f.kind {
+            SurfaceKind::Cylinder(r) => r.is_finite() && r > 0.,
+            SurfaceKind::Cone { radius, semi_angle } => {
+                radius.is_finite()
+                    && radius >= 0.
+                    && semi_angle.is_finite()
+                    && semi_angle.abs() > 0.
+                    && semi_angle.abs() < std::f64::consts::FRAC_PI_2
+            }
+            SurfaceKind::Torus { major, minor } => {
+                major.is_finite() && major > 0. && minor.is_finite() && minor > 0.
+            }
+            SurfaceKind::Plane => true,
+        };
+        if !valid {
+            return Err("a deriving surface has an invalid radius or semi-angle".into());
         }
     }
     let direction = faces[0].direction;
@@ -65,9 +78,18 @@ pub(super) fn derive(faces: &[Surface], tolerance: f64) -> Result<Derived, Strin
         if planes != faces.len() {
             return Err("mixed planar and revolution deriving faces".into());
         }
+        // A singleton's own plane uses the existing plane record, with no midpoint shift.
+        if faces.len() == 1 {
+            return Ok(Derived {
+                kind: DerivedGeometryKind::MedianPlane,
+                point,
+                direction,
+                radius: None,
+            });
+        }
         if faces.len() != 2 {
             return Err(format!(
-                "median plane requires exactly two parallel planar deriving faces; found {}",
+                "plane requires one planar deriving face or exactly two parallel planar deriving faces; found {}",
                 faces.len()
             ));
         }
@@ -121,7 +143,12 @@ pub(super) enum Explicit {
 }
 
 impl Derived {
-    pub fn cross_check(self, explicit: Explicit, tolerance: f64) -> Result<(), String> {
+    pub fn cross_check(
+        self,
+        explicit: Explicit,
+        surfaces: &[Surface],
+        tolerance: f64,
+    ) -> Result<(), String> {
         let on = |point| match self.kind {
             DerivedGeometryKind::Axis => line_distance(point, self.point, self.direction),
             DerivedGeometryKind::MedianPlane => dot(sub(point, self.point), self.direction).abs(),
@@ -160,7 +187,12 @@ impl Derived {
         if !distance.is_finite() {
             return Err("explicit geometry comparison is non-finite".into());
         }
-        if distance > tolerance {
+        // Only a point may identify the diameter's surface. A line or placement still
+        // describes the derived axis itself and must be coincident with it.
+        let on_surface = matches!(explicit, Explicit::Point(_))
+            && self.kind == DerivedGeometryKind::Axis
+            && surfaces.iter().any(|s| s.contains(point, tolerance));
+        if distance > tolerance && !on_surface {
             return Err(format!(
                 "explicit geometry disagrees with derived {}: distance {distance:.12e} mm exceeds tolerance {tolerance:.12e} mm",
                 self.kind_name()
@@ -180,6 +212,42 @@ impl Derived {
             DerivedGeometryKind::Axis => "axis",
             DerivedGeometryKind::MedianPlane => "median plane",
         }
+    }
+}
+
+impl Surface {
+    fn contains(self, point: V3, tolerance: f64) -> bool {
+        let Some(direction) = unit(self.direction) else {
+            return false;
+        };
+        let offset = sub(point, self.point);
+        let station = dot(offset, direction);
+        let radial = line_distance(point, self.point, direction);
+        // Compare length residuals, never squared distances. The cone residual is
+        // normal to its generator; this accounts for both axial and radial uncertainty.
+        let (residual, size) = match self.kind {
+            SurfaceKind::Cylinder(r) => ((radial - r).abs(), r),
+            SurfaceKind::Cone { radius, semi_angle } => {
+                let r = (radius + station * semi_angle.tan()).abs();
+                ((radial - r).abs() * semi_angle.cos(), radius.max(r))
+            }
+            SurfaceKind::Torus { major, minor } => {
+                let outer = ((radial - major).hypot(station) - minor).abs();
+                // A spindle torus may sweep a negative signed radius as well.
+                let inner = ((radial + major).hypot(station) - minor).abs();
+                (outer.min(inner), major.max(minor))
+            }
+            SurfaceKind::Plane => return false,
+        };
+        // Length uncertainty is already converted to mm. Add a small floating-point
+        // allowance scaled to coordinates and radii, not a relative model tolerance.
+        let scale = point
+            .into_iter()
+            .chain(self.point)
+            .map(f64::abs)
+            .fold(size.max(station.abs()).max(radial), f64::max);
+        let bound = tolerance + 32. * f64::EPSILON * scale;
+        residual.is_finite() && bound.is_finite() && residual <= bound
     }
 }
 
@@ -206,6 +274,18 @@ mod tests {
         assert_eq!(d.kind, DerivedGeometryKind::Axis);
         assert_eq!(d.direction, Z);
         assert_eq!(d.radius, Some(2.));
+        let stepped = [a, cylinder(9., 3.)];
+        let stepped_axis = derive(&stepped, DISTANCE_TOLERANCE).unwrap();
+        for r in [2., 3.] {
+            stepped_axis
+                .cross_check(Explicit::Point([r, 0., 4.]), &stepped, DISTANCE_TOLERANCE)
+                .unwrap();
+        }
+        assert!(
+            stepped_axis
+                .cross_check(Explicit::Point([2.5, 0., 4.]), &stepped, DISTANCE_TOLERANCE)
+                .is_err()
+        );
         assert_eq!(
             derive(&[a, cylinder(9., 3.)], DISTANCE_TOLERANCE)
                 .unwrap()
@@ -214,7 +294,16 @@ mod tests {
         );
         assert_eq!(
             derive(
-                &[a, surface(SurfaceKind::Revolution, [0., 0., 7.])],
+                &[
+                    a,
+                    surface(
+                        SurfaceKind::Cone {
+                            radius: 2.,
+                            semi_angle: 0.4
+                        },
+                        [0., 0., 7.]
+                    )
+                ],
                 DISTANCE_TOLERANCE
             )
             .unwrap()
@@ -255,11 +344,11 @@ mod tests {
                 .unwrap_err()
                 .contains("mixed")
         );
-        assert!(
-            derive(&[a], DISTANCE_TOLERANCE)
-                .unwrap_err()
-                .contains("exactly two")
-        );
+        let single = derive(&[a], DISTANCE_TOLERANCE).unwrap();
+        assert_eq!(single.kind, DerivedGeometryKind::MedianPlane);
+        assert_eq!(single.point, a.point);
+        assert_eq!(single.direction, a.direction);
+        assert!(derive(&[a, a, a], DISTANCE_TOLERANCE).is_err());
         assert!(
             derive(&[], DISTANCE_TOLERANCE)
                 .unwrap_err()
@@ -271,6 +360,7 @@ mod tests {
         let axis = derive(&[cylinder(0., 2.)], DISTANCE_TOLERANCE).unwrap();
         for e in [
             Explicit::Point([0., 0., 9.]),
+            Explicit::Point([2., 0., 9.]),
             Explicit::Line {
                 point: [0., 0., 4.],
                 direction: [0., 0., -3.],
@@ -280,10 +370,19 @@ mod tests {
                 direction: Z,
             },
         ] {
-            axis.cross_check(e, DISTANCE_TOLERANCE).unwrap();
+            axis.cross_check(e, &[cylinder(0., 2.)], DISTANCE_TOLERANCE)
+                .unwrap();
         }
         for e in [
-            Explicit::Point([2., 0., 0.]),
+            Explicit::Point([1., 0., 0.]),
+            Explicit::Placement {
+                point: [2., 0., 0.],
+                direction: Z,
+            },
+            Explicit::Line {
+                point: [2., 0., 0.],
+                direction: Z,
+            },
             Explicit::Line {
                 point: [0., 0., 4.],
                 direction: [1., 0., 0.],
@@ -293,7 +392,10 @@ mod tests {
                 normal: Z,
             },
         ] {
-            assert!(axis.cross_check(e, DISTANCE_TOLERANCE).is_err());
+            assert!(
+                axis.cross_check(e, &[cylinder(0., 2.)], DISTANCE_TOLERANCE)
+                    .is_err()
+            );
         }
         let plane = derive(
             &[
@@ -314,21 +416,23 @@ mod tests {
                 normal: [0., 0., -2.],
             },
         ] {
-            plane.cross_check(e, DISTANCE_TOLERANCE).unwrap();
+            plane.cross_check(e, &[], DISTANCE_TOLERANCE).unwrap();
         }
         assert!(
             plane
-                .cross_check(Explicit::Point([0., 0., 0.]), DISTANCE_TOLERANCE)
+                .cross_check(Explicit::Point([0., 0., 0.]), &[], DISTANCE_TOLERANCE)
                 .is_err()
         );
         axis.cross_check(
             Explicit::Point([DISTANCE_TOLERANCE * 0.5, 0., 0.]),
+            &[cylinder(0., 2.)],
             DISTANCE_TOLERANCE,
         )
         .unwrap();
         assert!(
             axis.cross_check(
                 Explicit::Point([DISTANCE_TOLERANCE * 2., 0., 0.]),
+                &[cylinder(0., 2.)],
                 DISTANCE_TOLERANCE
             )
             .is_err()
