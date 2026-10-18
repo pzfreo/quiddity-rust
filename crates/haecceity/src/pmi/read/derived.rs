@@ -27,24 +27,21 @@ impl Reader<'_> {
             let mut explicit = Vec::new();
             for (_, rep, items) in self.usages(aspect) {
                 let rep = rep.ok_or("explicit geometry has no representation")?;
-                tolerance = tolerance.max(self.geometry_tolerance(rep));
+                let explicit_tolerance = tolerance.max(self.geometry_tolerance(rep));
                 for item in items {
                     if !self.is(rep, "constructive_geometry_representation") {
                         return Err(format!(
                             "explicit item #{item} is not in a constructive_geometry_representation"
                         ));
                     }
-                    if !self
-                        .get_refs(rep, "representation", "items")
-                        .contains(&item)
-                    {
+                    if !self.constructive_item_contains(rep, item) {
                         return Err(format!(
                             "explicit item #{item} is not a member of its constructive geometry representation #{rep}"
                         ));
                     }
                     let shape = self.explicit_derived_item(item, rep)?;
                     geometry
-                        .cross_check(shape, tolerance)
+                        .cross_check(shape, explicit_tolerance)
                         .map_err(|why| format!("#{item}: {why}"))?;
                     explicit.push((item, rep));
                 }
@@ -98,6 +95,30 @@ impl Reader<'_> {
             supplemental,
         });
         Some(id)
+    }
+
+    /// A usage may identify a child of a geometric set, line or placement, rather
+    /// than a top-level representation item. Do not follow representation contexts
+    /// or mapped geometry, whose coordinate transformations are outside these rules.
+    fn constructive_item_contains(&mut self, rep: u64, item: u64) -> bool {
+        let mut pending = self.get_refs(rep, "representation", "items");
+        let mut seen = BTreeSet::new();
+        while let Some(id) = pending.pop() {
+            if id == item {
+                return true;
+            }
+            if seen.insert(id)
+                && self.is_supplemental(id)
+                && let Some(e) = self.doc.get(id)
+            {
+                visit_attributes(e, &mut |a| {
+                    if let Attribute::EntityRef(id) = a {
+                        pending.push(*id);
+                    }
+                });
+            }
+        }
+        false
     }
 
     /// Follow the feature graph through groups and derivation chains, keeping each face
@@ -197,10 +218,7 @@ impl Reader<'_> {
             SurfaceKind::Cylinder(
                 Decimal::parse(&r).map_err(|e| e.0)?.to_f64() * unit.millimetres(),
             )
-        } else if self.is(surface, "conical_surface")
-            || self.is(surface, "toroidal_surface")
-            || self.is(surface, "surface_of_revolution")
-        {
+        } else if self.is(surface, "conical_surface") || self.is(surface, "toroidal_surface") {
             SurfaceKind::Revolution
         } else if self.is(surface, "plane") {
             SurfaceKind::Plane
@@ -210,12 +228,9 @@ impl Reader<'_> {
                 self.entity_label(surface)
             ));
         };
-        let placement = if self.is(surface, "surface_of_revolution") {
-            self.get_ref(surface, "surface_of_revolution", "axis_position")
-        } else {
-            self.get_ref(surface, "elementary_surface", "position")
-        }
-        .ok_or_else(|| format!("surface #{surface} has no axis placement"))?;
+        let placement = self
+            .get_ref(surface, "elementary_surface", "position")
+            .ok_or_else(|| format!("surface #{surface} has no axis placement"))?;
         let (point, direction) = self.derived_placement(placement, unit)?;
         Ok(Surface {
             kind,

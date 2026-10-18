@@ -14,7 +14,7 @@ groups, to distinct part faces. Cycles, missing references, edges, supplemental-
 unsupported surfaces and refused intermediate derivations cannot establish geometry.
 Specialized Table 3 subtypes retain their previous interpretation.
 
-- One or more cylindrical, conical, toroidal or `SURFACE_OF_REVOLUTION` faces sharing one
+- One or more cylindrical, conical or toroidal faces sharing one
   axis produce an **axis**. The cylinder radius is available only if every deriving face
   belongs to the same cylinder (coincident axes and equal radii within tolerance).
 - Exactly two parallel planar faces produce their **median plane**, halfway between the
@@ -26,18 +26,22 @@ Coordinates are computed from each deriving face's representation in its stated 
 unit and converted to millimetres in the part's local coordinate system. These computed
 values are decimal strings, rather than exact source measurement tokens. A supplied
 supplemental point never selects the computed axis point or the median plane's position.
-Analytic trimmed-surface wrappers are followed; freeform surfaces are not fitted.
+Analytic trimmed-surface wrappers are followed. Arbitrary `SURFACE_OF_REVOLUTION` and
+freeform surfaces remain refused; their generators are not fitted to an allowed surface.
 
 Linear comparisons use the maximum of **1e-7 mm** and the positive length uncertainties
 stated in the relevant representation contexts. Parallelism compares the magnitude of the
 cross product of normalized directions against **1e-9** (sign-independent sine tolerance).
 
 Explicit items identified through the aspect's usages must belong to their
-`CONSTRUCTIVE_GEOMETRY_REPRESENTATION`. Their own context supplies their length unit.
+`CONSTRUCTIVE_GEOMETRY_REPRESENTATION`. An identified item may be a nested geometric item, for example a point inside a geometric
+set. Its own representation context supplies its length unit. Each cross-check uses the
+maximum deriving-face uncertainty and that explicit item's own representation uncertainty;
+a looser, unrelated explicit representation cannot relax another item's check.
 All explicit items must pass:
 
 - Cartesian point: lies on the derived axis or median plane.
-- Axis placement (1D or 3D): origin lies on the result; axis agrees with the derived axis
+- Axis placement (`AXIS1_PLACEMENT` or `AXIS2_PLACEMENT_3D`): origin lies on the result; axis agrees with the derived axis
   direction or median-plane normal. An omitted axis defaults to Z per STEP.
 - Line: coincident with an axis, or contained in a median plane.
 - Plane: coincident with a median plane; incompatible with an axis.
@@ -80,7 +84,7 @@ list, **not** the existing supplemental `pmi.geometry` list. A record is:
 | `deriving_faces` | Sorted, unique face indices, starting at zero, in `step::read_part_definitions` numbering; map through `PartDefinition.faces` for STEP instance ids |
 | `point` | Three length values: a point on the infinite line or median plane |
 | `direction` | Three decimal strings: unit axis direction or plane normal; either sign describes the same geometry |
-| `radius` | Optional cylinder radius; absent for a median plane, cones, tori, general revolution surfaces, or several cylinders of different radii |
+| `radius` | Optional cylinder radius; absent for a median plane, cones, tori, or several cylinders of different radii |
 | `supplemental` | Optional indices into `pmi.geometry`; explicit items that passed the cross-check, held by value with their own units |
 
 As elsewhere, optional fields and empty lists are omitted. Missing `derived.geometry`

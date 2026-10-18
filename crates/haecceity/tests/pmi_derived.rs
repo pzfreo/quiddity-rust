@@ -321,11 +321,10 @@ fn explicit_only_cycles_and_disagreeing_chains_are_refused() {
 }
 
 #[test]
-fn cone_torus_and_general_surface_of_revolution_give_axes_without_cylinder_radius() {
+fn cone_and_torus_give_axes_without_cylinder_radius() {
     for record in [
         "#562=CONICAL_SURFACE('',#563,2.,0.4);",
         "#562=TOROIDAL_SURFACE('',#563,2.,0.5);",
-        "#562=SURFACE_OF_REVOLUTION('',#3001,#3000);",
     ] {
         let text = append(
             &replace(&agreeing(), 562, record),
@@ -476,4 +475,72 @@ fn writer_preserves_cross_checked_supplemental_geometry_and_verifies_computed_re
         !differences_as_stated(&p, &changed).is_empty(),
         "verification must include computed geometry"
     );
+}
+
+#[test]
+fn arbitrary_surfaces_of_revolution_remain_refused() {
+    let text = append(
+        &replace(
+            &agreeing(),
+            562,
+            "#562=SURFACE_OF_REVOLUTION('',#3001,#3000);",
+        ),
+        "
+#3000=AXIS1_PLACEMENT('',#564,#565);
+#3001=LINE('',#564,#3002);
+#3002=VECTOR('',#566,1.);
+",
+    );
+    let r = read(&text);
+    assert!(geometry(&r, 835).is_none());
+    assert!(r.findings.iter().any(|f| {
+        f.ids[0] == 835
+            && f.detail
+                .contains("unsupported surface #562 (surface_of_revolution)")
+    }));
+}
+
+#[test]
+fn supplemental_membership_includes_nested_geometry_and_rejects_unrelated_items() {
+    let text = append(
+        &replace(
+            &agreeing(),
+            1992,
+            "#1992=CONSTRUCTIVE_GEOMETRY_REPRESENTATION('',(#3000),#769);",
+        ),
+        "#3000=GEOMETRIC_SET('',(#836));",
+    );
+    assert!(geometry(&read(&text), 835).is_some());
+    let text = replace(&text, 3000, "#3000=CARTESIAN_POINT('',(0.,0.,0.));");
+    let r = read(&text);
+    assert!(geometry(&r, 835).is_none());
+    assert!(
+        r.findings
+            .iter()
+            .any(|f| f.ids[0] == 835 && f.detail.contains("not a member"))
+    );
+}
+
+#[test]
+fn a_looser_explicit_context_cannot_relax_a_different_items_cross_check() {
+    // Both points have the same 0.001 mm distance from the axis. Only the first
+    // belongs to the context with 0.01 mm uncertainty; the second must be refused.
+    let text = append(&replace(&agreeing(), 836, "#836=CARTESIAN_POINT('',(-1.6,0.001,0.));"), "
+#3000=(GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#3001)) GLOBAL_UNIT_ASSIGNED_CONTEXT((#770,#771,#772)) REPRESENTATION_CONTEXT('loose',''));
+#3001=UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(0.01),#770,'distance_accuracy_value','');
+#3002=CONSTRUCTIVE_GEOMETRY_REPRESENTATION('',(#836),#3000);
+#3003=CARTESIAN_POINT('',(-1.6,0.001,0.));
+#3004=CONSTRUCTIVE_GEOMETRY_REPRESENTATION('',(#3003),#769);
+#3005=GEOMETRIC_ITEM_SPECIFIC_USAGE('','',#835,#3004,#3003);
+");
+    let text = replace(
+        &text,
+        834,
+        "#834=GEOMETRIC_ITEM_SPECIFIC_USAGE('','',#835,#3002,#836);",
+    );
+    let r = read(&text);
+    assert!(geometry(&r, 835).is_none());
+    assert!(r.findings.iter().any(|f| f.ids[0] == 835
+        && f.detail.contains("#3003: explicit geometry disagrees")
+        && f.detail.contains("tolerance 1.000000000000e-7 mm")));
 }
