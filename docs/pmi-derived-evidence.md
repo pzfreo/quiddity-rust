@@ -3,45 +3,55 @@
 Baseline: `0cfe8356614bc16d1b8a4e7c7ae944c25710026c` (`v0.1.0-alpha.6`, reader
 `haecceity-pmi-read/6`). The implementation uses PMI document format 2 and reader `/7`.
 See [the rules, record format and draftwright migration](pmi-derived-geometry.md).
+The revised surface-point and single-plane rules start from `c67ffa44`; the record format
+and reader binding remain unchanged.
 
 ## GRM-03
 
 The original supplied STEP file is committed as a deterministic gzip fixture, unmodified;
 its source hash and test provenance are in the [fixture README](../tests/fixtures/ap242/derived/README.md).
 Both readers retain **10/10 semantic dimensions**, including Maximum on #914. Drawable
-geometry refusals are **10 → 10**. Applying the agreed rules does not make this particular
-input drawable: its diameter points disagree with the derived axes and its length
-endpoints each derive from only one planar face. The new findings name those reasons
-rather than reporting that supplemental geometry is not held.
+geometry refusals are now **10 → 0** under the revised analytic rules: explicit points
+on deriving surfaces agree with their axes, and a single planar deriving face supplies
+its own plane. No STEP fixture bytes, nominal tokens, qualifiers or NIST baseline entries
+were changed.
 
-Linear tolerance in this file is `1e-7 mm`. The original input's exact failures are:
+Linear tolerance in this file is `1e-7 mm`; the surface check adds only a floating-point
+roundoff allowance below `2e-13 mm` at these coordinates. The regression independently
+measures every resolved target and compares it with its stated nominal:
 
-| Dimension | Derived aspect(s) | Reason geometry is refused |
+| Dimension | Derived aspect(s) | Geometry checked against nominal |
 | --- | --- | --- |
-| #841, diameter 4 | #835 | Explicit point #836 is 2 mm from the derived axis of face #573 |
-| #877, diameter 6 | #871 | Explicit point #872 is 3 mm from the derived axis of face #479 |
-| #914, diameter 10, Maximum | #907 | Explicit point #908 is 5 mm from the derived axis of face #193 |
-| #958, diameter 5 | #952 | Explicit point #953 is 2.5 mm from the derived axis of face #138 |
-| #994, diameter 1.6 | #988 | Explicit point #989 is 0.8 mm from the derived axis of face #663 |
-| #1040, length 3.2 | #1030 / #1034 | One planar deriving face each (#628 / #538); median plane requires exactly two |
-| #1086, length 0.5 | #1076 / #1080 | One planar deriving face each (#538 / #391); median plane requires exactly two |
-| #1132, length 2 | #1122 / #1126 | One planar deriving face each (#391 / #17); median plane requires exactly two |
-| #1174, length 3 | #1164 / #1168 | One planar deriving face each (#17 / #248); median plane requires exactly two |
-| #1216, length 20 | #1206 / #1210 | One planar deriving face each (#248 / #534); median plane requires exactly two |
+| #841, diameter 4 | #835 | Face #573 axis radius 2 mm; explicit point #836 is one radius from the axis |
+| #877, diameter 6 | #871 | Face #479 axis radius 3 mm; explicit point #872 is one radius from the axis |
+| #914, diameter 10, Maximum | #907 | Face #193 axis radius 5 mm; explicit point #908 is one radius from the axis |
+| #958, diameter 5 | #952 | Face #138 axis radius 2.5 mm; explicit point #953 is one radius from the axis |
+| #994, diameter 1.6 | #988 | Face #663 axis radius 0.8 mm; explicit point #989 is one radius from the axis |
+| #1040, length 3.2 | #1030 / #1034 | Single planes from faces #628 / #538; normal separation 3.2 mm |
+| #1086, length 0.5 | #1076 / #1080 | Single planes from faces #538 / #391; normal separation 0.5 mm |
+| #1132, length 2 | #1122 / #1126 | Single planes from faces #391 / #17; normal separation 2 mm |
+| #1174, length 3 | #1164 / #1168 | Single planes from faces #17 / #248; normal separation 3 mm |
+| #1216, length 20 | #1206 / #1210 | Single planes from faces #248 / #534; normal separation 20 mm |
 
-The diameter points are on cylinder surfaces. They cannot be treated as axis points under
-the stipulated cross-check. Taking a single source plane as a derived plane would also
-broaden the stipulated median-plane rule. Neither interpretation is silently applied.
+The ten length-endpoint aspects reuse `median_plane` records, each with one deriving face
+and that face's own plane; the five diameter aspects retain their face-derived axis,
+radius and cross-checked supplemental point. The regression asserts all ten exact nominal
+tokens and units, all qualifiers, all target links, plane parallelism, radius/diameter
+agreement, plane separation, and zero derived-geometry or plane-distance refusals.
 
-`pmi_derived` asserts every original refusal and retains all nominal values and qualifiers.
-Synthetic edits of the same fixture prove the successful paths: remove an explicit usage
-or place its point on the source cylinder's axis, or derive a median plane from two
-parallel faces. Axes, cylinder radii, median planes, deriving-face bindings, derivation
-chains, axis–axis / axis–plane / plane–plane dimension targets and tolerance targets all
-resolve. Tests also cover explicit point, line, axis placement and plane agreement and
-disagreement, mixed units, context uncertainty, explicit-only refusal, cycles and writer
-round-tripping. Pure unit tests cover coaxial / non-coaxial cylinders, parallel /
-non-parallel planes and mixed face kinds.
+Synthetic tests retain the earlier successful and refusal paths: removing an explicit
+usage, putting its point on the axis, two-face median planes, deriving-face bindings,
+derivation chains, axis–axis / axis–plane / plane–plane targets, tolerance targets,
+explicit point/line/placement/plane agreement, mixed units, context uncertainty,
+explicit-only refusal, cycles and writer round-tripping. A point off both the axis and
+the deriving cylinder surface still produces the existing conflict finding. Two valid
+single-plane aspects with non-parallel normals retain their plane records but refuse the
+linear distance with a dimension finding. Cone tests check changing radius with station
+and angle-unit conversion; torus tests check inner/outer radii and the top of the tube.
+Surface-tolerance boundary tests accept in-tolerance points and reject arbitrary offsets.
+Pure tests still refuse non-coaxial cylinders, non-parallel deriving planes, mixed face
+kinds, and more than two planar deriving faces. JSON validation accepts both single-face
+planes and two-face medians and rejects three-face plane records.
 
 ## NIST before and after
 
@@ -84,13 +94,18 @@ The release checks use `CARGO_BUILD_JOBS=8`, `RUST_TEST_THREADS=8` and
 `QUIDDITY_CORPUS=/Users/paul/repos/quiddity/tests/corpus`, so the external ten NIST files
 are included in the audit.
 
-- `cargo fmt --all --check`: passed.
-- `cargo clippy --workspace --all-targets --release -- -D warnings`: passed.
-- `cargo test --release --workspace`: passed; 504 tests passed,
-  zero failed, 3 ignored across 62 test targets (including doc-test targets).
-- The derived-geometry coverage includes 3 pure derivation unit tests, 12 kernel
-  integration tests and the JSON record/reference validation test. The final workspace
-  run also passed the 17-file NIST semantic-output audit and the reader-output version pin.
+- `cargo fmt --check`: passed.
+- `cargo clippy --all-targets --release -- -D warnings`: passed; the additional
+  `--workspace` run also passed.
+- `cargo test --release`: passed; 262 tests passed, zero failed.
+- `cargo test --release -p haecceity`: passed; 246 tests passed, zero failed, 3 ignored.
+- The targeted `derived_geometry_does_not_regress_any_nist_pmi` audit passed against
+  all 17 unchanged baseline entries, including exact semantic-output and finding hashes.
+- The derived-geometry coverage includes 3 pure derivation unit tests, 16 kernel
+  integration tests and the JSON record/reference validation test.
+- `cargo test --release --workspace`: passed; 508 tests passed, zero failed, 3 ignored
+  across 62 targets (including doc-test targets). This final run also passed the NIST
+  semantic-output audit and the reader-output version pin.
 
 Ignored tests: `face_moment_evidence`, `dump` and `export_written_files` (the repository's
-opt-in development aids). The requested command completed with exit status 0.
+opt-in development aids). Every verification command completed with exit status 0.

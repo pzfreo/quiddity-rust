@@ -8,9 +8,12 @@ PMI was changed. SHA-256 of the uncompressed STEP text:
 `crates/haecceity/tests/pmi_derived.rs` tests the original file and synthetic edits of it:
 agreeing supplemental items, derivation chains, median planes, all three distance-target
 pairs, tolerance targets, mixed units, uncertainty, qualifier retention and STEP writing.
-The original file's ten dimensions all retain semantic values. Their geometry remains
-refused under the maintainer's 2026-10-18 rules: five off-axis explicit points and ten
-single-plane endpoint derivations. Each exact reason is asserted in the integration test.
+The original file's ten dimensions retain their exact nominal values and qualifiers, and
+all ten now resolve: five explicit points on deriving cylinder surfaces cross-check their
+axes, and ten single-plane endpoints supply their faces' own planes. The regression
+checks every diameter against its axis radius and every length against its parallel-plane
+separation. Synthetic refusals still cover points off both axis and surface, non-parallel
+plane distances, ambiguous deriving faces and unsupported supplemental geometry.
 
 `nist-baseline.json` records the before-change source hash, semantic-output hash, counts
 of dimension and geometric-tolerance roots, read counts and refused counts. Its first ten

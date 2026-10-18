@@ -17,10 +17,14 @@ Specialized Table 3 subtypes retain their previous interpretation.
 - One or more cylindrical, conical or toroidal faces sharing one
   axis produce an **axis**. The cylinder radius is available only if every deriving face
   belongs to the same cylinder (coincident axes and equal radii within tolerance).
+- Exactly one planar deriving face produces **that face's own plane**. It reuses the
+  `median_plane` record with the face's point and normal, keeping the format unchanged;
+  `deriving_faces` has one entry. No midpoint or supplemental-point fitting is involved.
 - Exactly two parallel planar faces produce their **median plane**, halfway between the
   supporting planes. Face orientation and normal sign do not change the result.
 - Other combinations retain their semantic derivation with no geometry reference and a
-  finding explaining the refusal. A single planar face does not establish a median plane.
+  finding explaining the refusal: non-parallel planes, mixed planar/revolution faces,
+  more than two planar faces, and non-coaxial revolution faces remain unsupported.
 
 Coordinates are computed from each deriving face's representation in its stated length
 unit and converted to millimetres in the part's local coordinate system. These computed
@@ -40,11 +44,37 @@ maximum deriving-face uncertainty and that explicit item's own representation un
 a looser, unrelated explicit representation cannot relax another item's check.
 All explicit items must pass:
 
-- Cartesian point: lies on the derived axis or median plane.
+- Cartesian point: lies on the derived plane, or on the derived axis **or any deriving
+  cylinder/cone/torus surface**. Diameter annotations commonly identify a surface point;
+  that point cross-checks the derivation and never moves the computed axis.
 - Axis placement (`AXIS1_PLACEMENT` or `AXIS2_PLACEMENT_3D`): origin lies on the result; axis agrees with the derived axis
   direction or median-plane normal. An omitted axis defaults to Z per STEP.
 - Line: coincident with an axis, or contained in a median plane.
 - Plane: coincident with a median plane; incompatible with an axis.
+
+Surface checks use each face's own placement and parameters in millimetres, with cone
+semi-angles converted from the representation's angle unit. Write `z` for signed axial
+station and `rho` for distance from that face's axis. The supporting-surface residuals are:
+
+- Cylinder of radius `r`: `abs(rho - r)`.
+- Cone of reference radius `r` and semi-angle `a`:
+  `abs(rho - abs(r + z*tan(a))) * cos(a)`.
+- Torus of major radius `R` and tube radius `r`: the smaller of
+  `abs(hypot(rho - R, z) - r)` and `abs(hypot(rho + R, z) - r)`.
+  The second branch also covers a spindle torus's negative signed sweep radius.
+
+These are linear distances, not squared residuals. The cone cosine factor converts radial
+error into distance normal to its generator, accounting for axial uncertainty without
+rejecting a steep cone's valid surface point. The torus formula accounts for both inner
+and outer radii at each station, including the top of the tube. Surface comparisons allow
+`max(1e-7 mm, relevant context uncertainties) + 32*epsilon*S`, where `epsilon` is f64
+machine epsilon and `S` is the largest absolute coordinate, station, radial distance or
+surface radius involved, in millimetres. The small additive term covers floating-point
+subtraction, projection and radius evaluation at large model coordinates; it does not
+multiply the model's uncertainty by the model size. For GRM-03's millimetre coordinates
+it is below `2e-13 mm`, so the effective tolerance remains `1e-7 mm`. Existing axis,
+plane and orientation checks keep their previous tolerances. Line and placement origins
+must still lie on the axis itself; the surface allowance applies only to points.
 
 Unsupported or malformed explicit items refuse the geometry. A disagreement produces a
 `conflict` finding identifying the aspect, usage, explicit item and deriving faces, with
@@ -80,12 +110,15 @@ list, **not** the existing supplemental `pmi.geometry` list. A record is:
 
 | Field | Meaning |
 | --- | --- |
-| `kind` | `axis` or `median_plane` |
+| `kind` | `axis` or `median_plane` (one source plane, or the median of two parallel source planes) |
 | `deriving_faces` | Sorted, unique face indices, starting at zero, in `step::read_part_definitions` numbering; map through `PartDefinition.faces` for STEP instance ids |
-| `point` | Three length values: a point on the infinite line or median plane |
+| `point` | Three length values: a point on the infinite line or plane |
 | `direction` | Three decimal strings: unit axis direction or plane normal; either sign describes the same geometry |
 | `radius` | Optional cylinder radius; absent for a median plane, cones, tori, or several cylinders of different radii |
 | `supplemental` | Optional indices into `pmi.geometry`; explicit items that passed the cross-check, held by value with their own units |
+
+Consumers must accept one or two `deriving_faces` entries for `median_plane`: one means
+the face's own plane, two means the median of parallel faces.
 
 As elsewhere, optional fields and empty lists are omitted. Missing `derived.geometry`
 means geometry is unresolved: use the findings, and do not turn the deriving faces into a
@@ -102,8 +135,12 @@ axis–axis, axis–plane and plane–plane location dimensions. Use `radius` fo
 size targets, and `deriving_faces` to bind drawing support to the part's faces. Diameter
 without a cylinder radius stays unresolved and has a finding. Keep displaying the stated
 nominal and `dimensions[i].qualifier` (including `"maximum"`), rather than substituting a
-computed measurement. Apply the ordinary part/occurrence placement when projecting these
-local coordinates. `supplemental` is cross-check evidence, not the drawable target.
+computed measurement. A linear distance between two non-parallel derived planes is
+refused with a finding on the dimension; the semantic value and the individually valid
+plane records remain available. Parallel plane-plane distance is the absolute projection
+of their point difference onto either normal. Apply the ordinary part/occurrence placement
+when projecting these local coordinates. `supplemental` is cross-check evidence, not the
+drawable target.
 
 The STEP writer continues to emit deriving relationships, and reuses or emits the
 cross-checked supplemental items with their usages. Computed geometry is regenerated from
