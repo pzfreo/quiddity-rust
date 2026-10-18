@@ -4,6 +4,19 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
+## 0.1.0-alpha.6 (2026-10-18)
+
+### Changed
+
+- Prism emptiness probes (used by native slot and recess recognition) now ask
+  haecceity's bounded `fills_at_most(.., 0.0)` whether the prism holds any material,
+  stopping at the first positive running volume, instead of computing the complete
+  common volume (#16). Results are unchanged: unresolved-line semantics are kept, and a
+  box that rounding collapses at extreme coordinates keeps the previous fraction-valued
+  answer. draftwright-rust's plan of NIST FTC-10's AP242 file, which spent most of its
+  203 s here, now takes about 5 s; its 65-part plan-time survey uses 29% fewer
+  instructions, with every plan JSON and SVG byte-identical.
+
 ## 0.1.0-alpha.5 (2026-10-17)
 
 ### Added
