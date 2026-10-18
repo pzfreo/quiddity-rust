@@ -17,6 +17,8 @@
 //! Values keep the REAL token's text from the file ([`Decimal`]), read from the instance's
 //! bytes, and their own unit entity's unit.
 
+mod derived;
+
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use super::model::*;
@@ -1481,9 +1483,20 @@ impl<'a> Reader<'a> {
                     part,
                     id,
                     &[],
-                    "derived shape aspect without a shape_aspect_deriving_relationship (§5.1.4); not read",
+                    "derived shape aspect without a shape_aspect_deriving_relationship (§5.1.4): no deriving faces; explicit geometry alone cannot establish a derivation; not read",
                 );
                 return Built::None;
+            }
+            if kind == DerivedKind::Derived {
+                let geometry = self.derived_geometry(st, id, &from);
+                return Built::Feature(
+                    Feature::Derived {
+                        kind,
+                        from,
+                        geometry,
+                    },
+                    prov,
+                );
             }
             if !anchors.is_empty() || !unresolved.is_empty() {
                 let mut items: Vec<u64> = unresolved.clone();
@@ -1496,7 +1509,14 @@ impl<'a> Reader<'a> {
                     "explicit geometry of the derived feature (supplemental geometry) is not held; the derivation is",
                 );
             }
-            return Built::Feature(Feature::Derived { kind, from }, prov);
+            return Built::Feature(
+                Feature::Derived {
+                    kind,
+                    from,
+                    geometry: None,
+                },
+                prov,
+            );
         }
 
         if !unresolved.is_empty() {
@@ -2558,6 +2578,15 @@ impl<'a> Reader<'a> {
             }
             let path = self.dimension_path(st, id, "dimensional_size_with_path")?;
             let kind = SizeKind::from_name(&name);
+            if kind == SizeKind::Diameter
+                && let Feature::Derived {
+                    geometry: Some(g), ..
+                } = &st.pmi.features[feature.0]
+                && st.pmi.derived_geometry[g.0].radius.is_none()
+            {
+                self.find(FindingKind::NotModelled, part, id, &[target],
+                    "diameter target has no cylinder radius: deriving faces must belong to one cylinder; semantic value retained");
+            }
             if !angular && matches!(kind, SizeKind::Other(_)) {
                 self.find(
                     FindingKind::Nonconformance,
@@ -2610,6 +2639,9 @@ impl<'a> Reader<'a> {
             }
             let path = self.dimension_path(st, id, "dimensional_location_with_path")?;
             let kind = LocationKind::from_name(&name);
+            if !angular && kind == LocationKind::LinearDistance {
+                self.check_derived_plane_distance(st, id, from, to, &[a, b]);
+            }
             if !angular && matches!(kind, LocationKind::Other(_)) {
                 self.find(
                     FindingKind::Nonconformance,

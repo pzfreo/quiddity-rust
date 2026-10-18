@@ -45,10 +45,10 @@ pub const FORMAT: &str = "quiddity-pmi";
 /// The format name of the parts listing (`quiddity parts`).
 pub const PARTS_FORMAT: &str = "quiddity-parts";
 /// The format version: bumped on any change to the JSON form.
-pub const VERSION: u64 = 1;
+pub const VERSION: u64 = 2;
 /// The reader the anchors and items were produced by; bumped whenever `pmi::read`'s output for
 /// a file can change, so a document read by another reader version is refused, not trusted.
-pub const READER: &str = "haecceity-pmi-read/6";
+pub const READER: &str = "haecceity-pmi-read/7";
 
 /// Why a JSON document was refused: the JSON path and the reason.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -840,6 +840,58 @@ fn geometry_from(v: &Json, path: &str) -> R<Geometry> {
     })
 }
 
+fn derived_geometry_json(g: &DerivedGeometry) -> Json {
+    Out::new()
+        .put(
+            "kind",
+            json!(match g.kind {
+                DerivedGeometryKind::Axis => "axis",
+                DerivedGeometryKind::MedianPlane => "median_plane",
+            }),
+        )
+        .put("deriving_faces", json!(ids(&g.deriving_faces, |f| f.0)))
+        .put(
+            "point",
+            Json::Array(g.point.iter().map(length_json).collect()),
+        )
+        .put("direction", direction_json(&g.direction))
+        .opt("radius", g.radius.as_ref().map(length_json))
+        .list("supplemental", ids(&g.supplemental, |s| s.0))
+        .done()
+}
+
+fn derived_geometry_from(v: &Json, path: &str) -> R<DerivedGeometry> {
+    let o = object(
+        v,
+        path,
+        &[
+            "kind",
+            "deriving_faces",
+            "point",
+            "direction",
+            "radius",
+            "supplemental",
+        ],
+    )?;
+    let point = o.req_with("point", |x, p| list(x, p, length_from))?;
+    let point = <[Length; 3]>::try_from(point).map_err(|_| JsonError {
+        path: o.path("point"),
+        message: "a point has three coordinates".into(),
+    })?;
+    Ok(DerivedGeometry {
+        kind: o.req_with("kind", |x, p| match string(x, p)?.as_str() {
+            "axis" => Ok(DerivedGeometryKind::Axis),
+            "median_plane" => Ok(DerivedGeometryKind::MedianPlane),
+            s => fail(p, format!("unknown derived geometry kind {s:?}")),
+        })?,
+        deriving_faces: o.list("deriving_faces", |x, p| uint(x, p).map(FaceIndex))?,
+        point,
+        direction: o.req_with("direction", direction_from)?,
+        radius: o.opt_with("radius", length_from)?,
+        supplemental: o.list("supplemental", |x, p| uint(x, p).map(GeometryId))?,
+    })
+}
+
 fn ids<T>(v: &[T], f: impl Fn(&T) -> usize) -> Vec<Json> {
     v.iter().map(|x| json!(f(x))).collect()
 }
@@ -863,9 +915,17 @@ fn feature_json(f: &Feature) -> Json {
                 json!({"kind": name_of(&GROUP_KINDS, tag), "members": ids(members, |m| m.0)}),
             )
         }
-        Feature::Derived { kind, from } => one(
+        Feature::Derived {
+            kind,
+            from,
+            geometry,
+        } => one(
             "derived",
-            json!({"kind": name_of(&DERIVED_KINDS, *kind), "from": ids(from, |m| m.0)}),
+            Out::new()
+                .put("kind", json!(name_of(&DERIVED_KINDS, *kind)))
+                .put("from", json!(ids(from, |m| m.0)))
+                .opt("geometry", geometry.map(|g| json!(g.0)))
+                .done(),
         ),
     }
 }
@@ -893,10 +953,11 @@ fn feature_from(v: &Json, path: &str) -> R<Feature> {
             }
         }
         _ => {
-            let o = object(x, &p, &["kind", "from"])?;
+            let o = object(x, &p, &["kind", "from", "geometry"])?;
             Feature::Derived {
                 kind: o.req_with("kind", |v, p| term(&DERIVED_KINDS, v, p))?,
                 from: o.list("from", feature_id)?,
+                geometry: o.opt_with("geometry", |x, p| uint(x, p).map(DerivedGeometryId))?,
             }
         }
     })
@@ -2137,6 +2198,13 @@ pub fn to_json(p: &PartPmi) -> Json {
             p.attributes.iter().map(attributes_json).collect(),
         )
         .list("geometry", p.geometry.iter().map(geometry_json).collect())
+        .list(
+            "derived_geometry",
+            p.derived_geometry
+                .iter()
+                .map(derived_geometry_json)
+                .collect(),
+        )
         .done()
 }
 
@@ -2162,6 +2230,7 @@ pub fn from_json(v: &Json, path: &str) -> Result<PartPmi, JsonError> {
         "surface_textures",
         "attributes",
         "geometry",
+        "derived_geometry",
     ];
     let o = object(v, path, &keys)?;
     let pmi = PartPmi {
@@ -2182,6 +2251,7 @@ pub fn from_json(v: &Json, path: &str) -> Result<PartPmi, JsonError> {
         surface_textures: o.list("surface_textures", surface_texture_from)?,
         attributes: o.list("attributes", attributes_from)?,
         geometry: o.list("geometry", geometry_from)?,
+        derived_geometry: o.list("derived_geometry", derived_geometry_from)?,
     };
     if let Err(errors) = pmi.validate() {
         let why: Vec<String> = errors.into_iter().map(|e| e.0).collect();
@@ -2401,6 +2471,21 @@ pub fn check_against(d: &Document, step: &[u8], parts: &[PartDefinition]) -> Res
                 &field(&path, "name"),
                 format!("{name:?} is not part {}'s name {:?}", p.part.0, def.name),
             );
+        }
+        for (gi, g) in p.pmi.derived_geometry.iter().enumerate() {
+            for (fi, f) in g.deriving_faces.iter().enumerate() {
+                if f.0 >= def.faces.len() {
+                    return fail(
+                        &format!("{path}.pmi.derived_geometry[{gi}].deriving_faces[{fi}]"),
+                        format!(
+                            "part {} has {} faces; there is no face {}",
+                            p.part.0,
+                            def.faces.len(),
+                            f.0
+                        ),
+                    );
+                }
+            }
         }
         for (fi, f) in p.pmi.features.iter().enumerate() {
             let Feature::Items(items) = f else { continue };
@@ -2801,6 +2886,7 @@ mod tests {
                 },
                 Feature::Derived {
                     kind: DerivedKind::CentreOfSymmetry,
+                    geometry: None,
                     from: vec![FeatureId(0)],
                 },
                 Feature::Items(vec![Anchor::Face(FaceIndex(5))]),
@@ -3127,6 +3213,7 @@ mod tests {
                     description: None,
                 }),
             }],
+            derived_geometry: Vec::new(),
             geometry: vec![Geometry {
                 item,
                 length_unit: Some(other_len),
@@ -3140,5 +3227,77 @@ mod tests {
         assert_eq!(from_json(&back, "pmi").unwrap(), p);
         assert_eq!(PartPmi::default(), from_json(&json!({}), "pmi").unwrap());
         assert_eq!(to_json(&PartPmi::default()), json!({}));
+    }
+    #[test]
+    fn derived_geometry_records_round_trip_and_validate_references() {
+        let mut p = PartPmi {
+            features: vec![
+                Feature::Items(vec![Anchor::Face(FaceIndex(0))]),
+                Feature::Derived {
+                    kind: DerivedKind::Derived,
+                    from: vec![FeatureId(0)],
+                    geometry: Some(DerivedGeometryId(0)),
+                },
+            ],
+            ..PartPmi::default()
+        };
+        let length = |n| Length {
+            value: d(n),
+            unit: LengthUnit::Millimetre,
+        };
+        p.derived_geometry.push(DerivedGeometry {
+            kind: DerivedGeometryKind::Axis,
+            deriving_faces: vec![FaceIndex(0)],
+            point: [length("1"), length("2"), length("3")],
+            direction: Direction([d("0"), d("0"), d("1")]),
+            radius: Some(length("2")),
+            supplemental: Vec::new(),
+        });
+        let j = to_json(&p);
+        assert_eq!(j["features"][1]["derived"]["geometry"], 0);
+        assert_eq!(j["derived_geometry"][0]["kind"], "axis");
+        assert_eq!(from_json(&j, "pmi").unwrap(), p);
+        p.derived_geometry[0].kind = DerivedGeometryKind::MedianPlane;
+        p.derived_geometry[0].radius = None;
+        // A single face's own plane uses the same record as a two-face median.
+        let j = to_json(&p);
+        assert_eq!(j["derived_geometry"][0]["kind"], "median_plane");
+        assert_eq!(from_json(&j, "pmi").unwrap(), p);
+        p.derived_geometry[0].deriving_faces.push(FaceIndex(1));
+        let j = to_json(&p);
+        assert_eq!(j["derived_geometry"][0]["kind"], "median_plane");
+        assert_eq!(from_json(&j, "pmi").unwrap(), p);
+        for (field, value) in [
+            ("kind", json!("guessed")),
+            ("direction", json!(["0", "0", "0"])),
+            ("deriving_faces", json!([])),
+            ("deriving_faces", json!([0, 1, 2])),
+            ("supplemental", json!([9])),
+            ("radius", length_json(&length("2"))),
+        ] {
+            let mut bad = j.clone();
+            bad["derived_geometry"][0][field] = value;
+            assert!(from_json(&bad, "pmi").is_err(), "{field}");
+        }
+        // Equal computed targets remain equal even when the geometry records have
+        // different indices (as separate shape aspects in a file can have).
+        p.derived_geometry.push(p.derived_geometry[0].clone());
+        p.features.push(Feature::Derived {
+            kind: DerivedKind::Derived,
+            from: vec![FeatureId(0)],
+            geometry: Some(DerivedGeometryId(1)),
+        });
+        assert!(p.same_target(
+            &ToleranceTarget::Feature(FeatureId(1)),
+            &ToleranceTarget::Feature(FeatureId(2))
+        ));
+        let mut bad = j;
+        bad["features"][1]["derived"]["geometry"] = json!(9);
+        assert!(
+            from_json(&bad, "pmi")
+                .unwrap_err()
+                .message
+                .contains("missing derived geometry")
+        );
     }
 }

@@ -165,7 +165,12 @@ fn strip(p: &PartPmi, refused: &[ItemRef]) -> PartPmi {
                 members: members.iter().map(|m| f(*m)).collect(),
                 kind: kind.clone(),
             },
-            Feature::Derived { kind, from } => Feature::Derived {
+            Feature::Derived {
+                kind,
+                from,
+                geometry,
+            } => Feature::Derived {
+                geometry: *geometry,
                 kind: *kind,
                 from: from.iter().map(|m| f(*m)).collect(),
             },
@@ -416,6 +421,7 @@ fn strip(p: &PartPmi, refused: &[ItemRef]) -> PartPmi {
             })
             .collect(),
         geometry: p.geometry.clone(),
+        derived_geometry: p.derived_geometry.clone(),
     }
 }
 

@@ -1765,6 +1765,25 @@ impl<'a> PartPlan<'a> {
                         }
                     }
                 }
+                Feature::Derived { geometry: Some(g), .. } => {
+                    let g = &p.derived_geometry[g.0];
+                    for face in &g.deriving_faces {
+                        if face.0 >= self.def.faces.len() {
+                            self.refuse(ItemRef::Feature(i), format!("derived face {} is not a face of the part", face.0));
+                        }
+                    }
+                    for supplemental in &g.supplemental {
+                        if !self.existing_geometry.contains_key(&supplemental.0) {
+                            let geo = &p.geometry[supplemental.0];
+                            if geo.length_unit.is_some() && geo.length_unit != ctx_unit {
+                                self.refuse(ItemRef::Feature(i), "derived supplemental geometry has a different length unit from the part context");
+                            }
+                            if let Err(why) = geometry_values(&geo.item) {
+                                self.refuse(ItemRef::Feature(i), why);
+                            }
+                        }
+                    }
+                }
                 Feature::Group {
                     kind: GroupKind::Unstated,
                     ..
@@ -2263,6 +2282,9 @@ impl<'a> PartPlan<'a> {
                     }
                 }
             }
+        }
+        for g in &p.derived_geometry {
+            used_geometry.extend(g.supplemental.iter().map(|g| g.0));
         }
         let mut memo: HashMap<GeometryItem, R> = HashMap::new();
         for &g in &used_geometry {
@@ -2886,7 +2908,7 @@ impl<'a> PartPlan<'a> {
                 st.features.insert(c, r);
                 r
             }
-            Feature::Derived { kind, from } => {
+            Feature::Derived { kind, from, .. } => {
                 let ty = match kind {
                     DerivedKind::Derived => "derived_shape_aspect",
                     DerivedKind::Apex => "apex",
@@ -2912,6 +2934,18 @@ impl<'a> PartPlan<'a> {
                             ("related_shape_aspect", b.a()),
                         ],
                     )?;
+                }
+                if let Feature::Derived {
+                    geometry: Some(g), ..
+                } = &self.pmi.features[c]
+                {
+                    let items: Vec<Anchor> = self.pmi.derived_geometry[g.0]
+                        .supplemental
+                        .iter()
+                        .copied()
+                        .map(Anchor::Geometry)
+                        .collect();
+                    self.usages(em, st, pds, r, None, &items)?;
                 }
                 st.features.insert(c, r);
                 r
@@ -5017,10 +5051,26 @@ impl Keys<'_> {
                 v.sort();
                 format!("{kind:?}({})", v.join(", "))
             }
-            Feature::Derived { kind, from } => {
+            Feature::Derived {
+                kind,
+                from,
+                geometry,
+            } => {
                 let mut v: Vec<String> = from.iter().map(|m| self.feature(*m)).collect();
                 v.sort();
-                format!("{kind:?}<-({})", v.join(", "))
+                let computed = geometry.map(|g| {
+                    let g = &self.p.derived_geometry[g.0];
+                    let supplemental: Vec<_> = g
+                        .supplemental
+                        .iter()
+                        .map(|s| &self.p.geometry[s.0])
+                        .collect();
+                    format!(
+                        "{:?} {:?} {:?} {:?} {:?} {:?}",
+                        g.kind, g.deriving_faces, g.point, g.direction, g.radius, supplemental
+                    )
+                });
+                format!("{kind:?}<-({}) geometry {computed:?}", v.join(", "))
             }
         }
     }
