@@ -4,7 +4,7 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
-## Unreleased
+## 0.1.0-alpha.7 (2026-10-18)
 
 ### Added
 
@@ -16,7 +16,8 @@ in [docs/alpha1.md](docs/alpha1.md).
   qualifiers remain data.
 - PMI document format 2 (`haecceity-pmi-read/7`): optional `derived.geometry` references
   the new `derived_geometry` list. See [the record format](docs/pmi-derived-geometry.md).
-  Existing version 1 PMI documents must be regenerated from STEP.
+  The shared format version also moves the `quiddity parts` listing and write reports to 2.
+  Existing version 1 documents must be regenerated from STEP.
 - GRM-03 (a Gramel thumbwheel drive screw): all ten semantic dimensions now resolve to
   geometry (previously all refused), with nominals and qualifiers unchanged. NIST AP242
   output is unchanged; see [the integration evidence](docs/pmi-derived-evidence.md).

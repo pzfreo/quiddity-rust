@@ -251,3 +251,9 @@ alpha.5 section, leaving alpha.4's original entries intact.
 Released from `main` at f14e08f8 (PR #16 since alpha.5): bounded prism emptiness probes, a
 performance change with unchanged results. PR #16 had no CHANGELOG entry; the release commit
 adds it. draftwright-rust 0.1.0-alpha.5 pins this release.
+
+## 0.1.0-alpha.7 release (2026-10-18)
+
+Released from `main` at 6ab5f29d (PR #18 since alpha.6): derived shape aspects in semantic PMI
+resolve to axes and planes (PMI document format 2, reader `haecceity-pmi-read/7`).
+draftwright-rust 0.1.0-alpha.6 pins this release.
