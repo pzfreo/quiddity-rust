@@ -263,7 +263,7 @@ pub enum Feature {
     Items(Vec<Anchor>),                                  // one feature of one or more items (§6.5.1)
     Group { members: Vec<FeatureId>, kind: GroupKind },  // multiple elements, pattern of features,
                                                          // all around, between (§6.4)
-    Derived { kind: DerivedKind, from: Vec<FeatureId> }, // explicit derived shape (§5.1.4, Table 3)
+    Derived { kind: DerivedKind, from: Vec<FeatureId>, geometry: Option<DerivedGeometryId> }, // explicit derived shape (§5.1.4, Table 3)
 }
 ```
 
@@ -1158,3 +1158,12 @@ What was done meanwhile is in each.
 - **AP242 XML, external references, validation properties written.**
 - **specify-core's `mesh` command** (face-indexed tessellation): an OpenCascade replacement item
   for specify-core, but not PMI; planned separately on top of the face provenance.
+
+
+### Derived geometry (2026-10-18)
+
+PMI document format 2 and reader `haecceity-pmi-read/7` add drawable derived axes and
+median planes, including their deriving face indices, with supplemental geometry checked
+against the result. The derivation rules, record schema, tolerance policy and consumer
+migration are specified in [Derived PMI geometry](pmi-derived-geometry.md). This supersedes
+the earlier omission of plain derived shape aspects' explicit geometry described above.

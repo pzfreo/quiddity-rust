@@ -925,7 +925,7 @@ presentation blockers under `--presentation refuse`, an edition upgrade refused,
 that differs.
 
 The PMI JSON (`src/pmi_json.rs` describes the form) is a document `{"format": "quiddity-pmi",
-"version": 1, "binding": {"sha256", "reader"}, "parts": [{"part", "name", "pmi"}],
+"version": 2, "binding": {"sha256", "reader"}, "parts": [{"part", "name", "pmi"}],
 "findings": [...]}`. Every value is `{"value": "<decimal text as stated>", "unit": "mm"|"in"|
 "deg"|...}`, never a JSON number; anchors are `{"face": n}` / `{"edge": n}` in the numbering
 `quiddity parts` reports, from 0; references between items are indices into the part's lists;

@@ -229,8 +229,8 @@ fn pmi_read_of_one_part() {
 /// whenever the reader's output does: when this fails, bump `pmi_json::READER` if `pmi::read`
 /// changed (a JSON-form change bumps `VERSION` instead), then re-pin both.
 const READER_PIN: (&str, &str) = (
-    "haecceity-pmi-read/6",
-    "336dca69786ee543a622fa73e177b896223a552aedbd37d2d5bbb252966a3850",
+    "haecceity-pmi-read/7",
+    "1b4a742073fab1bc27f564f3bcdfccad4bd019ec34c2349e4ca77e4fa5c15cad",
 );
 
 #[test]
@@ -581,9 +581,12 @@ fn pmi_check_refusals_name_the_json_path() {
     let err = check_refused(&step, &bad, "reader");
     assert!(err.contains("binding.reader"), "{err}");
     let mut bad = json.clone();
-    bad["version"] = json!(2);
+    bad["version"] = json!(999);
     let err = check_refused(&step, &bad, "version");
-    assert!(err.contains("version: version 2 is not supported"), "{err}");
+    assert!(
+        err.contains("version: version 999 is not supported"),
+        "{err}"
+    );
     let mut bad = json.clone();
     bad.as_object_mut().unwrap().remove("version");
     let err = check_refused(&step, &bad, "no-version");
@@ -616,7 +619,7 @@ fn hand_written_pmi_is_accepted_in_the_documented_form() {
     let (json, step) = spool();
     let doc = json!({
         "format": "quiddity-pmi",
-        "version": 1,
+        "version": pmi_json::VERSION,
         "binding": json["binding"],
         "parts": [{"part": 0, "pmi": {
             "features": [
@@ -1240,7 +1243,7 @@ fn pmi_write_add_then_remove_returns_a_corpus_part_to_its_pmi() {
     let (original, _) = ok(&["pmi", "read", p]);
     let add = json!({
         "format": "quiddity-pmi",
-        "version": 1,
+        "version": pmi_json::VERSION,
         "binding": original["binding"],
         "parts": [{"part": 0, "pmi": {
             "features": [{"items": [{"face": 69}]}, {"items": [{"face": 55}]}],
@@ -1341,4 +1344,102 @@ fn pmi_write_add_then_remove_returns_a_corpus_part_to_its_pmi() {
     );
     assert!(err.contains("instances violate it: #"), "{err}");
     assert!(err.contains("#900000001"), "{err}");
+}
+
+/// Before/after audit: pin every semantic field and finding, excluding format/binding
+/// versions, over the supplied NIST directory and the committed semantic AP242 models.
+#[test]
+fn derived_geometry_does_not_regress_any_nist_pmi() {
+    use quiddity::kernel::express;
+    use quiddity::kernel::p21::RawEntity;
+    let baseline: Json =
+        serde_json::from_slice(&std::fs::read(ap242().join("derived/nist-baseline.json")).unwrap())
+            .unwrap();
+    let mut checked = 0;
+    for row in baseline.as_array().unwrap() {
+        let file = row["file"].as_str().unwrap();
+        let path = if file.ends_with(".gz") {
+            ap242().join("nist").join(file)
+        } else {
+            let Some(corpus) = common::corpus_dir() else {
+                continue;
+            };
+            corpus.join("nist").join(file)
+        };
+        let b = bytes(&path);
+        assert_eq!(
+            Binding::of(&b).sha256,
+            row["source_sha256"].as_str().unwrap(),
+            "{file}"
+        );
+        let (json, _) = ok(&["pmi", "read", path.to_str().unwrap()]);
+        let semantic = json!({"parts": json["parts"], "findings": json["findings"]});
+        let canonical = serde_json::to_vec(&semantic).unwrap();
+        assert_eq!(
+            Binding::of(&canonical).sha256,
+            row["semantic_sha256"].as_str().unwrap(),
+            "{file}: resolved PMI or findings changed"
+        );
+        let doc = Document::parse(b).unwrap();
+        let is_a = |id, parent| match doc.get(id).unwrap() {
+            RawEntity::Simple { name, .. } => express::is_a(&name.to_ascii_lowercase(), parent),
+            RawEntity::Complex { parts, .. } => parts
+                .iter()
+                .any(|p| express::is_a(&p.name.to_ascii_lowercase(), parent)),
+        };
+        let dimensions = doc
+            .ids()
+            .filter(|&id| is_a(id, "dimensional_size") || is_a(id, "dimensional_location"))
+            .count();
+        let tolerances = doc
+            .ids()
+            .filter(|&id| is_a(id, "geometric_tolerance"))
+            .count();
+        let derived = doc
+            .ids()
+            .filter(|&id| is_a(id, "derived_shape_aspect"))
+            .count();
+        let parts = json["parts"].as_array().unwrap();
+        let read_count = |field| {
+            parts
+                .iter()
+                .map(|p| p["pmi"][field].as_array().map_or(0, Vec::len))
+                .sum::<usize>()
+        };
+        assert_eq!(
+            dimensions,
+            row["dimensions_stated"].as_u64().unwrap() as usize,
+            "{file}"
+        );
+        assert_eq!(
+            tolerances,
+            row["tolerances_stated"].as_u64().unwrap() as usize,
+            "{file}"
+        );
+        assert_eq!(
+            derived,
+            row["derived_aspects"].as_u64().unwrap() as usize,
+            "{file}"
+        );
+        assert_eq!(
+            dimensions - read_count("dimensions"),
+            row["refused_dimensions"].as_u64().unwrap() as usize,
+            "{file}"
+        );
+        assert_eq!(
+            tolerances - read_count("tolerances"),
+            row["refused_tolerances"].as_u64().unwrap() as usize,
+            "{file}"
+        );
+        println!(
+            "{file}: derived={derived}; dimensions {}/{dimensions}; tolerances {}/{tolerances}; refused {} -> {}",
+            read_count("dimensions"),
+            read_count("tolerances"),
+            row["refused_dimensions"].as_u64().unwrap()
+                + row["refused_tolerances"].as_u64().unwrap(),
+            dimensions + tolerances - read_count("dimensions") - read_count("tolerances")
+        );
+        checked += 1;
+    }
+    assert!(checked >= 7, "the committed AP242 files are always checked");
 }

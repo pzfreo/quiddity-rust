@@ -4,6 +4,18 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
+## Unreleased
+
+### Added
+
+- Derive semantic PMI axes from coaxial revolution faces and median planes from two
+  parallel planar faces. Cross-check explicit constructive geometry, retain deriving face
+  indices and cylinder radius, and report unsupported or disagreeing geometry precisely.
+  Dimension and tolerance targets can reference these records; qualifiers remain data.
+- PMI document format 2 (`haecceity-pmi-read/7`): optional `derived.geometry` references
+  the new `derived_geometry` list. See [the record format](docs/pmi-derived-geometry.md).
+  Existing version 1 PMI documents must be regenerated from STEP.
+
 ## 0.1.0-alpha.6 (2026-10-18)
 
 ### Changed

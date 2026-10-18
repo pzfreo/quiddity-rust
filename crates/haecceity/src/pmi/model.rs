@@ -592,6 +592,8 @@ id!(
     ToleranceId,
     /// Index into [`PartPmi::geometry`].
     GeometryId,
+    /// Index into [`PartPmi::derived_geometry`].
+    DerivedGeometryId,
 );
 
 /// What a feature is made of: a face or an edge of the part, or supplemental geometry (a
@@ -670,7 +672,32 @@ pub enum Feature {
     Derived {
         kind: DerivedKind,
         from: Vec<FeatureId>,
+        /// Computed geometry, absent when the derivation is refused (see findings).
+        geometry: Option<DerivedGeometryId>,
     },
+}
+
+/// Geometry computed from a derived shape aspect's deriving faces. Coordinates are in the
+/// part's local coordinate system, in millimetres; directions are unit vectors. These are
+/// computed decimals, not source measure tokens. Face indices use the usual part numbering.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct DerivedGeometry {
+    pub kind: DerivedGeometryKind,
+    pub deriving_faces: Vec<FaceIndex>,
+    /// A point on the axis or median plane.
+    pub point: [Length; 3],
+    /// Axis direction or median-plane normal (its sign has no significance).
+    pub direction: Direction,
+    /// Present only when all deriving faces belong to one cylinder.
+    pub radius: Option<Length>,
+    /// Explicit supplemental items that passed the geometric cross-check.
+    pub supplemental: Vec<GeometryId>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum DerivedGeometryKind {
+    Axis,
+    MedianPlane,
 }
 
 /// How a group's members are taken (§6.4).
@@ -2497,6 +2524,8 @@ pub struct PartPmi {
     pub attributes: Vec<AttributeSet>,
     /// Supplemental geometry that features are made of ([`Anchor::Geometry`]).
     pub geometry: Vec<Geometry>,
+    /// Axes and median planes computed from deriving faces.
+    pub derived_geometry: Vec<DerivedGeometry>,
 }
 
 impl PartPmi {
@@ -2509,7 +2538,37 @@ impl PartPmi {
                 x == y
                     || (x.0 < self.features.len()
                         && y.0 < self.features.len()
-                        && self.features[x.0] == self.features[y.0])
+                        && match (&self.features[x.0], &self.features[y.0]) {
+                            (
+                                Feature::Derived {
+                                    kind: ak,
+                                    from: af,
+                                    geometry: Some(ag),
+                                },
+                                Feature::Derived {
+                                    kind: bk,
+                                    from: bf,
+                                    geometry: Some(bg),
+                                },
+                            ) => {
+                                ak == bk
+                                    && af == bf
+                                    && match (
+                                        self.derived_geometry.get(ag.0),
+                                        self.derived_geometry.get(bg.0),
+                                    ) {
+                                        (Some(a), Some(b)) => {
+                                            a.kind == b.kind
+                                                && a.deriving_faces == b.deriving_faces
+                                                && a.point == b.point
+                                                && a.direction == b.direction
+                                                && a.radius == b.radius
+                                        }
+                                        _ => false,
+                                    }
+                            }
+                            (a, b) => a == b,
+                        })
             }
             _ => a == b,
         }
@@ -2545,6 +2604,52 @@ impl PartPmi {
                     }
                 }
                 Feature::Items(_) => {}
+            }
+        }
+        for (i, f) in self.features.iter().enumerate() {
+            if let Feature::Derived {
+                geometry: Some(g), ..
+            } = f
+                && g.0 >= self.derived_geometry.len()
+            {
+                bad(format!(
+                    "feature {i} names missing derived geometry {}",
+                    g.0
+                ));
+            }
+        }
+        for (i, g) in self.derived_geometry.iter().enumerate() {
+            if g.deriving_faces.is_empty() {
+                bad(format!("derived geometry {i} has no deriving faces"));
+            }
+            if g.kind == DerivedGeometryKind::MedianPlane && g.deriving_faces.len() != 2 {
+                bad(format!(
+                    "derived geometry {i} median plane requires two deriving faces"
+                ));
+            }
+            if g.point.iter().any(|p| !p.mm().is_finite()) {
+                bad(format!("derived geometry {i} has a non-finite point"));
+            }
+            let d = g.direction.0.each_ref().map(Decimal::to_f64);
+            if d.iter().any(|v| !v.is_finite()) || (crate::geom::norm(d) - 1.0).abs() > 1e-9 {
+                bad(format!(
+                    "derived geometry {i} direction is not a unit vector"
+                ));
+            }
+            if let Some(r) = &g.radius
+                && (g.kind != DerivedGeometryKind::Axis || !r.mm().is_finite() || r.mm() <= 0.0)
+            {
+                bad(format!(
+                    "derived geometry {i} has an invalid cylinder radius"
+                ));
+            }
+            for s in &g.supplemental {
+                if s.0 >= self.geometry.len() {
+                    bad(format!(
+                        "derived geometry {i} names missing geometry {}",
+                        s.0
+                    ));
+                }
             }
         }
         for (i, t) in self.datum_targets.iter().enumerate() {

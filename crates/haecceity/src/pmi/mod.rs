@@ -7,6 +7,7 @@
 //! nonconformance) and the [`Provenance`] of every model item: the instance ids it consumed,
 //! which a replace removes.
 
+mod derived;
 pub mod model;
 mod read;
 pub mod standards;
