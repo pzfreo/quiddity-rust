@@ -13,8 +13,9 @@ in [docs/alpha1.md](docs/alpha1.md).
   stopping at the first positive running volume, instead of computing the complete
   common volume (#16). Results are unchanged: unresolved-line semantics are kept, and a
   box that rounding collapses at extreme coordinates keeps the previous fraction-valued
-  answer. draftwright-rust's plan of NIST FTC-10's AP242 file, which spent most of its
-  203 s here, now takes about 5 s; its 65-part plan-time survey uses 29% fewer
+  answer. In draftwright-rust#90, which combined this change with draftwright-side
+  optimisations, planning NIST FTC-10's AP242 file fell from 203 s to about 5 s (most of
+  the 203 s was spent in this probe), and the 65-part plan-time survey used 29% fewer
   instructions, with every plan JSON and SVG byte-identical.
 
 ## 0.1.0-alpha.5 (2026-10-17)
