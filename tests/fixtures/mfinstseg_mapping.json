@@ -1,0 +1,203 @@
+{
+  "schema": 1,
+  "sources": [
+    "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Utils/parameters.py",
+    "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/main.py",
+    "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Utils/occ_utils.py",
+    "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/feature_creation.py",
+    "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/extract_label_from_MFCADPP.py"
+  ],
+  "semantics": "Coarse family correspondence, not a learned semantic classifier. Each class is scored independently against ALL predictions from its mapped families, without consulting ground truth to select predictions. Shared-family classes therefore share predictions and may have low precision. Only defining faces count; bottom labels and constituent faces do not expand predictions. Identical face sets across mapped families are one prediction. Stock is not covered: polygonal_stock describes a body, not residual unmachined faces.",
+  "classes": [
+    {
+      "id": 0,
+      "name": "chamfer",
+      "families": [
+        "chamfers"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "through_hole",
+      "families": [
+        "holes"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "triangular_passage",
+      "families": [
+        "section_passages"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "rectangular_passage",
+      "families": [
+        "section_passages",
+        "oriented_slots"
+      ],
+      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/rectangular_passage.py",
+      "rationale": "An enclosed rectangular through cut. Rust publishes principal rectangles as section_passages and non-principal rectangles as oriented_slots; independent OpenCascade aligned and rotated box-minus-prism constructions verify both representations."
+    },
+    {
+      "id": 4,
+      "name": "6sides_passage",
+      "families": [
+        "section_passages"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "triangular_through_slot",
+      "families": [],
+      "not_covered": "V-section through channel; Rust slots require opposed parallel walls.",
+      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/triangular_through_slot.py"
+    },
+    {
+      "id": 6,
+      "name": "rectangular_through_slot",
+      "families": [
+        "channels"
+      ],
+      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/rectangular_through_slot.py",
+      "rationale": "The generator extrudes a rectangle anchored to one stock edge through the stock normal. Along that through axis the remaining boundary is a U-section: two opposed walls and a floor, open at both ends. This is Rust channels, not the enclosed passage/slot interpretation. Verified with an independent OpenCascade box-minus-prism construction."
+    },
+    {
+      "id": 7,
+      "name": "circular_through_slot",
+      "families": [],
+      "not_covered": "Circular-section open through channel; Rust channels require a rectangular floor and walls.",
+      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/circular_through_slot.py"
+    },
+    {
+      "id": 8,
+      "name": "rectangular_through_step",
+      "families": [
+        "through_steps"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "2sides_through_step",
+      "families": [
+        "paired_ramp_steps"
+      ],
+      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/two_sides_through_step.py"
+    },
+    {
+      "id": 10,
+      "name": "slanted_through_step",
+      "families": [
+        "oblique_through_steps"
+      ],
+      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/slanted_through_step.py"
+    },
+    {
+      "id": 11,
+      "name": "Oring",
+      "families": [],
+      "not_covered": "Annular blind recess cut in a planar stock face; Rust grooves describe turned external shaft bands.",
+      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/o_ring.py"
+    },
+    {
+      "id": 12,
+      "name": "blind_hole",
+      "families": [
+        "holes"
+      ]
+    },
+    {
+      "id": 13,
+      "name": "triangular_pocket",
+      "families": [
+        "prismatic_pockets"
+      ]
+    },
+    {
+      "id": 14,
+      "name": "rectangular_pocket",
+      "families": [
+        "pockets",
+        "prismatic_pockets"
+      ]
+    },
+    {
+      "id": 15,
+      "name": "6sides_pocket",
+      "families": [
+        "prismatic_pockets"
+      ]
+    },
+    {
+      "id": 16,
+      "name": "circular_end_pocket",
+      "families": [
+        "pockets"
+      ]
+    },
+    {
+      "id": 17,
+      "name": "rectangular_blind_slot",
+      "families": [
+        "rectangular_blind_slots"
+      ]
+    },
+    {
+      "id": 18,
+      "name": "v_circular_end_blind_slot",
+      "families": [
+        "round_bottom_blind_slots"
+      ],
+      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/v_circular_end_blind_slot.py",
+      "rationale": "Open U-section with a semicircular bottom; mapped to the round-bottom slot family even where its stricter flat-bottom/quarter-cylinder implementation cannot recognise it."
+    },
+    {
+      "id": 19,
+      "name": "h_circular_end_blind_slot",
+      "families": [
+        "round_bottom_blind_slots"
+      ],
+      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/h_circular_end_blind_slot.py",
+      "rationale": "Open U-section with two quarter-circle corners and a flat between them, extruded to a blind cap."
+    },
+    {
+      "id": 20,
+      "name": "triangular_blind_step",
+      "families": [
+        "angled_steps"
+      ],
+      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/triangular_blind_step.py",
+      "rationale": "Triangular sketch anchored to two stock edges, cut blind: an oblique corner face and triangular terminal."
+    },
+    {
+      "id": 21,
+      "name": "circular_blind_step",
+      "families": [
+        "circular_blind_steps"
+      ]
+    },
+    {
+      "id": 22,
+      "name": "rectangular_blind_step",
+      "families": [
+        "pockets"
+      ],
+      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/rectangular_blind_step.py",
+      "rationale": "Rectangular sketch anchored to two stock edges, cut blind: a corner notch (pockets edge_anchored)."
+    },
+    {
+      "id": 23,
+      "name": "round",
+      "families": [
+        "fillets"
+      ]
+    },
+    {
+      "id": 24,
+      "name": "stock",
+      "families": [],
+      "not_covered": "Residual stock faces have no recognition family."
+    }
+  ]
+}
