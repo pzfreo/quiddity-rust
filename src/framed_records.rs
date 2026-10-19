@@ -424,6 +424,8 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
         pocket_patterns,
         repeating_radial_profiles,
         freeform_surfaces,
+        modelled_threads,
+        modelled_thread_refusals,
         polygonal_bosses,
         polygonal_stock,
         section_passages,
@@ -531,6 +533,12 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
             repeating_radial_profile
         ),
         freeform_surfaces: each!("freeform_surfaces", freeform_surfaces, freeform_surface),
+        modelled_threads: each!("modelled_threads", modelled_threads, modelled_thread),
+        modelled_thread_refusals: each!(
+            "modelled_thread_refusals",
+            modelled_thread_refusals,
+            modelled_thread_refusal
+        ),
         polygonal_bosses: each!("polygonal_bosses", polygonal_bosses, polygonal_prism),
         polygonal_stock: each!("polygonal_stock", polygonal_stock, polygonal_prism),
         section_passages: each!("section_passages", section_passages, section_passage),
@@ -2353,4 +2361,53 @@ fn section_recess_pattern(out: &mut Out, r: SectionRecessPattern) -> SectionRece
         out.mark("center");
         r
     })
+}
+
+/// Re-anchor a line at the file origin, then orient its dominant component positively.
+/// Reversing the direction swaps and negates the axial endpoints, preserving physical
+/// handedness and agreement with caller-space recognition.
+fn thread_axis(
+    out: &Out,
+    axis: crate::features::modelled_threads::ThreadAxis,
+) -> (crate::features::modelled_threads::ThreadAxis, f64, f64) {
+    use crate::kernel::geom;
+    let p = out.point(axis.point);
+    let d = out.direction(axis.direction);
+    let shift = geom::dot(p, d);
+    let sign = if d[geom::dominant_axis_preferring_z(d)] < 0.0 {
+        -1.0
+    } else {
+        1.0
+    };
+    (
+        crate::features::modelled_threads::ThreadAxis {
+            point: geom::sub(p, geom::scale(d, shift)),
+            direction: geom::scale(d, sign),
+        },
+        shift,
+        sign,
+    )
+}
+
+fn modelled_thread(
+    out: &mut Out,
+    mut r: crate::features::modelled_threads::ModelledThread,
+) -> crate::features::modelled_threads::ModelledThread {
+    let (axis, shift, sign) = thread_axis(out, r.axis);
+    r.axis = axis;
+    let (start, end) = (r.start + shift, r.end + shift);
+    (r.start, r.end) = if sign > 0.0 {
+        (start, end)
+    } else {
+        (-end, -start)
+    };
+    r
+}
+
+fn modelled_thread_refusal(
+    out: &mut Out,
+    mut r: crate::features::modelled_threads::ModelledThreadRefusal,
+) -> crate::features::modelled_threads::ModelledThreadRefusal {
+    r.axis = thread_axis(out, r.axis).0;
+    r
 }

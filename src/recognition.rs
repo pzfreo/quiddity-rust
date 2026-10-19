@@ -37,10 +37,20 @@ use crate::features::recess_patterns::{PocketPattern, SlotPattern};
 use crate::features::section_recess::SectionRecessPattern;
 use crate::frames::RecordFrame;
 
-/// Version 3 publishes unified recess patterns whose members name the section-recess
-/// occurrence indices (not source-pocket indices). Occurrences and source refusals share
-/// `section_recesses`, as in Python; step levels and risers remain evidence families.
-pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/3";
+/// Latest contract: version 4 adds measured modelled threads and explicit refusals.
+/// Documents using only version 3 record types retain the legacy version and bytes.
+pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/4";
+/// Documents without the optional measured-thread extension retain version 3 byte for byte.
+pub const LEGACY_SCHEMA_VERSION: &str = "quiddity-rust/recognition/3";
+
+/// The minimum document contract required by these records.
+pub fn schema_version(features: &Features) -> &'static str {
+    if features.modelled_threads.is_empty() && features.modelled_thread_refusals.is_empty() {
+        LEGACY_SCHEMA_VERSION
+    } else {
+        SCHEMA_VERSION
+    }
+}
 
 /// One part's recognition, as draftwright reads it.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -133,6 +143,7 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
     ("pocket_patterns", &["PocketGrid", "PocketArray"]),
     ("repeating_radial_profiles", &["RepeatingRadialProfile"]),
     ("freeform_surfaces", &["FreeformSurface"]),
+    ("modelled_threads", &["ModelledThread"]),
     ("polygonal_bosses", &["PolygonalBoss"]),
     ("polygonal_stock", &["PolygonalStock"]),
     ("section_passages", &["SectionPassage"]),
@@ -153,6 +164,7 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
         "section_recess_patterns",
         &["SectionRecessArray", "SectionRecessGrid"],
     ),
+    ("modelled_thread_refusals", &["ModelledThreadRefusal"]),
 ];
 
 /// The record class names a family's records can have.
@@ -255,6 +267,14 @@ pub fn families(features: &Features) -> Vec<(String, Vec<Value>)> {
             .map(|r| serde_json::to_value(r).expect("pattern serialises"))
             .collect(),
     ));
+    families.push((
+        "modelled_thread_refusals".into(),
+        features
+            .modelled_thread_refusals
+            .iter()
+            .map(|r| serde_json::to_value(r).expect("thread refusal serialises"))
+            .collect(),
+    ));
     families
 }
 
@@ -275,7 +295,11 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
                 panic!("{id} is not a record");
             };
             // Refusals describe source evidence, not recognised geometry to fingerprint.
-            let faces = if family == "section_recess_patterns" {
+            let faces = if family == "modelled_thread_refusals" {
+                recognition.features.modelled_thread_refusals[n]
+                    .faces
+                    .clone()
+            } else if family == "section_recess_patterns" {
                 let mut faces: Vec<_> = recognition.features.section_recess_patterns[n]
                     .members()
                     .iter()
@@ -315,7 +339,7 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
         }
     }
     RecognitionDocument {
-        schema_version: SCHEMA_VERSION.into(),
+        schema_version: schema_version(&recognition.features).into(),
         package: Package {
             name: "quiddity-rust".into(),
             version: env!("CARGO_PKG_VERSION").into(),

@@ -44,6 +44,7 @@ pub mod hole_patterns;
 pub mod holes;
 pub mod interior_voids;
 pub mod levels;
+pub mod modelled_threads;
 pub mod oblique_through_steps;
 pub mod oriented_chamfers;
 pub mod oriented_slots;
@@ -143,6 +144,12 @@ pub struct Features {
     pub pocket_patterns: Vec<recess_patterns::PocketPattern>,
     pub repeating_radial_profiles: Vec<repeating_profiles::RepeatingRadialProfile>,
     pub freeform_surfaces: Vec<freeform_surfaces::FreeformSurface>,
+    /// Measured helical threads. Omitted when absent to retain legacy output bytes.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub modelled_threads: Vec<modelled_threads::ModelledThread>,
+    /// Refusals publish as document records, without feature fingerprints or face claims.
+    #[serde(skip)]
+    pub modelled_thread_refusals: Vec<modelled_threads::ModelledThreadRefusal>,
     pub polygonal_bosses: Vec<polygonal_bosses::PolygonalBoss>,
     pub polygonal_stock: Vec<polygonal_bosses::PolygonalStock>,
     /// Python's legacy inventory field (`_LegacyRecognitionResult.section_passages`): every
@@ -408,10 +415,24 @@ pub(crate) fn inventory_in(
         oriented_slots::discover(ctx, &passages)
             .unwrap_or_else(|e| panic!("oriented slots refused: {e}")),
     );
+    let thread_analysis = modelled_threads::analyse_modelled_threads(part);
+    let claimed: BTreeSet<_> = thread_analysis
+        .threads
+        .iter()
+        .flat_map(|o| o.defining.iter().copied())
+        .collect();
+    let modelled_threads = if thread_analysis.threads.is_empty() {
+        Vec::new()
+    } else {
+        kept(&mut defining, "modelled_threads", thread_analysis.threads)
+    };
     let freeform_surfaces = kept(
         &mut defining,
         "freeform_surfaces",
-        freeform_surfaces::discover(ctx, &thin_wall_bodies),
+        freeform_surfaces::discover(ctx, &thin_wall_bodies)
+            .into_iter()
+            .filter(|o| !claimed.contains(&o.record.face))
+            .collect(),
     );
     // A degraded run's risers carry the step levels it kept, as Python's carry that run's
     // completed levels (`levels::proved` skips only in a degraded run).
@@ -531,6 +552,8 @@ pub(crate) fn inventory_in(
             repeating_profiles::discover(ctx),
         ),
         freeform_surfaces,
+        modelled_threads,
+        modelled_thread_refusals: thread_analysis.refusals,
         polygonal_bosses: kept(
             &mut defining,
             "polygonal_bosses",

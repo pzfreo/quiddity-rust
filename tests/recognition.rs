@@ -25,9 +25,7 @@ use quiddity::features::{self, Features, reconcile};
 use quiddity::framed_records::{self, Rigid, map_features};
 use quiddity::frames::{self, PartFrame, RecordFrame};
 use quiddity::kernel::step::{IDENTITY, Placement, read_step_file_placed};
-use quiddity::recognition::{
-    self, RECORD_TYPES, RecognitionDocument, SCHEMA_VERSION, families, record_types,
-};
+use quiddity::recognition::{self, RECORD_TYPES, RecognitionDocument, families, record_types};
 use quiddity::serve;
 use serde_json::Value;
 
@@ -66,7 +64,11 @@ fn every_family_has_a_record_type() {
         })
         .collect();
     assert!(missing.is_empty(), "{}", missing.join("\n"));
-    let table: Vec<&str> = RECORD_TYPES.iter().map(|(f, _)| *f).collect();
+    let table: Vec<&str> = RECORD_TYPES
+        .iter()
+        .map(|(f, _)| *f)
+        .filter(|f| *f != "modelled_threads")
+        .collect();
     assert_eq!(
         table, keys,
         "RECORD_TYPES must list exactly Features' families, in its order"
@@ -101,7 +103,17 @@ fn records_are_ordered_typed_and_on_the_parts_faces() {
 
 /// What is wrong with *doc*, the document of a part of *face_count* faces.
 fn check(name: &str, doc: &RecognitionDocument, face_count: usize, out: &mut Vec<String>) {
-    if doc.schema_version != SCHEMA_VERSION || doc.face_count != face_count {
+    let version = if doc.records.iter().any(|r| {
+        matches!(
+            r.family.as_str(),
+            "modelled_threads" | "modelled_thread_refusals"
+        )
+    }) {
+        recognition::SCHEMA_VERSION
+    } else {
+        recognition::LEGACY_SCHEMA_VERSION
+    };
+    if doc.schema_version != version || doc.face_count != face_count {
         out.push(format!("{name}: version or face count wrong"));
     }
     let rank = |family: &str| RECORD_TYPES.iter().position(|(f, _)| *f == family);

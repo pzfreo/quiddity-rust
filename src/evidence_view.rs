@@ -49,8 +49,9 @@ use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, Surface};
 use crate::{PlanarOuterProfileEvidence, RefusedPlanarOuterProfile, planar_outer_profile};
 
-/// The physical families in Python's registry order (`PHYSICAL_DEFINITIONS`), by Python value.
-pub const PHYSICAL_FAMILIES: [&str; 40] = [
+/// Physical families in Python's registry order (`PHYSICAL_DEFINITIONS`), followed by the
+/// native measured-thread extension.
+pub const PHYSICAL_FAMILIES: [&str; 41] = [
     "countersinks",
     "holes",
     "double_d_bores",
@@ -91,6 +92,7 @@ pub const PHYSICAL_FAMILIES: [&str; 40] = [
     "interior_voids",
     "freeform_surfaces",
     "sheet_metal_bodies",
+    "modelled_threads",
 ];
 
 /// The recess source families (`RECESS_SOURCE_FAMILIES`): Python's view leaves them out of its
@@ -261,6 +263,12 @@ fn faces(part: &Part, inventory: &Inventory) -> Result<Faces, EvidenceViewError>
         let found: Vec<Vec<usize>> = match family {
             // Not a candidate family: the projection's records carry their own evidence.
             "section_recesses" => Vec::new(),
+            "modelled_threads" => inventory
+                .physical
+                .defining
+                .get("modelled_threads")
+                .cloned()
+                .unwrap_or_default(),
             other => inventory
                 .physical
                 .defining

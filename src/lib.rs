@@ -94,3 +94,8 @@ pub use features::turned::TurnedProfileKey;
 pub use features::turned_steps::{TurnedStep, recognise_turned_steps};
 pub use kernel::brep::Part;
 pub use kernel::step::{read_step, read_step_file};
+
+pub use features::modelled_threads::{
+    ModelledThread, ModelledThreadRefusal, ThreadAnalysis, ThreadAxis, ThreadTolerances,
+    analyse_modelled_threads, recognise_modelled_threads,
+};

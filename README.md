@@ -31,6 +31,12 @@ let holes = quiddity::recognise_holes(&part, &Default::default()); // one family
 let recognition = quiddity::correspondence::recognise(&part); // with fingerprints
 ```
 
+Modelled screw threads are also measured natively (`analyse_modelled_threads`): axis,
+side, diameters, pitch, hand, starts, axial span and claimed faces, with explicit refusals.
+They use [recognition document 4](docs/recognition-4.md); parts without the extension retain
+version 3 and their existing bytes. The [corpus survey](docs/modelled-threads.md) records the
+measurements and supported profile limits. Nominal thread designations belong to consumers.
+
 From the command line (see [Running](#running)): `quiddity part.step` (records, fingerprints,
 recognition document), `quiddity correspond`, `quiddity serve`, `quiddity parts part.step` (the
 distinct parts and the face numbering PMI anchors use), and `quiddity pmi read|check|write`
@@ -637,6 +643,8 @@ src/
                      along each edge's exact arc length (`Edge.position_at`)
     freeform_surfaces.rs  native B-spline supports as OpenCascade's reader holds them (closed
                      pole rows made periodic), continuity links, thin-wall offset partners
+    modelled_threads.rs  sampled helical flanks and boundaries, measured thread parameters,
+                     explicit refusals, and claims removed from aggregate freeforms
     experimental_geometry.rs  the read-only geometry facade (`GeometryGraph`): a solid's or the
                      part's faces with their readings, effective analytic surfaces, blend facts
                      and the support bridges selected blend chains collapse to
@@ -689,7 +697,8 @@ src/
                      bound to the file's sha256 and the reader version, enums as standard
                      terms; refusals name the JSON path; a write's report
   recognition.rs     the versioned recognition document for draftwright (`quiddity-rust/
-                     recognition/3`): the part's frame, and per feature its family, Python
+                     recognition/3` or the optional `/4` thread extension): the part's frame,
+                     and per feature its family, Python
                      record type, faces, record and the fields left in the frame
   serve.rs           `quiddity serve`: recognise and correspond as a JSON-lines service, each
                      request's id echoed, failures as structured errors
@@ -702,6 +711,8 @@ src/
 tests/
   captured.rs        replays every recogniser call the Python test suite makes
   corpus.rs          every ported recogniser over the shared 100-file STEP corpus
+  modelled_threads.rs measured corpus threads, left-hand/multiple starts, physical negatives,
+                     refusals, document fields and rigid mapping
   evidence.rs        fillet defining faces and evidence refusals on hand-built cases
   invariance.rs      every corpus part moved and turned: each family must find the same faces;
                      and under a generic rotation, recognised in its own frame; repeating
