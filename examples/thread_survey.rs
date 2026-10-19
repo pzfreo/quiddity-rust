@@ -21,7 +21,7 @@ fn main() {
             };
             if let Some(frame) = frame {
                 let mut d = frame.z;
-                if d[geom::dominant_axis(d)] < 0.0 {
+                if d[geom::dominant_axis_preferring_z(d)] < 0.0 {
                     d = geom::scale(d, -1.0);
                 }
                 let p = geom::sub(frame.origin, geom::scale(d, geom::dot(frame.origin, d)));

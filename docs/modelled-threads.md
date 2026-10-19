@@ -93,7 +93,7 @@ about 0.03 mm radially); they are sampling acceptance bounds, not certified
 continuous error bounds. Neither pitch nor diameters are rounded to a standard.
 
 Changing pitch/diameters, incompatible hands, unequal starts, missing paired
-flanks/bounds or invalid solids are refused. Isolated blends are not thread
+flanks/bounds or body evidence failing the run's existing validity policy are refused. Isolated blends are not thread
 candidates. Supported profiles have radial depth/pitch 0.2–0.9; shallow spiral
 channels, round-wire springs, rounded/square profiles without the required flank
 and carrier evidence remain unclaimed. Geometrically identical screw/groove
@@ -106,3 +106,36 @@ See [recognition document 4](recognition-4.md) for fields and frame semantics.
 The byte comparison and paired release benchmarks below include STEP import,
 recognition, fingerprints, document construction and JSON serialisation. They do
 not measure draftwright rendering, which is unchanged by this repository alone.
+
+Comparing complete CLI stdout against the saved `origin/main` release binary gave
+**98/100 byte-identical outputs**. The only changes are the two threaded files.
+On those, all pre-existing non-thread document records and every face fingerprint
+are also exactly unchanged; only thread records, claimed freeforms, feature
+fingerprints and the document version differ. Five obsolete connector
+correspondence-ambiguity exceptions were removed: its former strip records now
+belong to a single thread. The captured Python evidence differences are explicitly
+pinned for the five new occurrences and 144 claimed B-spline faces.
+
+
+On this aarch64 host with Rust 1.99 release builds, the median of three alternating
+pairs per file was:
+
+| Part | origin/main CPU s | New CPU s | Change | Individual CPU ranges (main / new) |
+|---|---:|---:|---:|---|
+| threaded_connector_109.step | 2.716 | 2.856 | +5.2% | 2.705–2.888 / 2.496–2.915 |
+| cgb243.step.gz | 11.261 | 11.358 | +0.9% | 11.224–11.313 / 11.347–11.395 |
+| cgb202.step.gz | 29.095 | 29.592 | +1.7% | 25.276–30.318 / 29.099–30.943 |
+| cgb203.step | 15.047 | 15.135 | +0.6% | 14.994–15.393 / 14.963–15.700 |
+| cgb242.step.gz | 12.446 | 12.694 | +2.0% | 12.379–12.455 / 12.535–12.939 |
+
+CPU is user + system time, with CLI stdout discarded. The connector's ranges
+overlap substantially, so its percentage should not be treated as a precise
+regression estimate. Added recognition work is about 0.10–0.14 s on the required
+threaded parts at these medians; this does not quantify the downstream savings
+from conventional thread drawing. `tools/benchmark_threads.py` reproduces the
+paired measurements with supplied baseline/current binaries and the corpus path.
+
+Validation: `cargo fmt --check`, `cargo clippy --all-targets --release -- -D warnings`,
+and `QUIDDITY_CORPUS=/Users/paul/repos/quiddity/tests/corpus cargo nextest run --release
+--test-threads 1 --no-fail-fast` passed: **274 tests, zero skips**, including corpus,
+determinism, correspondence, both recognition frames and captured evidence.
