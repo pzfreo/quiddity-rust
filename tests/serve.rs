@@ -180,9 +180,17 @@ fn a_part_without_a_frame_is_reported_as_a_warning() {
         json!({"status": "refused", "reason": "no-analytic-direction"})
     );
     let warnings = response["warnings"].as_array().unwrap();
-    assert_eq!(warnings.len(), 1);
+    // This fixture already fails the kernel's strict validity check. The trust warning
+    // now exposes that result alongside the existing frame warning; no records are dropped.
+    let part = quiddity::read_step_file(std::path::Path::new(&path)).unwrap();
+    assert!(!part.solid_is_geometrically_valid(0));
+    assert_eq!(response["result"]["document"]["records"], json!([]));
+    assert_eq!(warnings.len(), 2);
+    assert!(warnings[0].as_str().unwrap().ends_with(
+        "solids [0] fail strict geometric validity; retained 0 records; unproved records []"
+    ));
     assert!(
-        warnings[0]
+        warnings[1]
             .as_str()
             .unwrap()
             .contains("no part frame (no-analytic-direction)"),

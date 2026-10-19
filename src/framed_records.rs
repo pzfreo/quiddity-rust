@@ -390,6 +390,7 @@ impl<'a> Out<'a> {
 pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
     let Features {
         run_mode,
+        evidence_status,
         fillets,
         chamfers,
         bosses,
@@ -464,6 +465,7 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
     }
     let features = Features {
         run_mode,
+        evidence_status,
         fillets: each!("fillets", fillets, fillet),
         chamfers: each!("chamfers", chamfers, chamfer),
         bosses: each!("bosses", bosses, boss),

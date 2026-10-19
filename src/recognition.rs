@@ -30,7 +30,7 @@ use serde_json::{Map, Value};
 
 use crate::correspondence::Recognition;
 use crate::features::Features;
-pub use crate::features::evidence::RunMode;
+pub use crate::features::evidence::{EvidenceStatus, RunMode};
 use crate::features::gussets::GussetRibPattern;
 use crate::features::hole_patterns::HolePattern;
 use crate::features::oriented_slots::OrientedSlotPattern;
@@ -99,6 +99,21 @@ pub struct Record {
     /// The parameters left in the document's `frame` (no file axis corresponds to them), by
     /// path; empty when every parameter is in the file's coordinates.
     pub local: Vec<String>,
+    /// Strict valid-solid proof on defining and consulted faces, or on every pattern member.
+    /// Refusals and records from older documents are unproved.
+    #[serde(default)]
+    pub evidence_status: EvidenceStatus,
+}
+
+impl Record {
+    /// A published explanation of a refused projection, rather than a feature claim.
+    /// Consumers should inspect its type and reason separately from feature evidence status.
+    pub fn is_refusal(&self) -> bool {
+        matches!(
+            self.record_type.as_str(),
+            "SectionRecessRefusal" | "ModelledThreadRefusal"
+        )
+    }
 }
 
 /// Python's record class names for each family's records, in [`Features`]' order: one, or one
@@ -295,8 +310,9 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
         .map(|f| (f.id.as_str(), &f.faces))
         .collect();
     let mut records = Vec::new();
-    for (family, list) in families(&recognition.features) {
-        for (n, record) in list.into_iter().enumerate() {
+    let families = families(&recognition.features);
+    for (family, list) in &families {
+        for (n, record) in list.iter().enumerate() {
             let id = format!("{family}/{n}");
             let Value::Object(parameters) = record else {
                 panic!("{id} is not a record");
@@ -336,12 +352,19 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
                     .to_vec()
             };
             records.push(Record {
-                record_type: record_type(&recognition.features, &family, n).into(),
+                record_type: record_type(&recognition.features, family, n).into(),
                 faces,
                 local: recognition.local.get(&id).cloned().unwrap_or_default(),
                 id,
                 family: family.clone(),
-                parameters,
+                evidence_status: record_status(
+                    &recognition.features,
+                    family,
+                    n,
+                    parameters,
+                    &families,
+                ),
+                parameters: parameters.clone(),
             });
         }
     }
@@ -358,4 +381,59 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
         source_sha256: recognition.source_sha256.clone(),
         run_mode: recognition.features.run_mode,
     }
+}
+
+/// Derived records inherit every member's proof, including consulted faces absent from the
+/// fingerprint. Embedded members are resolved in the same order as fingerprint::derived_faces.
+fn record_status(
+    features: &Features,
+    family: &str,
+    n: usize,
+    parameters: &Map<String, Value>,
+    families: &[(String, Vec<Value>)],
+) -> EvidenceStatus {
+    let status = |family: &str, n: usize| {
+        features
+            .evidence_status
+            .get(family)
+            .and_then(|s| s.get(n))
+            .copied()
+            .unwrap_or_default()
+    };
+    if family == "section_recess_patterns" {
+        let members = features.section_recess_patterns[n].members();
+        return if !members.is_empty()
+            && members
+                .iter()
+                .all(|&m| status("section_recesses", m) == EvidenceStatus::Verified)
+        {
+            EvidenceStatus::Verified
+        } else {
+            EvidenceStatus::Unproved
+        };
+    }
+    if let Some((field, base)) =
+        crate::correspondence::fingerprint::family(family).and_then(|f| f.members)
+    {
+        let Some(members) = parameters.get(field).and_then(Value::as_array) else {
+            return EvidenceStatus::Unproved;
+        };
+        let Some((_, pool)) = families.iter().find(|(f, _)| f == base) else {
+            return EvidenceStatus::Unproved;
+        };
+        let mut taken = vec![false; pool.len()];
+        return if !members.is_empty()
+            && members.iter().all(|member| {
+                let Some(k) = (0..pool.len()).find(|&k| !taken[k] && pool[k] == *member) else {
+                    return false;
+                };
+                taken[k] = true;
+                status(base, k) == EvidenceStatus::Verified
+            }) {
+            EvidenceStatus::Verified
+        } else {
+            EvidenceStatus::Unproved
+        };
+    }
+    status(family, n)
 }
