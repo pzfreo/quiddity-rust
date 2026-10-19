@@ -4,6 +4,18 @@
 use std::cell::Cell;
 
 use crate::kernel::brep::Part;
+use serde::{Deserialize, Serialize};
+
+/// The completed inventory's mode, retained after the retry's thread-local flag is restored.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum RunMode {
+    /// Missing from documents written before the trust contract.
+    #[default]
+    Unknown,
+    Strict,
+    LocallyDegraded,
+}
 
 /// A recognised record, the faces that define it, and the faces consulted to prove it.
 #[derive(Clone, Debug, PartialEq)]

@@ -8,8 +8,8 @@
 //! under `derived`), with their members' faces; records carry no `dependents` or
 //! `named_dimensions` (Python adds them when enriching its document); coordinates are the STEP
 //! file's (Python's are in a working frame it reports); faces are the file's own indices
-//! (Python's `caller_index`). The input's sha256 is not carried: hashing needs a new dependency,
-//! a maintainer question (docs/review-2026-10-08.md); the face count is.
+//! (Python's `caller_index`). The input's SHA256 identifies the exact source file bytes when
+//! recognised from a file; in-memory recognition has no source digest.
 //!
 //! Version 2 (the maintainer's decision on review M8): the part is recognised in its own frame
 //! and the records reported in the file's coordinates ([`crate::framed_records`]). `frame` says
@@ -30,6 +30,7 @@ use serde_json::{Map, Value};
 
 use crate::correspondence::Recognition;
 use crate::features::Features;
+pub use crate::features::evidence::RunMode;
 use crate::features::gussets::GussetRibPattern;
 use crate::features::hole_patterns::HolePattern;
 use crate::features::oriented_slots::OrientedSlotPattern;
@@ -38,9 +39,9 @@ use crate::features::section_recess::SectionRecessPattern;
 use crate::frames::RecordFrame;
 
 /// Latest contract: version 4 adds measured modelled threads and explicit refusals.
-/// Documents using only version 3 record types retain the legacy version and bytes.
+/// Documents using only version 3 record types retain the legacy tag and record payloads.
 pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/4";
-/// Documents without the optional measured-thread extension retain version 3 byte for byte.
+/// Documents without the optional measured-thread extension retain the version 3 tag.
 pub const LEGACY_SCHEMA_VERSION: &str = "quiddity-rust/recognition/3";
 
 /// The minimum document contract required by these records.
@@ -68,6 +69,12 @@ pub struct RecognitionDocument {
     pub face_count: usize,
     /// In `Features`' family order, then each family's own.
     pub records: Vec<Record>,
+    /// Lowercase SHA256 of input file bytes (compressed bytes for .gz), or null in memory.
+    #[serde(default)]
+    pub source_sha256: Option<String>,
+    /// Strict inventory or its local-degradation retry; unknown only in older documents.
+    #[serde(default)]
+    pub run_mode: RunMode,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -348,5 +355,7 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
         frame: recognition.frame.clone(),
         face_count,
         records,
+        source_sha256: recognition.source_sha256.clone(),
+        run_mode: recognition.features.run_mode,
     }
 }

@@ -46,6 +46,9 @@ pub struct Recognition {
     pub frame: RecordFrame,
     #[serde(skip)]
     pub local: LocalFields,
+    /// SHA256 of the exact input file bytes; absent for caller-supplied in-memory geometry.
+    #[serde(skip)]
+    pub source_sha256: Option<String>,
 }
 
 /// Recognise every ported family on *part* as it is placed (caller-space, as Python's entry
@@ -59,6 +62,7 @@ pub fn recognise(part: &Part) -> Recognition {
         fingerprints,
         frame: RecordFrame::CallerSpace,
         local: LocalFields::new(),
+        source_sha256: None,
     }
 }
 
@@ -91,6 +95,7 @@ pub fn recognise_placed(
         fingerprints,
         frame: RecordFrame::Inferred(frame),
         local,
+        source_sha256: None,
     };
     Ok((part, recognition))
 }

@@ -39,15 +39,17 @@
 
 use std::io::{self, BufRead, Write};
 use std::panic::{self, AssertUnwindSafe};
-use std::path::Path;
 
 use serde::Serialize;
 use serde_json::{Map, Value};
+use sha2::{Digest, Sha256};
 
 use crate::correspondence::{self, Fingerprints, Recognition};
 use crate::frames::RecordFrame;
 use crate::kernel::brep::Part;
-use crate::kernel::step::{IDENTITY, Placement, StepError, read_step_file_placed};
+use crate::kernel::step::{
+    IDENTITY, Placement, StepError, decode_step_file_bytes, read_step_placed,
+};
 use crate::recognition::{self, RecognitionDocument};
 
 /// What `quiddity <file.step>` writes and `recognise` returns.
@@ -110,9 +112,20 @@ pub fn recognise_step(
     path: &str,
     placement: &Placement,
 ) -> Result<(Part, Recognition, Vec<String>), Failure> {
-    let read = |p: &Placement| read_step_file_placed(Path::new(path), p);
-    let (part, recognition) = correspondence::recognise_placed(&read, placement)
+    // Hash and parse one snapshot: a file changed during frame inference cannot mix sources.
+    let bytes = std::fs::read(path).map_err(|e| read_failure(path, &e))?;
+    let source_sha256 = Sha256::digest(&bytes)
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect::<String>();
+    let step_bytes = decode_step_file_bytes(std::path::Path::new(path), bytes)
+        .map_err(|e| read_failure(path, &e))?;
+    let read = |p: &Placement| -> Result<Part, Box<dyn std::error::Error>> {
+        Ok(read_step_placed(&step_bytes, p)?)
+    };
+    let (part, mut recognition) = correspondence::recognise_placed(&read, placement)
         .map_err(|e| read_failure(path, e.as_ref()))?;
+    recognition.source_sha256 = Some(source_sha256);
     let mut warnings: Vec<String> = unresolved_warning(path, &part).into_iter().collect();
     if let RecordFrame::Refused { reason } = &recognition.frame {
         warnings.push(format!(

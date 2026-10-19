@@ -109,6 +109,9 @@ use crate::kernel::brep::Part;
 /// only; [`inventory`] keeps every candidate and the decisions.
 #[derive(Clone, Debug, Serialize)]
 pub struct Features {
+    /// The completed run, independent of the thread-local retry flag after recognition.
+    #[serde(skip)]
+    pub run_mode: evidence::RunMode,
     pub fillets: Vec<fillets::Fillet>,
     pub chamfers: Vec<chamfers::Chamfer>,
     pub bosses: Vec<bosses::BossRecord>,
@@ -445,6 +448,11 @@ pub(crate) fn inventory_in(
     let risers = kept(&mut defining, "risers", found_risers);
     let step_levels = kept(&mut defining, "step_levels", step_level_occurrences);
     let physical = Features {
+        run_mode: if evidence::local_degradation() {
+            evidence::RunMode::LocallyDegraded
+        } else {
+            evidence::RunMode::Strict
+        },
         fillets: kept(
             &mut defining,
             "fillets",

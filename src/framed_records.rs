@@ -389,6 +389,7 @@ impl<'a> Out<'a> {
 /// *features*, carried through *motion*: see the module documentation.
 pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
     let Features {
+        run_mode,
         fillets,
         chamfers,
         bosses,
@@ -462,6 +463,7 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
         };
     }
     let features = Features {
+        run_mode,
         fillets: each!("fillets", fillets, fillet),
         chamfers: each!("chamfers", chamfers, chamfer),
         bosses: each!("bosses", bosses, boss),
