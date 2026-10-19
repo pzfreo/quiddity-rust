@@ -1,16 +1,23 @@
-//! Corpus loops on every core: a corpus test (or one slice of it, `tests/support/slices.rs`) is
+//! Corpus loops with bounded parallelism: a corpus test (or one slice of it, `tests/support/slices.rs`) is
 //! one `#[test]` (one list of problems, one stale-entry check), so it spreads its per-file work
 //! over threads itself.
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-/// `items.iter().map(f)`, run on `std::thread::available_parallelism` threads, each taking the
-/// next unclaimed item (corpus files differ a hundredfold in cost, so fixed chunks would leave
+/// `items.iter().map(f)`, run on at most `RUST_TEST_THREADS` threads (six by default),
+/// bounded by available parallelism, each taking the next unclaimed item (corpus files differ a hundredfold in cost, so fixed chunks would leave
 /// threads idle). Results come back in `items`' order, so what a test prints and the order of its
 /// failure messages do not depend on scheduling. A panic in `f` fails the caller.
 pub fn map<T: Sync, R: Send>(items: &[T], f: impl Fn(&T) -> R + Sync) -> Vec<R> {
     let threads = std::thread::available_parallelism()
         .map_or(1, |n| n.get())
+        .min(
+            std::env::var("RUST_TEST_THREADS")
+                .ok()
+                .and_then(|s| s.parse::<usize>().ok())
+                .unwrap_or(6)
+                .max(1),
+        )
         .min(items.len().max(1));
     let next = AtomicUsize::new(0);
     let mut done: Vec<(usize, R)> = std::thread::scope(|s| {
