@@ -265,10 +265,7 @@ fn second_moments_match_independently_verified_boundaries() {
                 .expect("independently verified integral");
             let pin = &row["rust"];
             let area = pin["area"].as_f64().unwrap();
-            assert!(
-                (m.area - area).abs() < 1e-7 * area + 1e-9,
-                "{file} face {face}"
-            );
+            assert!((m.area - area).abs() < 1e-7 * area, "{file} face {face}");
             let trace: f64 = (0..3)
                 .map(|i| pin["second_moments"][i][i].as_f64().unwrap())
                 .sum();
@@ -283,7 +280,7 @@ fn second_moments_match_independently_verified_boundaries() {
                 for (j, &value) in values.iter().enumerate() {
                     let want = pin["second_moments"][i][j].as_f64().unwrap();
                     assert!(
-                        (value - want).abs() < 1e-7 * trace + 1e-9,
+                        (value - want).abs() < 1e-7 * trace,
                         "{file} face {face}: second moments {m:?}"
                     );
                 }

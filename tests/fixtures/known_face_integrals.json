@@ -1,5 +1,37 @@
 [
   {
+    "file": "cadgenbench/threaded_connector_109.step",
+    "face": 17,
+    "check": "second_moments",
+    "verdict": "rust-correct",
+    "reason": "Live OpenCascade GProp (eps 1e-9 and 1e-11, converged) differs in central second moments by 1.06324e-06 of the tensor trace, although area and each centroid coordinate are within 1e-6. Independent integration with OpenCascade's surface evaluator over the 3D edge boundary (tools/check_face_integrals.py --independent, kernel_evidence's Lobatto path, no pcurves) at 16 and 32 panels per curve span changes the tensor by 5.19721e-14 of its trace and agrees with Rust to 5.23433e-14; its area and centroid also agree. The pcurve-based result differs from the converged 3D boundary integral. Pure relative comparison exposes this difference, which the previous 1e-9 mm^4 absolute floor absorbed.",
+    "rust": {
+      "area": 0.07898143017041136,
+      "centroid": [
+        -2.5675863778856778e-11,
+        -51.67913416115966,
+        368.40750000259
+      ],
+      "second_moments": [
+        [
+          2.434966538943929e-07,
+          -5.646077328808593e-16,
+          -1.2422587099318323e-05
+        ],
+        [
+          -5.646055430188859e-16,
+          0.000534217253846576,
+          6.993543198288441e-17
+        ],
+        [
+          -1.2422587099318323e-05,
+          6.993543198288441e-17,
+          0.0006337691618016257
+        ]
+      ]
+    }
+  },
+  {
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "face": 422,
     "check": "second_moments",

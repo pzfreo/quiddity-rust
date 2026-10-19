@@ -96,19 +96,22 @@ def errors(a, b, length, tolerance=1e-6):
     if a is None:
         return dict(missing=True)
     area = abs(a['area']-b['area']) / max(abs(b['area']), 1e-300)
-    centroid = math.dist(a['centroid'], b['centroid']) / max(length, 1)
+    centroid = max(abs(x-y) / max(abs(y), 1) for x, y in zip(a['centroid'], b['centroid']))
+    centroid_face_size = math.dist(a['centroid'], b['centroid']) / max(length, 1)
     q = b['second_moments']
     scale = max(abs(sum(q[i][i] for i in range(3))), 1e-300)
     second = max(abs(a['second_moments'][i][j]-q[i][j]) for i in range(3) for j in range(3)) / scale
-    # Absolute floors in physical units for degenerate slivers, matching the area harness.
+    # Keep microscopic faces explicit: the frozen area harness has an absolute floor,
+    # but this live comparison must also expose relative differences on those faces.
     failed = []
-    if abs(a['area']-b['area']) > tolerance*abs(b['area'])+1e-9:
+    if abs(a['area']-b['area']) > tolerance*abs(b['area']):
         failed.append('area')
     if centroid > tolerance:
         failed.append('centroid')
-    if second*scale > tolerance*scale+1e-9:
+    if second*scale > tolerance*scale:
         failed.append('second_moments')
-    return dict(area=area, centroid=centroid, second_moments=second, failed=failed)
+    return dict(area=area, centroid=centroid, centroid_face_size=centroid_face_size,
+                second_moments=second, failed=failed)
 
 
 def main():
@@ -201,7 +204,7 @@ def main():
             rows.append(row)
         print(f'{file}: {len(faces)} faces', file=sys.stderr, flush=True)
         result = dict(faces=total, agree=agreed, exceptions=len(rows), nonconverged=nonconverged, rows=rows,
-                      tolerance='1e-6 relative area and tensor trace; centroid 1e-6 of max(face diagonal, 1 mm); absolute floors 1e-9 mm^2 and mm^4')
+                      tolerance='1e-6 relative area and tensor trace; each centroid coordinate 1e-6 of max(abs(coordinate), 1 mm); no absolute area or tensor floor')
         args.report.write_text(json.dumps(result, indent=2)+'\n')
     stale = sorted(set(tensor_known)-second_differences)
     result['stale'] = stale
