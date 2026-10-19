@@ -235,6 +235,63 @@ fn bspline_held_side_has_independently_integrated_second_moments() {
     }
 }
 
+/// These tensors differ from GProp's pcurve integrals while their areas and centroids agree.
+/// OCCT evaluation over the 3D boundary, with 16 and 32 Lobatto panels per span, independently
+/// confirms every entry to 1.2e-12 of the tensor trace (the ledger records each error). This
+/// regression runs in CI without adding a Python capture or requiring an OCCT installation.
+#[test]
+fn second_moments_match_independently_verified_boundaries() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let known = common::load("known_face_integrals.json");
+    let rows = known.as_array().unwrap();
+    common::check_verdicts("known_face_integrals.json", rows);
+    let mut groups = std::collections::BTreeMap::<String, Vec<_>>::new();
+    for row in rows {
+        groups
+            .entry(row["file"].as_str().unwrap().to_string())
+            .or_default()
+            .push(row);
+    }
+    let groups: Vec<_> = groups.into_iter().collect();
+    let _ = common::parallel::map(&groups, |(file, rows)| {
+        let part = read_step_file_placed(&dir.join(file), &IDENTITY).unwrap();
+        for row in rows {
+            let face = row["face"].as_u64().unwrap() as usize;
+            let m = part
+                .face_moments(face)
+                .expect("independently verified integral");
+            let pin = &row["rust"];
+            let area = pin["area"].as_f64().unwrap();
+            assert!(
+                (m.area - area).abs() < 1e-7 * area + 1e-9,
+                "{file} face {face}"
+            );
+            let trace: f64 = (0..3)
+                .map(|i| pin["second_moments"][i][i].as_f64().unwrap())
+                .sum();
+            for (i, &c) in m.centroid.iter().enumerate() {
+                let want = pin["centroid"][i].as_f64().unwrap();
+                assert!(
+                    (c - want).abs() < 1e-7 * want.abs().max(1.0),
+                    "{file} face {face}: centroid {m:?}"
+                );
+            }
+            for (i, values) in m.second_moments.iter().enumerate() {
+                for (j, &value) in values.iter().enumerate() {
+                    let want = pin["second_moments"][i][j].as_f64().unwrap();
+                    assert!(
+                        (value - want).abs() < 1e-7 * trace + 1e-9,
+                        "{file} face {face}: second moments {m:?}"
+                    );
+                }
+            }
+        }
+    });
+}
+
 /// The area of the collapsed-tip sliver (face 483) is finite, but its quadratic flux terms
 /// about the solid's centre used to amplify round-off enough to refuse the entire centroid
 /// after translation. The material frame must remain measurable in all these placements.

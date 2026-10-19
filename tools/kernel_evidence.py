@@ -135,6 +135,8 @@ def _intervals(n: int, fill) -> list[float]:
 class _Surface:
     """A face's surface: placing points, evaluating densities, and its smoothness breaks."""
 
+    components = 2
+
     def __init__(self, face):
         self.adaptor = BRepAdaptor_Surface(face)
         kind = self.adaptor.GetType()
@@ -215,7 +217,7 @@ class _Surface:
         parameter held at ``fixed``."""
 
         if lo == hi:
-            return np.zeros(2)
+            return np.zeros(self.components)
         a, b = min(lo, hi), max(lo, hi)
         cuts = {a, b}
         period = self.periods[axis] if self.wrap[axis] else None
@@ -232,7 +234,7 @@ class _Surface:
             cuts.update(a + (b - a) * j / steps for j in range(1, steps))
         cuts = sorted(cuts)
         xs, ws = GL16
-        total = np.zeros(2)
+        total = np.zeros(self.components)
         for p, q in zip(cuts, cuts[1:]):
             h, m = 0.5 * (q - p), 0.5 * (q + p)
             for x, w in zip(xs, ws):
@@ -356,7 +358,7 @@ def _integrate(face, surf: _Surface, panels: int):
         # G(u, v) = ∫ from ref along `axis` of the densities, the other parameter fixed.
         return surf.inner(axis, point[other], ref, point[axis])
 
-    total = np.zeros(2)
+    total = np.zeros(surf.components)
     for pieces, first, last in loops:
         closing = list(pieces)
         shift = [0.0, 0.0]

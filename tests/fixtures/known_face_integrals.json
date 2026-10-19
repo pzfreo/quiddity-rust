@@ -1,0 +1,354 @@
+[
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "face": 422,
+    "check": "second_moments",
+    "verdict": "rust-correct",
+    "reason": "Live OpenCascade GProp (eps 1e-9 and 1e-11, converged) differs in central second moments by 3.36846e-06 of the tensor trace, although area and centroid are within 1e-6. Independent integration with OpenCascade's surface evaluator over the 3D edge boundary (tools/check_face_integrals.py --independent, kernel_evidence's Lobatto path, no pcurves) at 16 and 32 panels per curve span changes the tensor by 1.75766e-13 of its trace and agrees with Rust to 3.40795e-13; its area and centroid also agree. The difference is the distribution of area bounded by OpenCascade's approximate pcurves, including after projection, rather than a defect in the 3D boundary integral.",
+    "rust": {
+      "area": 2.9553905172440236,
+      "centroid": [
+        -7.433042833304205,
+        52.40859472547324,
+        2.8124267445097013
+      ],
+      "second_moments": [
+        [
+          2.7805251573690177,
+          -4.051158412850294,
+          0.21277266945035384
+        ],
+        [
+          -4.051158412850296,
+          7.006482289041767,
+          -0.3043523368371887
+        ],
+        [
+          0.21277266945035367,
+          -0.3043523368371887,
+          0.056603210802781606
+        ]
+      ]
+    }
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "face": 440,
+    "check": "second_moments",
+    "verdict": "rust-correct",
+    "reason": "Live OpenCascade GProp (eps 1e-9 and 1e-11, converged) differs in central second moments by 1.63688e-06 of the tensor trace, although area and centroid are within 1e-6. Independent integration with OpenCascade's surface evaluator over the 3D edge boundary (tools/check_face_integrals.py --independent, kernel_evidence's Lobatto path, no pcurves) at 16 and 32 panels per curve span changes the tensor by 1.97596e-15 of its trace and agrees with Rust to 1.34083e-14; its area and centroid also agree. The difference is the distribution of area bounded by OpenCascade's approximate pcurves, including after projection, rather than a defect in the 3D boundary integral.",
+    "rust": {
+      "area": 0.1673635376451265,
+      "centroid": [
+        41.43083090672435,
+        34.07193159595763,
+        2.9071923472531322
+      ],
+      "second_moments": [
+        [
+          0.0002594188803658569,
+          -3.217474255802853e-05,
+          -0.0007682429935186747
+        ],
+        [
+          -3.217474255802853e-05,
+          0.0020851899124497957,
+          -0.0013577763744868712
+        ],
+        [
+          -0.0007682429935186748,
+          -0.0013577763744868712,
+          0.0038007858535854754
+        ]
+      ]
+    }
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "face": 468,
+    "check": "second_moments",
+    "verdict": "rust-correct",
+    "reason": "Live OpenCascade GProp (eps 1e-9 and 1e-11, converged) differs in central second moments by 1.04433e-06 of the tensor trace, although area and centroid are within 1e-6. Independent integration with OpenCascade's surface evaluator over the 3D edge boundary (tools/check_face_integrals.py --independent, kernel_evidence's Lobatto path, no pcurves) at 16 and 32 panels per curve span changes the tensor by 2.01656e-13 of its trace and agrees with Rust to 3.95813e-13; its area and centroid also agree. The difference is the distribution of area bounded by OpenCascade's approximate pcurves, including after projection, rather than a defect in the 3D boundary integral.",
+    "rust": {
+      "area": 19.874535639034253,
+      "centroid": [
+        -43.54477810613676,
+        -44.41796717005674,
+        7.070838182160196
+      ],
+      "second_moments": [
+        [
+          269.1364185096137,
+          -1.9047069360032858,
+          1.7885387553178664
+        ],
+        [
+          -1.9047069360032858,
+          1.831385430037963,
+          -1.7099680629120162
+        ],
+        [
+          1.7885387553178664,
+          -1.7099680629120158,
+          1.8944049895344288
+        ]
+      ]
+    }
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "face": 697,
+    "check": "second_moments",
+    "verdict": "rust-correct",
+    "reason": "Live OpenCascade GProp (eps 1e-9 and 1e-11, converged) differs in central second moments by 1.73201e-06 of the tensor trace, although area and centroid are within 1e-6. Independent integration with OpenCascade's surface evaluator over the 3D edge boundary (tools/check_face_integrals.py --independent, kernel_evidence's Lobatto path, no pcurves) at 16 and 32 panels per curve span changes the tensor by 1.42264e-13 of its trace and agrees with Rust to 2.48356e-13; its area and centroid also agree. The difference is the distribution of area bounded by OpenCascade's approximate pcurves, including after projection, rather than a defect in the 3D boundary integral.",
+    "rust": {
+      "area": 56.33354093362828,
+      "centroid": [
+        48.20360249953281,
+        25.732378188284038,
+        -6.55096101098556
+      ],
+      "second_moments": [
+        [
+          5.665206682812914,
+          -2.0802502292799274e-06,
+          -15.390500470282527
+        ],
+        [
+          -2.0802502292799274e-06,
+          1357.2856985706856,
+          6.095499389591524e-06
+        ],
+        [
+          -15.390500470282527,
+          6.095499389591524e-06,
+          45.11353908533886
+        ]
+      ]
+    }
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "face": 381,
+    "check": "second_moments",
+    "verdict": "rust-correct",
+    "reason": "Live OpenCascade GProp (eps 1e-9 and 1e-11, converged) differs in central second moments by 1.12535e-06 of the tensor trace, although area and centroid are within 1e-6. Independent integration with OpenCascade's surface evaluator over the 3D edge boundary (tools/check_face_integrals.py --independent, kernel_evidence's Lobatto path, no pcurves) at 16 and 32 panels per curve span changes the tensor by 7.63517e-16 of its trace and agrees with Rust to 1.86734e-13; its area and centroid also agree. The difference is the distribution of area bounded by OpenCascade's approximate pcurves, including after projection, rather than a defect in the 3D boundary integral.",
+    "rust": {
+      "area": 6.399724166759774,
+      "centroid": [
+        -36.25951996407161,
+        -40.85375334293526,
+        -21.16528806042928
+      ],
+      "second_moments": [
+        [
+          3.014543763958065,
+          -0.08178657721137621,
+          -2.782198134624225
+        ],
+        [
+          -0.08178657721137621,
+          1.9194775619947724,
+          -0.5881299050032202
+        ],
+        [
+          -2.782198134624225,
+          -0.5881299050032202,
+          3.2088868246038467
+        ]
+      ]
+    }
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "face": 404,
+    "check": "second_moments",
+    "verdict": "rust-correct",
+    "reason": "Live OpenCascade GProp (eps 1e-9 and 1e-11, converged) differs in central second moments by 1.27641e-06 of the tensor trace, although area and centroid are within 1e-6. Independent integration with OpenCascade's surface evaluator over the 3D edge boundary (tools/check_face_integrals.py --independent, kernel_evidence's Lobatto path, no pcurves) at 16 and 32 panels per curve span changes the tensor by 1.39005e-15 of its trace and agrees with Rust to 2.82277e-13; its area and centroid also agree. The difference is the distribution of area bounded by OpenCascade's approximate pcurves, including after projection, rather than a defect in the 3D boundary integral.",
+    "rust": {
+      "area": 3.541992339311742,
+      "centroid": [
+        23.13160004021082,
+        -28.969522527268982,
+        25.856787406251293
+      ],
+      "second_moments": [
+        [
+          0.742707409149266,
+          0.10926432598845237,
+          -0.5210939541804612
+        ],
+        [
+          0.10926432598845237,
+          0.6759016293244596,
+          0.46452778721721594
+        ],
+        [
+          -0.5210939541804612,
+          0.46452778721721594,
+          0.8975923764776376
+        ]
+      ]
+    }
+  },
+  {
+    "file": "cadgenbench_inputs/cgb243.step.gz",
+    "face": 441,
+    "check": "second_moments",
+    "verdict": "rust-correct",
+    "reason": "Live OpenCascade GProp (eps 1e-9 and 1e-11, converged) differs in central second moments by 2.01439e-06 of the tensor trace, although area and centroid are within 1e-6. Independent integration with OpenCascade's surface evaluator over the 3D edge boundary (tools/check_face_integrals.py --independent, kernel_evidence's Lobatto path, no pcurves) at 16 and 32 panels per curve span changes the tensor by 2.60645e-15 of its trace and agrees with Rust to 4.51785e-15; its area and centroid also agree. The difference is the distribution of area bounded by OpenCascade's approximate pcurves, including after projection, rather than a defect in the 3D boundary integral.",
+    "rust": {
+      "area": 1.928207657922247,
+      "centroid": [
+        47.834437845621636,
+        1.1211965739790155,
+        -41.584532285460845
+      ],
+      "second_moments": [
+        [
+          0.10459138697025247,
+          -0.03729244428452738,
+          0.26534237977445174
+        ],
+        [
+          -0.03729244428452738,
+          0.040212622859006626,
+          0.016649685789665886
+        ],
+        [
+          0.26534237977445174,
+          0.016649685789665886,
+          1.133052724331916
+        ]
+      ]
+    }
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "face": 182,
+    "check": "second_moments",
+    "verdict": "rust-correct",
+    "reason": "Live OpenCascade GProp (eps 1e-9 and 1e-11, converged) differs in central second moments by 1.17063e-06 of the tensor trace, although area and centroid are within 1e-6. Independent integration with OpenCascade's surface evaluator over the 3D edge boundary (tools/check_face_integrals.py --independent, kernel_evidence's Lobatto path, no pcurves) at 16 and 32 panels per curve span changes the tensor by 5.4386e-13 of its trace and agrees with Rust to 1.13038e-12; its area and centroid also agree. The difference is the distribution of area bounded by OpenCascade's approximate pcurves, including after projection, rather than a defect in the 3D boundary integral.",
+    "rust": {
+      "area": 1694.4125817578788,
+      "centroid": [
+        176.37230117215074,
+        631.9999870920198,
+        -50.91429415913884
+      ],
+      "second_moments": [
+        [
+          13144.353340306197,
+          -0.030653810733452448,
+          12838.21435821018
+        ],
+        [
+          -0.030653810733452448,
+          1931814.1258991533,
+          -0.034436862618505266
+        ],
+        [
+          12838.21435821018,
+          -0.03443686261850526,
+          14489.99894125555
+        ]
+      ]
+    }
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "face": 307,
+    "check": "second_moments",
+    "verdict": "rust-correct",
+    "reason": "Live OpenCascade GProp (eps 1e-9 and 1e-11, converged) differs in central second moments by 1.17063e-06 of the tensor trace, although area and centroid are within 1e-6. Independent integration with OpenCascade's surface evaluator over the 3D edge boundary (tools/check_face_integrals.py --independent, kernel_evidence's Lobatto path, no pcurves) at 16 and 32 panels per curve span changes the tensor by 3.04072e-13 of its trace and agrees with Rust to 6.48426e-13; its area and centroid also agree. The difference is the distribution of area bounded by OpenCascade's approximate pcurves, including after projection, rather than a defect in the 3D boundary integral.",
+    "rust": {
+      "area": 1694.4125817578783,
+      "centroid": [
+        -176.37230117215074,
+        632.0000129079802,
+        -50.91429415913885
+      ],
+      "second_moments": [
+        [
+          13144.353340306148,
+          -0.03065381076495158,
+          -12838.214358210153
+        ],
+        [
+          -0.03065381076495159,
+          1931814.125899147,
+          0.03443686256050773
+        ],
+        [
+          -12838.214358210153,
+          0.03443686256050773,
+          14489.998941255533
+        ]
+      ]
+    }
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "face": 558,
+    "check": "second_moments",
+    "verdict": "rust-correct",
+    "reason": "Live OpenCascade GProp (eps 1e-9 and 1e-11, converged) differs in central second moments by 1.29355e-06 of the tensor trace, although area and centroid are within 1e-6. Independent integration with OpenCascade's surface evaluator over the 3D edge boundary (tools/check_face_integrals.py --independent, kernel_evidence's Lobatto path, no pcurves) at 16 and 32 panels per curve span changes the tensor by 2.94411e-15 of its trace and agrees with Rust to 7.98181e-15; its area and centroid also agree. The difference is the distribution of area bounded by OpenCascade's approximate pcurves, including after projection, rather than a defect in the 3D boundary integral.",
+    "rust": {
+      "area": 315.36766775083794,
+      "centroid": [
+        194.26776202140329,
+        385.0761623552587,
+        -277.94646367152063
+      ],
+      "second_moments": [
+        [
+          9175.672325305251,
+          1679.3024678957597,
+          10840.695589400477
+        ],
+        [
+          1679.3024678957597,
+          3354.090436600227,
+          2902.8940304589746
+        ],
+        [
+          10840.695589400477,
+          2902.8940304589746,
+          15273.02718735707
+        ]
+      ]
+    }
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "face": 575,
+    "check": "second_moments",
+    "verdict": "rust-correct",
+    "reason": "Live OpenCascade GProp (eps 1e-9 and 1e-11, converged) differs in central second moments by 1.35436e-06 of the tensor trace, although area and centroid are within 1e-6. Independent integration with OpenCascade's surface evaluator over the 3D edge boundary (tools/check_face_integrals.py --independent, kernel_evidence's Lobatto path, no pcurves) at 16 and 32 panels per curve span changes the tensor by 3.86006e-15 of its trace and agrees with Rust to 9.55201e-15; its area and centroid also agree. The difference is the distribution of area bounded by OpenCascade's approximate pcurves, including after projection, rather than a defect in the 3D boundary integral.",
+    "rust": {
+      "area": 315.36766775083834,
+      "centroid": [
+        -194.2677620214033,
+        385.0761623552587,
+        -277.9464636715206
+      ],
+      "second_moments": [
+        [
+          9175.672325305262,
+          -1679.3024678957624,
+          -10840.695589400491
+        ],
+        [
+          -1679.3024678957627,
+          3354.0904366002337,
+          2902.8940304589873
+        ],
+        [
+          -10840.695589400491,
+          2902.8940304589873,
+          15273.027187357102
+        ]
+      ]
+    }
+  }
+]
