@@ -5308,17 +5308,74 @@ impl<'a> Reader<'a> {
 
     // --- accounting -----------------------------------------------------------------------
 
+    /// Graphic annotations, plus the models/views that actually carry them. The EXPRESS
+    /// presentation family is deliberately broader (it also drives safe removal), so it
+    /// cannot answer whether a file contains graphic PMI. Walk only content links: never
+    /// follow styles, colours, layers, invisibility, or a representation's shared context.
+    fn graphic_presentation(&mut self) -> BTreeSet<u64> {
+        let all: Vec<u64> = self.doc.ids().collect();
+        let mut graphic = BTreeSet::new();
+        let mut containers = BTreeSet::new();
+        let mut parents: HashMap<u64, Vec<u64>> = HashMap::new();
+        for id in all {
+            if self.is(id, "annotation_occurrence") || self.is(id, "draughting_callout") {
+                graphic.insert(id);
+            }
+            let children = if self.is(id, "draughting_model")
+                || self.is(id, "presentation_representation")
+                || self.is(
+                    id,
+                    "mechanical_design_geometric_presentation_representation",
+                ) {
+                containers.insert(id);
+                self.get_refs(id, "representation", "items")
+            } else if self.is(id, "model_geometric_view") {
+                containers.insert(id);
+                self.get_refs(id, "characterized_item_within_representation", "rep")
+            } else if self.is(id, "mapped_item") {
+                self.get_refs(id, "mapped_item", "mapping_source")
+            } else if self.is(id, "representation_map") {
+                self.get_refs(id, "representation_map", "mapped_representation")
+            } else if self.is(id, "styled_item") {
+                self.get_refs(id, "styled_item", "item")
+            } else if self.is(id, "compound_representation_item") {
+                self.get_refs(id, "compound_representation_item", "item_element")
+            } else {
+                Vec::new()
+            };
+            for child in children {
+                parents.entry(child).or_default().push(id);
+            }
+        }
+        let mut reached = graphic.clone();
+        let mut pending: Vec<u64> = graphic.iter().copied().collect();
+        while let Some(child) = pending.pop() {
+            for &parent in parents.get(&child).into_iter().flatten() {
+                if reached.insert(parent) {
+                    if containers.contains(&parent) {
+                        graphic.insert(parent);
+                    }
+                    pending.push(parent);
+                }
+            }
+        }
+        graphic
+    }
+
     fn account(&mut self, provenance: &Provenance) -> Accounting {
         let mut consumed: BTreeSet<u64> = BTreeSet::new();
         for p in &provenance.parts {
             consumed.extend(p.all());
         }
-        let mut acc = Accounting::default();
+        let mut acc = Accounting {
+            presentation: self.graphic_presentation().len(),
+            ..Accounting::default()
+        };
         let all: Vec<u64> = self.doc.ids().collect();
         let mut unconsumed = Vec::new();
         for id in all {
             match self.family(id) {
-                Family::Presentation => acc.presentation += 1,
+                Family::Presentation => {}
                 Family::ValidationProperty => acc.validation += 1,
                 Family::SemanticPmi => {
                     acc.semantic += 1;
