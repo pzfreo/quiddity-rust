@@ -206,8 +206,8 @@
   {
     "file": "cadgenbench/threaded_connector_109.step",
     "face": 36,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 6.157341036e-05, centroid (-15.95322607, 49.02013515, 374.2821854); with its pcurves rebuilt from the 3D edges: area 6.157356664e-05, centroid (-15.95329999, 49.02011101, 374.282187). The port: area 6.157348045e-05, centroid (-15.95329804, 49.0201117, 374.2821869). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 6.224813512e-05, centroid (-15.97538815, 49.01135866, 374.2826529) (estimated error 2.5e-07): 1.1e-02 from the port, 1.1e-02 from OpenCascade.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 6.157341036e-05, centroid (-15.95322607, 49.02013515, 374.2821854); with its pcurves rebuilt from the 3D edges: area 6.157356664e-05, centroid (-15.95329999, 49.02011101, 374.282187). The port: area 6.157348045e-05, centroid (-15.95329804, 49.0201117, 374.2821869). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 6.224813512e-05, centroid (-15.97538815, 49.01135866, 374.2826529) (estimated error 2.5e-07): 1.1e-02 from the port, 1.1e-02 from OpenCascade. Converged independent OpenCascade evaluation of the surface over the 3D edge boundary (tools/check_face_integrals.py --independent, 16 and 32 Lobatto panels per curve span, no pcurves) now confirms the port: relative area residual 4.89556e-10, largest centroid-coordinate residual 3.49185e-12 scaled by max(abs(coordinate), 1 mm), central-second-moment residual 7.02975e-10 of the tensor trace. Refining 16 to 32 panels changes area by 1.17401e-11 relative and the tensor by 1.01666e-10 of its trace; each centroid coordinate also converges within 1e-6. This evidence supersedes the earlier inconclusive polygon integration and supports the 3D boundary instead of the supplied or rebuilt approximate pcurves.",
     "rust": [
       6.157348045104685e-05,
       -15.953298040634701,
@@ -446,8 +446,8 @@
   {
     "file": "cadgenbench/threaded_connector_109.step",
     "face": 75,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 6.157175504e-05, centroid (-15.95322336, 49.0201362, 386.9821854); with its pcurves rebuilt from the 3D edges: area 6.157190741e-05, centroid (-15.95329752, 49.02011199, 386.9821869). The port: area 6.157181352e-05, centroid (-15.95329615, 49.02011249, 386.9821869). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 6.220141441e-05, centroid (-15.97392637, 49.01193792, 386.9826221) (estimated error 2.5e-07): 1.0e-02 from the port, 1.0e-02 from OpenCascade.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 6.157175504e-05, centroid (-15.95322336, 49.0201362, 386.9821854); with its pcurves rebuilt from the 3D edges: area 6.157190741e-05, centroid (-15.95329752, 49.02011199, 386.9821869). The port: area 6.157181352e-05, centroid (-15.95329615, 49.02011249, 386.9821869). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 6.220141441e-05, centroid (-15.97392637, 49.01193792, 386.9826221) (estimated error 2.5e-07): 1.0e-02 from the port, 1.0e-02 from OpenCascade. Converged independent OpenCascade evaluation of the surface over the 3D edge boundary (tools/check_face_integrals.py --independent, 16 and 32 Lobatto panels per curve span, no pcurves) now confirms the port: relative area residual 4.68142e-10, largest centroid-coordinate residual 9.20319e-12 scaled by max(abs(coordinate), 1 mm), central-second-moment residual 6.58368e-10 of the tensor trace. Refining 16 to 32 panels changes area by 1.51098e-11 relative and the tensor by 7.8113e-12 of its trace; each centroid coordinate also converges within 1e-6. This evidence supersedes the earlier inconclusive polygon integration and supports the 3D boundary instead of the supplied or rebuilt approximate pcurves.",
     "rust": [
       6.157181351700511e-05,
       -15.953296152509807,
@@ -806,8 +806,8 @@
   {
     "file": "cadgenbench/threaded_connector_109.step",
     "face": 132,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 6.156529229e-05, centroid (-15.95321467, 49.02013971, 406.0321852); with its pcurves rebuilt from the 3D edges: area 6.156544655e-05, centroid (-15.95328883, 49.0201155, 406.0321867). The port: area 6.156535011e-05, centroid (-15.95328728, 49.02011607, 406.0321867). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 6.2232452e-05, centroid (-15.97513462, 49.0114592, 406.0326476) (estimated error 2.5e-07): 1.1e-02 from the port, 1.1e-02 from OpenCascade.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 6.156529229e-05, centroid (-15.95321467, 49.02013971, 406.0321852); with its pcurves rebuilt from the 3D edges: area 6.156544655e-05, centroid (-15.95328883, 49.0201155, 406.0321867). The port: area 6.156535011e-05, centroid (-15.95328728, 49.02011607, 406.0321867). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 6.2232452e-05, centroid (-15.97513462, 49.0114592, 406.0326476) (estimated error 2.5e-07): 1.1e-02 from the port, 1.1e-02 from OpenCascade. Converged independent OpenCascade evaluation of the surface over the 3D edge boundary (tools/check_face_integrals.py --independent, 16 and 32 Lobatto panels per curve span, no pcurves) now confirms the port: relative area residual 1.21474e-09, largest centroid-coordinate residual 3.61801e-12 scaled by max(abs(coordinate), 1 mm), central-second-moment residual 1.95712e-09 of the tensor trace. Refining 16 to 32 panels changes area by 4.26881e-11 relative and the tensor by 4.13633e-11 of its trace; each centroid coordinate also converges within 1e-6. This evidence supersedes the earlier inconclusive polygon integration and supports the 3D boundary instead of the supplied or rebuilt approximate pcurves.",
     "rust": [
       6.156535011438682e-05,
       -15.953287278143339,
@@ -6218,8 +6218,8 @@
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "face": 1351,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 19.46777944, centroid (40.40721573, 152.1423968, -99.09610273); with its pcurves rebuilt from the 3D edges: area 19.48030234, centroid (40.40686955, 152.1408758, -99.09518662). The port: area 19.46910269, centroid (40.40841156, 152.1400183, -99.09568939). tools/face_area_evidence.py's independent area: 19.46910268.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 19.46777944, centroid (40.40721573, 152.1423968, -99.09610273); with its pcurves rebuilt from the 3D edges: area 19.48030234, centroid (40.40686955, 152.1408758, -99.09518662). The port: area 19.46910269, centroid (40.40841156, 152.1400183, -99.09568939). tools/face_area_evidence.py's independent area: 19.46910268. Converged independent OpenCascade evaluation of the surface over the 3D edge boundary (tools/check_face_integrals.py --independent, 16 and 32 Lobatto panels per curve span, no pcurves) now confirms the port: relative area residual 9.08565e-08, largest centroid-coordinate residual 6.74797e-10 scaled by max(abs(coordinate), 1 mm), central-second-moment residual 2.47632e-08 of the tensor trace. Refining 16 to 32 panels changes area by 1.28315e-07 relative and the tensor by 3.59949e-08 of its trace; each centroid coordinate also converges within 1e-6. This evidence supersedes the earlier inconclusive polygon integration and supports the 3D boundary instead of the supplied or rebuilt approximate pcurves.",
     "rust": [
       19.469102694647532,
       40.408411559065364,
@@ -10046,8 +10046,8 @@
   {
     "file": "cadgenbench_inputs/cgb207.step",
     "face": 126,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 19.05449503, centroid (63.18526386, -15.20634209, 24.74227207); with its pcurves rebuilt from the 3D edges: area 19.05447651, centroid (63.18526596, -15.20634333, 24.74227119). The port: area 19.05467412, centroid (63.18524977, -15.20633928, 24.74230296).",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 19.05449503, centroid (63.18526386, -15.20634209, 24.74227207); with its pcurves rebuilt from the 3D edges: area 19.05447651, centroid (63.18526596, -15.20634333, 24.74227119). The port: area 19.05467412, centroid (63.18524977, -15.20633928, 24.74230296). Converged independent OpenCascade evaluation of the surface over the 3D edge boundary (tools/check_face_integrals.py --independent, 16 and 32 Lobatto panels per curve span, no pcurves) now confirms the port: relative area residual 1.57883e-11, largest centroid-coordinate residual 1.1642e-12 scaled by max(abs(coordinate), 1 mm), central-second-moment residual 6.50593e-12 of the tensor trace. Refining 16 to 32 panels changes area by 4.0714e-11 relative and the tensor by 1.66826e-11 of its trace; each centroid coordinate also converges within 1e-6. This evidence supersedes the earlier inconclusive polygon integration and supports the 3D boundary instead of the supplied or rebuilt approximate pcurves.",
     "rust": [
       19.05467412325482,
       63.185249767445015,
@@ -12075,7 +12075,7 @@
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "face": 483,
     "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 5.908447598e-10, centroid (-62.53735528, 21.14073352, 2.693086912); with its pcurves rebuilt from the 3D edges: area 9.404544951e-10, centroid (-62.53679131, 21.14247982, 2.693086951). The port: area 5.462467436e-08, centroid (-62.53798554, 21.13876554, 2.693086787).",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 5.908447598e-10, centroid (-62.53735528, 21.14073352, 2.693086912); with its pcurves rebuilt from the 3D edges: area 9.404544951e-10, centroid (-62.53679131, 21.14247982, 2.693086951). The port: area 5.462467436e-08, centroid (-62.53798554, 21.13876554, 2.693086787). The ambiguity is geometric: known_face_areas.json records two distinct edges only 3.6e-5 mm apart, within their summed tolerances, projecting to either side of a surface whose u = 0 side collapses. The 3D boundary bounds the full tip, whereas the pcurves bound a narrow triangle near v = 0.042. Independent OCCT boundary interpolation at 16 and 32 panels does not settle the choice (0.00284 relative area residual and 2.15e-5 mm centroid residual at 32 panels). The file's tolerances do not select between the two boundary interpretations.",
     "rust": [
       5.462467436247263e-08,
       -62.537985537746906,
@@ -12566,8 +12566,8 @@
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "face": 665,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 2.933128119, centroid (-25.62402483, 54.57710482, 16.60500217); with its pcurves rebuilt from the 3D edges: area 2.933124502, centroid (-25.62402622, 54.57710481, 16.60500243). The port: area 2.933132275, centroid (-25.62403098, 54.5771041, 16.60500541). tools/face_area_evidence.py's independent area: 2.933132275.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 2.933128119, centroid (-25.62402483, 54.57710482, 16.60500217); with its pcurves rebuilt from the 3D edges: area 2.933124502, centroid (-25.62402622, 54.57710481, 16.60500243). The port: area 2.933132275, centroid (-25.62403098, 54.5771041, 16.60500541). tools/face_area_evidence.py's independent area: 2.933132275. Converged independent OpenCascade evaluation of the surface over the 3D edge boundary (tools/check_face_integrals.py --independent, 16 and 32 Lobatto panels per curve span, no pcurves) now confirms the port: relative area residual 1.87075e-08, largest centroid-coordinate residual 3.45036e-10 scaled by max(abs(coordinate), 1 mm), central-second-moment residual 1.15922e-08 of the tensor trace. Refining 16 to 32 panels changes area by 1.17545e-07 relative and the tensor by 7.24036e-08 of its trace; each centroid coordinate also converges within 1e-6. This evidence supersedes the earlier inconclusive polygon integration and supports the 3D boundary instead of the supplied or rebuilt approximate pcurves.",
     "rust": [
       2.9331322747778126,
       -25.624030979196938,
@@ -13586,8 +13586,8 @@
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "face": 878,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 2.933128119, centroid (-64.21265187, 9.004679653, 16.60500217); with its pcurves rebuilt from the 3D edges: area 2.933124502, centroid (-64.21265229, 9.004678335, 16.60500243). The port: area 2.933132275, centroid (-64.21265308, 9.004673583, 16.60500541). tools/face_area_evidence.py's independent area: 2.933132275.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 2.933128119, centroid (-64.21265187, 9.004679653, 16.60500217); with its pcurves rebuilt from the 3D edges: area 2.933124502, centroid (-64.21265229, 9.004678335, 16.60500243). The port: area 2.933132275, centroid (-64.21265308, 9.004673583, 16.60500541). tools/face_area_evidence.py's independent area: 2.933132275. Converged independent OpenCascade evaluation of the surface over the 3D edge boundary (tools/check_face_integrals.py --independent, 16 and 32 Lobatto panels per curve span, no pcurves) now confirms the port: relative area residual 1.8707e-08, largest centroid-coordinate residual 9.86722e-10 scaled by max(abs(coordinate), 1 mm), central-second-moment residual 1.15318e-08 of the tensor trace. Refining 16 to 32 panels changes area by 1.17545e-07 relative and the tensor by 7.21384e-08 of its trace; each centroid coordinate also converges within 1e-6. This evidence supersedes the earlier inconclusive polygon integration and supports the 3D boundary instead of the supplied or rebuilt approximate pcurves.",
     "rust": [
       2.9331322749191235,
       -64.21265307683478,
@@ -13898,8 +13898,8 @@
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "face": 225,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 1456.697361, centroid (60.78950784, 0.19685987, -0.7683622691); with its pcurves rebuilt from the 3D edges: area 1456.69736, centroid (60.78950784, 0.1968598889, -0.7683622564). The port: area 1456.702593, centroid (60.78951444, 0.1968738882, -0.7683501874). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 1456.698519, centroid (60.78951229, 0.1968778743, -0.7683487508) (estimated error 4.0e-06): 4.0e-06 from the port, 1.8e-05 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 1456.69016. tools/face_area_evidence.py's independent area: 1456.69016.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 1456.697361, centroid (60.78950784, 0.19685987, -0.7683622691); with its pcurves rebuilt from the 3D edges: area 1456.69736, centroid (60.78950784, 0.1968598889, -0.7683622564). The port: area 1456.702593, centroid (60.78951444, 0.1968738882, -0.7683501874). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 1456.698519, centroid (60.78951229, 0.1968778743, -0.7683487508) (estimated error 4.0e-06): 4.0e-06 from the port, 1.8e-05 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 1456.69016. tools/face_area_evidence.py's independent area: 1456.69016. Converged independent OpenCascade evaluation of the surface over the 3D edge boundary (tools/check_face_integrals.py --independent, 16 and 32 Lobatto panels per curve span, no pcurves) now confirms the port: relative area residual 6.66808e-13, largest centroid-coordinate residual 5.16143e-12 scaled by max(abs(coordinate), 1 mm), central-second-moment residual 3.81449e-13 of the tensor trace. Refining 16 to 32 panels changes area by 1.96827e-13 relative and the tensor by 9.83544e-14 of its trace; each centroid coordinate also converges within 1e-6. This evidence supersedes the earlier inconclusive polygon integration and supports the 3D boundary instead of the supplied or rebuilt approximate pcurves.",
     "rust": [
       1456.7025934478545,
       60.78951443595405,
@@ -13922,8 +13922,8 @@
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "face": 233,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 1194.062166, centroid (-13.76019533, -0.0426259178, -43.26598619); with its pcurves rebuilt from the 3D edges: area 1194.062079, centroid (-13.7601974, -0.04262648858, -43.26598582). The port: area 1194.066369, centroid (-13.7601875, -0.04261501111, -43.26599242). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 1194.063029, centroid (-13.76018632, -0.04261174361, -43.26599027) (estimated error 3.3e-06): 3.3e-06 from the port, 1.4e-05 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 1194.056177. tools/face_area_evidence.py's independent area: 1194.056177.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 1194.062166, centroid (-13.76019533, -0.0426259178, -43.26598619); with its pcurves rebuilt from the 3D edges: area 1194.062079, centroid (-13.7601974, -0.04262648858, -43.26598582). The port: area 1194.066369, centroid (-13.7601875, -0.04261501111, -43.26599242). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 1194.063029, centroid (-13.76018632, -0.04261174361, -43.26599027) (estimated error 3.3e-06): 3.3e-06 from the port, 1.4e-05 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 1194.056177. tools/face_area_evidence.py's independent area: 1194.056177. Converged independent OpenCascade evaluation of the surface over the 3D edge boundary (tools/check_face_integrals.py --independent, 16 and 32 Lobatto panels per curve span, no pcurves) now confirms the port: relative area residual 5.54975e-10, largest centroid-coordinate residual 1.50271e-08 scaled by max(abs(coordinate), 1 mm), central-second-moment residual 4.36875e-10 of the tensor trace. Refining 16 to 32 panels changes area by 5.5459e-10 relative and the tensor by 4.36734e-10 of its trace; each centroid coordinate also converges within 1e-6. This evidence supersedes the earlier inconclusive polygon integration and supports the 3D boundary instead of the supplied or rebuilt approximate pcurves.",
     "rust": [
       1194.0663692162427,
       -13.760187501416194,
@@ -13934,8 +13934,8 @@
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "face": 234,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 1194.304844, centroid (-13.76008749, -0.04262458628, -42.61170887); with its pcurves rebuilt from the 3D edges: area 1193.959579, centroid (-13.76007579, -0.04224289232, -42.61223991). The port: area 1194.012578, centroid (-13.76017625, -0.04261338945, -42.61224696). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 1194.012599, centroid (-13.76017651, -0.04261377426, -42.61224696) (estimated error 6.8e-08): 3.8e-07 from the port, 2.4e-04 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 1194.010347. tools/face_area_evidence.py's independent area: 1194.010347.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 1194.304844, centroid (-13.76008749, -0.04262458628, -42.61170887); with its pcurves rebuilt from the 3D edges: area 1193.959579, centroid (-13.76007579, -0.04224289232, -42.61223991). The port: area 1194.012578, centroid (-13.76017625, -0.04261338945, -42.61224696). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 1194.012599, centroid (-13.76017651, -0.04261377426, -42.61224696) (estimated error 6.8e-08): 3.8e-07 from the port, 2.4e-04 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 1194.010347. tools/face_area_evidence.py's independent area: 1194.010347. Converged independent OpenCascade evaluation of the surface over the 3D edge boundary (tools/check_face_integrals.py --independent, 16 and 32 Lobatto panels per curve span, no pcurves) now confirms the port: relative area residual 1.44678e-11, largest centroid-coordinate residual 6.92554e-09 scaled by max(abs(coordinate), 1 mm), central-second-moment residual 1.06193e-09 of the tensor trace. Refining 16 to 32 panels changes area by 1.07303e-08 relative and the tensor by 1.29152e-08 of its trace; each centroid coordinate also converges within 1e-6. This evidence supersedes the earlier inconclusive polygon integration and supports the 3D boundary instead of the supplied or rebuilt approximate pcurves.",
     "rust": [
       1194.0125778157676,
       -13.76017625045937,
@@ -13958,8 +13958,8 @@
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "face": 238,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 955.2454773, centroid (-13.91719348, 0.2295831592, 45.76318666); with its pcurves rebuilt from the 3D edges: area 955.2454773, centroid (-13.91719348, 0.2295831592, 45.76318666). The port: area 955.2531627, centroid (-13.91735427, 0.2296099336, 45.76318142). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 955.2533475, centroid (-13.91742929, 0.2296345685, 45.76318061) (estimated error 1.4e-05): 2.5e-05 from the port, 5.1e-05 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 955.2507191. tools/face_area_evidence.py's independent area: 955.2507191.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 955.2454773, centroid (-13.91719348, 0.2295831592, 45.76318666); with its pcurves rebuilt from the 3D edges: area 955.2454773, centroid (-13.91719348, 0.2295831592, 45.76318666). The port: area 955.2531627, centroid (-13.91735427, 0.2296099336, 45.76318142). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 955.2533475, centroid (-13.91742929, 0.2296345685, 45.76318061) (estimated error 1.4e-05): 2.5e-05 from the port, 5.1e-05 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 955.2507191. tools/face_area_evidence.py's independent area: 955.2507191. Converged independent OpenCascade evaluation of the surface over the 3D edge boundary (tools/check_face_integrals.py --independent, 16 and 32 Lobatto panels per curve span, no pcurves) now confirms the port: relative area residual 3.24308e-13, largest centroid-coordinate residual 1.4666e-13 scaled by max(abs(coordinate), 1 mm), central-second-moment residual 1.62589e-13 of the tensor trace. Refining 16 to 32 panels changes area by 1.70783e-13 relative and the tensor by 8.84221e-14 of its trace; each centroid coordinate also converges within 1e-6. This evidence supersedes the earlier inconclusive polygon integration and supports the 3D boundary instead of the supplied or rebuilt approximate pcurves.",
     "rust": [
       955.253162687696,
       -13.91735426881096,
@@ -14006,8 +14006,8 @@
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
     "face": 337,
-    "verdict": "undetermined",
-    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 201.3521879, centroid (-13.29725003, 43.12917844, 35.21147091); with its pcurves rebuilt from the 3D edges: area 201.352191, centroid (-13.29725004, 43.12917838, 35.21147083). The port: area 201.3538126, centroid (-13.29728401, 43.12917314, 35.21146519). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 201.3538516, centroid (-13.29729985, 43.12917234, 35.21145998) (estimated error 6.8e-07): 1.2e-06 from the port, 8.3e-06 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 201.3533061. tools/face_area_evidence.py's independent area: 201.3533061.",
+    "verdict": "rust-correct",
+    "reason": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 201.3521879, centroid (-13.29725003, 43.12917844, 35.21147091); with its pcurves rebuilt from the 3D edges: area 201.352191, centroid (-13.29725004, 43.12917838, 35.21147083). The port: area 201.3538126, centroid (-13.29728401, 43.12917314, 35.21146519). An independent integration (Green's theorem along the edge curves, face_moment_evidence) gives area 201.3538516, centroid (-13.29729985, 43.12917234, 35.21145998) (estimated error 6.8e-07): 1.2e-06 from the port, 8.3e-06 from OpenCascade. It is not used: tools/face_area_evidence.py's independent area is 201.3533061. tools/face_area_evidence.py's independent area: 201.3533061. Converged independent OpenCascade evaluation of the surface over the 3D edge boundary (tools/check_face_integrals.py --independent, 16 and 32 Lobatto panels per curve span, no pcurves) now confirms the port: relative area residual 4.4195e-13, largest centroid-coordinate residual 6.3855e-14 scaled by max(abs(coordinate), 1 mm), central-second-moment residual 2.54767e-13 of the tensor trace. Refining 16 to 32 panels changes area by 1.61338e-13 relative and the tensor by 6.9442e-14 of its trace; each centroid coordinate also converges within 1e-6. This evidence supersedes the earlier inconclusive polygon integration and supports the 3D boundary instead of the supplied or rebuilt approximate pcurves.",
     "rust": [
       201.3538125637462,
       -13.297284012461827,
