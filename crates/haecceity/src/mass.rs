@@ -285,12 +285,11 @@ fn kronrod_nodes() -> &'static [(f64, f64, f64)] {
     })
 }
 
-/// One Gauss–Kronrod rule over a panel: the Kronrod sum, the error estimate of its first
-/// component (the difference from the embedded Gauss rule), the sum of that component's terms'
-/// magnitudes (the scale its error is judged against) and the state after its last node. The
-/// first component, an area density wherever it is used, steers the refinement for all: what
-/// needs refining is the boundary path, the same for every integrand, and the others may cancel
-/// to round-off (the flux through a plane through the origin).
+/// One Gauss–Kronrod rule over a panel: the Kronrod sum, its error estimate (the difference
+/// from the embedded Gauss rule, on the area scale), the first component's terms' magnitudes
+/// and the state after its last node. The first component is an area density. Errors in the remaining components are scaled by
+/// their terms' magnitudes to the area scale: a constant area density can hide variation in
+/// first and second moments. Using terms' magnitudes also handles cancelling fluxes.
 type Panel<S, const N: usize> = ([f64; N], f64, f64, S);
 
 /// The rule over (a, b) of `term`, visited in ascending order of the panel's parameter from
@@ -302,16 +301,29 @@ fn kronrod<S, const N: usize>(
     mut term: impl FnMut(&mut S, f64) -> Option<[f64; N]>,
 ) -> Option<Panel<S, N>> {
     let (half, centre) = (0.5 * (b - a), 0.5 * (b + a));
-    let (mut sum, mut gauss, mut size) = ([0.0; N], 0.0, 0.0);
+    let (mut sum, mut gauss, mut size) = ([0.0; N], [0.0; N], [0.0; N]);
     for &(x, wk, wg) in kronrod_nodes() {
         let y = term(&mut state, centre + half * x)?;
+        if y.iter().any(|x| !x.is_finite()) {
+            return None;
+        }
         for k in 0..N {
             sum[k] += wk * half * y[k];
+            gauss[k] += wg * half * y[k];
+            size[k] += (wk * half * y[k]).abs();
         }
-        gauss += wg * half * y[0];
-        size += (wk * half * y[0]).abs();
     }
-    Some((sum, (sum[0] - gauss).abs(), size, state))
+    let error = (0..N)
+        .map(|k| {
+            let scale = size[0].max(size[k]);
+            if scale > 0.0 {
+                (sum[k] - gauss[k]).abs() * (size[0] / scale)
+            } else {
+                0.0
+            }
+        })
+        .fold(0.0, f64::max);
+    Some((sum, error, size[0], state))
 }
 
 /// ∫ over the interval running through `cuts`: the sum, the largest error estimate of a panel
@@ -605,6 +617,7 @@ impl Part {
             let n = geom::cross(su, sv);
             [geom::norm(n), geom::dot(p, n), n[0], n[1], n[2]]
         })
+        .filter(|m| m[0] > 0.0 && m.iter().all(|x| x.is_finite()))
     }
 
     /// ∬ f du dv over the face's trimmed parameter domain.
@@ -689,7 +702,7 @@ impl Part {
         }
         let floor = 1e-11 * passes.iter().map(|p| p.2).sum::<f64>();
         let mut total = [0.0; N];
-        for (&i, (mut sum, excess, _, swept)) in loops.iter().zip(passes) {
+        for (&i, (mut sum, excess, _, mut swept)) in loops.iter().zip(passes) {
             if excess > floor {
                 let refined =
                     self.boundary_integral(face, i, shifts[i], &term, Some(floor), u_ref)?;
@@ -699,6 +712,7 @@ impl Part {
                     return None;
                 }
                 sum = refined.0;
+                swept = refined.3;
             }
             // A loop that winds round either parameter has no signed area to read.
             let winding = along_v || uv[i].winds_v;
@@ -1120,7 +1134,7 @@ impl Part {
     }
 }
 
-/// A face's first moments: what revision matching fingerprints a face by.
+/// A face's area, first and second moments.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct FaceMoments {
     pub area: f64,
@@ -1129,10 +1143,14 @@ pub struct FaceMoments {
     /// ∬ n dA with n the outward unit normal: the face's projected area along each axis. Zero for
     /// a closed face (a whole sphere) and for a full cylinder band.
     pub area_vector: V3,
+    /// Central second moments ∫ (pᵢ − centroidᵢ)(pⱼ − centroidⱼ) dA, in mm⁴.
+    /// The inertia tensor is trace(second_moments) I − second_moments.
+    pub second_moments: [[f64; 3]; 3],
 }
 
 impl Part {
-    /// The face's area, centroid and outward area vector, by the same boundary quadrature as
+    /// The face's area, centroid, outward area vector and central second moments,
+    /// by the same boundary quadrature as
     /// [`Part::face_mass`]; `None` where that cannot integrate the face.
     pub fn face_moments(&self, face: usize) -> Option<FaceMoments> {
         let fc = &self.faces[face];
@@ -1144,23 +1162,90 @@ impl Part {
                 area: 4.0 * std::f64::consts::PI * radius * radius,
                 centroid: frame.origin,
                 area_vector: [0.0; 3],
+                second_moments: std::array::from_fn(|i| {
+                    std::array::from_fn(|j| {
+                        if i == j {
+                            4.0 * std::f64::consts::PI * radius.powi(4) / 3.0
+                        } else {
+                            0.0
+                        }
+                    })
+                }),
             });
         }
-        // One pass for all seven, the area density first (it steers the refinement).
-        let [area, mx, my, mz, nx, ny, nz] = self.face_integral(face, |u, v| {
-            let (p, su, sv) = point_and_partials(surface, u, v);
-            let n = geom::cross(su, sv);
-            let w = geom::norm(n);
-            [w, p[0] * w, p[1] * w, p[2] * w, n[0], n[1], n[2]]
+        // Integrate dimensionless offsets from a point on the face, avoiding subtraction of
+        // large world-coordinate moments. Scaling puts every component on the area scale for
+        // quadrature's error test, including faces with a constant area density.
+        // A boundary vertex moves rigidly with the face. Existing edge samples give a cheap
+        // length scale without asking for extrema (which require surface inversion and can
+        // cost more than the integral itself on B-splines).
+        let origin = fc.loops.iter().find_map(|lp| {
+            lp.vertex
+                .or_else(|| lp.edges.first().map(|&(e, _)| self.edges[e].start))
         })?;
-        if area == 0.0 || area.is_nan() {
+        let scale = fc
+            .loops
+            .iter()
+            .flat_map(|lp| {
+                lp.edges
+                    .iter()
+                    .flat_map(|&(e, _)| self.edges[e].samples.iter().copied())
+                    .chain(lp.vertex)
+            })
+            .map(|p| {
+                let d = geom::sub(p, origin);
+                geom::dot(d, d)
+            })
+            .fold(0.0, f64::max)
+            .sqrt();
+        if !scale.is_finite() || scale <= 0.0 {
             return None;
         }
-        let sense = if fc.reversed { -1.0 } else { 1.0 };
+        let [area, mx, my, mz, nx, ny, nz, xx, yy, zz, xy, xz, yz] =
+            self.face_integral(face, |u, v| {
+                let (p, su, sv) = point_and_partials(surface, u, v);
+                let n = geom::cross(su, sv);
+                let w = geom::norm(n);
+                let [x, y, z] = geom::scale(geom::sub(p, origin), 1.0 / scale);
+                [
+                    w,
+                    x * w,
+                    y * w,
+                    z * w,
+                    n[0],
+                    n[1],
+                    n[2],
+                    x * x * w,
+                    y * y * w,
+                    z * z * w,
+                    x * y * w,
+                    x * z * w,
+                    y * z * w,
+                ]
+            })?;
+        if area <= 0.0 || !area.is_finite() {
+            return None;
+        }
+        let mean = [mx / area, my / area, mz / area];
+        let raw = [[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]];
+        let second_moments = std::array::from_fn(|i| {
+            std::array::from_fn(|j| (raw[i][j] - area * mean[i] * mean[j]) * scale * scale)
+        });
+        let centroid = geom::add(origin, geom::scale(mean, scale));
+        let area_vector = [nx, ny, nz].map(|c| if fc.reversed { -c } else { c });
+        if !centroid
+            .iter()
+            .chain(area_vector.iter())
+            .chain(second_moments.iter().flatten())
+            .all(|x| x.is_finite())
+        {
+            return None;
+        }
         Some(FaceMoments {
-            area: area.abs(),
-            centroid: [mx / area, my / area, mz / area],
-            area_vector: [nx, ny, nz].map(|c| sense * c * area.signum()),
+            area,
+            centroid,
+            area_vector,
+            second_moments,
         })
     }
 
@@ -1180,7 +1265,12 @@ impl Part {
     pub fn volume_centroid(&self) -> Option<(f64, V3)> {
         // Integrated about c0 (the box centre, inside the part) for conditioning: with
         // q = p − c0, s = ∯ q·n, m = ∯ n, a[i][j] = ∯ qᵢ nⱼ, b = ∯ q (q·n).
-        let c0 = self.bounds().centre();
+        let bounds = self.bounds();
+        let c0 = bounds.centre();
+        let length = geom::dist(bounds.min, bounds.max);
+        if !length.is_finite() || length <= 0.0 {
+            return None;
+        }
         let (mut s, mut m, mut a, mut b) = (0.0, [0.0; 3], [[0.0; 3]; 3], [0.0; 3]);
         for solid in &self.solids {
             for &face in &solid.faces {
@@ -1200,11 +1290,14 @@ impl Part {
                     }
                     continue;
                 }
-                // The area density first: it steers the refinement, as in `face_moments`.
+                // Put the flux and its moments on the area scale too. Unscaled q² terms
+                // amplify projection round-off on tiny faces far from c0: cgb242 face 483
+                // was refused only after translation, although its area was resolved.
+                // Restore physical units after quadrature; the fixed point below uses mm.
                 let f = self.face_integral(face, |u, v| {
                     let (p, su, sv) = point_and_partials(surface, u, v);
                     let n = geom::cross(su, sv);
-                    let q = geom::sub(p, c0);
+                    let q = geom::scale(geom::sub(p, c0), 1.0 / length);
                     let qn = geom::dot(q, n);
                     let mut out = [0.0; 17];
                     out[0] = geom::norm(n);
@@ -1218,12 +1311,12 @@ impl Part {
                     }
                     out
                 })?;
-                s += sense * f[1];
+                s += sense * f[1] * length;
                 for i in 0..3 {
                     m[i] += sense * f[2 + i];
-                    b[i] += sense * f[14 + i];
+                    b[i] += sense * f[14 + i] * length * length;
                     for j in 0..3 {
-                        a[i][j] += sense * f[5 + 3 * i + j];
+                        a[i][j] += sense * f[5 + 3 * i + j] * length;
                     }
                 }
             }
@@ -1281,6 +1374,25 @@ mod tests {
         };
         let (sum, ..) = adaptive(&[0.0, 1.0], (), Some(0.0), &mut split).unwrap();
         assert!((sum[0] - 5.0 / 18.0).abs() < 1e-15);
+    }
+
+    #[test]
+    fn moments_can_need_refinement_when_area_is_constant() {
+        let mut eval = |(): (), a: f64, b: f64| {
+            Some((
+                kronrod((), a, b, |(), x| Some([1.0, (100.0 * x).cos()]))?,
+                None,
+            ))
+        };
+        let (_, error, _, ()) = eval((), -1.0, 1.0).unwrap().0;
+        assert!(
+            error > 1e-3,
+            "the constant area must not hide the moment error"
+        );
+        let (sum, error, _, ()) = adaptive(&[-1.0, 1.0], (), Some(1e-12), &mut eval).unwrap();
+        assert!((sum[0] - 2.0).abs() < 1e-14);
+        assert!((sum[1] - 2.0 * 100f64.sin() / 100.0).abs() < 1e-12);
+        assert!(error < 1e-12);
     }
 
     /// A kink named just inside every panel, never resolved (as an inversion jumping between
