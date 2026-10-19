@@ -51,7 +51,8 @@ Overturnable judgement calls:
   other family strictly, so Python's other strict refusals (which raise without retrying) are not
   modelled. Python's recognition *document* retries on any refusal with an invalid solid
   (`document.py`); the port's document comes from `recognise` and keeps the aggregate's narrower
-  condition. The document does not say that a run was degraded (Python's `"proof"` field).
+  condition. The [trust contract](recognition-trust.md) now records this completed run as
+  `run_mode: "locally-degraded"`; its per-record status still requires strict solid validity.
 - `build_recognition_evidence` now reads the holes' constituent faces from the inventory
   (`Inventory::constituent`) instead of discovering them again, since a degraded run skips some.
 

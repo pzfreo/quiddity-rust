@@ -3,8 +3,10 @@
 `quiddity-rust/recognition/4` adds measured `modelled_threads` (`ModelledThread`)
 and `modelled_thread_refusals` (`ModelledThreadRefusal`). All version 3 families
 retain their payloads and order. Documents requiring neither new record type
-continue to use `quiddity-rust/recognition/3`; their complete outputs remain byte
-identical. `SCHEMA_VERSION` names the latest supported contract;
+continue to use `quiddity-rust/recognition/3`. The additive
+[trust contract](recognition-trust.md) supplies source identity, run mode and record
+status under either tag; removing those fields recovers the previous record bytes.
+`SCHEMA_VERSION` names the latest supported contract;
 `schema_version(features)` chooses the minimum required version.
 
 A thread publishes:

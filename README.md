@@ -70,6 +70,12 @@ distinct parts and the face numbering PMI anchors use), and `quiddity pmi read|c
 (AP242 semantic PMI as versioned JSON; `write` verifies by reading back before replacing the
 output).
 
+The recognition document carries `source_sha256`, the completed `run_mode`, and each
+record's `evidence_status` (`verified` or `unproved`). CLI and `serve` retain candidates
+from unsupported or invalid geometry with warnings identifying the unproved records.
+See [the trust contract](docs/recognition-trust.md) for validity limits, gzip identity,
+pattern inheritance, legacy-reader defaults and consumer refusal policy.
+
 Known limitations:
 
 - Python's local-degradation retry is ported for every validity query of the run and for the
@@ -265,7 +271,7 @@ horizontal face levels strictly inside `bounded_end_margin` of its height) and
 `levels::discover_risers` (`_discover_risers`, each riser carrying its solid's step levels), and
 the thin-wall rule rejects risers from that list, so `recognise` drops them. `levels::proved` is
 Python's proof of either (strictly a refusal when one has no valid solid, under local degradation
-a skip); `features::inventory`, like every family there, publishes them unproved, but skips as
+a skip); `features::inventory` retains their candidates with strict evidence statuses, but skips as
 `levels::proved` does in a locally degraded run (the retry above). `tests/step_levels.rs` compares, part by part over the corpus, the public
 `step_level_records`, the proposals with their faces and proofs, the proved aggregate and what
 `inventory` and `recognise` carry: 378 Python step levels, 316 identical on 89 parts, the other
