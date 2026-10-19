@@ -29,6 +29,11 @@ Shared-family classes share all predictions; only defining faces count. Reports
 retain face metrics for incomplete instance annotations and explicitly count the
 models whose instance metrics are available. Renamed duplicates are accepted only
 when STEP DATA records and label bytes match their declared originals.
+The fixed 200-model ratchet runs with
+`QUIDDITY_MFINSTSEG=/path/to/MFInstSeg cargo test --release --test mfinstseg`.
+Dataset files stay external because redistribution permission has not been
+established. Its baseline pins input and mapping hashes; record non-regressing
+improvements with `tools/update_mfinstseg_baseline.py`.
 
 What alpha 1 does:
 
