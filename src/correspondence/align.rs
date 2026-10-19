@@ -163,6 +163,9 @@ impl Candidates {
         let mut index_old = vec![usize::MAX; old.faces.len()];
         let mut index_new = vec![usize::MAX; new.faces.len()];
         for (i, j, n) in face_pairs {
+            let Some(area) = old.faces[i].area else {
+                continue;
+            };
             if index_old[i] == usize::MAX {
                 index_old[i] = old_anchors.len();
                 old_anchors.push(face_anchor(&old.faces[i]));
@@ -171,11 +174,7 @@ impl Candidates {
                 index_new[j] = new_anchors.len();
                 new_anchors.push(face_anchor(&new.faces[j]));
             }
-            pairs.push((
-                (index_old[i], index_new[j]),
-                n,
-                old.faces[i].area.unwrap_or(0.0),
-            ));
+            pairs.push(((index_old[i], index_new[j]), n, area));
         }
         // The most distinctive first (fewest candidates; then features, then the larger faces),
         // as many as the budget allows.
