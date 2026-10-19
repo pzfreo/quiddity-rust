@@ -189,7 +189,9 @@ pub struct Accounting {
     pub consumed: usize,
     /// Of them, not consumed but named by a finding.
     pub reported: usize,
-    /// Presentation instances (counted, not interpreted).
+    /// Graphic PMI instances (counted, not interpreted): annotation occurrences (including
+    /// planes and tessellated occurrences), draughting callouts, and their models/views.
+    /// Geometry styling, layers, colours and invisibility are excluded.
     pub presentation: usize,
     /// Validation property definitions (counted, not interpreted).
     pub validation: usize,
