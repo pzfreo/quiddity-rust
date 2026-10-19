@@ -286,6 +286,7 @@ fn broken_step_files_are_refused_with_the_kernel_refusal() {
     for (name, expected) in [
         ("broken/truncated.step", "parse error"),
         ("broken/empty_data.step", "no solid or shell"),
+        ("broken/header_only.step", "STEP parse error"),
         (
             "broken/deleted_face.step",
             "#109 is referenced but not in the file",

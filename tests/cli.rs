@@ -236,6 +236,12 @@ fn the_document_lists_each_feature_with_its_record_type_and_faces() {
 }
 
 #[test]
+fn a_header_only_step_is_refused() {
+    let err = refused("header_only.step");
+    assert!(err.contains("STEP parse error"), "{err}");
+}
+
+#[test]
 fn an_empty_data_section_is_refused() {
     let err = refused("empty_data.step");
     assert!(err.contains("no solid or shell"), "{err}");
