@@ -8,6 +8,18 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 **Status: 0.1.0-alpha.8 (2026-10-20).** Changes are in [CHANGELOG.md](CHANGELOG.md); the alpha 1
 gates and their evidence in [docs/alpha1.md](docs/alpha1.md).
 
+## Rust-first
+
+Rust recognition is judged against independent references: OpenCascade, analytic
+fixtures, MFInstSeg/MFCAD++ labels, and motion invariance. Committed Python
+captures are a frozen regression record, not the target for new behaviour. Keep
+all parity harnesses flagging unlisted differences; record deliberate departures
+supported by independent evidence as `rust-correct`, citing that evidence. Do not
+add new Python captures. Do not remove output to improve metrics unless the
+information still reaches the output, or weaken tests or known-difference entries
+to get green. Remove stale entries only when the harness reports they no longer
+match, and report their removal.
+
 What alpha 1 does:
 
 - **Kernel** (`haecceity`): STEP import (assemblies, distinct parts in their own frames, face and
@@ -119,12 +131,8 @@ corpus files' documents). *Not captured*:
 calls the suite makes that the capture could not record, outside the replay and pinned by it
 (`tools/capture_plugin.py` now lists each with its test and reason; the counts here predate
 that: the committed `calls.json` still holds them as counts per function, all
-`capture failed: RuntimeError`, and a capture run carries them over unchanged for every function
-it does not recapture). Open question for the maintainer: re-running the whole capture to give
-them test ids changes the call content, not only the skips (4210 calls against 2482, 685 of the
-old call identities gone, 5 shared calls with different Python answers), so it needs every
-family re-verified; whether to do that or to recapture family by family over each family's own
-test files is not decided. *Corpus runs*: runs whose records match Python's over the 100-file
+`capture failed: RuntimeError`). These captures remain frozen under the Rust-first
+policy. *Corpus runs*: runs whose records match Python's over the 100-file
 corpus in `tests/corpus.rs` (one per file and option set; face levels, step levels and risers are
 not in the corpus export: step levels and the aggregate's risers are compared part by part in
 `tests/step_levels.rs` against `tools/capture_step_levels.py`'s capture). Every difference, in
