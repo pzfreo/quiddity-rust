@@ -20,6 +20,16 @@ information still reaches the output, or weaken tests or known-difference entrie
 to get green. Remove stale entries only when the harness reports they no longer
 match, and report their removal.
 
+Independent labelled accuracy is measured by `examples/mfinstseg_score.rs` using
+[the source-cited class mapping](tests/fixtures/mfinstseg_mapping.json). Run it with
+`DATASET IDS.txt OUT.json [WORKERS]` (at most six workers); MFInstSeg's dataset root
+contains `steps/` and `labels/`. For MFCAD++, pass the STEP directory and append
+`--mfcadpp` to score numeric face-name labels without inventing instance labels.
+Shared-family classes share all predictions; only defining faces count. Reports
+retain face metrics for incomplete instance annotations and explicitly count the
+models whose instance metrics are available. Renamed duplicates are accepted only
+when STEP DATA records and label bytes match their declared originals.
+
 What alpha 1 does:
 
 - **Kernel** (`haecceity`): STEP import (assemblies, distinct parts in their own frames, face and
