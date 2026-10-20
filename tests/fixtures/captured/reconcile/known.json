@@ -271,6 +271,48 @@
    "order": true,
    "verdict": "rust-correct",
    "reason": "The same slot face lists are retained in a stable order. Raw centres still measure the geometry; only the width/centre ordering key is quantised to six decimal places with the kernel coordinate floor. Infinitesimal differences in a tied centre coordinate must not override the next distinct coordinate or exchange section-recess indices. recess_reduce::tests and the generic-framed NIST FTC 06/10 document checks independently establish this ordering correction; the frozen Python ordering is not authoritative."
+  },
+  {
+   "family": "holes",
+   "file": "nist/nist_ftc_10_asme1_rb.stp",
+   "python": [
+    [
+     138,
+     148
+    ],
+    [
+     144,
+     149
+    ],
+    [
+     142,
+     146
+    ],
+    [
+     140,
+     147
+    ]
+   ],
+   "rust": [
+    [
+     130,
+     148
+    ],
+    [
+     132,
+     149
+    ],
+    [
+     134,
+     146
+    ],
+    [
+     136,
+     147
+    ]
+   ],
+   "verdict": "rust-correct",
+   "reason": "These four symmetric double-counterbored holes retain the same bore and both mouth segments. Equal-diameter ends now choose the source cylinder support direction, which moves with the part, instead of world-high. Their opening/bore face pairs therefore use the other equally wide end consistently. tests/invariance.rs verifies NIST FTC 10 under placement; the rust-correct holes entry in known_divergences.json records the complete dimensional and pattern evidence."
   }
  ],
  "decisions": [

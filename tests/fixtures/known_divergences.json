@@ -1069,22 +1069,6 @@
     "reason": "The grid's member holes carry the opening-location difference recorded for this file's recognise_holes."
   },
   {
-    "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "family": "recognise_holes",
-    "key": "{\"csinks\":\"auto\"} records: 30 vs 30 records, fields {\"location\"}",
-    "count": 1,
-    "verdict": "rust-correct",
-    "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
-  },
-  {
-    "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "family": "recognise_holes",
-    "key": "{} records: 30 vs 30 records, fields {\"location\"}",
-    "count": 1,
-    "verdict": "rust-correct",
-    "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
-  },
-  {
     "file": "ttt_inputs/sm-hanger.step",
     "family": "recognise_sheet_metal_bodies",
     "key": "{} records: 1 vs 1 records, fields {\"flat_pattern\"}",
@@ -1251,5 +1235,21 @@
     "key": "{} records: 4 vs 4 records, fields {\"length\"}",
     "verdict": "rust-correct",
     "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_holes",
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "key": "{\"csinks\":\"auto\"} records: 30 vs 30 records, fields {\"axis\", \"location\"}",
+    "verdict": "rust-correct",
+    "reason": "Motion-invariance evidence: the equally wide distinct mouths of the doubly counterbored nist_ftc_10 through holes have no geometric drilling-entry preference. Tie-breaking by the original cylinder support direction (on the lowest-index mouth face) moves with the part; world-high does not. The record consistently retains one counterbore on the same original faces through all five rigid motions. Both ends remain in the original face inventory and fingerprints, and the existing one-counterbore record schema is retained. Previous independent verdict retained: Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge. Previous independent verdict retained: Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
+  },
+  {
+    "count": 1,
+    "family": "recognise_holes",
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "key": "{} records: 30 vs 30 records, fields {\"axis\", \"location\"}",
+    "verdict": "rust-correct",
+    "reason": "Motion-invariance evidence: the equally wide distinct mouths of the doubly counterbored nist_ftc_10 through holes have no geometric drilling-entry preference. Tie-breaking by the original cylinder support direction (on the lowest-index mouth face) moves with the part; world-high does not. The record consistently retains one counterbore on the same original faces through all five rigid motions. Both ends remain in the original face inventory and fingerprints, and the existing one-counterbore record schema is retained. Previous independent verdict retained: Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge. Previous independent verdict retained: Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
   }
 ]

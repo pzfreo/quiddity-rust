@@ -293,8 +293,9 @@ fn merge_stacks(part: &Part, stacks: Vec<Vec<Segment>>) -> Vec<Vec<Segment>> {
 }
 
 /// Which end of a stack is the opening and what closes the other (`_drilled_from`). With both
-/// ends open the wider segment's end wins (counterbores sit at the opening); a tie falls to the
-/// high end, so a stack symmetric end to end reads from whichever end is high in world space.
+/// ends open the wider segment's end wins (counterbores sit at the opening); a tie uses the
+/// cylinder support's intrinsic direction for equally wide distinct mouths. That direction
+/// moves with the part; world-high does not. A single through cylinder has no end-step choice.
 fn drilled_from(part: &Part, stack: &[Segment]) -> (bool, usize, f64, Bottom, Vec<usize>) {
     let lo = end_segment(stack, |s| -s.s_lo);
     let hi = end_segment(stack, |s| s.s_hi);
@@ -303,6 +304,18 @@ fn drilled_from(part: &Part, stack: &[Segment]) -> (bool, usize, f64, Bottom, Ve
     let from_hi = match (lo_state == End::Open, hi_state == End::Open) {
         (true, false) => false,
         (false, true) => true,
+        _ if lo != hi && (stack[hi].diameter - stack[lo].diameter).abs() <= COORD_FLOOR => {
+            let face = stack[lo]
+                .faces
+                .iter()
+                .chain(&stack[hi].faces)
+                .min()
+                .unwrap();
+            let Surface::Cylinder { frame, .. } = part.faces[*face].surface else {
+                unreachable!("a hole segment is cylindrical");
+            };
+            geom::dot(frame.z, stack[hi].direction) > 0.0
+        }
         _ => stack[hi].diameter >= stack[lo].diameter,
     };
     let (opening, opening_s, bottom, faces) = if from_hi {

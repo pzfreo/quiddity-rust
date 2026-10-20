@@ -1048,14 +1048,6 @@
     "max_differing": 3
   },
   {
-    "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "check": "caller_space",
-    "family": "holes",
-    "verdict": "equivalent",
-    "reason": "Equivalent: through holes counterbored at both ends; the record's defining faces are its bore and the counterbore at the end chosen as its entry, which the default chooses in the frame (the same bores, each with the other end's counterbore: e.g. faces [130, 148] against [138, 148], axis +z against -z).",
-    "max_differing": 8
-  },
-  {
     "file": "ttt_inputs/sm-hanger.step",
     "check": "caller_space",
     "family": "blends",
