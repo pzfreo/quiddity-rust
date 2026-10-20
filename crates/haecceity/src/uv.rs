@@ -1245,7 +1245,7 @@ fn route_collapsed_sides(surface: &Surface, points: &[V3], raw: &mut [(f64, f64)
 /// a hundredth of the range inside each collapsed side, at seventeen places along it. Seeded on
 /// the side itself (or at a grid node there, as the unhinted inversion may be) the search cannot
 /// leave it, the surface's derivative along the side being zero.
-fn beside_collapsed(
+pub(crate) fn beside_collapsed(
     surface: &Surface,
     p: V3,
     collapsed: (Option<f64>, Option<f64>),

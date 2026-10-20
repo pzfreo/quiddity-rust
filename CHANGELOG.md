@@ -4,6 +4,15 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
+## Unreleased
+
+### Fixed
+
+- Preserve a single sheet when converting radial `SURFACE_OF_REVOLUTION` line
+  profiles, and recover boundary inversion stalled at a collapsed surface side.
+  This corrects revolution face fluxes and mass properties without discarding
+  their prescribed orientation (#53).
+
 ## 0.1.0-alpha.9 (2026-10-20)
 
 Upgrading: fingerprints are now `quiddity-rust/fingerprint/3` and `correspond` refuses

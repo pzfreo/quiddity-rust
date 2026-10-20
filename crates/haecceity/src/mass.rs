@@ -821,11 +821,26 @@ impl Part {
                     }
                     _ => walk.last,
                 };
-                let (mut u, v) = foot(surface, spans, point, seed)?;
+                let (mut u, mut v) = foot(surface, spans, point, seed)?;
                 // Round a closed B-spline surface the point takes the parameters a whole span
                 // round that lie beside the walk (on the surface's seam it has both, and a
                 // boundary may cross that seam anywhere: a face's own seam need not lie on it).
-                let (su, sv) = surface.partials(u, v);
+                let (mut su, mut sv) = surface.partials(u, v);
+                // Newton can arrive at a collapsed side from a regular seed too.
+                // Its rank-deficient Jacobian then cannot leave the pole, even for
+                // a point just beside it. The ordinary inversion retry allows an
+                // edge-tolerance residual (0.05 mm), which is much too large here:
+                // zero velocity at that false foot point silently drops the tip of
+                // a boundary integral. Seed beside the collapsed side as the UV
+                // walk does, before evaluating any signed or unsigned integrand.
+                if matches!(surface, Surface::Freeform { .. })
+                    && (geom::norm(su) <= 1e-12 * geom::norm(sv)
+                        || geom::norm(sv) <= 1e-12 * geom::norm(su))
+                    && geom::dist(surface.value(u, v), point) > 1e-9
+                {
+                    (u, v) = crate::uv::beside_collapsed(surface, point, collapsed_sides(surface))?;
+                    (su, sv) = surface.partials(u, v);
+                }
                 if surface.singular_v(v).is_some() && geom::norm(su) <= 1e-6 * geom::norm(sv) {
                     // At the singular point itself u is round-off: it stays where the walk is,
                     // rather than setting the turn the rest of the edge unwraps against.
