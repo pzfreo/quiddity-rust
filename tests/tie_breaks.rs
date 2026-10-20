@@ -581,10 +581,54 @@ fn a_radial_profile_keeps_its_stronger_axis_despite_tied_budget_cutoff() {
 #[test]
 fn symmetric_double_counterbores_preserve_ftc10_and_captured_inventory() {
     if let Some(dir) = common::corpus_dir() {
-        let part =
-            read_step_file_placed(&dir.join("nist/nist_ftc_10_asme1_rb.stp"), &IDENTITY).unwrap();
+        let path = dir.join("nist/nist_ftc_10_asme1_rb.stp");
+        let (part, framed, _) =
+            quiddity::serve::recognise_step(path.to_str().unwrap(), &IDENTITY).unwrap();
         let got = features::recognise(&part);
         assert_eq!((got.holes.len(), got.hole_patterns.len()), (30, 7));
+        assert_eq!(
+            (
+                framed.features.holes.len(),
+                framed.features.hole_patterns.len()
+            ),
+            (30, 7)
+        );
+        // The two API contexts may reverse the same end gauge. Compare the actual physical
+        // endpoints and defining claims, rather than requiring a material drilling-entry end.
+        for (i, a) in got
+            .holes
+            .iter()
+            .enumerate()
+            .filter(|(_, h)| h.diameter == 7.)
+        {
+            let j = framed.features.defining["holes"]
+                .iter()
+                .position(|f| *f == got.defining["holes"][i])
+                .unwrap();
+            let b = &framed.features.holes[j];
+            assert_eq!(
+                (a.diameter, a.depth, a.bottom),
+                (b.diameter, b.depth, b.bottom)
+            );
+            assert_eq!(
+                (&a.cbore, &a.spotface, &a.csink),
+                (&b.cbore, &b.spotface, &b.csink)
+            );
+            let ends = |h: &features::holes::HoleRecord| {
+                [
+                    h.location,
+                    quiddity::kernel::geom::add(
+                        h.location,
+                        quiddity::kernel::geom::scale(h.axis, h.depth),
+                    ),
+                ]
+            };
+            assert!(ends(a).iter().all(|p| {
+                ends(b)
+                    .iter()
+                    .any(|q| quiddity::kernel::py::dist(p, q) < 1e-6)
+            }));
+        }
     }
     let calls = common::load("captured/calls.json");
     let file = calls["calls"]
