@@ -42,8 +42,11 @@ fn motion() -> Placement {
     ]
 }
 
-fn close(got: f64, want: f64) {
-    assert!((got - want).abs() <= 1e-9 * want.abs(), "{got} vs {want}");
+fn close(context: &str, got: f64, want: f64) {
+    assert!(
+        (got - want).abs() <= 1e-9 * want.abs(),
+        "{context}: {got} vs {want}"
+    );
 }
 
 #[test]
@@ -87,10 +90,10 @@ fn revolution_shafts_and_cone_have_analytic_mass_and_moments() {
                 }
             )));
             let (v, a) = part.solid_mass(0).unwrap();
-            close(v, volume);
-            close(a, area);
+            close(&format!("{name} volume at {placement:?}"), v, volume);
+            close(&format!("{name} solid area at {placement:?}"), a, area);
             let (v, c) = part.volume_centroid().unwrap();
-            close(v, volume);
+            close(&format!("{name} volume at {placement:?}"), v, volume);
             let want = std::array::from_fn(|i| {
                 geom::dot(
                     [placement[i][0], placement[i][1], placement[i][2]],
@@ -105,7 +108,11 @@ fn revolution_shafts_and_cone_have_analytic_mass_and_moments() {
                 face_area += m.area;
                 sum = geom::add(sum, m.area_vector);
             }
-            close(face_area, area);
+            close(
+                &format!("{name} summed face area at {placement:?}"),
+                face_area,
+                area,
+            );
             assert!(geom::norm(sum) < 1e-9 * area, "{name}: {sum:?}");
         }
     }
@@ -119,8 +126,8 @@ fn mass_keeps_the_prescribed_orientation() {
             face.reversed = !face.reversed;
         }
         let (volume, area) = part.solid_mass(0).unwrap();
-        close(volume, -15000.0 * PI);
-        close(area, 2850.0 * PI);
+        close(&format!("{name} reversed volume"), volume, -15000.0 * PI);
+        close(&format!("{name} area"), area, 2850.0 * PI);
     }
 }
 
@@ -147,7 +154,11 @@ fn radial_line_disk_and_far_side_annulus_have_analytic_signed_flux() {
     ] {
         for f in faces {
             let [area, flux] = part.face_mass(f).unwrap();
-            close(area, quarter_area);
+            close(
+                &format!("revolution_line_shaft.step.gz face {f} area"),
+                area,
+                quarter_area,
+            );
             assert!((flux - x * nx * quarter_area).abs() < 1e-9 * quarter_area);
             let m = part.face_moments(f).unwrap();
             assert!((m.centroid[0] - x).abs() < 1e-9);
@@ -180,8 +191,8 @@ fn truck_master_has_reversed_revolution_senses() {
         }
         let (volume, area) = part.solid_mass(0).unwrap();
         if name.contains("only") {
-            close(volume, 15000.0 * PI);
-            close(area, 2850.0 * PI);
+            close(&format!("{name} corrected volume"), volume, 15000.0 * PI);
+            close(&format!("{name} area"), area, 2850.0 * PI);
         } else {
             // OCP 7.9, adaptive BRepGProp.VolumeProperties(1e-10): 46135.47088917437.
             // OCCT projects approximate pcurves on these revolutions: even the exact
@@ -207,4 +218,135 @@ fn malformed_truck_pub_hole_is_refused() {
         error.to_string().contains("duplicate entity #539"),
         "{error}"
     );
+}
+
+#[test]
+fn revolution_control_net_ulp_perturbations() {
+    use haecceity::nurbs::NurbsSurface;
+    for (name, volume, area, cx) in [
+        (
+            "truck_pub_shaft_only.step.gz",
+            15000.0 * PI,
+            2850.0 * PI,
+            40.0,
+        ),
+        ("revolution_shaft.step.gz", 15000.0 * PI, 2850.0 * PI, 40.0),
+        (
+            "revolution_line_shaft.step.gz",
+            15000.0 * PI,
+            2850.0 * PI,
+            40.0,
+        ),
+        ("revolution_cone.step.gz", 12.0 * PI, 24.0 * PI, 1.0),
+    ] {
+        for placement in [IDENTITY, motion()] {
+            let original = fixture(name, &placement);
+            for trial in 0..32u64 {
+                let mut bits = trial + 1;
+                let mut faces = original.faces.clone();
+                for face in &mut faces {
+                    if let Surface::Freeform { surface, .. } = &mut face.surface {
+                        let mut poles = surface.control_points.clone();
+                        for p in poles.iter_mut().flatten() {
+                            for x in p {
+                                bits ^= bits << 13;
+                                bits ^= bits >> 7;
+                                bits ^= bits << 17;
+                                let shift = (bits % 17) as i32 - 8;
+                                for _ in 0..shift.abs() {
+                                    *x = if shift > 0 {
+                                        x.next_up()
+                                    } else {
+                                        x.next_down()
+                                    };
+                                }
+                            }
+                        }
+                        *surface = Box::new(
+                            NurbsSurface::new(
+                                surface.degree_u,
+                                surface.degree_v,
+                                poles,
+                                surface.weights.clone(),
+                                surface.knots_u.clone(),
+                                surface.knots_v.clone(),
+                            )
+                            .unwrap(),
+                        );
+                    }
+                }
+                let part =
+                    haecceity::Part::new(faces, original.edges.clone(), original.solids.clone());
+                let context = format!("{name} control-net trial {trial} pose {placement:?}");
+                let (v, a) = part.solid_mass(0).unwrap();
+                close(&format!("{context} volume"), v, volume);
+                close(&format!("{context} area"), a, area);
+                let (v, c) = part.volume_centroid().unwrap();
+                close(&format!("{context} centroid volume"), v, volume);
+                let want = [0, 1, 2].map(|i| placement[i][0] * cx + placement[i][3]);
+                assert!(
+                    geom::dist(c, want) < 1e-9,
+                    "{context} centroid {c:?} vs {want:?}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn radial_line_sheet_choice_tolerates_axis_coordinate_roundoff() {
+    let name = "revolution_line_shaft.step.gz";
+    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/fixtures")
+        .join(name);
+    let bytes =
+        haecceity::step::decode_step_file_bytes(&path, std::fs::read(&path).unwrap()).unwrap();
+    let text = String::from_utf8(bytes).unwrap();
+    for shift in [-8i32, -4, -2, -1, 0, 1, 2, 4, 8] {
+        let mut changed = 0;
+        let text = text
+            .lines()
+            .map(|line| {
+                if line.contains("CARTESIAN_POINT") {
+                    let (prefix, coords) = line.rsplit_once(",(").unwrap();
+                    let coords = coords.strip_suffix("));").unwrap();
+                    let mut p: Vec<f64> = coords
+                        .split(',')
+                        .map(|x| x.trim().parse().unwrap())
+                        .collect();
+                    if p.len() == 3 {
+                        p[1] += 1.0; // translate the whole geometry, leaving 2D pcurves alone
+                        if line.starts_with("#72 =") {
+                            // This LINE's origin lies on the axis. Nudge its translated y=1
+                            // either way by a few ulps, rather than testing subnormal zero.
+                            for _ in 0..shift.abs() {
+                                p[1] = if shift > 0 {
+                                    p[1].next_up()
+                                } else {
+                                    p[1].next_down()
+                                };
+                            }
+                            changed += 1;
+                        }
+                        return format!("{prefix},({:.17E},{:.17E},{:.17E}));", p[0], p[1], p[2]);
+                    }
+                }
+                line.to_owned()
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert_eq!(changed, 1);
+        let part = haecceity::read_step(text.as_bytes()).unwrap();
+        let context = format!("{name} axis origin {shift} ulps");
+        let (v, a) = part
+            .solid_mass(0)
+            .unwrap_or_else(|| panic!("{context} solid mass unresolved"));
+        close(&format!("{context} volume"), v, 15000.0 * PI);
+        close(&format!("{context} area"), a, 2850.0 * PI);
+        let (_, c) = part.volume_centroid().unwrap();
+        assert!(
+            geom::dist(c, [40., 1., 0.]) < 1e-9,
+            "{context} centroid {c:?}"
+        );
+    }
 }
