@@ -562,3 +562,38 @@ fn tied_boss_end_states_use_the_body_origin_after_motion() {
         }
     }
 }
+
+#[test]
+fn a_five_hundred_hole_perforated_plate_has_one_grid() {
+    use features::holes::{Bottom, HoleRecord};
+    let mut holes: Vec<_> = (0..20)
+        .flat_map(|x| {
+            (0..25).map(move |y| HoleRecord {
+                axis: [0., 0., -1.],
+                location: [x as f64 * 10., y as f64 * 10., 5.],
+                diameter: 2.,
+                depth: 10.,
+                bottom: Bottom::Through,
+                cbore: None,
+                spotface: None,
+                csink: None,
+            })
+        })
+        .collect();
+    for _ in 0..2 {
+        let got = features::hole_patterns::recognise_hole_patterns(&holes);
+        let [
+            features::hole_patterns::HolePattern::RectGrid {
+                rows,
+                cols,
+                holes: members,
+                ..
+            },
+        ] = got.as_slice()
+        else {
+            panic!("{got:?}")
+        };
+        assert_eq!((*rows, *cols, members.len()), (20, 25, 500));
+        holes.reverse();
+    }
+}

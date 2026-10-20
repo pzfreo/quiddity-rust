@@ -291,11 +291,21 @@ pub(crate) fn rect_grid<M: Located, R>(
     // Equal pitches may offer two bases. The longer populated row establishes the columns;
     // a coordinate-lexicographic vector must not interchange row/column measurements.
     let mut best: Option<(usize, usize, f64, f64, f64)> = None;
+    let mut bases: Vec<(f64, f64)> = Vec::new();
     for &(l1, b1x, b1y) in diffs
         .iter()
         .take_while(|d| d.0 - shortest <= geom::COORD_FLOOR)
     {
         let u1 = (b1x / l1, b1y / l1);
+        // Repeated shortest edges describe the same unordered direction. Try that basis
+        // once, rather than rescanning all O(n²) differences for each of O(n) copies.
+        if bases
+            .iter()
+            .any(|&(x, y)| (x * u1.1 - y * u1.0).abs() * l1 <= geom::COORD_FLOOR)
+        {
+            continue;
+        }
+        bases.push(u1);
         let Some(&(l2, b2x, b2y)) = diffs
             .iter()
             .find(|(l, dx, dy)| ((dx * u1.0 + dy * u1.1) / l).abs() < 0.2)
