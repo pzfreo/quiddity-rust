@@ -1998,10 +1998,10 @@ impl<'a> PartPlan<'a> {
             if let Some(why) = bad_value(&values) {
                 self.refuse(ItemRef::DatumTarget(i), why);
             }
-            if let TargetShape::Area(f) | TargetShape::Curve(f) = t.shape() {
-                if !self.explicit_target_geometry(*f, matches!(t.shape(), TargetShape::Area(_))) {
-                    self.refuse(ItemRef::DatumTarget(i), "explicit area/curve target requires stated face/curve geometry (§6.6.2); a different anchor kind cannot define that target");
-                }
+            if let TargetShape::Area(f) | TargetShape::Curve(f) = t.shape()
+                && !self.explicit_target_geometry(*f, matches!(t.shape(), TargetShape::Area(_)))
+            {
+                self.refuse(ItemRef::DatumTarget(i), "explicit area/curve target requires stated face/curve geometry (§6.6.2); a different anchor kind cannot define that target");
             }
             if !p
                 .datums
