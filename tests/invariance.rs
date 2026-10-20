@@ -9,6 +9,9 @@ mod common;
 #[path = "support/motion_breakdown.rs"]
 mod motion_breakdown;
 use motion_breakdown::Breakdown;
+#[path = "support/motion_sweep.rs"]
+mod motion_sweep;
+use motion_sweep::{SWEEP_FAMILIES, compose, occurrences as sweep_occurrences, rotation};
 #[macro_use]
 #[path = "support/slices.rs"]
 mod slices;
@@ -312,34 +315,6 @@ fn unexplained<'a>(
 /// reads world axes) is not expected to survive it; recognition in the part's own frame
 /// (`quiddity::frames`) is.
 const GENERIC: &str = "generic_framed";
-
-/// The rotation by *degrees* about *axis* (Rodrigues), then *translation*.
-fn rotation(axis: [f64; 3], degrees: f64, translation: [f64; 3]) -> Placement {
-    let n = (axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]).sqrt();
-    let [x, y, z] = axis.map(|c| c / n);
-    let (s, c) = degrees.to_radians().sin_cos();
-    let t = 1.0 - c;
-    [
-        [
-            t * x * x + c,
-            t * x * y - s * z,
-            t * x * z + s * y,
-            translation[0],
-        ],
-        [
-            t * x * y + s * z,
-            t * y * y + c,
-            t * y * z - s * x,
-            translation[1],
-        ],
-        [
-            t * x * z - s * y,
-            t * y * z + s * x,
-            t * z * z + c,
-            translation[2],
-        ],
-    ]
-}
 
 /// Every corpus part recognised in its own frame (`frames::prepare_framed`), unmoved and under
 /// the generic rotation: each family, face levels, step levels and risers included (in the frame
@@ -902,70 +877,6 @@ fn check_breakdown(suite: &str, file: &str, motion: &str, got: &Breakdown) -> Ve
     }
 }
 
-/// The reference sweep's census bindings, including its distinct-step compatibility projection.
-const SWEEP_FAMILIES: [(&str, &str); 28] = [
-    ("hole", "holes"),
-    ("hole_pattern", "hole_patterns"),
-    ("boss", "bosses"),
-    ("step", "turned_steps"),
-    ("groove", "grooves"),
-    ("flat", "flats"),
-    ("slot", "slots"),
-    ("oriented_slot", "oriented_slots"),
-    ("rectangular_blind_slot", "rectangular_blind_slots"),
-    ("round_bottom_blind_slot", "round_bottom_blind_slots"),
-    ("channel", "channels"),
-    ("pocket", "pockets"),
-    ("prismatic_pocket", "prismatic_pockets"),
-    ("edge_open_circular_pocket", "edge_open_circular_pockets"),
-    ("edge_open_prismatic_recess", "edge_open_prismatic_recesses"),
-    ("passage", "passages"),
-    ("chamfer", "chamfers"),
-    ("oriented_chamfer", "oriented_chamfers"),
-    ("angled_step", "angled_steps"),
-    ("gusset_rib", "gusset_ribs"),
-    ("paired_ramp_step", "paired_ramp_steps"),
-    ("through_step", "through_steps"),
-    ("oblique_through_step", "oblique_through_steps"),
-    ("circular_blind_step", "circular_blind_steps"),
-    ("blend", "blends"),
-    ("fillet", "fillets"),
-    ("countersink", "countersinks"),
-    ("plate", "plates"),
-];
-
-fn sweep_occurrences(part: &Part) -> Vec<motion_breakdown::Occurrence> {
-    use features::reconcile::ReasonCode;
-    let inventory = features::inventory(part).unwrap();
-    let compatible: Vec<_> = inventory
-        .dispositions
-        .iter()
-        .filter(|d| d.reason == ReasonCode::TurnedStepGrooveCompatible)
-        .map(|d| {
-            let mut f = d.candidate.defining.clone();
-            f.sort_unstable();
-            f
-        })
-        .collect();
-    let accepted = inventory.accepted();
-    let prints = correspondence::fingerprint(part, &accepted);
-    SWEEP_FAMILIES
-        .iter()
-        .flat_map(|&(family, field)| {
-            let compatible = &compatible;
-            prints
-                .features
-                .iter()
-                .filter(move |f| f.family == field)
-                .filter(move |f| field != "turned_steps" || !compatible.contains(&f.faces))
-                .map(move |f| motion_breakdown::Occurrence {
-                    family: family.into(),
-                    faces: f.faces.clone(),
-                })
-        })
-        .collect()
-}
-
 fn golden_paths() -> Vec<std::path::PathBuf> {
     let mut paths: Vec<_> = std::fs::read_dir(common::fixtures())
         .unwrap()
@@ -1152,7 +1063,7 @@ fn principal_fillets_follow_rolled_supports() {
 fn golden_public_framed_route_survives_oblique_poses() {
     let z = rotation([0., 0., 1.], 17., [0.; 3]);
     let x = rotation([1., 0., 0.], 23., [0.; 3]);
-    let compound = [0, 1, 2].map(|i| [0, 1, 2, 3].map(|j| (0..3).map(|k| x[i][k] * z[k][j]).sum()));
+    let compound = compose(x, z);
     let motions = [
         ("Z30", rotation([0., 0., 1.], 30., [0.; 3])),
         ("X30", rotation([1., 0., 0.], 30., [0.; 3])),
