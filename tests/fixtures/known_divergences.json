@@ -160,9 +160,9 @@
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "family": "recognise_fillets",
     "key": "{\"include_cylindrical\":true} evidence refused by Python only",
-    "count": 1,
+    "count": 0,
     "verdict": "rust-correct",
-    "reason": "OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid and Python refuses evidence for it."
+    "reason": "OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid and Python refuses evidence for it. Inactive count 0 after rolled-support recognition changes the records from 288 to 296: tests/corpus.rs skips its evidence comparison when record values differ. The refusal behaviour itself is unchanged (direct Rust discover_verified still accepts all 296 occurrences; the captured Python evidence refuses). The historical entry is retained rather than deleted; if record parity returns, the evidence comparison and its count must be revisited."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -1563,5 +1563,21 @@
     "key": "{} records: 30 vs 30 records, fields {\"cbore\", \"location\"}",
     "verdict": "rust-correct",
     "reason": "All 30 holes and seven patterns are retained. Independent OpenCascade establishes four diameter-7 length-55 through bores between z=-27.5 and +27.5, with equal diameter-10 length-10 enlargements at both ends. ADR 0011 cannot assign either identical end as a material counterbore: Rust keeps the bore and its pattern, omitting only one-sided counterbore attribution. The pre-existing diameter-2.5 opening-location difference remains: this file omits exact pcurves for those edges; OpenCascade fits B-spline pcurves and boxes their control polygons, while Rust measures the true edges. The grid centre inherits that difference. No tolerance is changed."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "recognise_fillets",
+    "key": "{\"include_cylindrical\":true} records: 296 vs 288 records, fields {}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Rolled supporting planes used to exclude 8 external quarter-cylinder fillets whose run is principal Y. Live OpenCascade via ~/cld/quiddity/.venv/bin/python independently confirms radius 3, angular span pi/2, two perpendicular planar supports each at distance 3 from the cylinder axis (error below 6e-11), and owning-solid classification IN/OUT at radial offsets -0.001/+0.001 for every additional face. Rounded surface anchors identify the faces independently of import face order: [[-204.58, -132.193, 20.947], [-204.58, -132.145, -30.502], [-202.964, -132.193, -36.532], [-202.964, -132.193, 26.977], [-170.282, -132.366, 78.279], [-170.282, -127.0, -87.834], [-165.499, -132.366, 82.292], [-165.499, -132.192, -91.846]]. The intrinsic support-plane fallback now retains these fillets. No Python value is used as geometric truth."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "family": "recognise_fillets",
+    "key": "{\"include_cylindrical\":true} records: 130 vs 128 records, fields {}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Rolled supporting planes used to exclude 2 external quarter-cylinder fillets whose run is principal Z. Live OpenCascade via ~/cld/quiddity/.venv/bin/python independently confirms radius 1.5, angular span pi/2, two perpendicular planar supports each at distance 1.5 from the cylinder axis (error below 6e-11), and owning-solid classification IN/OUT at radial offsets -0.001/+0.001 for every additional face. Rounded surface anchors identify the faces independently of import face order: [[-29.72, -14.359, 20.943], [-25.293, 27.76, 20.943]]. The intrinsic support-plane fallback now retains these fillets. No Python value is used as geometric truth."
   }
 ]

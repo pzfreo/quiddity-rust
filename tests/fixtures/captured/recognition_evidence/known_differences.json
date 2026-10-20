@@ -15,12 +15,12 @@
         "reason": "default.accepted",
         "related": []
       },
-      "reason": "The same accepted fillet; its position among the physical fillet candidates is two later because the port also has the two fillets Python's local-degradation retry skips on this part (cgb202 faces 698 and 1627, this file's fillets entries, rust-correct).",
+      "reason": "The same accepted fillet; its position among the physical fillet candidates is two later because the port also has the two fillets Python's local-degradation retry skips on this part (cgb202 faces 698 and 1627, this file's fillets entries, rust-correct). Previously the Rust candidate index was 287; admitting the eight additional proved rounds moves it to 295. The accepted candidate and its defining/constituent faces, outcome and reason are unchanged; its index moves by the number of additional physical fillets earlier in the candidate sequence. OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json.",
       "rust": {
         "constituent": [
           1450
         ],
-        "index": 287,
+        "index": 295,
         "outcome": "accepted",
         "reason": "default.accepted",
         "related": []
@@ -1090,6 +1090,141 @@
       },
       "verdict": "rust-correct",
       "reason": "ADR 0011: boss base/free roles use the body-relative boundary-area origin instead of the high-coordinate default when end states tie; unresolved zero moments refuse. OpenCascade SurfaceProperties independently measures the affected body centroids, including NIST CTC05 z=81.033851262454 versus segment midpoint z=12.7. Free-end constituent/host evidence follows this physical end. NIST CTC05 is tested under Z30/X30/X90/translation/reversal. Equally proved end supports are retained together; rejected candidate outcomes remain rejected."
+    },
+    {
+      "defining": [
+        119
+      ],
+      "family": "fillets",
+      "file": "cadgenbench_inputs/cgb242.step.gz",
+      "python": {
+        "constituent": [
+          119
+        ],
+        "index": 90,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "rust": {
+        "constituent": [
+          119
+        ],
+        "index": 92,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-correct",
+      "reason": "The accepted candidate and its defining/constituent faces, outcome and reason are unchanged; its index moves by the number of additional physical fillets earlier in the candidate sequence. OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json."
+    },
+    {
+      "defining": [
+        153
+      ],
+      "family": "fillets",
+      "file": "cadgenbench_inputs/cgb242.step.gz",
+      "python": {
+        "constituent": [
+          153
+        ],
+        "index": 92,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "rust": {
+        "constituent": [
+          153
+        ],
+        "index": 94,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-correct",
+      "reason": "The accepted candidate and its defining/constituent faces, outcome and reason are unchanged; its index moves by the number of additional physical fillets earlier in the candidate sequence. OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json."
+    },
+    {
+      "defining": [
+        382
+      ],
+      "family": "fillets",
+      "file": "cadgenbench_inputs/cgb242.step.gz",
+      "python": {
+        "constituent": [
+          382
+        ],
+        "index": 93,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "rust": {
+        "constituent": [
+          382
+        ],
+        "index": 95,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-correct",
+      "reason": "The accepted candidate and its defining/constituent faces, outcome and reason are unchanged; its index moves by the number of additional physical fillets earlier in the candidate sequence. OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json."
+    },
+    {
+      "defining": [
+        384
+      ],
+      "family": "fillets",
+      "file": "cadgenbench_inputs/cgb242.step.gz",
+      "python": {
+        "constituent": [
+          384
+        ],
+        "index": 91,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "rust": {
+        "constituent": [
+          384
+        ],
+        "index": 93,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-correct",
+      "reason": "The accepted candidate and its defining/constituent faces, outcome and reason are unchanged; its index moves by the number of additional physical fillets earlier in the candidate sequence. OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json."
+    },
+    {
+      "defining": [
+        793
+      ],
+      "family": "fillets",
+      "file": "cadgenbench_inputs/cgb242.step.gz",
+      "python": {
+        "constituent": [
+          793
+        ],
+        "index": 125,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "rust": {
+        "constituent": [
+          793
+        ],
+        "index": 127,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-correct",
+      "reason": "The accepted candidate and its defining/constituent faces, outcome and reason are unchanged; its index moves by the number of additional physical fillets earlier in the candidate sequence. OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json."
     }
   ],
   "errors": [],
@@ -10260,6 +10395,126 @@
       "rust": 1,
       "verdict": "rust-correct",
       "reason": "Independent OpenCascade measures equal diameter-10 length-10 mouths on both ends of each diameter-7 length-55 through bore. Rust retains all 30 holes and seven patterns, and these bore-only defining sets, while omitting unproved one-sided mouth attribution. Python includes one arbitrary mouth instead. The symmetric fixture and FTC10 count control verify retention and motion invariance."
+    },
+    {
+      "defining": [
+        1703
+      ],
+      "family": "fillets",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb202.step.gz",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json."
+    },
+    {
+      "defining": [
+        1707
+      ],
+      "family": "fillets",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb202.step.gz",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json."
+    },
+    {
+      "defining": [
+        1721
+      ],
+      "family": "fillets",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb202.step.gz",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json."
+    },
+    {
+      "defining": [
+        1722
+      ],
+      "family": "fillets",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb202.step.gz",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json."
+    },
+    {
+      "defining": [
+        1726
+      ],
+      "family": "fillets",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb202.step.gz",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json."
+    },
+    {
+      "defining": [
+        1727
+      ],
+      "family": "fillets",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb202.step.gz",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json."
+    },
+    {
+      "defining": [
+        2093
+      ],
+      "family": "fillets",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb202.step.gz",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json."
+    },
+    {
+      "defining": [
+        2098
+      ],
+      "family": "fillets",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb202.step.gz",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json."
+    },
+    {
+      "defining": [
+        349
+      ],
+      "family": "fillets",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb242.step.gz",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json."
+    },
+    {
+      "defining": [
+        376
+      ],
+      "family": "fillets",
+      "field": "present",
+      "file": "cadgenbench_inputs/cgb242.step.gz",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json."
     }
   ],
   "motions": [

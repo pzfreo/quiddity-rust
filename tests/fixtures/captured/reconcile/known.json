@@ -4,8 +4,32 @@
    "family": "fillets",
    "file": "cadgenbench_inputs/cgb202.step.gz",
    "python": [],
-   "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` takes the retry only where its own strict hole evidence refuses, which on this part it does not (captured/local_degradation/known.json, retry), so it publishes it. Python skips the fillet because it touches the bad-face region of a solid OpenCascade's BRepCheck calls unorientable after its import healing re-orients wires; the file's own topology is closed and consistently oriented and the port accepts the solid, so publishing it is right (captured/local_degradation/known.json's two cgb202 fillet skips and this file's recognise_fillets evidence entry in known_divergences.json, rust-correct).",
+   "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` takes the retry only where its own strict hole evidence refuses, which on this part it does not (captured/local_degradation/known.json, retry), so it publishes it. Python skips the fillet because it touches the bad-face region of a solid OpenCascade's BRepCheck calls unorientable after its import healing re-orients wires; the file's own topology is closed and consistently oriented and the port accepts the solid, so publishing it is right (captured/local_degradation/known.json's two cgb202 fillet skips and this file's recognise_fillets evidence entry in known_divergences.json, rust-correct). The pre-existing accepted excess was faces 1627 and 698; the eight rolled-support rounds extend that set. OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json.",
    "rust": [
+    [
+     1726
+    ],
+    [
+     2098
+    ],
+    [
+     1707
+    ],
+    [
+     1727
+    ],
+    [
+     1721
+    ],
+    [
+     2093
+    ],
+    [
+     1722
+    ],
+    [
+     1703
+    ],
     [
      1627
     ],
@@ -309,6 +333,21 @@
    ],
    "verdict": "rust-correct",
    "reason": "All 30 holes and seven patterns remain accepted. Four symmetric diameter-7 length-55 through bores have equal diameter-10 length-10 mouths at both ends (independent OpenCascade). Their one-sided counterbore attribution is unproved, so Rust claims the bore faces [146],[147],[148],[149] and retains an end gauge, while Python arbitrarily claims one mouth as well. The symmetric-double-mouth motion control checks that the feature is retained."
+  },
+  {
+   "family": "fillets",
+   "file": "cadgenbench_inputs/cgb242.step.gz",
+   "python": [],
+   "rust": [
+    [
+     376
+    ],
+    [
+     349
+    ]
+   ],
+   "verdict": "rust-correct",
+   "reason": "OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json."
   }
  ],
  "decisions": [

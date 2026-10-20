@@ -1108,3 +1108,68 @@ fn principal_chamfers_follow_rolled_supports() {
         }
     }
 }
+
+/// Rolling the tangent planes keeps the same fillets, radii and centreline anchors.
+#[test]
+fn principal_fillets_follow_rolled_supports() {
+    use features::{Context, fillets};
+    let path = common::fixtures().join("golden_chamfers_fillets_and_flats.step");
+    let read = |at: &Placement| {
+        let part = read_step_file_placed(&path, at).unwrap();
+        fillets::discover_verified(&Context::new(&part), &Default::default())
+            .unwrap()
+            .into_iter()
+            .map(|o| (o.defining, o.record))
+            .collect::<BTreeMap<_, _>>()
+    };
+    let baseline = read(&IDENTITY);
+    assert_eq!(baseline.len(), 4);
+    for at in principal_edge_rolls() {
+        let moved = read(&at);
+        assert_eq!(
+            baseline.keys().collect::<Vec<_>>(),
+            moved.keys().collect::<Vec<_>>(),
+            "{at:?}"
+        );
+        let transform = |p: [f64; 3]| {
+            [0, 1, 2].map(|i| at[i][3] + (0..3).map(|j| at[i][j] * p[j]).sum::<f64>())
+        };
+        for (faces, before) in &baseline {
+            let after = &moved[faces];
+            assert_eq!(before.radius, after.radius);
+            assert!(quiddity::kernel::py::dist(&transform(before.at), &after.at) < 0.002);
+        }
+    }
+}
+/// OpenCascade independently proves four R2 convex quarter cylinders with tangent supports
+/// rolled 45 degrees about Z. The specific fillets replace only duplicate accepted blends.
+#[test]
+fn rolled_boss_rounds_are_specific_fillets() {
+    let path = common::fixtures().join("captured/60275841a02f03b9.step.gz");
+    let mut baseline = None;
+    for angle in [0., -30., 17., 30.] {
+        let part = read_step_file_placed(&path, &rotation([0., 0., 1.], angle, T)).unwrap();
+        let inventory = features::inventory(&part).unwrap();
+        let physical_blends = inventory.physical.defining["blends"].clone();
+        let accepted = inventory.accepted();
+        assert_eq!(physical_blends.len(), 4);
+        assert_eq!(accepted.fillets.len(), 4);
+        assert!(accepted.blends.is_empty());
+        let mut faces = accepted.defining["fillets"].clone();
+        faces.sort();
+        let mut blends = physical_blends.clone();
+        blends.sort();
+        assert_eq!(faces, blends);
+        assert!(
+            accepted
+                .fillets
+                .iter()
+                .all(|r| r.radius == 2. && r.axis == 'z')
+        );
+        if let Some(expected) = &baseline {
+            assert_eq!(&faces, expected);
+        } else {
+            baseline = Some(faces);
+        }
+    }
+}
