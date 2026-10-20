@@ -138,6 +138,27 @@ fn equidistant_support_planes_refuse_under_principal_motion() {
 }
 
 #[test]
+fn equally_supported_turning_axes_refuse_under_principal_motion() {
+    let path = common::fixtures().join("ties/equal_axis_shafts.step");
+    for at in [motions()[0], motions()[1], motions()[4], motions()[5]] {
+        let part = read_step_file_placed(&path, &at).unwrap();
+        let ctx = Context::new(&part);
+        let supported = features::cylinders::full_cylinders(ctx.cylinders());
+        let mut counts = std::collections::BTreeMap::new();
+        for c in supported {
+            *counts.entry(c.axis).or_insert(0) += 1;
+        }
+        assert_eq!(counts.len(), 2, "{counts:?}");
+        assert_eq!(
+            counts.values().next(),
+            counts.values().next_back(),
+            "{counts:?}"
+        );
+        assert!(features::turned_steps::discover(&ctx).is_empty(), "{at:?}");
+    }
+}
+
+#[test]
 fn equal_pitch_grid_uses_population_to_assign_rows_under_motion() {
     use features::hole_patterns::HolePattern;
     use features::holes::{Bottom, HoleRecord};
