@@ -77,7 +77,17 @@ pub fn width_then_centre<R: Recess>(a: &R, b: &R) -> Ordering {
 /// Co-located candidates as one, keeping the first of each in (width, centre) order: the
 /// narrower width is the true across-flats (`_merge_proposals`).
 pub fn merge_proposals<R: Recess>(mut proposals: Vec<Proposal<R>>) -> Vec<Proposal<R>> {
-    proposals.sort_by(|a, b| width_then_centre(&a.record, &b.record));
+    // Equal wall separations must choose the same interpretation after a rotation.
+    // Original face identities survive placement, unlike axis letters and world centres.
+    proposals.sort_by(|a, b| {
+        if a.record.width() == b.record.width() {
+            a.planar
+                .cmp(&b.planar)
+                .then_with(|| a.floors.cmp(&b.floors))
+        } else {
+            width_then_centre(&a.record, &b.record)
+        }
+    });
     let mut kept: Vec<Proposal<R>> = Vec::new();
     for proposal in proposals {
         let centre = proposal.record.region_center();

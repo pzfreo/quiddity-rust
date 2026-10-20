@@ -8,14 +8,6 @@
     "reason": "The body roster alone: the port lists the one MANIFOLD_SOLID_BREP the file declares, which it reads and reports invalid (an unclosed, non-orientable shell: known_divergences.json's 13975 solid count entry), where OpenCascade's import heals the faces into a loose shell and Python's roster is empty. Both sides publish no section recess and no refusal: Python's aggregate takes the local-degradation retry, and so does the port's, which skips the two pockets, the hole, the riser and the two step levels with no valid solid, as Python does (captured/local_degradation)."
   },
   {
-    "file": "mfcadpp_holdout/163.step",
-    "item": "invariance",
-    "key": "translate",
-    "kind": "differs",
-    "verdict": "rust-wrong",
-    "reason": "The refusal of the square-footprint pocket on walls 10-13 (constituent faces 10-13 and floor 32) names defining faces [10, 11, 12, 13] translated and [11, 12] unmoved: the pocket recogniser's `width > length` tie on its equal wall pairs, listed for this part and motion in tests/fixtures/known_invariance.json (family pockets), which Python shares. Same region and reason; only the source candidate's defining faces move."
-  },
-  {
     "file": "nist/nist_ctc_01_asme1_rd.stp",
     "item": "occurrence",
     "key": [
@@ -254,5 +246,49 @@
     "kind": "differs",
     "verdict": "equivalent",
     "reason": "The passage on walls 10, 11, 12 publishes frame origin z 91.234 here and 91.235 in Python, a three-decimal rounding tie: the test part places it at 91.2345, and the port's and Python's passage provers give it one ulp apart, as listed for the same passage in section_recess_geometry/known_differences.json (parts/2e5c3ece457e6e43)."
+  },
+  {
+    "file": "mfcadpp_holdout/163.step",
+    "item": "refusal",
+    "key": [
+      0,
+      [
+        11,
+        12
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        32
+      ]
+    ],
+    "kind": "missing",
+    "verdict": "rust-correct",
+    "reason": "Independent motion-invariance evidence: proof vertices are centred in the section frame before four-decimal publication, rather than rounded in world space and centred afterward. This preserves lengths and openings under translation and axis reversal (tests/invariance.rs). The explicit corrections pin every changed geometry coordinate; the section, original defining faces, and end configuration are retained. For the square pocket refusal on mfcadpp_holdout/163, both equal-width wall pairs are retained consistently by the tolerance-aware width/length rule."
+  },
+  {
+    "file": "mfcadpp_holdout/163.step",
+    "item": "refusal",
+    "key": [
+      0,
+      [
+        10,
+        11,
+        12,
+        13
+      ],
+      [
+        10,
+        11,
+        12,
+        13,
+        32
+      ]
+    ],
+    "kind": "extra",
+    "verdict": "rust-correct",
+    "reason": "Independent motion-invariance evidence: proof vertices are centred in the section frame before four-decimal publication, rather than rounded in world space and centred afterward. This preserves lengths and openings under translation and axis reversal (tests/invariance.rs). The explicit corrections pin every changed geometry coordinate; the section, original defining faces, and end configuration are retained. For the square pocket refusal on mfcadpp_holdout/163, both equal-width wall pairs are retained consistently by the tolerance-aware width/length rule."
   }
 ]

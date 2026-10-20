@@ -55,7 +55,7 @@
      158
     ]
    ],
-   "reason": "Not a reconciliation difference: the same through hole's candidate defining faces differ with its drilling end. Python drills this Ø22 hole from the Ø102 end (it takes whichever segment comes first in face order at the Ø110 end, where the bore and the Ø110 segment end level), its counterbore the Ø102 one; the port drills from the wider Ø110 end, as Python's own rule says and as Python does with the part turned over, so the segments each side claims with the bore differ. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes axis/cbore entry in known_divergences.json (rust-correct).",
+   "reason": "Not a reconciliation difference: the same through hole's candidate defining faces differ with its drilling end. Python drills this \u00d822 hole from the \u00d8102 end (it takes whichever segment comes first in face order at the \u00d8110 end, where the bore and the \u00d8110 segment end level), its counterbore the \u00d8102 one; the port drills from the wider \u00d8110 end, as Python's own rule says and as Python does with the part turned over, so the segments each side claims with the bore differ. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes axis/cbore entry in known_divergences.json (rust-correct).",
    "rust": [
     [
      156,
@@ -89,7 +89,7 @@
      232
     ]
    ],
-   "reason": "Not a reconciliation difference: the same hole's candidate defining faces differ. Python's hole claims the Ø61.62 cylinder 0.47 mm inside the mouth it calls a spotface (with its faces) because it orders segments by their high end in either drilling direction; the port orders by the end nearest the opening, finds no spotface and claims the bore alone. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes spotface entry in known_divergences.json (rust-correct).",
+   "reason": "Not a reconciliation difference: the same hole's candidate defining faces differ. Python's hole claims the \u00d861.62 cylinder 0.47 mm inside the mouth it calls a spotface (with its faces) because it orders segments by their high end in either drilling direction; the port orders by the end nearest the opening, finds no spotface and claims the bore alone. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes spotface entry in known_divergences.json (rust-correct).",
    "rust": [
     [
      133,
@@ -124,9 +124,354 @@
     ]
    ],
    "verdict": "rust-wrong"
+  },
+  {
+   "family": "pockets",
+   "file": "mfcadpp/10049.step",
+   "python": [
+    [
+     16,
+     18
+    ]
+   ],
+   "rust": [
+    [
+     15,
+     16,
+     17,
+     18
+    ]
+   ],
+   "verdict": "rust-correct",
+   "reason": "The same square pocket retains both proved opposed wall pairs, including the full four-wall defining region. Analytic square-footprint symmetry and tests/invariance.rs show that this topology survives placement; the frozen Python pair depends on width-versus-length round-off. See the rust-correct pocket evidence in known_divergences.json. This changes the face reference, without losing or adding a physical recess."
+  },
+  {
+   "family": "pockets",
+   "file": "mfcadpp/10098.step",
+   "python": [
+    [
+     27,
+     29
+    ]
+   ],
+   "rust": [
+    [
+     27,
+     28,
+     29,
+     30
+    ]
+   ],
+   "verdict": "rust-correct",
+   "reason": "The same square pocket retains both proved opposed wall pairs, including the full four-wall defining region. Analytic square-footprint symmetry and tests/invariance.rs show that this topology survives placement; the frozen Python pair depends on width-versus-length round-off. See the rust-correct pocket evidence in known_divergences.json. This changes the face reference, without losing or adding a physical recess."
+  },
+  {
+   "family": "pockets",
+   "file": "mfcadpp/10103.step",
+   "python": [
+    [
+     36,
+     38
+    ]
+   ],
+   "rust": [
+    [
+     35,
+     36,
+     37,
+     38
+    ]
+   ],
+   "verdict": "rust-correct",
+   "reason": "The same square pocket retains both proved opposed wall pairs, including the full four-wall defining region. Analytic square-footprint symmetry and tests/invariance.rs show that this topology survives placement; the frozen Python pair depends on width-versus-length round-off. See the rust-correct pocket evidence in known_divergences.json. This changes the face reference, without losing or adding a physical recess."
+  },
+  {
+   "family": "pockets",
+   "file": "mfcadpp/10146.step",
+   "python": [
+    [
+     11,
+     13
+    ]
+   ],
+   "rust": [
+    [
+     10,
+     11,
+     12,
+     13
+    ]
+   ],
+   "verdict": "rust-correct",
+   "reason": "The same square pocket retains both proved opposed wall pairs, including the full four-wall defining region. Analytic square-footprint symmetry and tests/invariance.rs show that this topology survives placement; the frozen Python pair depends on width-versus-length round-off. See the rust-correct pocket evidence in known_divergences.json. This changes the face reference, without losing or adding a physical recess."
+  },
+  {
+   "family": "pockets",
+   "file": "mfcadpp/10245.step",
+   "python": [
+    [
+     15,
+     17
+    ]
+   ],
+   "rust": [
+    [
+     14,
+     15,
+     16,
+     17
+    ]
+   ],
+   "verdict": "rust-correct",
+   "reason": "The same square pocket retains both proved opposed wall pairs, including the full four-wall defining region. Analytic square-footprint symmetry and tests/invariance.rs show that this topology survives placement; the frozen Python pair depends on width-versus-length round-off. See the rust-correct pocket evidence in known_divergences.json. This changes the face reference, without losing or adding a physical recess."
+  },
+  {
+   "family": "pockets",
+   "file": "mfcadpp_holdout/118.step",
+   "python": [
+    [
+     25,
+     26
+    ]
+   ],
+   "rust": [
+    [
+     24,
+     25,
+     26,
+     27
+    ]
+   ],
+   "verdict": "rust-correct",
+   "reason": "The same square pocket retains both proved opposed wall pairs, including the full four-wall defining region. Analytic square-footprint symmetry and tests/invariance.rs show that this topology survives placement; the frozen Python pair depends on width-versus-length round-off. See the rust-correct pocket evidence in known_divergences.json. This changes the face reference, without losing or adding a physical recess."
+  },
+  {
+   "family": "pockets",
+   "file": "mfcadpp_holdout/163.step",
+   "python": [
+    [
+     11,
+     12
+    ]
+   ],
+   "rust": [
+    [
+     10,
+     11,
+     12,
+     13
+    ]
+   ],
+   "verdict": "rust-correct",
+   "reason": "The same square pocket retains both proved opposed wall pairs, including the full four-wall defining region. Analytic square-footprint symmetry and tests/invariance.rs show that this topology survives placement; the frozen Python pair depends on width-versus-length round-off. See the rust-correct pocket evidence in known_divergences.json. This changes the face reference, without losing or adding a physical recess."
   }
  ],
- "decisions": [],
+ "decisions": [
+  {
+   "faces": [
+    15,
+    16,
+    17,
+    18
+   ],
+   "family": "prismatic_pockets",
+   "file": "mfcadpp/10049.step",
+   "python": {
+    "outcome": "rejected",
+    "reason": "recess.prismatic_superseded_by_pocket",
+    "related": [
+     [
+      16,
+      18
+     ]
+    ]
+   },
+   "rust": {
+    "outcome": "rejected",
+    "reason": "recess.prismatic_superseded_by_pocket",
+    "related": [
+     [
+      15,
+      16,
+      17,
+      18
+     ]
+    ]
+   },
+   "verdict": "rust-correct",
+   "reason": "The same prismatic candidate is rejected in favour of the same square pocket. Rust retains both proved opposed wall pairs as the pocket's defining region, rather than choosing two walls by width-versus-length round-off. Analytic square-footprint symmetry and tests/invariance.rs establish that the complete four-wall region survives placement; decisions_are_placement_independent confirms the same winning faces. See this pocket's rust-correct evidence in known_divergences.json. The outcome and physical recess are unchanged; the related-face reference is now complete and intrinsic."
+  },
+  {
+   "faces": [
+    35,
+    36,
+    37,
+    38
+   ],
+   "family": "prismatic_pockets",
+   "file": "mfcadpp/10103.step",
+   "python": {
+    "outcome": "rejected",
+    "reason": "recess.prismatic_superseded_by_pocket",
+    "related": [
+     [
+      36,
+      38
+     ]
+    ]
+   },
+   "rust": {
+    "outcome": "rejected",
+    "reason": "recess.prismatic_superseded_by_pocket",
+    "related": [
+     [
+      35,
+      36,
+      37,
+      38
+     ]
+    ]
+   },
+   "verdict": "rust-correct",
+   "reason": "The same prismatic candidate is rejected in favour of the same square pocket. Rust retains both proved opposed wall pairs as the pocket's defining region, rather than choosing two walls by width-versus-length round-off. Analytic square-footprint symmetry and tests/invariance.rs establish that the complete four-wall region survives placement; decisions_are_placement_independent confirms the same winning faces. See this pocket's rust-correct evidence in known_divergences.json. The outcome and physical recess are unchanged; the related-face reference is now complete and intrinsic."
+  },
+  {
+   "faces": [
+    10,
+    11,
+    12,
+    13
+   ],
+   "family": "prismatic_pockets",
+   "file": "mfcadpp/10146.step",
+   "python": {
+    "outcome": "rejected",
+    "reason": "recess.prismatic_superseded_by_pocket",
+    "related": [
+     [
+      11,
+      13
+     ]
+    ]
+   },
+   "rust": {
+    "outcome": "rejected",
+    "reason": "recess.prismatic_superseded_by_pocket",
+    "related": [
+     [
+      10,
+      11,
+      12,
+      13
+     ]
+    ]
+   },
+   "verdict": "rust-correct",
+   "reason": "The same prismatic candidate is rejected in favour of the same square pocket. Rust retains both proved opposed wall pairs as the pocket's defining region, rather than choosing two walls by width-versus-length round-off. Analytic square-footprint symmetry and tests/invariance.rs establish that the complete four-wall region survives placement; decisions_are_placement_independent confirms the same winning faces. See this pocket's rust-correct evidence in known_divergences.json. The outcome and physical recess are unchanged; the related-face reference is now complete and intrinsic."
+  },
+  {
+   "faces": [
+    14,
+    15,
+    16,
+    17
+   ],
+   "family": "prismatic_pockets",
+   "file": "mfcadpp/10245.step",
+   "python": {
+    "outcome": "rejected",
+    "reason": "recess.prismatic_superseded_by_pocket",
+    "related": [
+     [
+      15,
+      17
+     ]
+    ]
+   },
+   "rust": {
+    "outcome": "rejected",
+    "reason": "recess.prismatic_superseded_by_pocket",
+    "related": [
+     [
+      14,
+      15,
+      16,
+      17
+     ]
+    ]
+   },
+   "verdict": "rust-correct",
+   "reason": "The same prismatic candidate is rejected in favour of the same square pocket. Rust retains both proved opposed wall pairs as the pocket's defining region, rather than choosing two walls by width-versus-length round-off. Analytic square-footprint symmetry and tests/invariance.rs establish that the complete four-wall region survives placement; decisions_are_placement_independent confirms the same winning faces. See this pocket's rust-correct evidence in known_divergences.json. The outcome and physical recess are unchanged; the related-face reference is now complete and intrinsic."
+  },
+  {
+   "faces": [
+    24,
+    25,
+    26,
+    27
+   ],
+   "family": "prismatic_pockets",
+   "file": "mfcadpp_holdout/118.step",
+   "python": {
+    "outcome": "rejected",
+    "reason": "recess.prismatic_superseded_by_pocket",
+    "related": [
+     [
+      25,
+      26
+     ]
+    ]
+   },
+   "rust": {
+    "outcome": "rejected",
+    "reason": "recess.prismatic_superseded_by_pocket",
+    "related": [
+     [
+      24,
+      25,
+      26,
+      27
+     ]
+    ]
+   },
+   "verdict": "rust-correct",
+   "reason": "The same prismatic candidate is rejected in favour of the same square pocket. Rust retains both proved opposed wall pairs as the pocket's defining region, rather than choosing two walls by width-versus-length round-off. Analytic square-footprint symmetry and tests/invariance.rs establish that the complete four-wall region survives placement; decisions_are_placement_independent confirms the same winning faces. See this pocket's rust-correct evidence in known_divergences.json. The outcome and physical recess are unchanged; the related-face reference is now complete and intrinsic."
+  },
+  {
+   "faces": [
+    10,
+    11,
+    12,
+    13
+   ],
+   "family": "prismatic_pockets",
+   "file": "mfcadpp_holdout/163.step",
+   "python": {
+    "outcome": "rejected",
+    "reason": "recess.prismatic_superseded_by_pocket",
+    "related": [
+     [
+      11,
+      12
+     ]
+    ]
+   },
+   "rust": {
+    "outcome": "rejected",
+    "reason": "recess.prismatic_superseded_by_pocket",
+    "related": [
+     [
+      10,
+      11,
+      12,
+      13
+     ]
+    ]
+   },
+   "verdict": "rust-correct",
+   "reason": "The same prismatic candidate is rejected in favour of the same square pocket. Rust retains both proved opposed wall pairs as the pocket's defining region, rather than choosing two walls by width-versus-length round-off. Analytic square-footprint symmetry and tests/invariance.rs establish that the complete four-wall region survives placement; decisions_are_placement_independent confirms the same winning faces. See this pocket's rust-correct evidence in known_divergences.json. The outcome and physical recess are unchanged; the related-face reference is now complete and intrinsic."
+  }
+ ],
  "motions": [
   {
    "faces": [
@@ -1753,146 +2098,6 @@
    "reason": "Risers are read against the part's own axes: a riser faces along x or y and not z (levels.rs riser_orientation, as Python's levels._riser_orientation reads the normal's X and Y). rot_zx_moved turns the part's z axis into x, so other faces are risers and the thin-wall rejections of them change with them, in Python as in the port. A caller-frame measurement, not a placement-invariant record.",
    "rust": null,
    "verdict": "not-applicable"
-  },
-  {
-   "faces": [
-    35,
-    36,
-    37,
-    38
-   ],
-   "family": "prismatic_pockets",
-   "file": "mfcadpp/10103.step",
-   "motion": "rot_zx_moved",
-   "moved": {
-    "outcome": "rejected",
-    "reason": "recess.prismatic_superseded_by_pocket",
-    "related": [
-     [
-      35,
-      36,
-      37,
-      38
-     ]
-    ]
-   },
-   "reason": "Follows from the pocket's defining faces moving (tests/fixtures/known_invariance.json, mfcadpp/10103.step rot_zx_moved pockets, rust-wrong): a square footprint's second wall pair passes or fails `width > length` by round-off from the placement, so in one placement the pocket is defined by all four walls instead of two (Python behaves the same). The ring is rejected by that same pocket either way; only the winner's faces differ.",
-   "rust": {
-    "outcome": "rejected",
-    "reason": "recess.prismatic_superseded_by_pocket",
-    "related": [
-     [
-      36,
-      38
-     ]
-    ]
-   },
-   "verdict": "rust-wrong"
-  },
-  {
-   "faces": [
-    10,
-    11,
-    12,
-    13
-   ],
-   "family": "prismatic_pockets",
-   "file": "mfcadpp/10146.step",
-   "motion": "rot_zx_moved",
-   "moved": {
-    "outcome": "rejected",
-    "reason": "recess.prismatic_superseded_by_pocket",
-    "related": [
-     [
-      10,
-      11,
-      12,
-      13
-     ]
-    ]
-   },
-   "reason": "Follows from the pocket's defining faces moving (tests/fixtures/known_invariance.json, mfcadpp/10146.step rot_zx_moved pockets, rust-wrong): a square footprint's second wall pair passes or fails `width > length` by round-off from the placement, so in one placement the pocket is defined by all four walls instead of two (Python behaves the same). The ring is rejected by that same pocket either way; only the winner's faces differ.",
-   "rust": {
-    "outcome": "rejected",
-    "reason": "recess.prismatic_superseded_by_pocket",
-    "related": [
-     [
-      11,
-      13
-     ]
-    ]
-   },
-   "verdict": "rust-wrong"
-  },
-  {
-   "faces": [
-    14,
-    15,
-    16,
-    17
-   ],
-   "family": "prismatic_pockets",
-   "file": "mfcadpp/10245.step",
-   "motion": "rot_zx_moved",
-   "moved": {
-    "outcome": "rejected",
-    "reason": "recess.prismatic_superseded_by_pocket",
-    "related": [
-     [
-      14,
-      15,
-      16,
-      17
-     ]
-    ]
-   },
-   "reason": "Follows from the pocket's defining faces moving (tests/fixtures/known_invariance.json, mfcadpp/10245.step rot_zx_moved pockets, rust-wrong): a square footprint's second wall pair passes or fails `width > length` by round-off from the placement, so in one placement the pocket is defined by all four walls instead of two (Python behaves the same). The ring is rejected by that same pocket either way; only the winner's faces differ.",
-   "rust": {
-    "outcome": "rejected",
-    "reason": "recess.prismatic_superseded_by_pocket",
-    "related": [
-     [
-      15,
-      17
-     ]
-    ]
-   },
-   "verdict": "rust-wrong"
-  },
-  {
-   "faces": [
-    10,
-    11,
-    12,
-    13
-   ],
-   "family": "prismatic_pockets",
-   "file": "mfcadpp_holdout/163.step",
-   "motion": "rot_zx_moved",
-   "moved": {
-    "outcome": "rejected",
-    "reason": "recess.prismatic_superseded_by_pocket",
-    "related": [
-     [
-      10,
-      11,
-      12,
-      13
-     ]
-    ]
-   },
-   "reason": "Follows from the pocket's defining faces moving (tests/fixtures/known_invariance.json, mfcadpp_holdout/163.step rot_zx_moved pockets, rust-wrong): a square footprint's second wall pair passes or fails `width > length` by round-off from the placement, so in one placement the pocket is defined by all four walls instead of two (Python behaves the same). The ring is rejected by that same pocket either way; only the winner's faces differ.",
-   "rust": {
-    "outcome": "rejected",
-    "reason": "recess.prismatic_superseded_by_pocket",
-    "related": [
-     [
-      11,
-      12
-     ]
-    ]
-   },
-   "verdict": "rust-wrong"
   },
   {
    "faces": [

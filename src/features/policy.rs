@@ -23,7 +23,9 @@ pub fn cluster_coordinates(coordinates: &[f64], tol: f64) -> Vec<Vec<usize>> {
     let mut clusters: Vec<Vec<usize>> = Vec::new();
     for index in order {
         match clusters.last_mut() {
-            Some(last) if coordinates[index] - coordinates[last[0]] <= tol => last.push(index),
+            Some(last) if coordinates[index] - coordinates[last[0]] <= tol + COORD_FLOOR => {
+                last.push(index)
+            }
             _ => clusters.push(vec![index]),
         }
     }
@@ -33,4 +35,23 @@ pub fn cluster_coordinates(coordinates: &[f64], tol: f64) -> Vec<Vec<usize>> {
 /// `quiddity._geometry.length_tol`.
 pub fn length_tol(nominal: f64, rel: f64) -> f64 {
     rel * nominal + COORD_FLOOR
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn coordinate_cluster_includes_the_tolerance_boundary_after_translation() {
+        for offset in [0.0, 123.456, -78.9] {
+            assert_eq!(
+                cluster_coordinates(&[offset, offset + 0.5], 0.5),
+                vec![vec![0, 1]]
+            );
+            assert_eq!(
+                cluster_coordinates(&[offset, offset + 0.50001], 0.5),
+                vec![vec![0], vec![1]]
+            );
+        }
+    }
 }

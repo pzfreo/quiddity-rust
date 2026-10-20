@@ -329,7 +329,7 @@ impl<'c, 'a> Scan<'c, 'a> {
             } else {
                 (ax0, ov0, ax1)
             };
-        if width > length || length >= SLOT_MAX_SPAN_FRAC * self.part_ext[long_axis] {
+        if width > length + COORD_FLOOR || length >= SLOT_MAX_SPAN_FRAC * self.part_ext[long_axis] {
             return None;
         }
         let lo = fa.bb.min[long_axis].max(fb.bb.min[long_axis]);
@@ -408,7 +408,7 @@ impl<'c, 'a> Scan<'c, 'a> {
             spans[depth_axis] = (d_lo, d_hi);
             let record = match channel_bounds {
                 None => {
-                    if width > length
+                    if width > length + COORD_FLOOR
                         || length >= SLOT_MAX_SPAN_FRAC * self.part_ext[long_axis]
                         || !self.has_void_evidence(spans, long_axis, fa, fb)
                     {

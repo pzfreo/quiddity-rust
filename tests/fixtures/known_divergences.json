@@ -1099,5 +1099,61 @@
     "count": 1,
     "verdict": "equivalent",
     "reason": "Only the triangulation-dependent parts of the flat pattern differ; flanges, bends, strips, tree, status, the four overlap witnesses' face/strip pairs and the defining faces agree. The flat faces are two triangulations of one region (the port ear-clips each face's boundary thinned to deflection 0.1 and 0.1 rad; Python takes OpenCascade's mesh, with more points): faces 0, 34, 64, 66 (exact areas 1628.969, 2532.213, 12439.677, 231.272) are covered by the port's triangles to 1628.845, 2532.342, 12440.182, 231.364 and by Python's to 1628.938, 2532.247, 12439.807, 231.292, both within the deflection asked for. A witness's area is the largest overlap of one triangle pair, so it follows the triangulation (port 21.13/21.78/64.47/28.24, Python 21.84/21.84/55.91/55.91)."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10049.step",
+    "key": "{} records: 3 vs 3 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
+    "verdict": "rust-correct",
+    "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10098.step",
+    "key": "{} evidence faces differ",
+    "verdict": "rust-correct",
+    "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10103.step",
+    "key": "{} records: 4 vs 4 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
+    "verdict": "rust-correct",
+    "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10146.step",
+    "key": "{} records: 4 vs 4 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
+    "verdict": "rust-correct",
+    "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10245.step",
+    "key": "{} records: 3 vs 3 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
+    "verdict": "rust-correct",
+    "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp_holdout/118.step",
+    "key": "{} records: 2 vs 2 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
+    "verdict": "rust-correct",
+    "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp_holdout/163.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
+    "verdict": "rust-correct",
+    "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
   }
 ]
