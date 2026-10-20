@@ -1,10 +1,1 @@
-[
-  {
-    "file": "mfcadpp_regressions/11512.step",
-    "motion": "rot_y180",
-    "family": "interior_voids",
-    "verdict": "rust-wrong",
-    "reason": "The void grid is anchored at the box's minimum corner with its cell count rounded up, so turned over its cells sit elsewhere on the part, and a void whose widening is two cells deep (faces 17, 30, 31) passes the throat test in one orientation only. Python's grid is anchored the same way. A grid centred on the box would map onto itself under these motions; a decision that does not rest on the grid's phase would fix it outright.",
-    "max_differing": 2
-  }
-]
+[]

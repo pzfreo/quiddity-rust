@@ -1,8 +1,10 @@
 # Recognition document 4
 
 `quiddity-rust/recognition/4` adds measured `modelled_threads` (`ModelledThread`)
-and `modelled_thread_refusals` (`ModelledThreadRefusal`). All version 3 families
-retain their payloads and order. Documents requiring neither new record type
+and `modelled_thread_refusals` (`ModelledThreadRefusal`), and the diagnostic
+`InteriorVoidRefusal` variant appended after recognised `interior_voids`. Existing
+recognised-record fields and family order are retained. Documents requiring none
+of these native extensions
 continue to use `quiddity-rust/recognition/3`. The additive
 [trust contract](recognition-trust.md) supplies source identity, run mode and record
 status under either tag; removing those fields recovers the previous record bytes.
@@ -43,3 +45,15 @@ Hand, starts, dimensions, tolerances and face indices remain intrinsic. The new
 records have no spatial fields left local to a working frame.
 
 See [the corpus survey and recognition limits](modelled-threads.md).
+
+A bounded-air candidate whose grid does not establish widening behind a throat is
+retained as `InteriorVoidRefusal`, with `reason: "widening_behind_throat_unproved"`.
+It carries the complete candidate: body identity, `void_faces`, openings, estimated
+volume, volume method, grid pitch and both sample counts. Its document `faces`
+identify the candidate skin, its evidence status is `unproved`, and it acquires no
+feature fingerprint or recognised face claim. Consumers can inspect the retained
+anatomy without treating a grid-dependent chamber hypothesis as verified geometry.
+
+The sampling lattice is centred on the body's bounding box with stable cell counts
+at integral pitch ratios. It maps onto itself under axis reversal and interchange;
+framed recognition applies that lattice in the part's own frame.

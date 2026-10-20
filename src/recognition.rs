@@ -41,12 +41,15 @@ use crate::frames::RecordFrame;
 /// Latest contract: version 4 adds measured modelled threads and explicit refusals.
 /// Documents using only version 3 record types retain the legacy tag and record payloads.
 pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/4";
-/// Documents without the optional measured-thread extension retain the version 3 tag.
+/// Documents without native measured-thread or bounded-air refusal records retain version 3.
 pub const LEGACY_SCHEMA_VERSION: &str = "quiddity-rust/recognition/3";
 
 /// The minimum document contract required by these records.
 pub fn schema_version(features: &Features) -> &'static str {
-    if features.modelled_threads.is_empty() && features.modelled_thread_refusals.is_empty() {
+    if features.modelled_threads.is_empty()
+        && features.modelled_thread_refusals.is_empty()
+        && features.interior_void_refusals.is_empty()
+    {
         LEGACY_SCHEMA_VERSION
     } else {
         SCHEMA_VERSION
@@ -146,7 +149,7 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
         &["GussetRibArray", "GussetRibMirrorPair"],
     ),
     ("thin_wall_bodies", &["ThinWallBody"]),
-    ("interior_voids", &["InteriorVoid"]),
+    ("interior_voids", &["InteriorVoid", "InteriorVoidRefusal"]),
     ("through_steps", &["ThroughStep"]),
     ("turned_steps", &["TurnedStep"]),
     ("grooves", &["Groove"]),
@@ -204,6 +207,13 @@ pub fn record_type(features: &Features, family: &str, n: usize) -> &'static str 
             SectionRecessPattern::Array(_) => "SectionRecessArray",
             SectionRecessPattern::Grid(_) => "SectionRecessGrid",
         },
+        "interior_voids" => {
+            if n < features.interior_voids.len() {
+                "InteriorVoid"
+            } else {
+                "InteriorVoidRefusal"
+            }
+        }
         "section_recesses" => {
             if n < features.section_recesses.len() {
                 "SectionRecess"
@@ -271,6 +281,17 @@ pub fn families(features: &Features) -> Vec<(String, Vec<Value>)> {
     let mut families = serde_json::from_str::<Ordered>(&text)
         .expect("every family is a list of records")
         .0;
+    families
+        .iter_mut()
+        .find(|(f, _)| f == "interior_voids")
+        .unwrap()
+        .1
+        .extend(
+            features
+                .interior_void_refusals
+                .iter()
+                .map(|r| serde_json::to_value(r).expect("void refusal serialises")),
+        );
     let (_, recesses) = families
         .iter_mut()
         .find(|(f, _)| f == "section_recesses")
@@ -318,39 +339,46 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
                 panic!("{id} is not a record");
             };
             // Refusals describe source evidence, not recognised geometry to fingerprint.
-            let faces = if family == "modelled_thread_refusals" {
-                recognition.features.modelled_thread_refusals[n]
-                    .faces
+            let faces =
+                if family == "interior_voids" && n >= recognition.features.interior_voids.len() {
+                    recognition.features.interior_void_refusals
+                        [n - recognition.features.interior_voids.len()]
+                    .candidate
+                    .void_faces
                     .clone()
-            } else if family == "section_recess_patterns" {
-                let mut faces: Vec<_> = recognition.features.section_recess_patterns[n]
-                    .members()
-                    .iter()
-                    .flat_map(|&m| {
-                        recognition.features.section_recesses[m]
-                            .evidence()
-                            .defining_faces()
-                            .iter()
-                            .copied()
-                    })
-                    .collect();
-                faces.sort_unstable();
-                faces.dedup();
-                faces
-            } else if family == "section_recesses"
-                && n >= recognition.features.section_recesses.len()
-            {
-                recognition.features.section_recess_refusals
-                    [n - recognition.features.section_recesses.len()]
-                .evidence()
-                .defining_faces()
-                .to_vec()
-            } else {
-                faces
-                    .get(id.as_str())
-                    .unwrap_or_else(|| panic!("{id} has no fingerprint"))
+                } else if family == "modelled_thread_refusals" {
+                    recognition.features.modelled_thread_refusals[n]
+                        .faces
+                        .clone()
+                } else if family == "section_recess_patterns" {
+                    let mut faces: Vec<_> = recognition.features.section_recess_patterns[n]
+                        .members()
+                        .iter()
+                        .flat_map(|&m| {
+                            recognition.features.section_recesses[m]
+                                .evidence()
+                                .defining_faces()
+                                .iter()
+                                .copied()
+                        })
+                        .collect();
+                    faces.sort_unstable();
+                    faces.dedup();
+                    faces
+                } else if family == "section_recesses"
+                    && n >= recognition.features.section_recesses.len()
+                {
+                    recognition.features.section_recess_refusals
+                        [n - recognition.features.section_recesses.len()]
+                    .evidence()
+                    .defining_faces()
                     .to_vec()
-            };
+                } else {
+                    faces
+                        .get(id.as_str())
+                        .unwrap_or_else(|| panic!("{id} has no fingerprint"))
+                        .to_vec()
+                };
             records.push(Record {
                 record_type: record_type(&recognition.features, family, n).into(),
                 faces,

@@ -356,5 +356,14 @@
     "count": 1,
     "verdict": "not-applicable",
     "reason": "The test monkeypatches the plane material-side certification to refuse the z = 9 top, so the captured answer (none) reflects that patch, not the part. Unpatched Python on this STEP file gives the port's record: the 30 x 20 pad, z 5-9, with the 1 x 1 tier on it suppressed (as in test_nurbs_pad_adversaries_preserve_tiers_envelope_and_ownership's expected count of 1)."
+  },
+  {
+    "count": 1,
+    "file": "19f50fdb56ffc065.step.gz",
+    "function": "recognise_interior_voids",
+    "options": {},
+    "test": "tests/test_interior_voids.py::test_polyhedral_core_with_small_port_survives_rigid_rotation",
+    "verdict": "rust-correct",
+    "reason": "Analytic lattice symmetry and motion-invariance evidence: cell counts use stable integral ratios and equal padding about the box centre, rather than phase from its minimum corner. The same polyhedral chamber and opening remain; its estimate now uses 4609 enclosed samples rather than 4610. This is a changed sampling estimate, not lost geometry. tests/invariance.rs and interior_voids::tests pin the symmetric lattice under placement."
   }
 ]

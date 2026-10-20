@@ -3389,6 +3389,19 @@
       "rust": 0,
       "verdict": "rust-correct",
       "reason": "Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed."
+    },
+    {
+      "defining": [
+        33,
+        34
+      ],
+      "family": "interior_voids",
+      "field": "present",
+      "file": "mfcadpp_regressions/11512.step",
+      "python": 1,
+      "rust": 0,
+      "verdict": "rust-correct",
+      "reason": "Analytic lattice symmetry and motion-invariance evidence: the grid is centred with stable cell counts. The marginal 11512 candidate on faces 33-34 no longer proves a widening behind a throat; its complete geometry, openings, sample counts and volume remain published as an unproved InteriorVoidRefusal record. tests/recognition.rs asserts the full payload. The obsolete rot_y180 differences are removed because the same accepted cavity faces now survive placement."
     }
   ],
   "motions": [
@@ -3645,21 +3658,6 @@
           ]
         ]
       },
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        13,
-        14
-      ],
-      "family": "interior_voids",
-      "field": "present",
-      "file": "mfcadpp_regressions/11512.step",
-      "list": "features",
-      "motion": "rot_y180",
-      "moved": 0,
-      "reason": "The void grid is anchored at the box's minimum corner with its cell count rounded up, so turned over its cells sit elsewhere on the part, and a void whose widening is two cells deep (faces 17, 30, 31) passes the throat test in one orientation only. Python's grid is anchored the same way. A grid centred on the box would map onto itself under these motions; a decision that does not rest on the grid's phase would fix it outright. (known_invariance.json, mfcadpp_regressions/11512.step rot_y180 interior_voids.)",
-      "rust": 1,
       "verdict": "rust-wrong"
     },
     {
@@ -4033,21 +4031,6 @@
           ]
         ]
       },
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        30,
-        31
-      ],
-      "family": "interior_voids",
-      "field": "present",
-      "file": "mfcadpp_regressions/11512.step",
-      "list": "features",
-      "motion": "rot_y180",
-      "moved": 1,
-      "reason": "The void grid is anchored at the box's minimum corner with its cell count rounded up, so turned over its cells sit elsewhere on the part, and a void whose widening is two cells deep (faces 17, 30, 31) passes the throat test in one orientation only. Python's grid is anchored the same way. A grid centred on the box would map onto itself under these motions; a decision that does not rest on the grid's phase would fix it outright. (known_invariance.json, mfcadpp_regressions/11512.step rot_y180 interior_voids.)",
-      "rust": 0,
       "verdict": "rust-wrong"
     },
     {

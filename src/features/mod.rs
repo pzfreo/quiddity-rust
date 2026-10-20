@@ -132,6 +132,9 @@ pub struct Features {
     pub gusset_rib_patterns: Vec<gussets::GussetRibPattern>,
     pub thin_wall_bodies: Vec<thin_walls::ThinWallBody>,
     pub interior_voids: Vec<interior_voids::InteriorVoid>,
+    /// Refusals retain bounded-air measurements in the document, without feature claims.
+    #[serde(skip)]
+    pub interior_void_refusals: Vec<interior_voids::InteriorVoidRefusal>,
     pub through_steps: Vec<through_steps::ThroughStep>,
     pub turned_steps: Vec<turned_steps::TurnedStep>,
     pub grooves: Vec<grooves::Groove>,
@@ -479,6 +482,7 @@ pub(crate) fn inventory_in(
     });
     let risers = kept(&mut defining, "risers", found_risers);
     let step_levels = kept(&mut defining, "step_levels", step_level_occurrences);
+    let void_analysis = interior_voids::analyse(ctx);
     let physical = Features {
         run_mode: if evidence::local_degradation() {
             evidence::RunMode::LocallyDegraded
@@ -529,11 +533,8 @@ pub(crate) fn inventory_in(
         gusset_ribs,
         countersinks,
         thin_wall_bodies,
-        interior_voids: kept(
-            &mut defining,
-            "interior_voids",
-            interior_voids::discover(ctx),
-        ),
+        interior_voids: kept(&mut defining, "interior_voids", void_analysis.accepted),
+        interior_void_refusals: void_analysis.refusals,
         through_steps: kept(&mut defining, "through_steps", through_steps::discover(ctx)),
         turned_steps: kept(
             &mut defining,

@@ -192,14 +192,6 @@
     "max_differing": 6
   },
   {
-    "file": "cadgenbench_inputs/cgb243.step.gz",
-    "check": "caller_space",
-    "family": "interior_voids",
-    "verdict": "equivalent",
-    "reason": "Equivalent as explicitly labelled six_axis_grid estimates of the same void, not as exact volumes: both readings retain the same void faces/openings, their own sample counts, the sampling method and estimated volume. Rotating the finite grid changes the discretisation by 0.3%; exact grid-count equality is not a geometric invariant of finite sampling. Independent evidence: the six-motion mapped-back document checks in tests/recognition.rs pass for this default occurrence with no motion exception; the cgb243 corpus interior-void entry also independently traces ray crossings and distinguishes duplicate/missed OCCT intersections. This verdict accepts two disclosed discretisations of the same estimated quantity; it does not assert a 0.3% bound on error against the true void volume or prefer the Python estimate.",
-    "max_differing": 1
-  },
-  {
     "file": "cadgenbench_inputs/cgb245.step",
     "check": "caller_space",
     "family": "blends",
