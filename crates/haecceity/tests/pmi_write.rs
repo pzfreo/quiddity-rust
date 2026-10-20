@@ -50,6 +50,13 @@ fn spool() -> File {
     fixture("ap242/specify/spool_fits.step.gz")
 }
 
+fn gap_spool() -> File {
+    let f = spool();
+    let mut edit = haecceity::p21::Edit::new();
+    edit.set_file_schema(vec![express::TARGET_SCHEMA.into()]);
+    open_bytes(f.doc.apply(&edit).unwrap().bytes)
+}
+
 fn dec(t: &str) -> Decimal {
     Decimal::parse(t).unwrap()
 }
@@ -222,7 +229,7 @@ fn assert_verified_as(f: &File, w: &Written, p: &PartPmi, mode: Mode) {
 }
 
 fn assert_reads_back(w: &Written, part: PartId, p: &PartPmi) {
-    let d = differences_as_stated(p, &w.read.parts[part.0]);
+    let d = differences_as_stated(&pmi::write::standard_form(p), &w.read.parts[part.0]);
     assert!(
         d.is_empty(),
         "read back differs:\n{}\nfindings: {:#?}",
@@ -1553,7 +1560,7 @@ fn threads_knurls_and_general_tolerances_are_standard_entities() {
             Err(WriteError::Refused(r)) => {
                 assert_eq!(r.len(), 1);
                 assert_eq!(r[0].item, ItemRef::General(0));
-                assert!(r[0].why.contains("decision 3"), "{}", r[0].why);
+                assert!(r[0].why.contains("at least one cell"), "{}", r[0].why);
             }
             other => panic!("a table is refused: {:?}", other.err()),
         }
@@ -2107,7 +2114,6 @@ fn refusals_name_every_item() {
                 ItemRef::Feature(1),
                 ItemRef::DatumTarget(0),
                 ItemRef::Datum(0),
-                ItemRef::Note(0),
                 ItemRef::Material,
                 ItemRef::DecimalPlaces,
                 ItemRef::Dimension(0),
@@ -3261,6 +3267,15 @@ fn compare_occt(
 /// onto their original corpus files. `None` for a case whose input is missing (the corpus).
 fn written_cases() -> Vec<(String, Option<Vec<u8>>)> {
     let mut out = Vec::new();
+    out.push((
+        "pmi_gaps".into(),
+        Some(
+            written(&gap_spool(), &common::pmi_gaps::every_kind())
+                .doc
+                .bytes()
+                .to_vec(),
+        ),
+    ));
     // Every kind of item, replacing a specify-core part's PMI.
     let f = spool();
     let mut p = four_datums();
@@ -3998,4 +4013,148 @@ fn assert_repair_bytes(before: &Document, after: &Document, report: &WriteReport
         after.bytes()[first..end].iter().copied(),
     );
     assert_eq!(expected, after.bytes(), "all untouched bytes");
+}
+
+#[test]
+fn gaps_write_standard_entities_and_migrate_notes() {
+    let f = gap_spool();
+    let p = common::pmi_gaps::every_kind();
+    let w = written(&f, &p);
+    assert_verified(&f, &w, &p);
+    assert_eq!(w.report.note_migrations.len(), 7);
+    assert!(w.report.note_migrations[5].2.starts_with("surface texture"));
+    assert!(w.report.note_migrations[6].2.starts_with("semantic text"));
+    assert!(!String::from_utf8_lossy(w.doc.bytes()).contains("manufacturing requirement"));
+    let types: BTreeSet<_> = w.added().into_iter().flat_map(|id| w.names(id)).collect();
+    for name in [
+        "geometric_tolerance_relationship",
+        "default_tolerance_table",
+        "default_tolerance_table_cell",
+        "derived_unit",
+        "derived_unit_element",
+        "surface_texture_representation",
+        "general_property_association",
+        "projected_zone_definition",
+    ] {
+        assert!(types.contains(name), "{name}");
+    }
+    let made: BTreeSet<_> = w.added().into_iter().collect();
+    assert!(
+        express::TARGET
+            .validate_document(w.doc.graph())
+            .iter()
+            .all(|v| !made.contains(&v.id))
+    );
+    assert!(
+        haecceity::express_rules::check_all(&w.doc)
+            .iter()
+            .all(|v| !made.contains(&v.id))
+    );
+}
+
+#[test]
+fn five_numbered_part_notes_keep_order_on_replace_and_resume() {
+    let all = pmi::write::standard_form(&common::pmi_gaps::every_kind());
+    let notes: Vec<_> = all
+        .attributes
+        .into_iter()
+        .filter(|a| a.on.is_none())
+        .collect();
+    let text = |p: &PartPmi| {
+        p.attributes
+            .iter()
+            .filter(|a| a.name == "semantic text" && a.on.is_none())
+            .flat_map(|a| &a.items)
+            .map(|(_, v)| v.clone())
+            .collect::<Vec<_>>()
+    };
+    let p = PartPmi {
+        attributes: notes[..3].to_vec(),
+        ..PartPmi::default()
+    };
+    let first = written(&spool(), &p);
+    let f = open_bytes(first.doc.bytes().to_vec());
+    let rest = PartPmi {
+        attributes: notes[3..].to_vec(),
+        ..PartPmi::default()
+    };
+    let resumed = write(&f, &[(PartId(0), rest.clone())], Mode::Add).unwrap();
+    assert_verified_as(&f, &resumed, &rest, Mode::Add);
+    let expected = PartPmi {
+        attributes: notes,
+        ..PartPmi::default()
+    };
+    assert_eq!(text(&resumed.read.parts[0]), text(&expected));
+    let replaced = written(
+        &open_bytes(resumed.doc.bytes().to_vec()),
+        &resumed.read.parts[0],
+    );
+    assert_eq!(text(&replaced.read.parts[0]), text(&expected));
+    let note_owners: Vec<_> = replaced
+        .added()
+        .into_iter()
+        .filter(|&id| {
+            replaced
+                .text(id)
+                .contains("PROPERTY_DEFINITION('semantic text'")
+        })
+        .collect();
+    assert_eq!(note_owners.len(), 5);
+}
+
+#[test]
+fn python_requirements_replace_as_standard_requirements() {
+    for name in [
+        "assembly_plate_pin",
+        "bolt_thread_knurl",
+        "bracket_positions",
+        "spool_fits",
+        "string_post_tapped",
+        "thumbwheel_thread_knurl",
+        "nist_ctc_01_merge",
+    ] {
+        let f = fixture(&format!("ap242/specify/{name}.step.gz"));
+        let old = pmi::read(&f.doc, &f.parts).unwrap();
+        let requests: Vec<_> = old
+            .parts
+            .iter()
+            .enumerate()
+            .map(|(i, p)| {
+                (
+                    PartId(i),
+                    PartPmi {
+                        features: p.features.clone(),
+                        geometry: p.geometry.clone(),
+                        derived_geometry: p.derived_geometry.clone(),
+                        notes: p.notes.clone(),
+                        ..PartPmi::default()
+                    },
+                )
+            })
+            .collect();
+        let w = write(&f, &requests, Mode::Replace).unwrap_or_else(|e| panic!("{name}: {e}"));
+        assert!(
+            !String::from_utf8_lossy(w.doc.bytes()).contains("manufacturing requirement"),
+            "{name}"
+        );
+        assert_eq!(
+            w.report.note_migrations.len(),
+            old.parts.iter().map(|p| p.notes.len()).sum::<usize>()
+        );
+        for (part, p) in &requests {
+            assert_reads_back(&w, *part, p);
+        }
+        let again: Vec<_> = w
+            .read
+            .parts
+            .iter()
+            .cloned()
+            .enumerate()
+            .map(|(i, p)| (PartId(i), p))
+            .collect();
+        let second = write(&open_bytes(w.doc.bytes().to_vec()), &again, Mode::Replace).unwrap();
+        for (part, p) in &again {
+            assert_reads_back(&second, *part, p);
+        }
+    }
 }

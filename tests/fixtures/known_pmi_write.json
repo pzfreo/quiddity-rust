@@ -10,7 +10,9 @@
   "Tolerance: a projected tolerance zone without its projection end (§N.N.N.N)": "NIST CTC-04's projected zone names a projection end that identifies no face (read through with a finding); §6.9.2.2 requires the end, so the writer refuses the tolerance rather than write an empty shape aspect.",
   "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": "Writing tolerance relations (composite feature control frames) is out of scope for this stage (design: Out of scope); refused by name, left out of the round trip.",
   "no part definitions": "NIST FTC-08's -tg file is tessellated only: read_part_definitions finds no solid or shell with faces, so there is no part to write to (as for the reader).",
-  "removal refused": "The file has PMI of the part the reader did not read (an unread tolerance whose toleranced feature or datum did not resolve, with its measure qualification, pinned in read/findings.json) that references instances the replace removes; kept PMI must not dangle, so the replace is refused naming it (design item 6: anything else blocks). The id_attributes listed beside it would be removed with their items."
+  "removal refused": "The file has PMI of the part the reader did not read (an unread tolerance whose toleranced feature or datum did not resolve, with its measure qualification, pinned in read/findings.json) that references instances the replace removes; kept PMI must not dangle, so the replace is refused naming it (design item 6: anything else blocks). The id_attributes listed beside it would be removed with their items.",
+  "Datum: datum … requires targets whose §N.N description conflicts with datum_target WRN": "The unchanged edition 4 source schema datum_target.WR5 forbids a description, but PMI practice §6.6 and placed_datum_target_feature.WR1 require it. No target rule or NIST violation pin is exempted; datums that require these targets remain refused.",
+  "DatumTarget: §N.N requires a target description, but datum_target WRN forbids it (placed_datum_target_feature WRN also requires it); the schema/practice conflict cannot pass the unchanged rule checks": "WG12 N11521 datum_target.WR5 is NOT EXISTS(description); placed-target WR1 and §6.6 Tables 10–11 require the target shape in description. The writer cannot satisfy both without weakening a rule or writing a nonstandard form."
  },
  "roundtrip": {
   "assembly": {
@@ -19,36 +21,18 @@
    "sha256": "ca5711668102f0e8bb9920469a46008e8a51d60e0bea7eb89a03089b0e464291"
   },
   "assembly_plate_pin": {
-   "left out": {
-    "notes": 8
-   },
    "presentation removed": 52,
    "refuse policy": "refused: 7 presentation blockers of 7",
-   "refused": {
-    "Note: notes are the non-standard 'manufacturing requirement' text route, which is not written (decision N)": 8
-   },
    "sha256": "bc268a9d3b1534eb8f19ac96bc39b1ba0d0bdacaf7ab129170f26937bab5bc8a"
   },
   "bolt_thread_knurl": {
-   "left out": {
-    "notes": 5
-   },
    "presentation removed": 29,
    "refuse policy": "refused: 4 presentation blockers of 4",
-   "refused": {
-    "Note: notes are the non-standard 'manufacturing requirement' text route, which is not written (decision N)": 5
-   },
    "sha256": "d6f3e83ebb5b6dbdece381cac4316ec017900c4686e09f24d65217a1dcbfc526"
   },
   "bracket_positions": {
-   "left out": {
-    "notes": 3
-   },
    "presentation removed": 23,
    "refuse policy": "refused: 3 presentation blockers of 3",
-   "refused": {
-    "Note: notes are the non-standard 'manufacturing requirement' text route, which is not written (decision N)": 3
-   },
    "sha256": "9cc88aeaa0d1c582b2a7a40d9cddf25670fa7f830cf3be4b74566b9fad0caeb5"
   },
   "nist_ctc_01_asme1_ap242-e1": {
@@ -64,14 +48,12 @@
   },
   "nist_ctc_01_merge": {
    "left out": {
-    "dimensions": 4,
-    "notes": 3
+    "dimensions": 4
    },
    "presentation removed": 406,
    "refuse policy": "refused: 52 presentation blockers of 52",
    "refused": {
-    "Dimension: a dimension without a nominal value (§N.N.N: it shall always be given)": 4,
-    "Note: notes are the non-standard 'manufacturing requirement' text route, which is not written (decision N)": 3
+    "Dimension: a dimension without a nominal value (§N.N.N: it shall always be given)": 4
    },
    "sha256": "6f3acb4036ec1583fd88be630a9699b67c24510d62f18f7fed6953e6dd1d7c4c"
   },
@@ -85,8 +67,8 @@
    "presentation removed": 1473,
    "refuse policy": "refused: 181 presentation blockers of 215",
    "refused": {
-    "Datum: datum … is established by datum targets, which are not written yet": 4,
-    "DatumTarget: datum targets are read but not written yet (design: Out of scope)": 9
+    "Datum: datum … requires targets whose §N.N description conflicts with datum_target WRN": 4,
+    "DatumTarget: §N.N requires a target description, but datum_target WRN forbids it (placed_datum_target_feature WRN also requires it); the schema/practice conflict cannot pass the unchanged rule checks": 9
    },
    "sha256": "99a0a2079ddeb64d05c2432cbe931fa17c89da60d8b0bcb0b11bd0ed94fa2e68"
   },
@@ -120,14 +102,12 @@
   "nist_ftc_07_asme1_ap242-e2": {
    "edition": "undetermined: AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 } has no table; validated against AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
    "left out": {
-    "attributes": 12,
-    "tolerance relations": 6
+    "attributes": 12
    },
    "presentation removed": 1411,
    "refuse policy": "refused: 158 presentation blockers of 158",
    "refused": {
-    "Attribute: \"\": N units of the file are named \"derived_unit\"; which one is not stated": 12,
-    "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 6
+    "Attribute: \"\": N units of the file are named \"derived_unit\"; which one is not stated": 12
    },
    "sha256": "aa8115c12e12a99cc439477cbfd222916f9ec629fbb3c9002b18e0c264c9a892"
   },
@@ -163,29 +143,21 @@
     "attributes": 12,
     "datum targets": 4,
     "datums": 2,
-    "tolerance relations": 3,
     "tolerances": 2
    },
    "presentation removed": 1261,
    "refuse policy": "refused: 183 presentation blockers of 183",
    "refused": {
     "Attribute: \"\": N units of the file are named \"derived_unit\"; which one is not stated": 12,
-    "Datum: datum … is established by datum targets, which are not written yet": 2,
-    "DatumTarget: datum targets are read but not written yet (design: Out of scope)": 4,
-    "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 3
+    "Datum: datum … requires targets whose §N.N description conflicts with datum_target WRN": 2,
+    "DatumTarget: §N.N requires a target description, but datum_target WRN forbids it (placed_datum_target_feature WRN also requires it); the schema/practice conflict cannot pass the unchanged rule checks": 4
    },
    "sha256": "9d7711f48e81831c5d1838fdac5c11c0de1aa9b61f3c1d67930a7638b3b25e69"
   },
   "nist_stc_06_asme1_ap242-e3": {
    "edition": "undetermined: AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 4 1 4 } has no table; validated against AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
-   "left out": {
-    "tolerance relations": 4
-   },
    "presentation removed": 2291,
    "refuse policy": "refused: 218 presentation blockers of 218",
-   "refused": {
-    "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 4
-   },
    "sha256": "71777c28da76da0e8a667e4cbe792d5f72c09b5c56440c9744d3d50ca96ecc8d"
   },
   "nist_stc_07_asme1_ap242-e3": {
@@ -212,61 +184,35 @@
   },
   "nist_stc_09_asme1_ap242-e4": {
    "left out": {
-    "attributes": 12,
-    "tolerance relations": 2
+    "attributes": 12
    },
    "presentation removed": 839,
    "refuse policy": "refused: 115 presentation blockers of 196",
    "refused": {
     "Attribute: \"\": N units of the file are named \"derived_unit\"; which one is not stated": 12,
-    "Hole: hole definitions (basic_round_hole) are read but not written yet (design: question Q-holes)": 25,
-    "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 2
+    "Hole: hole definitions (basic_round_hole) are read but not written yet (design: question Q-holes)": 25
    },
    "sha256": "41026b1f0d81830c6092b5147e0e084d2fa163169161c31af4ce06493d3c7d33"
   },
   "nist_stc_10_asme1_ap242-e2": {
    "edition": "undetermined: AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 } has no table; validated against AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
-   "left out": {
-    "tolerance relations": 3
-   },
    "presentation removed": 2459,
    "refuse policy": "refused: 135 presentation blockers of 135",
-   "refused": {
-    "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 3
-   },
    "sha256": "fba4f46cab1ce1402362038036884631b4a41afe1c9efc5681d358c39db7ed5f"
   },
   "spool_fits": {
-   "left out": {
-    "notes": 3
-   },
    "presentation removed": 17,
    "refuse policy": "refused: 2 presentation blockers of 2",
-   "refused": {
-    "Note: notes are the non-standard 'manufacturing requirement' text route, which is not written (decision N)": 3
-   },
    "sha256": "d1852dcd9ffe049d1031353d815b4c8e675f66608f5a1d800bc928ef23746b74"
   },
   "string_post_tapped": {
-   "left out": {
-    "notes": 4
-   },
    "presentation removed": 17,
    "refuse policy": "refused: 2 presentation blockers of 2",
-   "refused": {
-    "Note: notes are the non-standard 'manufacturing requirement' text route, which is not written (decision N)": 4
-   },
    "sha256": "c30e2d019e46f28dfa7bfdbc9dd80f731c6eb467b65c76e710e6fa2f0d244367"
   },
   "thumbwheel_thread_knurl": {
-   "left out": {
-    "notes": 6
-   },
    "presentation removed": 35,
    "refuse policy": "refused: 5 presentation blockers of 5",
-   "refused": {
-    "Note: notes are the non-standard 'manufacturing requirement' text route, which is not written (decision N)": 6
-   },
    "sha256": "710ba36a0a5cd07aa0ff46795b5a0f899e5dd9a9cc63cd0e0c83fed7d2b65399"
   }
  },
@@ -503,5 +449,8 @@
    "verdict": "rust-correct",
    "reason": "specify-core's own Ø10 (kept byte for byte by the add, not written by haecceity): '#648 = (... MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(10.),#633) ... REPRESENTATION_ITEM('nominal value'))', '#651 = DIMENSIONAL_SIZE(#646,'diameter')', '#654 = TOLERANCE_VALUE(#653,#652)' with both bounds below nominal (-0.028, -0.013), '#655 = PLUS_MINUS_TOLERANCE(#654,#651)'. OpenCascade's known misread of both deviations below nominal (the capture's known_misreads; specify-core writer.py) drops the deviations and garbles the value; haecceity reads 10 mm with the stated deviations. The same instance in the input file is pinned alike (known_pmi.json occt 'thumbwheel_thread_knurl occt dimension 0:1:4:1')."
   }
- ]
+ ],
+ "pin_changes_2026_10_20": {
+  "roundtrip": "No per-file pin removed. Specify notes no longer appear in refused/left-out because exact standard_form(read) is compared to the replacement reading, and dedicated tests assert no manufacturing requirement survives. NIST tolerance relations no longer appear in refused/left-out because all three standard relation kinds are emitted and compared with their resolved endpoints. Presentation removal counts and file hashes are unchanged. Target refusal counts remain unchanged; their reason now names the literal schema conflict rather than an implementation backlog."
+ }
 }

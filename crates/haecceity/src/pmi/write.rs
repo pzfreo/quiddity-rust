@@ -21,13 +21,18 @@
 //! are placed by name through the schema table, so an instance cannot have too few or too many.
 //!
 //! **What is refused** (every refusal of every part at once, [`WriteError::Refused`], naming
-//! the item): datum targets and the datums they establish, tolerance relations (read, written
-//! later), notes (decision 5: the 'manufacturing requirement' text route is not a standard
-//! form), general tolerance tables and the part's default decimal places (decision 3: read
-//! only), material density (decision 2), groups of unstated kind, dimensions without a nominal
-//! value, tolerances on a shape aspect relationship, projected zones without their end, the
-//! affected plane, thread and knurl parameter sets their WHERE rules reject, and values that
-//! are not Part 21 REALs.
+//! the item): targets whose required §6.6 description contradicts datum_target WR5 and the
+//! datums they establish; decimal places without a stated valid table cell (Figure 3's
+//! decimal-only cell contradicts cell WR3/WR4); empty/invalid tolerance tables; hole definitions;
+//! groups of unstated kind; dimensions without a nominal; projected zones without an origin;
+//! thread and knurl parameter sets rejected by their WHERE rules; density units without a
+//! known scale or without dimensions M L^-3; and values that are not Part 21 REALs.
+//!
+//! Tolerance relations (§6.9.9), tables (§4.1), density (material practice §4.2), relationship
+//! targets and affected planes (§6.9.2.1) use their standard entities. Legacy notes migrate via
+//! [`standard_form`]: complete roughness requirements use ISO 10303-1110; other wording uses
+//! semantic text (§7.4), with every choice in [`WriteReport::note_migrations`]. Several notes
+//! remain separate sets in input order; §7.4.4 offers no standardized ordering relationship.
 //!
 //! **Datum feature symbols** (decision 6): each datum feature of an added datum gets a minimal
 //! symbol, derived from the model when written (`PartPlan::datum_symbols`): a tessellated
@@ -279,6 +284,8 @@ pub struct WriteReport {
     pub reused_geometry: Vec<u64>,
     /// Datum feature symbols written (decision 6): part and label(s), in order.
     pub datum_symbols: Vec<(PartId, String)>,
+    /// Legacy note migrations: part, original note index, standard form and reason.
+    pub note_migrations: Vec<(PartId, usize, String)>,
     /// The file's `FILE_SCHEMA` when its AP242 edition has no table: the written instances were
     /// validated against [`WriteReport::validated_against`] (the target edition), so whether
     /// they are valid instances of the file's own edition is undetermined.
@@ -291,6 +298,96 @@ pub struct WriteReport {
     pub preexisting_rule_violations: Vec<RuleViolation>,
 }
 
+/// The standard requirements that a write of `p` represents. Legacy requirement notes
+/// become semantic text (§7.4), or surface texture when their complete text states it.
+/// Callouts are presentation and are deliberately not part of this migration.
+#[must_use]
+pub fn standard_form(p: &PartPmi) -> PartPmi {
+    let mut out = p.clone();
+    for n in out.notes.drain(..) {
+        if let Some(t) = note_texture(&n) {
+            out.surface_textures.push(t);
+        } else {
+            out.attributes.push(AttributeSet {
+                name: "semantic text".into(),
+                on: n.on,
+                items: vec![(n.kind, AttributeValue::Text(n.text))],
+                description: None,
+                general_property: None,
+            });
+        }
+    }
+    out
+}
+
+fn note_texture(n: &Note) -> Option<SurfaceTexture> {
+    if !["surface texture", "surface finish", "finish"].contains(&n.kind.as_str()) {
+        return None;
+    }
+    let on = match n.on {
+        None => None,
+        Some(NoteOwner::Feature(f)) => Some(f),
+        _ => return None,
+    };
+    let mut words = n.text.split_whitespace();
+    let characteristic = words.next()?;
+    if !["Ra", "Rq", "Rz", "Rt", "Rp", "Rv"].contains(&characteristic) {
+        return None;
+    }
+    let mut value = words.next()?.to_string();
+    if !value.contains('.') && !value.contains(['e', 'E']) {
+        value.push('.');
+    }
+    let value = Decimal::parse(&value).ok()?;
+    if value.to_f64() <= 0. {
+        return None;
+    }
+    // ISO 1302's unqualified Ra value is in micrometres and uses the basic symbol.
+    let rest: Vec<_> = words.collect();
+    if !rest.is_empty() && rest != ["µm"] && rest != ["μm"] && rest != ["um"] {
+        return None;
+    }
+    Some(SurfaceTexture {
+        on,
+        material_removal: MaterialRemoval::AnyProcessAllowed,
+        parameters: vec![SurfaceTextureParameter {
+            characteristic: characteristic.into(),
+            value: Length {
+                value,
+                unit: LengthUnit::Micrometre,
+            },
+        }],
+    })
+}
+
+fn migration_reason(n: &Note) -> &'static str {
+    if note_texture(n).is_some() {
+        "surface texture (ISO 10303-1110): complete roughness value, ISO 1302 basic symbol"
+    } else {
+        "semantic text (§7.4): preserve complete wording; semantic parameters or scope are not fully stated"
+    }
+}
+
+enum DensityUnit {
+    Length(LengthUnit),
+    Mass(Option<&'static str>),
+}
+
+fn density_unit(name: &str) -> Option<DensityUnit> {
+    Some(match name {
+        "gram" => DensityUnit::Mass(None),
+        "kilogram" => DensityUnit::Mass(Some("kilo")),
+        "milligram" => DensityUnit::Mass(Some("milli")),
+        "metre" => DensityUnit::Length(LengthUnit::Metre),
+        "centimetre" => DensityUnit::Length(LengthUnit::Centimetre),
+        "millimetre" => DensityUnit::Length(LengthUnit::Millimetre),
+        "micrometre" => DensityUnit::Length(LengthUnit::Micrometre),
+        "inch" => DensityUnit::Length(LengthUnit::Inch),
+        "foot" => DensityUnit::Length(LengthUnit::Foot),
+        _ => return None,
+    })
+}
+
 /// Writes `pmi` (one entry per part, any order; each part at most once) into `doc`, whose
 /// `parts` are `read_part_definitions` of the same bytes. One [`Edit`] for all parts, made in
 /// part order; deterministic.
@@ -301,7 +398,15 @@ pub fn write(
     mode: Mode,
     policy: PresentationPolicy,
 ) -> Result<(Edit, WriteReport), WriteError> {
-    let mut order: Vec<&(PartId, PartPmi)> = pmi.iter().collect();
+    // Validate the input before migration (in particular every note's owner).
+    for (part, p) in pmi {
+        p.validate().map_err(|errors| WriteError::Invalid {
+            part: *part,
+            errors,
+        })?;
+    }
+    let normalized: Vec<_> = pmi.iter().map(|(id, p)| (*id, standard_form(p))).collect();
+    let mut order: Vec<&(PartId, PartPmi)> = normalized.iter().collect();
     order.sort_by_key(|(p, _)| *p);
     for w in order.windows(2) {
         if w[0].0 == w[1].0 {
@@ -367,6 +472,15 @@ pub fn write(
         reused_datums: Vec::new(),
         reused_geometry: Vec::new(),
         datum_symbols: Vec::new(),
+        note_migrations: pmi
+            .iter()
+            .flat_map(|(part, p)| {
+                p.notes
+                    .iter()
+                    .enumerate()
+                    .map(move |(i, n)| (*part, i, migration_reason(n).to_string()))
+            })
+            .collect(),
         edition_undetermined: (ap242 && express::edition(&first).is_none()).then(|| first.clone()),
         kept_unconsumed: Vec::new(),
         preexisting_violations: Vec::new(),
@@ -1659,23 +1773,29 @@ impl<'a> PartPlan<'a> {
                 );
             }
         }
-        if p.decimal_places.is_some() {
-            self.refuse(
-                ItemRef::DecimalPlaces,
-                "the part's default decimal places are held by a default_tolerance_table, which is read only (decision 3)",
-            );
+        let table_places: Vec<_> = p
+            .general
+            .iter()
+            .filter_map(|g| match g {
+                GeneralTolerance::Table { cells, .. } => Some(cells),
+                _ => None,
+            })
+            .flatten()
+            .flat_map(|c| &c.items)
+            .filter_map(|(name, value)| match value {
+                CellValue::Count(d) if name == "number of decimal places" => Some(d.to_f64()),
+                _ => None,
+            })
+            .collect();
+        if let Some(places) = p.decimal_places
+            && (table_places.is_empty() || table_places.iter().any(|v| *v != f64::from(places)))
+        {
+            self.refuse(ItemRef::DecimalPlaces,
+                "default decimal places require a stated table cell: the decimal-only cell of §4.1 Figure 3 violates default_tolerance_table_cell WR3/WR4; no tolerance values are invented");
         }
         for i in 0..p.datum_targets.len() {
-            self.refuse(
-                ItemRef::DatumTarget(i),
-                "datum targets are read but not written yet (design: Out of scope)",
-            );
-        }
-        for i in 0..p.tolerance_relations.len() {
-            self.refuse(
-                ItemRef::ToleranceRelation(i),
-                "tolerance relations (composite frames) are read but not written yet (design: Out of scope)",
-            );
+            self.refuse(ItemRef::DatumTarget(i),
+                "§6.6 requires a target description, but datum_target WR5 forbids it (placed_datum_target_feature WR1 also requires it); the schema/practice conflict cannot pass the unchanged rule checks");
         }
         for i in 0..p.holes.len() {
             self.refuse(
@@ -1683,34 +1803,87 @@ impl<'a> PartPlan<'a> {
                 "hole definitions (basic_round_hole) are read but not written yet (design: question Q-holes)",
             );
         }
-        for i in 0..p.notes.len() {
-            self.refuse(
-                ItemRef::Note(i),
-                "notes are the non-standard 'manufacturing requirement' text route, which is not written (decision 5)",
-            );
-        }
         for (i, g) in p.general.iter().enumerate() {
             match g {
-                GeneralTolerance::Table { .. } => self.refuse(
-                    ItemRef::General(i),
-                    "a default_tolerance_table is read, not written (decision 3)",
-                ),
-                GeneralTolerance::Class { text, standard } => {
-                    if Iso2768::recognise(text) != *standard || text.trim().is_empty() {
+                GeneralTolerance::Table { cells, .. } => {
+                    if cells.is_empty() {
                         self.refuse(
                             ItemRef::General(i),
-                            format!("tolerance class {text:?}: its ISO 2768 classes are those its text states"),
+                            "a default_tolerance_table requires at least one cell",
                         );
+                    }
+                    for c in cells {
+                        let measure = |name: &str| {
+                            c.items
+                                .iter()
+                                .filter(|(n, v)| n == name && !matches!(v, CellValue::Text(_)))
+                                .count()
+                                == 1
+                        };
+                        let texts: Vec<_> = c
+                            .items
+                            .iter()
+                            .filter(|(_, v)| matches!(v, CellValue::Text(_)))
+                            .collect();
+                        if c.items.len() > 5
+                            || !(measure("significant number of digits")
+                                || (measure("lower limit") && measure("upper limit")))
+                            || !(measure("plus minus tolerance value")
+                                || (measure("lower tolerance value")
+                                    && measure("upper tolerance value")))
+                            || texts.len() > 1
+                            || texts.iter().any(|(n, _)| n != "cell description")
+                        {
+                            self.refuse(ItemRef::General(i), "table cell violates default_tolerance_table_cell WR2–WR5: at most five items, stated range/digits and tolerance, at most one 'cell description'");
+                        }
+                        for (_, v) in &c.items {
+                            let d = match v {
+                                CellValue::Count(d) => Some(d),
+                                CellValue::Value(v) => Some(v.decimal()),
+                                _ => None,
+                            };
+                            if let Some(why) = d.and_then(|d| real(d).err()) {
+                                self.refuse(ItemRef::General(i), why);
+                            }
+                        }
+                    }
+                }
+                GeneralTolerance::Class { text, standard } => {
+                    if Iso2768::recognise(text) != *standard || text.trim().is_empty() {
+                        self.refuse(ItemRef::General(i), format!("tolerance class {text:?}: its ISO 2768 classes are those its text states"));
                     }
                 }
             }
         }
         if let Some(m) = &p.material {
-            if m.density.is_some() {
-                self.refuse(
-                    ItemRef::Material,
-                    "material density is read only (decision 2: no density is written)",
-                );
+            if let Some(d) = &m.density {
+                let mut mass = 0.;
+                let mut length = 0.;
+                for (name, exponent) in &d.unit {
+                    match density_unit(name) {
+                        Some(DensityUnit::Mass(_)) => mass += exponent.to_f64(),
+                        Some(DensityUnit::Length(_)) => length += exponent.to_f64(),
+                        None => self.refuse(
+                            ItemRef::Material,
+                            format!("density unit {name:?} has no stated mass or length scale"),
+                        ),
+                    }
+                    if let Err(why) = real(exponent) {
+                        self.refuse(ItemRef::Material, why);
+                    }
+                }
+                if mass != 1. || length != -3. {
+                    self.refuse(
+                        ItemRef::Material,
+                        "density must have dimensional exponents mass 1, length -3 (ISO 10303-41)",
+                    );
+                }
+                if let Err(why) = real(&d.value) {
+                    self.refuse(ItemRef::Material, why);
+                }
+                if d.value.to_f64() <= 0. {
+                    self.refuse(ItemRef::Material, "density must be positive");
+                }
             }
             if m.id.is_empty() {
                 self.refuse(ItemRef::Material, "material without its identification");
@@ -1886,12 +2059,20 @@ impl<'a> PartPlan<'a> {
                 }
             }
             for t in &p.tolerances {
-                if let ToleranceTarget::Feature(f) = t.target {
-                    add(f);
+                match t.target {
+                    ToleranceTarget::Feature(f) => add(f),
+                    ToleranceTarget::Relation {
+                        relating, related, ..
+                    } => {
+                        add(relating);
+                        add(related);
+                    }
+                    _ => {}
                 }
                 if let Some(z) = &t.zone {
                     z.projected.iter().filter_map(|x| x.end).for_each(&mut add);
                     z.non_uniform.iter().flatten().copied().for_each(&mut add);
+                    z.affected_plane.into_iter().for_each(&mut add);
                 }
             }
             for f in &p.features {
@@ -1971,7 +2152,7 @@ impl<'a> PartPlan<'a> {
                 self.refuse(
                     ItemRef::Datum(i),
                     format!(
-                        "datum {} is established by datum targets, which are not written yet",
+                        "datum {} requires targets whose §6.6 description conflicts with datum_target WR5",
                         d.label()
                     ),
                 );
@@ -2083,25 +2264,21 @@ impl<'a> PartPlan<'a> {
 
         // Tolerances.
         for (i, t) in p.tolerances.iter().enumerate() {
-            if matches!(t.target, ToleranceTarget::Relation { .. }) {
-                self.refuse(
-                    ItemRef::Tolerance(i),
-                    "a tolerance on a shape_aspect_relationship is not written: the reader reads such a relationship from a feature as the feature's composition",
-                );
+            let schema = self.doc.file_schema().unwrap_or_default();
+            let edition = schema
+                .first()
+                .and_then(|name| express::edition(name))
+                .unwrap_or(express::TARGET);
+            let relation_allowed = edition.type_decl("geometric_tolerance_target").is_some_and(|t| matches!(t.def, express::TypeDef::Select(members) if members.contains(&"shape_aspect_relationship")));
+            if matches!(t.target, ToleranceTarget::Relation { .. }) && !relation_allowed {
+                self.refuse(ItemRef::Tolerance(i), "this AP242 edition's geometric_tolerance_target SELECT excludes shape_aspect_relationship; edition 4 supports it");
             }
-            if let Some(z) = &t.zone {
-                if z.projected.as_ref().is_some_and(|pz| pz.end.is_none()) {
-                    self.refuse(
-                        ItemRef::Tolerance(i),
-                        "a projected tolerance zone without its projection end (§6.9.2.2)",
-                    );
-                }
-                if z.affected_plane.is_some() {
-                    self.refuse(
-                        ItemRef::Tolerance(i),
-                        "the affected plane (§6.9.2.1) is not written: the reader does not hold it",
-                    );
-                }
+            if t.zone
+                .as_ref()
+                .and_then(|z| z.projected.as_ref())
+                .is_some_and(|pz| pz.end.is_none())
+            {
+                self.refuse(ItemRef::Tolerance(i), "a projected tolerance zone without its projection end (§6.9.2.2): the model states no origin geometry");
             }
             if let Some(u) = &t.unit_basis {
                 let lengths = std::iter::once(&u.size)
@@ -2420,7 +2597,32 @@ impl<'a> PartPlan<'a> {
             let r = self.tolerance(em, &mut st, pds, t, &mut names)?;
             st.tolerances.insert(i, r);
         }
+        for r in &p.tolerance_relations {
+            let name = match r.kind {
+                RelationKind::Composite => "composite",
+                RelationKind::Precedence => "precedence",
+                RelationKind::Simultaneity => "simultaneity",
+            };
+            em.simple(
+                "geometric_tolerance_relationship",
+                &[
+                    ("name", s(name)),
+                    ("description", s("")),
+                    (
+                        "relating_geometric_tolerance",
+                        st.tolerances[&r.relating.0].a(),
+                    ),
+                    (
+                        "related_geometric_tolerance",
+                        st.tolerances[&r.related.0].a(),
+                    ),
+                ],
+            )?;
+        }
         for g in &p.general {
+            if let GeneralTolerance::Table { name, cells } = g {
+                self.tolerance_table(em, pds, name, cells)?;
+            }
             if let GeneralTolerance::Class { text, .. } = g {
                 let item = em.simple(
                     "descriptive_representation_item",
@@ -2459,12 +2661,139 @@ impl<'a> PartPlan<'a> {
                 &[item],
             )?;
         }
+        if let Some(d) = p.material.as_ref().and_then(|m| m.density.as_ref()) {
+            let mut elements = Vec::new();
+            for (name, exponent) in &d.unit {
+                let unit = match density_unit(name).expect("checked density unit") {
+                    DensityUnit::Length(l) => em.length_unit(self.context, &l)?.0,
+                    DensityUnit::Mass(prefix) => em.instance(
+                        &["mass_unit", "si_unit"],
+                        &[
+                            (("si_unit", "prefix"), prefix.map_or(A::Unset, en)),
+                            (("si_unit", "name"), en("gram")),
+                        ],
+                        &[],
+                    )?,
+                };
+                let e = real(exponent).map_err(WriteError::Internal)?;
+                elements.push(em.instance(
+                    &["derived_unit_element"],
+                    &[(("", "unit"), unit.a()), (("", "exponent"), e)],
+                    &[exponent],
+                )?);
+            }
+            let unit = em.simple("derived_unit", &[("elements", refs(elements))])?;
+            let item = em.instance(
+                &["measure_representation_item"],
+                &[
+                    (("", "name"), s("density measure")),
+                    (
+                        ("", "value_component"),
+                        typed(
+                            "positive_ratio_measure",
+                            real(&d.value).map_err(WriteError::Internal)?,
+                        ),
+                    ),
+                    (("", "unit_component"), unit.a()),
+                ],
+                &[&d.value],
+            )?;
+            self.property(em, pd, "material property", "density", "density", &[item])?;
+        }
         for a in &p.attributes {
             self.attribute_set(em, &mut st, pd, pds, a)?;
         }
         for t in &p.surface_textures {
             self.surface_texture(em, &mut st, pds, t)?;
         }
+        Ok(())
+    }
+
+    fn tolerance_table(
+        &self,
+        em: &mut Emitter<'_>,
+        pds: R,
+        name: &str,
+        cells: &[ToleranceCell],
+    ) -> Result<(), WriteError> {
+        let context = em.simple(
+            "representation_context",
+            &[
+                ("context_identifier", s("")),
+                ("context_type", s("default setting")),
+            ],
+        )?;
+        let mut items = Vec::new();
+        for c in cells {
+            let mut elements = Vec::new();
+            for (name, v) in &c.items {
+                elements.push(match v {
+                    CellValue::Text(t) => Self::text_item(em, name, t)?,
+                    CellValue::Count(d) => em.measure_item(
+                        name,
+                        MeasureItem::Count(d),
+                        self.context,
+                        Vec::new(),
+                        None,
+                    )?,
+                    CellValue::Value(v) => em.measure_item(
+                        name,
+                        measure_of_value(v),
+                        self.context,
+                        Vec::new(),
+                        v.decimal_places,
+                    )?,
+                });
+            }
+            items.push(em.simple(
+                "default_tolerance_table_cell",
+                &[
+                    ("name", s("")),
+                    (
+                        "item_element",
+                        typed("set_representation_item", refs(elements)),
+                    ),
+                ],
+            )?);
+        }
+        let table = em.simple(
+            "default_tolerance_table",
+            &[
+                ("name", s(name)),
+                ("items", refs(items)),
+                ("context_of_items", context.a()),
+            ],
+        )?;
+        let class = Self::text_item(em, "tolerance class", "")?;
+        let rep = em.simple(
+            "representation",
+            &[
+                ("name", s("default tolerances")),
+                ("items", refs([class])),
+                ("context_of_items", context.a()),
+            ],
+        )?;
+        let prop = em.simple(
+            "property_definition",
+            &[
+                ("name", s("default tolerances")),
+                ("description", s("")),
+                ("definition", pds.a()),
+            ],
+        )?;
+        em.simple(
+            "property_definition_representation",
+            &[("definition", prop.a()), ("used_representation", rep.a())],
+        )?;
+        em.simple(
+            "representation_relationship",
+            &[
+                ("name", s("general tolerance definition")),
+                ("description", s("")),
+                ("rep_1", table.a()),
+                ("rep_2", rep.a()),
+            ],
+        )?;
         Ok(())
     }
 
@@ -3456,10 +3785,22 @@ impl<'a> PartPlan<'a> {
             ToleranceTarget::Feature(f) => self.feature(em, st, pds, f.0)?,
             ToleranceTarget::Dimension(d) => self.dimension(em, st, pds, d.0)?,
             ToleranceTarget::WholePart => pds,
-            ToleranceTarget::Relation { .. } => {
-                return Err(WriteError::Internal(
-                    "a relation target passed the checks".into(),
-                ));
+            ToleranceTarget::Relation {
+                relating,
+                related,
+                name,
+            } => {
+                let a = self.feature(em, st, pds, relating.0)?;
+                let b = self.feature(em, st, pds, related.0)?;
+                em.simple(
+                    "shape_aspect_relationship",
+                    &[
+                        ("name", s(name)),
+                        ("description", s("")),
+                        ("relating_shape_aspect", a.a()),
+                        ("related_shape_aspect", b.a()),
+                    ],
+                )?
             }
         };
         let system = match &t.datums {
@@ -3562,6 +3903,18 @@ impl<'a> PartPlan<'a> {
                     ("form", form.a()),
                 ],
             )?;
+            if let Some(f) = z.affected_plane {
+                let plane = self.feature(em, st, pds, f.0)?;
+                em.simple(
+                    "shape_aspect_relationship",
+                    &[
+                        ("name", s("affected plane association")),
+                        ("description", s("affected plane association")),
+                        ("relating_shape_aspect", zone.a()),
+                        ("related_shape_aspect", plane.a()),
+                    ],
+                )?;
+            }
             if let Some(pz) = &z.projected {
                 let end = match pz.end {
                     Some(f) => self.feature(em, st, pds, f.0)?,

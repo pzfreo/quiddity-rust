@@ -4,6 +4,20 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
+## Unreleased
+
+### Added
+
+- AP242 PMI writing of composite, precedence and simultaneity tolerance relations; stated
+  default-tolerance table cells and decimal places within them; material density in its own
+  dimensionally correct derived unit; edition 4 relationship targets and affected-plane links.
+- Legacy manufacturing-requirement notes migrate to semantic text or unambiguous surface
+  texture. `standard_form` exposes the expected requirements and the CLI write report adds
+  `note_migrations`. Replace removes legacy properties and their owned presentation.
+- Regression fixtures for the new forms, five ordered numbered part notes across replace and
+  resumed add, and Python specify-note migration. Literal target and standalone-decimal
+  schema/practice conflicts remain explicit refusals with their evidence in `step-ap242.md`.
+
 ## 0.1.0-alpha.9 (2026-10-20)
 
 Upgrading: fingerprints are now `quiddity-rust/fingerprint/3` and `correspond` refuses

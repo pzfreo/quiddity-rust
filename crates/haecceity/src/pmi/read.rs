@@ -1241,6 +1241,27 @@ impl<'a> Reader<'a> {
             {
                 continue;
             }
+            // A tolerance's relation target and a zone's affected-plane link do not
+            // compose the relating feature of the related one.
+            if self
+                .get_str(r, "shape_aspect_relationship", "name")
+                .as_deref()
+                == Some("affected plane association")
+                || self
+                    .get_str(r, "shape_aspect_relationship", "description")
+                    .as_deref()
+                    == Some("affected plane association")
+                || !self
+                    .referrers_by(
+                        r,
+                        "geometric_tolerance",
+                        "geometric_tolerance",
+                        "toleranced_shape_aspect",
+                    )
+                    .is_empty()
+            {
+                continue;
+            }
             let Some(m) = self.get_ref(r, "shape_aspect_relationship", "related_shape_aspect")
             else {
                 continue;
@@ -3903,6 +3924,26 @@ impl<'a> Reader<'a> {
                 return None;
             }
         }
+        for r in self.referrers_by(
+            zone,
+            "shape_aspect_relationship",
+            "shape_aspect_relationship",
+            "relating_shape_aspect",
+        ) {
+            if self
+                .get_str(r, "shape_aspect_relationship", "name")
+                .as_deref()
+                == Some("affected plane association")
+                || self
+                    .get_str(r, "shape_aspect_relationship", "description")
+                    .as_deref()
+                    == Some("affected plane association")
+            {
+                let f = self.get_ref(r, "shape_aspect_relationship", "related_shape_aspect")?;
+                out.affected_plane = Some(self.feature(st, f)?);
+                prov.push(r);
+            }
+        }
         Some(Some(out))
     }
 
@@ -4799,14 +4840,12 @@ impl<'a> Reader<'a> {
                                     }
                                     CellValue::Count(d)
                                 }
-                                Ok(Measured::Length(l)) => CellValue::Value(Value {
-                                    quantity: Quantity::Length(l),
-                                    decimal_places: None,
-                                }),
-                                Ok(Measured::Angle(a)) => CellValue::Value(Value {
-                                    quantity: Quantity::Angle(a),
-                                    decimal_places: None,
-                                }),
+                                Ok(Measured::Length(_) | Measured::Angle(_)) => {
+                                    let Some(value) = self.value(st, ci, Want::Any, &mut p) else {
+                                        return;
+                                    };
+                                    CellValue::Value(value)
+                                }
                                 Ok(other) => {
                                     self.find(
                                         FindingKind::Unsupported,

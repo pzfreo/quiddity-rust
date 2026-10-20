@@ -2676,6 +2676,16 @@ pub fn write_report_json(
             ),
         )
         .put(
+            "note_migrations",
+            json!(
+                report
+                    .note_migrations
+                    .iter()
+                    .map(|(p, i, form)| json!({"part": p.0, "note": i, "form": form}))
+                    .collect::<Vec<_>>()
+            ),
+        )
+        .put(
             "datum_symbols",
             json!(
                 report

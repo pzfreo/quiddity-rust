@@ -2201,7 +2201,7 @@ pub enum GeneralTolerance {
         text: String,
         standard: Option<crate::pmi::standards::Iso2768>,
     },
-    /// A `default_tolerance_table` (§4.1), read and reported.
+    /// A `default_tolerance_table` (§4.1), with its cells as stated.
     Table {
         name: String,
         cells: Vec<ToleranceCell>,
@@ -2362,7 +2362,7 @@ pub struct Note {
     pub text: String,
     pub on: Option<NoteOwner>,
     /// The callouts that present it (§7.3), in the order of their instances. Read only:
-    /// `pmi::write` refuses notes of this route by name, and its comparison does not carry them.
+    /// `pmi::write` migrates the requirement to a standard form and removes replaced presentation.
     pub callouts: Vec<Callout>,
 }
 

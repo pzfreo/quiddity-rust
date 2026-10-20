@@ -169,7 +169,7 @@ pub fn verify(
                             || k.starts_with("datum only in the second: ")
                     })
                     .collect();
-                let mut expected: Vec<String> = item_keys(new)
+                let mut expected: Vec<String> = item_keys(&super::write::standard_form(new))
                     .into_iter()
                     .filter(|k| !shared.contains(k))
                     .collect();
@@ -193,7 +193,7 @@ pub fn verify(
             }
             Some((_, new)) => {
                 problems.extend(
-                    differences_as_stated(new, read)
+                    differences_as_stated(&super::write::standard_form(new), read)
                         .into_iter()
                         .map(|difference| Problem::Differs { part, difference }),
                 );

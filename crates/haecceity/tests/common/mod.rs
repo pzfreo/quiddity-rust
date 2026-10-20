@@ -6,6 +6,7 @@
 pub mod drawing;
 #[path = "../../../../tests/common/parallel.rs"]
 pub mod parallel;
+pub mod pmi_gaps;
 
 use std::path::{Path, PathBuf};
 

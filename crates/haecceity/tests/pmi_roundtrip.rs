@@ -622,7 +622,7 @@ fn roundtrip(
                 let doc1 = Document::parse(bytes.clone()).unwrap();
                 let r1 = pmi::read(&doc1, &parts1).unwrap();
                 for (i, p) in o.written.iter().enumerate() {
-                    for d in differences(p, &r1.parts[i]) {
+                    for d in differences(&pmi::write::standard_form(p), &r1.parts[i]) {
                         problems.push(format!("{stem} part {i}: {d}"));
                     }
                 }
@@ -830,4 +830,37 @@ fn read_replace_read_keeps_nist_files() {
         &mut problems,
     );
     assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
+
+#[test]
+fn newly_written_kinds_roundtrip_into_a_clean_copy() {
+    let bytes = file_bytes(&common::fixtures().join("ap242/specify/spool_fits.step.gz"));
+    let parts = read_part_definitions(&bytes).unwrap();
+    let doc = Document::parse(bytes).unwrap();
+    let mut schema = haecceity::p21::Edit::new();
+    schema.set_file_schema(vec![haecceity::express::TARGET_SCHEMA.into()]);
+    let doc = Document::parse(doc.apply(&schema).unwrap().bytes).unwrap();
+    let original = common::pmi_gaps::every_kind();
+    let (edit, _) = pmi::write(
+        &doc,
+        &parts,
+        &[(PartId(0), original.clone())],
+        Mode::Replace,
+        PresentationPolicy::RemovePresentation,
+    )
+    .unwrap();
+    let first = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
+    let read = pmi::read(&first, &parts).unwrap();
+    assert!(differences(&pmi::write::standard_form(&original), &read.parts[0]).is_empty());
+    let (edit, _) = pmi::write(
+        &doc,
+        &parts,
+        &[(PartId(0), read.parts[0].clone())],
+        Mode::Replace,
+        PresentationPolicy::RemovePresentation,
+    )
+    .unwrap();
+    let second = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
+    let read2 = pmi::read(&second, &parts).unwrap();
+    assert!(differences(&read.parts[0], &read2.parts[0]).is_empty());
 }
