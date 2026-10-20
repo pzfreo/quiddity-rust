@@ -598,14 +598,6 @@
   },
   {
     "file": "cadgenbench_inputs/cgb245.step",
-    "family": "recognise_slots",
-    "key": "{} records: 3 vs 3 records, fields {\"body_key\"}",
-    "count": 1,
-    "verdict": "rust-correct",
-    "reason": "Same slots; only the body key differs, in its volume and area, which are the solid's masses: the port's 121083.306695 and 127538.919907 agree with tools/kernel_evidence.py's independent integration over the 3D edges (2.5e-11, 4.7e-12) and OpenCascade's adaptive integration (9.0e-12, 5.7e-13), where Python's 121083.594931 and 127539.014087 are OpenCascade's fixed Gauss rule (this file's solid masses entry). The box agrees."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb245.step",
     "family": "recognise_thin_wall_bodies",
     "key": "{} records: 1 vs 1 records, fields {\"body_key\"}",
     "count": 1,
@@ -1119,24 +1111,8 @@
   {
     "count": 1,
     "family": "recognise_pockets",
-    "file": "mfcadpp/10103.step",
-    "key": "{} records: 4 vs 4 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
-    "verdict": "rust-correct",
-    "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
-  },
-  {
-    "count": 1,
-    "family": "recognise_pockets",
     "file": "mfcadpp/10146.step",
     "key": "{} records: 4 vs 4 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
-    "verdict": "rust-correct",
-    "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
-  },
-  {
-    "count": 1,
-    "family": "recognise_pockets",
-    "file": "mfcadpp/10245.step",
-    "key": "{} records: 3 vs 3 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
     "verdict": "rust-correct",
     "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
   },
@@ -1155,5 +1131,125 @@
     "key": "{} records: 1 vs 1 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
     "verdict": "rust-correct",
     "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "key": "{} records: 8 vs 8 records, fields {\"depth\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: measured sizes are rounded before world-coordinate publication, snapping decimal half-way points within the 1e-6 mm coordinate floor to ties-to-even. The 92.075 mm bore becomes 92.08 mm and the 0.635 mm recess depth becomes 0.64 mm consistently; frozen Python chooses a side from binary coordinate noise. tests/invariance.rs checks translations and principal rotations; policy::tests also pins positive and negative half-way fixtures and values beyond the noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_holes",
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "key": "{\"csinks\":\"auto\"} records: 21 vs 21 records, fields {\"depth\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: measured sizes are rounded before world-coordinate publication, snapping decimal half-way points within the 1e-6 mm coordinate floor to ties-to-even. The 92.075 mm bore becomes 92.08 mm and the 0.635 mm recess depth becomes 0.64 mm consistently; frozen Python chooses a side from binary coordinate noise. tests/invariance.rs checks translations and principal rotations; policy::tests also pins positive and negative half-way fixtures and values beyond the noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_holes",
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "key": "{} records: 21 vs 21 records, fields {\"depth\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: measured sizes are rounded before world-coordinate publication, snapping decimal half-way points within the 1e-6 mm coordinate floor to ties-to-even. The 92.075 mm bore becomes 92.08 mm and the 0.635 mm recess depth becomes 0.64 mm consistently; frozen Python chooses a side from binary coordinate noise. tests/invariance.rs checks translations and principal rotations; policy::tests also pins positive and negative half-way fixtures and values beyond the noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_slots",
+    "file": "cadgenbench_inputs/cgb245.step",
+    "key": "{} records: 3 vs 3 records, fields {\"body_key\", \"length\"}",
+    "verdict": "rust-correct",
+    "reason": "The two end-capped slots have frozen Python lengths 14.97 mm and 14.97 mm; Rust measures each as 14.96 mm from the unrounded wall span and cap radii before publication. Independent OpenCascade BRepAdaptor_Surface reads the cap centres at x = -107.9260085313 and -98.9635869913 mm (the other slot is symmetric), both radius 3 mm: centre separation plus two radii is 14.96242154 mm, which rounds to 14.96 mm. The third, corner-rounded slot remains 16.86 mm on both sides. Rounding the earlier tangency coordinates before extending by the cap radius produced Python's 0.01 mm excess. All three slot regions and their source faces remain, and tests/invariance.rs checks the same geometry under placement. Previous independent verdict retained: Same slots; only the body key differs, in its volume and area, which are the solid's masses: the port's 121083.306695 and 127538.919907 agree with tools/kernel_evidence.py's independent integration over the 3D edges (2.5e-11, 4.7e-12) and OpenCascade's adaptive integration (9.0e-12, 5.7e-13), where Python's 121083.594931 and 127539.014087 are OpenCascade's fixed Gauss rule (this file's solid masses entry). The box agrees."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10096.step",
+    "key": "{} records: 2 vs 2 records, fields {\"length\", \"width\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: sizes now use raw cylinder radii and wall spans through all reductions, then tolerance-aware ties-to-even rounding. World-coordinate publication happens last. Independent OpenCascade BRepAdaptor_Surface reads radius 0.642597010474 mm on mfcadpp/10000.step: its 1.285194020948 mm diameter rounds to 1.29 mm, rather than twice the prematurely rounded 0.64 mm radius (1.28 mm). Length and depth stay invariant in tests/invariance.rs; every coordinate and source face is still published. policy::tests pins half-way sizes and values outside the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp_holdout/20273.step",
+    "key": "{} records: 1 vs 1 records, fields {\"length\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: sizes now use raw cylinder radii and wall spans through all reductions, then tolerance-aware ties-to-even rounding. World-coordinate publication happens last. Independent OpenCascade BRepAdaptor_Surface reads radius 0.642597010474 mm on mfcadpp/10000.step: its 1.285194020948 mm diameter rounds to 1.29 mm, rather than twice the prematurely rounded 0.64 mm radius (1.28 mm). Length and depth stay invariant in tests/invariance.rs; every coordinate and source face is still published. policy::tests pins half-way sizes and values outside the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_slots",
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "key": "{} records: 2 vs 2 records, fields {\"end_radius\", \"hi\", \"length\", \"lo\", \"w_center\", \"width\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: sizes now use raw cylinder radii and wall spans through all reductions, then tolerance-aware ties-to-even rounding. World-coordinate publication happens last. Independent OpenCascade BRepAdaptor_Surface reads radius 0.642597010474 mm on mfcadpp/10000.step: its 1.285194020948 mm diameter rounds to 1.29 mm, rather than twice the prematurely rounded 0.64 mm radius (1.28 mm). Length and depth stay invariant in tests/invariance.rs; every coordinate and source face is still published. policy::tests pins half-way sizes and values outside the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_slots",
+    "file": "nist/nist_ftc_09_asme1_rd.stp",
+    "key": "{} records: 3 vs 3 records, fields {\"end_radius\", \"length\", \"lo\", \"width\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: sizes now use raw cylinder radii and wall spans through all reductions, then tolerance-aware ties-to-even rounding. World-coordinate publication happens last. Independent OpenCascade BRepAdaptor_Surface reads radius 0.642597010474 mm on mfcadpp/10000.step: its 1.285194020948 mm diameter rounds to 1.29 mm, rather than twice the prematurely rounded 0.64 mm radius (1.28 mm). Length and depth stay invariant in tests/invariance.rs; every coordinate and source face is still published. policy::tests pins half-way sizes and values outside the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10000.step",
+    "key": "{} records: 1 vs 1 records, fields {\"length\", \"width\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10063.step",
+    "key": "{} records: 3 vs 3 records, fields {\"length\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10103.step",
+    "key": "{} records: 4 vs 4 records, fields {\"hi\", \"length\", \"lo\", \"long_axis\", \"w_center\", \"width\", \"width_axis\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band. Equal width/length wall pairs retain both defining pairs and select the record by original face identity, stable under placement."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10119.step",
+    "key": "{} records: 5 vs 5 records, fields {\"length\", \"lo\", \"width\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10212.step",
+    "key": "{} records: 2 vs 2 records, fields {\"length\", \"width\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10245.step",
+    "key": "{} records: 3 vs 3 records, fields {\"hi\", \"length\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band. Equal width/length wall pairs retain both defining pairs and select the record by original face identity, stable under placement."
+  },
+  {
+    "count": 1,
+    "family": "recognise_slots",
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "key": "{} records: 4 vs 4 records, fields {\"length\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band."
   }
 ]

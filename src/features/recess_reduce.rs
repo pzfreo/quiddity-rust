@@ -8,6 +8,7 @@ use std::cmp::Ordering;
 use std::collections::BTreeSet;
 
 use super::Context;
+use super::policy::round_measurement;
 use super::recess_faces::MERGE_TOL;
 use super::recess_records::{Recess, Slot};
 use super::volume_probe::{Spans, prism_material_fraction};
@@ -70,8 +71,11 @@ fn combine<R: Clone>(record: R, members: &[&Proposal<R>]) -> Proposal<R> {
 
 /// The order recess records are reduced and published in: width, then region centre.
 pub fn width_then_centre<R: Recess>(a: &R, b: &R) -> Ordering {
-    py::order(a.width(), b.width())
-        .then_with(|| py::tuple_order(&a.region_center(), &b.region_center()))
+    // Raw positions must survive reduction, but sub-coordinate-floor noise must not decide
+    // which equal-width record comes first (and hence its section-recess index). Quantise
+    // only this ordering key; measured spans and the records themselves remain untouched.
+    let centre_key = |r: &R| r.region_center().map(|c| py::round_to(c, 6));
+    py::order(a.width(), b.width()).then_with(|| py::tuple_order(&centre_key(a), &centre_key(b)))
 }
 
 /// Co-located candidates as one, keeping the first of each in (width, centre) order: the
@@ -194,10 +198,10 @@ pub fn collapse_collinear_proposals(
                 width_axis: base.width_axis,
                 long_axis: base.long_axis,
                 width: base.width,
-                length: py::round_to(hi - lo, 2),
+                length: round_measurement(hi - lo, 2),
                 w_center: base.w_center,
-                lo: py::round_to(lo, 2),
-                hi: py::round_to(hi, 2),
+                lo,
+                hi,
                 d_lo: base.d_lo,
                 d_hi: base.d_hi,
                 body_key: Some(Vec::new()),
@@ -229,4 +233,33 @@ pub fn body_scoped<R: Recess, E>(
     }
     out.sort_by(|a, b| width_then_centre(&a.record, &b.record));
     Ok(out)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn equal_width_recess_order_ignores_roundoff_in_a_tied_coordinate() {
+        let slot = |x, y| Slot {
+            width_axis: 'x',
+            long_axis: 'y',
+            width: 2.0,
+            length: 4.0,
+            w_center: x,
+            lo: y - 2.0,
+            hi: y + 2.0,
+            d_lo: 0.0,
+            d_hi: 1.0,
+            body_key: None,
+            end_radius: None,
+            corner_radius: None,
+        };
+        for noise in [-1e-12, 0.0, 1e-12] {
+            let a = slot(noise, 10.0);
+            let b = slot(-noise, 20.0);
+            assert_eq!(width_then_centre(&a, &b), Ordering::Less);
+            assert_eq!(width_then_centre(&b, &a), Ordering::Greater);
+        }
+    }
 }

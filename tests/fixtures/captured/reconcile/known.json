@@ -264,6 +264,13 @@
    ],
    "verdict": "rust-correct",
    "reason": "The same square pocket retains both proved opposed wall pairs, including the full four-wall defining region. Analytic square-footprint symmetry and tests/invariance.rs show that this topology survives placement; the frozen Python pair depends on width-versus-length round-off. See the rust-correct pocket evidence in known_divergences.json. This changes the face reference, without losing or adding a physical recess."
+  },
+  {
+   "family": "slots",
+   "file": "nist/nist_ctc_03_asme1_rc.stp",
+   "order": true,
+   "verdict": "rust-correct",
+   "reason": "The same slot face lists are retained in a stable order. Raw centres still measure the geometry; only the width/centre ordering key is quantised to six decimal places with the kernel coordinate floor. Infinitesimal differences in a tied centre coordinate must not override the next distinct coordinate or exchange section-recess indices. recess_reduce::tests and the generic-framed NIST FTC 06/10 document checks independently establish this ordering correction; the frozen Python ordering is not authoritative."
   }
  ],
  "decisions": [

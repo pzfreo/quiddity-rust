@@ -120,11 +120,26 @@ fn quality_part_section_recesses_match_python() {
                 .enumerate()
                 .find(|(_, k)| k["file"] == file && k["item"] == "occurrence" && k["key"] == key)
             {
-                // Keep the proved kernel corrections: these NIST slots are capped at one end,
-                // though Python's coplanar boolean incorrectly publishes two open ends.
-                assert_eq!(verdict["kind"], "missing");
+                // Keep proved Rust-first corrections: omit NIST slots mispublished by
+                // Python's cap boolean, or apply the explicit per-field geometry corrections.
                 assert_eq!(verdict["verdict"], "rust-correct");
                 used.push(i);
+                match verdict["kind"].as_str().unwrap() {
+                    "missing" => {}
+                    "differs" => {
+                        // Rust-first corrections are explicit per-field expectations. Check
+                        // their frozen Python inputs and compare the complete corrected record.
+                        let mut corrected = record.clone();
+                        for change in verdict["corrections"].as_array().unwrap() {
+                            let path = change["path"].as_str().unwrap();
+                            assert_eq!(corrected.pointer(path), Some(&change["python"]));
+                            *corrected.pointer_mut(path).unwrap() = change["rust"].clone();
+                        }
+                        corrected["index"] = json!(expected.len());
+                        expected.push(corrected);
+                    }
+                    other => panic!("unsupported quality-part correction: {other}"),
+                }
             } else {
                 let mut record = record.clone();
                 record["index"] = json!(expected.len());

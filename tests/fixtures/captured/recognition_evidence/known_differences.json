@@ -3211,6 +3211,42 @@
       "rust": 0,
       "verdict": "rust-correct",
       "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": null,
+      "family": "slots",
+      "field": "order",
+      "file": "nist/nist_ctc_03_asme1_rc.stp",
+      "python": [
+        [
+          62,
+          63,
+          64,
+          65
+        ],
+        [
+          66,
+          67,
+          68,
+          69
+        ]
+      ],
+      "rust": [
+        [
+          66,
+          67,
+          68,
+          69
+        ],
+        [
+          62,
+          63,
+          64,
+          65
+        ]
+      ],
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance and analytic-size evidence: raw cylinder radii and wall spans are measured before decimal publication, so rounded widths and lengths no longer depend on the placement grid. The two nist_ctc_03 slots change order because their correctly measured widths order differently from twice-rounded radii; their original faces, records and all information remain published."
     }
   ],
   "motions": [

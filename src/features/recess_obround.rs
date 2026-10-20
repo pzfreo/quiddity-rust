@@ -6,6 +6,7 @@
 use std::collections::BTreeSet;
 
 use super::policy::length_tol;
+use super::policy::round_measurement;
 use super::recess_faces::{
     Cylinder, Face, MERGE_TOL, center, floor_end_faces, has_side_walls, union_bb,
 };
@@ -184,13 +185,14 @@ pub fn extend_obround_proposals<R: Recess>(
             return Err(CompetingCaps);
         }
         if let (Some(low), Some(high)) = (low.first(), high.first()) {
-            let radius = record.width() / 2.0;
+            let low_radius = ends.iter().find(|e| e.patches == *low).unwrap().radius;
+            let high_radius = ends.iter().find(|e| e.patches == *high).unwrap().radius;
             let mut extended = record.spanned(
-                py::round_to(record.lo() - radius, 2),
-                py::round_to(record.hi() + radius, 2),
-                py::round_to(record.hi() - record.lo() + 2.0 * radius, 2),
+                record.lo() - low_radius,
+                record.hi() + high_radius,
+                round_measurement(record.hi() - record.lo() + low_radius + high_radius, 2),
             );
-            extended.set_end_radius(py::round_to(radius, 2));
+            extended.set_end_radius(round_measurement(0.5 * (low_radius + high_radius), 2));
             let mut caps = proposal.caps.clone();
             for group in [low, high] {
                 if !caps.contains(group) {
@@ -300,12 +302,9 @@ fn obround_from_ends(faces: &[Face], cylinders: &[Cylinder], blind: bool) -> Vec
     let mut out = Vec::new();
     for group in compatible_end_groups(&ends) {
         let first = group[0];
-        let rad = py::round_to(first.radius, 2);
-        let (dlo, dhi) = (py::round_to(first.d_lo, 2), py::round_to(first.d_hi, 2));
-        let wc = py::round_to(
-            group.iter().map(|e| e.w_center).sum::<f64>() / group.len() as f64,
-            2,
-        );
+        let rad = first.radius;
+        let (dlo, dhi) = (first.d_lo, first.d_hi);
+        let wc = group.iter().map(|e| e.w_center).sum::<f64>() / group.len() as f64;
         let mut run = group.clone();
         run.sort_by(|a, b| py::order(a.flat, b.flat));
         let mut i = 0;
@@ -318,17 +317,17 @@ fn obround_from_ends(faces: &[Face], cylinders: &[Cylinder], blind: bool) -> Vec
                 i += 1;
                 continue;
             }
-            let (lo_f, hi_f) = (py::round_to(lo_end.flat, 2), py::round_to(hi_end.flat, 2));
+            let (lo_f, hi_f) = (lo_end.flat, hi_end.flat);
             let s = Slot {
                 width_axis: AXES[first.width_axis],
                 long_axis: AXES[first.long_axis],
-                width: py::round_to(2.0 * rad, 2),
-                length: py::round_to(hi_f - lo_f, 2),
-                w_center: py::round_to(wc, 2),
+                width: round_measurement(2.0 * rad, 2),
+                length: round_measurement(hi_f - lo_f, 2),
+                w_center: wc,
                 lo: lo_f,
                 hi: hi_f,
-                d_lo: py::round_to(dlo, 2),
-                d_hi: py::round_to(dhi, 2),
+                d_lo: dlo,
+                d_hi: dhi,
                 body_key: Some(Vec::new()),
                 end_radius: None,
                 corner_radius: None,
@@ -348,7 +347,7 @@ fn obround_from_ends(faces: &[Face], cylinders: &[Cylinder], blind: bool) -> Vec
                     long_axis: s.long_axis,
                     width: s.width,
                     length: s.length,
-                    depth: py::round_to(dhi - dlo, 2),
+                    depth: round_measurement(first.d_hi - first.d_lo, 2),
                     w_center: s.w_center,
                     lo: lo_f,
                     hi: hi_f,

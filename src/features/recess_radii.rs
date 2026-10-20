@@ -2,18 +2,19 @@
 //! equal concave quarter cylinders at the four flat-wall junctions, spanning the record's whole
 //! depth. Anything partial, mixed, misplaced or ambiguous leaves the radius unknown.
 
+use super::policy::round_measurement;
 use super::recess_faces::{Cylinder, union_bb};
 use super::recess_records::Recess;
 use crate::kernel::geom::Bounds;
-use crate::kernel::py;
 
-/// The largest displacement of two independently published (two-decimal) coordinates.
-const PUBLISHED_COORD_TOL: f64 = 0.011;
+/// Corner-fit acceptance in millimetres, retaining the historical 0.011 mm bound.
+/// This also covers the two-decimal width; positions now retain raw geometry.
+const CORNER_FIT_TOL: f64 = 0.011;
 /// A quarter cylinder spans one radius on both footprint axes, to this ratio.
 const QUARTER_RATIO_TOL: f64 = 0.1;
 
 fn close(left: f64, right: f64) -> bool {
-    (left - right).abs() <= PUBLISHED_COORD_TOL
+    (left - right).abs() <= CORNER_FIT_TOL
 }
 
 fn same_span(actual: (f64, f64), expected: (f64, f64)) -> bool {
@@ -107,16 +108,22 @@ fn proved_corner_radius<R: Recess>(record: &R, cylinders: &[Cylinder]) -> Option
     let mut proved: Vec<f64> = Vec::new();
     for radius in candidate_radii(cylinders, record) {
         // At half-width the footprint is a stadium: its ends are the end-radius proof's.
-        if radius >= record.width() / 2.0 - PUBLISHED_COORD_TOL {
+        if radius >= record.width() / 2.0 - CORNER_FIT_TOL {
             continue;
         }
         let all = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
             .iter()
             .all(|&(l, w)| site_matches(cylinders, record, radius, l, w));
         if all {
-            let published = py::round_to(radius, 2);
-            if published > 0.0 && !proved.contains(&published) {
-                proved.push(published);
+            let published = round_measurement(radius, 2);
+            // Keep distinct raw proofs ambiguous even when their published radii coincide:
+            // extending a span requires one proved raw radius, not just one rounded label.
+            if published > 0.0
+                && !proved
+                    .iter()
+                    .any(|r: &f64| (r - radius).abs() <= crate::kernel::geom::COORD_FLOOR)
+            {
+                proved.push(radius);
             }
         }
     }
@@ -134,10 +141,10 @@ pub fn with_proved_corner_radius<R: Recess>(record: R, cylinders: &[Cylinder]) -
         return record;
     };
     let mut out = record.spanned(
-        py::round_to(record.lo() - radius, 2),
-        py::round_to(record.hi() + radius, 2),
-        py::round_to(record.hi() - record.lo() + 2.0 * radius, 2),
+        record.lo() - radius,
+        record.hi() + radius,
+        round_measurement(record.hi() - record.lo() + 2.0 * radius, 2),
     );
-    out.set_corner_radius(radius);
+    out.set_corner_radius(round_measurement(radius, 2));
     out
 }

@@ -20,7 +20,7 @@ fn occurrence(proposal: Proposal<Slot>) -> Occurrence<Slot> {
     Occurrence {
         defining: proposal.defining().into_iter().collect(),
         context: Vec::new(),
-        record: proposal.record,
+        record: proposal.record.published(),
     }
 }
 

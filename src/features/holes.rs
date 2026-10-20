@@ -363,7 +363,7 @@ fn near_side_steps(steps: &[Segment]) -> (Option<CounterBore>, Option<CounterBor
     for (key, lo, hi, step_faces) in spans {
         let spec = CounterBore {
             diameter: key,
-            depth: py::round_to(hi - lo, 2),
+            depth: policy::round_measurement(hi - lo, 2),
         };
         let slot = if spec.depth < SPOTFACE_MAX_RATIO * spec.diameter {
             &mut spotface
@@ -488,7 +488,7 @@ pub fn discover(
             axis,
             location,
             diameter: bore.diameter,
-            depth: py::round_to(depth, 2),
+            depth: policy::round_measurement(depth, 2),
             bottom,
             cbore,
             spotface,

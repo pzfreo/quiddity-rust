@@ -12,6 +12,7 @@ use std::rc::Rc;
 use super::Context;
 use super::evidence::common_valid_solid;
 use super::graph;
+use super::policy::round_measurement;
 use super::recess_faces::{
     Cylinder, FLOOR_TOL, Face, MERGE_TOL, center, cylinder_faces, end_cap_faces, has_floor,
     overlap_len, planar_faces,
@@ -349,13 +350,13 @@ impl<'c, 'a> Scan<'c, 'a> {
         Some(Slot {
             width_axis: AXES[axis],
             long_axis: AXES[long_axis],
-            width: py::round_to(width, 2),
-            length: py::round_to(hi - lo, 2),
-            w_center: py::round_to((c_a + c_b) / 2.0, 2),
-            lo: py::round_to(lo, 2),
-            hi: py::round_to(hi, 2),
-            d_lo: py::round_to(d_lo, 2),
-            d_hi: py::round_to(d_hi, 2),
+            width: round_measurement(width, 2),
+            length: round_measurement(hi - lo, 2),
+            w_center: (c_a + c_b) / 2.0,
+            lo,
+            hi,
+            d_lo,
+            d_hi,
             body_key: Some(Vec::new()),
             end_radius: None,
             corner_radius: None,
@@ -417,14 +418,14 @@ impl<'c, 'a> Scan<'c, 'a> {
                     Floored::Pocket(Pocket {
                         width_axis: AXES[axis],
                         long_axis: AXES[long_axis],
-                        width: py::round_to(width, 2),
-                        length: py::round_to(length, 2),
-                        depth: py::round_to(d_hi - d_lo, 2),
-                        w_center: py::round_to(mid, 2),
-                        lo: py::round_to(l_lo, 2),
-                        hi: py::round_to(l_hi, 2),
-                        d_lo: py::round_to(d_lo, 2),
-                        d_hi: py::round_to(d_hi, 2),
+                        width: round_measurement(width, 2),
+                        length: round_measurement(length, 2),
+                        depth: round_measurement(d_hi - d_lo, 2),
+                        w_center: mid,
+                        lo: l_lo,
+                        hi: l_hi,
+                        d_lo,
+                        d_hi,
                         open_sign,
                         edge_anchored: false,
                         body_key: Some(Vec::new()),
@@ -440,10 +441,12 @@ impl<'c, 'a> Scan<'c, 'a> {
                     {
                         continue;
                     }
+                    // Channels retain their legacy position-shaped record: no later radius
+                    // extension or span-derived size reads these published coordinates.
                     Floored::Channel(Channel {
                         width_axis: AXES[axis],
                         long_axis: AXES[long_axis],
-                        width: py::round_to(width, 2),
+                        width: round_measurement(width, 2),
                         w_center: py::round_to(mid, 2),
                         lo: py::round_to(l_lo, 2),
                         hi: py::round_to(l_hi, 2),
@@ -773,14 +776,14 @@ fn corner_notch_proposals(faces: &[Face], pbb: &Bounds) -> Vec<Proposal<Pocket>>
             let record = Pocket {
                 width_axis: AXES[width_axis],
                 long_axis: AXES[long_axis],
-                width: py::round_to(width, 2),
-                length: py::round_to(length, 2),
-                depth: py::round_to(d_hi - d_lo, 2),
-                w_center: py::round_to(w_center, 2),
-                lo: py::round_to(lo, 2),
-                hi: py::round_to(hi, 2),
-                d_lo: py::round_to(d_lo, 2),
-                d_hi: py::round_to(d_hi, 2),
+                width: round_measurement(width, 2),
+                length: round_measurement(length, 2),
+                depth: round_measurement(d_hi - d_lo, 2),
+                w_center,
+                lo,
+                hi,
+                d_lo,
+                d_hi,
                 open_sign: if floor.normal[depth_axis] > 0.0 {
                     1
                 } else {
