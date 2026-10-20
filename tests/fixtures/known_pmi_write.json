@@ -1,8 +1,8 @@
 {
  "reasons": {
   "Attribute: \"\": N units of the file are named \"derived_unit\"; which one is not stated": "The reader names a measure's unit that is neither a length nor an angle by its entity types ('derived_unit'), which does not identify one of the file's several derived units; the writer will not pick one (it would guess the unit). The attribute set is left out of the round trip.",
-  "Datum: datum … is established by datum targets, which are not written yet": "Datum targets are read but not written yet (design: Out of scope); a datum they establish is refused with them, and tolerances referencing it are left out of the round trip.",
-  "DatumTarget: datum targets are read but not written yet (design: Out of scope)": "Writing datum targets is out of scope for this stage (design: Out of scope); refused by name.",
+  "Datum: datum … is established by datum targets, which are not written yet": "Historical refusal retired by maintainer decision 2026-10-20: write the practice §6.6 form with narrowly reported addition-only WR4/WR5 exemptions. The 13 CTC-02/FTC-10 targets and their datums now pass clean-copy and full-file round trips; the raw NIST file-wrong rule pins remain unchanged.",
+  "DatumTarget: datum targets are read but not written yet (design: Out of scope)": "Historical refusal retired by maintainer decision 2026-10-20: write the practice §6.6 form with narrowly reported addition-only WR4/WR5 exemptions. The 13 CTC-02/FTC-10 targets and their datums now pass clean-copy and full-file round trips; the raw NIST file-wrong rule pins remain unchanged.",
   "Dimension: a dimension without a nominal value (§N.N.N: it shall always be given)": "NIST CTC-01 states dimensions without a dimensional_characteristic_representation (a nonconformance the reader reads through, pinned in read/findings.json); PMI practice §5.2.1 requires the nominal value, so the writer refuses to write the nonconformance.",
   "Feature: a group of unstated kind (§N.N requires 'multiple elements' or 'pattern of features')": "NIST FTC-09's composite_group_shape_aspects state neither 'multiple elements' nor 'pattern of features' (read as GroupKind::Unstated with a finding); writing a group whose kind is not stated would write the nonconformance, so it is refused with what depends on it.",
   "Hole: hole definitions (basic_round_hole) are read but not written yet (design: question Q-holes)": "Edition 4 hole occurrences' basic_round_hole definitions (NIST STC-09) are read into PartPmi.holes, but the writer does not write them yet (docs/step-ap242.md question 7, Q-holes); refused by name so that a replace never drops them silently. The occurrences' faces are still written as their features (the written file is unchanged).",
@@ -11,8 +11,9 @@
   "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": "Writing tolerance relations (composite feature control frames) is out of scope for this stage (design: Out of scope); refused by name, left out of the round trip.",
   "no part definitions": "NIST FTC-08's -tg file is tessellated only: read_part_definitions finds no solid or shell with faces, so there is no part to write to (as for the reader).",
   "removal refused": "The file has PMI of the part the reader did not read (an unread tolerance whose toleranced feature or datum did not resolve, with its measure qualification, pinned in read/findings.json) that references instances the replace removes; kept PMI must not dangle, so the replace is refused naming it (design item 6: anything else blocks). The id_attributes listed beside it would be removed with their items.",
-  "Datum: datum … requires targets whose §N.N description conflicts with datum_target WRN": "The unchanged edition 4 source schema datum_target.WR5 forbids a description, but PMI practice §6.6 and placed_datum_target_feature.WR1 require it. No target rule or NIST violation pin is exempted; datums that require these targets remain refused.",
-  "DatumTarget: §N.N states the target shape in its description, but datum_target WRN forbids it; omitting the description passes the rules with UNKNOWN but loses the target shape": "WG12 N11521 datum_target.WR5 is NOT EXISTS(description); placed-target WR1 and §6.6 Tables 10–11 require the target shape in description. Omitting the description passes the WHERE checks (UNKNOWN), but loses the target shape. The writer keeps refusing rather than lose that meaning."
+  "Datum: datum … requires targets whose §N.N description conflicts with datum_target WRN": "Historical refusal retired by maintainer decision 2026-10-20: write the practice §6.6 form with narrowly reported addition-only WR4/WR5 exemptions. The 13 CTC-02/FTC-10 targets and their datums now pass clean-copy and full-file round trips; the raw NIST file-wrong rule pins remain unchanged.",
+  "DatumTarget: §N.N states the target shape in its description, but datum_target WRN forbids it; omitting the description passes the rules with UNKNOWN but loses the target shape": "Historical refusal retired by maintainer decision 2026-10-20: write the practice §6.6 form with narrowly reported addition-only WR4/WR5 exemptions. The 13 CTC-02/FTC-10 targets and their datums now pass clean-copy and full-file round trips; the raw NIST file-wrong rule pins remain unchanged.",
+  "practice/schema conflicts": "Maintainer decision 2026-10-20: actual raw violations on explicitly registered target/decimal-only cell additions only. Every other rule and structural schema validation remains mandatory; target WR4 is avoided by writing empty names."
  },
  "roundtrip": {
   "assembly": {
@@ -59,18 +60,12 @@
   },
   "nist_ctc_02_asme1_ap242-e2": {
    "edition": "undetermined: AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 } has no table; validated against AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
-   "left out": {
-    "datum targets": 9,
-    "datums": 4,
-    "tolerances": 8
-   },
    "presentation removed": 1473,
    "refuse policy": "refused: 181 presentation blockers of 215",
-   "refused": {
-    "Datum: datum … requires targets whose §N.N description conflicts with datum_target WRN": 4,
-    "DatumTarget: §N.N states the target shape in its description, but datum_target WRN forbids it; omitting the description passes the rules with UNKNOWN but loses the target shape": 9
-   },
-   "sha256": "99a0a2079ddeb64d05c2432cbe931fa17c89da60d8b0bcb0b11bd0ed94fa2e68"
+   "sha256": "99a0a2079ddeb64d05c2432cbe931fa17c89da60d8b0bcb0b11bd0ed94fa2e68",
+   "practice/schema conflicts": {
+    "datum_target.WR5": 9
+   }
   },
   "nist_ctc_03_asme1_ap242-e2": {
    "edition": "undetermined: AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 } has no table; validated against AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
@@ -140,19 +135,17 @@
   "nist_ftc_10_asme1_ap242-e2": {
    "edition": "undetermined: AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 } has no table; validated against AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
    "left out": {
-    "attributes": 12,
-    "datum targets": 4,
-    "datums": 2,
-    "tolerances": 2
+    "attributes": 12
    },
    "presentation removed": 1261,
    "refuse policy": "refused: 183 presentation blockers of 183",
    "refused": {
-    "Attribute: \"\": N units of the file are named \"derived_unit\"; which one is not stated": 12,
-    "Datum: datum … requires targets whose §N.N description conflicts with datum_target WRN": 2,
-    "DatumTarget: §N.N states the target shape in its description, but datum_target WRN forbids it; omitting the description passes the rules with UNKNOWN but loses the target shape": 4
+    "Attribute: \"\": N units of the file are named \"derived_unit\"; which one is not stated": 12
    },
-   "sha256": "9d7711f48e81831c5d1838fdac5c11c0de1aa9b61f3c1d67930a7638b3b25e69"
+   "sha256": "9d7711f48e81831c5d1838fdac5c11c0de1aa9b61f3c1d67930a7638b3b25e69",
+   "practice/schema conflicts": {
+    "datum_target.WR5": 4
+   }
   },
   "nist_stc_06_asme1_ap242-e3": {
    "edition": "undetermined: AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 4 1 4 } has no table; validated against AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
@@ -598,6 +591,108 @@
    "detail": "XCAF exposes no general tolerance table or part decimal default",
    "verdict": "not-applicable",
    "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "detail": "not read: CircularCurve { diameter: Length { value: Decimal(\"6.\"), unit: Millimetre } }",
+   "key": "datum_targets occt part 0 datum target A5",
+   "verdict": "not-applicable",
+   "reason": "PMI practice v4.1 §6.6.1 Table 10 distinguishes circular curve (outline) from circle (enclosed area). XCAF 7.9.3 DatumTargetType has Point, Line, Rectangle, Circle and Area, with no circular-curve kind; this capture omits it. The writer retains the practice description and diameter; Rust reads it back exactly, and the unmodified rule engine reports only the authorized datum_target.WR5."
+  },
+  {
+   "detail": "not read: Area(FeatureId(1))",
+   "key": "datum_targets occt part 0 datum target A6",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §6.6.2 Table 11 and NIST FTC-10 use a base datum_target for explicit area/curve geometry. OCCT 7.9.3 ReadDatums downcasts every target to PlacedDatumTargetFeature and skips base targets (STEPCAFControl_Reader.cxx 3032–3035); changing an area to placed would violate the non-exempt placed-target WR1. XCAF has no explicit curve target kind either. Rust preserves the standard geometry/target/datum; all four original FTC-10 areas pass clean-copy round trips. Raw schema/rule validation remains mandatory outside the reported target WR5."
+  },
+  {
+   "detail": "not read: Curve(FeatureId(2))",
+   "key": "datum_targets occt part 0 datum target A7",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §6.6.2 Table 11 and NIST FTC-10 use a base datum_target for explicit area/curve geometry. OCCT 7.9.3 ReadDatums downcasts every target to PlacedDatumTargetFeature and skips base targets (STEPCAFControl_Reader.cxx 3032–3035); changing an area to placed would violate the non-exempt placed-target WR1. XCAF has no explicit curve target kind either. Rust preserves the standard geometry/target/datum; all four original FTC-10 areas pass clean-copy round trips. Raw schema/rule validation remains mandatory outside the reported target WR5."
+  },
+  {
+   "detail": "XCAF exposes no general tolerance table or part decimal default",
+   "key": "datum_targets occt part 0 default table 0",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §4.1 Figure 3 decimal-only cell is written as COUNT_MEASURE(number of decimal places), with no invented range or tolerance. The raw rules still report cell WR3/WR4, individually listed on the new cell in practice_schema_conflicts per maintainer decision 2026-10-20. XCAF 7.9.3 exposes no default table or part decimal-place API. Rust reads both the named cell and bare part precision back exactly through Replace and resumed writes."
+  },
+  {
+   "detail": "support instances [] vs [17]",
+   "key": "datum_targets_shared_support occt part 0 datum target A1",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §6.6.3 support feature, with a private composition endpoint (§5.1 Figure 31) when another tolerance controls the same feature. OCCT 7.9.3 ReadDatums only searches direct GISUs of the relating feature (STEPCAFControl_Reader.cxx 3055–3074), so it omits this support even though target type, number, placement and sizes read correctly. Using the ordinary aspect directly instead makes collectShapeAspect move/drop the other tolerance; the committed shared-support capture proves Position 0.05 stays on face #17. Rust preserves the support exactly and raw rules have only the authorized target WR5/cell WR3/WR4 conflicts."
+  },
+  {
+   "detail": "support instances [] vs [17]",
+   "key": "datum_targets_shared_support occt part 0 datum target A2",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §6.6.3 support feature, with a private composition endpoint (§5.1 Figure 31) when another tolerance controls the same feature. OCCT 7.9.3 ReadDatums only searches direct GISUs of the relating feature (STEPCAFControl_Reader.cxx 3055–3074), so it omits this support even though target type, number, placement and sizes read correctly. Using the ordinary aspect directly instead makes collectShapeAspect move/drop the other tolerance; the committed shared-support capture proves Position 0.05 stays on face #17. Rust preserves the support exactly and raw rules have only the authorized target WR5/cell WR3/WR4 conflicts."
+  },
+  {
+   "detail": "support instances [] vs [17]",
+   "key": "datum_targets_shared_support occt part 0 datum target A3",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §6.6.3 support feature, with a private composition endpoint (§5.1 Figure 31) when another tolerance controls the same feature. OCCT 7.9.3 ReadDatums only searches direct GISUs of the relating feature (STEPCAFControl_Reader.cxx 3055–3074), so it omits this support even though target type, number, placement and sizes read correctly. Using the ordinary aspect directly instead makes collectShapeAspect move/drop the other tolerance; the committed shared-support capture proves Position 0.05 stays on face #17. Rust preserves the support exactly and raw rules have only the authorized target WR5/cell WR3/WR4 conflicts."
+  },
+  {
+   "detail": "support instances [] vs [17]",
+   "key": "datum_targets_shared_support occt part 0 datum target A4",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §6.6.3 support feature, with a private composition endpoint (§5.1 Figure 31) when another tolerance controls the same feature. OCCT 7.9.3 ReadDatums only searches direct GISUs of the relating feature (STEPCAFControl_Reader.cxx 3055–3074), so it omits this support even though target type, number, placement and sizes read correctly. Using the ordinary aspect directly instead makes collectShapeAspect move/drop the other tolerance; the committed shared-support capture proves Position 0.05 stays on face #17. Rust preserves the support exactly and raw rules have only the authorized target WR5/cell WR3/WR4 conflicts."
+  },
+  {
+   "detail": "not read: CircularCurve { diameter: Length { value: Decimal(\"6.\"), unit: Millimetre } }",
+   "key": "datum_targets_shared_support occt part 0 datum target A5",
+   "verdict": "not-applicable",
+   "reason": "PMI practice v4.1 §6.6.1 Table 10 distinguishes circular curve (outline) from circle (enclosed area). XCAF 7.9.3 DatumTargetType has Point, Line, Rectangle, Circle and Area, with no circular-curve kind; this capture omits it. The writer retains the practice description and diameter; Rust reads it back exactly, and the unmodified rule engine reports only the authorized datum_target.WR5."
+  },
+  {
+   "detail": "not read: Area(FeatureId(5))",
+   "key": "datum_targets_shared_support occt part 0 datum target A6",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §6.6.2 Table 11 and NIST FTC-10 use a base datum_target for explicit area/curve geometry. OCCT 7.9.3 ReadDatums downcasts every target to PlacedDatumTargetFeature and skips base targets (STEPCAFControl_Reader.cxx 3032–3035); changing an area to placed would violate the non-exempt placed-target WR1. XCAF has no explicit curve target kind either. Rust preserves the standard geometry/target/datum; all four original FTC-10 areas pass clean-copy round trips. Raw schema/rule validation remains mandatory outside the reported target WR5."
+  },
+  {
+   "detail": "not read: Curve(FeatureId(6))",
+   "key": "datum_targets_shared_support occt part 0 datum target A7",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §6.6.2 Table 11 and NIST FTC-10 use a base datum_target for explicit area/curve geometry. OCCT 7.9.3 ReadDatums downcasts every target to PlacedDatumTargetFeature and skips base targets (STEPCAFControl_Reader.cxx 3032–3035); changing an area to placed would violate the non-exempt placed-target WR1. XCAF has no explicit curve target kind either. Rust preserves the standard geometry/target/datum; all four original FTC-10 areas pass clean-copy round trips. Raw schema/rule validation remains mandatory outside the reported target WR5."
+  },
+  {
+   "detail": "XCAF exposes no general tolerance table or part decimal default",
+   "key": "datum_targets_shared_support occt part 0 default table 0",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §4.1 Figure 3 decimal-only cell is written as COUNT_MEASURE(number of decimal places), with no invented range or tolerance. The raw rules still report cell WR3/WR4, individually listed on the new cell in practice_schema_conflicts per maintainer decision 2026-10-20. XCAF 7.9.3 exposes no default table or part decimal-place API. Rust reads both the named cell and bare part precision back exactly through Replace and resumed writes."
+  },
+  {
+   "detail": "XCAF exposes no part decimal default",
+   "key": "decimal_default occt part 0 decimal places",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §4.1 Figure 3 decimal-only cell is written as COUNT_MEASURE(number of decimal places), with no invented range or tolerance. The raw rules still report cell WR3/WR4, individually listed on the new cell in practice_schema_conflicts per maintainer decision 2026-10-20. XCAF 7.9.3 exposes no default table or part decimal-place API. Rust reads both the named cell and bare part precision back exactly through Replace and resumed writes."
+  },
+  {
+   "detail": "not read: Area(FeatureId(3))",
+   "key": "nist_ftc_10_targets occt part 0 datum target K1",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §6.6.2 Table 11 and NIST FTC-10 use a base datum_target for explicit area/curve geometry. OCCT 7.9.3 ReadDatums downcasts every target to PlacedDatumTargetFeature and skips base targets (STEPCAFControl_Reader.cxx 3032–3035); changing an area to placed would violate the non-exempt placed-target WR1. XCAF has no explicit curve target kind either. Rust preserves the standard geometry/target/datum; all four original FTC-10 areas pass clean-copy round trips. Raw schema/rule validation remains mandatory outside the reported target WR5."
+  },
+  {
+   "detail": "not read: Area(FeatureId(4))",
+   "key": "nist_ftc_10_targets occt part 0 datum target K2",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §6.6.2 Table 11 and NIST FTC-10 use a base datum_target for explicit area/curve geometry. OCCT 7.9.3 ReadDatums downcasts every target to PlacedDatumTargetFeature and skips base targets (STEPCAFControl_Reader.cxx 3032–3035); changing an area to placed would violate the non-exempt placed-target WR1. XCAF has no explicit curve target kind either. Rust preserves the standard geometry/target/datum; all four original FTC-10 areas pass clean-copy round trips. Raw schema/rule validation remains mandatory outside the reported target WR5."
+  },
+  {
+   "detail": "not read: Area(FeatureId(8))",
+   "key": "nist_ftc_10_targets occt part 0 datum target L1",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §6.6.2 Table 11 and NIST FTC-10 use a base datum_target for explicit area/curve geometry. OCCT 7.9.3 ReadDatums downcasts every target to PlacedDatumTargetFeature and skips base targets (STEPCAFControl_Reader.cxx 3032–3035); changing an area to placed would violate the non-exempt placed-target WR1. XCAF has no explicit curve target kind either. Rust preserves the standard geometry/target/datum; all four original FTC-10 areas pass clean-copy round trips. Raw schema/rule validation remains mandatory outside the reported target WR5."
+  },
+  {
+   "detail": "not read: Area(FeatureId(9))",
+   "key": "nist_ftc_10_targets occt part 0 datum target L2",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §6.6.2 Table 11 and NIST FTC-10 use a base datum_target for explicit area/curve geometry. OCCT 7.9.3 ReadDatums downcasts every target to PlacedDatumTargetFeature and skips base targets (STEPCAFControl_Reader.cxx 3032–3035); changing an area to placed would violate the non-exempt placed-target WR1. XCAF has no explicit curve target kind either. Rust preserves the standard geometry/target/datum; all four original FTC-10 areas pass clean-copy round trips. Raw schema/rule validation remains mandatory outside the reported target WR5."
   }
  ],
  "pin_changes_2026_10_20": {
@@ -665,6 +760,41 @@
    "reason": "The requested read-only quiddity venv contains OCP 7.9.3.1 but no specify_core. XCAF transfer and the safe label walk are required and captured independently; the separate specify-core application loader was not run. All earlier application-loader pins remain unchanged."
   },
   "pmi_gaps_gram": {
+   "status": {
+    "unavailable": "specify_core is not installed in this environment"
+   },
+   "verdict": "not-applicable",
+   "reason": "The requested read-only quiddity venv contains OCP 7.9.3.1 but no specify_core. XCAF transfer and the safe label walk are required and captured independently; the separate specify-core application loader was not run. All earlier application-loader pins remain unchanged."
+  },
+  "datum_targets": {
+   "status": {
+    "unavailable": "specify_core is not installed in this environment"
+   },
+   "verdict": "not-applicable",
+   "reason": "The requested read-only quiddity venv contains OCP 7.9.3.1 but no specify_core. XCAF transfer and the safe label walk are required and captured independently; the separate specify-core application loader was not run. All earlier application-loader pins remain unchanged."
+  },
+  "datum_targets_shared_support": {
+   "status": {
+    "unavailable": "specify_core is not installed in this environment"
+   },
+   "verdict": "not-applicable",
+   "reason": "The requested read-only quiddity venv contains OCP 7.9.3.1 but no specify_core. XCAF transfer and the safe label walk are required and captured independently; the separate specify-core application loader was not run. All earlier application-loader pins remain unchanged."
+  },
+  "decimal_default": {
+   "status": {
+    "unavailable": "specify_core is not installed in this environment"
+   },
+   "verdict": "not-applicable",
+   "reason": "The requested read-only quiddity venv contains OCP 7.9.3.1 but no specify_core. XCAF transfer and the safe label walk are required and captured independently; the separate specify-core application loader was not run. All earlier application-loader pins remain unchanged."
+  },
+  "nist_ctc_02_targets": {
+   "status": {
+    "unavailable": "specify_core is not installed in this environment"
+   },
+   "verdict": "not-applicable",
+   "reason": "The requested read-only quiddity venv contains OCP 7.9.3.1 but no specify_core. XCAF transfer and the safe label walk are required and captured independently; the separate specify-core application loader was not run. All earlier application-loader pins remain unchanged."
+  },
+  "nist_ftc_10_targets": {
    "status": {
     "unavailable": "specify_core is not installed in this environment"
    },

@@ -18,7 +18,17 @@ in [docs/alpha1.md](docs/alpha1.md).
   feature composition; JSON document version 2 stays compatible.
 - Regression fixtures for the new forms, five ordered numbered part notes across replace and
   resumed add, and Python specify-note migration. Literal target and standalone-decimal
-  schema/practice conflicts remain explicit refusals with their evidence in `step-ap242.md`.
+  schema/practice conflicts use the reported exemptions authorized on 2026-10-20 (evidence
+  in `step-ap242.md`).
+
+- Write every model datum-target shape and the datums it establishes (PMI practice §6.6),
+  and decimal-only Figure 3 tolerance cells/defaults. `practice_schema_conflicts` reports the
+  exact added instance/rule exemptions authorized by the maintainer (target WR4/WR5, decimal
+  cell WR3/WR4). Structural validation and every other rule remain mandatory; raw rules and
+  NIST file-wrong pins are unchanged. Reader binding `/11` projects anonymous decimal-only
+  carriers to part defaults and keeps semantic text on targets separate from parameters.
+- Synthetic target/precision fixtures, the 13 CTC-02/FTC-10 target clean-copy round trips,
+  and OCCT cross-checks including shared target supports; no target-refusal stripping.
 
 ### Fixed
 
@@ -31,8 +41,8 @@ in [docs/alpha1.md](docs/alpha1.md).
   every supplied note callout and link removed callout ids/types to their original note in
   `note_presentation_removed`. `WriteReport` is now `#[non_exhaustive]`.
 - Check and name tolerance relationship cycles as `geometric_tolerance_relationship.WR3`.
-  Clarify that omitting a target description passes rules but loses its shape; targets and
-  decimal-only defaults remain refused. OCCT affected-plane verdicts are not-applicable.
+  Clarify that omitting a target description passes rules but loses its shape. OCCT
+  affected-plane verdicts are not-applicable.
 
 ## 0.1.0-alpha.9 (2026-10-20)
 

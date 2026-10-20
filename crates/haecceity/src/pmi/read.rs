@@ -2320,7 +2320,18 @@ impl<'a> Reader<'a> {
                     }
                 }
             }
-            if !used {
+            if !used
+                && self.get_str(pdef, "property_definition", "name").as_deref()
+                    != Some("semantic text")
+                && self
+                    .referrers_by(
+                        pdef,
+                        "general_property_association",
+                        "general_property_association",
+                        "derived_definition",
+                    )
+                    .is_empty()
+            {
                 self.find(
                     FindingKind::Unsupported,
                     part,
@@ -4891,10 +4902,14 @@ impl<'a> Reader<'a> {
                     st.pmi.decimal_places = Some(pl);
                     st.prov.decimal_places = ids(p.clone());
                 }
-                st.pmi
-                    .general
-                    .push(GeneralTolerance::Table { name: tname, cells });
-                st.prov.general.push(ids(p));
+                if !(tname.is_empty()
+                    && matches!(cells.as_slice(), [c] if c.decimal_default().is_some()))
+                {
+                    st.pmi
+                        .general
+                        .push(GeneralTolerance::Table { name: tname, cells });
+                    st.prov.general.push(ids(p));
+                }
                 read_any = true;
             }
             if !read_any {

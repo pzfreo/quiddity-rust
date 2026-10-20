@@ -21,13 +21,21 @@
 //! `upper > lower`), `limits_and_fits` only from an [`Iso286Class`] (two enums). Attributes
 //! are placed by name through the schema table, so an instance cannot have too few or too many.
 //!
-//! **What is refused** (every refusal of every part at once, [`WriteError::Refused`], naming
-//! the item): targets whose §6.6 shape description contradicts datum_target WR5 (omission
-//! passes rules as UNKNOWN but loses the shape) and the datums they establish; decimal places without a stated valid table cell (Figure 3's
-//! decimal-only cell contradicts cell WR3/WR4); empty/invalid tolerance tables; hole definitions;
-//! groups of unstated kind; dimensions without a nominal; projected zones without an origin;
-//! unspecified or unsupported affected-plane variants; thread and knurl parameter sets rejected
-//! by their WHERE rules; density units without a known scale or without dimensions M L^-3; and values that are not Part 21 REALs.
+//! **Practice/schema conflicts** (maintainer decision 2026-10-20): §6.6 target shapes are
+//! written in their descriptions, and Figure 3 decimal-only cells are written without
+//! invented ranges/tolerances. Only `datum_target.WR4/WR5` on targets this writer adds and
+//! `default_tolerance_table_cell.WR3/WR4` on its decimal-only cells may be exempted. Actual
+//! violations (rule and final instance id) are in [`WriteReport::practice_schema_conflicts`].
+//! `express_rules` still reports every violation; no kept instance or other rule is exempt.
+//!
+//! **What is refused** (all refusals, [`WriteError::Refused`], naming the item): targets with
+//! no establishing datum, nonpositive sizes, placement units unlike the part context, and
+//! movable point/circle/rectangle/circular-curve parameter sets rejected by the non-exempt
+//! `placed_datum_target_feature.WR3`; other invalid tolerance tables or inconsistent decimal
+//! defaults; hole definitions; groups of unstated kind; dimensions without a nominal;
+//! projected zones without an origin; unspecified/unsupported affected planes; invalid
+//! thread/knurl parameter sets; density units without scale or dimensions M L^-3; and
+//! values that are not Part 21 REALs.
 //!
 //! Tolerance relations (§6.9.9), tables (§4.1), density (material practice §4.2), relationship
 //! targets (edition 4 SELECT, isolated endpoint aspects) and explicitly typed affected planes
@@ -54,7 +62,8 @@
 //! instance must then pass, after only the closed R1 approval assignment and R2 conversion
 //! unit dimensions repairs in `upgrade.rs`, each recorded in [`WriteReport::repairs`]); and `express_rules::check_all` of the result (the WHERE, UNIQUE
 //! and global rules it evaluates, `restrict_representation_for_surface_condition` among them)
-//! must have no violation the original lacked. Violations the original already had are
+//! must have no violation the original lacked except the exact registered conflicts above.
+//! Violations the original already had are
 //! reported. The plan's own refusals that cite a rule (thread WR1 and WR12, turned_knurl WR2)
 //! are checks of the model before anything is emitted, naming every offending item at once
 //! (`Refusal`); `express_rules` stays the check of what was written.
@@ -302,14 +311,21 @@ pub struct WriteReport {
     pub preexisting_violations: Vec<Violation>,
     /// Rule violations the original already had and still has.
     pub preexisting_rule_violations: Vec<RuleViolation>,
+    /// Actual violations of the named practice/schema conflicts on newly added instances
+    /// (maintainer decision 2026-10-20). The rule engine itself remains unchanged.
+    pub practice_schema_conflicts: Vec<RuleViolation>,
 }
 
 /// The standard requirements that a write of `p` represents. Legacy requirement notes
 /// become semantic text (§7.4), or surface texture when their complete text states it.
+/// An anonymous single decimal-only cell is the carrier for the part default; its canonical
+/// model form is `decimal_places`, while named tables retain every stated cell item.
 /// Callouts are presentation and are deliberately not part of this migration.
 #[must_use]
 pub fn standard_form(p: &PartPmi) -> PartPmi {
     let mut out = p.clone();
+    out.general
+        .retain(|g| !decimal_carrier(g, out.decimal_places));
     for n in out.notes.drain(..) {
         if let Some(t) = note_texture(&n) {
             out.surface_textures.push(t);
@@ -324,6 +340,10 @@ pub fn standard_form(p: &PartPmi) -> PartPmi {
         }
     }
     out
+}
+
+fn decimal_carrier(g: &GeneralTolerance, places: Option<u8>) -> bool {
+    matches!(g, GeneralTolerance::Table { name, cells } if name.is_empty() && places.is_some() && matches!(cells.as_slice(), [c] if c.decimal_default() == places))
 }
 
 fn note_texture(n: &Note) -> Option<SurfaceTexture> {
@@ -481,6 +501,16 @@ pub fn write(
         refusals.extend(plan.refusals.iter().cloned().map(|mut refusal| {
             // Plans use the standard form, but public item indices name the caller's input.
             refusal.item = match refusal.item {
+                ItemRef::General(i) => ItemRef::General(
+                    original
+                        .general
+                        .iter()
+                        .enumerate()
+                        .filter(|(_, g)| !decimal_carrier(g, original.decimal_places))
+                        .nth(i)
+                        .expect("normalized general tolerance belongs to input")
+                        .0,
+                ),
                 ItemRef::Attribute(i) if i >= original.attributes.len() => ItemRef::Note(
                     original
                         .notes
@@ -541,6 +571,7 @@ pub fn write(
         kept_unconsumed: Vec::new(),
         preexisting_violations: Vec::new(),
         preexisting_rule_violations: Vec::new(),
+        practice_schema_conflicts: Vec::new(),
     };
 
     report
@@ -674,6 +705,7 @@ pub fn write(
         })
         .collect();
     let added = em.count;
+    let practice_exemptions = em.practice_exemptions.clone();
     drop(em);
     report.added = added;
 
@@ -751,11 +783,28 @@ pub fn write(
     let (new, kept): (Vec<RuleViolation>, Vec<RuleViolation>) = express_rules::check_all(&after)
         .into_iter()
         .partition(|v| !before.contains(&(v.id, v.rule)));
-    if !new.is_empty() {
-        return Err(WriteError::Rules(new));
+    // Resolve an allowlist registered at emission sites, never by population/type alone.
+    // Only additions have NewIds: kept/replaced records cannot enter this exemption.
+    let allowed: BTreeSet<_> = practice_exemptions
+        .into_iter()
+        .map(|(id, rule)| (written.ids[&id], rule))
+        .collect();
+    let (known, bad) = partition_practice_conflicts(new, &allowed);
+    report.practice_schema_conflicts = known;
+    if !bad.is_empty() {
+        return Err(WriteError::Rules(bad));
     }
     report.preexisting_rule_violations = kept;
     Ok((edit, report))
+}
+
+fn partition_practice_conflicts(
+    violations: Vec<RuleViolation>,
+    allowed: &BTreeSet<(u64, &'static str)>,
+) -> (Vec<RuleViolation>, Vec<RuleViolation>) {
+    violations
+        .into_iter()
+        .partition(|v| allowed.contains(&(v.id, v.rule)))
 }
 
 /// A violation without the positions of list elements (which a rewrite shifts).
@@ -1122,6 +1171,7 @@ pub struct Emitter<'a> {
     other_units: BTreeMap<String, R>,
     exponents: BTreeMap<&'static str, R>,
     count: usize,
+    practice_exemptions: BTreeSet<(NewId, &'static str)>,
 }
 
 impl<'a> Emitter<'a> {
@@ -1141,7 +1191,16 @@ impl<'a> Emitter<'a> {
             other_units: BTreeMap::new(),
             exponents: BTreeMap::new(),
             count: 0,
+            practice_exemptions: BTreeSet::new(),
         }
+    }
+
+    fn practice_conflict(&mut self, instance: R, rules: &[&'static str]) {
+        let R::New(id) = instance else {
+            unreachable!("only new instances may be exempted");
+        };
+        self.practice_exemptions
+            .extend(rules.iter().map(|&rule| (id, rule)));
     }
 
     /// The provisional reference of the next instance this emitter adds (`#2^63 + n`, as
@@ -1886,17 +1945,74 @@ impl<'a> PartPlan<'a> {
                 _ => None,
             })
             .collect();
-        if (!table_places.is_empty() || p.decimal_places.is_some())
-            && (table_places.is_empty()
-                || p.decimal_places
-                    .is_none_or(|places| table_places.iter().any(|v| *v != f64::from(places))))
+        if !table_places.is_empty()
+            && p.decimal_places
+                .is_none_or(|places| table_places.iter().any(|v| *v != f64::from(places)))
         {
-            self.refuse(ItemRef::DecimalPlaces,
-                "default decimal places require a stated table cell: the decimal-only cell of §4.1 Figure 3 violates default_tolerance_table_cell WR3/WR4; no tolerance values are invented");
+            self.refuse(
+                ItemRef::DecimalPlaces,
+                "the part's decimal places disagree with its stated table cells",
+            );
         }
-        for i in 0..p.datum_targets.len() {
-            self.refuse(ItemRef::DatumTarget(i),
-                "§6.6 states the target shape in its description, but datum_target WR5 forbids it; omitting the description passes the rules with UNKNOWN but loses the target shape");
+        for (i, t) in p.datum_targets.iter().enumerate() {
+            let mut values = Vec::new();
+            match t.shape() {
+                TargetShape::Line { length } => values.push(&length.value),
+                TargetShape::Rectangle { length, width } => {
+                    values.extend([&length.value, &width.value])
+                }
+                TargetShape::Circle { diameter } | TargetShape::CircularCurve { diameter } => {
+                    values.push(&diameter.value)
+                }
+                _ => {}
+            }
+            if values.iter().any(|v| v.to_f64() <= 0.) {
+                self.refuse(ItemRef::DatumTarget(i), "target sizes must be positive");
+            }
+            if let Some(placement) = t.placement() {
+                let unit = self.context_length_unit();
+                if placement
+                    .origin
+                    .iter()
+                    .any(|v| Some(&v.unit) != unit.as_ref())
+                {
+                    self.refuse(ItemRef::DatumTarget(i), "target placement coordinates must use the part context length unit (§6.6.1); no coordinate conversion is guessed");
+                }
+                values.extend(placement.origin.iter().map(|l| &l.value));
+                for d in placement.axis.iter().chain(&placement.ref_direction) {
+                    values.extend(d.0.iter());
+                }
+            }
+            if let Some(d) = t.movable() {
+                values.extend(d.0.iter());
+                if matches!(
+                    t.shape(),
+                    TargetShape::Point
+                        | TargetShape::Rectangle { .. }
+                        | TargetShape::Circle { .. }
+                        | TargetShape::CircularCurve { .. }
+                ) {
+                    self.refuse(ItemRef::DatumTarget(i), "movable direction adds an item forbidden by placed_datum_target_feature.WR3; this rule is not exempted");
+                }
+            }
+            if let Some(why) = bad_value(&values) {
+                self.refuse(ItemRef::DatumTarget(i), why);
+            }
+            if let TargetShape::Area(f) | TargetShape::Curve(f) = t.shape() {
+                if !self.explicit_target_geometry(*f, matches!(t.shape(), TargetShape::Area(_))) {
+                    self.refuse(ItemRef::DatumTarget(i), "explicit area/curve target requires stated face/curve geometry (§6.6.2); a different anchor kind cannot define that target");
+                }
+            }
+            if !p
+                .datums
+                .iter()
+                .any(|d| d.targets().contains(&DatumTargetId(i)))
+            {
+                self.refuse(
+                    ItemRef::DatumTarget(i),
+                    "datum_target.WR1: target establishes no datum",
+                );
+            }
         }
         for i in 0..p.holes.len() {
             self.refuse(
@@ -1927,11 +2043,12 @@ impl<'a> PartPlan<'a> {
                             .filter(|(_, v)| matches!(v, CellValue::Text(_)))
                             .collect();
                         if c.items.len() > 5
-                            || !(measure("significant number of digits")
-                                || (measure("lower limit") && measure("upper limit")))
-                            || !(measure("plus minus tolerance value")
-                                || (measure("lower tolerance value")
-                                    && measure("upper tolerance value")))
+                            || (c.decimal_default().is_none()
+                                && (!(measure("significant number of digits")
+                                    || (measure("lower limit") && measure("upper limit")))
+                                    || !(measure("plus minus tolerance value")
+                                        || (measure("lower tolerance value")
+                                            && measure("upper tolerance value")))))
                             || texts.len() > 1
                             || texts.iter().any(|(n, _)| n != "cell description")
                         {
@@ -2282,16 +2399,6 @@ impl<'a> PartPlan<'a> {
 
         // Datums: one per label per part; add resolves an existing label.
         for (i, d) in p.datums.iter().enumerate() {
-            if !d.targets().is_empty() {
-                self.refuse(
-                    ItemRef::Datum(i),
-                    format!(
-                        "datum {} requires targets whose §6.6 description conflicts with datum_target WR5",
-                        d.label()
-                    ),
-                );
-                continue;
-            }
             if self.mode != Mode::Add {
                 continue;
             }
@@ -2499,12 +2606,6 @@ impl<'a> PartPlan<'a> {
 
         // Attributes.
         for (i, a) in p.attributes.iter().enumerate() {
-            if matches!(a.on, Some(NoteOwner::DatumTarget(_))) {
-                self.refuse(
-                    ItemRef::Attribute(i),
-                    "an attribute on a datum target (datum targets are not written yet)",
-                );
-            }
             for (key, v) in &a.items {
                 let why = match v {
                     AttributeValue::Measure(m) if m.decimal_places.is_some() => Some(
@@ -2558,6 +2659,37 @@ impl<'a> PartPlan<'a> {
                 "{} units of the file are named {name:?}; which one is not stated",
                 found.len()
             )),
+        }
+    }
+
+    fn explicit_target_geometry(&self, f: FeatureId, area: bool) -> bool {
+        match &self.pmi.features[f.0] {
+            Feature::Items(items) => {
+                !items.is_empty()
+                    && items.iter().all(|a| match a {
+                        Anchor::Face(_) => area,
+                        Anchor::Edge(_) => false,
+                        Anchor::Geometry(g) => {
+                            self.pmi.geometry[g.0]
+                                .item
+                                .leaves
+                                .iter()
+                                .any(|(entity, _)| {
+                                    express::TARGET.is_a(
+                                        &entity.to_ascii_lowercase(),
+                                        if area { "face" } else { "curve" },
+                                    )
+                                })
+                        }
+                    })
+            }
+            Feature::Group { members, .. } => {
+                !members.is_empty()
+                    && members
+                        .iter()
+                        .all(|f| self.explicit_target_geometry(*f, area))
+            }
+            Feature::Derived { .. } => false,
         }
     }
 
@@ -2630,6 +2762,41 @@ impl<'a> PartPlan<'a> {
             }
         }
 
+        for (i, t) in p.datum_targets.iter().enumerate() {
+            let explicit = matches!(t.shape(), TargetShape::Area(_) | TargetShape::Curve(_));
+            let target = em.simple(
+                if explicit {
+                    "datum_target"
+                } else {
+                    "placed_datum_target_feature"
+                },
+                &[
+                    ("name", s("")),
+                    ("description", s(target_shape_name(t.shape()))),
+                    ("of_shape", pds.a()),
+                    ("product_definitional", boolean(true)),
+                    ("target_id", s(&t.number().to_string())),
+                ],
+            )?;
+            em.practice_conflict(target, &["datum_target.WR4", "datum_target.WR5"]);
+            st.targets.insert(i, target);
+            if let TargetShape::Area(f) | TargetShape::Curve(f) = t.shape() {
+                let c = self.canonical[f.0];
+                let uses = p.datum_targets.iter().filter(|x| matches!(x.shape(), TargetShape::Area(g) | TargetShape::Curve(g) if self.canonical[g.0] == c)).count();
+                if uses == 1
+                    && !self.referenced.contains(&c)
+                    && !p
+                        .datum_targets
+                        .iter()
+                        .any(|t| t.on().is_some_and(|f| self.canonical[f.0] == c))
+                    && !self.roles.contains_key(&c)
+                    && matches!(p.features[c], Feature::Items(_))
+                {
+                    st.features.insert(c, target);
+                }
+            }
+        }
+
         // Features resolved to an existing datum feature write no usage.
         let reused: BTreeSet<usize> = self
             .existing_datums
@@ -2658,6 +2825,18 @@ impl<'a> PartPlan<'a> {
                 }
             }
         }
+        for (i, t) in p.datum_targets.iter().enumerate() {
+            if let TargetShape::Area(f) | TargetShape::Curve(f) = t.shape() {
+                let c = self.canonical[f.0];
+                if st.features.get(&c) != st.targets.get(&i)
+                    && let Feature::Items(items) = &p.features[c]
+                {
+                    for k in self.usage_keys(em, &st, items)? {
+                        *keys.entry(k).or_insert(0) += 1;
+                    }
+                }
+            }
+        }
         let shared: BTreeSet<(R, Vec<R>)> = keys
             .iter()
             .filter(|(_, n)| **n > 1)
@@ -2669,7 +2848,11 @@ impl<'a> PartPlan<'a> {
             if let Feature::Items(items) = f
                 && done.insert(c)
                 && !reused.contains(&c)
-                && self.referenced.contains(&c)
+                && (self.referenced.contains(&c)
+                    || st.features.contains_key(&c)
+                    || p.datum_targets
+                        .iter()
+                        .any(|t| t.on().is_some_and(|f| self.canonical[f.0] == c)))
                 && let [k] = self.usage_keys(em, &st, items)?.as_slice()
                 && shared.contains(k)
             {
@@ -2683,6 +2866,9 @@ impl<'a> PartPlan<'a> {
             .collect();
         for i in 0..p.features.len() {
             self.feature(em, &mut st, pds, i)?;
+        }
+        for (i, t) in p.datum_targets.iter().enumerate() {
+            self.datum_target(em, &mut st, pds, i, t)?;
         }
         // Decision 6: a datum feature symbol per datum feature of an added datum.
         let mut symbols: Vec<(R, Vec<String>, usize)> = Vec::new();
@@ -2719,6 +2905,17 @@ impl<'a> PartPlan<'a> {
                     Some((_, labels, _)) => labels.push(d.label().as_str().to_string()),
                     None => symbols.push((fr, vec![d.label().as_str().to_string()], f.0)),
                 }
+            }
+            for t in d.targets() {
+                em.simple(
+                    "shape_aspect_relationship",
+                    &[
+                        ("name", s("")),
+                        ("description", s("datum target")),
+                        ("relating_shape_aspect", st.targets[&t.0].a()),
+                        ("related_shape_aspect", datum.a()),
+                    ],
+                )?;
             }
             st.datums.insert(i, datum);
         }
@@ -2771,6 +2968,10 @@ impl<'a> PartPlan<'a> {
                     &[item],
                 )?;
             }
+        }
+        if let Some(places) = p.decimal_places
+            && !p.general.iter().any(|g| matches!(g, GeneralTolerance::Table { cells, .. } if cells.iter().any(|c| c.items.iter().any(|(n,_)| n == "number of decimal places")))) {
+            self.tolerance_table(em, pds, "", &[ToleranceCell { items: vec![("number of decimal places".into(), CellValue::Count(Decimal::parse(&places.to_string()).expect("u8 count")))] }])?;
         }
         for t in &p.threads {
             self.thread(em, &mut st, pds, t)?;
@@ -2843,6 +3044,139 @@ impl<'a> PartPlan<'a> {
         Ok(())
     }
 
+    fn datum_target(
+        &self,
+        em: &mut Emitter<'_>,
+        st: &mut Emitted,
+        pds: R,
+        i: usize,
+        t: &DatumTarget,
+    ) -> Result<(), WriteError> {
+        let target = st.targets[&i];
+        if let TargetShape::Area(f) | TargetShape::Curve(f) = t.shape() {
+            let c = self.canonical[f.0];
+            if let Feature::Items(items) = &self.pmi.features[c] {
+                let own = (st.features.get(&c) == Some(&target)).then_some(c);
+                self.usages(em, st, pds, target, own, items)?;
+            } else {
+                let member = self.feature(em, st, pds, f.0)?;
+                em.simple(
+                    "shape_aspect_relationship",
+                    &[
+                        ("name", s("")),
+                        ("description", s("")),
+                        ("relating_shape_aspect", target.a()),
+                        ("related_shape_aspect", member.a()),
+                    ],
+                )?;
+            }
+        }
+        let mut parameters = Vec::new();
+        if let Some(p) = t.placement() {
+            let coords = p
+                .origin
+                .iter()
+                .map(|l| real(&l.value).map_err(WriteError::Internal))
+                .collect::<Result<Vec<_>, _>>()?;
+            let point = em.simple(
+                "cartesian_point",
+                &[("name", s("")), ("coordinates", A::List(coords))],
+            )?;
+            let mut direction = |d: &Direction, name: &str| -> Result<R, WriteError> {
+                let ratios =
+                    d.0.iter()
+                        .map(|v| real(v).map_err(WriteError::Internal))
+                        .collect::<Result<Vec<_>, _>>()?;
+                em.simple(
+                    "direction",
+                    &[("name", s(name)), ("direction_ratios", A::List(ratios))],
+                )
+            };
+            let axis = p
+                .axis
+                .as_ref()
+                .map(|d| direction(d, ""))
+                .transpose()?
+                .map_or(A::Unset, R::a);
+            let x = p
+                .ref_direction
+                .as_ref()
+                .map(|d| direction(d, ""))
+                .transpose()?
+                .map_or(A::Unset, R::a);
+            parameters.push(em.simple(
+                "axis2_placement_3d",
+                &[
+                    ("name", s("orientation")),
+                    ("location", point.a()),
+                    ("axis", axis),
+                    ("ref_direction", x),
+                ],
+            )?);
+        }
+        for (name, length) in target_sizes(t.shape()) {
+            parameters.push(em.measure_item(
+                name,
+                MeasureItem::Length(length),
+                self.context,
+                Vec::new(),
+                None,
+            )?);
+        }
+        if let Some(d) = t.movable() {
+            let ratios =
+                d.0.iter()
+                    .map(|v| real(v).map_err(WriteError::Internal))
+                    .collect::<Result<Vec<_>, _>>()?;
+            parameters.push(em.simple(
+                "direction",
+                &[
+                    ("name", s("movable direction")),
+                    ("direction_ratios", A::List(ratios)),
+                ],
+            )?);
+        }
+        if !parameters.is_empty() {
+            let prop = em.simple(
+                "property_definition",
+                &[
+                    ("name", s("")),
+                    ("description", A::Unset),
+                    ("definition", target.a()),
+                ],
+            )?;
+            let rep = em.simple(
+                "shape_representation_with_parameters",
+                &[
+                    ("name", s("")),
+                    ("items", refs(parameters)),
+                    ("context_of_items", em.reference(self.context)?.a()),
+                ],
+            )?;
+            em.simple(
+                "shape_definition_representation",
+                &[("definition", prop.a()), ("used_representation", rep.a())],
+            )?;
+        }
+        if let Some(f) = t.on() {
+            let feature = if self.referenced.contains(&self.canonical[f.0]) {
+                self.relationship_endpoint(em, st, pds, f)?
+            } else {
+                self.feature(em, st, pds, f.0)?
+            };
+            em.simple(
+                "feature_for_datum_target_relationship",
+                &[
+                    ("name", s("")),
+                    ("description", A::Unset),
+                    ("relating_shape_aspect", feature.a()),
+                    ("related_shape_aspect", target.a()),
+                ],
+            )?;
+        }
+        Ok(())
+    }
+
     fn tolerance_table(
         &self,
         em: &mut Emitter<'_>,
@@ -2879,7 +3213,7 @@ impl<'a> PartPlan<'a> {
                     )?,
                 });
             }
-            items.push(em.simple(
+            let cell = em.simple(
                 "default_tolerance_table_cell",
                 &[
                     ("name", s("")),
@@ -2888,7 +3222,17 @@ impl<'a> PartPlan<'a> {
                         typed("set_representation_item", refs(elements)),
                     ),
                 ],
-            )?);
+            )?;
+            if c.decimal_default().is_some() {
+                em.practice_conflict(
+                    cell,
+                    &[
+                        "default_tolerance_table_cell.WR3",
+                        "default_tolerance_table_cell.WR4",
+                    ],
+                );
+            }
+            items.push(cell);
         }
         let table = em.simple(
             "default_tolerance_table",
@@ -4604,11 +4948,7 @@ impl<'a> PartPlan<'a> {
             Some(NoteOwner::Feature(f)) => self.feature(em, st, pds, f.0)?,
             Some(NoteOwner::Dimension(d)) => self.dimension(em, st, pds, d.0)?,
             Some(NoteOwner::Tolerance(t)) => st.tolerances[&t.0],
-            Some(NoteOwner::DatumTarget(_)) => {
-                return Err(WriteError::Internal(
-                    "an attribute on a datum target passed the checks".into(),
-                ));
-            }
+            Some(NoteOwner::DatumTarget(t)) => st.targets[&t.0],
         };
         let mut items = Vec::new();
         for (key, v) in &a.items {
@@ -4786,6 +5126,7 @@ struct Emitted {
     /// Geometry → its item and, for a new one, the representation holding it.
     geometry: BTreeMap<usize, (R, Option<R>)>,
     datums: BTreeMap<usize, R>,
+    targets: BTreeMap<usize, R>,
     dimensions: BTreeMap<usize, R>,
     dimension_values: BTreeSet<usize>,
     tolerances: BTreeMap<usize, R>,
@@ -4796,6 +5137,30 @@ struct Emitted {
     /// Per shared key, the feature that owns it (a referenced feature of exactly those items).
     owners: BTreeMap<(R, Vec<R>), usize>,
     twins: BTreeMap<(usize, Role), R>,
+}
+
+fn target_shape_name(shape: &TargetShape) -> &'static str {
+    match shape {
+        TargetShape::Point => "point",
+        TargetShape::Line { .. } => "line",
+        TargetShape::Rectangle { .. } => "rectangle",
+        TargetShape::Circle { .. } => "circle",
+        TargetShape::CircularCurve { .. } => "circular curve",
+        TargetShape::Area(_) => "area",
+        TargetShape::Curve(_) => "curve",
+    }
+}
+fn target_sizes(shape: &TargetShape) -> Vec<(&'static str, &Length)> {
+    match shape {
+        TargetShape::Line { length } => vec![("target length", length)],
+        TargetShape::Rectangle { length, width } => {
+            vec![("target length", length), ("target width", width)]
+        }
+        TargetShape::Circle { diameter } | TargetShape::CircularCurve { diameter } => {
+            vec![("target diameter", diameter)]
+        }
+        _ => Vec::new(),
+    }
 }
 
 fn zone_form_name(f: &ZoneForm) -> &str {
@@ -5860,5 +6225,47 @@ mod tests {
             "within a cylinder"
         );
         assert_eq!(zone_form_name(&ZoneForm::Other(String::new())), "");
+    }
+    #[test]
+    fn practice_exemptions_do_not_extend_to_other_rules_or_instances() {
+        let violations = [
+            (1, "datum_target.WR5"),
+            (1, "datum_target.WR3"),
+            (2, "datum_target.WR5"),
+            (3, "default_tolerance_table_cell.WR3"),
+            (3, "default_tolerance_table_cell.WR5"),
+            (4, "default_tolerance_table_cell.WR3"),
+        ]
+        .into_iter()
+        .map(|(id, rule)| RuleViolation {
+            id,
+            rule,
+            entity: "test".into(),
+            message: "raw violation".into(),
+        })
+        .collect();
+        let allowed = BTreeSet::from([
+            (1, "datum_target.WR5"),
+            (1, "datum_target.WR4"),
+            (3, "default_tolerance_table_cell.WR3"),
+            (3, "default_tolerance_table_cell.WR4"),
+        ]);
+        let (known, bad) = partition_practice_conflicts(violations, &allowed);
+        assert_eq!(
+            known.iter().map(|v| (v.id, v.rule)).collect::<Vec<_>>(),
+            [
+                (1, "datum_target.WR5"),
+                (3, "default_tolerance_table_cell.WR3")
+            ]
+        );
+        assert_eq!(
+            bad.iter().map(|v| (v.id, v.rule)).collect::<Vec<_>>(),
+            [
+                (1, "datum_target.WR3"),
+                (2, "datum_target.WR5"),
+                (3, "default_tolerance_table_cell.WR5"),
+                (4, "default_tolerance_table_cell.WR3")
+            ]
+        );
     }
 }

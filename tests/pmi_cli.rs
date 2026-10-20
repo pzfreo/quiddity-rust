@@ -229,8 +229,8 @@ fn pmi_read_of_one_part() {
 /// whenever the reader's output does: when this fails, bump `pmi_json::READER` if `pmi::read`
 /// changed (a JSON-form change bumps `VERSION` instead), then re-pin both.
 const READER_PIN: (&str, &str) = (
-    "haecceity-pmi-read/10",
-    "4838faf842ff57b10052e4fd281e46d282af2c0cdd195367c608ede5606aa695",
+    "haecceity-pmi-read/11",
+    "b5c164d2d5b67c2dcbbf0434ad2a79d1faf1ad02665cd01199f3f3a8a1451a91",
 );
 
 #[test]
@@ -881,8 +881,9 @@ fn pmi_write_replace_round_trips_through_the_command_line() {
     assert!(problems.is_empty(), "{}", problems.join("\n"));
     // The assembly, six of the seven specify-core inputs (nist_ctc_01_merge has dimensions
     // without a nominal value) and the committed NIST models whose refusals are leaves (ftc_07,
-    // stc_06, stc_09, stc_10); of NIST's set, also ftc_08 and stc_07.
-    assert_eq!(written, if with_nist { 13 } else { 11 }, "files written");
+    // stc_06, stc_09, stc_10), plus CTC-02/FTC-10 now their 13 targets are written
+    // under the 2026-10-20 practice exemption; of NIST's set, also ftc_08 and stc_07.
+    assert_eq!(written, if with_nist { 15 } else { 13 }, "files written");
 }
 
 /// One file of [`pmi_write_replace_round_trips_through_the_command_line`]: its problems, and
@@ -1086,7 +1087,7 @@ fn pmi_write_is_deterministic_and_keeps_inch_values_as_stated() {
 
 /// Every refusal names its cause on stderr, exits 1, and creates nothing: a document bound to
 /// another file or reader version, a remove naming PMI to write, presentation in the way under
-/// `--presentation refuse`, items the writer does not write (datum targets), a value that is not
+/// `--presentation refuse`, invalid parameters, a value that is not
 /// a Part 21 REAL; an existing file at the destination is left as it was.
 #[test]
 fn pmi_write_refusals_name_the_cause_and_create_nothing() {
@@ -1133,12 +1134,21 @@ fn pmi_write_refusals_name_the_cause_and_create_nothing() {
     let p = ctc02.to_str().unwrap();
     let (nist, _) = ok(&["pmi", "read", p]);
     let (out, o) = write_cli(p, &nist, "datum-targets", &["--mode", "replace"]);
-    let err = write_refused(&out, &o, "datum targets");
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+    let report: Json = serde_json::from_slice(&o.stdout).unwrap();
+    let conflicts = report["practice_schema_conflicts"].as_array().unwrap();
+    assert_eq!(conflicts.len(), 9);
     assert!(
-        err.contains("DatumTarget(0): §6.6 states the target shape")
-            && err.contains("datum_target WR5"),
-        "{err}"
+        conflicts
+            .iter()
+            .all(|v| v["rule"] == "datum_target.WR5" && v["id"].as_u64().is_some())
     );
+    let (read, _) = ok(&["pmi", "read", out.to_str().unwrap()]);
+    assert_eq!(
+        read["parts"][0]["pmi"]["datum_targets"],
+        nist["parts"][0]["pmi"]["datum_targets"]
+    );
+    no_temporary_left(&out, "datum targets");
 
     // An existing destination stays as it was.
     let json = scratch().join("keep.json");

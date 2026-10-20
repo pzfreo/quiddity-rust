@@ -2085,7 +2085,20 @@ fn refusals_name_every_item() {
             },
         ],
         datum_targets: vec![
-            DatumTarget::new(1, TargetShape::Area(FeatureId(0)), None, None, None).unwrap(),
+            DatumTarget::new(
+                1,
+                TargetShape::Line {
+                    length: length("-1.", LengthUnit::Millimetre),
+                },
+                Some(Placement {
+                    origin: std::array::from_fn(|_| length("0.", LengthUnit::Millimetre)),
+                    axis: None,
+                    ref_direction: None,
+                }),
+                None,
+                None,
+            )
+            .unwrap(),
         ],
         datums: vec![Datum::new(label("A"), None, vec![DatumTargetId(0)]).unwrap()],
         notes: vec![Note {
@@ -2102,7 +2115,11 @@ fn refusals_name_every_item() {
                 unit: vec![("gram".into(), dec("1."))],
             }),
         }),
-        decimal_places: Some(3),
+        decimal_places: Some(4),
+        general: vec![GeneralTolerance::Table {
+            name: "precision".into(),
+            cells: vec![common::pmi_targets::decimal_cell()],
+        }],
         dimensions: vec![Dimension {
             nominal: Some(Value::length(dec("35"), LengthUnit::Millimetre)),
             ..size(0, "1.", DimTolerance::None)
@@ -2115,7 +2132,6 @@ fn refusals_name_every_item() {
             for i in [
                 ItemRef::Feature(1),
                 ItemRef::DatumTarget(0),
-                ItemRef::Datum(0),
                 ItemRef::Material,
                 ItemRef::DecimalPlaces,
                 ItemRef::Dimension(0),
@@ -3137,6 +3153,129 @@ fn compare_occt(
                 ));
             }
         }
+        // Target objects: number/type, sizes, placement and stated support feature.
+        for (i, t) in p.datum_targets.iter().enumerate() {
+            let label = p
+                .datums
+                .iter()
+                .find(|d| d.targets().contains(&DatumTargetId(i)))
+                .unwrap()
+                .label()
+                .as_str();
+            let key = format!("{name} occt part {pi} datum target {label}{}", t.number());
+            let Some(o) = odatums
+                .iter()
+                .chain(occt["unattached"]["datums"].as_array().unwrap().iter())
+                .find(|o| {
+                    o["is_target"] == true
+                        && o["name"].as_str() == Some(label)
+                        && o["target"]["number"].as_u64() == Some(u64::from(t.number()))
+                })
+            else {
+                out.push((key, format!("not read: {:?}", t.shape())));
+                continue;
+            };
+            let target = &o["target"];
+            let expected_type = match t.shape() {
+                TargetShape::Point => "Point",
+                TargetShape::Line { .. } => "Line",
+                TargetShape::Rectangle { .. } => "Rectangle",
+                TargetShape::Circle { .. } => "Circle",
+                TargetShape::CircularCurve { .. } => "CircularCurve",
+                TargetShape::Area(_) => "Area",
+                TargetShape::Curve(_) => "Curve",
+            };
+            let mut detail = Vec::new();
+            if target["type"].as_str() != Some(expected_type) {
+                detail.push(format!("type {} vs {expected_type}", target["type"]));
+            }
+            let close = |a: f64, b: f64| (a - b).abs() <= 1e-8 * a.abs().max(b.abs()).max(1.);
+            for (field, value) in match t.shape() {
+                TargetShape::Line { length } => vec![("length", length.mm())],
+                TargetShape::Rectangle { length, width } => {
+                    vec![("length", length.mm()), ("width", width.mm())]
+                }
+                TargetShape::Circle { diameter } | TargetShape::CircularCurve { diameter } => {
+                    vec![("length", diameter.mm())]
+                }
+                _ => vec![],
+            } {
+                if !target[field].as_f64().is_some_and(|v| close(v, value)) {
+                    detail.push(format!("{field} {} vs {value} mm", target[field]));
+                }
+            }
+            if let Some(placement) = t.placement() {
+                let vector = |actual: &Json, expected: [f64; 3]| {
+                    actual.as_array().is_some_and(|v| {
+                        v.len() == 3
+                            && v.iter()
+                                .zip(expected)
+                                .all(|(a, b)| a.as_f64().is_some_and(|a| close(a, b)))
+                    })
+                };
+                if !vector(
+                    &target["axis"][0],
+                    placement.origin.each_ref().map(|l| l.mm()),
+                ) {
+                    detail.push(format!(
+                        "origin {} vs {:?}",
+                        target["axis"][0],
+                        placement.origin.each_ref().map(|l| l.mm())
+                    ));
+                }
+                let normalized = |d: &Direction| {
+                    let v = d.0.each_ref().map(|x| x.to_f64());
+                    let norm = v.iter().map(|x| x * x).sum::<f64>().sqrt();
+                    v.map(|x| x / norm)
+                };
+                if let Some(z) = &placement.axis
+                    && !vector(&target["axis"][1], normalized(z))
+                {
+                    detail.push(format!("axis {} vs {:?}", target["axis"][1], normalized(z)));
+                }
+                if let Some(x) = &placement.ref_direction
+                    && !vector(&target["ref_direction"], normalized(x))
+                {
+                    detail.push(format!(
+                        "reference direction {} vs {:?}",
+                        target["ref_direction"],
+                        normalized(x)
+                    ));
+                }
+            }
+            if let Some(f) = t.on() {
+                let mut expected: Vec<_> = cover(p, f)
+                    .iter()
+                    .map(|a| match *a {
+                        Anchor::Face(f) => parts[pi].faces[f.0],
+                        Anchor::Edge(e) => parts[pi].edges[e.0],
+                        Anchor::Geometry(g) => prov.geometry_items[g.0],
+                    })
+                    .collect();
+                let mut actual: Vec<_> = o["faces"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .filter_map(|f| {
+                        ["advanced_face", "edge_curve", "instance"]
+                            .iter()
+                            .find_map(|k| f[*k].as_str())
+                            .and_then(|s| s.strip_prefix('#'))
+                            .and_then(|s| s.parse::<u64>().ok())
+                    })
+                    .collect();
+                expected.sort_unstable();
+                expected.dedup();
+                actual.sort_unstable();
+                actual.dedup();
+                if expected != actual {
+                    detail.push(format!("support instances {actual:?} vs {expected:?}"));
+                }
+            }
+            if !detail.is_empty() {
+                out.push((key, detail.join("; ")));
+            }
+        }
         // Datums by label and faces (OpenCascade keeps one per tolerance that cites it).
         let mut theirs: Vec<(String, Vec<usize>)> = odatums
             .iter()
@@ -3264,6 +3403,17 @@ fn compare_occt(
     }
     // XCAF's tolerance objects have no frame relations or general-table API.
     for (pi, p) in r.parts.iter().enumerate() {
+        if p.decimal_places.is_some()
+            && !p
+                .general
+                .iter()
+                .any(|g| matches!(g, GeneralTolerance::Table { .. }))
+        {
+            out.push((
+                format!("{name} occt part {pi} decimal places"),
+                "XCAF exposes no part decimal default".into(),
+            ));
+        }
         for (i, t) in p.tolerances.iter().enumerate() {
             if t.zone.as_ref().and_then(|z| z.affected_plane).is_some()
                 && !otols.iter().any(|o| {
@@ -3511,6 +3661,37 @@ fn written_cases() -> Vec<(String, Option<Vec<u8>>)> {
         Some(f.doc.apply(&edit).unwrap().bytes),
     ));
 
+    let f = gap_spool();
+    for (name, p) in [
+        (
+            "datum_targets",
+            common::pmi_targets::separate_support(common::pmi_targets::every_kind()),
+        ),
+        (
+            "datum_targets_shared_support",
+            common::pmi_targets::every_kind(),
+        ),
+        (
+            "decimal_default",
+            PartPmi {
+                decimal_places: Some(3),
+                ..PartPmi::default()
+            },
+        ),
+    ] {
+        out.push((name.into(), Some(written(&f, &p).doc.bytes().to_vec())));
+    }
+    for (name, source) in [
+        ("nist_ctc_02_targets", "nist_ctc_02_asme1_ap242-e2"),
+        ("nist_ftc_10_targets", "nist_ftc_10_asme1_ap242-e2"),
+    ] {
+        let f = fixture(&format!("ap242/nist/{source}.stp.gz"));
+        let read = pmi::read(&f.doc, &f.parts).unwrap();
+        let p =
+            common::pmi_targets::with_occt_probes(common::pmi_targets::from_read(&read.parts[0]));
+        out.push((name.into(), Some(written(&f, &p).doc.bytes().to_vec())));
+    }
+
     // A thread haecceity wrote, written again (U14, `a_written_thread_is_replaced_and_removed`):
     // the internal thread replaced by the external thread and knurl, and those removed.
     let f = spool();
@@ -3714,9 +3895,10 @@ fn opencascade_reads_the_written_files() {
             ));
             continue;
         }
-        // Every datum in these files is one the writer added, so each has its datum feature
-        // symbol (decision 6), which OpenCascade links to the datum as its presentation
-        // (thumbwheel_notes_add's are specify-core's, with specify-core's symbols).
+        let f = open(&path);
+        let r = pmi::read(&f.doc, &f.parts).unwrap();
+        // Decision 6: datum feature symbols on actual datum features. Target-only datums
+        // have target presentation, not a fabricated datum feature.
         let datums = capture["parts"]
             .as_array()
             .unwrap()
@@ -3724,6 +3906,15 @@ fn opencascade_reads_the_written_files() {
             .chain([&capture["unattached"]])
             .flat_map(|p| p["datums"].as_array().unwrap());
         for d in datums {
+            if d["is_target"] == true
+                || r.parts.iter().flat_map(|p| &p.datums).any(|ours| {
+                    ours.feature().is_none()
+                        && !ours.targets().is_empty()
+                        && Some(ours.label().as_str()) == d["name"].as_str()
+                })
+            {
+                continue;
+            }
             let pres = &d["presentation"];
             let want = format!("Datum {}", d["name"].as_str().unwrap_or(""));
             if pres["name"].as_str() != Some(want.as_str())
@@ -3736,8 +3927,6 @@ fn opencascade_reads_the_written_files() {
                 ));
             }
         }
-        let f = open(&path);
-        let r = pmi::read(&f.doc, &f.parts).unwrap();
         for (key, detail) in compare_occt(&name, &capture, &r, &f.doc, &f.parts) {
             match pinned.iter().find(|e| e["key"] == key.as_str()) {
                 Some(e) if e["detail"] == detail.as_str() => {}
@@ -3754,6 +3943,9 @@ fn opencascade_reads_the_written_files() {
         if !actual.iter().any(|a| a["key"] == e["key"]) {
             problems.push(format!("{}: pinned but not found", e["key"]));
         }
+    }
+    if let Some(path) = std::env::var_os("HAECCEITY_PMI_OCCT_ACTUAL") {
+        std::fs::write(path, serde_json::to_vec_pretty(&actual).unwrap()).unwrap();
     }
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
@@ -4310,56 +4502,7 @@ fn python_requirements_replace_as_standard_requirements() {
 }
 
 #[test]
-fn schema_practice_conflicts_are_named_without_exemptions() {
-    let placement = Placement {
-        origin: std::array::from_fn(|_| length("0.", LengthUnit::Millimetre)),
-        axis: None,
-        ref_direction: None,
-    };
-    for shape in [
-        TargetShape::Point,
-        TargetShape::Line {
-            length: length("5.", LengthUnit::Millimetre),
-        },
-        TargetShape::Rectangle {
-            length: length("5.", LengthUnit::Millimetre),
-            width: length("3.", LengthUnit::Millimetre),
-        },
-        TargetShape::Circle {
-            diameter: length("5.", LengthUnit::Millimetre),
-        },
-        TargetShape::Area(FeatureId(0)),
-    ] {
-        let p = PartPmi {
-            features: vec![faces(&[0])],
-            datum_targets: vec![
-                DatumTarget::new(1, shape, Some(placement.clone()), None, Some(FeatureId(0)))
-                    .unwrap(),
-            ],
-            datums: vec![Datum::new(label("A"), None, vec![DatumTargetId(0)]).unwrap()],
-            ..PartPmi::default()
-        };
-        let Err(WriteError::Refused(r)) = write(&gap_spool(), &[(PartId(0), p)], Mode::Replace)
-        else {
-            panic!("target conflicts must be explicit");
-        };
-        assert!(
-            r.iter()
-                .any(|r| r.item == ItemRef::DatumTarget(0) && r.why.contains("WR5"))
-        );
-        assert!(r.iter().any(|r| r.item == ItemRef::Datum(0)));
-    }
-    let p = PartPmi {
-        decimal_places: Some(3),
-        ..PartPmi::default()
-    };
-    let Err(WriteError::Refused(r)) = write(&gap_spool(), &[(PartId(0), p)], Mode::Replace) else {
-        panic!("Figure 3 conflict must be explicit");
-    };
-    assert!(
-        r.iter()
-            .any(|r| r.item == ItemRef::DecimalPlaces && r.why.contains("WR3/WR4"))
-    );
+fn relation_targets_still_require_edition_four() {
     let mut p = common::pmi_gaps::every_kind();
     p.material = None;
     let Err(WriteError::Refused(r)) = write(&spool(), &[(PartId(0), p)], Mode::Replace) else {
@@ -4392,7 +4535,7 @@ fn tolerance_table_counts_are_numbers_and_values_keep_qualifiers() {
 }
 
 #[test]
-fn a_refused_migrated_note_names_the_original_input_item() {
+fn a_legacy_target_note_migrates_to_semantic_text() {
     let p = PartPmi {
         features: vec![faces(&[0])],
         datum_targets: vec![
@@ -4407,16 +4550,12 @@ fn a_refused_migrated_note_names_the_original_input_item() {
         }],
         ..PartPmi::default()
     };
-    let Err(WriteError::Refused(refusals)) = write(&gap_spool(), &[(PartId(0), p)], Mode::Replace)
-    else {
-        panic!("the target conflict must be refused");
-    };
-    assert!(refusals.iter().any(|r| r.item == ItemRef::Note(0)));
-    assert!(
-        !refusals
-            .iter()
-            .any(|r| matches!(r.item, ItemRef::Attribute(_) | ItemRef::SurfaceTexture(_)))
-    );
+    let f = gap_spool();
+    let w = written(&f, &p);
+    assert_verified(&f, &w, &p);
+    assert_eq!(w.report.note_migrations.len(), 1);
+    assert!(w.report.note_migrations[0].2.starts_with("semantic text"));
+    assert_eq!(w.report.practice_schema_conflicts.len(), 1);
 }
 
 #[test]
@@ -4572,4 +4711,236 @@ fn unitless_roughness_on_an_inch_part_keeps_its_words() {
         w.read.parts[0].attributes[0].items[0].1,
         AttributeValue::Text("Ra 32".into())
     );
+}
+
+#[test]
+fn practice_targets_and_decimal_cells_have_only_reported_conflicts() {
+    let p = common::pmi_targets::every_kind();
+    let f = gap_spool();
+    let w = written(&f, &p);
+    assert_verified(&f, &w, &p);
+    let conflicts = &w.report.practice_schema_conflicts;
+    assert_eq!(
+        conflicts
+            .iter()
+            .filter(|v| v.rule == "datum_target.WR5")
+            .count(),
+        7
+    );
+    assert_eq!(
+        conflicts
+            .iter()
+            .filter(|v| v.rule.starts_with("default_tolerance_table_cell."))
+            .count(),
+        2
+    );
+    let made: BTreeSet<_> = w.added().into_iter().collect();
+    assert!(conflicts.iter().all(|v| made.contains(&v.id)));
+    assert!(
+        express::validate_document(w.doc.graph())
+            .iter()
+            .all(|v| !made.contains(&v.id))
+    );
+    let raw: Vec<_> = haecceity::express_rules::check_all(&w.doc)
+        .into_iter()
+        .filter(|v| made.contains(&v.id))
+        .collect();
+    assert_eq!(
+        raw, *conflicts,
+        "the unmodified rule engine must still report exactly the conflicts"
+    );
+    let target = conflicts
+        .iter()
+        .find(|v| v.rule == "datum_target.WR5")
+        .unwrap()
+        .id;
+    let mut edit = haecceity::p21::Edit::new();
+    let mut raw = w.doc.get(target).unwrap().clone();
+    let RawEntity::Simple {
+        attributes: attrs, ..
+    } = &mut raw
+    else {
+        panic!("target");
+    };
+    attrs[0] = haecceity::p21::Attribute::String("A1".into());
+    edit.replace(target, raw);
+    let changed = Document::parse(w.doc.apply(&edit).unwrap().bytes).unwrap();
+    let rules: BTreeSet<_> = haecceity::express_rules::check_all(&changed)
+        .into_iter()
+        .filter(|v| v.id == target)
+        .map(|v| v.rule)
+        .collect();
+    assert_eq!(
+        rules,
+        BTreeSet::from(["datum_target.WR4", "datum_target.WR5"])
+    );
+    // The exemption cannot swallow another rule on the very same target.
+    let mut raw = changed.get(target).unwrap().clone();
+    let RawEntity::Simple {
+        attributes: attrs, ..
+    } = &mut raw
+    else {
+        panic!("target");
+    };
+    attrs[4] = haecceity::p21::Attribute::String("0".into());
+    let mut edit = haecceity::p21::Edit::new();
+    edit.replace(target, raw);
+    let changed = Document::parse(changed.apply(&edit).unwrap().bytes).unwrap();
+    assert!(
+        haecceity::express_rules::check_all(&changed)
+            .iter()
+            .any(|v| v.id == target && v.rule == "datum_target.WR3")
+    );
+}
+
+#[test]
+fn decimal_only_default_and_named_cell_roundtrip() {
+    let f = gap_spool();
+    for p in [
+        PartPmi {
+            decimal_places: Some(3),
+            ..PartPmi::default()
+        },
+        PartPmi {
+            decimal_places: Some(3),
+            general: vec![GeneralTolerance::Table {
+                name: "precision".into(),
+                cells: vec![common::pmi_targets::decimal_cell()],
+            }],
+            ..PartPmi::default()
+        },
+    ] {
+        let w = written(&f, &p);
+        assert_verified(&f, &w, &p);
+        assert_eq!(w.read.parts[0], p);
+        assert_eq!(
+            w.report
+                .practice_schema_conflicts
+                .iter()
+                .map(|v| v.rule)
+                .collect::<Vec<_>>(),
+            [
+                "default_tolerance_table_cell.WR3",
+                "default_tolerance_table_cell.WR4"
+            ]
+        );
+        let read_f = open_bytes(w.doc.bytes().to_vec());
+        let again = written(&read_f, &w.read.parts[0]);
+        assert_eq!(again.read.parts[0], p);
+    }
+}
+
+#[test]
+fn only_authorized_target_rules_are_exempted() {
+    let mut p = common::pmi_targets::every_kind();
+    let t = &p.datum_targets[0];
+    p.datum_targets[0] = DatumTarget::new(
+        t.number(),
+        t.shape().clone(),
+        t.placement().cloned(),
+        Some(Direction([dec("1."), dec("0."), dec("0.")])),
+        t.on(),
+    )
+    .unwrap();
+    let Err(WriteError::Refused(r)) = write(&gap_spool(), &[(PartId(0), p)], Mode::Replace) else {
+        panic!("non-exempt placed-target WR3");
+    };
+    assert!(
+        r.iter().any(|r| r.item == ItemRef::DatumTarget(0)
+            && r.why.contains("placed_datum_target_feature.WR3"))
+    );
+}
+
+#[test]
+fn anonymous_decimal_carriers_keep_original_refusal_indices() {
+    let p = PartPmi {
+        decimal_places: Some(3),
+        general: vec![
+            GeneralTolerance::Table {
+                name: "".into(),
+                cells: vec![common::pmi_targets::decimal_cell()],
+            },
+            GeneralTolerance::Table {
+                name: "invalid".into(),
+                cells: vec![],
+            },
+        ],
+        ..PartPmi::default()
+    };
+    let Err(WriteError::Refused(r)) = write(&spool(), &[(PartId(0), p)], Mode::Replace) else {
+        panic!("invalid second table");
+    };
+    assert_eq!(r.len(), 1);
+    assert_eq!(r[0].item, ItemRef::General(1));
+}
+
+#[test]
+fn movable_lines_and_real_datum_features_keep_their_standard_forms() {
+    let mut p = common::pmi_targets::every_kind();
+    let t = &p.datum_targets[1];
+    p.datum_targets[1] = DatumTarget::new(
+        t.number(),
+        t.shape().clone(),
+        t.placement().cloned(),
+        Some(Direction([dec("1."), dec("0."), dec("0.")])),
+        t.on(),
+    )
+    .unwrap();
+    let targets = p.datums[0].targets().to_vec();
+    p.datums[0] = Datum::new(label("A"), Some(FeatureId(0)), targets).unwrap();
+    let f = gap_spool();
+    let w = written(&f, &p);
+    assert_verified(&f, &w, &p);
+    assert_eq!(w.report.datum_symbols, [(PartId(0), "A".into())]);
+    let mut invalid = common::pmi_targets::every_kind();
+    invalid.datum_targets[6] =
+        DatumTarget::new(7, TargetShape::Curve(FeatureId(0)), None, None, None).unwrap();
+    let Err(WriteError::Refused(r)) = write(&f, &[(PartId(0), invalid)], Mode::Replace) else {
+        panic!("a face is not curve geometry");
+    };
+    assert!(
+        r.iter()
+            .any(|r| r.item == ItemRef::DatumTarget(6) && r.why.contains("§6.6.2"))
+    );
+}
+
+#[test]
+fn occt_reads_supported_targets_without_moving_the_controlled_feature() {
+    for (name, wanted) in [
+        ("datum_targets", 4),
+        ("datum_targets_shared_support", 4),
+        ("nist_ctc_02_targets", 9),
+    ] {
+        let capture: Json = serde_json::from_slice(&file_bytes(
+            &write_dir().join(format!("{name}.occt.json.gz")),
+        ))
+        .unwrap();
+        assert_eq!(capture["reads"], true);
+        let targets: Vec<_> = capture["parts"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .chain([&capture["unattached"]])
+            .flat_map(|p| p["datums"].as_array().unwrap())
+            .filter(|d| d["is_target"] == true)
+            .collect();
+        assert_eq!(targets.len(), wanted, "{name}");
+        assert!(targets.iter().all(|d| d["target"]["has_params"] == true));
+        if name.starts_with("datum_targets") {
+            let tol = &capture["parts"][0]["geometric_tolerances"][0];
+            assert_eq!(tol["value"], 0.05);
+            assert_eq!(
+                tol["faces"],
+                serde_json::json!([{"advanced_face":"#17","face":0,"part":0}])
+            );
+            for d in targets {
+                if name == "datum_targets" {
+                    assert_eq!(
+                        d["faces"],
+                        serde_json::json!([{"advanced_face":"#129","face":1,"part":0}])
+                    );
+                }
+            }
+        }
+    }
 }

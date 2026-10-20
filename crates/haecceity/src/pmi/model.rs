@@ -2233,6 +2233,21 @@ pub struct ToleranceCell {
     pub items: Vec<(String, CellValue)>,
 }
 
+impl ToleranceCell {
+    /// A Figure 3 decimal-only default cell (no range or tolerance is invented).
+    pub(crate) fn decimal_default(&self) -> Option<u8> {
+        let [(name, CellValue::Count(value))] = self.items.as_slice() else {
+            return None;
+        };
+        let v = value.to_f64();
+        (name == "number of decimal places"
+            && v.is_finite()
+            && v.fract() == 0.
+            && (0. ..=255.).contains(&v))
+        .then_some(v as u8)
+    }
+}
+
 /// The value of a table cell item.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum CellValue {

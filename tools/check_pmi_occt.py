@@ -108,6 +108,9 @@ class WrittenCapture(Capture):
     def datum(self, label) -> dict:
         out = super().datum(label)
         obj = XCAFDoc_Datum.Set_s(label).GetObject()
+        if obj.IsDatumTarget() and obj.HasDatumTargetParams():
+            x = obj.GetDatumTargetAxis().XDirection()
+            out["target"]["ref_direction"] = [x.X(), x.Y(), x.Z()]
         shape = obj.GetPresentation()
         if shape.IsNull():
             out["presentation"] = None
