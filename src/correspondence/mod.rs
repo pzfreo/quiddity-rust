@@ -46,6 +46,9 @@ pub struct Recognition {
     pub frame: RecordFrame,
     #[serde(skip)]
     pub local: LocalFields,
+    /// SHA256 of the exact input file bytes; absent for caller-supplied in-memory geometry.
+    #[serde(skip)]
+    pub source_sha256: Option<String>,
 }
 
 /// Recognise every ported family on *part* as it is placed (caller-space, as Python's entry
@@ -59,6 +62,7 @@ pub fn recognise(part: &Part) -> Recognition {
         fingerprints,
         frame: RecordFrame::CallerSpace,
         local: LocalFields::new(),
+        source_sha256: None,
     }
 }
 
@@ -91,6 +95,7 @@ pub fn recognise_placed(
         fingerprints,
         frame: RecordFrame::Inferred(frame),
         local,
+        source_sha256: None,
     };
     Ok((part, recognition))
 }
@@ -843,7 +848,7 @@ mod tests {
         assert!(!good.features.is_empty());
         assert!(correspond(&good, &good).is_ok());
         type Mutation = fn(&mut Fingerprints);
-        let bad: [(&str, Mutation); 6] = [
+        let bad: [(&str, Mutation); 7] = [
             ("face 999, beyond", |f| f.features[0].faces = vec![999]),
             ("neighbour 999", |f| {
                 f.faces[0].neighbours.push((999, "convex".into()))
@@ -852,6 +857,9 @@ mod tests {
             ("scale 0", |f| f.scale = 0.0),
             ("scale NaN", |f| f.scale = f64::NAN),
             ("version", |f| f.fingerprint_version = "other".into()),
+            ("fingerprint/2", |f| {
+                f.fingerprint_version = "quiddity-rust/fingerprint/2".into()
+            }),
         ];
         for (expected, mutate) in bad {
             let mut f = good.clone();

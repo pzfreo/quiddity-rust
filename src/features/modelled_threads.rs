@@ -300,7 +300,7 @@ pub fn recognise_modelled_threads(part: &Part) -> Vec<ModelledThread> {
 }
 
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<ModelledThread>> {
-    analyse_modelled_threads(ctx.part).threads
+    ctx.modelled_threads().threads.clone()
 }
 
 pub fn discover_verified(

@@ -102,6 +102,10 @@ fn corpus_threads_have_measured_dimensions_and_disjoint_claims() {
         );
         let ts: Vec<_> = found.threads.iter().map(|o| &o.record).collect();
         if file.contains("cgb243") {
+            // Face 224 is the root of the measured 1.5 mm-pitch external thread, not
+            // a 10.374 mm-wide annular groove between its overlapping crest bands.
+            assert!(ts.iter().any(|t| t.root_faces.contains(&224)));
+            assert!(quiddity::features::grooves::discover(&ctx).is_empty());
             measured(
                 ts[0],
                 "internal",

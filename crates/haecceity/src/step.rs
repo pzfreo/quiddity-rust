@@ -2081,22 +2081,49 @@ pub fn read_step_file_placed(
 
 /// A STEP file's bytes, gunzipped when the name ends in `.gz`.
 fn step_file_bytes(path: &std::path::Path) -> std::io::Result<Vec<u8>> {
-    let bytes = std::fs::read(path)?;
-    let bytes = if path.extension().is_some_and(|e| e == "gz") {
+    decode_step_file_bytes(path, std::fs::read(path)?)
+}
+
+/// Decode a file's byte snapshot, gunzipping only when its path ends in `.gz`.
+/// Callers can hash the original bytes before consuming them here, without rereading the file.
+pub fn decode_step_file_bytes(path: &std::path::Path, bytes: Vec<u8>) -> std::io::Result<Vec<u8>> {
+    if path.extension().is_some_and(|e| e == "gz") {
         use std::io::Read;
         let mut out = Vec::new();
         flate2::read::GzDecoder::new(&bytes[..]).read_to_end(&mut out)?;
-        out
+        Ok(out)
     } else {
-        bytes
-    };
-    Ok(bytes)
+        Ok(bytes)
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::hlr::{Plane, Unresolved, View, project, section};
+
+    #[test]
+    fn byte_snapshot_decoding_uses_the_same_extension_policy_as_file_reading() {
+        use std::io::Write;
+        use std::path::Path;
+        let plain = b"ISO-10303-21;";
+        let mut encoder = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::default());
+        encoder.write_all(plain).unwrap();
+        let compressed = encoder.finish().unwrap();
+        assert_eq!(
+            decode_step_file_bytes(Path::new("part.step.gz"), compressed.clone()).unwrap(),
+            plain
+        );
+        assert_eq!(
+            decode_step_file_bytes(Path::new("part.step"), plain.to_vec()).unwrap(),
+            plain
+        );
+        assert_eq!(
+            decode_step_file_bytes(Path::new("part.step"), compressed.clone()).unwrap(),
+            compressed
+        );
+        assert!(decode_step_file_bytes(Path::new("part.step.gz"), plain.to_vec()).is_err());
+    }
 
     fn fixture(name: &str) -> std::path::PathBuf {
         std::path::Path::new(env!("CARGO_MANIFEST_DIR"))

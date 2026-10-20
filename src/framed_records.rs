@@ -389,6 +389,8 @@ impl<'a> Out<'a> {
 /// *features*, carried through *motion*: see the module documentation.
 pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
     let Features {
+        run_mode,
+        evidence_status,
         fillets,
         chamfers,
         bosses,
@@ -406,6 +408,7 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
         gusset_rib_patterns,
         thin_wall_bodies,
         interior_voids,
+        interior_void_refusals,
         through_steps,
         turned_steps,
         grooves,
@@ -461,7 +464,10 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
                 .collect()
         };
     }
+    let void_count = interior_voids.len();
     let features = Features {
+        run_mode,
+        evidence_status,
         fillets: each!("fillets", fillets, fillet),
         chamfers: each!("chamfers", chamfers, chamfer),
         bosses: each!("bosses", bosses, boss),
@@ -495,6 +501,16 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
         ),
         thin_wall_bodies: each!("thin_wall_bodies", thin_wall_bodies, thin_wall_body),
         interior_voids: each!("interior_voids", interior_voids, interior_void),
+        interior_void_refusals: interior_void_refusals
+            .into_iter()
+            .enumerate()
+            .map(|(n, mut r)| {
+                let mut out = Out::new(motion, "");
+                r.candidate = interior_void(&mut out, r.candidate);
+                family("interior_voids", void_count + n, out.done());
+                r
+            })
+            .collect(),
         through_steps: each!("through_steps", through_steps, through_step),
         turned_steps: each!("turned_steps", turned_steps, turned_step),
         grooves: each!("grooves", grooves, groove),

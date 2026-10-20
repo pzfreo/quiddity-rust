@@ -11,7 +11,7 @@ use super::body::BodyKey;
 use super::evidence::{self, EvidenceError, Occurrence};
 use super::policy::{AXIS_ALIGNED_COS, AXIS_ZERO_COS, clears_threshold, cluster_coordinates};
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{Bounds, Surface};
+use crate::kernel::geom::{Bounds, COORD_FLOOR, Surface};
 use crate::kernel::py;
 
 /// Band within which two horizontal faces are one level (absolute, ADR 0008).
@@ -408,7 +408,9 @@ fn riser_proposals(
         // A step crosses its whole body on the other in-plane axis; a pad's or a blind
         // pocket's walls are bounded.
         let full_span = flo <= bb.min[other] + tol && fhi >= bb.max[other] - tol;
-        let interior = |i: usize, p: f64| bb.min[i] + tol < p && p < bb.max[i] - tol;
+        let interior = |i: usize, p: f64| {
+            p - bb.min[i] > tol + COORD_FLOOR && bb.max[i] - p > tol + COORD_FLOOR
+        };
         let height = fb.max[2] - fb.min[2];
         let (positions, other_positions) = if vertical {
             let pos = frame.origin[axis];

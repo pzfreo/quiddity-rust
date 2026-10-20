@@ -107,7 +107,7 @@ fn check(name: &str, doc: &RecognitionDocument, face_count: usize, out: &mut Vec
         matches!(
             r.family.as_str(),
             "modelled_threads" | "modelled_thread_refusals"
-        )
+        ) || r.record_type == "InteriorVoidRefusal"
     }) {
         recognition::SCHEMA_VERSION
     } else {
@@ -1208,3 +1208,41 @@ sliced!(
         3 => slice_3,
     ]
 );
+
+/// A sampling refusal retains the cavity's source anatomy and volume estimate in the public
+/// document, without turning an unproved widening into a fingerprinted feature.
+#[test]
+fn a_void_without_a_proved_throat_retains_its_measurements() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let part = quiddity::read_step_file(&dir.join("mfcadpp_regressions/11512.step")).unwrap();
+    let rec = correspondence::recognise(&part);
+    let refused = rec
+        .features
+        .interior_void_refusals
+        .iter()
+        .find(|r| r.candidate.void_faces == [33, 34])
+        .expect("retained bounded-air candidate");
+    assert_eq!(refused.reason, "widening_behind_throat_unproved");
+    assert!(refused.candidate.estimated_volume > 0.0);
+    assert!(refused.candidate.enclosed_samples > 0);
+    assert!(!refused.candidate.openings.is_empty());
+    let doc = recognition::document(&rec, part.faces.len());
+    let record = doc
+        .records
+        .iter()
+        .find(|r| r.record_type == "InteriorVoidRefusal" && r.faces == [33, 34])
+        .unwrap();
+    assert_eq!(
+        record.evidence_status,
+        quiddity::features::evidence::EvidenceStatus::Unproved
+    );
+    assert_eq!(
+        serde_json::json!(record.parameters),
+        serde_json::to_value(refused).unwrap()
+    );
+    assert!(!rec.fingerprints.features.iter().any(|f| f.id == record.id));
+    assert_eq!(doc.schema_version, recognition::SCHEMA_VERSION);
+}

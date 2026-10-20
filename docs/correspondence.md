@@ -1,7 +1,7 @@
 # Correspondence between revisions
 
 **Status:** design accepted with draftwright-rust's ADR R3 (2026-10-07); implemented in
-`src/correspondence/` (fingerprint version `quiddity-rust/fingerprint/2`). See
+`src/correspondence/` (fingerprint version `quiddity-rust/fingerprint/3`). See
 [Implementation](#implementation) for what was built, the thresholds and how they were tuned, and
 what is not done.
 
@@ -132,7 +132,7 @@ before plus a top-level `fingerprints` (and, since then, the recognition `docume
 two STEP files) and writes the `Correspondence`. In the library: `correspondence::recognise`,
 `fingerprint`, `correspond` and `correspond_with` (explicit `Thresholds`).
 
-### Fingerprints (`fingerprint.rs`, version `quiddity-rust/fingerprint/2`)
+### Fingerprints (`fingerprint.rs`, version `quiddity-rust/fingerprint/3`)
 
 - **Features** are read from each family's serialised records through an explicit table,
   `FAMILIES` in `fingerprint.rs`, keyed by the family's field in `Features`. It lists every field
@@ -187,6 +187,25 @@ two STEP files) and writes the `Correspondence`. In the library: `correspondence
   thin wall's history hint, a groove's profile key) and counts a thin wall's face pairs rather
   than its unpaired faces.
 
+Version 3 retains the complete size catalogue and changes recognition measurements:
+
+- Hole and recess dimensions are measured before position publication. Decimal half-way
+  measurements within the kernel coordinate floor use ties-to-even consistently.
+- Equal pocket wall separations retain all walls and use original face identity to select
+  an interpretation. Equal distinct hole mouths use the original cylinder support direction.
+- Groove supports are joined to each floor end symmetrically, including overlapping bands.
+  An independently proved helical root remains in its thread record.
+- Void samples use a box-centred lattice with stable cell counts at integral pitch ratios.
+  Unproved chamber candidates retain their complete data in diagnostic document records;
+  refusals make no recognised feature claim and have no feature fingerprint.
+- Plate face bands use their extreme-plane midpoint and retain unrounded coordinates,
+  so thickness is a difference of intrinsic measurements rather than published grid positions.
+
+Version 2 files must be recognised again before correspondence. The version check refuses
+mixing either revision with an older fingerprint. Frozen Python captures remain regression
+records; deliberate departures are explained by independent geometry and motion evidence in
+the parity ledgers.
+
 ### Correspond
 
 - **Input**: fingerprints read from a file are checked before use, and refused with an error
@@ -239,52 +258,44 @@ two STEP files) and writes the `Correspondence`. In the library: `correspondence
 | `cutoff` | 1.0 | matched revision costs are 0.06–0.5 |
 | `margin` | 0.05 | unaligned swaps: 20 mm apart 0.064 (kept), 5–10 mm 0.016–0.032 (ambiguous) |
 
-### Results
+### Validation
 
-- **Invariance** (`tests/correspondence.rs`): every corpus part under 6 motions; the test prints
-  how many it checked (600 moved parts, 11 088 features and 64 014 faces at fingerprint version 2,
-  2026-10-08). Every feature and face is carried to itself except in 30 listed (file, motion)
-  cases in `tests/fixtures/known_correspondence.json`, each with a verdict and the exact features
-  and face count that differ (any other difference in a listed case still fails):
-  - `flanged_spool_132` under three of the turns (rust-correct): the part is six-fold symmetric
-    about its axis, the turn is fixed from the off-axis repeats with six turns fitting equally
-    (`fold` 6), and the identity-nearest one is a 30° turn rather than the motion's own, so the
-    42 off-axis features and 72 faces are carried consistently onto their symmetric copies;
-  - cgb202 (rust-wrong): sphere corner patches with a great-circle edge through the sphere's
-    pole get a kernel area that changes several-fold with placement (face 240: 9.03 mm² unmoved,
-    as OpenCascade, 61.75 translated), so they are orphaned, ambiguous or, under rot_zx_moved,
-    matched to the wrong face and reported adapted; and B-spline quadrature as below;
-  - cgb207, cgb242 (rust-wrong): B-spline face areas that change with placement by up to 0.7%;
-  - threaded_connector_109 (rust-wrong): a surface recovered as a plane in one placement only
-    (recover.rs);
-  - nist_ctc_05 and cgb217 (rust-wrong): hole depths on a rounding half-way point;
-  - five plates (rust-wrong, the plate recogniser, as Python): a side's faces closer than the
-    0.5 mm clustering tolerance are placed at the lowest, which flips with the axis's sign, so the
-    thickness version 2 records changes with the motion and the plate is reported adapted to
-    itself;
-  - cgb217 and cgb243's voids under three turns (rust-wrong, the void grid, as Python): the
-    estimated volume counts grid samples, and the grid's phase on the part changes with the turn.
+`tests/invariance.rs` reads every corpus part under translation and principal rotations,
+checks the same feature faces, then checks correspondence on the same readings. It also
+checks recognition under a generic rotation in the part's inferred frame. The ledgers pin
+all remaining differences; a stale entry or an unlisted difference fails. Analytic tests
+cover tolerance boundaries, measured half-way sizes, reflected sample lattices, and plate
+thickness under a translation smaller than its former position-publication grid.
 
-  Families listed in `known_invariance.json` are left out where listed.
-- **Revision pairs** (`tools/capture_revisions.py`, `tests/fixtures/revisions/`, 10 pairs): a hole
-  moved (adapted, `position`), the boss resized (adapted, `sizes.diameter`), a hole added (new)
-  and removed (orphaned), the boss removed (orphaned), the whole part turned and moved (all
-  carried), the part moved with a hole moved (adapted), a row of holes grown from four to six (the
-  pattern adapted with `sizes.count`, two holes new), a fillet radius changed (adapted), and the
-  plate thickened (unaligned; distinct holes and a 20 mm row adapted with `sizes.depth`, a 5 mm
-  row ambiguous). Every other feature is checked carried, each carried feature's faces (patterns
-  aside) carried onto its partner's, and every face of the whole-part motion carried. All checks
-  pass, with no listed differences.
+`tests/correspondence.rs` checks the frozen revision pairs: dimensions, added and removed
+features, changed patterns, rigid whole-part placements, and unchanged source face claims.
 
-### Not done
+The ten revision pairs exercise these results: moving a hole adapts its position; resizing
+a boss adapts its diameter; adding a hole makes it new; removing a hole or boss orphans it;
+moving the whole part carries every feature and face; moving the part and one hole adapts
+that hole; growing a four-hole row to six adapts the pattern count and adds two holes;
+resizing a fillet adapts it; and thickening the plate leaves the pair unaligned, adapting
+distinct holes and the 20 mm row by depth while the 5 mm row is ambiguous. The test checks
+the unchanged features as carried and the carried features' faces (patterns aside) against
+their partners. Its exact expectations and listed verdicts remain in the fixtures.
 
-- The JSON-lines and MCP surfaces: quiddity-rust has neither yet; the library and CLI carry it.
-- Mirrored revisions: the alignment is proper only (as the reader refuses reflections), so a
-  mirrored part is not aligned.
-- Arbitrary rotations of a part: recognition itself is not yet invariant to them (the frame
-  normalisation is not ported), so the pairs and the invariance test use right-angle turns.
-- The overlap test is estimated from fingerprints rather than computed from the faces'
-  boundaries.
-- The cut-off has not been stressed by a revision where a removed and an added feature of one
-  family compete; such a pair may be reported adapted (moved and resized) rather than orphaned and
-  new.
+### Limits
+
+The remaining section run-interval publication cases are explicitly pinned in
+`known_correspondence.json`: absolute endpoints still use the public three-decimal grid.
+Fixing them requires an intrinsic run-length representation or a versioned frame origin
+along the run. The recognised geometry and its current sizes remain visible in the output.
+
+Mirrored revisions are not aligned: the motion model uses proper rotations. Families
+explicitly read along world Z change when the caller rotates Z away from the part; default
+recognition uses the part's inferred frame. Symmetric geometry can still leave correspondence
+between equivalent repeated copies undetermined.
+
+Face overlap is estimated from fingerprint areas and centroids, rather than intersecting
+the faces' boundaries. The cut-off has not been stressed by a competing removed-and-added
+pair in one family; such a pair may be classified as an adapted feature instead of an
+orphaned feature and a new one.
+
+The fingerprint content changes across this stack before the final version bump. Merge
+the seven layers together so version 2 fingerprints with intermediate semantics are never
+released independently.

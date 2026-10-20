@@ -34,7 +34,7 @@ fn occurrence(proposal: Proposal<Pocket>) -> (Occurrence<Pocket>, Vec<usize>) {
     let found = Occurrence {
         context: members.difference(&defining).copied().collect(),
         defining: defining.into_iter().collect(),
-        record: proposal.record,
+        record: proposal.record.published(),
     };
     (found, members.into_iter().collect())
 }

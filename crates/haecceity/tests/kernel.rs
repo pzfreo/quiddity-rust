@@ -292,7 +292,7 @@ fn drill_points_bounded_by_their_rim_alone_reach_the_apex() {
         ("nist/nist_ftc_10_asme1_rb.stp", 174, 27.717219757814156),
     ] {
         let part = read_step_file(&dir.join(file)).unwrap();
-        let area = part.face_mass(face).map(|m| m[0]).unwrap_or(0.0);
+        let area = part.face_mass(face).expect("drill point has an area")[0];
         assert!(
             (area - occ).abs() <= 1e-8 * occ,
             "{file} face {face}: {area} vs OpenCascade's {occ}"

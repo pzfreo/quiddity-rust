@@ -305,7 +305,15 @@ fn face_areas_match_opencascade_and_ignore_placement() {
     let known = known.as_array().unwrap();
     common::check_verdicts("known_face_areas.json", known);
     // The parts are independent; read and integrate them across the machine's cores.
-    let threads = std::thread::available_parallelism().map_or(4, |n| n.get());
+    let threads = std::thread::available_parallelism()
+        .map_or(1, |n| n.get())
+        .min(
+            std::env::var("RUST_TEST_THREADS")
+                .ok()
+                .and_then(|s| s.parse::<usize>().ok())
+                .unwrap_or(6)
+                .max(1),
+        );
     let outcomes: Vec<Outcome> = std::thread::scope(|scope| {
         let workers: Vec<_> = (0..threads)
             .map(|w| {

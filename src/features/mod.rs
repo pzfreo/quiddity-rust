@@ -109,6 +109,12 @@ use crate::kernel::brep::Part;
 /// only; [`inventory`] keeps every candidate and the decisions.
 #[derive(Clone, Debug, Serialize)]
 pub struct Features {
+    /// The completed run, independent of the thread-local retry flag after recognition.
+    #[serde(skip)]
+    pub run_mode: evidence::RunMode,
+    /// Strict proof on each occurrence's defining AND consulted faces, kept through filtering.
+    #[serde(skip)]
+    pub evidence_status: BTreeMap<&'static str, Vec<evidence::EvidenceStatus>>,
     pub fillets: Vec<fillets::Fillet>,
     pub chamfers: Vec<chamfers::Chamfer>,
     pub bosses: Vec<bosses::BossRecord>,
@@ -126,6 +132,9 @@ pub struct Features {
     pub gusset_rib_patterns: Vec<gussets::GussetRibPattern>,
     pub thin_wall_bodies: Vec<thin_walls::ThinWallBody>,
     pub interior_voids: Vec<interior_voids::InteriorVoid>,
+    /// Refusals retain bounded-air measurements in the document, without feature claims.
+    #[serde(skip)]
+    pub interior_void_refusals: Vec<interior_voids::InteriorVoidRefusal>,
     pub through_steps: Vec<through_steps::ThroughStep>,
     pub turned_steps: Vec<turned_steps::TurnedStep>,
     pub grooves: Vec<grooves::Groove>,
@@ -223,6 +232,19 @@ fn recognise_in(ctx: &Context<'_>, inventory: Inventory) -> Features {
         .map(|r| r.evidence().defining_faces().to_vec())
         .collect();
     features.defining.insert("section_recesses", defining);
+    features.evidence_status.insert(
+        "section_recesses",
+        section_recesses
+            .iter()
+            .map(|r| {
+                evidence::strict_status(
+                    ctx.part,
+                    r.evidence().defining_faces(),
+                    r.evidence().constituent_faces(),
+                )
+            })
+            .collect(),
+    );
     features.section_recesses = section_recesses;
     features.section_recess_refusals = refusals;
     features.section_recess_patterns = patterns;
@@ -264,6 +286,13 @@ impl Inventory {
             }
         }
         for (family, indices) in &rejected {
+            // Risers have no Family::field; use the same slot as their special arm below.
+            let field = family.field().unwrap_or("risers");
+            let statuses = f
+                .evidence_status
+                .get_mut(field)
+                .expect("every candidate has a status");
+            drop_rejected(statuses, indices);
             use reconcile::Family as F;
             match family {
                 F::AngledSteps => drop_rejected(&mut f.angled_steps, indices),
@@ -390,7 +419,12 @@ pub(crate) fn inventory_in(
         return Ok(None);
     }
     let found_holes = skip_unproved(part, found_holes);
-    let mut defining = Kept::default();
+    let mut defining = Kept {
+        part,
+        defining: Defining::new(),
+        constituent: Defining::new(),
+        evidence_status: BTreeMap::new(),
+    };
     let holes = kept(&mut defining, "holes", found_holes);
     let countersinks = kept(&mut defining, "countersinks", seats);
     let gusset_ribs = kept(&mut defining, "gusset_ribs", gussets::discover(ctx));
@@ -415,7 +449,7 @@ pub(crate) fn inventory_in(
         oriented_slots::discover(ctx, &passages)
             .unwrap_or_else(|e| panic!("oriented slots refused: {e}")),
     );
-    let thread_analysis = modelled_threads::analyse_modelled_threads(part);
+    let thread_analysis = ctx.modelled_threads();
     let claimed: BTreeSet<_> = thread_analysis
         .threads
         .iter()
@@ -424,7 +458,11 @@ pub(crate) fn inventory_in(
     let modelled_threads = if thread_analysis.threads.is_empty() {
         Vec::new()
     } else {
-        kept(&mut defining, "modelled_threads", thread_analysis.threads)
+        kept(
+            &mut defining,
+            "modelled_threads",
+            thread_analysis.threads.clone(),
+        )
     };
     let freeform_surfaces = kept(
         &mut defining,
@@ -444,7 +482,13 @@ pub(crate) fn inventory_in(
     });
     let risers = kept(&mut defining, "risers", found_risers);
     let step_levels = kept(&mut defining, "step_levels", step_level_occurrences);
+    let void_analysis = interior_voids::analyse(ctx);
     let physical = Features {
+        run_mode: if evidence::local_degradation() {
+            evidence::RunMode::LocallyDegraded
+        } else {
+            evidence::RunMode::Strict
+        },
         fillets: kept(
             &mut defining,
             "fillets",
@@ -489,11 +533,8 @@ pub(crate) fn inventory_in(
         gusset_ribs,
         countersinks,
         thin_wall_bodies,
-        interior_voids: kept(
-            &mut defining,
-            "interior_voids",
-            interior_voids::discover(ctx),
-        ),
+        interior_voids: kept(&mut defining, "interior_voids", void_analysis.accepted),
+        interior_void_refusals: void_analysis.refusals,
         through_steps: kept(&mut defining, "through_steps", through_steps::discover(ctx)),
         turned_steps: kept(
             &mut defining,
@@ -553,7 +594,7 @@ pub(crate) fn inventory_in(
         ),
         freeform_surfaces,
         modelled_threads,
-        modelled_thread_refusals: thread_analysis.refusals,
+        modelled_thread_refusals: thread_analysis.refusals.clone(),
         polygonal_bosses: kept(
             &mut defining,
             "polygonal_bosses",
@@ -585,6 +626,7 @@ pub(crate) fn inventory_in(
         section_recess_patterns: Vec::new(),
         section_recess_refusal: None,
         defining: defining.defining,
+        evidence_status: defining.evidence_status,
     };
     // The thin-wall rule reads the risers this inventory carries, in its order.
     let mut evidence = evidence;
@@ -599,15 +641,23 @@ pub(crate) fn inventory_in(
 }
 
 /// Defining and constituent faces by family field name, then record.
-#[derive(Default)]
-struct Kept {
+struct Kept<'p> {
+    part: &'p Part,
     defining: Defining,
     constituent: Defining,
+    evidence_status: BTreeMap<&'static str, Vec<evidence::EvidenceStatus>>,
 }
 
 /// The records of a family's occurrences, their defining and constituent faces kept under the
 /// family's name.
-fn kept<R>(kept: &mut Kept, family: &'static str, found: Vec<Occurrence<R>>) -> Vec<R> {
+fn kept<R>(kept: &mut Kept<'_>, family: &'static str, found: Vec<Occurrence<R>>) -> Vec<R> {
+    kept.evidence_status.insert(
+        family,
+        found
+            .iter()
+            .map(|o| evidence::strict_status(kept.part, &o.defining, &o.context))
+            .collect(),
+    );
     kept.defining
         .insert(family, found.iter().map(|o| o.defining.clone()).collect());
     kept.constituent.insert(

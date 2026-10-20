@@ -23,7 +23,9 @@ pub fn cluster_coordinates(coordinates: &[f64], tol: f64) -> Vec<Vec<usize>> {
     let mut clusters: Vec<Vec<usize>> = Vec::new();
     for index in order {
         match clusters.last_mut() {
-            Some(last) if coordinates[index] - coordinates[last[0]] <= tol => last.push(index),
+            Some(last) if coordinates[index] - coordinates[last[0]] <= tol + COORD_FLOOR => {
+                last.push(index)
+            }
             _ => clusters.push(vec![index]),
         }
     }
@@ -33,4 +35,65 @@ pub fn cluster_coordinates(coordinates: &[f64], tol: f64) -> Vec<Vec<usize>> {
 /// `quiddity._geometry.length_tol`.
 pub fn length_tol(nominal: f64, rel: f64) -> f64 {
     rel * nominal + COORD_FLOOR
+}
+
+/// Round a measured size on its publication grid. Decimal half-way points within the
+/// kernel's coordinate floor use ties-to-even, so placement round-off cannot choose a side.
+/// Absolute positions keep their existing publication rule; round lengths before positions.
+/// On grids finer than the coordinate floor, neighbouring half-way snap bands overlap;
+/// use ordinary ties-to-even rounding there instead of collapsing distinct grid values.
+pub fn round_measurement(value: f64, digits: usize) -> f64 {
+    let factor = 10f64.powi(digits as i32);
+    if COORD_FLOOR * factor >= 0.5 {
+        return py::round_to(value, digits);
+    }
+    let scaled = value * factor;
+    let half = scaled.floor() + 0.5;
+    let stable = if (scaled - half).abs() <= COORD_FLOOR * factor {
+        half
+    } else {
+        scaled
+    };
+    py::without_negative_zero(stable.round_ties_even() / factor)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn measurement_halfway_rounding_survives_coordinate_noise() {
+        for (size, expected) in [(92.075, 92.08), (59.075, 59.08), (1.225, 1.22)] {
+            for noise in [-1e-9, 0.0, 1e-9] {
+                assert_eq!(round_measurement(size + noise, 2), expected);
+                assert_eq!(round_measurement(-size + noise, 2), -expected);
+            }
+        }
+        assert_eq!(round_measurement(1.22501, 2), 1.23);
+        assert_eq!(round_measurement(1.22499, 2), 1.22);
+    }
+
+    #[test]
+    fn coordinate_cluster_includes_the_tolerance_boundary_after_translation() {
+        for offset in [0.0, 123.456, -78.9] {
+            assert_eq!(
+                cluster_coordinates(&[offset, offset + 0.5], 0.5),
+                vec![vec![0, 1]]
+            );
+            assert_eq!(
+                cluster_coordinates(&[offset, offset + 0.50001], 0.5),
+                vec![vec![0], vec![1]]
+            );
+        }
+    }
+
+    #[test]
+    fn fine_measurement_grids_do_not_collapse_adjacent_values() {
+        for (value, expected) in [(1.0000029, 1.000003), (12.3456789, 12.345679)] {
+            assert_eq!(round_measurement(value, 6), expected);
+            assert_eq!(round_measurement(-value, 6), -expected);
+            assert_eq!(round_measurement(value, 7), value);
+            assert_eq!(round_measurement(-value, 7), -value);
+        }
+    }
 }

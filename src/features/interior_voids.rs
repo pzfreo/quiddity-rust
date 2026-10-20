@@ -40,6 +40,20 @@ pub struct InteriorVoid {
     pub air_samples: usize,
 }
 
+/// A bounded-air candidate whose sampled throat does not establish an interior chamber.
+/// Retain its complete measurements and source anatomy in the recognition document.
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub struct InteriorVoidRefusal {
+    #[serde(flatten)]
+    pub candidate: InteriorVoid,
+    pub reason: &'static str,
+}
+
+pub(super) struct Analysis {
+    pub accepted: Vec<Occurrence<InteriorVoid>>,
+    pub refusals: Vec<InteriorVoidRefusal>,
+}
+
 /// `recognise_interior_voids`.
 pub fn recognise_interior_voids(part: &Part) -> Vec<InteriorVoid> {
     super::records(discover(&Context::new(part)))
@@ -87,18 +101,34 @@ fn neighbours(c: Cell) -> [Cell; 6] {
     ]
 }
 
-/// `sample_void_grid`: lines along each axis through every cell centre; a cell is material when
-/// all three lines through it say so, air when all three say not, and bounded air when on every
-/// axis there is material on both sides.
-fn sample_grid(ctx: &Context<'_>, solid: usize, bounds: &Bounds) -> Option<Grid> {
-    let origin = bounds.min;
+/// A box-centred lattice, including stable cell counts at integral pitch ratios.
+fn grid_layout(bounds: &Bounds) -> Option<(V3, f64, [i64; 3])> {
     let extents = geom::sub(bounds.max, bounds.min);
     let longest = extents[0].max(extents[1]).max(extents[2]);
     if !longest.is_finite() || longest <= COORD_FLOOR {
         return None;
     }
     let pitch = longest / CELLS_ON_LONGEST_AXIS;
-    let dims = extents.map(|e| (e / pitch).ceil() as i64);
+    let dims = extents.map(|e| {
+        let cells = e / pitch;
+        let nearest = cells.round();
+        if (cells - nearest).abs() * pitch <= COORD_FLOOR {
+            nearest as i64
+        } else {
+            cells.ceil() as i64
+        }
+    });
+    // Equal padding on both sides makes the sample lattice map onto itself under
+    // axis reversal and interchange, even when an extent is not a multiple of pitch.
+    let origin = [0, 1, 2].map(|a| 0.5 * (bounds.min[a] + bounds.max[a] - dims[a] as f64 * pitch));
+    Some((origin, pitch, dims))
+}
+
+/// `sample_void_grid`: lines along each axis through every cell centre; a cell is material when
+/// all three lines through it say so, air when all three say not, and bounded air when on every
+/// axis there is material on both sides.
+fn sample_grid(ctx: &Context<'_>, solid: usize, bounds: &Bounds) -> Option<Grid> {
+    let (origin, pitch, dims) = grid_layout(bounds)?;
     let [nx, ny, nz] = dims;
     let size = (nx * ny * nz) as usize;
     let (mut valid, mut material_votes, mut bounded_votes) =
@@ -434,9 +464,14 @@ pub fn discover_verified(
 
 /// Every interior void, its skin faces defining it and its opening faces consulted.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<InteriorVoid>> {
+    analyse(ctx).accepted
+}
+
+pub(super) fn analyse(ctx: &Context<'_>) -> Analysis {
     let part = ctx.part;
     let keys = ctx.body_keys(true);
     let mut out = Vec::new();
+    let mut refusals = Vec::new();
     for (body_index, key) in keys.into_iter().enumerate() {
         if !part.solid_is_valid(body_index) {
             continue;
@@ -496,36 +531,80 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<InteriorVoid>> {
             if seen.contains(&skin) {
                 continue;
             }
+            let record = InteriorVoid {
+                body_index,
+                body_key: key.clone(),
+                void_faces: skin.clone(),
+                openings,
+                estimated_volume: component.len() as f64 * grid.pitch.powf(3.0),
+                volume_method: "six_axis_grid",
+                grid_pitch: grid.pitch,
+                enclosed_samples: component.len(),
+                air_samples: grid.air_samples,
+            };
             // A curved core can stay broad right to its opening; otherwise require a sampled
-            // widening behind a throat.
+            // widening behind a throat. Refused candidates remain visible, without claiming
+            // recognised geometry or acquiring a feature fingerprint.
             let spheres = skin
                 .iter()
                 .filter(|&&f| matches!(part.faces[f].surface, Surface::Sphere { .. }))
                 .count();
-            if spheres < 2 && !openings.is_empty() {
+            if spheres < 2 && !record.openings.is_empty() {
                 let wide = expanded.get_or_insert_with(|| expanded_components(&grid));
                 if !wide.contains(&index) {
+                    refusals.push(InteriorVoidRefusal {
+                        candidate: record,
+                        reason: "widening_behind_throat_unproved",
+                    });
                     continue;
                 }
             }
             seen.insert(skin.clone());
-            let context: Vec<usize> = openings.iter().flatten().copied().collect();
+            let context: Vec<usize> = record.openings.iter().flatten().copied().collect();
             out.push(Occurrence {
-                record: InteriorVoid {
-                    body_index,
-                    body_key: key.clone(),
-                    void_faces: skin.clone(),
-                    openings,
-                    estimated_volume: component.len() as f64 * grid.pitch.powf(3.0),
-                    volume_method: "six_axis_grid",
-                    grid_pitch: grid.pitch,
-                    enclosed_samples: component.len(),
-                    air_samples: grid.air_samples,
-                },
+                record,
                 defining: skin,
                 context,
             });
         }
     }
-    out
+    refusals.sort_by(|a, b| {
+        a.candidate.void_faces.cmp(&b.candidate.void_faces).then(
+            a.candidate
+                .enclosed_samples
+                .cmp(&b.candidate.enclosed_samples),
+        )
+    });
+    Analysis {
+        accepted: out,
+        refusals,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn lattice_maps_onto_itself_when_a_nonintegral_box_is_turned_over() {
+        let bounds = Bounds {
+            min: [-3.1, -1.7, 0.3],
+            max: [6.4, 2.9, 4.6],
+        };
+        let (o, pitch, dims) = grid_layout(&bounds).unwrap();
+        let translated = Bounds {
+            min: bounds.max.map(|v| 123.456 - v),
+            max: bounds.min.map(|v| 123.456 - v),
+        };
+        let (other, other_pitch, other_dims) = grid_layout(&translated).unwrap();
+        assert_eq!(dims, other_dims);
+        assert!((pitch - other_pitch).abs() < 1e-12);
+        for axis in 0..3 {
+            for cell in 0..dims[axis] {
+                let point = o[axis] + (cell as f64 + 0.5) * pitch;
+                let mirrored = other[axis] + (dims[axis] as f64 - cell as f64 - 0.5) * other_pitch;
+                assert!((point + mirrored - 123.456).abs() < 1e-12);
+            }
+        }
+    }
 }

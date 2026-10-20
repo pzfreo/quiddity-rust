@@ -178,7 +178,7 @@
     "key": "{} records: 1 vs 1 records, fields {\"profile\"}",
     "count": 1,
     "verdict": "rust-correct",
-    "reason": "Same groove (Ø180, width 54, on face 2074). Only the profile's body key differs: Python has none because OpenCascade's BRepCheck calls this solid unorientable after its import healing (see this file's evidence entry), and for the same reason Python refuses the groove's evidence; the port keys the valid solid. Its body box also differs by OpenCascade's 1e-7 tolerance padding."
+    "reason": "Same groove (Ø180, width 54, on face 2074). Only the profile's body key differs: Python has none because OpenCascade's BRepCheck calls this solid unorientable after its import healing (see this file's evidence entry), and for the same reason Python refuses the groove's evidence; the port keys the valid solid. Its body box also differs by OpenCascade's 1e-7 tolerance padding. Groove selection now finds a joined matching-OD support at each floor end symmetrically, retaining face 2074 under rot_z90 as well (tests/invariance.rs). A proved helical root is excluded: cgb243 face 224 is carried by its measured 1.5 mm-pitch thread record, independently of the axial-band search (tests/modelled_threads.rs)."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -347,14 +347,6 @@
     "count": 1,
     "verdict": "rust-correct",
     "reason": "Python reports a Ø80×4 spotface on this Ø50×5 blind hole, but the Ø80 cylinder runs from 0.5 mm inside the mouth to 0.5 mm short of the bottom: an internal groove, not a spotface at the opening. Python orders segments by their high end even when drilling from the low end, so it calls the groove a spotface in this orientation and not when the part is turned over; the port orders by the end nearest the opening and gives one answer in every orientation (tests/invariance.rs)."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "family": "recognise_interior_voids",
-    "key": "{} records: 1 vs 1 records, fields {\"air_samples\", \"body_key\"}",
-    "count": 1,
-    "verdict": "rust-correct",
-    "reason": "Same void faces, openings and enclosed samples (169). The air samples differ on four grid lines, not through the box: Python's own grid (quiddity._interior_void_grid) anchored at the port's exact box also gives 89347. On the x lines at (y 28.718, z 12.477) and (y 37.006, z 14.549) OpenCascade reports one crossing twice (faces 34 and 39 2.1 µm apart, the face-39 hit 4.7 µm outside its trim; faces 37 and 29 51 µm apart, both entering), so the count is odd and the line gives no evidence; the port counts one crossing each. On the y line at (x 15.540, z 18.693) the line crosses cylinder face 51 at y 22.847, 2.83 µm from its edge with B-spline face 43 and outside its trim, in the crack the edge leaves (it strays 2.0 µm from the cylinder and 11.9 µm from face 43 there; face 43's surface is not crossed near): OpenCascade counts it (edge tolerance 9.7 µm) and parity requires it. On the x line at (y 7.998, z 20.765) the line crosses cylinder face 358 at x -33.563, 6.0 µm from its edge with B-spline face 47 (straying 1.0 µm from the cylinder and 11.0 µm from face 47 there; face 47's surface ends 5.7 µm short and the line never meets it): OpenCascade misses it, so its count (3) is odd and Python drops the line, while the port finds four crossings. The port counts both crack crossings (crates/haecceity/src/rays.rs, a crossing's band reaches as far as the edge strays from the face across it; crates/haecceity/tests/rays.rs) and drops no line of this part: every line where it differs from OpenCascade is one where OpenCascade's count is odd. Its 89515 is every line counted right; Python's 89347 is 168 short. The body key's area and volume are as in this file's turned-steps entry."
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
@@ -569,8 +561,8 @@
     "family": "recognise_interior_voids",
     "key": "{} records: 1 vs 1 records, fields {\"air_samples\", \"body_key\", \"enclosed_samples\", \"estimated_volume\"}",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Same void faces and openings. The sample counts differ through the grid lines' crossings, not the box: Python's own grid (quiddity._interior_void_grid) anchored at the port's exact box also gives 118911 air and 6372 enclosed. Of the 8673 lines, OpenCascade reports a crossing twice on 42 (the extra hit 35 µm to 0.15 mm from a crossing the port also finds) and misses 7 crossings of the B-spline comb (faces 233 and 234, the same 1.5 mm pitch as the comb of faces 238 and 239 the line also crosses) on one, so those 43 counts are odd and Python drops the lines. The port's count is even on every line and agrees with OpenCascade's wherever OpenCascade's is even, now that a B-spline crossing is tested against the trim at the parameters the intersection solved for (crates/haecceity/src/rays.rs; re-inverting the surface settled on a boundary 1.3 to 1.5 mm away and dropped crossings 0.03 to 0.42 mm inside faces 223, 225, 238 and 239 on 8 lines; crates/haecceity/tests/rays.rs). The samples are rust-correct: 120541 air and 6425 enclosed (estimated volume 57567.24), every line counted right; Python has 118911 and 6372 (57092.37). The verdict stays open on the body key's volume alone: an independent Green's-theorem integration agrees with the port on the cylinders and sphere where OpenCascade's adaptive terms are off by up to 6.83 mm³ (faces 224, 336, 237, 232, 408, to 2e-6), but faces 225, 233, 234, 238 and 337 are undetermined in tests/fixtures/known_face_areas.json."
+    "verdict": "rust-correct",
+    "reason": "The same void faces and openings remain on a box-centred sampling lattice, which maps onto itself under all five principal motions (tests/invariance.rs). Sample counts and estimated volume change from the frozen minimum-corner grid; the complete estimate remains output. The previous body-key uncertainty is resolved by the inherited face-integrals evidence: faces 225, 233, 234, 238 and 337 are now all rust-correct in known_face_areas.json, backed by independent Green-theorem integration; the kernel solid-mass verdict is rust-correct too. The earlier ray-crossing audit found OpenCascade duplicated crossings on 42 lines and missed seven helical-comb crossings on one, while the Rust crossings were even and independently matched the remaining lines. The body key is now independently settled: tools/centroid_evidence.py's exact-surface / 3D-boundary flux integrals (4/8/16 panels, rounded cone tips integrated with the analytic-apex limit and 16/32 refinement) give solid volume 297320.519997757 and area 88668.716730582, compared with Rust 297320.519994848 and 88668.716744248. The position-vector flux is evaluated about the mean of 5604 raw STEP vertex uses, (-9.907963902277,5.130566431937,-11.713980453046), independently traversed from MANIFOLD_SOLID_BREP -> face bounds -> EDGE_CURVEs before OCCT healing; it agrees with Rust's reference point. Summed absolute last-panel changes are 0.000695 mm³ and 0.000084 mm², containing the 2.91e-6 mm³ and 1.37e-5 mm² residuals. Faces 225/233/234/238/337 are already rust-correct in known_face_areas.json."
   },
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
@@ -595,14 +587,6 @@
     "count": 4,
     "verdict": "rust-correct",
     "reason": "OpenCascade sizes these faces' parameter ranges from 2D curves it builds or approximates on import (and from their control polygons); the port uses the exact edges. Recognisers on this file agree."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb245.step",
-    "family": "recognise_slots",
-    "key": "{} records: 3 vs 3 records, fields {\"body_key\"}",
-    "count": 1,
-    "verdict": "rust-correct",
-    "reason": "Same slots; only the body key differs, in its volume and area, which are the solid's masses: the port's 121083.306695 and 127538.919907 agree with tools/kernel_evidence.py's independent integration over the 3D edges (2.5e-11, 4.7e-12) and OpenCascade's adaptive integration (9.0e-12, 5.7e-13), where Python's 121083.594931 and 127539.014087 are OpenCascade's fixed Gauss rule (this file's solid masses entry). The box agrees."
   },
   {
     "file": "cadgenbench_inputs/cgb245.step",
@@ -699,14 +683,6 @@
     "count": 1,
     "verdict": "rust-correct",
     "reason": "A deliberately malformed part. The port gives volume 2619.5708144 and area 1878.1326890 (unchanged under translation). tools/kernel_evidence.py solids, about the port's centre, gives 2629.3944944 and 1881.1376912, and agrees with the port face by face to 1.4e-11 mm³ and 5.5e-12 mm² except on planar face 1, where it follows OpenCascade's loops: 150.6086142 against the port's 147.6036120, twice the triangular hole's 1.5025 (its loop is oriented as an outer boundary), and a volume term 9.8237 larger, twice the triangle's (its area times the plane's distance 9.807 from the centre, over 3). Face 1's area is rust-correct analytically (the plate's dimensions give 147.6036119780; tests/fixtures/known_face_areas.json), so the port's masses are the solid's. OpenCascade's 2628.7805144 and 1881.1376912 (fixed and adaptive rules alike) carry the triangle, and its volume differs from the independent sum by a further 0.61 mm³ because, with the triangle added, the shell's area vector no longer vanishes (3.005 mm² along face 1's normal) and its flux depends on the centre it is taken from."
-  },
-  {
-    "file": "inventory_refusal/14052.step.gz",
-    "family": "recognise_plates",
-    "key": "{} records: 1 vs 1 records, fields {\"body_key\"}",
-    "count": 1,
-    "verdict": "rust-wrong",
-    "reason": "Same plate. Python's body key is None because OpenCascade's BRepCheck calls the solid invalid: face 1 is faulted (as written its circular hole crosses the outer loop, BRepCheck_IntersectingWires; after the import's healing BRepCheck_BadOrientationOfSubshape). The kernel finds that fault (Part::bad_faces, crates/haecceity/tests/validity.rs) and the port's evidence path refuses the plate as Python's does, but the body key comes from the topological check (Part::solid_is_valid, closed and orientable), which recognise() keeps until the maintainer settles whether an unproved solid should panic or carry a refusal there."
   },
   {
     "file": "mfcadpp/10138.step",
@@ -1077,27 +1053,419 @@
     "reason": "The grid's member holes carry the opening-location difference recorded for this file's recognise_holes."
   },
   {
-    "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "family": "recognise_holes",
-    "key": "{\"csinks\":\"auto\"} records: 30 vs 30 records, fields {\"location\"}",
-    "count": 1,
-    "verdict": "rust-correct",
-    "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
-  },
-  {
-    "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "family": "recognise_holes",
-    "key": "{} records: 30 vs 30 records, fields {\"location\"}",
-    "count": 1,
-    "verdict": "rust-correct",
-    "reason": "Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
-  },
-  {
     "file": "ttt_inputs/sm-hanger.step",
     "family": "recognise_sheet_metal_bodies",
     "key": "{} records: 1 vs 1 records, fields {\"flat_pattern\"}",
     "count": 1,
     "verdict": "equivalent",
     "reason": "Only the triangulation-dependent parts of the flat pattern differ; flanges, bends, strips, tree, status, the four overlap witnesses' face/strip pairs and the defining faces agree. The flat faces are two triangulations of one region (the port ear-clips each face's boundary thinned to deflection 0.1 and 0.1 rad; Python takes OpenCascade's mesh, with more points): faces 0, 34, 64, 66 (exact areas 1628.969, 2532.213, 12439.677, 231.272) are covered by the port's triangles to 1628.845, 2532.342, 12440.182, 231.364 and by Python's to 1628.938, 2532.247, 12439.807, 231.292, both within the deflection asked for. A witness's area is the largest overlap of one triangle pair, so it follows the triangulation (port 21.13/21.78/64.47/28.24, Python 21.84/21.84/55.91/55.91)."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10049.step",
+    "key": "{} records: 3 vs 3 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
+    "verdict": "rust-correct",
+    "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10098.step",
+    "key": "{} evidence faces differ",
+    "verdict": "rust-correct",
+    "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10146.step",
+    "key": "{} records: 4 vs 4 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
+    "verdict": "rust-correct",
+    "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp_holdout/118.step",
+    "key": "{} records: 2 vs 2 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
+    "verdict": "rust-correct",
+    "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp_holdout/163.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
+    "verdict": "rust-correct",
+    "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "key": "{} records: 8 vs 8 records, fields {\"depth\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: measured sizes are rounded before world-coordinate publication, snapping decimal half-way points within the 1e-6 mm coordinate floor to ties-to-even. The 92.075 mm bore becomes 92.08 mm and the 0.635 mm recess depth becomes 0.64 mm consistently; frozen Python chooses a side from binary coordinate noise. tests/invariance.rs checks translations and principal rotations; policy::tests also pins positive and negative half-way fixtures and values beyond the noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_holes",
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "key": "{\"csinks\":\"auto\"} records: 21 vs 21 records, fields {\"depth\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: measured sizes are rounded before world-coordinate publication, snapping decimal half-way points within the 1e-6 mm coordinate floor to ties-to-even. The 92.075 mm bore becomes 92.08 mm and the 0.635 mm recess depth becomes 0.64 mm consistently; frozen Python chooses a side from binary coordinate noise. tests/invariance.rs checks translations and principal rotations; policy::tests also pins positive and negative half-way fixtures and values beyond the noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_holes",
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "key": "{} records: 21 vs 21 records, fields {\"depth\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: measured sizes are rounded before world-coordinate publication, snapping decimal half-way points within the 1e-6 mm coordinate floor to ties-to-even. The 92.075 mm bore becomes 92.08 mm and the 0.635 mm recess depth becomes 0.64 mm consistently; frozen Python chooses a side from binary coordinate noise. tests/invariance.rs checks translations and principal rotations; policy::tests also pins positive and negative half-way fixtures and values beyond the noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_slots",
+    "file": "cadgenbench_inputs/cgb245.step",
+    "key": "{} records: 3 vs 3 records, fields {\"body_key\", \"length\"}",
+    "verdict": "rust-correct",
+    "reason": "The two end-capped slots have frozen Python lengths 14.97 mm and 14.97 mm; Rust measures each as 14.96 mm from the unrounded wall span and cap radii before publication. Independent OpenCascade BRepAdaptor_Surface reads the cap centres at x = -107.9260085313 and -98.9635869913 mm (the other slot is symmetric), both radius 3 mm: centre separation plus two radii is 14.96242154 mm, which rounds to 14.96 mm. The third, corner-rounded slot remains 16.86 mm on both sides. Rounding the earlier tangency coordinates before extending by the cap radius produced Python's 0.01 mm excess. All three slot regions and their source faces remain, and tests/invariance.rs checks the same geometry under placement. Previous independent verdict retained: Same slots; only the body key differs, in its volume and area, which are the solid's masses: the port's 121083.306695 and 127538.919907 agree with tools/kernel_evidence.py's independent integration over the 3D edges (2.5e-11, 4.7e-12) and OpenCascade's adaptive integration (9.0e-12, 5.7e-13), where Python's 121083.594931 and 127539.014087 are OpenCascade's fixed Gauss rule (this file's solid masses entry). The box agrees."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10096.step",
+    "key": "{} records: 2 vs 2 records, fields {\"length\", \"width\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: sizes now use raw cylinder radii and wall spans through all reductions, then tolerance-aware ties-to-even rounding. World-coordinate publication happens last. Independent OpenCascade BRepAdaptor_Surface reads radius 0.642597010474 mm on mfcadpp/10000.step: its 1.285194020948 mm diameter rounds to 1.29 mm, rather than twice the prematurely rounded 0.64 mm radius (1.28 mm). Length and depth stay invariant in tests/invariance.rs; every coordinate and source face is still published. policy::tests pins half-way sizes and values outside the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp_holdout/20273.step",
+    "key": "{} records: 1 vs 1 records, fields {\"length\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: sizes now use raw cylinder radii and wall spans through all reductions, then tolerance-aware ties-to-even rounding. World-coordinate publication happens last. Independent OpenCascade BRepAdaptor_Surface reads radius 0.642597010474 mm on mfcadpp/10000.step: its 1.285194020948 mm diameter rounds to 1.29 mm, rather than twice the prematurely rounded 0.64 mm radius (1.28 mm). Length and depth stay invariant in tests/invariance.rs; every coordinate and source face is still published. policy::tests pins half-way sizes and values outside the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_slots",
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "key": "{} records: 2 vs 2 records, fields {\"end_radius\", \"hi\", \"length\", \"lo\", \"w_center\", \"width\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: sizes now use raw cylinder radii and wall spans through all reductions, then tolerance-aware ties-to-even rounding. World-coordinate publication happens last. Independent OpenCascade BRepAdaptor_Surface reads radius 0.642597010474 mm on mfcadpp/10000.step: its 1.285194020948 mm diameter rounds to 1.29 mm, rather than twice the prematurely rounded 0.64 mm radius (1.28 mm). Length and depth stay invariant in tests/invariance.rs; every coordinate and source face is still published. policy::tests pins half-way sizes and values outside the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_slots",
+    "file": "nist/nist_ftc_09_asme1_rd.stp",
+    "key": "{} records: 3 vs 3 records, fields {\"end_radius\", \"length\", \"lo\", \"width\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: sizes now use raw cylinder radii and wall spans through all reductions, then tolerance-aware ties-to-even rounding. World-coordinate publication happens last. Independent OpenCascade BRepAdaptor_Surface reads radius 0.642597010474 mm on mfcadpp/10000.step: its 1.285194020948 mm diameter rounds to 1.29 mm, rather than twice the prematurely rounded 0.64 mm radius (1.28 mm). Length and depth stay invariant in tests/invariance.rs; every coordinate and source face is still published. policy::tests pins half-way sizes and values outside the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10000.step",
+    "key": "{} records: 1 vs 1 records, fields {\"length\", \"width\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10063.step",
+    "key": "{} records: 3 vs 3 records, fields {\"length\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10103.step",
+    "key": "{} records: 4 vs 4 records, fields {\"hi\", \"length\", \"lo\", \"long_axis\", \"w_center\", \"width\", \"width_axis\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band. Equal width/length wall pairs retain both defining pairs and select the record by original face identity, stable under placement."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10119.step",
+    "key": "{} records: 5 vs 5 records, fields {\"length\", \"lo\", \"width\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10212.step",
+    "key": "{} records: 2 vs 2 records, fields {\"length\", \"width\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10245.step",
+    "key": "{} records: 3 vs 3 records, fields {\"hi\", \"length\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band. Equal width/length wall pairs retain both defining pairs and select the record by original face identity, stable under placement."
+  },
+  {
+    "count": 1,
+    "family": "recognise_slots",
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "key": "{} records: 4 vs 4 records, fields {\"length\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band."
+  },
+  {
+    "count": 1,
+    "family": "recognise_holes",
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "key": "{\"csinks\":\"auto\"} records: 30 vs 30 records, fields {\"axis\", \"location\"}",
+    "verdict": "rust-correct",
+    "reason": "Motion-invariance evidence: the equally wide distinct mouths of the doubly counterbored nist_ftc_10 through holes have no geometric drilling-entry preference. Tie-breaking by the original cylinder support direction (on the lowest-index mouth face) moves with the part; world-high does not. The record consistently retains one counterbore on the same original faces through all five rigid motions. Both ends remain in the original face inventory and fingerprints, and the existing one-counterbore record schema is retained. Previous independent verdict retained: Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge. Previous independent verdict retained: Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
+  },
+  {
+    "count": 1,
+    "family": "recognise_holes",
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "key": "{} records: 30 vs 30 records, fields {\"axis\", \"location\"}",
+    "verdict": "rust-correct",
+    "reason": "Motion-invariance evidence: the equally wide distinct mouths of the doubly counterbored nist_ftc_10 through holes have no geometric drilling-entry preference. Tie-breaking by the original cylinder support direction (on the lowest-index mouth face) moves with the part; world-high does not. The record consistently retains one counterbore on the same original faces through all five rigid motions. Both ends remain in the original face inventory and fingerprints, and the existing one-counterbore record schema is retained. Previous independent verdict retained: Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge. Previous independent verdict retained: Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
+  },
+  {
+    "count": 1,
+    "family": "recognise_interior_voids",
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "key": "{} records: 1 vs 1 records, fields {\"air_samples\", \"body_key\", \"enclosed_samples\", \"estimated_volume\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic lattice-symmetry and motion-invariance evidence: a box-centred lattice with stable cell counts maps onto itself under axis reversal and interchange (interior_voids::tests; all five motions in tests/invariance.rs). Estimates retain their samples and volume in the output. The 11512 candidate on faces 33-34 lacks a stable widening witness on this lattice: it remains an InteriorVoidRefusal document record with every original field and unproved evidence status, rather than a placement-dependent recognised chamber. tests/recognition.rs pins that complete retained payload. Previous independent verdict retained: Same void faces, openings and enclosed samples (169). The air samples differ on four grid lines, not through the box: Python's own grid (quiddity._interior_void_grid) anchored at the port's exact box also gives 89347. On the x lines at (y 28.718, z 12.477) and (y 37.006, z 14.549) OpenCascade reports one crossing twice (faces 34 and 39 2.1 µm apart, the face-39 hit 4.7 µm outside its trim; faces 37 and 29 51 µm apart, both entering), so the count is odd and the line gives no evidence; the port counts one crossing each. On the y line at (x 15.540, z 18.693) the line crosses cylinder face 51 at y 22.847, 2.83 µm from its edge with B-spline face 43 and outside its trim, in the crack the edge leaves (it strays 2.0 µm from the cylinder and 11.9 µm from face 43 there; face 43's surface is not crossed near): OpenCascade counts it (edge tolerance 9.7 µm) and parity requires it. On the x line at (y 7.998, z 20.765) the line crosses cylinder face 358 at x -33.563, 6.0 µm from its edge with B-spline face 47 (straying 1.0 µm from the cylinder and 11.0 µm from face 47 there; face 47's surface ends 5.7 µm short and the line never meets it): OpenCascade misses it, so its count (3) is odd and Python drops the line, while the port finds four crossings. The port counts both crack crossings (crates/haecceity/src/rays.rs, a crossing's band reaches as far as the edge strays from the face across it; crates/haecceity/tests/rays.rs) and drops no line of this part: every line where it differs from OpenCascade is one where OpenCascade's count is odd. Its 89515 is every line counted right; Python's 89347 is 168 short. The body key's area and volume are as in this file's turned-steps entry."
+  },
+  {
+    "count": 1,
+    "family": "recognise_interior_voids",
+    "file": "mfcadpp_regressions/11512.step",
+    "key": "{} records: 1 vs 2 records, fields {}",
+    "verdict": "rust-correct",
+    "reason": "Analytic lattice-symmetry and motion-invariance evidence: a box-centred lattice with stable cell counts maps onto itself under axis reversal and interchange (interior_voids::tests; all five motions in tests/invariance.rs). Estimates retain their samples and volume in the output. The 11512 candidate on faces 33-34 lacks a stable widening witness on this lattice: it remains an InteriorVoidRefusal document record with every original field and unproved evidence status, rather than a placement-dependent recognised chamber. tests/recognition.rs pins that complete retained payload."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
+    "key": "{} records: 1 vs 1 records, fields {\"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "inventory_refusal/14052.step.gz",
+    "key": "{} records: 1 vs 1 records, fields {\"body_key\", \"hi\", \"lo\"}",
+    "verdict": "rust-wrong",
+    "reason": "The band midpoint and unrounded coordinates are motion-correct (plates::tests and tests/invariance.rs); the unchanged body-key defect remains rust-wrong: Same plate. Python's body key is None because OpenCascade's BRepCheck calls the solid invalid: face 1 is faulted (as written its circular hole crosses the outer loop, BRepCheck_IntersectingWires; after the import's healing BRepCheck_BadOrientationOfSubshape). The kernel finds that fault (Part::bad_faces, crates/haecceity/tests/validity.rs) and the port's evidence path refuses the plate as Python's does, but the body key comes from the topological check (Part::solid_is_valid, closed and orientable), which recognise() keeps until the maintainer settles whether an unproved solid should panic or carry a refusal there."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/1000.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10007.step",
+    "key": "{} records: 2 vs 2 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10033.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10038.step",
+    "key": "{} records: 2 vs 2 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10047.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10049.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10060.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/1007.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10096.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10119.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10155.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/1017.step",
+    "key": "{} records: 2 vs 2 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/181.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/182.step",
+    "key": "{} records: 3 vs 3 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/183.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/20273.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/238.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/257.step",
+    "key": "{} records: 2 vs 2 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/275.step",
+    "key": "{} records: 2 vs 2 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/340.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/419.step",
+    "key": "{} records: 2 vs 2 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/808.step",
+    "key": "{} records: 1 vs 1 records, fields {\"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_regressions/11512.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "key": "{} records: 5 vs 5 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
   }
 ]

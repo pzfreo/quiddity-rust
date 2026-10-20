@@ -4,6 +4,23 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
+## Unreleased
+
+### Added
+
+- Add recognition document trust metadata: exact input-file SHA256, completed inventory
+  mode, and strict per-record evidence status. Patterns inherit member proof; source
+  refusals remain unproved. The fields are additive: documents keep their 3/4 schema tags and
+  existing records, but a `/3` document is no longer byte-identical to alpha.8's; readers must
+  ignore unknown fields. See [the trust contract](docs/recognition-trust.md).
+
+### Fixed
+
+- Published source refusals no longer trigger unproved-feature warnings on clean parts.
+  Consumers distinguish refusal record types from feature claims before applying evidence policy.
+- CLI and service warnings identify retained unproved records on unresolved geometry,
+  invalid solids and open shells, instead of claiming those records were not recognised.
+
 ## 0.1.0-alpha.8 (2026-10-20)
 
 ### Added

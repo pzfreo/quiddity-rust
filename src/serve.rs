@@ -39,15 +39,17 @@
 
 use std::io::{self, BufRead, Write};
 use std::panic::{self, AssertUnwindSafe};
-use std::path::Path;
 
 use serde::Serialize;
 use serde_json::{Map, Value};
+use sha2::{Digest, Sha256};
 
 use crate::correspondence::{self, Fingerprints, Recognition};
 use crate::frames::RecordFrame;
 use crate::kernel::brep::Part;
-use crate::kernel::step::{IDENTITY, Placement, StepError, read_step_file_placed};
+use crate::kernel::step::{
+    IDENTITY, Placement, StepError, decode_step_file_bytes, read_step_placed,
+};
 use crate::recognition::{self, RecognitionDocument};
 
 /// What `quiddity <file.step>` writes and `recognise` returns.
@@ -90,14 +92,43 @@ fn read_failure(path: &str, e: &(dyn std::error::Error + 'static)) -> Failure {
     Failure::new(code, format!("{path}: {e}"))
 }
 
-/// The warning for a part whose geometry did not resolve: the solids holding it are not valid,
-/// so their features are not recognised.
-fn unresolved_warning(path: &str, part: &Part) -> Option<String> {
+/// Diagnostics of what this run actually retained, rather than promising a family was dropped.
+fn trust_warning(path: &str, part: &Part, document: &RecognitionDocument) -> Option<String> {
+    let mut reasons = Vec::new();
     let (faces, edges) = (part.unresolved_faces(), part.unresolved_edges());
-    (!faces.is_empty() || !edges.is_empty()).then(|| {
+    if !faces.is_empty() || !edges.is_empty() {
+        reasons.push(format!(
+            "geometry did not resolve (faces {faces:?}, edges {edges:?})"
+        ));
+    }
+    if part.solids.is_empty() {
+        reasons.push("no solid authority (shell geometry only)".into());
+    } else {
+        let invalid: Vec<_> = (0..part.solids.len())
+            .filter(|&s| !part.solid_is_geometrically_valid(s))
+            .collect();
+        if !invalid.is_empty() {
+            reasons.push(format!("solids {invalid:?} fail strict geometric validity"));
+        }
+    }
+    if document.run_mode == recognition::RunMode::LocallyDegraded {
+        reasons.push("used local-degradation retry".into());
+    }
+    let unproved: Vec<_> = document
+        .records
+        .iter()
+        // Refusals already explain a projection failure; they are not failed feature proofs.
+        .filter(|r| !r.is_refusal() && r.evidence_status == recognition::EvidenceStatus::Unproved)
+        .map(|r| r.id.as_str())
+        .collect();
+    if reasons.is_empty() && !unproved.is_empty() {
+        reasons.push("record evidence is unproved".into());
+    }
+    (!reasons.is_empty()).then(|| {
         format!(
-            "{path}: warning: geometry did not resolve (faces {faces:?}, edges {edges:?}); the \
-             solids holding it are not recognised"
+            "{path}: warning: {}; retained {} records; unproved records {unproved:?}",
+            reasons.join("; "),
+            document.records.len()
         )
     })
 }
@@ -110,10 +141,47 @@ pub fn recognise_step(
     path: &str,
     placement: &Placement,
 ) -> Result<(Part, Recognition, Vec<String>), Failure> {
-    let read = |p: &Placement| read_step_file_placed(Path::new(path), p);
-    let (part, recognition) = correspondence::recognise_placed(&read, placement)
+    // Even fingerprint-only callers need the published document's types and statuses for warnings.
+    let (part, recognition, _, warnings) = recognise_step_document(path, placement)?;
+    Ok((part, recognition, warnings))
+}
+
+type StepRecognition = (Part, Recognition, RecognitionDocument, Vec<String>);
+
+/// Read, recognise, document and diagnose once for both public entry points.
+fn recognise_step_document(path: &str, placement: &Placement) -> Result<StepRecognition, Failure> {
+    // Hash and parse one snapshot: a file changed during frame inference cannot mix sources.
+    let bytes = std::fs::read(path).map_err(|e| read_failure(path, &e))?;
+    let source_sha256 = Sha256::digest(&bytes)
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect::<String>();
+    let step_bytes = decode_step_file_bytes(std::path::Path::new(path), bytes)
+        .map_err(|e| read_failure(path, &e))?;
+    let read = |p: &Placement| -> Result<Part, Box<dyn std::error::Error>> {
+        Ok(read_step_placed(&step_bytes, p)?)
+    };
+    let (part, mut recognition) = correspondence::recognise_placed(&read, placement)
         .map_err(|e| read_failure(path, e.as_ref()))?;
-    let mut warnings: Vec<String> = unresolved_warning(path, &part).into_iter().collect();
+    recognition.source_sha256 = Some(source_sha256);
+    let document = recognition::document(&recognition, part.faces.len());
+    let warnings = recognition_warnings(path, &part, &recognition, &document);
+    Ok((part, recognition, document, warnings))
+}
+
+/// Diagnose the completed recognition, including a refusal of the whole recess projection.
+fn recognition_warnings(
+    path: &str,
+    part: &Part,
+    recognition: &Recognition,
+    document: &RecognitionDocument,
+) -> Vec<String> {
+    let mut warnings: Vec<String> = trust_warning(path, part, document).into_iter().collect();
+    if let Some(reason) = &recognition.features.section_recess_refusal {
+        warnings.push(format!(
+            "{path}: warning: section-recess projection refused: {reason}"
+        ));
+    }
     if let RecordFrame::Refused { reason } = &recognition.frame {
         warnings.push(format!(
             "{path}: warning: no part frame ({}); recognised as placed in the file, so the \
@@ -121,13 +189,12 @@ pub fn recognise_step(
             reason.as_str()
         ));
     }
-    Ok((part, recognition, warnings))
+    warnings
 }
 
 /// Recognise the STEP file at *path*: the output and any warnings.
 pub fn recognise_file(path: &str) -> Result<(RecognitionOutput, Vec<String>), Failure> {
-    let (part, recognition, warnings) = recognise_step(path, &IDENTITY)?;
-    let document = recognition::document(&recognition, part.faces.len());
+    let (_, recognition, document, warnings) = recognise_step_document(path, &IDENTITY)?;
     let output = RecognitionOutput {
         recognition,
         document,
@@ -403,6 +470,26 @@ pub fn serve(mut input: impl BufRead, mut output: impl Write) -> io::Result<()> 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_whole_projection_refusal_is_reported_without_a_feature_evidence_warning() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/rejected_cylinder.step");
+        let part = crate::read_step_file(&path).unwrap();
+        let mut recognition = correspondence::recognise(&part);
+        let document = recognition::document(&recognition, part.faces.len());
+        assert!(recognition_warnings("part.step", &part, &recognition, &document).is_empty());
+        // No corpus fixture reaches this carried error; exercise its diagnostic directly.
+        recognition.features.section_recess_refusal = Some(
+            crate::features::section_recess_family::SectionRecessFamilyError(
+                "source lost its body".into(),
+            ),
+        );
+        assert_eq!(
+            recognition_warnings("part.step", &part, &recognition, &document),
+            ["part.step: warning: section-recess projection refused: source lost its body"]
+        );
+    }
 
     #[test]
     fn a_panic_is_caught_as_an_internal_failure() {

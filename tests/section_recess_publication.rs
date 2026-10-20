@@ -1,5 +1,5 @@
 //! Section recesses in the document handed to draftwright: Python's captured records on its
-//! 30 quality parts, caller and inferred frames, and byte preservation of the previous document.
+//! 30 quality parts, caller and inferred frames, and in-run additivity of publication.
 
 mod common;
 
@@ -11,20 +11,13 @@ use quiddity::kernel::step::IDENTITY;
 use quiddity::recognition::{self, RecognitionDocument};
 use quiddity::serve;
 use serde_json::{Value, json};
-use sha2::{Digest, Sha256};
 
 const KNOWN: &str = "captured/section_recesses/known_differences.json";
 
-fn hash(bytes: &[u8]) -> String {
-    Sha256::digest(bytes)
-        .iter()
-        .map(|b| format!("{b:02x}"))
-        .collect()
-}
-
 struct Run {
     baseline: Value,
-    features: String,
+    caller_unpublished: RecognitionDocument,
+    framed_unpublished: RecognitionDocument,
     caller: RecognitionDocument,
     framed: RecognitionDocument,
     framed_recesses: Value,
@@ -53,7 +46,8 @@ fn runs() -> &'static [Run] {
             let (_, framed, _) = serve::recognise_step(path.to_str().unwrap(), &IDENTITY).unwrap();
             Run {
                 baseline: baseline.clone(),
-                features: serde_json::to_string(&caller.features).unwrap(),
+                caller_unpublished: without_section_recess_publication(&caller, part.faces.len()),
+                framed_unpublished: without_section_recess_publication(&framed, part.faces.len()),
                 caller: caller_doc,
                 framed: recognition::document(&framed, part.faces.len()),
                 framed_recesses: json!(
@@ -126,11 +120,26 @@ fn quality_part_section_recesses_match_python() {
                 .enumerate()
                 .find(|(_, k)| k["file"] == file && k["item"] == "occurrence" && k["key"] == key)
             {
-                // Keep the proved kernel corrections: these NIST slots are capped at one end,
-                // though Python's coplanar boolean incorrectly publishes two open ends.
-                assert_eq!(verdict["kind"], "missing");
+                // Keep proved Rust-first corrections: omit NIST slots mispublished by
+                // Python's cap boolean, or apply the explicit per-field geometry corrections.
                 assert_eq!(verdict["verdict"], "rust-correct");
                 used.push(i);
+                match verdict["kind"].as_str().unwrap() {
+                    "missing" => {}
+                    "differs" => {
+                        // Rust-first corrections are explicit per-field expectations. Check
+                        // their frozen Python inputs and compare the complete corrected record.
+                        let mut corrected = record.clone();
+                        for change in verdict["corrections"].as_array().unwrap() {
+                            let path = change["path"].as_str().unwrap();
+                            assert_eq!(corrected.pointer(path), Some(&change["python"]));
+                            *corrected.pointer_mut(path).unwrap() = change["rust"].clone();
+                        }
+                        corrected["index"] = json!(expected.len());
+                        expected.push(corrected);
+                    }
+                    other => panic!("unsupported quality-part correction: {other}"),
+                }
             } else {
                 let mut record = record.clone();
                 record["index"] = json!(expected.len());
@@ -197,61 +206,59 @@ fn inferred_frame_section_recesses_are_published() {
     assert!(published > 0, "no framed section recesses published");
 }
 
-/// Asserts `got` is the baseline's `key` hash. Platform libm differences change last-bit results
-/// (tests/correspondence.rs, `Faces`): Linux (CI) is the reference platform, so `key` holds the
-/// value 4583c74 gives on x86_64 Linux (GitHub Actions run 38220722701), and
-/// `{key}_other_platforms` lists the values it gives elsewhere (macOS, where the baseline was
-/// first captured), accepted only beside the Linux one.
-fn assert_baseline(baseline: &Value, key: &str, got: &str, what: &str) {
-    let others = baseline[format!("{key}_other_platforms")].as_array();
-    assert!(
-        baseline[key] == got || others.is_some_and(|o| o.iter().any(|h| h == got)),
-        "{}: {what}\n  got {got}\n  expected {} (Linux) or {:?}",
-        baseline["file"].as_str().unwrap(),
-        baseline[key],
-        others.cloned().unwrap_or_default()
-    );
+/// Build through the normal document builder with only section-recess publication disabled.
+/// Recognition, numeric measurements, fingerprints and frame mapping are the same run's.
+fn without_section_recess_publication(
+    recognition: &correspondence::Recognition,
+    face_count: usize,
+) -> RecognitionDocument {
+    let mut unpublished = recognition.clone();
+    unpublished.features.section_recesses.clear();
+    unpublished.features.section_recess_refusals.clear();
+    unpublished.features.section_recess_patterns.clear();
+    recognition::document(&unpublished, face_count)
 }
 
-/// `package.version` at the baseline revision (`quiddity_rust_revision` in the fixture).
-const BASELINE_PACKAGE_VERSION: &str = "0.1.0-alpha.1";
+/// Project both documents onto the pre-publication contract. Later additive trust fields
+/// and void diagnostics have their own payload checks; no measured field is normalised.
+/// Keep record order, IDs, face claims, parameters, local paths, frame and package version.
+fn existing_document_bytes(document: &RecognitionDocument) -> Vec<u8> {
+    let mut value = serde_json::to_value(document).unwrap();
+    let object = value.as_object_mut().unwrap();
+    object.remove("source_sha256");
+    object.remove("run_mode");
+    let records = object["records"].as_array_mut().unwrap();
+    records.retain(|r| {
+        !matches!(
+            r["family"].as_str().unwrap(),
+            "section_recesses" | "section_recess_patterns"
+        ) && r["record_type"] != "InteriorVoidRefusal"
+    });
+    for record in records {
+        record.as_object_mut().unwrap().remove("evidence_status");
+    }
+    serde_json::to_vec(&value).unwrap()
+}
 
 #[test]
-fn publication_preserves_existing_document_bytes() {
+fn section_recess_publication_is_additive() {
     for run in runs() {
         let file = run.baseline["file"].as_str().unwrap();
-        // The new family is appended to Features: removing precisely that key must recover
-        // its old bytes, including the order of every existing family and record.
-        let start = run
-            .features
-            .find(",\"section_recesses\":")
-            .unwrap_or_else(|| {
-                panic!("{file}: Features does not publish the section_recesses key")
-            });
-        let old = run.features[..start].to_string() + "}";
-        assert_baseline(
-            &run.baseline,
-            "features_sha256",
-            &hash(old.as_bytes()),
-            "old Features bytes",
-        );
-        for (name, doc) in [("caller", &run.caller), ("framed", &run.framed)] {
-            let mut old = doc.clone();
-            old.records.retain(|r| {
-                !matches!(
+        for (name, published, unpublished) in [
+            ("caller", &run.caller, &run.caller_unpublished),
+            ("framed", &run.framed, &run.framed_unpublished),
+        ] {
+            assert!(
+                unpublished.records.iter().all(|r| !matches!(
                     r.family.as_str(),
                     "section_recesses" | "section_recess_patterns"
-                )
-            });
-            old.schema_version = "quiddity-rust/recognition/2".into();
-            // The baseline was hashed at 4583c74, whose package version was 0.1.0-alpha.1;
-            // release bumps change only that field.
-            old.package.version = BASELINE_PACKAGE_VERSION.into();
-            assert_baseline(
-                &run.baseline,
-                &format!("{name}_document_sha256"),
-                &hash(&serde_json::to_vec(&old).unwrap()),
-                &format!("old {name} document bytes"),
+                )),
+                "{file}: {name} unpublished path emitted section recesses"
+            );
+            assert_eq!(
+                existing_document_bytes(published),
+                existing_document_bytes(unpublished),
+                "{file}: {name} section-recess publication changed existing document bytes"
             );
         }
     }

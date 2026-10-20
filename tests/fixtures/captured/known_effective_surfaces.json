@@ -898,8 +898,8 @@
       1351,
       1440
     ],
-    "verdict": "undetermined",
-    "reason": "Both parts of the nominal differ. The area differs from OpenCascade's face.area (known_face_areas.json lists this face: rust-correct); the physical perimeter differs from OpenCascade's even with each edge integrated to 1e-10, by up to 3e-4 relative: OpenCascade's import healing ends this file's edges at other vertices (cgb207 face 154: a line 0.76576 long in the port, 0.76574 in OpenCascade; an ellipse arc 2.14346 against 2.13509), and neither set of edges is shown to be the file's intent."
+    "verdict": "rust-wrong",
+    "reason": "Independent raw-STEP reference: tools/perimeter_evidence.py reads EDGE_CURVE #193096 before TransferRoots/healing, projects its original vertices onto StepToGeom's exact B-spline and integrates speed at 1e-9/1e-11 (same result). Rust edge 3553 uses t=0 at its start; the closest foot is t=0.000251468574528, shortening this edge from Rust 1.194093370496 to 1.194070972635 mm. Its original vertex is 0.005701134662 mm from t=0, 0.005700359624 from the foot. Consequently face 1351 perimeter is 19.892893939914 rather than 19.892916337769, and face 1440 is 10.274090910222 rather than 10.274113308076. The areas remain rust-correct in known_face_areas.json. Cause: B-spline endpoint inversion selects the domain endpoint rather than the nearer interior foot; the derived nominal inherits the perimeter error. Recorded, not fixed."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -907,8 +907,8 @@
     "faces": [
       397
     ],
-    "verdict": "undetermined",
-    "reason": "The nominal follows the face's area, which differs from OpenCascade's face.area: known_face_areas.json lists this face (undetermined)."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: known_face_areas.json now settles face 397 (Rust area 8.08412885145 mm²) as rust-correct using exact-surface integration over the 3D boundary (tools/kernel_evidence.py / tools/face_area_evidence.py), rather than the captured fixed Gauss rule. The old reason referred to their superseded undetermined area verdicts. The perimeter is not an unresolved component of this entry; the difference follows these areas. Thus the derived controlling length min(sqrt(area),2*area/perimeter) is rust-correct."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -1988,8 +1988,8 @@
     "faces": [
       117
     ],
-    "verdict": "undetermined",
-    "reason": "The nominal follows the face's area, which differs from OpenCascade's face.area: known_face_areas.json lists this face (undetermined)."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: known_face_areas.json now settles face 117 (Rust area 24.230417097 mm²) as rust-correct using exact-surface integration over the 3D boundary (tools/kernel_evidence.py / tools/face_area_evidence.py), rather than the captured fixed Gauss rule. The old reason referred to their superseded undetermined area verdicts. The perimeter is not an unresolved component of this entry; the difference follows these areas. Thus the derived controlling length min(sqrt(area),2*area/perimeter) is rust-correct."
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -2149,8 +2149,8 @@
       190,
       245
     ],
-    "verdict": "undetermined",
-    "reason": "Both parts of the nominal differ. The area differs from OpenCascade's face.area (known_face_areas.json lists this face: rust-correct); the physical perimeter differs from OpenCascade's even with each edge integrated to 1e-10, by up to 3e-4 relative: OpenCascade's import healing ends this file's edges at other vertices (cgb207 face 154: a line 0.76576 long in the port, 0.76574 in OpenCascade; an ellipse arc 2.14346 against 2.13509), and neither set of edges is shown to be the file's intent."
+    "verdict": "rust-correct",
+    "reason": "Independent raw-STEP reference: tools/perimeter_evidence.py converts the original EDGE_CURVEs and VERTEX_POINTs with StepToGeom, without TransferRoots or healing, and integrates exact-curve speed between closest feet at 1e-9 and 1e-11. Face 190: perimeter 22.829870282967 mm, absolute Rust residual <= 8.6e-13 mm; Face 245: perimeter 83.928413978715 mm, absolute Rust residual <= 1.5e-14 mm. The ellipse on face 154 spans parameters 3.988586340605 to 4.171289454427, giving arc length 2.135088823587; the raw line is 0.765756390000 mm. known_face_areas.json independently establishes the areas (3D-boundary Green integration / direct slices). Both inputs to min(sqrt(area),2*area/perimeter) therefore support Rust; the former undetermined reason predated the ellipse-foot correction."
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -2158,8 +2158,8 @@
     "faces": [
       154
     ],
-    "verdict": "undetermined",
-    "reason": "Both parts of the nominal differ. The area differs from OpenCascade's face.area (known_face_areas.json lists this face: undetermined); the physical perimeter differs from OpenCascade's even with each edge integrated to 1e-10, by up to 3e-4 relative: OpenCascade's import healing ends this file's edges at other vertices (cgb207 face 154: a line 0.76576 long in the port, 0.76574 in OpenCascade; an ellipse arc 2.14346 against 2.13509), and neither set of edges is shown to be the file's intent."
+    "verdict": "rust-correct",
+    "reason": "Independent raw-STEP reference: tools/perimeter_evidence.py converts the original EDGE_CURVEs and VERTEX_POINTs with StepToGeom, without TransferRoots or healing, and integrates exact-curve speed between closest feet at 1e-9 and 1e-11. Face 154: perimeter 4.8970347824453 mm, absolute Rust residual <= 2.7e-15 mm. The ellipse on face 154 spans parameters 3.988586340605 to 4.171289454427, giving arc length 2.135088823587; the raw line is 0.765756390000 mm. known_face_areas.json independently establishes the areas (3D-boundary Green integration / direct slices). Both inputs to min(sqrt(area),2*area/perimeter) therefore support Rust; the former undetermined reason predated the ellipse-foot correction."
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -2709,8 +2709,8 @@
     "faces": [
       69
     ],
-    "verdict": "undetermined",
-    "reason": "Edge.length (GCPnts_AbscissaPoint at its default tolerance) is short or long by ~1e-5 relative on this face's ellipse or B-spline edges; integrated to 1e-10 it agrees with the port's perimeter. The nominal follows the face's area, which differs from OpenCascade's face.area: known_face_areas.json lists this face (undetermined)."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: known_face_areas.json now settles face 69 (Rust area 6.23700256974 mm²) as rust-correct using exact-surface integration over the 3D boundary (tools/kernel_evidence.py / tools/face_area_evidence.py), rather than the captured fixed Gauss rule. The old reason referred to their superseded undetermined area verdicts. The perimeter is not an unresolved component of this entry; its precise 1e-10 edge integration already agrees with Rust, rather than default Edge.length. Thus the derived controlling length min(sqrt(area),2*area/perimeter) is rust-correct."
   },
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
@@ -2719,8 +2719,8 @@
       790,
       822
     ],
-    "verdict": "undetermined",
-    "reason": "The nominal follows the face's area, which differs from OpenCascade's face.area: known_face_areas.json lists this face (undetermined)."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: known_face_areas.json now settles face 790 (Rust area 1.72886110671 mm²), face 822 (Rust area 1.72886110671 mm²) as rust-correct using exact-surface integration over the 3D boundary (tools/kernel_evidence.py / tools/face_area_evidence.py), rather than the captured fixed Gauss rule. The old reason referred to their superseded undetermined area verdicts. The perimeter is not an unresolved component of this entry; the difference follows these areas. Thus the derived controlling length min(sqrt(area),2*area/perimeter) is rust-correct."
   },
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
@@ -2913,8 +2913,8 @@
       238,
       337
     ],
-    "verdict": "undetermined",
-    "reason": "The nominal follows the face's area, which differs from OpenCascade's face.area: known_face_areas.json lists this face (undetermined)."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: known_face_areas.json now settles face 225 (Rust area 1456.70259345 mm²), face 233 (Rust area 1194.06636922 mm²), face 234 (Rust area 1194.01257782 mm²), face 238 (Rust area 955.253162688 mm²), face 337 (Rust area 201.353812564 mm²) as rust-correct using exact-surface integration over the 3D boundary (tools/kernel_evidence.py / tools/face_area_evidence.py), rather than the captured fixed Gauss rule. The old reason referred to their superseded undetermined area verdicts. The perimeter is not an unresolved component of this entry; the difference follows these areas. Thus the derived controlling length min(sqrt(area),2*area/perimeter) is rust-correct."
   },
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
@@ -3587,8 +3587,8 @@
     "faces": [
       79
     ],
-    "verdict": "undetermined",
-    "reason": "The nominal follows the face's area, which differs from OpenCascade's face.area: known_face_areas.json lists this face (undetermined)."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: known_face_areas.json now settles face 79 (Rust area 3.70768593698 mm²) as rust-correct using exact-surface integration over the 3D boundary (tools/kernel_evidence.py / tools/face_area_evidence.py), rather than the captured fixed Gauss rule. The old reason referred to their superseded undetermined area verdicts. The perimeter is not an unresolved component of this entry; the difference follows these areas. Thus the derived controlling length min(sqrt(area),2*area/perimeter) is rust-correct."
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",

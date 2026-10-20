@@ -8,6 +8,33 @@ OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::ke
 **Status: 0.1.0-alpha.8 (2026-10-20).** Changes are in [CHANGELOG.md](CHANGELOG.md); the alpha 1
 gates and their evidence in [docs/alpha1.md](docs/alpha1.md).
 
+## Rust-first
+
+Rust recognition is judged against independent references: OpenCascade, analytic
+fixtures, MFInstSeg/MFCAD++ labels, and motion invariance. Committed Python
+captures are a frozen regression record, not the target for new behaviour. Keep
+all parity harnesses flagging unlisted differences; record deliberate departures
+supported by independent evidence as `rust-correct`, citing that evidence. Do not
+add new Python captures. Do not remove output to improve metrics unless the
+information still reaches the output, or weaken tests or known-difference entries
+to get green. Remove stale entries only when the harness reports they no longer
+match, and report their removal.
+
+Independent labelled accuracy is measured by `examples/mfinstseg_score.rs` using
+[the source-cited class mapping](tests/fixtures/mfinstseg_mapping.json). Run it with
+`DATASET IDS.txt OUT.json [WORKERS]` (at most six workers); MFInstSeg's dataset root
+contains `steps/` and `labels/`. For MFCAD++, pass the STEP directory and append
+`--mfcadpp` to score numeric face-name labels without inventing instance labels.
+Shared-family classes share all predictions; only defining faces count. Reports
+retain face metrics for incomplete instance annotations and explicitly count the
+models whose instance metrics are available. Renamed duplicates are accepted only
+when STEP DATA records and label bytes match their declared originals.
+The fixed 200-model ratchet runs with
+`QUIDDITY_MFINSTSEG=/path/to/MFInstSeg cargo test --release --test mfinstseg`.
+Dataset files stay external because redistribution permission has not been
+established. Its baseline pins input and mapping hashes; record non-regressing
+improvements with `tools/update_mfinstseg_baseline.py`.
+
 What alpha 1 does:
 
 - **Kernel** (`haecceity`): STEP import (assemblies, distinct parts in their own frames, face and
@@ -42,6 +69,12 @@ recognition document), `quiddity correspond`, `quiddity serve`, `quiddity parts 
 distinct parts and the face numbering PMI anchors use), and `quiddity pmi read|check|write`
 (AP242 semantic PMI as versioned JSON; `write` verifies by reading back before replacing the
 output).
+
+The recognition document carries `source_sha256`, the completed `run_mode`, and each
+record's `evidence_status` (`verified` or `unproved`). CLI and `serve` retain candidates
+from unsupported or invalid geometry with warnings identifying the unproved records.
+See [the trust contract](docs/recognition-trust.md) for validity limits, gzip identity,
+pattern inheritance, legacy-reader defaults and consumer refusal policy.
 
 Known limitations:
 
@@ -119,12 +152,8 @@ corpus files' documents). *Not captured*:
 calls the suite makes that the capture could not record, outside the replay and pinned by it
 (`tools/capture_plugin.py` now lists each with its test and reason; the counts here predate
 that: the committed `calls.json` still holds them as counts per function, all
-`capture failed: RuntimeError`, and a capture run carries them over unchanged for every function
-it does not recapture). Open question for the maintainer: re-running the whole capture to give
-them test ids changes the call content, not only the skips (4210 calls against 2482, 685 of the
-old call identities gone, 5 shared calls with different Python answers), so it needs every
-family re-verified; whether to do that or to recapture family by family over each family's own
-test files is not decided. *Corpus runs*: runs whose records match Python's over the 100-file
+`capture failed: RuntimeError`). These captures remain frozen under the Rust-first
+policy. *Corpus runs*: runs whose records match Python's over the 100-file
 corpus in `tests/corpus.rs` (one per file and option set; face levels, step levels and risers are
 not in the corpus export: step levels and the aggregate's risers are compared part by part in
 `tests/step_levels.rs` against `tools/capture_step_levels.py`'s capture). Every difference, in
@@ -242,7 +271,7 @@ horizontal face levels strictly inside `bounded_end_margin` of its height) and
 `levels::discover_risers` (`_discover_risers`, each riser carrying its solid's step levels), and
 the thin-wall rule rejects risers from that list, so `recognise` drops them. `levels::proved` is
 Python's proof of either (strictly a refusal when one has no valid solid, under local degradation
-a skip); `features::inventory`, like every family there, publishes them unproved, but skips as
+a skip); `features::inventory` retains their candidates with strict evidence statuses, but skips as
 `levels::proved` does in a locally degraded run (the retry above). `tests/step_levels.rs` compares, part by part over the corpus, the public
 `step_level_records`, the proposals with their faces and proofs, the proved aggregate and what
 `inventory` and `recognise` carry: 378 Python step levels, 316 identical on 89 parts, the other

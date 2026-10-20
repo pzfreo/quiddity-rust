@@ -135,6 +135,8 @@ def _intervals(n: int, fill) -> list[float]:
 class _Surface:
     """A face's surface: placing points, evaluating densities, and its smoothness breaks."""
 
+    components = 2
+
     def __init__(self, face):
         self.adaptor = BRepAdaptor_Surface(face)
         kind = self.adaptor.GetType()
@@ -187,6 +189,16 @@ class _Surface:
         """Whether u (and v) is arbitrary at the point: its partial derivative vanishes there."""
 
         u, v = self._wrapped(u, v)
+        if self.adaptor.GetType() == GeomAbs_Cone:
+            cone = self.adaptor.Cone()
+            # STEP's rounded apex can leave a nanometre radial residue (cgb243:
+            # 1.2e-9 mm). Use the analytic apex limit there instead of letting
+            # atan2 round-off introduce a whole spurious turn. This tip's
+            # radius is below cgb243's edge tolerance and its area O(1e-16 mm²).
+            # Scale down for tiny cones so their finite sides are never poles.
+            limit = 1e-8 * min(1.0, cone.RefRadius())
+            if abs(cone.RefRadius() + v*math.sin(cone.SemiAngle())) <= limit:
+                return True, False
         p, du, dv = gp_Pnt(), gp_Vec(), gp_Vec()
         self.adaptor.D1(u, v, p, du, dv)
         a, b = du.Magnitude(), dv.Magnitude()
@@ -215,7 +227,7 @@ class _Surface:
         parameter held at ``fixed``."""
 
         if lo == hi:
-            return np.zeros(2)
+            return np.zeros(self.components)
         a, b = min(lo, hi), max(lo, hi)
         cuts = {a, b}
         period = self.periods[axis] if self.wrap[axis] else None
@@ -232,7 +244,7 @@ class _Surface:
             cuts.update(a + (b - a) * j / steps for j in range(1, steps))
         cuts = sorted(cuts)
         xs, ws = GL16
-        total = np.zeros(2)
+        total = np.zeros(self.components)
         for p, q in zip(cuts, cuts[1:]):
             h, m = 0.5 * (q - p), 0.5 * (q + p)
             for x, w in zip(xs, ws):
@@ -356,7 +368,7 @@ def _integrate(face, surf: _Surface, panels: int):
         # G(u, v) = ∫ from ref along `axis` of the densities, the other parameter fixed.
         return surf.inner(axis, point[other], ref, point[axis])
 
-    total = np.zeros(2)
+    total = np.zeros(surf.components)
     for pieces, first, last in loops:
         closing = list(pieces)
         shift = [0.0, 0.0]
@@ -458,7 +470,7 @@ def _run_faces(file: str, indices: list[int], centre) -> dict:
     size = max(4, math.ceil(len(indices) / (3 * (os.cpu_count() or 1))))
     jobs = [(file, indices[k : k + size], centre) for k in range(0, len(indices), size)]
     found = {}
-    with ProcessPoolExecutor(max_workers=os.cpu_count()) as pool:
+    with ProcessPoolExecutor(max_workers=min(6, os.cpu_count() or 1)) as pool:
         for out in pool.map(_face_job, jobs):
             found.update(out)
     return found

@@ -26,6 +26,642 @@
         "related": []
       },
       "verdict": "rust-correct"
+    },
+    {
+      "defining": [
+        15,
+        16,
+        17,
+        18
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10049.step",
+      "python": null,
+      "rust": {
+        "constituent": [
+          15,
+          16,
+          17,
+          18,
+          31
+        ],
+        "index": 1,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        16,
+        18
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10049.step",
+      "python": {
+        "constituent": [
+          15,
+          16,
+          17,
+          18,
+          31
+        ],
+        "index": 1,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "rust": null,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        15,
+        16,
+        17,
+        18
+      ],
+      "family": "prismatic_pockets",
+      "file": "mfcadpp/10049.step",
+      "python": {
+        "constituent": [
+          15,
+          16,
+          17,
+          18,
+          31
+        ],
+        "index": 0,
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              16,
+              18
+            ]
+          ]
+        ]
+      },
+      "rust": {
+        "constituent": [
+          15,
+          16,
+          17,
+          18,
+          31
+        ],
+        "index": 0,
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              15,
+              16,
+              17,
+              18
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        35,
+        36,
+        37,
+        38
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10103.step",
+      "python": null,
+      "rust": {
+        "constituent": [
+          35,
+          36,
+          37,
+          38,
+          43
+        ],
+        "index": 1,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        36,
+        38
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10103.step",
+      "python": {
+        "constituent": [
+          35,
+          36,
+          37,
+          38,
+          43
+        ],
+        "index": 1,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "rust": null,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        35,
+        36,
+        37,
+        38
+      ],
+      "family": "prismatic_pockets",
+      "file": "mfcadpp/10103.step",
+      "python": {
+        "constituent": [
+          35,
+          36,
+          37,
+          38,
+          43
+        ],
+        "index": 0,
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              36,
+              38
+            ]
+          ]
+        ]
+      },
+      "rust": {
+        "constituent": [
+          35,
+          36,
+          37,
+          38,
+          43
+        ],
+        "index": 0,
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              35,
+              36,
+              37,
+              38
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10146.step",
+      "python": null,
+      "rust": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          27
+        ],
+        "index": 1,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        11,
+        13
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10146.step",
+      "python": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          27
+        ],
+        "index": 1,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "rust": null,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "family": "prismatic_pockets",
+      "file": "mfcadpp/10146.step",
+      "python": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          27
+        ],
+        "index": 1,
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              11,
+              13
+            ]
+          ]
+        ]
+      },
+      "rust": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          27
+        ],
+        "index": 1,
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              10,
+              11,
+              12,
+              13
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        14,
+        15,
+        16,
+        17
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10245.step",
+      "python": null,
+      "rust": {
+        "constituent": [
+          14,
+          15,
+          16,
+          17,
+          27
+        ],
+        "index": 0,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        15,
+        17
+      ],
+      "family": "pockets",
+      "file": "mfcadpp/10245.step",
+      "python": {
+        "constituent": [
+          14,
+          15,
+          16,
+          17,
+          27
+        ],
+        "index": 0,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "rust": null,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        14,
+        15,
+        16,
+        17
+      ],
+      "family": "prismatic_pockets",
+      "file": "mfcadpp/10245.step",
+      "python": {
+        "constituent": [
+          14,
+          15,
+          16,
+          17,
+          27
+        ],
+        "index": 0,
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              15,
+              17
+            ]
+          ]
+        ]
+      },
+      "rust": {
+        "constituent": [
+          14,
+          15,
+          16,
+          17,
+          27
+        ],
+        "index": 0,
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              14,
+              15,
+              16,
+              17
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        24,
+        25,
+        26,
+        27
+      ],
+      "family": "pockets",
+      "file": "mfcadpp_holdout/118.step",
+      "python": null,
+      "rust": {
+        "constituent": [
+          24,
+          25,
+          26,
+          27,
+          44
+        ],
+        "index": 0,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        25,
+        26
+      ],
+      "family": "pockets",
+      "file": "mfcadpp_holdout/118.step",
+      "python": {
+        "constituent": [
+          24,
+          25,
+          26,
+          27,
+          44
+        ],
+        "index": 0,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "rust": null,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        24,
+        25,
+        26,
+        27
+      ],
+      "family": "prismatic_pockets",
+      "file": "mfcadpp_holdout/118.step",
+      "python": {
+        "constituent": [
+          24,
+          25,
+          26,
+          27,
+          44
+        ],
+        "index": 3,
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              25,
+              26
+            ]
+          ]
+        ]
+      },
+      "rust": {
+        "constituent": [
+          24,
+          25,
+          26,
+          27,
+          44
+        ],
+        "index": 3,
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              24,
+              25,
+              26,
+              27
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "family": "pockets",
+      "file": "mfcadpp_holdout/163.step",
+      "python": null,
+      "rust": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          32
+        ],
+        "index": 0,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        11,
+        12
+      ],
+      "family": "pockets",
+      "file": "mfcadpp_holdout/163.step",
+      "python": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          32
+        ],
+        "index": 0,
+        "outcome": "accepted",
+        "reason": "default.accepted",
+        "related": []
+      },
+      "rust": null,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "family": "prismatic_pockets",
+      "file": "mfcadpp_holdout/163.step",
+      "python": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          32
+        ],
+        "index": 1,
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              11,
+              12
+            ]
+          ]
+        ]
+      },
+      "rust": {
+        "constituent": [
+          10,
+          11,
+          12,
+          13,
+          32
+        ],
+        "index": 1,
+        "outcome": "rejected",
+        "reason": "recess.prismatic_superseded_by_pocket",
+        "related": [
+          [
+            "pockets",
+            [
+              10,
+              11,
+              12,
+              13
+            ]
+          ]
+        ]
+      },
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
     }
   ],
   "errors": [],
@@ -2535,6 +3171,237 @@
       "rust": 0,
       "verdict": "rust-correct",
       "reason": "Claimed by a measured screw thread; no longer an unrecognised freeform face. See docs/modelled-threads.md."
+    },
+    {
+      "defining": [
+        7
+      ],
+      "family": "risers",
+      "field": "present",
+      "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
+      "python": 1,
+      "rust": 0,
+      "verdict": "rust-correct",
+      "reason": "Analytic boundary: face 7 is exactly 0.5 mm inside the envelope, equal to the interior exclusion tolerance. It is consistently excluded within COORD_FLOOR rather than appearing only before translation (tests/invariance.rs, GRM-03 translate and generic_framed). Its plane remains in the face inventory and fingerprints."
+    },
+    {
+      "defining": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "mfcadpp_holdout/163.step",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": [
+        11,
+        12
+      ],
+      "family": "section_recesses",
+      "field": "present",
+      "file": "mfcadpp_holdout/163.step",
+      "python": 1,
+      "rust": 0,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence (tests/invariance.rs and view_is_placement_independent): exact width == length ties now retain both wall pairs, with original face identities choosing the record interpretation, so candidates, supersession references and section projections use one stable complete wall set. Python loses one pair according to placement round-off."
+    },
+    {
+      "defining": null,
+      "family": "slots",
+      "field": "order",
+      "file": "nist/nist_ctc_03_asme1_rc.stp",
+      "python": [
+        [
+          62,
+          63,
+          64,
+          65
+        ],
+        [
+          66,
+          67,
+          68,
+          69
+        ]
+      ],
+      "rust": [
+        [
+          66,
+          67,
+          68,
+          69
+        ],
+        [
+          62,
+          63,
+          64,
+          65
+        ]
+      ],
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance and analytic-size evidence: raw cylinder radii and wall spans are measured before decimal publication, so rounded widths and lengths no longer depend on the placement grid. The two nist_ctc_03 slots change order because their correctly measured widths order differently from twice-rounded radii; their original faces, records and all information remain published."
+    },
+    {
+      "defining": [
+        130,
+        132,
+        134,
+        136,
+        146,
+        147,
+        148,
+        149
+      ],
+      "family": "hole_patterns",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed."
+    },
+    {
+      "defining": [
+        138,
+        140,
+        142,
+        144,
+        146,
+        147,
+        148,
+        149
+      ],
+      "family": "hole_patterns",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 1,
+      "rust": 0,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed."
+    },
+    {
+      "defining": [
+        130,
+        148
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed."
+    },
+    {
+      "defining": [
+        132,
+        149
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed."
+    },
+    {
+      "defining": [
+        134,
+        146
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed."
+    },
+    {
+      "defining": [
+        136,
+        147
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed."
+    },
+    {
+      "defining": [
+        138,
+        148
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 1,
+      "rust": 0,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed."
+    },
+    {
+      "defining": [
+        140,
+        147
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 1,
+      "rust": 0,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed."
+    },
+    {
+      "defining": [
+        142,
+        146
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 1,
+      "rust": 0,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed."
+    },
+    {
+      "defining": [
+        144,
+        149
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 1,
+      "rust": 0,
+      "verdict": "rust-correct",
+      "reason": "Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed."
+    },
+    {
+      "defining": [
+        33,
+        34
+      ],
+      "family": "interior_voids",
+      "field": "present",
+      "file": "mfcadpp_regressions/11512.step",
+      "python": 1,
+      "rust": 0,
+      "verdict": "rust-correct",
+      "reason": "Analytic lattice symmetry and motion-invariance evidence: the grid is centred with stable cell counts. The marginal 11512 candidate on faces 33-34 no longer proves a widening behind a throat; its complete geometry, openings, sample counts and volume remain published as an unproved InteriorVoidRefusal record. tests/recognition.rs asserts the full payload. The obsolete rot_y180 differences are removed because the same accepted cavity faces now survive placement."
     }
   ],
   "motions": [
@@ -2790,507 +3657,6 @@
             ]
           ]
         ]
-      },
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        10,
-        11,
-        12,
-        13
-      ],
-      "family": "pockets",
-      "file": "mfcadpp/10146.step",
-      "list": "candidates",
-      "motion": "rot_zx_moved",
-      "moved": {
-        "constituent": [
-          10,
-          11,
-          12,
-          13,
-          27
-        ],
-        "outcome": "accepted",
-        "reason": "default.accepted",
-        "related": []
-      },
-      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 13]). (known_invariance.json, mfcadpp/10146.step rot_zx_moved pockets.)",
-      "rust": null,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        10,
-        11,
-        12,
-        13
-      ],
-      "family": "pockets",
-      "file": "mfcadpp_holdout/163.step",
-      "list": "candidates",
-      "motion": "rot_zx_moved",
-      "moved": {
-        "constituent": [
-          10,
-          11,
-          12,
-          13,
-          32
-        ],
-        "outcome": "accepted",
-        "reason": "default.accepted",
-        "related": []
-      },
-      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]). (known_invariance.json, mfcadpp_holdout/163.step rot_zx_moved pockets.)",
-      "rust": null,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        10,
-        11,
-        12,
-        13
-      ],
-      "family": "prismatic_pockets",
-      "file": "mfcadpp/10146.step",
-      "list": "candidates",
-      "motion": "rot_zx_moved",
-      "moved": {
-        "constituent": [
-          10,
-          11,
-          12,
-          13,
-          27
-        ],
-        "outcome": "rejected",
-        "reason": "recess.prismatic_superseded_by_pocket",
-        "related": [
-          [
-            "pockets",
-            [
-              10,
-              11,
-              12,
-              13
-            ]
-          ]
-        ]
-      },
-      "reason": "The ring is rejected by the same pocket either way; only the winner's defining faces move (known_invariance.json, mfcadpp/10146.step rot_zx_moved pockets): A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 13]).",
-      "rust": {
-        "constituent": [
-          10,
-          11,
-          12,
-          13,
-          27
-        ],
-        "outcome": "rejected",
-        "reason": "recess.prismatic_superseded_by_pocket",
-        "related": [
-          [
-            "pockets",
-            [
-              11,
-              13
-            ]
-          ]
-        ]
-      },
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        10,
-        11,
-        12,
-        13
-      ],
-      "family": "prismatic_pockets",
-      "file": "mfcadpp_holdout/163.step",
-      "list": "candidates",
-      "motion": "rot_zx_moved",
-      "moved": {
-        "constituent": [
-          10,
-          11,
-          12,
-          13,
-          32
-        ],
-        "outcome": "rejected",
-        "reason": "recess.prismatic_superseded_by_pocket",
-        "related": [
-          [
-            "pockets",
-            [
-              10,
-              11,
-              12,
-              13
-            ]
-          ]
-        ]
-      },
-      "reason": "The ring is rejected by the same pocket either way; only the winner's defining faces move (known_invariance.json, mfcadpp_holdout/163.step rot_zx_moved pockets): A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]).",
-      "rust": {
-        "constituent": [
-          10,
-          11,
-          12,
-          13,
-          32
-        ],
-        "outcome": "rejected",
-        "reason": "recess.prismatic_superseded_by_pocket",
-        "related": [
-          [
-            "pockets",
-            [
-              11,
-              12
-            ]
-          ]
-        ]
-      },
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        11,
-        12
-      ],
-      "family": "pockets",
-      "file": "mfcadpp_holdout/163.step",
-      "list": "candidates",
-      "motion": "rot_zx_moved",
-      "moved": null,
-      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]). (known_invariance.json, mfcadpp_holdout/163.step rot_zx_moved pockets.)",
-      "rust": {
-        "constituent": [
-          10,
-          11,
-          12,
-          13,
-          32
-        ],
-        "outcome": "accepted",
-        "reason": "default.accepted",
-        "related": []
-      },
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        11,
-        13
-      ],
-      "family": "pockets",
-      "file": "mfcadpp/10146.step",
-      "list": "candidates",
-      "motion": "rot_zx_moved",
-      "moved": null,
-      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 13]). (known_invariance.json, mfcadpp/10146.step rot_zx_moved pockets.)",
-      "rust": {
-        "constituent": [
-          10,
-          11,
-          12,
-          13,
-          27
-        ],
-        "outcome": "accepted",
-        "reason": "default.accepted",
-        "related": []
-      },
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        13,
-        14
-      ],
-      "family": "interior_voids",
-      "field": "present",
-      "file": "mfcadpp_regressions/11512.step",
-      "list": "features",
-      "motion": "rot_y180",
-      "moved": 0,
-      "reason": "The void grid is anchored at the box's minimum corner with its cell count rounded up, so turned over its cells sit elsewhere on the part, and a void whose widening is two cells deep (faces 17, 30, 31) passes the throat test in one orientation only. Python's grid is anchored the same way. A grid centred on the box would map onto itself under these motions; a decision that does not rest on the grid's phase would fix it outright. (known_invariance.json, mfcadpp_regressions/11512.step rot_y180 interior_voids.)",
-      "rust": 1,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        130,
-        132,
-        134,
-        136,
-        146,
-        147,
-        148,
-        149
-      ],
-      "family": "hole_patterns",
-      "field": "present",
-      "file": "nist/nist_ftc_10_asme1_rb.stp",
-      "list": "features",
-      "motion": "rot_y180",
-      "moved": 1,
-      "reason": "Follows from the member holes' defining faces moving (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes): Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same.",
-      "rust": 0,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        130,
-        148
-      ],
-      "family": "holes",
-      "field": "present",
-      "file": "nist/nist_ftc_10_asme1_rb.stp",
-      "list": "features",
-      "motion": "rot_y180",
-      "moved": 1,
-      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
-      "rust": 0,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        132,
-        149
-      ],
-      "family": "holes",
-      "field": "present",
-      "file": "nist/nist_ftc_10_asme1_rb.stp",
-      "list": "features",
-      "motion": "rot_y180",
-      "moved": 1,
-      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
-      "rust": 0,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        134,
-        146
-      ],
-      "family": "holes",
-      "field": "present",
-      "file": "nist/nist_ftc_10_asme1_rb.stp",
-      "list": "features",
-      "motion": "rot_y180",
-      "moved": 1,
-      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
-      "rust": 0,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        136,
-        147
-      ],
-      "family": "holes",
-      "field": "present",
-      "file": "nist/nist_ftc_10_asme1_rb.stp",
-      "list": "features",
-      "motion": "rot_y180",
-      "moved": 1,
-      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
-      "rust": 0,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        138,
-        140,
-        142,
-        144,
-        146,
-        147,
-        148,
-        149
-      ],
-      "family": "hole_patterns",
-      "field": "present",
-      "file": "nist/nist_ftc_10_asme1_rb.stp",
-      "list": "features",
-      "motion": "rot_y180",
-      "moved": 0,
-      "reason": "Follows from the member holes' defining faces moving (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes): Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same.",
-      "rust": 1,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        138,
-        148
-      ],
-      "family": "holes",
-      "field": "present",
-      "file": "nist/nist_ftc_10_asme1_rb.stp",
-      "list": "features",
-      "motion": "rot_y180",
-      "moved": 0,
-      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
-      "rust": 1,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        14,
-        15,
-        16,
-        17
-      ],
-      "family": "pockets",
-      "file": "mfcadpp/10245.step",
-      "list": "candidates",
-      "motion": "rot_zx_moved",
-      "moved": {
-        "constituent": [
-          14,
-          15,
-          16,
-          17,
-          27
-        ],
-        "outcome": "accepted",
-        "reason": "default.accepted",
-        "related": []
-      },
-      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 14-17, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [14, 15, 16, 17], unmoved [15, 17]). (known_invariance.json, mfcadpp/10245.step rot_zx_moved pockets.)",
-      "rust": null,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        14,
-        15,
-        16,
-        17
-      ],
-      "family": "prismatic_pockets",
-      "file": "mfcadpp/10245.step",
-      "list": "candidates",
-      "motion": "rot_zx_moved",
-      "moved": {
-        "constituent": [
-          14,
-          15,
-          16,
-          17,
-          27
-        ],
-        "outcome": "rejected",
-        "reason": "recess.prismatic_superseded_by_pocket",
-        "related": [
-          [
-            "pockets",
-            [
-              14,
-              15,
-              16,
-              17
-            ]
-          ]
-        ]
-      },
-      "reason": "The ring is rejected by the same pocket either way; only the winner's defining faces move (known_invariance.json, mfcadpp/10245.step rot_zx_moved pockets): A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 14-17, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [14, 15, 16, 17], unmoved [15, 17]).",
-      "rust": {
-        "constituent": [
-          14,
-          15,
-          16,
-          17,
-          27
-        ],
-        "outcome": "rejected",
-        "reason": "recess.prismatic_superseded_by_pocket",
-        "related": [
-          [
-            "pockets",
-            [
-              15,
-              17
-            ]
-          ]
-        ]
-      },
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        140,
-        147
-      ],
-      "family": "holes",
-      "field": "present",
-      "file": "nist/nist_ftc_10_asme1_rb.stp",
-      "list": "features",
-      "motion": "rot_y180",
-      "moved": 0,
-      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
-      "rust": 1,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        142,
-        146
-      ],
-      "family": "holes",
-      "field": "present",
-      "file": "nist/nist_ftc_10_asme1_rb.stp",
-      "list": "features",
-      "motion": "rot_y180",
-      "moved": 0,
-      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
-      "rust": 1,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        144,
-        149
-      ],
-      "family": "holes",
-      "field": "present",
-      "file": "nist/nist_ftc_10_asme1_rb.stp",
-      "list": "features",
-      "motion": "rot_y180",
-      "moved": 0,
-      "reason": "Through holes counterbored identically at both ends: the hole record holds one counterbore, and with both ends alike drilled_from takes the end that is high in world space, so turning the part over attributes the other counterbore's faces. Needs a specification decision (record both ends, or an intrinsic choice); Python behaves the same. (known_invariance.json, nist/nist_ftc_10_asme1_rb.stp rot_y180 holes.)",
-      "rust": 1,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        15,
-        17
-      ],
-      "family": "pockets",
-      "file": "mfcadpp/10245.step",
-      "list": "candidates",
-      "motion": "rot_zx_moved",
-      "moved": null,
-      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 14-17, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [14, 15, 16, 17], unmoved [15, 17]). (known_invariance.json, mfcadpp/10245.step rot_zx_moved pockets.)",
-      "rust": {
-        "constituent": [
-          14,
-          15,
-          16,
-          17,
-          27
-        ],
-        "outcome": "accepted",
-        "reason": "default.accepted",
-        "related": []
       },
       "verdict": "rust-wrong"
     },
@@ -3669,21 +4035,6 @@
     },
     {
       "defining": [
-        30,
-        31
-      ],
-      "family": "interior_voids",
-      "field": "present",
-      "file": "mfcadpp_regressions/11512.step",
-      "list": "features",
-      "motion": "rot_y180",
-      "moved": 1,
-      "reason": "The void grid is anchored at the box's minimum corner with its cell count rounded up, so turned over its cells sit elsewhere on the part, and a void whose widening is two cells deep (faces 17, 30, 31) passes the throat test in one orientation only. Python's grid is anchored the same way. A grid centred on the box would map onto itself under these motions; a decision that does not rest on the grid's phase would fix it outright. (known_invariance.json, mfcadpp_regressions/11512.step rot_y180 interior_voids.)",
-      "rust": 0,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
         310,
         344,
         345,
@@ -3780,89 +4131,6 @@
     },
     {
       "defining": [
-        35,
-        36,
-        37,
-        38
-      ],
-      "family": "pockets",
-      "file": "mfcadpp/10103.step",
-      "list": "candidates",
-      "motion": "rot_zx_moved",
-      "moved": {
-        "constituent": [
-          35,
-          36,
-          37,
-          38,
-          43
-        ],
-        "outcome": "accepted",
-        "reason": "default.accepted",
-        "related": []
-      },
-      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 35-38, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [35, 36, 37, 38], unmoved [36, 38]). (known_invariance.json, mfcadpp/10103.step rot_zx_moved pockets.)",
-      "rust": null,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        35,
-        36,
-        37,
-        38
-      ],
-      "family": "prismatic_pockets",
-      "file": "mfcadpp/10103.step",
-      "list": "candidates",
-      "motion": "rot_zx_moved",
-      "moved": {
-        "constituent": [
-          35,
-          36,
-          37,
-          38,
-          43
-        ],
-        "outcome": "rejected",
-        "reason": "recess.prismatic_superseded_by_pocket",
-        "related": [
-          [
-            "pockets",
-            [
-              35,
-              36,
-              37,
-              38
-            ]
-          ]
-        ]
-      },
-      "reason": "The ring is rejected by the same pocket either way; only the winner's defining faces move (known_invariance.json, mfcadpp/10103.step rot_zx_moved pockets): A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 35-38, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [35, 36, 37, 38], unmoved [36, 38]).",
-      "rust": {
-        "constituent": [
-          35,
-          36,
-          37,
-          38,
-          43
-        ],
-        "outcome": "rejected",
-        "reason": "recess.prismatic_superseded_by_pocket",
-        "related": [
-          [
-            "pockets",
-            [
-              36,
-              38
-            ]
-          ]
-        ]
-      },
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
         35
       ],
       "family": "bosses",
@@ -3901,31 +4169,6 @@
     },
     {
       "defining": [
-        36,
-        38
-      ],
-      "family": "pockets",
-      "file": "mfcadpp/10103.step",
-      "list": "candidates",
-      "motion": "rot_zx_moved",
-      "moved": null,
-      "reason": "A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 35-38, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [35, 36, 37, 38], unmoved [36, 38]). (known_invariance.json, mfcadpp/10103.step rot_zx_moved pockets.)",
-      "rust": {
-        "constituent": [
-          35,
-          36,
-          37,
-          38,
-          43
-        ],
-        "outcome": "accepted",
-        "reason": "default.accepted",
-        "related": []
-      },
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
         37
       ],
       "family": "bosses",
@@ -3960,38 +4203,6 @@
       "rust": [
         38
       ],
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        10,
-        11,
-        12,
-        13
-      ],
-      "family": "section_recesses",
-      "field": "present",
-      "file": "mfcadpp_holdout/163.step",
-      "list": "features",
-      "motion": "rot_zx_moved",
-      "moved": 1,
-      "reason": "The section-recess refusal of the square-footprint pocket (constituent faces 10-13 and floor 32) carries the pocket's defining faces, [11, 12] unmoved and [10, 11, 12, 13] moved; same region and reason (captured/section_recesses/known_differences.json, 163 invariance). The pocket's own tie: A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]). (known_invariance.json, mfcadpp_holdout/163.step rot_zx_moved pockets.)",
-      "rust": 0,
-      "verdict": "rust-wrong"
-    },
-    {
-      "defining": [
-        11,
-        12
-      ],
-      "family": "section_recesses",
-      "field": "present",
-      "file": "mfcadpp_holdout/163.step",
-      "list": "features",
-      "motion": "rot_zx_moved",
-      "moved": 0,
-      "reason": "The section-recess refusal of the square-footprint pocket (constituent faces 10-13 and floor 32) carries the pocket's defining faces, [11, 12] unmoved and [10, 11, 12, 13] moved; same region and reason (captured/section_recesses/known_differences.json, 163 invariance). The pocket's own tie: A pocket with a square (or, for 10098, 1 x 2 with a 2 x 2 second reading) wall-pair footprint (faces 10-13, 2.0 x 2.0): the second wall pair's candidate passes or fails `width > length` (widths and lengths equal to the last bits) by round-off from the placement, so in one placement only it is proposed too and merged into the first, and the pocket is defined by all four walls instead of two. Same record either way. The recogniser's tie, not the kernel; Python behaves the same (checked: under rot_zx_moved, Python's defining faces are [10, 11, 12, 13], unmoved [11, 12]). (known_invariance.json, mfcadpp_holdout/163.step rot_zx_moved pockets.)",
-      "rust": 1,
       "verdict": "rust-wrong"
     }
   ]

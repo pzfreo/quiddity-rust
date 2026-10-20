@@ -387,24 +387,54 @@
     "file": "nist/nist_ctc_02_asme1_rc.stp",
     "check": "records",
     "verdict": "rust-wrong",
-    "reason": "Only the body key differs. Its volume and area are the port's (this file's 'solid masses' entry, rust-correct), but its box's z max is 40.002124 where the solid reaches 40: the tilted \u00d820 bores (faces 210, 212, 217, 219, 317, 319, 354, 356, 361, 363) end at the top plane z = 40 on B-spline edges that stray up to 0.033 mm off their cylinder (edge tolerance 0.0328, measured with OpenCascade); the kernel's face box projects edge points onto the face's surface (brep.rs face_extreme_points), which lifts them 0.0021 above the plane along the tilted cylinder's normal. OpenCascade's optimal box of the solid gives 40.0000001. A kernel box defect, not the levels'."
+    "reason": "Only the body key differs. Its volume and area are the port's (this file's 'solid masses' entry, rust-correct), but its box's z max is 40.002124 where the solid reaches 40: the tilted Ø20 bores (faces 210, 212, 217, 219, 317, 319, 354, 356, 361, 363) end at the top plane z = 40 on B-spline edges that stray up to 0.033 mm off their cylinder (edge tolerance 0.0328, measured with OpenCascade); the kernel's face box projects edge points onto the face's surface (brep.rs face_extreme_points), which lifts them 0.0021 above the plane along the tilted cylinder's normal. OpenCascade's optimal box of the solid gives 40.0000001. A kernel box defect, not the levels'."
   },
   {
     "file": "nist/nist_ctc_02_asme1_rc.stp",
     "check": "proposals",
     "verdict": "rust-wrong",
-    "reason": "Only the body key differs. Its volume and area are the port's (this file's 'solid masses' entry, rust-correct), but its box's z max is 40.002124 where the solid reaches 40: the tilted \u00d820 bores (faces 210, 212, 217, 219, 317, 319, 354, 356, 361, 363) end at the top plane z = 40 on B-spline edges that stray up to 0.033 mm off their cylinder (edge tolerance 0.0328, measured with OpenCascade); the kernel's face box projects edge points onto the face's surface (brep.rs face_extreme_points), which lifts them 0.0021 above the plane along the tilted cylinder's normal. OpenCascade's optimal box of the solid gives 40.0000001. A kernel box defect, not the levels'."
+    "reason": "Only the body key differs. Its volume and area are the port's (this file's 'solid masses' entry, rust-correct), but its box's z max is 40.002124 where the solid reaches 40: the tilted Ø20 bores (faces 210, 212, 217, 219, 317, 319, 354, 356, 361, 363) end at the top plane z = 40 on B-spline edges that stray up to 0.033 mm off their cylinder (edge tolerance 0.0328, measured with OpenCascade); the kernel's face box projects edge points onto the face's surface (brep.rs face_extreme_points), which lifts them 0.0021 above the plane along the tilted cylinder's normal. OpenCascade's optimal box of the solid gives 40.0000001. A kernel box defect, not the levels'."
   },
   {
     "file": "nist/nist_ctc_02_asme1_rc.stp",
     "check": "aggregate_step_levels",
     "verdict": "rust-wrong",
-    "reason": "Only the body key differs. Its volume and area are the port's (this file's 'solid masses' entry, rust-correct), but its box's z max is 40.002124 where the solid reaches 40: the tilted \u00d820 bores (faces 210, 212, 217, 219, 317, 319, 354, 356, 361, 363) end at the top plane z = 40 on B-spline edges that stray up to 0.033 mm off their cylinder (edge tolerance 0.0328, measured with OpenCascade); the kernel's face box projects edge points onto the face's surface (brep.rs face_extreme_points), which lifts them 0.0021 above the plane along the tilted cylinder's normal. OpenCascade's optimal box of the solid gives 40.0000001. A kernel box defect, not the levels'."
+    "reason": "Only the body key differs. Its volume and area are the port's (this file's 'solid masses' entry, rust-correct), but its box's z max is 40.002124 where the solid reaches 40: the tilted Ø20 bores (faces 210, 212, 217, 219, 317, 319, 354, 356, 361, 363) end at the top plane z = 40 on B-spline edges that stray up to 0.033 mm off their cylinder (edge tolerance 0.0328, measured with OpenCascade); the kernel's face box projects edge points onto the face's surface (brep.rs face_extreme_points), which lifts them 0.0021 above the plane along the tilted cylinder's normal. OpenCascade's optimal box of the solid gives 40.0000001. A kernel box defect, not the levels'."
   },
   {
     "file": "nist/nist_ctc_02_asme1_rc.stp",
     "check": "inventory_step_levels",
     "verdict": "rust-wrong",
-    "reason": "Only the body key differs. Its volume and area are the port's (this file's 'solid masses' entry, rust-correct), but its box's z max is 40.002124 where the solid reaches 40: the tilted \u00d820 bores (faces 210, 212, 217, 219, 317, 319, 354, 356, 361, 363) end at the top plane z = 40 on B-spline edges that stray up to 0.033 mm off their cylinder (edge tolerance 0.0328, measured with OpenCascade); the kernel's face box projects edge points onto the face's surface (brep.rs face_extreme_points), which lifts them 0.0021 above the plane along the tilted cylinder's normal. OpenCascade's optimal box of the solid gives 40.0000001. A kernel box defect, not the levels'."
+    "reason": "Only the body key differs. Its volume and area are the port's (this file's 'solid masses' entry, rust-correct), but its box's z max is 40.002124 where the solid reaches 40: the tilted Ø20 bores (faces 210, 212, 217, 219, 317, 319, 354, 356, 361, 363) end at the top plane z = 40 on B-spline edges that stray up to 0.033 mm off their cylinder (edge tolerance 0.0328, measured with OpenCascade); the kernel's face box projects edge points onto the face's surface (brep.rs face_extreme_points), which lifts them 0.0021 above the plane along the tilted cylinder's normal. OpenCascade's optimal box of the solid gives 40.0000001. A kernel box defect, not the levels'."
+  },
+  {
+    "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
+    "check": "riser_proposals",
+    "verdict": "rust-correct",
+    "reason": "Analytic threshold and motion-invariance evidence: face 7 is exactly 0.5 mm inside the envelope, equal to the interior exclusion tolerance, so it is consistently excluded within the 1e-6 mm coordinate floor. Python publishes it only in some placements. tests/invariance.rs now passes translate and generic_framed without exceptions; the face remains in the plane inventory and face fingerprints."
+  },
+  {
+    "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
+    "check": "riser_proofs",
+    "verdict": "rust-correct",
+    "reason": "Analytic threshold and motion-invariance evidence: face 7 is exactly 0.5 mm inside the envelope, equal to the interior exclusion tolerance, so it is consistently excluded within the 1e-6 mm coordinate floor. Python publishes it only in some placements. tests/invariance.rs now passes translate and generic_framed without exceptions; the face remains in the plane inventory and face fingerprints."
+  },
+  {
+    "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
+    "check": "aggregate_risers",
+    "verdict": "rust-correct",
+    "reason": "Analytic threshold and motion-invariance evidence: face 7 is exactly 0.5 mm inside the envelope, equal to the interior exclusion tolerance, so it is consistently excluded within the 1e-6 mm coordinate floor. Python publishes it only in some placements. tests/invariance.rs now passes translate and generic_framed without exceptions; the face remains in the plane inventory and face fingerprints."
+  },
+  {
+    "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
+    "check": "inventory_risers",
+    "verdict": "rust-correct",
+    "reason": "Analytic threshold and motion-invariance evidence: face 7 is exactly 0.5 mm inside the envelope, equal to the interior exclusion tolerance, so it is consistently excluded within the 1e-6 mm coordinate floor. Python publishes it only in some placements. tests/invariance.rs now passes translate and generic_framed without exceptions; the face remains in the plane inventory and face fingerprints."
+  },
+  {
+    "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
+    "check": "accepted_risers",
+    "verdict": "rust-correct",
+    "reason": "Analytic threshold and motion-invariance evidence: face 7 is exactly 0.5 mm inside the envelope, equal to the interior exclusion tolerance, so it is consistently excluded within the 1e-6 mm coordinate floor. Python publishes it only in some placements. tests/invariance.rs now passes translate and generic_framed without exceptions; the face remains in the plane inventory and face fingerprints."
   }
 ]

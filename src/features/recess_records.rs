@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use super::body::BodyKey;
 use crate::kernel::geom::V3;
+use crate::kernel::py;
 
 pub const AXES: [char; 3] = ['x', 'y', 'z'];
 
@@ -113,6 +114,17 @@ pub trait Recess: Clone + PartialEq {
 
 macro_rules! recess {
     ($record:ty, $anchored:expr) => {
+        impl $record {
+            /// Publish positions only after reductions have measured the raw spans.
+            pub(crate) fn published(mut self) -> Self {
+                self.w_center = py::round_to(self.w_center, 2);
+                self.lo = py::round_to(self.lo, 2);
+                self.hi = py::round_to(self.hi, 2);
+                self.d_lo = py::round_to(self.d_lo, 2);
+                self.d_hi = py::round_to(self.d_hi, 2);
+                self
+            }
+        }
         impl Recess for $record {
             fn width_axis(&self) -> usize {
                 axis_index(self.width_axis)

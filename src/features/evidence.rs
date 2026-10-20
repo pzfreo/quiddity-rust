@@ -4,6 +4,51 @@
 use std::cell::Cell;
 
 use crate::kernel::brep::Part;
+use serde::{Deserialize, Serialize};
+
+/// The completed inventory's mode, retained after the retry's thread-local flag is restored.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum RunMode {
+    /// Missing from documents written before the trust contract.
+    #[default]
+    Unknown,
+    Strict,
+    LocallyDegraded,
+}
+
+/// Strict valid-solid evidence for a published record. Missing proof is never verification.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum EvidenceStatus {
+    Verified,
+    #[default]
+    Unproved,
+}
+
+/// Check the same defining-and-consulted-face ownership as [`verified`], always strictly.
+/// Local degradation may admit candidates, but cannot upgrade invalid geometry's status.
+pub fn strict_status(part: &Part, defining: &[usize], context: &[usize]) -> EvidenceStatus {
+    if !defining.is_empty()
+        && strict_valid_solid(part, defining.iter().chain(context).copied()).is_some()
+    {
+        EvidenceStatus::Verified
+    } else {
+        EvidenceStatus::Unproved
+    }
+}
+
+/// The strict branch shared by the public evidence path and document statuses.
+fn strict_valid_solid(part: &Part, mut faces: impl Iterator<Item = usize>) -> Option<usize> {
+    let owner = part.faces.get(faces.next()?)?.solid?;
+    (part.solid_is_geometrically_valid(owner)
+        && faces.all(|f| {
+            part.faces
+                .get(f)
+                .is_some_and(|face| face.solid == Some(owner))
+        }))
+    .then_some(owner)
+}
 
 /// A recognised record, the faces that define it, and the faces consulted to prove it.
 #[derive(Clone, Debug, PartialEq)]
@@ -86,10 +131,7 @@ pub fn common_valid_solid(part: &Part, faces: &[usize]) -> Option<usize> {
     if local_degradation() {
         return locally_valid_solid(part, faces);
     }
-    let owner = part.faces[*faces.first()?].solid?;
-    (part.solid_is_geometrically_valid(owner)
-        && faces.iter().all(|&f| part.faces[f].solid == Some(owner)))
-    .then_some(owner)
+    strict_valid_solid(part, faces.iter().copied())
 }
 
 /// Most faulted faces a locally degraded run admits a solid with.
@@ -139,4 +181,34 @@ pub fn verified<R>(
         }
     }
     Ok(found)
+}
+
+#[cfg(test)]
+mod trust_tests {
+    use super::*;
+    use std::path::Path;
+
+    #[test]
+    fn strict_status_checks_consulted_faces_and_never_relaxes_in_a_retry() {
+        let path =
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/rejected_cylinder.step");
+        let mut part = crate::read_step_file(&path).unwrap();
+        assert_eq!(strict_status(&part, &[0], &[1]), EvidenceStatus::Verified);
+        // A consulted face without the defining face's solid invalidates the claim.
+        part.faces[1].solid = None;
+        assert_eq!(strict_status(&part, &[0], &[1]), EvidenceStatus::Unproved);
+        assert_eq!(strict_status(&part, &[], &[0]), EvidenceStatus::Unproved);
+        assert_eq!(
+            strict_status(&part, &[usize::MAX], &[]),
+            EvidenceStatus::Unproved
+        );
+        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/broken/unresolved_surface.step");
+        let part = crate::read_step_file(&path).unwrap();
+        locally_degraded(|| {
+            assert!(local_degradation());
+            assert_eq!(strict_status(&part, &[0], &[]), EvidenceStatus::Unproved);
+        });
+        assert!(!local_degradation());
+    }
 }

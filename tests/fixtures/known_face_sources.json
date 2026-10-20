@@ -3,15 +3,15 @@
     "file": "corpus/cadgenbench/flanged_spool_132.step",
     "key": "part 0 edges order",
     "count": 6,
-    "verdict": "undetermined",
-    "reason": "6 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "6 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/cadgenbench/threaded_connector_109.step",
     "key": "part 0 edges order",
     "count": 47,
-    "verdict": "undetermined",
-    "reason": "47 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "47 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/cadgenbench_inputs/cgb202.step.gz",
@@ -24,8 +24,8 @@
     "file": "corpus/cadgenbench_inputs/cgb202.step.gz",
     "key": "part 0 edges order",
     "count": 39,
-    "verdict": "undetermined",
-    "reason": "39 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "39 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/cadgenbench_inputs/cgb203.step",
@@ -45,8 +45,8 @@
     "file": "corpus/cadgenbench_inputs/cgb207.step",
     "key": "part 0 edges order",
     "count": 3,
-    "verdict": "undetermined",
-    "reason": "3 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "3 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/cadgenbench_inputs/cgb217.step.gz",
@@ -59,15 +59,15 @@
     "file": "corpus/cadgenbench_inputs/cgb217.step.gz",
     "key": "part 0 edges order",
     "count": 8,
-    "verdict": "undetermined",
-    "reason": "8 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "8 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/cadgenbench_inputs/cgb241.step",
     "key": "part 0 edges order",
     "count": 7,
-    "verdict": "undetermined",
-    "reason": "7 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "7 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/cadgenbench_inputs/cgb242.step.gz",
@@ -80,8 +80,8 @@
     "file": "corpus/cadgenbench_inputs/cgb242.step.gz",
     "key": "part 0 edges order",
     "count": 161,
-    "verdict": "undetermined",
-    "reason": "161 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "161 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/cadgenbench_inputs/cgb243.step.gz",
@@ -94,29 +94,29 @@
     "file": "corpus/cadgenbench_inputs/cgb243.step.gz",
     "key": "part 0 edges order",
     "count": 66,
-    "verdict": "undetermined",
-    "reason": "66 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "66 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/cadgenbench_inputs/cgb245.step",
     "key": "part 0 edges order",
     "count": 293,
-    "verdict": "undetermined",
-    "reason": "293 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "293 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/inventory_refusal/13975.step.gz",
     "key": "part 0 edges order",
     "count": 23,
-    "verdict": "undetermined",
-    "reason": "23 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "23 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/inventory_refusal/13975.step.gz",
     "key": "part 0 faces order",
     "count": 8,
-    "verdict": "undetermined",
-    "reason": "A deliberately malformed corpus part (its shell is not orientable). OpenCascade's import healing rebuilds and reorders its faces (see known_divergences.json); the same 17 ADVANCED_FACEs are numbered in file order by haecceity and in the healed order by OpenCascade; 8 of them are out of order."
+    "verdict": "equivalent",
+    "reason": "A deliberately malformed corpus part (its shell is not orientable). OpenCascade's import healing rebuilds and reorders its faces (see known_divergences.json); the same 17 ADVANCED_FACEs are numbered in file order by haecceity and in the healed order by OpenCascade; 8 of them are out of order. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/inventory_refusal/14052.step.gz",
@@ -136,85 +136,85 @@
     "file": "corpus/inventory_refusal/14052.step.gz",
     "key": "part 0 edges order",
     "count": 2,
-    "verdict": "undetermined",
-    "reason": "2 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "2 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/mfcadpp/1007.step",
     "key": "part 0 edges order",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/mfcadpp/10077.step",
     "key": "part 0 edges order",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/mfcadpp/1008.step",
     "key": "part 0 edges order",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/mfcadpp/1013.step",
     "key": "part 0 edges order",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/mfcadpp/10146.step",
     "key": "part 0 edges order",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/mfcadpp/10163.step",
     "key": "part 0 edges order",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/mfcadpp/1017.step",
     "key": "part 0 edges order",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/mfcadpp/10278.step",
     "key": "part 0 edges order",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/mfcadpp_holdout/183.step",
     "key": "part 0 edges order",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/mfcadpp_holdout/363.step",
     "key": "part 0 edges order",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/mfcadpp_holdout/408.step",
     "key": "part 0 edges order",
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "1 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/nist/nist_ctc_01_asme1_rd.stp",
@@ -234,8 +234,8 @@
     "file": "corpus/nist/nist_ctc_01_asme1_rd.stp",
     "key": "part 0 edges order",
     "count": 103,
-    "verdict": "undetermined",
-    "reason": "103 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "103 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/nist/nist_ctc_01_asme1_rd.stp",
@@ -262,8 +262,8 @@
     "file": "corpus/nist/nist_ctc_02_asme1_rc.stp",
     "key": "part 0 edges order",
     "count": 277,
-    "verdict": "undetermined",
-    "reason": "277 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "277 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/nist/nist_ctc_02_asme1_rc.stp",
@@ -304,8 +304,8 @@
     "file": "corpus/nist/nist_ctc_03_asme1_rc.stp",
     "key": "part 0 edges order",
     "count": 65,
-    "verdict": "undetermined",
-    "reason": "65 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "65 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/nist/nist_ctc_03_asme1_rc.stp",
@@ -332,8 +332,8 @@
     "file": "corpus/nist/nist_ctc_04_asme1_rd.stp",
     "key": "part 0 edges order",
     "count": 59,
-    "verdict": "undetermined",
-    "reason": "59 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "59 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/nist/nist_ctc_04_asme1_rd.stp",
@@ -374,8 +374,8 @@
     "file": "corpus/nist/nist_ctc_05_asme1_rd.stp",
     "key": "part 0 edges order",
     "count": 98,
-    "verdict": "undetermined",
-    "reason": "98 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "98 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/nist/nist_ctc_05_asme1_rd.stp",
@@ -416,8 +416,8 @@
     "file": "corpus/nist/nist_ftc_06_asme1_rd.stp",
     "key": "part 0 edges order",
     "count": 125,
-    "verdict": "undetermined",
-    "reason": "125 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "125 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/nist/nist_ftc_06_asme1_rd.stp",
@@ -444,8 +444,8 @@
     "file": "corpus/nist/nist_ftc_07_asme1_rd.stp",
     "key": "part 0 edges order",
     "count": 49,
-    "verdict": "undetermined",
-    "reason": "49 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "49 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/nist/nist_ftc_08_asme1_rc.stp",
@@ -458,15 +458,15 @@
     "file": "corpus/nist/nist_ftc_08_asme1_rc.stp",
     "key": "part 0 edges order",
     "count": 33,
-    "verdict": "undetermined",
-    "reason": "33 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "33 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/nist/nist_ftc_09_asme1_rd.stp",
     "key": "part 0 edges order",
     "count": 120,
-    "verdict": "undetermined",
-    "reason": "120 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "120 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/nist/nist_ftc_09_asme1_rd.stp",
@@ -493,15 +493,15 @@
     "file": "corpus/nist/nist_ftc_10_asme1_rb.stp",
     "key": "part 0 edges order",
     "count": 16,
-    "verdict": "undetermined",
-    "reason": "16 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "16 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "corpus/ttt_inputs/sm-hanger.step",
     "key": "part 0 edges order",
     "count": 63,
-    "verdict": "undetermined",
-    "reason": "63 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "63 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "nist-pmi/nist_ctc_01_asme1_ap242-e1.stp",
@@ -577,8 +577,8 @@
     "file": "nist-pmi/nist_ctc_04_asme1_ap242-e2.stp",
     "key": "part 0 edges order",
     "count": 4,
-    "verdict": "undetermined",
-    "reason": "4 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "4 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "nist-pmi/nist_ctc_04_asme1_ap242-e2.stp",
@@ -654,8 +654,8 @@
     "file": "nist-pmi/nist_ftc_07_asme1_ap242-e2.stp",
     "key": "part 0 edges order",
     "count": 4,
-    "verdict": "undetermined",
-    "reason": "4 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "4 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "nist-pmi/nist_ftc_07_asme1_ap242-e2.stp",
@@ -696,8 +696,8 @@
     "file": "nist-pmi/nist_ftc_08_asme1_ap242-e2.stp",
     "key": "part 0 edges order",
     "count": 171,
-    "verdict": "undetermined",
-    "reason": "171 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "171 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "nist-pmi/nist_ftc_08_asme1_ap242-e2.stp",
@@ -738,8 +738,8 @@
     "file": "nist-pmi/nist_ftc_10_asme1_ap242-e2.stp",
     "key": "part 0 edges order",
     "count": 5,
-    "verdict": "undetermined",
-    "reason": "5 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "5 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "nist-pmi/nist_ftc_10_asme1_ap242-e2.stp",
@@ -780,8 +780,8 @@
     "file": "nist-pmi/nist_ftc_11_asme1_ap242-e3.stp",
     "key": "part 0 edges order",
     "count": 14,
-    "verdict": "undetermined",
-    "reason": "14 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "14 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "nist-pmi/nist_stc_06_asme1_ap242-e3.stp",
@@ -808,8 +808,8 @@
     "file": "nist-pmi/nist_stc_06_asme1_ap242-e3.stp",
     "key": "part 0 edges order",
     "count": 3,
-    "verdict": "undetermined",
-    "reason": "3 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "3 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "nist-pmi/nist_stc_07_asme1_ap242-e3.stp",
@@ -829,8 +829,8 @@
     "file": "nist-pmi/nist_stc_07_asme1_ap242-e3.stp",
     "key": "part 0 edges order",
     "count": 52,
-    "verdict": "undetermined",
-    "reason": "52 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "52 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "nist-pmi/nist_stc_07_asme1_ap242-e3.stp",
@@ -906,8 +906,8 @@
     "file": "nist-pmi/nist_stc_09_asme1_ap242-e4.stp",
     "key": "part 0 edges order",
     "count": 7,
-    "verdict": "undetermined",
-    "reason": "7 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "7 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "nist-pmi/nist_stc_10_asme1_ap242-e2.stp",
@@ -927,8 +927,8 @@
     "file": "nist-pmi/nist_stc_10_asme1_ap242-e2.stp",
     "key": "part 0 edges order",
     "count": 73,
-    "verdict": "undetermined",
-    "reason": "73 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Which order is 'right' is not defined by the standard; anchors bind by #N, so edge indices are not compared across the two."
+    "verdict": "equivalent",
+    "reason": "73 EDGE_CURVEs both sides number are out of order (the fewest that would have to move for the two orders to agree). OpenCascade lists some loops' edges backwards: its ShapeFix healing reverses a wire where its geometric checks call for it, which no rule on the file's orientation flags reproduces for every loop. haecceity takes a loop's edges in file order, backwards when the bound's orientation differs from the face's same_sense. Anchors bind by #N, so traversal indices are local to each reader. Independent reference: the STEP instance labels (#N), not traversal indices, identify topology. crates/haecceity/tests/face_sources.rs::compare_part checks the source-entity sets separately from their longest-common-subsequence order; this entry changes only that order among shared instances. The raw STEP identities and their bindings are retained, so this permutation is equivalent for source anchoring; it does not assert that healed geometry is identical. Counts and all missing/added-entity entries remain enforced."
   },
   {
     "file": "nist-pmi/nist_stc_10_asme1_ap242-e2.stp",

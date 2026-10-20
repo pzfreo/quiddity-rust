@@ -704,7 +704,7 @@ fn corner_pocket_recess(
                 evidence(&faces.defining, &supports)?,
             )?));
         };
-        let boundary = rounded_vertices(&channel.boundary)?;
+        let boundary = proof_vertices(&channel.boundary)?;
         let geometry = publication(principal_open_geometry(
             &channel.axis,
             channel.run_interval,
@@ -743,7 +743,7 @@ fn corner_pocket_recess(
     let Some(proof) = prove_corner_section(ctx, &faces.defining, &depth_axis) else {
         return Ok(None);
     };
-    let boundary = rounded_vertices(&proof.boundary)?;
+    let boundary = proof_vertices(&proof.boundary)?;
     let geometry = publication(principal_open_geometry(
         &depth_axis,
         proof.run_interval,
@@ -761,14 +761,11 @@ fn corner_pocket_recess(
     )?))
 }
 
-/// Straight-edged vertices at the four-decimal point grid.
-fn rounded_vertices(points: &[V2]) -> Projected<Vec<PassageSectionVertex>> {
+/// Private proof vertices: keep world coordinates exact until the local frame is chosen.
+fn proof_vertices(points: &[V2]) -> Projected<Vec<SectionVertex>> {
     points
         .iter()
-        .map(|p| {
-            PassageSectionVertex::new([py::round_to(p[0], 4), py::round_to(p[1], 4)], 0.0)
-                .map_err(|e| Refusal::Whole(e.0.to_string()))
-        })
+        .map(|&p| SectionVertex::new(p, 0.0).map_err(|e| Refusal::Whole(e.0.to_string())))
         .collect()
 }
 
@@ -820,7 +817,7 @@ fn rectangular_blind_slot_recess(
     ]
     .iter()
     .map(|&(width, depth)| {
-        PassageSectionVertex::new(
+        SectionVertex::new(
             principal_local_point(
                 record.axis,
                 &[(record.width_axis, width), (record.depth_axis, depth)],
@@ -880,9 +877,7 @@ fn round_bottom_blind_slot_recess(
         (point(half_width, opening), 0.0),
     ]
     .iter()
-    .map(|&(p, bulge)| {
-        PassageSectionVertex::new(p, bulge).map_err(|e| Refusal::Whole(e.0.to_string()))
-    })
+    .map(|&(p, bulge)| SectionVertex::new(p, bulge).map_err(|e| Refusal::Whole(e.0.to_string())))
     .collect::<Projected<Vec<_>>>()?;
     let geometry = publication(principal_open_geometry(
         &record.axis.to_string(),
@@ -908,7 +903,7 @@ fn edge_open_prismatic_recess(
         .section
         .wall_chain
         .iter()
-        .map(|&p| PassageSectionVertex::new(p, 0.0).map_err(|e| Refusal::Whole(e.0.to_string())))
+        .map(|&p| SectionVertex::new(p, 0.0).map_err(|e| Refusal::Whole(e.0.to_string())))
         .collect::<Projected<Vec<_>>>()?;
     let geometry = publication(principal_open_geometry(
         &record.axis.to_string(),
@@ -953,16 +948,14 @@ fn edge_open_circular_recess(
             py::round_to((sweep / 4.0).tan(), 12)
         };
         vertices.push(
-            PassageSectionVertex::new(segment.start, bulge)
+            SectionVertex::new(segment.start, bulge)
                 .map_err(|e| Refusal::Whole(e.0.to_string()))?,
         );
     }
     let Some(last) = segments.last() else {
         return whole("an open circular section requires four physical segments");
     };
-    vertices.push(
-        PassageSectionVertex::new(last.end, 0.0).map_err(|e| Refusal::Whole(e.0.to_string()))?,
-    );
+    vertices.push(SectionVertex::new(last.end, 0.0).map_err(|e| Refusal::Whole(e.0.to_string()))?);
     let geometry = publication(principal_open_geometry(
         &record.axis.to_string(),
         (record.run_interval[0], record.run_interval[1]),
@@ -1024,7 +1017,7 @@ fn principal_open_geometry(
     axis: &str,
     run_interval: (f64, f64),
     open_sign: i32,
-    boundary: &[PassageSectionVertex],
+    boundary: &[SectionVertex],
     placement: Option<V3>,
 ) -> Result<SectionRecessGeometry, SectionRecessError> {
     let Some(index) = axis_index(axis) else {
@@ -1053,7 +1046,7 @@ fn principal_open_geometry(
         .map(|vertex| match placement {
             Some(_) => PassageSectionVertex::new(vertex.point, vertex.bulge),
             None => PassageSectionVertex::new(
-                order.map(|i| py::round_to(vertex.point[i] - center2[i], 4)),
+                order.map(|i| super::policy::round_measurement(vertex.point[i] - center2[i], 4)),
                 if axis == "y" {
                     -vertex.bulge
                 } else {

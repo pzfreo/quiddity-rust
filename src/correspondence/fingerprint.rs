@@ -13,7 +13,7 @@ use crate::kernel::geom::{self, Surface, V3};
 
 /// Bumped whenever a fingerprint's content or meaning changes: [`super::correspond`] refuses to
 /// compare fingerprints of two versions.
-pub const FINGERPRINT_VERSION: &str = "quiddity-rust/fingerprint/2";
+pub const FINGERPRINT_VERSION: &str = "quiddity-rust/fingerprint/3";
 
 /// The fingerprints of one recognition result.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

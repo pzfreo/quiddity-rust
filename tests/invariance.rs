@@ -797,3 +797,45 @@ fn correspondence_problems(
     eprintln!("{pairs} moved parts corresponded: {features} features, {faces} faces");
     problems
 }
+
+/// The analytic 0.4999 mm face-band fixture has a non-grid midpoint: rounding its absolute
+/// ends before taking thickness would change the dimension under this sub-micron-grid shift.
+#[test]
+fn plate_thickness_survives_a_fractional_publication_grid_translation() {
+    let path = common::fixtures().join("captured/6d359acf631cc258.step.gz");
+    let opts = features::plates::PlateOptions {
+        max_thick_frac: 1.1,
+        ..Default::default()
+    };
+    let read = |at: &Placement| {
+        let part = read_step_file_placed(&path, at).unwrap();
+        features::plates::discover(&features::Context::new(&part), &opts)
+            .into_iter()
+            .map(|o| {
+                let mut faces = o.defining;
+                faces.sort_unstable();
+                (faces, o.record.thickness())
+            })
+            .collect::<BTreeMap<_, _>>()
+    };
+    let before = read(&IDENTITY);
+    assert!(!before.is_empty());
+    assert!(
+        before
+            .values()
+            .any(|t| (t - (t * 1000.0).round() / 1000.0).abs() > 1e-7)
+    );
+    let at = [
+        [1.0, 0.0, 0.0, 0.00051],
+        [0.0, 1.0, 0.0, 0.00051],
+        [0.0, 0.0, 1.0, 0.00051],
+    ];
+    let after = read(&at);
+    assert_eq!(
+        before.keys().collect::<Vec<_>>(),
+        after.keys().collect::<Vec<_>>()
+    );
+    for (faces, thickness) in before {
+        assert!((thickness - after[&faces]).abs() < 1e-12);
+    }
+}
