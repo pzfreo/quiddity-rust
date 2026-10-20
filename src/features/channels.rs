@@ -41,9 +41,34 @@ fn occurrence(proposal: &ChannelProposal) -> Occurrence<Channel> {
     }
 }
 
-/// Each solid's channels, one per distinct record (its first distinct wall pair, the last
-/// proposal found for it), keyed to a valid solid's unambiguous body; with *strict*, a record
-/// found on two wall pairs refuses.
+/// One coordinate record cannot choose between distinct source wall pairs.
+fn unique_wall_pair(
+    proposals: Vec<ChannelProposal>,
+    strict: bool,
+) -> Result<Option<ChannelProposal>, EvidenceError> {
+    let mut unique: Vec<ChannelProposal> = Vec::new();
+    for proposal in proposals {
+        let pair = (proposal.low_wall, proposal.high_wall);
+        match unique
+            .iter_mut()
+            .find(|u| (u.low_wall, u.high_wall) == pair)
+        {
+            Some(u) => *u = proposal,
+            None => unique.push(proposal),
+        }
+    }
+    if unique.len() != 1 {
+        return if strict {
+            Err(EvidenceError::SharedEvidence)
+        } else {
+            Ok(None)
+        };
+    }
+    Ok(unique.pop())
+}
+
+/// Each solid's channels, one per distinct record with a unique wall pair, keyed to its body.
+/// A record on competing pairs is skipped, or returns `SharedEvidence` with *strict*.
 fn retained(ctx: &Context<'_>, strict: bool) -> Result<Vec<ChannelProposal>, EvidenceError> {
     let keys = ctx.body_keys(true);
     let mut out: Vec<ChannelProposal> = Vec::new();
@@ -57,22 +82,9 @@ fn retained(ctx: &Context<'_>, strict: bool) -> Result<Vec<ChannelProposal>, Evi
         }
         by_record.sort_by(|a, b| sort_key(&a.0, &b.0));
         for (_, proposals) in by_record {
-            // Python's dict of wall pairs: first-seen pairs, each holding its last proposal.
-            let mut unique: Vec<ChannelProposal> = Vec::new();
-            for proposal in proposals {
-                let pair = (proposal.low_wall, proposal.high_wall);
-                match unique
-                    .iter_mut()
-                    .find(|u| (u.low_wall, u.high_wall) == pair)
-                {
-                    Some(u) => *u = proposal,
-                    None => unique.push(proposal),
-                }
-            }
-            if strict && unique.len() != 1 {
-                return Err(EvidenceError::SharedEvidence);
-            }
-            let mut kept = unique.swap_remove(0);
+            let Some(mut kept) = unique_wall_pair(proposals, strict)? else {
+                continue;
+            };
             kept.record.body_key = key.clone();
             out.push(kept);
         }
@@ -114,4 +126,59 @@ pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<Channel>>, 
         out.push(found);
     }
     Ok(out)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::BTreeSet;
+
+    #[test]
+    fn competing_channel_walls_refuse_after_motion_and_source_permutation() {
+        // Two co-located analytic wall pairs prove the same rectangular void but different
+        // source claims. A rigid motion cannot distinguish which pair owns the occurrence.
+        for [w, l] in [[0, 1], [1, 2], [2, 0], [1, 0], [2, 1], [0, 2]] {
+            for shift in [0., 123.456] {
+                for sign in [-1, 1] {
+                    let record = Channel {
+                        width_axis: ['x', 'y', 'z'][w],
+                        long_axis: ['x', 'y', 'z'][l],
+                        width: 2.,
+                        w_center: shift,
+                        lo: shift - 5.,
+                        hi: shift + 5.,
+                        d_lo: shift + f64::from(sign).min(0.) * 3.,
+                        d_hi: shift + f64::from(sign).max(0.) * 3.,
+                        open_sign: sign,
+                        body_key: None,
+                    };
+                    let proposal = |low_wall, high_wall| ChannelProposal {
+                        record: record.clone(),
+                        low_wall,
+                        high_wall,
+                        floor: BTreeSet::from([9]),
+                    };
+                    let mut proposals = vec![proposal(1, 2), proposal(3, 4)];
+                    for _ in 0..2 {
+                        assert!(
+                            unique_wall_pair(proposals.clone(), false)
+                                .unwrap()
+                                .is_none()
+                        );
+                        assert!(matches!(
+                            unique_wall_pair(proposals.clone(), true),
+                            Err(EvidenceError::SharedEvidence)
+                        ));
+                        proposals.reverse();
+                    }
+                    // Repeated proof of one source pair is still one proved channel.
+                    let unique = unique_wall_pair(vec![proposal(1, 2), proposal(1, 2)], true)
+                        .unwrap()
+                        .unwrap();
+                    assert_eq!(unique.record, record);
+                    assert_eq!(occurrence(&unique).defining, [1, 2]);
+                }
+            }
+        }
+    }
 }

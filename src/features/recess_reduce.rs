@@ -78,32 +78,135 @@ pub fn width_then_centre<R: Recess>(a: &R, b: &R) -> Ordering {
     py::order(a.width(), b.width()).then_with(|| py::tuple_order(&centre_key(a), &centre_key(b)))
 }
 
-/// Co-located candidates as one, keeping the first of each in (width, centre) order: the
-/// narrower width is the true across-flats (`_merge_proposals`).
-pub fn merge_proposals<R: Recess>(mut proposals: Vec<Proposal<R>>) -> Vec<Proposal<R>> {
-    // Equal wall separations must choose the same interpretation after a rotation.
-    // Original face identities survive placement, unlike axis letters and world centres.
-    proposals.sort_by(|a, b| {
-        if a.record.width() == b.record.width() {
-            a.planar
-                .cmp(&b.planar)
-                .then_with(|| a.floors.cmp(&b.floors))
-        } else {
-            width_then_centre(&a.record, &b.record)
+/// Co-located readings share one occurrence only when the minimum-width interpretation is
+/// unique. A directional square record needs a unique body-relative run, too (ADR 0011).
+/// Evidence is combined only after this decision; a face number cannot choose the record.
+pub fn merge_proposals<R: Recess>(proposals: Vec<Proposal<R>>) -> Vec<Proposal<R>> {
+    merge_proposals_in(proposals, None)
+}
+
+pub(crate) fn merge_proposals_in<R: Recess>(
+    proposals: Vec<Proposal<R>>,
+    extents: Option<[f64; 3]>,
+) -> Vec<Proposal<R>> {
+    let mut remaining: BTreeSet<usize> = (0..proposals.len()).collect();
+    let mut out = Vec::new();
+    while let Some(first) = remaining.pop_first() {
+        let mut members = vec![first];
+        let mut pending = vec![first];
+        while let Some(i) = pending.pop() {
+            let adjacent: Vec<_> = remaining
+                .iter()
+                .copied()
+                .filter(|&j| {
+                    py::dist(
+                        &proposals[i].record.region_center(),
+                        &proposals[j].record.region_center(),
+                    ) <= MERGE_TOL
+                })
+                .collect();
+            for j in adjacent {
+                remaining.remove(&j);
+                members.push(j);
+                pending.push(j);
+            }
         }
-    });
-    let mut kept: Vec<Proposal<R>> = Vec::new();
-    for proposal in proposals {
-        let centre = proposal.record.region_center();
-        match kept
+        // A tolerance chain does not prove one co-located occurrence.
+        if members.iter().any(|&i| {
+            members.iter().any(|&j| {
+                py::dist(
+                    &proposals[i].record.region_center(),
+                    &proposals[j].record.region_center(),
+                ) > MERGE_TOL
+            })
+        }) {
+            continue;
+        }
+        let width = members
             .iter()
-            .position(|k| py::dist(&centre, &k.record.region_center()) <= MERGE_TOL)
+            .map(|&i| proposals[i].record.width())
+            .fold(f64::INFINITY, f64::min);
+        let tied: Vec<_> = members
+            .iter()
+            .copied()
+            .filter(|&i| {
+                (proposals[i].record.width() - width).abs() <= crate::kernel::geom::COORD_FLOOR
+            })
+            .collect();
+        // When width alone ties, the uniquely shallowest removed-box interpretation is
+        // established by geometry (the same criterion as corner-notch recognition).
+        let depth = tied
+            .iter()
+            .map(|&i| proposals[i].record.d_hi() - proposals[i].record.d_lo())
+            .fold(f64::INFINITY, f64::min);
+        let tied: Vec<_> = tied
+            .into_iter()
+            .filter(|&i| {
+                (proposals[i].record.d_hi() - proposals[i].record.d_lo() - depth).abs()
+                    <= crate::kernel::geom::COORD_FLOOR
+            })
+            .collect();
+        let best = &proposals[tied[0]];
+        if tied
+            .iter()
+            .any(|&i| !equivalent_roles(&best.record, &proposals[i].record))
         {
-            Some(i) => kept[i] = combine(kept[i].record.clone(), &[&kept[i], &proposal]),
-            None => kept.push(proposal),
+            continue;
         }
+        // long_axis is consumed as a semantic axis by fingerprints and pattern grouping.
+        // A square cannot silently give it a frame/face-order gauge: the part must establish
+        // a unique transverse long direction, or this directional record refuses.
+        let best = if tied
+            .iter()
+            .any(|&i| !best.record.same_roles(&proposals[i].record))
+        {
+            let Some(extents) = extents else {
+                continue;
+            };
+            let reach = tied
+                .iter()
+                .map(|&i| extents[proposals[i].record.long_axis()])
+                .fold(f64::NEG_INFINITY, f64::max);
+            let supported: Vec<_> = tied
+                .iter()
+                .copied()
+                .filter(|&i| {
+                    (extents[proposals[i].record.long_axis()] - reach).abs()
+                        <= crate::kernel::geom::COORD_FLOOR
+                })
+                .collect();
+            let selected = &proposals[supported[0]];
+            if supported
+                .iter()
+                .any(|&i| !selected.record.same_roles(&proposals[i].record))
+            {
+                continue;
+            }
+            selected
+        } else {
+            best
+        };
+        let refs: Vec<_> = members.iter().map(|&i| &proposals[i]).collect();
+        out.push(combine(best.record.clone(), &refs));
     }
-    kept
+    out.sort_by(|a, b| width_then_centre(&a.record, &b.record));
+    out
+}
+
+/// Two square readings may describe one box, but their directional role still needs a
+/// geometric body-relative proof before either can be published.
+fn equivalent_roles<R: Recess>(a: &R, b: &R) -> bool {
+    if a.same_roles(b) {
+        return true;
+    }
+    let close = |a: f64, b: f64| (a - b).abs() <= crate::kernel::geom::COORD_FLOOR;
+    a.depth_axis() == b.depth_axis()
+        && a.same_opening(b)
+        && close(a.width(), a.hi() - a.lo())
+        && close(b.width(), b.hi() - b.lo())
+        && close(a.d_lo(), b.d_lo())
+        && close(a.d_hi(), b.d_hi())
+        && py::dist(&a.region_center(), &b.region_center()) <= crate::kernel::geom::COORD_FLOOR
 }
 
 /// The gap between two collinear arms of one channel (same width axis, centreline, width and
@@ -260,6 +363,90 @@ mod tests {
             let b = slot(-noise, 20.0);
             assert_eq!(width_then_centre(&a, &b), Ordering::Less);
             assert_eq!(width_then_centre(&b, &a), Ordering::Greater);
+        }
+    }
+}
+
+#[cfg(test)]
+mod role_motion_tests {
+    use super::*;
+    #[test]
+    fn equal_width_crossing_boxes_refuse_after_motion_and_proposal_permutation() {
+        for [x, y, z] in [
+            [0, 1, 2],
+            [1, 0, 2],
+            [2, 1, 0],
+            [0, 2, 1],
+            [1, 2, 0],
+            [2, 0, 1],
+        ] {
+            for shift in [0., 123.456] {
+                let slot = |w, l| Slot {
+                    width_axis: ['x', 'y', 'z'][w],
+                    long_axis: ['x', 'y', 'z'][l],
+                    width: 2.,
+                    length: 6.,
+                    w_center: shift,
+                    lo: shift - 3.,
+                    hi: shift + 3.,
+                    d_lo: shift - 1.,
+                    d_hi: shift + 1.,
+                    body_key: None,
+                    end_radius: None,
+                    corner_radius: None,
+                };
+                let mut proposals = vec![Proposal::new(slot(x, y)), Proposal::new(slot(y, x))];
+                // Two equal 2x6 arms of a plus-shaped void have no unique single-box record.
+                proposals[0].planar = BTreeSet::from([9, 10]);
+                proposals[1].planar = BTreeSet::from([1, 2]);
+                assert!(merge_proposals(proposals.clone()).is_empty(), "depth {z}");
+                proposals.reverse();
+                assert!(merge_proposals(proposals).is_empty());
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod depth_tie_tests {
+    use super::*;
+    #[test]
+    fn equal_width_roles_choose_the_unique_shallow_depth_after_motion_and_permutation() {
+        for [x, y, z] in [
+            [0, 1, 2],
+            [1, 0, 2],
+            [2, 1, 0],
+            [0, 2, 1],
+            [1, 2, 0],
+            [2, 0, 1],
+        ] {
+            for shift in [0., 123.456] {
+                let slot = |w, l, run, depth| Slot {
+                    width_axis: ['x', 'y', 'z'][w],
+                    long_axis: ['x', 'y', 'z'][l],
+                    width: 2.,
+                    length: run,
+                    w_center: shift,
+                    lo: shift - run / 2.,
+                    hi: shift + run / 2.,
+                    d_lo: shift - depth / 2.,
+                    d_hi: shift + depth / 2.,
+                    body_key: None,
+                    end_radius: None,
+                    corner_radius: None,
+                };
+                let mut proposals = vec![
+                    Proposal::new(slot(x, y, 2., 6.)),
+                    Proposal::new(slot(y, z, 6., 1.)),
+                ];
+                for _ in 0..2 {
+                    let result = merge_proposals(proposals.clone());
+                    assert_eq!(result.len(), 1);
+                    assert_eq!(result[0].record.depth_axis(), x);
+                    assert_eq!(result[0].record.d_hi - result[0].record.d_lo, 1.);
+                    proposals.reverse();
+                }
+            }
         }
     }
 }

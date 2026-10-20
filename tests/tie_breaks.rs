@@ -63,6 +63,22 @@ fn equal_mouths_choose_by_inward_geometry_under_motion() {
 }
 
 #[test]
+fn symmetric_square_pocket_refuses_a_semantic_run_axis() {
+    let path = common::fixtures().join("ties/square_pocket.step");
+    // Principal-axis motions preserve this family's explicit axis-letter contract.
+    for at in motions().into_iter().filter(|p| {
+        p.iter()
+            .flatten()
+            .all(|v| v.abs() < 1e-12 || (v.abs() - 1.).abs() < 1e-12)
+            || *p == motions()[1]
+    }) {
+        let part = read_step_file_placed(&path, &at).unwrap();
+        let found = features::pockets::discover(&Context::new(&part));
+        assert!(found.is_empty(), "{at:?}: {found:?}");
+    }
+}
+
+#[test]
 fn contradictory_equal_distance_end_supports_report_unknown_under_motion() {
     use features::cylinders::Segment;
     use features::stacks::{End, classify_end};
@@ -177,6 +193,51 @@ fn a_symmetric_internal_relief_keeps_its_undirected_through_bore_under_motion() 
         let mut got = found[0].defining.clone();
         got.sort_unstable();
         assert_eq!(faces.get_or_insert_with(|| got.clone()), &got);
+    }
+}
+
+#[test]
+fn a_square_recess_needs_a_covariant_body_relative_run_for_correspondence() {
+    let Some(dir) = common::corpus_dir() else {
+        return;
+    };
+    let path = dir.join("mfcadpp/10049.step");
+    let read = |at: &Placement| {
+        let part = read_step_file_placed(&path, at).unwrap();
+        let found = features::recognise(&part);
+        quiddity::correspondence::fingerprint(&part, &found)
+            .features
+            .into_iter()
+            .filter(|f| f.family == "pockets")
+            .map(|f| (f.faces, (f.axis.unwrap(), f.sizes)))
+            .collect::<std::collections::BTreeMap<_, _>>()
+    };
+    let baseline = read(&IDENTITY);
+    assert_eq!(baseline.len(), 3);
+    for at in [
+        motions()[1],
+        motions()[4],
+        motions()[5],
+        [
+            [0., 0., 1., 123.456],
+            [1., 0., 0., -78.9],
+            [0., 1., 0., 41.3],
+        ],
+    ] {
+        let moved = read(&at);
+        assert_eq!(
+            baseline.keys().collect::<Vec<_>>(),
+            moved.keys().collect::<Vec<_>>()
+        );
+        for (faces, (axis, sizes)) in &baseline {
+            let expected = [0, 1, 2].map(|i| (0..3).map(|j| at[i][j] * axis[j]).sum::<f64>());
+            let (actual, got_sizes) = &moved[faces];
+            assert!(
+                (quiddity::kernel::py::dot(&expected, actual).abs() - 1.).abs() < 1e-9,
+                "{at:?} {faces:?}"
+            );
+            assert_eq!(sizes, got_sizes);
+        }
     }
 }
 

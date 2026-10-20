@@ -81,6 +81,14 @@ pub struct Channel {
 
 /// What the shared reductions read and rewrite of a slot or pocket.
 pub trait Recess: Clone + PartialEq {
+    /// Whether two readings share their directed opening (slots have no directed opening).
+    fn same_opening(&self, _other: &Self) -> bool {
+        true
+    }
+    /// Whether two equal-width readings assign the same physical width, run and opening.
+    fn same_roles(&self, other: &Self) -> bool {
+        self.width_axis() == other.width_axis() && self.long_axis() == other.long_axis()
+    }
     fn width_axis(&self) -> usize;
     fn long_axis(&self) -> usize;
     fn width(&self) -> f64;
@@ -113,7 +121,7 @@ pub trait Recess: Clone + PartialEq {
 }
 
 macro_rules! recess {
-    ($record:ty, $anchored:expr) => {
+    ($record:ty, $anchored:expr, $sign:expr) => {
         impl $record {
             /// Publish positions only after reductions have measured the raw spans.
             pub(crate) fn published(mut self) -> Self {
@@ -126,6 +134,14 @@ macro_rules! recess {
             }
         }
         impl Recess for $record {
+            fn same_opening(&self, other: &Self) -> bool {
+                ($sign)(self) == ($sign)(other)
+            }
+            fn same_roles(&self, other: &Self) -> bool {
+                self.width_axis == other.width_axis
+                    && self.long_axis == other.long_axis
+                    && ($sign)(self) == ($sign)(other)
+            }
             fn width_axis(&self) -> usize {
                 axis_index(self.width_axis)
             }
@@ -174,5 +190,6 @@ macro_rules! recess {
     };
 }
 
-recess!(Slot, |_: &Slot| false);
-recess!(Pocket, |p: &Pocket| p.edge_anchored);
+recess!(Slot, |_: &Slot| false, |_: &Slot| 0);
+recess!(Pocket, |p: &Pocket| p.edge_anchored, |p: &Pocket| p
+    .open_sign);
