@@ -336,11 +336,16 @@ fn note_texture(n: &Note) -> Option<SurfaceTexture> {
         return None;
     }
     let mut value = words.next()?.to_string();
-    if !value.contains('.') && !value.contains(['e', 'E']) {
-        value.push('.');
+    if !value.contains('.') {
+        if let Some(at) = value.find(['e', 'E']) {
+            value.insert(at, '.');
+        } else {
+            value.push('.');
+        }
     }
+    value.make_ascii_uppercase();
     let value = Decimal::parse(&value).ok()?;
-    if value.to_f64() <= 0. {
+    if value.to_f64() <= 0. || real(&value).is_err() {
         return None;
     }
     // ISO 1302's unqualified Ra value is in micrometres and uses the basic symbol.
@@ -365,7 +370,7 @@ fn migration_reason(n: &Note) -> &'static str {
     if note_texture(n).is_some() {
         "surface texture (ISO 10303-1110): complete roughness value, ISO 1302 basic symbol"
     } else {
-        "semantic text (§7.4): preserve complete wording; semantic parameters or scope are not fully stated"
+        "semantic text (§7.4): complete wording retained; a complete supported semantic parameter set and scope cannot be emitted"
     }
 }
 
@@ -452,7 +457,40 @@ pub fn write(
     let mut plans = Vec::new();
     for (p, part_pmi) in &order {
         let plan = PartPlan::new(doc, &parts[p.0], *p, part_pmi, &read, mode)?;
-        refusals.extend(plan.refusals.iter().cloned());
+        let original = &pmi
+            .iter()
+            .find(|(id, _)| id == p)
+            .expect("part is from the input")
+            .1;
+        refusals.extend(plan.refusals.iter().cloned().map(|mut refusal| {
+            // Plans use the standard form, but public item indices name the caller's input.
+            refusal.item = match refusal.item {
+                ItemRef::Attribute(i) if i >= original.attributes.len() => ItemRef::Note(
+                    original
+                        .notes
+                        .iter()
+                        .enumerate()
+                        .filter(|(_, n)| note_texture(n).is_none())
+                        .nth(i - original.attributes.len())
+                        .expect("migrated attribute belongs to a note")
+                        .0,
+                ),
+                ItemRef::SurfaceTexture(i) if i >= original.surface_textures.len() => {
+                    ItemRef::Note(
+                        original
+                            .notes
+                            .iter()
+                            .enumerate()
+                            .filter(|(_, n)| note_texture(n).is_some())
+                            .nth(i - original.surface_textures.len())
+                            .expect("migrated texture belongs to a note")
+                            .0,
+                    )
+                }
+                item => item,
+            };
+            refusal
+        }));
         plans.push(plan);
     }
     if !refusals.is_empty() {

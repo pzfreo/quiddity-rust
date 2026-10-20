@@ -4345,3 +4345,57 @@ fn tolerance_table_counts_are_numbers_and_values_keep_qualifiers() {
             .any(|&id| w.text(id).contains("COUNT_MEASURE(3)"))
     );
 }
+
+#[test]
+fn a_refused_migrated_note_names_the_original_input_item() {
+    let p = PartPmi {
+        features: vec![faces(&[0])],
+        datum_targets: vec![
+            DatumTarget::new(1, TargetShape::Area(FeatureId(0)), None, None, None).unwrap(),
+        ],
+        datums: vec![Datum::new(label("A"), None, vec![DatumTargetId(0)]).unwrap()],
+        notes: vec![Note {
+            kind: "target note".into(),
+            text: "Keep this target clean.".into(),
+            on: Some(NoteOwner::DatumTarget(DatumTargetId(0))),
+            callouts: Vec::new(),
+        }],
+        ..PartPmi::default()
+    };
+    let Err(WriteError::Refused(refusals)) = write(&gap_spool(), &[(PartId(0), p)], Mode::Replace)
+    else {
+        panic!("the target conflict must be refused");
+    };
+    assert!(refusals.iter().any(|r| r.item == ItemRef::Note(0)));
+    assert!(
+        !refusals
+            .iter()
+            .any(|r| matches!(r.item, ItemRef::Attribute(_) | ItemRef::SurfaceTexture(_)))
+    );
+}
+
+#[test]
+fn legacy_finish_numbers_migrate_without_refusing_the_note() {
+    for (text, textures) in [("Ra 3e0 µm", 1), ("Ra 1e9999 µm", 0)] {
+        let p = PartPmi {
+            features: vec![faces(&[0])],
+            notes: vec![Note {
+                kind: "surface finish".into(),
+                text: text.into(),
+                on: Some(NoteOwner::Feature(FeatureId(0))),
+                callouts: Vec::new(),
+            }],
+            ..PartPmi::default()
+        };
+        let w = written(&gap_spool(), &p);
+        assert_eq!(w.read.parts[0].surface_textures.len(), textures);
+        assert_eq!(w.report.note_migrations.len(), 1);
+        if textures == 0 {
+            assert!(w.read.parts[0].attributes.iter().any(|a| {
+                a.items
+                    .iter()
+                    .any(|(_, v)| *v == AttributeValue::Text(text.into()))
+            }));
+        }
+    }
+}
