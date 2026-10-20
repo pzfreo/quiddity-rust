@@ -55,7 +55,7 @@
      158
     ]
    ],
-   "reason": "Not a reconciliation difference: the same through hole's candidate defining faces differ with its drilling end. Python drills this Ø22 hole from the Ø102 end (it takes whichever segment comes first in face order at the Ø110 end, where the bore and the Ø110 segment end level), its counterbore the Ø102 one; the port drills from the wider Ø110 end, as Python's own rule says and as Python does with the part turned over, so the segments each side claims with the bore differ. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes axis/cbore entry in known_divergences.json (rust-correct).",
+   "reason": "Not a reconciliation difference: the same through hole's candidate defining faces differ with its drilling end. Python drills this \u00d822 hole from the \u00d8102 end (it takes whichever segment comes first in face order at the \u00d8110 end, where the bore and the \u00d8110 segment end level), its counterbore the \u00d8102 one; the port drills from the wider \u00d8110 end, as Python's own rule says and as Python does with the part turned over, so the segments each side claims with the bore differ. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes axis/cbore entry in known_divergences.json (rust-correct).",
    "rust": [
     [
      156,
@@ -89,7 +89,7 @@
      232
     ]
    ],
-   "reason": "Not a reconciliation difference: the same hole's candidate defining faces differ. Python's hole claims the Ø61.62 cylinder 0.47 mm inside the mouth it calls a spotface (with its faces) because it orders segments by their high end in either drilling direction; the port orders by the end nearest the opening, finds no spotface and claims the bore alone. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes spotface entry in known_divergences.json (rust-correct).",
+   "reason": "Not a reconciliation difference: the same hole's candidate defining faces differ. Python's hole claims the \u00d861.62 cylinder 0.47 mm inside the mouth it calls a spotface (with its faces) because it orders segments by their high end in either drilling direction; the port orders by the end nearest the opening, finds no spotface and claims the bore alone. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes spotface entry in known_divergences.json (rust-correct).",
    "rust": [
     [
      133,
@@ -293,9 +293,22 @@
      147
     ]
    ],
-   "rust": [],
+   "rust": [
+    [
+     146
+    ],
+    [
+     147
+    ],
+    [
+     148
+    ],
+    [
+     149
+    ]
+   ],
    "verdict": "rust-correct",
-   "reason": "ADR 0011: refuse the four genuinely symmetric double mouths instead of attributing one side by support sign or high coordinate. Native OpenCascade gives equal diameter-10, length-10 mouths at both ends of diameter-7, length-55 bores. The symmetric double-mouth motion fixture proves refusal. Python still accepts four one-sided readings; their dependent pattern is unsupported too. Historical explanation: These four symmetric double-counterbored holes retain the same bore and both mouth segments. Equal-diameter ends now choose the source cylinder support direction, which moves with the part, instead of world-high. Their opening/bore face pairs therefore use the other equally wide end consistently. tests/invariance.rs verifies NIST FTC 10 under placement; the rust-correct holes entry in known_divergences.json records the complete dimensional and pattern evidence."
+   "reason": "All 30 holes and seven patterns remain accepted. Four symmetric diameter-7 length-55 through bores have equal diameter-10 length-10 mouths at both ends (independent OpenCascade). Their one-sided counterbore attribution is unproved, so Rust claims the bore faces [146],[147],[148],[149] and retains an end gauge, while Python arbitrarily claims one mouth as well. The symmetric-double-mouth motion control checks that the feature is retained."
   }
  ],
  "decisions": [

@@ -56,7 +56,9 @@ pub enum Bottom {
 /// A drilled hole: `axis` points from the opening into the hole, `location` is the axis point at
 /// the opening; `diameter`/`depth` describe the bore (the narrowest segment), with `depth` from
 /// the top of the bore to the hole's deep end. `bottom` is `"through"`, `"flat"`,
-/// `"drill_point"` or `"unknown"`.
+/// `"drill_point"` or `"unknown"`. For interchangeable mouths, axis/location are a
+/// presentation end gauge on the bore itself; the bore is retained, and unproved one-sided
+/// counterbore/spotface attribution is absent. No material drilling-entry end is asserted.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct HoleRecord {
     pub axis: V3,

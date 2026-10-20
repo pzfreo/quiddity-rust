@@ -3693,7 +3693,7 @@
       "python": 0,
       "rust": 1,
       "verdict": "rust-correct",
-      "reason": "Resolved by refusing the arbitrary one-sided reading of four genuinely symmetric double mouths: native OpenCascade establishes equal diameter-10, length-10 mouths and a diameter-7, length-55 bore. Their unsupported derived hole pattern also disappears. The symmetric STEP motion test pins the refusal. This exact historical discrepancy must remain absent. Historical observation: Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed.",
+      "reason": "Historical one-sided face attribution is resolved: the four symmetric double-counterbored holes retain their diameter-7, length-55 bores and their seventh pattern, without selecting either equal diameter-10, length-10 mouth. OpenCascade measurements establish these equal mouths. The old asymmetric defining-face set is absent; tests/tie_breaks.rs verifies bore retention under rigid motions. Historical observation: Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed.",
       "resolved": true
     },
     {
@@ -3713,7 +3713,7 @@
       "python": 1,
       "rust": 0,
       "verdict": "rust-correct",
-      "reason": "Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed."
+      "reason": "The four diameter-7 length-55 through bores and their seventh pattern are retained. Independent OpenCascade measures equal diameter-10 length-10 mouths at z=+-27.5..37.5. No end is a material drilling-entry preference; Rust omits one-sided counterbore attribution and claims only the bore face(s) [146..149]. Python includes one arbitrarily selected mouth in each defining set shown here. Thus this exact one-sided face set is absent, not its underlying bore or pattern. tests/tie_breaks.rs checks 30 holes/seven patterns and symmetric bore retention under motion."
     },
     {
       "defining": [
@@ -3726,7 +3726,7 @@
       "python": 0,
       "rust": 1,
       "verdict": "rust-correct",
-      "reason": "Resolved by refusing the arbitrary one-sided reading of four genuinely symmetric double mouths: native OpenCascade establishes equal diameter-10, length-10 mouths and a diameter-7, length-55 bore. Their unsupported derived hole pattern also disappears. The symmetric STEP motion test pins the refusal. This exact historical discrepancy must remain absent. Historical observation: Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed.",
+      "reason": "Historical one-sided face attribution is resolved: the four symmetric double-counterbored holes retain their diameter-7, length-55 bores and their seventh pattern, without selecting either equal diameter-10, length-10 mouth. OpenCascade measurements establish these equal mouths. The old asymmetric defining-face set is absent; tests/tie_breaks.rs verifies bore retention under rigid motions. Historical observation: Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed.",
       "resolved": true
     },
     {
@@ -3740,7 +3740,7 @@
       "python": 0,
       "rust": 1,
       "verdict": "rust-correct",
-      "reason": "Resolved by refusing the arbitrary one-sided reading of four genuinely symmetric double mouths: native OpenCascade establishes equal diameter-10, length-10 mouths and a diameter-7, length-55 bore. Their unsupported derived hole pattern also disappears. The symmetric STEP motion test pins the refusal. This exact historical discrepancy must remain absent. Historical observation: Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed.",
+      "reason": "Historical one-sided face attribution is resolved: the four symmetric double-counterbored holes retain their diameter-7, length-55 bores and their seventh pattern, without selecting either equal diameter-10, length-10 mouth. OpenCascade measurements establish these equal mouths. The old asymmetric defining-face set is absent; tests/tie_breaks.rs verifies bore retention under rigid motions. Historical observation: Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed.",
       "resolved": true
     },
     {
@@ -3754,7 +3754,7 @@
       "python": 0,
       "rust": 1,
       "verdict": "rust-correct",
-      "reason": "Resolved by refusing the arbitrary one-sided reading of four genuinely symmetric double mouths: native OpenCascade establishes equal diameter-10, length-10 mouths and a diameter-7, length-55 bore. Their unsupported derived hole pattern also disappears. The symmetric STEP motion test pins the refusal. This exact historical discrepancy must remain absent. Historical observation: Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed.",
+      "reason": "Historical one-sided face attribution is resolved: the four symmetric double-counterbored holes retain their diameter-7, length-55 bores and their seventh pattern, without selecting either equal diameter-10, length-10 mouth. OpenCascade measurements establish these equal mouths. The old asymmetric defining-face set is absent; tests/tie_breaks.rs verifies bore retention under rigid motions. Historical observation: Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed.",
       "resolved": true
     },
     {
@@ -3768,7 +3768,7 @@
       "python": 0,
       "rust": 1,
       "verdict": "rust-correct",
-      "reason": "Resolved by refusing the arbitrary one-sided reading of four genuinely symmetric double mouths: native OpenCascade establishes equal diameter-10, length-10 mouths and a diameter-7, length-55 bore. Their unsupported derived hole pattern also disappears. The symmetric STEP motion test pins the refusal. This exact historical discrepancy must remain absent. Historical observation: Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed.",
+      "reason": "Historical one-sided face attribution is resolved: the four symmetric double-counterbored holes retain their diameter-7, length-55 bores and their seventh pattern, without selecting either equal diameter-10, length-10 mouth. OpenCascade measurements establish these equal mouths. The old asymmetric defining-face set is absent; tests/tie_breaks.rs verifies bore retention under rigid motions. Historical observation: Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed.",
       "resolved": true
     },
     {
@@ -3782,7 +3782,7 @@
       "python": 1,
       "rust": 0,
       "verdict": "rust-correct",
-      "reason": "Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed."
+      "reason": "The four diameter-7 length-55 through bores and their seventh pattern are retained. Independent OpenCascade measures equal diameter-10 length-10 mouths at z=+-27.5..37.5. No end is a material drilling-entry preference; Rust omits one-sided counterbore attribution and claims only the bore face(s) [146..149]. Python includes one arbitrarily selected mouth in each defining set shown here. Thus this exact one-sided face set is absent, not its underlying bore or pattern. tests/tie_breaks.rs checks 30 holes/seven patterns and symmetric bore retention under motion."
     },
     {
       "defining": [
@@ -3795,7 +3795,7 @@
       "python": 1,
       "rust": 0,
       "verdict": "rust-correct",
-      "reason": "Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed."
+      "reason": "The four diameter-7 length-55 through bores and their seventh pattern are retained. Independent OpenCascade measures equal diameter-10 length-10 mouths at z=+-27.5..37.5. No end is a material drilling-entry preference; Rust omits one-sided counterbore attribution and claims only the bore face(s) [146..149]. Python includes one arbitrarily selected mouth in each defining set shown here. Thus this exact one-sided face set is absent, not its underlying bore or pattern. tests/tie_breaks.rs checks 30 holes/seven patterns and symmetric bore retention under motion."
     },
     {
       "defining": [
@@ -3808,7 +3808,7 @@
       "python": 1,
       "rust": 0,
       "verdict": "rust-correct",
-      "reason": "Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed."
+      "reason": "The four diameter-7 length-55 through bores and their seventh pattern are retained. Independent OpenCascade measures equal diameter-10 length-10 mouths at z=+-27.5..37.5. No end is a material drilling-entry preference; Rust omits one-sided counterbore attribution and claims only the bore face(s) [146..149]. Python includes one arbitrarily selected mouth in each defining set shown here. Thus this exact one-sided face set is absent, not its underlying bore or pattern. tests/tie_breaks.rs checks 30 holes/seven patterns and symmetric bore retention under motion."
     },
     {
       "defining": [
@@ -3821,7 +3821,7 @@
       "python": 1,
       "rust": 0,
       "verdict": "rust-correct",
-      "reason": "Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed."
+      "reason": "The four diameter-7 length-55 through bores and their seventh pattern are retained. Independent OpenCascade measures equal diameter-10 length-10 mouths at z=+-27.5..37.5. No end is a material drilling-entry preference; Rust omits one-sided counterbore attribution and claims only the bore face(s) [146..149]. Python includes one arbitrarily selected mouth in each defining set shown here. Thus this exact one-sided face set is absent, not its underlying bore or pattern. tests/tie_breaks.rs checks 30 holes/seven patterns and symmetric bore retention under motion."
     },
     {
       "defining": [
@@ -10197,6 +10197,69 @@
       ],
       "verdict": "rust-correct",
       "reason": "ADR 0011: boss base/free roles use the body-relative boundary-area origin instead of the high-coordinate default when end states tie; unresolved zero moments refuse. OpenCascade SurfaceProperties independently measures the affected body centroids, including NIST CTC05 z=81.033851262454 versus segment midpoint z=12.7. Free-end constituent/host evidence follows this physical end. NIST CTC05 is tested under Z30/X30/X90/translation/reversal. Equally proved end supports are retained together; rejected candidate outcomes remain rejected."
+    },
+    {
+      "defining": [
+        146,
+        147,
+        148,
+        149
+      ],
+      "family": "hole_patterns",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "Independent OpenCascade measures equal diameter-10 length-10 mouths on both ends of each diameter-7 length-55 through bore. Rust retains all 30 holes and seven patterns, and these bore-only defining sets, while omitting unproved one-sided mouth attribution. Python includes one arbitrary mouth instead. The symmetric fixture and FTC10 count control verify retention and motion invariance."
+    },
+    {
+      "defining": [
+        146
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "Independent OpenCascade measures equal diameter-10 length-10 mouths on both ends of each diameter-7 length-55 through bore. Rust retains all 30 holes and seven patterns, and these bore-only defining sets, while omitting unproved one-sided mouth attribution. Python includes one arbitrary mouth instead. The symmetric fixture and FTC10 count control verify retention and motion invariance."
+    },
+    {
+      "defining": [
+        147
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "Independent OpenCascade measures equal diameter-10 length-10 mouths on both ends of each diameter-7 length-55 through bore. Rust retains all 30 holes and seven patterns, and these bore-only defining sets, while omitting unproved one-sided mouth attribution. Python includes one arbitrary mouth instead. The symmetric fixture and FTC10 count control verify retention and motion invariance."
+    },
+    {
+      "defining": [
+        148
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "Independent OpenCascade measures equal diameter-10 length-10 mouths on both ends of each diameter-7 length-55 through bore. Rust retains all 30 holes and seven patterns, and these bore-only defining sets, while omitting unproved one-sided mouth attribution. Python includes one arbitrary mouth instead. The symmetric fixture and FTC10 count control verify retention and motion invariance."
+    },
+    {
+      "defining": [
+        149
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "Independent OpenCascade measures equal diameter-10 length-10 mouths on both ends of each diameter-7 length-55 through bore. Rust retains all 30 holes and seven patterns, and these bore-only defining sets, while omitting unproved one-sided mouth attribution. Python includes one arbitrary mouth instead. The symmetric fixture and FTC10 count control verify retention and motion invariance."
     }
   ],
   "motions": [
@@ -10388,7 +10451,7 @@
           ]
         ]
       },
-      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment refuses. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.033851262454 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment retains the boss with a presentation end gauge. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.1297156159733 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
       "rust": {
         "constituent": [
           0,
@@ -10405,7 +10468,7 @@
           ]
         ]
       },
-      "verdict": "rust-correct",
+      "verdict": "rust-wrong",
       "resolved": true
     },
     {
@@ -10435,7 +10498,7 @@
           ]
         ]
       },
-      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment refuses. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.033851262454 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment retains the boss with a presentation end gauge. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.1297156159733 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
       "rust": {
         "constituent": [
           1,
@@ -10454,7 +10517,7 @@
           ]
         ]
       },
-      "verdict": "rust-correct",
+      "verdict": "rust-wrong",
       "resolved": true
     },
     {
@@ -10480,7 +10543,7 @@
           ]
         ]
       },
-      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment refuses. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.033851262454 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment retains the boss with a presentation end gauge. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.1297156159733 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
       "rust": {
         "constituent": [
           163,
@@ -10497,7 +10560,7 @@
           ]
         ]
       },
-      "verdict": "rust-correct",
+      "verdict": "rust-wrong",
       "resolved": true
     },
     {
@@ -10535,7 +10598,7 @@
         213,
         215
       ],
-      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment refuses. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.033851262454 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment retains the boss with a presentation end gauge. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.1297156159733 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
       "rust": [
         169,
         173,
@@ -10550,7 +10613,7 @@
         209,
         213
       ],
-      "verdict": "rust-correct",
+      "verdict": "rust-wrong",
       "resolved": true
     },
     {
@@ -10574,11 +10637,11 @@
       "list": "features",
       "motion": "rot_y180",
       "moved": [],
-      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment refuses. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.033851262454 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment retains the boss with a presentation end gauge. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.1297156159733 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
       "rust": [
         215
       ],
-      "verdict": "rust-correct",
+      "verdict": "rust-wrong",
       "resolved": true
     },
     {
@@ -10593,11 +10656,11 @@
       "moved": [
         215
       ],
-      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment refuses. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.033851262454 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment retains the boss with a presentation end gauge. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.1297156159733 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
       "rust": [
         266
       ],
-      "verdict": "rust-correct",
+      "verdict": "rust-wrong",
       "resolved": true
     },
     {
@@ -10657,7 +10720,7 @@
           ]
         ]
       },
-      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment refuses. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.033851262454 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment retains the boss with a presentation end gauge. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.1297156159733 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
       "rust": {
         "constituent": [
           218,
@@ -10696,7 +10759,7 @@
           ]
         ]
       },
-      "verdict": "rust-correct",
+      "verdict": "rust-wrong",
       "resolved": true
     },
     {
@@ -10712,12 +10775,12 @@
         21,
         22
       ],
-      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment refuses. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.033851262454 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment retains the boss with a presentation end gauge. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.1297156159733 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
       "rust": [
         11,
         21
       ],
-      "verdict": "rust-correct",
+      "verdict": "rust-wrong",
       "resolved": true
     },
     {
@@ -10732,11 +10795,11 @@
       "moved": [
         11
       ],
-      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment refuses. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.033851262454 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment retains the boss with a presentation end gauge. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.1297156159733 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
       "rust": [
         22
       ],
-      "verdict": "rust-correct",
+      "verdict": "rust-wrong",
       "resolved": true
     },
     {
@@ -10796,7 +10859,7 @@
           ]
         ]
       },
-      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment refuses. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.033851262454 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment retains the boss with a presentation end gauge. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.1297156159733 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
       "rust": {
         "constituent": [
           266,
@@ -10835,7 +10898,7 @@
           ]
         ]
       },
-      "verdict": "rust-correct",
+      "verdict": "rust-wrong",
       "resolved": true
     },
     {
@@ -10871,7 +10934,7 @@
           ]
         ]
       },
-      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment refuses. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.033851262454 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment retains the boss with a presentation end gauge. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.1297156159733 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
       "rust": {
         "constituent": [
           309,
@@ -10894,7 +10957,7 @@
           ]
         ]
       },
-      "verdict": "rust-correct",
+      "verdict": "rust-wrong",
       "resolved": true
     },
     {
@@ -10910,12 +10973,12 @@
         33,
         34
       ],
-      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment refuses. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.033851262454 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment retains the boss with a presentation end gauge. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.1297156159733 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
       "rust": [
         11,
         33
       ],
-      "verdict": "rust-correct",
+      "verdict": "rust-wrong",
       "resolved": true
     },
     {
@@ -10930,11 +10993,11 @@
       "moved": [
         11
       ],
-      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment refuses. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.033851262454 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment retains the boss with a presentation end gauge. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.1297156159733 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
       "rust": [
         34
       ],
-      "verdict": "rust-correct",
+      "verdict": "rust-wrong",
       "resolved": true
     },
     {
@@ -10950,12 +11013,12 @@
         35,
         36
       ],
-      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment refuses. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.033851262454 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment retains the boss with a presentation end gauge. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.1297156159733 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
       "rust": [
         11,
         35
       ],
-      "verdict": "rust-correct",
+      "verdict": "rust-wrong",
       "resolved": true
     },
     {
@@ -10970,11 +11033,11 @@
       "moved": [
         11
       ],
-      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment refuses. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.033851262454 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment retains the boss with a presentation end gauge. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.1297156159733 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
       "rust": [
         36
       ],
-      "verdict": "rust-correct",
+      "verdict": "rust-wrong",
       "resolved": true
     },
     {
@@ -10990,12 +11053,12 @@
         37,
         38
       ],
-      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment refuses. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.033851262454 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment retains the boss with a presentation end gauge. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.1297156159733 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
       "rust": [
         11,
         37
       ],
-      "verdict": "rust-correct",
+      "verdict": "rust-wrong",
       "resolved": true
     },
     {
@@ -11010,11 +11073,11 @@
       "moved": [
         11
       ],
-      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment refuses. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.033851262454 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
+      "reason": "Resolved by the intrinsic boss free-end rule: a unique open end, otherwise the axial boundary-area moment of the owning body, establishes the direction; a zero moment retains the boss with a presentation end gauge. The former high-coordinate fallback is gone. Tests verify physical endpoints and context under Z30/X30/X90/translation/reversal on NIST CTC05; OpenCascade independently gives its body centroid z=81.1297156159733 against segment midpoint z=12.7. This historical discrepancy must remain absent; the resolved entry is an absence ratchet, not a permitted difference. Historical observation: A boss whose two ends classify alike (both open or both closed) takes its free end at the high end of its axis in world space (bosses.rs `from_hi`, as Python's bosses.py: \"default to the high end when both or neither are open\"), so turning the part over takes the other end: the free-end faces held as constituent evidence (and so the planar host just outside them) move to the other end, and the record's axis and location flip with them. The defining faces are the same (tests/invariance.rs compares only those). Needs a specification decision (an intrinsic choice of free end); Python behaves the same.",
       "rust": [
         38
       ],
-      "verdict": "rust-correct",
+      "verdict": "rust-wrong",
       "resolved": true
     }
   ]

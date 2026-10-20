@@ -1045,14 +1045,6 @@
     "reason": "All 8 faces: the port's latitude range is the face's edges' (within 1e-14, sampled densely and projected); OpenCascade's overshoots by 6.0e-4, the control polygon of a pcurve it builds on import."
   },
   {
-    "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "family": "recognise_hole_patterns",
-    "key": "{\"csinks\":\"auto\"} records: 6 vs 7 records, fields {}",
-    "count": 1,
-    "verdict": "rust-correct",
-    "reason": "ADR 0011 supersedes the previous lowest-face cylinder-parametrisation rationale. OpenCascade independently measures all four NIST stacks as two equal diameter-10, length-10 mouths with a diameter-7, length-55 bore. Their inward profiles tie, so a one-counterbore directional record cannot assign one land by sign or face index; Rust refuses these four ambiguous records and consequently their derived four-hole array. This same entry retains the previous independent pcurve/true-edge opening-location difference on the remaining diameter-2.5 holes; no numeric tolerance or measurement expectation was weakened. Symmetric and unequal-depth mouth controls run under rigid motion."
-  },
-  {
     "file": "ttt_inputs/sm-hanger.step",
     "family": "recognise_sheet_metal_bodies",
     "key": "{} records: 1 vs 1 records, fields {\"flat_pattern\"}",
@@ -1219,22 +1211,6 @@
     "key": "{} records: 4 vs 4 records, fields {\"length\"}",
     "verdict": "rust-correct",
     "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band."
-  },
-  {
-    "count": 1,
-    "family": "recognise_holes",
-    "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "key": "{\"csinks\":\"auto\"} records: 26 vs 30 records, fields {}",
-    "verdict": "rust-correct",
-    "reason": "ADR 0011 supersedes the previous lowest-face cylinder-parametrisation rationale. OpenCascade independently measures all four NIST stacks as two equal diameter-10, length-10 mouths with a diameter-7, length-55 bore. Their inward profiles tie, so a one-counterbore directional record cannot assign one land by sign or face index; Rust refuses these four ambiguous records and consequently their derived four-hole array. This same entry retains the previous independent pcurve/true-edge opening-location difference on the remaining diameter-2.5 holes; no numeric tolerance or measurement expectation was weakened. Symmetric and unequal-depth mouth controls run under rigid motion."
-  },
-  {
-    "count": 1,
-    "family": "recognise_holes",
-    "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "key": "{} records: 26 vs 30 records, fields {}",
-    "verdict": "rust-correct",
-    "reason": "ADR 0011 supersedes the previous lowest-face cylinder-parametrisation rationale. OpenCascade independently measures all four NIST stacks as two equal diameter-10, length-10 mouths with a diameter-7, length-55 bore. Their inward profiles tie, so a one-counterbore directional record cannot assign one land by sign or face index; Rust refuses these four ambiguous records and consequently their derived four-hole array. This same entry retains the previous independent pcurve/true-edge opening-location difference on the remaining diameter-2.5 holes; no numeric tolerance or measurement expectation was weakened. Symmetric and unequal-depth mouth controls run under rigid motion."
   },
   {
     "count": 1,
@@ -1498,7 +1474,7 @@
     "file": "mfcadpp_holdout/265.step",
     "key": "{} records: 3 vs 3 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
     "verdict": "rust-correct",
-    "reason": "ADR 0011 and motion-correspondence evidence: long_axis is semantic, so the in-plane square role must be established by the solid's unequal transverse envelope, rather than XYZ or face index. Rust selects the unique longer body-relative transverse run and retains the union of all supporting walls; otherwise it refuses. tests/tie_breaks.rs pins a symmetric refusal and verifies fingerprints (including their actual axes and sizes) after translation, X90, Y180 and the formerly failing axis-cycle move. Only the axis/coordinate-label part of this difference is changed; existing independently established raw-radius/dimension differences remain. Previous evidence: "
+    "reason": "Independent OpenCascade plane measurements: faces 5/7 lie at y=25.928672778221/27.928672778221 and faces 6/8 at z=10.235442753049/12.235442753049, giving one 2x2 square recess with floor face 30 at x=3.178259204712. Both perpendicular wall readings describe this same box. The body transverse spans are y=44.597706048835 and z=13.300106698560464, so the uniquely longer body-relative run is y; Rust retains all four walls [5,6,7,8] and floor [30]. Python chooses the z reading by its axis order. The other two pockets retain their geometry. The square-recess correspondence control verifies the selected body-relative run after translation and principal-axis rotations."
   },
   {
     "count": 1,
@@ -1506,7 +1482,7 @@
     "file": "cadgenbench/flanged_spool_132.step",
     "key": "{} records: 3 vs 3 records, fields {\"axis\", \"location\"}",
     "verdict": "rust-correct",
-    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[-2.010590868462072e-14, 1.8599870326361854e-13, 70.37584785928544]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+    "reason": "End-state ties are directed away from the owning body boundary-area centroid, using true face area moments. Independent OpenCascade SurfaceProperties measures centroid(s) [[-2.010590868462072e-14, 1.8599870326361854e-13, 70.37584785928544]]; this is the same quantity used by bosses::body_origin, unlike surface parameter midpoints. Nonzero axial offset establishes a physical end; zero offset retains an end gauge. Sizes and cylinder claims are retained. Z30/X30/X90/translation/reversal controls verify geometry and evidence covariance."
   },
   {
     "count": 1,
@@ -1514,7 +1490,7 @@
     "file": "cadgenbench/threaded_connector_109.step",
     "key": "{} records: 11 vs 11 records, fields {\"axis\", \"location\"}",
     "verdict": "rust-correct",
-    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[0.022059213068122502, 0.05736909052458868, 206.01633452627934]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+    "reason": "End-state ties are directed away from the owning body boundary-area centroid, using true face area moments. Independent OpenCascade SurfaceProperties measures centroid(s) [[0.022059213068122502, 0.05736909052458868, 206.01633452627934]]; this is the same quantity used by bosses::body_origin, unlike surface parameter midpoints. Nonzero axial offset establishes a physical end; zero offset retains an end gauge. Sizes and cylinder claims are retained. Z30/X30/X90/translation/reversal controls verify geometry and evidence covariance."
   },
   {
     "count": 1,
@@ -1522,7 +1498,7 @@
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "key": "{} records: 9 vs 9 records, fields {\"axis\", \"location\"}",
     "verdict": "rust-correct",
-    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[-5.390738438165694, 0.07437560058840552, -8.597102505232607]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+    "reason": "End-state ties are directed away from the owning body boundary-area centroid, using true face area moments. Independent OpenCascade SurfaceProperties measures centroid(s) [[-5.390738438165694, 0.07437560058840552, -8.597102505232607]]; this is the same quantity used by bosses::body_origin, unlike surface parameter midpoints. Nonzero axial offset establishes a physical end; zero offset retains an end gauge. Sizes and cylinder claims are retained. Z30/X30/X90/translation/reversal controls verify geometry and evidence covariance."
   },
   {
     "count": 1,
@@ -1530,7 +1506,7 @@
     "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
     "key": "{} records: 4 vs 4 records, fields {\"axis\", \"location\"}",
     "verdict": "rust-correct",
-    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[6.891029262862062, 1.6020666059437753e-16, 6.23402683322006e-14]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+    "reason": "End-state ties are directed away from the owning body boundary-area centroid, using true face area moments. Independent OpenCascade SurfaceProperties measures centroid(s) [[6.891029262862062, 1.6020666059437753e-16, 6.23402683322006e-14]]; this is the same quantity used by bosses::body_origin, unlike surface parameter midpoints. Nonzero axial offset establishes a physical end; zero offset retains an end gauge. Sizes and cylinder claims are retained. Z30/X30/X90/translation/reversal controls verify geometry and evidence covariance."
   },
   {
     "count": 1,
@@ -1538,7 +1514,7 @@
     "file": "gramel/GRM-05_depth_lock_bolt.step",
     "key": "{} records: 3 vs 3 records, fields {\"axis\", \"location\"}",
     "verdict": "rust-correct",
-    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[-1.8525166823338807e-13, -5.116327018489675e-17, 13.574908524697042]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+    "reason": "End-state ties are directed away from the owning body boundary-area centroid, using true face area moments. Independent OpenCascade SurfaceProperties measures centroid(s) [[-1.8525166823338807e-13, -5.116327018489675e-17, 13.574908524697042]]; this is the same quantity used by bosses::body_origin, unlike surface parameter midpoints. Nonzero axial offset establishes a physical end; zero offset retains an end gauge. Sizes and cylinder claims are retained. Z30/X30/X90/translation/reversal controls verify geometry and evidence covariance."
   },
   {
     "count": 1,
@@ -1546,7 +1522,7 @@
     "file": "nist/nist_ctc_05_asme1_rd.stp",
     "key": "{} records: 3 vs 3 records, fields {\"axis\", \"location\"}",
     "verdict": "rust-correct",
-    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[0.04262888327075982, -0.6850137257588306, 81.1297156159733]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+    "reason": "End-state ties are directed away from the owning body boundary-area centroid, using true face area moments. Independent OpenCascade SurfaceProperties measures centroid(s) [[0.04262888327075982, -0.6850137257588306, 81.1297156159733]]; this is the same quantity used by bosses::body_origin, unlike surface parameter midpoints. Nonzero axial offset establishes a physical end; zero offset retains an end gauge. Sizes and cylinder claims are retained. Z30/X30/X90/translation/reversal controls verify geometry and evidence covariance."
   },
   {
     "count": 1,
@@ -1554,6 +1530,38 @@
     "file": "nist/nist_ftc_06_asme1_rd.stp",
     "key": "{} records: 8 vs 8 records, fields {\"axis\", \"location\"}",
     "verdict": "rust-correct",
-    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[-0.0003975606494559004, 34.47490451073887, -113.59747175360474]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+    "reason": "End-state ties are directed away from the owning body boundary-area centroid, using true face area moments. Independent OpenCascade SurfaceProperties measures centroid(s) [[-0.0003975606494559004, 34.47490451073887, -113.59747175360474]]; this is the same quantity used by bosses::body_origin, unlike surface parameter midpoints. Nonzero axial offset establishes a physical end; zero offset retains an end gauge. Sizes and cylinder claims are retained. Z30/X30/X90/translation/reversal controls verify geometry and evidence covariance."
+  },
+  {
+    "count": 1,
+    "family": "recognise_bosses",
+    "file": "cadgenbench_inputs/cgb241.step",
+    "key": "{} records: 3 vs 3 records, fields {\"axis\", \"location\"}",
+    "verdict": "rust-correct",
+    "reason": "All three bosses, cylinder claims and sizes are retained. Independent OpenCascade SurfaceProperties gives the single body area 619139.6843780482 and centroid (-208.49605717379535,-4.624815684346591,-49.48355332187378). The diameter-46 boss lies at z=-76.374722717657..-29.609102204657 (midpoint -52.991912461157); its body centroid is +3.508359139283 mm above that midpoint, so the free direction is negative z. Python defaults to high z. Rust now uses true face area moments for this same quantity, replacing surface parameter midpoints; the directed NIST and end-gauge cylinder controls verify covariance."
+  },
+  {
+    "count": 1,
+    "family": "recognise_hole_patterns",
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "key": "{\"csinks\":\"auto\"} records: 7 vs 7 records, fields {\"center\", \"holes\", \"pitch\"}",
+    "verdict": "rust-correct",
+    "reason": "All 30 holes and seven patterns are retained. Independent OpenCascade establishes four diameter-7 length-55 through bores between z=-27.5 and +27.5, with equal diameter-10 length-10 enlargements at both ends. ADR 0011 cannot assign either identical end as a material counterbore: Rust keeps the bore and its pattern, omitting only one-sided counterbore attribution. The pre-existing diameter-2.5 opening-location difference remains: this file omits exact pcurves for those edges; OpenCascade fits B-spline pcurves and boxes their control polygons, while Rust measures the true edges. The grid centre inherits that difference. No tolerance is changed."
+  },
+  {
+    "count": 1,
+    "family": "recognise_holes",
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "key": "{\"csinks\":\"auto\"} records: 30 vs 30 records, fields {\"cbore\", \"location\"}",
+    "verdict": "rust-correct",
+    "reason": "All 30 holes and seven patterns are retained. Independent OpenCascade establishes four diameter-7 length-55 through bores between z=-27.5 and +27.5, with equal diameter-10 length-10 enlargements at both ends. ADR 0011 cannot assign either identical end as a material counterbore: Rust keeps the bore and its pattern, omitting only one-sided counterbore attribution. The pre-existing diameter-2.5 opening-location difference remains: this file omits exact pcurves for those edges; OpenCascade fits B-spline pcurves and boxes their control polygons, while Rust measures the true edges. The grid centre inherits that difference. No tolerance is changed."
+  },
+  {
+    "count": 1,
+    "family": "recognise_holes",
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "key": "{} records: 30 vs 30 records, fields {\"cbore\", \"location\"}",
+    "verdict": "rust-correct",
+    "reason": "All 30 holes and seven patterns are retained. Independent OpenCascade establishes four diameter-7 length-55 through bores between z=-27.5 and +27.5, with equal diameter-10 length-10 enlargements at both ends. ADR 0011 cannot assign either identical end as a material counterbore: Rust keeps the bore and its pattern, omitting only one-sided counterbore attribution. The pre-existing diameter-2.5 opening-location difference remains: this file omits exact pcurves for those edges; OpenCascade fits B-spline pcurves and boxes their control polygons, while Rust measures the true edges. The grid centre inherits that difference. No tolerance is changed."
   }
 ]
