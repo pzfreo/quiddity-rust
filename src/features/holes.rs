@@ -251,8 +251,8 @@ fn merge_stacks(part: &Part, stacks: Vec<Vec<Segment>>) -> Vec<Vec<Segment>> {
         let mut stacks = line.into_iter();
         let mut cur = stacks.next().expect("a non-empty group");
         for nxt in stacks {
-            let ai = py::first_max(&cur, |s| s.s_hi);
-            let bi = py::first_min(&nxt, |s| s.s_lo);
+            let ai = end_segment(&cur, |s| s.s_hi);
+            let bi = end_segment(&nxt, |s| -s.s_lo);
             let (a, b) = (&cur[ai], &nxt[bi]);
             let closed = |end: End| matches!(end, End::Flat | End::DrillPoint);
             if same_diameter(a.diameter, b.diameter)
@@ -292,11 +292,10 @@ fn merge_stacks(part: &Part, stacks: Vec<Vec<Segment>>) -> Vec<Vec<Segment>> {
     merged
 }
 
-/// Which end of a stack is the opening and what closes the other (`_drilled_from`). With both
-/// ends open the wider segment's end wins (counterbores sit at the opening); a tie uses the
-/// cylinder support's intrinsic direction for equally wide distinct mouths. That direction
-/// moves with the part; world-high does not. A single through cylinder has no end-step choice.
-fn drilled_from(part: &Part, stack: &[Segment]) -> (bool, usize, f64, Bottom, Vec<usize>) {
+/// Which end is the opening. Mouth diameter, then the complete inward axial profile decide
+/// intrinsically. A symmetric multi-segment stack has no proved drilling side and is refused.
+/// A plain through bore has no side-dependent step claim: its direction is presentation only.
+fn drilled_from(part: &Part, stack: &[Segment]) -> Option<(bool, usize, f64, Bottom, Vec<usize>)> {
     let lo = end_segment(stack, |s| -s.s_lo);
     let hi = end_segment(stack, |s| s.s_hi);
     let (lo_state, lo_faces) = classify_end(part, &stack[lo], stack[lo].s_lo, false);
@@ -304,19 +303,19 @@ fn drilled_from(part: &Part, stack: &[Segment]) -> (bool, usize, f64, Bottom, Ve
     let from_hi = match (lo_state == End::Open, hi_state == End::Open) {
         (true, false) => false,
         (false, true) => true,
-        _ if lo != hi && (stack[hi].diameter - stack[lo].diameter).abs() <= COORD_FLOOR => {
-            let face = stack[lo]
-                .faces
-                .iter()
-                .chain(&stack[hi].faces)
-                .min()
-                .unwrap();
-            let Surface::Cylinder { frame, .. } = part.faces[*face].surface else {
-                unreachable!("a hole segment is cylindrical");
-            };
-            geom::dot(frame.z, stack[hi].direction) > 0.0
-        }
-        _ => stack[hi].diameter >= stack[lo].diameter,
+        _ if lo == hi => true,
+        _ => match mouth_order(stack, lo, hi) {
+            Some(side) => side,
+            None if lo_state == End::Open
+                && hi_state == End::Open
+                && stack
+                    .iter()
+                    .all(|s| s.diameter >= stack[lo].diameter - COORD_FLOOR) =>
+            {
+                true
+            }
+            None => return None,
+        },
     };
     let (opening, opening_s, bottom, faces) = if from_hi {
         (hi, stack[hi].s_hi, lo_state, lo_faces)
@@ -335,7 +334,36 @@ fn drilled_from(part: &Part, stack: &[Segment]) -> (bool, usize, f64, Bottom, Ve
     } else {
         vec![]
     };
-    (from_hi, opening, opening_s, bottom, terminal)
+    Some((from_hi, opening, opening_s, bottom, terminal))
+}
+
+/// Compare the two inward profiles using only distances and diameters. Source support signs,
+/// face indices and the input order carry no machining-side evidence. Equal profiles refuse.
+fn mouth_order(stack: &[Segment], lo: usize, hi: usize) -> Option<bool> {
+    let profile = |from_hi: bool| {
+        let mut values: Vec<[f64; 3]> = stack
+            .iter()
+            .map(|s| {
+                let (near, far) = if from_hi {
+                    (stack[hi].s_hi - s.s_hi, stack[hi].s_hi - s.s_lo)
+                } else {
+                    (s.s_lo - stack[lo].s_lo, s.s_hi - stack[lo].s_lo)
+                };
+                [near, -s.diameter, -far]
+            })
+            .collect();
+        values.sort_by(|a, b| py::tuple_order(a, b));
+        values
+    };
+    let (low, high) = (profile(false), profile(true));
+    for (a, b) in low.iter().zip(&high) {
+        for (a, b) in a.iter().zip(b) {
+            if (a - b).abs() > COORD_FLOOR {
+                return Some(b < a);
+            }
+        }
+    }
+    None
 }
 
 /// The segment that forms one end of a stack: the one reaching furthest by *reach*, and of
@@ -463,7 +491,10 @@ pub fn discover(
     let mut out = Vec::new();
     for stack in stacks {
         let d = stack[0].direction;
-        let (from_hi, opening, opening_s, bottom, mut terminal) = drilled_from(part, &stack);
+        let Some((from_hi, opening, opening_s, bottom, mut terminal)) = drilled_from(part, &stack)
+        else {
+            continue; // no unique drilling side; no directional hole record can be proved
+        };
         let mut ordered = stack.clone();
         // Nearest the opening first: by the near end of each segment, which is s_hi drilling
         // down from the high end and s_lo drilling up from the low end. (Python sorts by s_hi
@@ -514,10 +545,27 @@ pub fn discover(
             depth: record.depth,
             through: record.bottom == Bottom::Through,
         };
-        if let Some(cs) = csinks
+        let mut matching: Vec<_> = csinks
             .iter()
-            .find(|cs| countersink_matches_hole(&cs.record, &mouth))
+            .filter(|cs| countersink_matches_hole(&cs.record, &mouth))
+            .collect();
+        let rank = |cs: &Occurrence<CounterSink>| {
+            [
+                cs.record.major_diameter,
+                cs.record.depth,
+                cs.record.included_angle,
+            ]
+        };
+        matching.sort_by(|a, b| py::tuple_order(&rank(b), &rank(a)));
+        if matching.len() > 1
+            && rank(matching[0])
+                .iter()
+                .zip(rank(matching[1]))
+                .all(|(a, b)| (a - b).abs() <= COORD_FLOOR)
         {
+            continue; // two indistinguishable seats cannot own this one-seat record
+        }
+        if let Some(cs) = matching.first() {
             record.csink = Some(cs.record.clone());
             // The seat's face is consulted evidence: it must share the hole's solid.
             terminal.extend(&cs.defining);
