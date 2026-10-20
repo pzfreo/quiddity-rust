@@ -246,13 +246,21 @@ impl Part {
         &self.input_repairs
     }
 
-    pub(super) fn record_inverted_shell_repair(&mut self, solid: usize) {
+    pub(super) fn record_inverted_shell_repair(&mut self, solid: usize, reverse_wires: bool) {
         self.input_repairs
             .push(format!("solid {solid}: inverted closed shell repaired"));
         // Domains can use the face sense to choose a periodic band; no derived answer from
         // the input orientation may survive the repair.
         for &f in &self.solids[solid].faces {
             self.faces[f].reversed = !self.faces[f].reversed;
+            if reverse_wires {
+                for lp in &mut self.faces[f].loops {
+                    lp.edges.reverse();
+                    for (_, forward) in &mut lp.edges {
+                        *forward = !*forward;
+                    }
+                }
+            }
             self.cache[f] = FaceCache::default();
         }
         self.bad_faces = OnceLock::new();

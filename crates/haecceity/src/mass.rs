@@ -1105,7 +1105,7 @@ impl Part {
     /// its walk encloses (the walk's own lift of the loop, so it agrees with the integrals). A
     /// loop running round a periodic direction (`None`) encloses nothing, so step either side
     /// of its longest edge used once by the face.
-    fn loop_direction(&self, face: usize, i: usize, swept: Option<f64>) -> Option<f64> {
+    pub(crate) fn loop_direction(&self, face: usize, i: usize, swept: Option<f64>) -> Option<f64> {
         if let Some(swept) = swept {
             let (outer, _) = self.loop_placement(face)?;
             let anticlockwise = if swept > 0.0 { 1.0 } else { -1.0 };
