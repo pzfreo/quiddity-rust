@@ -180,3 +180,40 @@ fn a_symmetric_internal_relief_keeps_its_undirected_through_bore_under_motion() 
     }
 }
 
+#[test]
+fn a_symmetric_cylinder_refuses_an_arbitrary_boss_free_end_under_motion() {
+    let path = common::fixtures().join("ties/symmetric_cylinder.step");
+    for at in motions() {
+        let part = read_step_file_placed(&path, &at).unwrap();
+        let ctx = Context::new(&part);
+        let cylinders: Vec<_> = ctx.cylinders().iter().filter(|c| c.external).collect();
+        assert_eq!(cylinders.len(), 1);
+        assert!(features::bosses::discover(&ctx).is_empty(), "{at:?}");
+    }
+}
+
+#[test]
+fn tied_boss_end_states_use_the_body_origin_after_motion() {
+    let Some(dir) = common::corpus_dir() else {
+        return;
+    };
+    let path = dir.join("nist/nist_ctc_05_asme1_rd.stp");
+    let baseline = read_step_file_placed(&path, &IDENTITY).unwrap();
+    let before = features::bosses::discover(&Context::new(&baseline));
+    assert!(before.iter().any(|b| b.defining == [1, 182]));
+    for at in motions() {
+        let moved = read_step_file_placed(&path, &at).unwrap();
+        let after = features::bosses::discover(&Context::new(&moved));
+        assert_eq!(before.len(), after.len(), "{at:?}");
+        for b in &before {
+            let a = after.iter().find(|a| a.defining == b.defining).unwrap();
+            assert_eq!(b.context, a.context, "{at:?}: {:?}", b.defining);
+            for (i, row) in at.iter().enumerate() {
+                let point = row[3] + (0..3).map(|j| row[j] * b.record.location[j]).sum::<f64>();
+                let axis = (0..3).map(|j| row[j] * b.record.axis[j]).sum::<f64>();
+                assert!((point - a.record.location[i]).abs() < 1e-6);
+                assert!((axis - a.record.axis[i]).abs() < 1e-8);
+            }
+        }
+    }
+}
