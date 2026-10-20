@@ -460,7 +460,7 @@ def _run_faces(file: str, indices: list[int], centre) -> dict:
     size = max(4, math.ceil(len(indices) / (3 * (os.cpu_count() or 1))))
     jobs = [(file, indices[k : k + size], centre) for k in range(0, len(indices), size)]
     found = {}
-    with ProcessPoolExecutor(max_workers=os.cpu_count()) as pool:
+    with ProcessPoolExecutor(max_workers=min(6, os.cpu_count() or 1)) as pool:
         for out in pool.map(_face_job, jobs):
             found.update(out)
     return found
