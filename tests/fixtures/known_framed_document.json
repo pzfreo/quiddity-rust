@@ -139,9 +139,9 @@
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "check": "caller_space",
     "family": "bosses",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same boss cylinder: the axis is negated and the location moves to the other end, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
-    "max_differing": 1
+    "verdict": "rust-correct",
+    "reason": "Resolved: boss free ends now follow a uniquely open end or the intrinsic axial boundary-area moment of their owning body; a zero moment refuses. The symmetric-cylinder and NIST CTC05 controls verify claims, physical endpoints and context under Z30/X30/X90/translation/reversal. The old frame-versus-caller-space discrepancy must remain absent (zero allowance). Historical observation: Equivalent: the same boss cylinder: the axis is negated and the location moves to the other end, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 0
   },
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
@@ -931,9 +931,9 @@
     "file": "nist/nist_ftc_06_asme1_rd.stp",
     "check": "caller_space",
     "family": "bosses",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same boss cylinder: the axis is negated and the location moves to the other end, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
-    "max_differing": 4
+    "verdict": "rust-correct",
+    "reason": "Resolved: boss free ends now follow a uniquely open end or the intrinsic axial boundary-area moment of their owning body; a zero moment refuses. The symmetric-cylinder and NIST CTC05 controls verify claims, physical endpoints and context under Z30/X30/X90/translation/reversal. The old frame-versus-caller-space discrepancy must remain absent (zero allowance). Historical observation: Equivalent: the same boss cylinder: the axis is negated and the location moves to the other end, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 0
   },
   {
     "file": "nist/nist_ftc_06_asme1_rd.stp",

@@ -387,5 +387,257 @@
     "test": "tests/test_plate_attribution.py::test_real_face_coordinate_clusters_include_exact_tolerance_only[0.5-3]",
     "verdict": "rust-correct",
     "reason": "Analytic face-band midpoint: planes at 0 and 0.4999 (or 0.5) have an intrinsic midpoint 0.24995 (or 0.25), rather than the lowest coordinate Python selects. The same source faces remain and the full-precision slab span survives reversal and a 0.00051 mm translation (plates::tests; tests/invariance.rs)."
+  },
+  {
+    "count": 1,
+    "file": "f1d2c1f2ed85c15e.step.gz",
+    "function": "recognise_holes",
+    "options": {},
+    "test": "tests/test_recognition.py::TestFindHoles::test_double_counterbored_through_hole_keeps_the_bore",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: the two mouths have exactly the same inward profile. Independent OpenCascade measurement with the pinned Python venv gives two diameter-18, length-6 bands at axial midpoints +7 and -7 and a diameter-10, length-8 bore, unchanged under Z30/X30/X90/translation. A proper half-turn exchanges the mouths while preserving the solid. The one-counterbore directional HoleRecord would claim one of the two equal lands by support sign or face order; Rust refuses that ambiguous record. tests/tie_breaks.rs exercises a symmetric double mouth under all motions and an unequal-depth control that stays recognised."
+  },
+  {
+    "count": 1,
+    "file": "f1d2c1f2ed85c15e.step.gz",
+    "function": "recognise_holes",
+    "options": {},
+    "test": "tests/test_hole_attribution.py::test_double_counterbore_excludes_equal_diameter_far_side_land",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: the two mouths have exactly the same inward profile. Independent OpenCascade measurement with the pinned Python venv gives two diameter-18, length-6 bands at axial midpoints +7 and -7 and a diameter-10, length-8 bore, unchanged under Z30/X30/X90/translation. A proper half-turn exchanges the mouths while preserving the solid. The one-counterbore directional HoleRecord would claim one of the two equal lands by support sign or face order; Rust refuses that ambiguous record. tests/tie_breaks.rs exercises a symmetric double mouth under all motions and an unequal-depth control that stays recognised."
+  },
+  {
+    "count": 1,
+    "file": "eb62c370e8bb503b.step.gz",
+    "function": "recognise_slots",
+    "options": {},
+    "test": "tests/test_slot_attribution.py::test_route_matrix_matches_fresh_complete_role_inventory[part1-4-0]",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011 and correspondence-consumer evidence: this is a 20x20 through window in stock 120x60x20. The directional Slot.long_axis is consumed as a semantic fingerprint/pattern axis, so its square width/run interchange cannot be an arbitrary XYZ or face-order gauge. The stock uniquely establishes the 120-mm transverse direction as run; Rust uses that intrinsic direction and retains all four walls. A symmetric 40x40 stock square-pocket control refuses, and the corpus square-recess motion test checks the actual fingerprint axis under translation, X90, Y180 and an axis-cycle move without changing the fingerprint schema or tolerances."
+  },
+  {
+    "count": 1,
+    "file": "eb62c370e8bb503b.step.gz",
+    "function": "recognise_slots",
+    "options": {},
+    "test": "tests/test_slot_claims.py::test_a_candidate_merged_away_gives_up_its_walls",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011 and correspondence-consumer evidence: this is a 20x20 through window in stock 120x60x20. The directional Slot.long_axis is consumed as a semantic fingerprint/pattern axis, so its square width/run interchange cannot be an arbitrary XYZ or face-order gauge. The stock uniquely establishes the 120-mm transverse direction as run; Rust uses that intrinsic direction and retains all four walls. A symmetric 40x40 stock square-pocket control refuses, and the corpus square-recess motion test checks the actual fingerprint axis under translation, X90, Y180 and an axis-cycle move without changing the fingerprint schema or tolerances."
+  },
+  {
+    "count": 1,
+    "file": "eea1b44e77612c35.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_recogniser_contract.py::test_records_are_frozen_and_json_serializable",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[4.3876013933187146e-13, 6.6009182578676e-17, -2.412509625050739e-16]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "eea1b44e77612c35.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_recogniser_contract.py::test_every_record_type_is_actually_exercised",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[4.3876013933187146e-13, 6.6009182578676e-17, -2.412509625050739e-16]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "860dce2a651ab4e7.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[-70.0, 4.526280328298757e-16, 1.949263211193268e-18], [0.0, 1.5875493202231829e-16, 1.025292269310793e-17], [70.00000000000006, -0.9373159414382166, -2.744760654905825e-13]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "8adc57b328863b43.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[11.243718957117412, 2.6301377460097785e-16, 26.488541905790008]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "0a3141da4c6d054d.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[4.3013666205785264e-13, 1.0444333215180704e-15, 0.885906040267824]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "14a917f282ad82d6.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_boss_attribution.py::test_recovered_boss_candidate_retains_original_cylinder_dependency",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[-0.002480516755880692, -9.607766379240317e-16, -1.6131676858678277e-16]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "3f6a83f6c6b6860e.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_boss_attribution.py::test_radial_pipe_boss_and_turned_od_keep_current_roles",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[-0.6044523238166033, -4.349038616937857e-10, -9.520254281551158e-08]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "e7e55b939aebc230.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_boss_attribution.py::test_radial_pipe_boss_and_turned_od_keep_current_roles",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[1.0960121699099784e-12, -2.5795211863359147e-17, -6.474195751601007e-16]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "fd804c4807fb1d41.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_boss_attribution.py::test_opposite_radial_pipe_boss_points_outward",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[0.6044526987340267, 2.713151273980166e-13, 9.955890673873047e-11]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "e2f5c1981d76f9a1.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_boss_attribution.py::test_stepped_external_shaft_and_distinct_equal_radius_occurrences",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[2.9250675955458314e-13, 2.6949204094130354e-16, -1.256515429713936e-16], [2.0257300110853368e-13, 3.609684708598943e-17, 10.0]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "a6a6d0ca1d0d10bd.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_boss_attribution.py::test_stepped_external_shaft_and_distinct_equal_radius_occurrences",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[2.5366682288258446, -3.844222580216967e-14, 0.8102307353599374]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "ba397cd7c663d5b4.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_boss_attribution.py::test_keyway_split_segment_claims_every_original_face",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[-5.160483667204279e-13, -1.3485460217432992e-13, -5.924528869557215e-17]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "2733401823bf7439.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_boss_attribution.py::test_local_degradation_returns_only_bosses_with_staged_evidence",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[-7.112366251504909e-16, 1.7763568394002506e-16, 0.0], [-79.99999999999969, 3.461826490826075e-16, 9.000000000000002], [-7.112366251504909e-16, 1.7763568394002506e-16, 0.0], [80.00000000000031, 3.461826490826075e-16, 9.000000000000002]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "2c8ff38cf754d67e.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_boss_attribution.py::test_real_face_axial_union_substitution_measures_span_then_refuses_mixed_body",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[2.1938006966593573e-13, 3.3004591289838134e-17, -1.2062548125253695e-16], [2.1938006966593573e-13, 3.3004591289838134e-17, 10.0]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 2,
+    "file": "2733401823bf7439.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_boss_attribution.py::test_reversed_edge_face_traversal_preserves_occurrence_roles",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[-7.112366251504909e-16, 1.7763568394002506e-16, 0.0], [-79.99999999999969, 3.461826490826075e-16, 9.000000000000002], [-7.112366251504909e-16, 1.7763568394002506e-16, 0.0], [80.00000000000031, 3.461826490826075e-16, 9.000000000000002]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 2,
+    "file": "dac73da9ba85ba08.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_boss_attribution.py::test_supplied_cylinder_permutation_preserves_occurrence_correspondence",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[-79.99999999999982, 3.609684708598943e-17, -1.3918324759908158e-16], [2.9080831310287445e-13, 3.8594462082786586e-16, 0.0], [80.00000000000038, 3.461881234405226e-16, 0.0]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "f3e0d1bbcf335b03.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_recognition.py::test_native_hole_and_boss_calls_do_not_build_the_lazy_recovery_graph",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[1.879131770822729e-13, 9.605893342714241e-17, -8.077599191018075e-17]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "14a917f282ad82d6.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_recognition.py::test_exact_converted_external_cylinder_reaches_the_existing_boss_consumer",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[-0.002480516755880692, -9.607766379240317e-16, -1.6131676858678277e-16]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "f3e0d1bbcf335b03.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_recognition.py::test_exact_converted_external_cylinder_reaches_the_existing_boss_consumer",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[1.879131770822729e-13, 9.605893342714241e-17, -8.077599191018075e-17]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "3f6a83f6c6b6860e.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_recognition.py::TestFindBosses::test_radial_boss_on_a_pipe_points_outward",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[-0.6044523238166033, -4.349038616937857e-10, -9.520254281551158e-08]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "e7e55b939aebc230.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_recognition.py::TestFindBosses::test_turned_part_od_is_a_boss",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[1.0960121699099784e-12, -2.5795211863359147e-17, -6.474195751601007e-16]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "95b934c617ca88af.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[chamfers_fillets_and_flats]",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[-70.0, 4.526280328298757e-16, 1.949263211193268e-18], [0.0, 1.5875493202231829e-16, 1.025292269310793e-17], [70.00000000000006, -0.9373159414382166, -2.744760654905825e-13]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "f2bd461093efbb24.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[toroidal_blends_turned]",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[11.243718957117412, 2.6301377460097785e-16, 26.488541905790008]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
+  },
+  {
+    "count": 1,
+    "file": "0a3141da4c6d054d.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[turned_steps_and_grooves]",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: a high-coordinate default cannot establish a boss base/free role when both end states agree. The port uses the axial boundary-area moment about the segment midpoint, pointing away from the owning body’s boundary-area centre, and refuses an unresolved zero moment. Independent OpenCascade SurfaceProperties gives the body boundary-area centroid(s) [[4.3013666205785264e-13, 1.0444333215180704e-15, 0.885906040267824]]; this fixes the intrinsic direction or proves the cylindrical symmetry. The symmetric-cylinder and NIST CTC05 controls verify refusal and physical end/evidence covariance under Z30, X30, X90, translation and reversal. Sizes and cylinder claims are unchanged for directed occurrences."
   }
 ]
