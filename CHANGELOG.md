@@ -8,11 +8,37 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Changed
 
+- Chamfers, fillets and circular blind steps recognise perpendicular supporting planes rolled
+  about a principal run axis, using the planes’ geometry. Motion tests and tighter breakdown
+  limits cover the recovered features; the default recognition route is unchanged.
+- Recognition no longer depends on a part's placement or on input order where ADR 0011 says it
+  must not: every first-wins, sign or ordering selector was audited and corrected (holes and
+  counterbore stacks, bosses, recesses and channels, plane corners, patterns, turned axes,
+  circular patterns, thin walls, voids, coordinate clusters, frames, oriented chamfers). A
+  remaining arbitrary choice is a presentation gauge, never a semantic one; only two readings
+  that would publish different features are refused. Identical counterbores at both ends of a
+  hole keep their dimensions and claim both mouths. A per-file, per-family inventory floor over
+  1,453 parts guards against losing features; the few changed counts each carry OpenCascade or
+  analytic evidence.
 - **Public `recess_reduce::merge_proposals` now refuses equal-width role ties with
   different run axes when no body extents are available.** Previously input order selected
   an interpretation. Part-aware recognition uses intrinsic body extents to accept a unique
   reading; symmetric competing claims remain refused (ADR 0011). This changes the public
   reducer's behaviour, without changing the document schema.
+- quiddity-rust and haecceity are relicensed from AGPL-3.0-only to Apache-2.0 by the copyright
+  owner, matching Python quiddity. `LICENSE`, `NOTICE`, the CLA and CONTRIBUTING say so.
+- Both crates are ready for crates.io: descriptions, repository, keywords and categories, an
+  `include` list (sources, README, CHANGELOG, LICENSE, NOTICE; no test fixtures), and an exact
+  version on quiddity's `haecceity` dependency. `cargo package --workspace` packages and
+  verifies both (haecceity 520 KiB, quiddity 505 KiB compressed).
+
+## 0.1.0-alpha.9 (2026-10-20)
+
+Upgrading: fingerprints are now `quiddity-rust/fingerprint/3` and `correspond` refuses
+version 2, so stored alpha.8 fingerprints must be regenerated from the STEP file (#51).
+Feature IDs keep their `family/n` form and most are unchanged, but IDs are positional and
+some records are added, removed, reordered or claim different faces (see Changed), and many
+published sizes move. Re-recognise rather than reuse stored alpha.8 IDs, faces or dimensions.
 
 ### Added
 
@@ -20,14 +46,79 @@ in [docs/alpha1.md](docs/alpha1.md).
   mode, and strict per-record evidence status. Patterns inherit member proof; source
   refusals remain unproved. The fields are additive: documents keep their 3/4 schema tags and
   existing records, but a `/3` document is no longer byte-identical to alpha.8's; readers must
-  ignore unknown fields. See [the trust contract](docs/recognition-trust.md).
+  ignore unknown fields. See [the trust contract](docs/recognition-trust.md) (#28–#30).
+- `InteriorVoidRefusal` records: a bounded-air candidate whose sampled widening behind a throat
+  is not established, previously dropped silently, is kept in the document's `interior_voids`
+  family after the recognised voids, with `reason: "widening_behind_throat_unproved"` and its
+  complete measurements. Its `faces` are the candidate's skin; it is `unproved`, claims no
+  recognised feature, has no fingerprint and does not appear in the top-level
+  `interior_voids` array. A document containing one is tagged `quiddity-rust/recognition/4`.
+  `recognition::RECORD_TYPES` lists it under `interior_voids`. `Record::is_refusal()` covers
+  it, so CLI and `serve` warnings do not list it as an unproved record
+  ([docs/recognition-4.md](docs/recognition-4.md),
+  [docs/recognition-trust.md](docs/recognition-trust.md), #49).
+- New API: `recognition::{EvidenceStatus, RunMode}`, `Record::is_refusal`,
+  `RecognitionDocument::{source_sha256, run_mode}`, `Record::evidence_status`,
+  `Recognition::source_sha256`, `Features::{run_mode, evidence_status,
+  interior_void_refusals}`, `features::interior_voids::InteriorVoidRefusal`,
+  `features::evidence::strict_status`, `features::policy::round_measurement`; in haecceity, `step::decode_step_file_bytes` and
+  `FaceMoments::second_moments` (central second moments). Code constructing these structs
+  literally must supply the new fields (#28, #29, #33, #46, #49).
+- Rust-first independent-reference policy (README, CONTRIBUTING): the Python captures are a
+  frozen regression record; new behaviour is judged against OpenCascade, analytic fixtures,
+  MFInstSeg/MFCAD++ labels and motion invariance (#22).
+- Labelled-dataset accuracy: `examples/mfinstseg_score.rs` scores face and instance
+  precision/recall against MFInstSeg (or MFCAD++ with `--mfcadpp`) through the source-cited
+  [class mapping](tests/fixtures/mfinstseg_mapping.json); `examples/face_order.rs` and
+  `tools/check_dataset_face_order.py` verify face order against OpenCascade; `tests/mfinstseg.rs`
+  ratchets a hash-pinned 200-model sample (runs only with `QUIDDITY_MFINSTSEG` set; dataset not
+  committed), updated with `tools/update_mfinstseg_baseline.py` (#23–#25).
+- Evidence tools: `tools/check_face_integrals.py` with `examples/face_integrals.rs` (live
+  OpenCascade face integrals and an independent 3D-boundary integration), and
+  `tools/centroid_evidence.py`, `tools/perimeter_evidence.py`, `tools/drawing_evidence.py` with
+  `examples/centroid.rs` and `examples/trim_lengths.rs` (boundary-flux centroids, raw STEP trim
+  lengths, 3D silhouettes) (#35, #41, #43).
+
+### Changed
+
+- Fingerprint version 3 (#51): sizes are measured from raw geometry before positions are
+  rounded, with decimal half-way points within the coordinate floor rounded ties-to-even
+  (e.g. 92.075 → 92.08; #46); equal pocket wall separations keep all walls and choose by face
+  identity, so square-footprint pockets now claim all four walls (#45); a hole stack with equally
+  wide distinct ends opens at the end its cylinder's own axis points to, not the end high in
+  world space (#47); groove supports are found symmetrically at both floor ends, and a proved helical thread root (cgb243 face 224) is no
+  longer also published as a groove (#48); void sampling uses a box-centred lattice, which
+  changes sample counts and volume estimates (#49); plate face bands use the midpoint of their
+  extreme planes at full precision, which changes `lo`, `hi` and thickness (#50). Coordinate
+  clustering and level-riser tests now include the tolerance boundary (#45). See
+  [docs/correspondence.md](docs/correspondence.md).
+- Records that change on existing parts include: mfcadpp_regressions/11512's chamber on faces
+  33–34 becomes an `InteriorVoidRefusal`; a GRM-03 riser on the level-tolerance boundary is
+  no longer published; nist_ctc_03's two slots change order (#45, #46, #49).
+- Under motion, the invariance ledger's `rust-wrong` entries fall from 22 to 0 and the
+  correspondence ledger's from 53 to 2; both remaining are mfcadpp/10170's section-recess
+  `run_interval` endpoints on the three-decimal grid (#45–#50).
+- Face integration controls error on every component (area, first and second moments) in
+  dimensionless coordinates. Stored areas, centroids and framed coordinates move by at most
+  3e-8 relative on the 30 quality parts; nist_ctc_05's framed pocket length on the 60.325 tie
+  moves between 60.32 and 60.33 (#33).
+- haecceity `face_mass` and `face_moments` return `None` for a non-finite or non-positive
+  integral instead of a zero or `abs()` value (#33).
+- Parity ledgers: undetermined verdicts fall from 113 to 2 (#36, #42, #44), settled with
+  OpenCascade, independent boundary integration, MFCAD++ labels and motion evidence; the two
+  left are cgb242 face 483's area and moments. Settling them changes only verdicts and reasons.
+- CLI and `serve` warnings now read `<path>: warning: <reasons>; retained N records; unproved
+  records [ids]`. The reasons are unresolved geometry, no solid (shell geometry only), solids
+  failing strict validity, a local-degradation retry, or unproved record evidence. Refusal
+  records are excluded from the unproved list. A refused section-recess projection keeps its
+  own `section-recess projection refused: <reason>` warning (#29).
+- The frozen per-platform section-recess publication hashes are replaced by an in-run check
+  that publication is additive to the same recognition without it (#33).
 
 ### Fixed
 
-- Published source refusals no longer trigger unproved-feature warnings on clean parts.
-  Consumers distinguish refusal record types from feature claims before applying evidence policy.
-- CLI and service warnings identify retained unproved records on unresolved geometry,
-  invalid solids and open shells, instead of claiming those records were not recognised.
+- cgb242's solid centroid is no longer refused after translation (#33).
+- Correspondence anchors skip a face without an area instead of weighting it as zero (#34).
 
 ## 0.1.0-alpha.8 (2026-10-20)
 

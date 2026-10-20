@@ -5,7 +5,7 @@ geometry-only feature recognition for STEP B-Rep. No OpenCascade: STEP is read w
 [`step-io`](https://crates.io/crates/step-io) and everything the Python implementation asks of
 OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::kernel`).
 
-**Status: 0.1.0-alpha.8 (2026-10-20).** Changes are in [CHANGELOG.md](CHANGELOG.md); the alpha 1
+**Status: 0.1.0-alpha.9 (2026-10-20).** Changes are in [CHANGELOG.md](CHANGELOG.md); the alpha 1
 gates and their evidence in [docs/alpha1.md](docs/alpha1.md).
 
 ## Rust-first
@@ -1122,6 +1122,10 @@ attachment. Equivalent closing faces are retained together as context. A directi
 never removes a feature. A directed representative of an exactly symmetric part is understood
 modulo its stabilising symmetry: the undirected physical axis and both endpoints move with the
 part, while no material end is asserted.
+
+Matching counterbore or spotface dimensions at interchangeable mouths are retained, with
+both mouths claimed; the end attribution is a presentation gauge. The omission above applies
+only when the two readings differ, so an end gauge cannot lose identical machining callouts.
 
 The invariance harness also reports absent, reclassified and introduced occurrences per family,
 using the Python rigid-motion sweep's maximum-cardinality defining-face containment matching,

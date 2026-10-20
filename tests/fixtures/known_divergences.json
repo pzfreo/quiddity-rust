@@ -158,14 +158,6 @@
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
-    "family": "recognise_fillets",
-    "key": "{\"include_cylindrical\":true} evidence refused by Python only",
-    "count": 0,
-    "verdict": "rust-correct",
-    "reason": "OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid and Python refuses evidence for it. Inactive count 0 after rolled-support recognition changes the records from 288 to 296: tests/corpus.rs skips its evidence comparison when record values differ. The refusal behaviour itself is unchanged (direct Rust discover_verified still accepts all 296 occurrences; the captured Python evidence refuses). The historical entry is retained rather than deleted; if record parity returns, the evidence comparison and its count must be revisited."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb202.step.gz",
     "family": "recognise_flats",
     "key": "{} evidence refused by Python only",
     "count": 1,
@@ -1546,23 +1538,31 @@
     "file": "nist/nist_ftc_10_asme1_rb.stp",
     "key": "{\"csinks\":\"auto\"} records: 7 vs 7 records, fields {\"center\", \"holes\", \"pitch\"}",
     "verdict": "rust-correct",
-    "reason": "All 30 holes and seven patterns are retained. Independent OpenCascade establishes four diameter-7 length-55 through bores between z=-27.5 and +27.5, with equal diameter-10 length-10 enlargements at both ends. ADR 0011 cannot assign either identical end as a material counterbore: Rust keeps the bore and its pattern, omitting only one-sided counterbore attribution. The pre-existing diameter-2.5 opening-location difference remains: this file omits exact pcurves for those edges; OpenCascade fits B-spline pcurves and boxes their control polygons, while Rust measures the true edges. The grid centre inherits that difference. No tolerance is changed."
+    "reason": "All 30 holes and seven patterns are retained, including CounterBore(10, 10) on the four diameter-7 length-55 through bores. Independent OpenCascade measures bore endpoints z=-27.5 and +27.5 and equal diameter-10 length-10 mouths extending to z=+-37.5. Rust retains the identical mouth dimensions as an end gauge and claims both mouths. The pre-existing diameter-2.5 opening-location difference remains: this file omits exact pcurves for those edges; OpenCascade fits B-spline pcurves and boxes their control polygons, while Rust measures the true edges. The grid centre inherits that difference. No tolerance is changed."
   },
   {
     "count": 1,
     "family": "recognise_holes",
     "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "key": "{\"csinks\":\"auto\"} records: 30 vs 30 records, fields {\"cbore\", \"location\"}",
+    "key": "{\"csinks\":\"auto\"} records: 30 vs 30 records, fields {\"location\"}",
     "verdict": "rust-correct",
-    "reason": "All 30 holes and seven patterns are retained. Independent OpenCascade establishes four diameter-7 length-55 through bores between z=-27.5 and +27.5, with equal diameter-10 length-10 enlargements at both ends. ADR 0011 cannot assign either identical end as a material counterbore: Rust keeps the bore and its pattern, omitting only one-sided counterbore attribution. The pre-existing diameter-2.5 opening-location difference remains: this file omits exact pcurves for those edges; OpenCascade fits B-spline pcurves and boxes their control polygons, while Rust measures the true edges. The grid centre inherits that difference. No tolerance is changed."
+    "reason": "All 30 holes and seven patterns are retained, including CounterBore(10, 10) on the four diameter-7 length-55 through bores. Independent OpenCascade measures bore endpoints z=-27.5 and +27.5 and equal diameter-10 length-10 mouths extending to z=+-37.5. Rust retains the identical mouth dimensions as an end gauge and claims both mouths. The pre-existing diameter-2.5 opening-location difference remains: this file omits exact pcurves for those edges; OpenCascade fits B-spline pcurves and boxes their control polygons, while Rust measures the true edges. The grid centre inherits that difference. No tolerance is changed."
   },
   {
     "count": 1,
     "family": "recognise_holes",
     "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "key": "{} records: 30 vs 30 records, fields {\"cbore\", \"location\"}",
+    "key": "{} records: 30 vs 30 records, fields {\"location\"}",
     "verdict": "rust-correct",
-    "reason": "All 30 holes and seven patterns are retained. Independent OpenCascade establishes four diameter-7 length-55 through bores between z=-27.5 and +27.5, with equal diameter-10 length-10 enlargements at both ends. ADR 0011 cannot assign either identical end as a material counterbore: Rust keeps the bore and its pattern, omitting only one-sided counterbore attribution. The pre-existing diameter-2.5 opening-location difference remains: this file omits exact pcurves for those edges; OpenCascade fits B-spline pcurves and boxes their control polygons, while Rust measures the true edges. The grid centre inherits that difference. No tolerance is changed."
+    "reason": "All 30 holes and seven patterns are retained, including CounterBore(10, 10) on the four diameter-7 length-55 through bores. Independent OpenCascade measures bore endpoints z=-27.5 and +27.5 and equal diameter-10 length-10 mouths extending to z=+-37.5. Rust retains the identical mouth dimensions as an end gauge and claims both mouths. The pre-existing diameter-2.5 opening-location difference remains: this file omits exact pcurves for those edges; OpenCascade fits B-spline pcurves and boxes their control polygons, while Rust measures the true edges. The grid centre inherits that difference. No tolerance is changed."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "recognise_fillets",
+    "key": "{\"include_cylindrical\":true} evidence refused by Python only",
+    "count": 0,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid and Python refuses evidence for it. Inactive count 0 after rolled-support recognition changes the records from 288 to 296: tests/corpus.rs skips its evidence comparison when record values differ. The refusal behaviour itself is unchanged (direct Rust discover_verified still accepts all 296 occurrences; the captured Python evidence refuses). The historical entry is retained rather than deleted; if record parity returns, the evidence comparison and its count must be revisited."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",

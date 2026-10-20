@@ -390,24 +390,6 @@
   },
   {
     "count": 1,
-    "file": "f1d2c1f2ed85c15e.step.gz",
-    "function": "recognise_holes",
-    "options": {},
-    "test": "tests/test_recognition.py::TestFindHoles::test_double_counterbored_through_hole_keeps_the_bore",
-    "verdict": "rust-correct",
-    "reason": "ADR 0011: the two mouths have exactly the same inward profile. Independent OpenCascade measurement with the pinned Python venv gives two diameter-18, length-6 bands at axial midpoints +7 and -7 and a diameter-10, length-8 bore, unchanged under Z30/X30/X90/translation. A proper half-turn exchanges the mouths while preserving the solid. The one-counterbore directional HoleRecord would claim one of the two equal lands by support sign or face order; Rust refuses that ambiguous record. tests/tie_breaks.rs exercises a symmetric double mouth under all motions and an unequal-depth control that stays recognised."
-  },
-  {
-    "count": 1,
-    "file": "f1d2c1f2ed85c15e.step.gz",
-    "function": "recognise_holes",
-    "options": {},
-    "test": "tests/test_hole_attribution.py::test_double_counterbore_excludes_equal_diameter_far_side_land",
-    "verdict": "rust-correct",
-    "reason": "ADR 0011: the two mouths have exactly the same inward profile. Independent OpenCascade measurement with the pinned Python venv gives two diameter-18, length-6 bands at axial midpoints +7 and -7 and a diameter-10, length-8 bore, unchanged under Z30/X30/X90/translation. A proper half-turn exchanges the mouths while preserving the solid. The one-counterbore directional HoleRecord would claim one of the two equal lands by support sign or face order; Rust refuses that ambiguous record. tests/tie_breaks.rs exercises a symmetric double mouth under all motions and an unequal-depth control that stays recognised."
-  },
-  {
-    "count": 1,
     "file": "eb62c370e8bb503b.step.gz",
     "function": "recognise_slots",
     "options": {},

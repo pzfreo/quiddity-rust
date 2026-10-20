@@ -1,8 +1,12 @@
 [package]
 name = "haecceity"
-version = "0.1.0-alpha.8"
+version = "0.1.0-alpha.9"
 edition = "2024"
-license = "AGPL-3.0-only"
+license = "Apache-2.0"
+repository = "https://github.com/pzfreo/quiddity-rust"
+keywords = ["cad", "step", "brep", "geometry", "ap242"]
+categories = ["science", "mathematics", "parser-implementations"]
+include = ["/src", "/LICENSE", "/NOTICE"]
 description = "An exact B-rep geometry kernel in pure Rust: STEP import, rays, classification, volumes and surface recovery."
 
 [dependencies]
