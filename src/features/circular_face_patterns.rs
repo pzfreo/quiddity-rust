@@ -122,9 +122,13 @@ fn axes(facts: &[FaceFact], centre: V3, part_scale: f64) -> Vec<Axis> {
     merged.sort_by(|a, b| (-a.score).total_cmp(&-b.score));
     // A four-axis budget may not select the first of equally scored physical axes.
     if merged.len() > 4 && merged[3].score == merged[4].score {
-        return Vec::new();
+        // Only the cutoff group is ambiguous. Higher-supported axes remain valid trials;
+        // refusing the entire list would lose a uniquely supported principal pattern.
+        let cutoff = merged[3].score;
+        merged.retain(|a| a.score > cutoff);
+    } else {
+        merged.truncate(4);
     }
-    merged.truncate(4);
     if merged.is_empty() {
         // Trial directions must come from the part, rather than three caller-space axes.
         return Vec::new();
@@ -549,6 +553,14 @@ mod axis_tie_tests {
             assert!(axes(&facts, [123.456, -78.9, 41.3], 10.).is_empty());
             facts.reverse();
             assert!(axes(&facts, [123.456, -78.9, 41.3], 10.).is_empty());
+            // An ambiguous budget cutoff cannot discard a stronger, independent axis.
+            facts[0].axis.as_mut().unwrap().score = 2.;
+            let expected = facts[0].axis.unwrap().direction;
+            let kept = axes(&facts, [123.456, -78.9, 41.3], 10.);
+            assert_eq!(kept.len(), 1);
+            assert_eq!(kept[0].direction, expected);
+            facts.reverse();
+            assert_eq!(axes(&facts, [123.456, -78.9, 41.3], 10.).len(), 1);
         }
     }
 }

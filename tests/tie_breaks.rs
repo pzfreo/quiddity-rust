@@ -564,6 +564,21 @@ fn tied_boss_end_states_use_the_body_origin_after_motion() {
 }
 
 #[test]
+fn a_radial_profile_keeps_its_stronger_axis_despite_tied_budget_cutoff() {
+    let path = common::fixtures().join("golden_repeating_radial_profile.step");
+    let mut claims = None;
+    for at in motions() {
+        let part = read_step_file_placed(&path, &at).unwrap();
+        let found = features::circular_face_patterns::discover(&Context::new(&part));
+        assert_eq!(found.len(), 1, "{at:?}");
+        assert_eq!(found[0].record.count, 8);
+        let mut faces = found[0].defining.clone();
+        faces.sort_unstable();
+        assert_eq!(claims.get_or_insert_with(|| faces.clone()), &faces);
+    }
+}
+
+#[test]
 fn a_five_hundred_hole_perforated_plate_has_one_grid() {
     use features::holes::{Bottom, HoleRecord};
     let mut holes: Vec<_> = (0..20)
