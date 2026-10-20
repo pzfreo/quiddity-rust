@@ -4,6 +4,37 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
+## 0.1.0-alpha.8 (2026-10-20)
+
+### Added
+
+- Recognise modelled (helical) screw threads (#20). A `modelled_threads` record carries its axis, side (internal or external), major and minor diameter, pitch, hand,
+  number of starts and extent along the axis, and claims its flank, crest, root and runout faces
+  with stated tolerances. Inconsistent geometry (e.g. varying pitch, unequal starts, missing
+  opposed flanks) becomes a `modelled_thread_refusals` record with a machine-readable `reason`,
+  claiming no faces; no ISO designation is inferred. Across the 100-part corpus five threads are found, on cgb243 (four)
+  and threaded_connector_109 (one); unrecognised freeform faces fall from 74 to 66 and from 140
+  to 4 on those parts, and the other 98 outputs are byte-identical. A diamond knurl and a
+  round-wire spring are not recognised as threads; a shallow helical groove and a varying-pitch
+  sweep are explicitly refused. See [docs/modelled-threads.md](docs/modelled-threads.md).
+- New API: `analyse_modelled_threads`, `recognise_modelled_threads`, `ModelledThread`,
+  `ModelledThreadRefusal`, `ThreadAnalysis`, `ThreadAxis`, `ThreadTolerances`; `Features` gains
+  `modelled_threads` and `modelled_thread_refusals`; `evidence_view::PHYSICAL_FAMILIES` grows
+  to 41 entries (#20).
+- Recognition documents are `quiddity-rust/recognition/4` only when they contain thread records
+  or refusals; all others stay `/3` byte for byte. `recognition::SCHEMA_VERSION` names `/4`;
+  compare with `LEGACY_SCHEMA_VERSION` or `schema_version(&features)` (#20).
+
+### Changed
+
+- `haecceity::pmi::Accounting::presentation` counts graphic PMI only: annotation occurrences,
+  draughting callouts, and the draughting models and presentation views that carry them.
+  Geometry styling, colours, curve fonts, layers and shared representation contexts no longer
+  count, so a geometry-only file reports no PMI presentation (e.g. NIST CTC-01 392 → 0; the
+  CTC-01 AP242 file 843 → 71). The reader binding moves to `haecceity-pmi-read/8`; the JSON form
+  stays version 2, and PMI JSON bound to `haecceity-pmi-read/7` is refused by `pmi check` and
+  `pmi write`; re-run `quiddity pmi read` (#21).
+
 ## 0.1.0-alpha.7 (2026-10-18)
 
 ### Added
