@@ -12,6 +12,8 @@ use motion_breakdown::Breakdown;
 #[path = "support/motion_sweep.rs"]
 mod motion_sweep;
 use motion_sweep::{SWEEP_FAMILIES, compose, occurrences as sweep_occurrences, rotation};
+#[path = "support/plate_frame_prototype.rs"]
+mod plate_frame_prototype;
 #[macro_use]
 #[path = "support/slices.rs"]
 mod slices;
