@@ -3693,7 +3693,7 @@
       "python": 0,
       "rust": 1,
       "verdict": "rust-correct",
-      "reason": "Historical one-sided face attribution is resolved: the four symmetric double-counterbored holes retain their diameter-7, length-55 bores and their seventh pattern, without selecting either equal diameter-10, length-10 mouth. OpenCascade measurements establish these equal mouths. The old asymmetric defining-face set is absent; tests/tie_breaks.rs verifies bore retention under rigid motions. Historical observation: Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed.",
+      "reason": "Historical one-sided defining-face set remains absent; both equal mouths are now claimed with their identical dimensions retained. Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal.",
       "resolved": true
     },
     {
@@ -3713,7 +3713,7 @@
       "python": 1,
       "rust": 0,
       "verdict": "rust-correct",
-      "reason": "The four diameter-7 length-55 through bores and their seventh pattern are retained. Independent OpenCascade measures equal diameter-10 length-10 mouths at z=+-27.5..37.5. No end is a material drilling-entry preference; Rust omits one-sided counterbore attribution and claims only the bore face(s) [146..149]. Python includes one arbitrarily selected mouth in each defining set shown here. Thus this exact one-sided face set is absent, not its underlying bore or pattern. tests/tie_breaks.rs checks 30 holes/seven patterns and symmetric bore retention under motion."
+      "reason": "Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal."
     },
     {
       "defining": [
@@ -3726,7 +3726,7 @@
       "python": 0,
       "rust": 1,
       "verdict": "rust-correct",
-      "reason": "Historical one-sided face attribution is resolved: the four symmetric double-counterbored holes retain their diameter-7, length-55 bores and their seventh pattern, without selecting either equal diameter-10, length-10 mouth. OpenCascade measurements establish these equal mouths. The old asymmetric defining-face set is absent; tests/tie_breaks.rs verifies bore retention under rigid motions. Historical observation: Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed.",
+      "reason": "Historical one-sided defining-face set remains absent; both equal mouths are now claimed with their identical dimensions retained. Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal.",
       "resolved": true
     },
     {
@@ -3740,7 +3740,7 @@
       "python": 0,
       "rust": 1,
       "verdict": "rust-correct",
-      "reason": "Historical one-sided face attribution is resolved: the four symmetric double-counterbored holes retain their diameter-7, length-55 bores and their seventh pattern, without selecting either equal diameter-10, length-10 mouth. OpenCascade measurements establish these equal mouths. The old asymmetric defining-face set is absent; tests/tie_breaks.rs verifies bore retention under rigid motions. Historical observation: Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed.",
+      "reason": "Historical one-sided defining-face set remains absent; both equal mouths are now claimed with their identical dimensions retained. Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal.",
       "resolved": true
     },
     {
@@ -3754,7 +3754,7 @@
       "python": 0,
       "rust": 1,
       "verdict": "rust-correct",
-      "reason": "Historical one-sided face attribution is resolved: the four symmetric double-counterbored holes retain their diameter-7, length-55 bores and their seventh pattern, without selecting either equal diameter-10, length-10 mouth. OpenCascade measurements establish these equal mouths. The old asymmetric defining-face set is absent; tests/tie_breaks.rs verifies bore retention under rigid motions. Historical observation: Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed.",
+      "reason": "Historical one-sided defining-face set remains absent; both equal mouths are now claimed with their identical dimensions retained. Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal.",
       "resolved": true
     },
     {
@@ -3768,7 +3768,7 @@
       "python": 0,
       "rust": 1,
       "verdict": "rust-correct",
-      "reason": "Historical one-sided face attribution is resolved: the four symmetric double-counterbored holes retain their diameter-7, length-55 bores and their seventh pattern, without selecting either equal diameter-10, length-10 mouth. OpenCascade measurements establish these equal mouths. The old asymmetric defining-face set is absent; tests/tie_breaks.rs verifies bore retention under rigid motions. Historical observation: Motion-invariance evidence: nist_ftc_10 has through bores with equal counterbores at both mouths. The intrinsic original cylinder support direction now selects one stable entry instead of world-high, so the same four original mouth/bore face pairs and the same hole-pattern members survive rot_y180 and the other rigid motions. Both physical ends remain in face fingerprints; no hole or pattern is removed.",
+      "reason": "Historical one-sided defining-face set remains absent; both equal mouths are now claimed with their identical dimensions retained. Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal.",
       "resolved": true
     },
     {
@@ -3782,7 +3782,7 @@
       "python": 1,
       "rust": 0,
       "verdict": "rust-correct",
-      "reason": "The four diameter-7 length-55 through bores and their seventh pattern are retained. Independent OpenCascade measures equal diameter-10 length-10 mouths at z=+-27.5..37.5. No end is a material drilling-entry preference; Rust omits one-sided counterbore attribution and claims only the bore face(s) [146..149]. Python includes one arbitrarily selected mouth in each defining set shown here. Thus this exact one-sided face set is absent, not its underlying bore or pattern. tests/tie_breaks.rs checks 30 holes/seven patterns and symmetric bore retention under motion."
+      "reason": "Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal."
     },
     {
       "defining": [
@@ -3795,7 +3795,7 @@
       "python": 1,
       "rust": 0,
       "verdict": "rust-correct",
-      "reason": "The four diameter-7 length-55 through bores and their seventh pattern are retained. Independent OpenCascade measures equal diameter-10 length-10 mouths at z=+-27.5..37.5. No end is a material drilling-entry preference; Rust omits one-sided counterbore attribution and claims only the bore face(s) [146..149]. Python includes one arbitrarily selected mouth in each defining set shown here. Thus this exact one-sided face set is absent, not its underlying bore or pattern. tests/tie_breaks.rs checks 30 holes/seven patterns and symmetric bore retention under motion."
+      "reason": "Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal."
     },
     {
       "defining": [
@@ -3808,7 +3808,7 @@
       "python": 1,
       "rust": 0,
       "verdict": "rust-correct",
-      "reason": "The four diameter-7 length-55 through bores and their seventh pattern are retained. Independent OpenCascade measures equal diameter-10 length-10 mouths at z=+-27.5..37.5. No end is a material drilling-entry preference; Rust omits one-sided counterbore attribution and claims only the bore face(s) [146..149]. Python includes one arbitrarily selected mouth in each defining set shown here. Thus this exact one-sided face set is absent, not its underlying bore or pattern. tests/tie_breaks.rs checks 30 holes/seven patterns and symmetric bore retention under motion."
+      "reason": "Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal."
     },
     {
       "defining": [
@@ -3821,7 +3821,7 @@
       "python": 1,
       "rust": 0,
       "verdict": "rust-correct",
-      "reason": "The four diameter-7 length-55 through bores and their seventh pattern are retained. Independent OpenCascade measures equal diameter-10 length-10 mouths at z=+-27.5..37.5. No end is a material drilling-entry preference; Rust omits one-sided counterbore attribution and claims only the bore face(s) [146..149]. Python includes one arbitrarily selected mouth in each defining set shown here. Thus this exact one-sided face set is absent, not its underlying bore or pattern. tests/tie_breaks.rs checks 30 holes/seven patterns and symmetric bore retention under motion."
+      "reason": "Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal."
     },
     {
       "defining": [
@@ -10200,6 +10200,14 @@
     },
     {
       "defining": [
+        130,
+        132,
+        134,
+        136,
+        138,
+        140,
+        142,
+        144,
         146,
         147,
         148,
@@ -10211,7 +10219,79 @@
       "python": 0,
       "rust": 1,
       "verdict": "rust-correct",
-      "reason": "Independent OpenCascade measures equal diameter-10 length-10 mouths on both ends of each diameter-7 length-55 through bore. Rust retains all 30 holes and seven patterns, and these bore-only defining sets, while omitting unproved one-sided mouth attribution. Python includes one arbitrary mouth instead. The symmetric fixture and FTC10 count control verify retention and motion invariance."
+      "reason": "Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal."
+    },
+    {
+      "defining": [
+        134,
+        142,
+        146
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal."
+    },
+    {
+      "defining": [
+        136,
+        140,
+        147
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal."
+    },
+    {
+      "defining": [
+        130,
+        138,
+        148
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal."
+    },
+    {
+      "defining": [
+        132,
+        144,
+        149
+      ],
+      "family": "holes",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal."
+    },
+    {
+      "defining": [
+        146,
+        147,
+        148,
+        149
+      ],
+      "family": "hole_patterns",
+      "field": "present",
+      "file": "nist/nist_ftc_10_asme1_rb.stp",
+      "python": 0,
+      "rust": 1,
+      "verdict": "rust-correct",
+      "reason": "Resolved: the bore-only defining set has been replaced by the bore plus both equal counterbore mouths; no feature was removed. Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal.",
+      "resolved": true
     },
     {
       "defining": [
@@ -10223,7 +10303,8 @@
       "python": 0,
       "rust": 1,
       "verdict": "rust-correct",
-      "reason": "Independent OpenCascade measures equal diameter-10 length-10 mouths on both ends of each diameter-7 length-55 through bore. Rust retains all 30 holes and seven patterns, and these bore-only defining sets, while omitting unproved one-sided mouth attribution. Python includes one arbitrary mouth instead. The symmetric fixture and FTC10 count control verify retention and motion invariance."
+      "reason": "Resolved: the bore-only defining set has been replaced by the bore plus both equal counterbore mouths; no feature was removed. Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal.",
+      "resolved": true
     },
     {
       "defining": [
@@ -10235,7 +10316,8 @@
       "python": 0,
       "rust": 1,
       "verdict": "rust-correct",
-      "reason": "Independent OpenCascade measures equal diameter-10 length-10 mouths on both ends of each diameter-7 length-55 through bore. Rust retains all 30 holes and seven patterns, and these bore-only defining sets, while omitting unproved one-sided mouth attribution. Python includes one arbitrary mouth instead. The symmetric fixture and FTC10 count control verify retention and motion invariance."
+      "reason": "Resolved: the bore-only defining set has been replaced by the bore plus both equal counterbore mouths; no feature was removed. Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal.",
+      "resolved": true
     },
     {
       "defining": [
@@ -10247,7 +10329,8 @@
       "python": 0,
       "rust": 1,
       "verdict": "rust-correct",
-      "reason": "Independent OpenCascade measures equal diameter-10 length-10 mouths on both ends of each diameter-7 length-55 through bore. Rust retains all 30 holes and seven patterns, and these bore-only defining sets, while omitting unproved one-sided mouth attribution. Python includes one arbitrary mouth instead. The symmetric fixture and FTC10 count control verify retention and motion invariance."
+      "reason": "Resolved: the bore-only defining set has been replaced by the bore plus both equal counterbore mouths; no feature was removed. Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal.",
+      "resolved": true
     },
     {
       "defining": [
@@ -10259,7 +10342,8 @@
       "python": 0,
       "rust": 1,
       "verdict": "rust-correct",
-      "reason": "Independent OpenCascade measures equal diameter-10 length-10 mouths on both ends of each diameter-7 length-55 through bore. Rust retains all 30 holes and seven patterns, and these bore-only defining sets, while omitting unproved one-sided mouth attribution. Python includes one arbitrary mouth instead. The symmetric fixture and FTC10 count control verify retention and motion invariance."
+      "reason": "Resolved: the bore-only defining set has been replaced by the bore plus both equal counterbore mouths; no feature was removed. Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal.",
+      "resolved": true
     }
   ],
   "motions": [

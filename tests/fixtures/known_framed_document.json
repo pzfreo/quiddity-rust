@@ -2916,7 +2916,7 @@
     "check": "caller_space",
     "family": "holes",
     "verdict": "equivalent",
-    "reason": "The four restored double-counterbored holes have interchangeable ends. Independent OpenCascade establishes diameter-7 length-55 bores between z=-27.5 and +27.5, and equal diameter-10 length-10 mouths beyond both ends. Caller space presents axis -Z at +27.5; the inferred-frame API presents +Z at -27.5. These are the same undirected bore with the same defining faces [146], [147], [148], [149], dimensions and through classification, with no one-sided counterbore claim. tests/tie_breaks.rs::symmetric_double_counterbores_preserve_ftc10_and_captured_inventory checks both APIs retain 30 holes/seven patterns and verifies both physical endpoints and defining claims of each of these four records. This permits only the independently proved end-gauge representation difference; no feature is lost and no numeric tolerance changes.",
+    "reason": "The four double-counterbored holes have interchangeable ends. Independent OpenCascade establishes diameter-7 length-55 bores between z=-27.5 and +27.5 and equal diameter-10 length-10 mouths extending to z=+-37.5. Caller space presents axis -Z at +37.5; the inferred-frame API presents +Z at -37.5. Both retain CounterBore(10, 10) and claim the bore plus both mouths: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. tests/tie_breaks.rs::symmetric_double_counterbores_preserve_ftc10_and_captured_inventory checks both APIs retain 30 holes/seven patterns and verifies the physical bore endpoints, dimensions and claims under rigid motions. Only the presentation end gauge differs; no numeric tolerance or allowance changes.",
     "max_differing": 4
   }
 ]
