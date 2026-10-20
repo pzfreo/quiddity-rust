@@ -40,7 +40,8 @@ for name in [
     "truck_master_shaft_only", "truck_master_shaft_hole",
     "truck_pub_shaft_only", "truck_pub_shaft_hole",
 ]:
-    data = gzip.decompress((FIXTURES / (name + ".step.gz")).read_bytes())
+    directory = FIXTURES / "broken" if name == "truck_pub_shaft_hole" else FIXTURES
+    data = gzip.decompress((directory / (name + ".step.gz")).read_bytes())
     entities = Counter(re.findall(rb"^#(\d+)\s*=", data, re.MULTILINE))
     duplicates = sorted(int(k) for k, v in entities.items() if v > 1)
     with tempfile.TemporaryDirectory() as directory:

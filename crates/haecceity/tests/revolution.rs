@@ -154,7 +154,7 @@ fn truck_master_has_reversed_revolution_senses() {
 fn malformed_truck_pub_hole_is_refused() {
     let error = read_step_file_placed(
         &Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../tests/fixtures/truck_pub_shaft_hole.step.gz"),
+            .join("../../tests/fixtures/broken/truck_pub_shaft_hole.step.gz"),
         &IDENTITY,
     )
     .expect_err("duplicate STEP entity IDs must not be silently overwritten");
