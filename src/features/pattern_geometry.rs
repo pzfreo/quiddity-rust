@@ -20,6 +20,81 @@ pub(crate) trait Located {
 /// the points it was found among.
 pub(crate) type Candidate<R> = (R, Vec<usize>);
 
+/// Allocate largest patterns first by member count, then geometric span. Different equally
+/// supported member sets sharing a member
+/// establish no unique partition, so all those competing readings refuse. The same member set
+/// keeps the caller's explicit classification precedence (rectangle before circle, for example).
+/// Refused members cannot reappear in a smaller fallback selected by input order.
+pub(crate) fn allocate_candidates<R, const D: usize>(
+    mut candidates: Vec<Candidate<R>>,
+    points: &[[f64; D]],
+) -> Vec<R> {
+    for (_, members) in &mut candidates {
+        members.sort_unstable();
+        members.dedup();
+    }
+    let span = |members: &[usize]| {
+        members
+            .iter()
+            .flat_map(|&i| {
+                members
+                    .iter()
+                    .map(move |&j| py::dist(&points[i], &points[j]))
+            })
+            .fold(0_f64, f64::max)
+    };
+    let mut candidates: Vec<_> = candidates
+        .into_iter()
+        .map(|candidate| {
+            let reach = span(&candidate.1);
+            (candidate, reach)
+        })
+        .collect();
+    candidates.sort_by(|a, b| {
+        b.0.1
+            .len()
+            .cmp(&a.0.1.len())
+            .then_with(|| py::order(b.1, a.1))
+    });
+    let mut used = Vec::new();
+    let mut out = Vec::new();
+    let mut accepted = Vec::new();
+    while !candidates.is_empty() {
+        let size = candidates[0].0.1.len();
+        let reach = candidates[0].1;
+        let end = candidates
+            .iter()
+            .position(|(c, span)| c.1.len() != size || reach - span > geom::COORD_FLOOR)
+            .unwrap_or(candidates.len());
+        let group: Vec<_> = candidates
+            .drain(..end)
+            .map(|(candidate, _)| candidate)
+            .filter(|(_, idx)| !idx.iter().any(|i| used.contains(i)))
+            .collect();
+        for (n, (_, idx)) in group.iter().enumerate() {
+            let ambiguous = group
+                .iter()
+                .any(|(_, other)| idx != other && idx.iter().any(|i| other.contains(i)));
+            let duplicate = group[..n].iter().any(|(_, other)| idx == other);
+            if !ambiguous && !duplicate {
+                out.push(n);
+            }
+        }
+        let selected = std::mem::take(&mut out);
+        // Keep ownership of records while remembering both accepted and ambiguous members.
+        let mut records = Vec::new();
+        for (n, (record, idx)) in group.into_iter().enumerate() {
+            used.extend(idx);
+            if selected.contains(&n) {
+                records.push(record);
+            }
+        }
+        // See the accumulator below: batch-local indices never escape this loop.
+        accepted.extend(records);
+    }
+    accepted
+}
+
 /// `_pattern_tol`: what two pattern members' spacings may differ by.
 pub(crate) fn pattern_tol(nominal: f64) -> f64 {
     PATTERN_REL_TOL * nominal + PATTERN_ABS_TOL
@@ -212,49 +287,88 @@ pub(crate) fn rect_grid<M: Located, R>(
         return None;
     }
     diffs.sort_by(|a, b| py::tuple_order(&[a.0, a.1, a.2], &[b.0, b.1, b.2]));
-    let (l1, b1x, b1y) = diffs[0];
-    let u1 = (b1x / l1, b1y / l1);
-    let &(l2, b2x, b2y) = diffs
+    let shortest = diffs[0].0;
+    // Equal pitches may offer two bases. The longer populated row establishes the columns;
+    // a coordinate-lexicographic vector must not interchange row/column measurements.
+    let mut best: Option<(usize, usize, f64, f64, f64)> = None;
+    let mut bases: Vec<(f64, f64)> = Vec::new();
+    for &(l1, b1x, b1y) in diffs
         .iter()
-        .find(|(l, dx, dy)| ((dx * u1.0 + dy * u1.1) / l).abs() < 0.2)?;
-    let u2 = (b2x / l2, b2y / l2);
-    let a0 = pts
-        .iter()
-        .map(|p| p.0 * u1.0 + p.1 * u1.1)
-        .fold(f64::INFINITY, f64::min);
-    let b0 = pts
-        .iter()
-        .map(|p| p.0 * u2.0 + p.1 * u2.1)
-        .fold(f64::INFINITY, f64::min);
-    let mut cells: Vec<(i64, i64)> = Vec::with_capacity(n);
-    for p in pts {
-        let da = p.0 * u1.0 + p.1 * u1.1 - a0;
-        let db = p.0 * u2.0 + p.1 * u2.1 - b0;
-        // Python's round: half to even.
-        let (ci, cj) = ((da / l1).round_ties_even(), (db / l2).round_ties_even());
-        if (da - ci * l1).abs() > pattern_tol(l1) || (db - cj * l2).abs() > pattern_tol(l2) {
-            return None;
+        .take_while(|d| d.0 - shortest <= geom::COORD_FLOOR)
+    {
+        let u1 = (b1x / l1, b1y / l1);
+        // Repeated shortest edges describe the same unordered direction. Try that basis
+        // once, rather than rescanning all O(n²) differences for each of O(n) copies.
+        if bases
+            .iter()
+            .any(|&(x, y)| (x * u1.1 - y * u1.0).abs() * l1 <= geom::COORD_FLOOR)
+        {
+            continue;
         }
-        cells.push((ci as i64, cj as i64));
+        bases.push(u1);
+        let Some(&(l2, b2x, b2y)) = diffs
+            .iter()
+            .find(|(l, dx, dy)| ((dx * u1.0 + dy * u1.1) / l).abs() < 0.2)
+        else {
+            continue;
+        };
+        let u2 = (b2x / l2, b2y / l2);
+        let a0 = pts
+            .iter()
+            .map(|p| p.0 * u1.0 + p.1 * u1.1)
+            .fold(f64::INFINITY, f64::min);
+        let b0 = pts
+            .iter()
+            .map(|p| p.0 * u2.0 + p.1 * u2.1)
+            .fold(f64::INFINITY, f64::min);
+        let mut cells = Vec::with_capacity(n);
+        let mut valid = true;
+        for p in pts {
+            let (da, db) = (p.0 * u1.0 + p.1 * u1.1 - a0, p.0 * u2.0 + p.1 * u2.1 - b0);
+            let (ci, cj) = ((da / l1).round_ties_even(), (db / l2).round_ties_even());
+            if (da - ci * l1).abs() > pattern_tol(l1) || (db - cj * l2).abs() > pattern_tol(l2) {
+                valid = false;
+                break;
+            }
+            cells.push((ci as i64, cj as i64));
+        }
+        if !valid {
+            continue;
+        }
+        let mut distinct = cells.clone();
+        distinct.sort_unstable();
+        distinct.dedup();
+        if distinct.len() != n {
+            continue;
+        }
+        let cols = (cells.iter().map(|c| c.0).max().unwrap() + 1) as usize;
+        let rows = (cells.iter().map(|c| c.1).max().unwrap() + 1) as usize;
+        if rows < 2 || cols < 2 || rows.max(cols) < 3 || rows * cols != n {
+            continue;
+        }
+        let candidate = (
+            rows,
+            cols,
+            py::round_to(l2, 2),
+            py::round_to(l1, 2),
+            py::round_to(py::modulo(u1.1.atan2(u1.0).to_degrees(), 180.), 2),
+        );
+        let rank = |c: &(usize, usize, f64, f64, f64)| [c.1 as f64, c.0 as f64, c.2, c.3];
+        if best.as_ref().is_none_or(|old| {
+            let order = py::tuple_order(&rank(&candidate), &rank(old));
+            order.is_gt()
+        }) {
+            best = Some(candidate);
+        }
     }
-    let mut distinct = cells.clone();
-    distinct.sort_unstable();
-    distinct.dedup();
-    if distinct.len() != n {
-        return None;
-    }
-    let cols = (cells.iter().map(|c| c.0).max()? + 1) as usize;
-    let rows = (cells.iter().map(|c| c.1).max()? + 1) as usize;
-    if rows < 2 || cols < 2 || rows.max(cols) < 3 || rows * cols != n {
-        return None;
-    }
+    let (rows, cols, row_pitch, col_pitch, angle) = best?;
     Some(make(
         members,
         rows,
         cols,
-        py::round_to(l2, 2),
-        py::round_to(l1, 2),
-        py::round_to(py::modulo(u1.1.atan2(u1.0).to_degrees(), 180.0), 2),
+        row_pitch,
+        col_pitch,
+        angle,
         mean_location(members),
     ))
 }

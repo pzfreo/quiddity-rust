@@ -6,6 +6,9 @@
 //! (`max_differing`), so a listed difference that grows still fails.
 
 mod common;
+#[path = "support/motion_breakdown.rs"]
+mod motion_breakdown;
+use motion_breakdown::Breakdown;
 #[macro_use]
 #[path = "support/slices.rs"]
 mod slices;
@@ -180,6 +183,7 @@ fn invariant_under_rigid_motion(k: usize, n: usize) {
     })
     .into_iter();
     let mut found = Vec::new();
+    let mut breakdown_problems = Vec::new();
     let (mut unmoved_prints, mut moved_prints) = (Vec::new(), Vec::new());
     for name in &files {
         let unmoved = read.next().unwrap();
@@ -194,6 +198,15 @@ fn invariant_under_rigid_motion(k: usize, n: usize) {
         for ((motion, r, _), moved) in MOTIONS.iter().zip(moved) {
             let (moved_faces, got, got_prints) = moved.unwrap();
             assert_eq!(moved_faces, faces, "{name} {motion}");
+            breakdown_problems.extend(check_breakdown(
+                "corpus",
+                name,
+                motion,
+                &Breakdown::compare(
+                    &physical_occurrences(&expected),
+                    &physical_occurrences(&got),
+                ),
+            ));
             let d = differences(&expected, &got, |family| {
                 WORLD_Z.contains(&family) && r[2][2].abs() != 1.0
             });
@@ -204,6 +217,7 @@ fn invariant_under_rigid_motion(k: usize, n: usize) {
         moved_prints.push(moved_prints_here);
     }
     let mut problems = unexplained(&known, found.into_iter());
+    problems.extend(breakdown_problems);
     problems.extend(correspondence_problems(
         &all,
         k,
@@ -377,9 +391,10 @@ fn framed_invariant_under_a_generic_rotation(k: usize, n: usize) {
         }
     })
     .into_iter();
+    let mut breakdown_problems = Vec::new();
     let found: Vec<_> = files
         .iter()
-        .map(|_| {
+        .map(|name| {
             let mut next = || read.next().unwrap();
             let (plain_unmoved, plain_moved) = (next(), next());
             // Caller space: the part as read, and as read under the rotation.
@@ -389,7 +404,18 @@ fn framed_invariant_under_a_generic_rotation(k: usize, n: usize) {
             // In the part's frame. A refused frame (no material, an unmeasured face) is a
             // difference only when the two placements disagree on it.
             let differing = match (next(), next()) {
-                (Ok((_, unmoved)), Ok((_, moved))) => differences(&unmoved, &moved, |_| false),
+                (Ok((_, unmoved)), Ok((_, moved))) => {
+                    breakdown_problems.extend(check_breakdown(
+                        "framed",
+                        name,
+                        GENERIC,
+                        &Breakdown::compare(
+                            &physical_occurrences(&unmoved),
+                            &physical_occurrences(&moved),
+                        ),
+                    ));
+                    differences(&unmoved, &moved, |_| false)
+                }
                 (Err(a), Err(b)) if a == b => Vec::new(),
                 (a, b) => vec![Difference {
                     family: "frame",
@@ -421,7 +447,8 @@ fn framed_invariant_under_a_generic_rotation(k: usize, n: usize) {
         .iter()
         .zip(found)
         .map(|(name, (_, d))| (name, GENERIC, d));
-    let problems = unexplained(&known, framed);
+    let mut problems = unexplained(&known, framed);
+    problems.extend(breakdown_problems);
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 
@@ -838,4 +865,178 @@ fn plate_thickness_survives_a_fractional_publication_grid_translation() {
     for (faces, thickness) in before {
         assert!((thickness - after[&faces]).abs() < 1e-12);
     }
+}
+
+/// The reference census excludes world-Z construction levels and risers. Keep their existing
+/// comparison above, but never match them against physical features as alleged reclassifications.
+fn physical_occurrences(
+    signature: &BTreeMap<&str, Vec<Vec<usize>>>,
+) -> Vec<motion_breakdown::Occurrence> {
+    motion_breakdown::occurrences(signature)
+        .into_iter()
+        .filter(|o| !WORLD_Z.contains(&o.family.as_str()))
+        .collect()
+}
+
+/// Regression limits captured at 5fb1706. Missing entries mean zero; improvements are allowed.
+fn check_breakdown(suite: &str, file: &str, motion: &str, got: &Breakdown) -> Vec<String> {
+    eprintln!(
+        "BREAKDOWN {}",
+        serde_json::json!({"suite":suite,"file":file,"motion":motion,"counts":got})
+    );
+    let limits = common::load("motion_breakdown_limits.json");
+    let limit: Breakdown = limits
+        .get(suite)
+        .and_then(|v| v.get(file))
+        .and_then(|v| v.get(motion))
+        .map(|v| serde_json::from_value(v.clone()).expect("valid breakdown regression limit"))
+        .unwrap_or_default();
+    let problems = got.regressions(&limit);
+    if problems.is_empty() {
+        Vec::new()
+    } else {
+        vec![format!(
+            "{suite} {file} {motion}: {}; per-family breakdown {got:?}",
+            problems.join("; ")
+        )]
+    }
+}
+
+/// The reference sweep's census bindings, including its distinct-step compatibility projection.
+const SWEEP_FAMILIES: [(&str, &str); 28] = [
+    ("hole", "holes"),
+    ("hole_pattern", "hole_patterns"),
+    ("boss", "bosses"),
+    ("step", "turned_steps"),
+    ("groove", "grooves"),
+    ("flat", "flats"),
+    ("slot", "slots"),
+    ("oriented_slot", "oriented_slots"),
+    ("rectangular_blind_slot", "rectangular_blind_slots"),
+    ("round_bottom_blind_slot", "round_bottom_blind_slots"),
+    ("channel", "channels"),
+    ("pocket", "pockets"),
+    ("prismatic_pocket", "prismatic_pockets"),
+    ("edge_open_circular_pocket", "edge_open_circular_pockets"),
+    ("edge_open_prismatic_recess", "edge_open_prismatic_recesses"),
+    ("passage", "passages"),
+    ("chamfer", "chamfers"),
+    ("oriented_chamfer", "oriented_chamfers"),
+    ("angled_step", "angled_steps"),
+    ("gusset_rib", "gusset_ribs"),
+    ("paired_ramp_step", "paired_ramp_steps"),
+    ("through_step", "through_steps"),
+    ("oblique_through_step", "oblique_through_steps"),
+    ("circular_blind_step", "circular_blind_steps"),
+    ("blend", "blends"),
+    ("fillet", "fillets"),
+    ("countersink", "countersinks"),
+    ("plate", "plates"),
+];
+
+fn sweep_occurrences(part: &Part) -> Vec<motion_breakdown::Occurrence> {
+    use features::reconcile::ReasonCode;
+    let inventory = features::inventory(part).unwrap();
+    let compatible: Vec<_> = inventory
+        .dispositions
+        .iter()
+        .filter(|d| d.reason == ReasonCode::TurnedStepGrooveCompatible)
+        .map(|d| {
+            let mut f = d.candidate.defining.clone();
+            f.sort_unstable();
+            f
+        })
+        .collect();
+    let accepted = inventory.accepted();
+    let prints = correspondence::fingerprint(part, &accepted);
+    SWEEP_FAMILIES
+        .iter()
+        .flat_map(|&(family, field)| {
+            let compatible = &compatible;
+            prints
+                .features
+                .iter()
+                .filter(move |f| f.family == field)
+                .filter(move |f| field != "turned_steps" || !compatible.contains(&f.faces))
+                .map(move |f| motion_breakdown::Occurrence {
+                    family: family.into(),
+                    faces: f.faces.clone(),
+                })
+        })
+        .collect()
+}
+
+/// The 34 pinned golden STEP parts are the Python sweep's fixtures exported at the corpus pin.
+/// Raw inventory is intentional: this measures frame coupling, independently of the framed test.
+#[test]
+fn golden_sweep_matches_python_motion_definitions() {
+    let mut paths: Vec<_> = std::fs::read_dir(common::fixtures())
+        .unwrap()
+        .map(|p| p.unwrap().path())
+        .filter(|p| {
+            p.file_name()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .starts_with("golden_")
+                && p.extension().is_some_and(|e| e == "step")
+        })
+        .collect();
+    paths.sort();
+    assert_eq!(paths.len(), 34);
+    let motions = [
+        ("Z30", rotation([0.0, 0.0, 1.0], 30.0, [0.0; 3])),
+        ("X30", rotation([1.0, 0.0, 0.0], 30.0, [0.0; 3])),
+        ("X90", rotation([1.0, 0.0, 0.0], 90.0, [0.0; 3])),
+        ("translate", placement(&MOTIONS[0].1, &T)),
+    ];
+    let results = common::parallel::map(&paths, |path| {
+        let part = read_step_file_placed(path, &IDENTITY).unwrap();
+        let baseline = sweep_occurrences(&part);
+        motions
+            .iter()
+            .map(|(name, at)| {
+                let moved = read_step_file_placed(path, at).unwrap();
+                assert_eq!(part.faces.len(), moved.faces.len());
+                for i in 0..part.faces.len() {
+                    assert_eq!(part.faces[i].surface.kind(), moved.faces[i].surface.kind());
+                    assert_eq!(part.face_edges(i).len(), moved.face_edges(i).len());
+                    let a = part.face_moments(i).unwrap();
+                    let b = moved.face_moments(i).unwrap();
+                    assert!(
+                        (a.area - b.area).abs() < 1e-5,
+                        "{} {name} face {i} area",
+                        path.display()
+                    );
+                    let restored = [0, 1, 2].map(|d| {
+                        (0..3)
+                            .map(|k| at[k][d] * (b.centroid[k] - at[k][3]))
+                            .sum::<f64>()
+                    });
+                    assert!(
+                        quiddity::kernel::py::dist(&a.centroid, &restored) < 1e-5,
+                        "{} {name} face {i} correspondence",
+                        path.display()
+                    );
+                }
+                (
+                    *name,
+                    Breakdown::compare(&baseline, &sweep_occurrences(&moved)),
+                )
+            })
+            .collect::<Vec<_>>()
+    });
+    let mut totals: BTreeMap<&str, Breakdown> = BTreeMap::new();
+    let mut problems = Vec::new();
+    for (path, results) in paths.iter().zip(results) {
+        let file = path.file_name().unwrap().to_str().unwrap();
+        for (motion, counts) in results {
+            problems.extend(check_breakdown("golden", file, motion, &counts));
+            totals.entry(motion).or_default().add(&counts);
+        }
+    }
+    for (motion, counts) in totals {
+        eprintln!("TOTAL {motion} {}", serde_json::to_string(&counts).unwrap());
+    }
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
 }

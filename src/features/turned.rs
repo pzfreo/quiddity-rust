@@ -138,26 +138,20 @@ pub fn profile_key_from_bands(
     bounds: &Bounds,
     body_key: Option<BodyKey>,
 ) -> TurnedProfileKey {
-    // A Counter in first-seen order: the commonest origin wins, ties to the smallest.
-    let mut origins: Vec<(V3, usize)> = Vec::new();
-    for band in bands {
-        let origin: V3 = std::array::from_fn(|i| {
-            if i == axis {
-                0.0
-            } else {
-                py::round_to(band.axis_point[i], 8)
-            }
-        });
-        match origins.iter_mut().find(|(o, _)| *o == origin) {
-            Some((_, n)) => *n += 1,
-            None => origins.push((origin, 1)),
+    // Coaxial supports describe one transverse origin. Average their raw representatives
+    // before publication, instead of selecting a modal rounded coordinate lexicographically.
+    // Translation, axis interchange and reversal commute with this affine construction.
+    assert!(!bands.is_empty(), "a profile has bands");
+    let origin = [0, 1, 2].map(|i| {
+        if i == axis {
+            0.0
+        } else {
+            py::round_to(
+                py::fsum(bands.iter().map(|b| b.axis_point[i])) / bands.len() as f64,
+                8,
+            )
         }
-    }
-    let (origin, _) = origins
-        .iter()
-        .copied()
-        .min_by(|a, b| b.1.cmp(&a.1).then_with(|| py::tuple_order(&a.0, &b.0)))
-        .expect("a profile has bands");
+    });
     let r = |v: f64| py::round_to(v, 8);
     TurnedProfileKey {
         axis: axis_letter(axis),
@@ -171,5 +165,59 @@ pub fn profile_key_from_bands(
             r(bounds.max[2]),
         ],
         body_key,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn equally_supported_profile_origins_follow_motion_and_band_permutation() {
+        // Analytically coaxial bands can carry transverse modelling noise. Both rounded
+        // representatives occur once: the lower coordinate must not win the mode tie.
+        for [w, l, axis] in [[0, 1, 2], [1, 2, 0], [2, 0, 1]] {
+            for sign in [-1., 1.] {
+                for shift in [0., 123.456] {
+                    let point = |noise: f64| {
+                        let mut p = [0.; 3];
+                        p[w] = shift + sign * (1. + noise);
+                        p[l] = shift - sign * (2. - noise);
+                        p[axis] = shift;
+                        p
+                    };
+                    let mut direction = [0.; 3];
+                    direction[axis] = sign;
+                    let mut bands: Vec<_> = [-2e-8, 2e-8]
+                        .into_iter()
+                        .enumerate()
+                        .map(|(face, noise)| CylinderEvidence {
+                            face,
+                            solid: 0,
+                            diameter: 10.,
+                            axis,
+                            u_extent: std::f64::consts::TAU,
+                            axis_point: point(noise),
+                            direction,
+                            s_lo: 0.,
+                            s_hi: 10.,
+                            external: true,
+                        })
+                        .collect();
+                    let bounds = Bounds {
+                        min: [shift - 10.; 3],
+                        max: [shift + 10.; 3],
+                    };
+                    let mut expected = point(0.).map(|v| py::round_to(v, 8));
+                    expected[axis] = 0.;
+                    for _ in 0..2 {
+                        let refs: Vec<_> = bands.iter().collect();
+                        let key = profile_key_from_bands(axis, &refs, &bounds, None);
+                        assert_eq!(key.axis_origin, expected);
+                        bands.reverse();
+                    }
+                }
+            }
+        }
     }
 }

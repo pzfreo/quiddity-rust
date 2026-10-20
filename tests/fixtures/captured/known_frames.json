@@ -466,5 +466,38 @@
     ],
     "verdict": "rust-wrong",
     "reason": "Kernel: under the generic motion this seamless torus elbow's solid integrates to a negative volume (solid_mass -103.4 and area -432.4 against 219.3 and 444.9 unmoved), so the frame is refused for no material. The torus band between two loops without a seam edge takes the wrong side once moved (mass.rs's boundary walk); the in-place reading is right (crates/haecceity/tests/kernel.rs) and Python's frame agrees with it."
+  },
+  {
+    "case": "frame",
+    "fields": [
+      "x",
+      "y",
+      "z"
+    ],
+    "file": "torus_elbow_seamless.step",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: neither face order nor support sign establishes an axial material direction. These two equal-area nonorthogonal terminal planes establish a unique acute bisector line, the largest eigenline of the sum of their unoriented direction outer products. Rust uses that intrinsic line and explicitly leaves roll as an axial gauge; Python picks the first equally ranked end plane. OpenCascade independently confirms the equal planar areas and terminal normals. frames::axial_tie_tests proves covariance under Z30/X30/X90 and invariance to support sign/order, while the regular tetrahedron control refuses an unresolved multidirection tie. The pre-existing seamless-torus integration limitation and its separate equivariance refusal remain recorded unchanged."
+  },
+  {
+    "case": "frame",
+    "fields": [
+      "x",
+      "y",
+      "z"
+    ],
+    "file": "torus_elbow_seamless_reversed_bound.step",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: neither face order nor support sign establishes an axial material direction. These two equal-area nonorthogonal terminal planes establish a unique acute bisector line, the largest eigenline of the sum of their unoriented direction outer products. Rust uses that intrinsic line and explicitly leaves roll as an axial gauge; Python picks the first equally ranked end plane. OpenCascade independently confirms the equal planar areas and terminal normals. frames::axial_tie_tests proves covariance under Z30/X30/X90 and invariance to support sign/order, while the regular tetrahedron control refuses an unresolved multidirection tie. The pre-existing seamless-torus integration limitation and its separate equivariance refusal remain recorded unchanged."
+  },
+  {
+    "case": "moved",
+    "fields": [
+      "x",
+      "y",
+      "z"
+    ],
+    "file": "torus_elbow_seamless_reversed_bound.step",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: neither face order nor support sign establishes an axial material direction. These two equal-area nonorthogonal terminal planes establish a unique acute bisector line, the largest eigenline of the sum of their unoriented direction outer products. Rust uses that intrinsic line and explicitly leaves roll as an axial gauge; Python picks the first equally ranked end plane. OpenCascade independently confirms the equal planar areas and terminal normals. frames::axial_tie_tests proves covariance under Z30/X30/X90 and invariance to support sign/order, while the regular tetrahedron control refuses an unresolved multidirection tie. The pre-existing seamless-torus integration limitation and its separate equivariance refusal remain recorded unchanged."
   }
 ]

@@ -13,7 +13,7 @@ use super::policy::length_tol;
 use super::probes::{Sample, probe_samples};
 use crate::kernel::brep::Part;
 use crate::kernel::classify::State;
-use crate::kernel::geom::{self, COORD_FLOOR, Surface};
+use crate::kernel::geom::{self, COORD_FLOOR, Surface, V3};
 use crate::kernel::py;
 
 const PAIR_REL_TOL: f64 = 3e-4;
@@ -330,17 +330,7 @@ fn body_pairs(ctx: &Context<'_>, solid: usize) -> Option<BodyPairs> {
         Surface::Plane { frame } => Some(frame.z),
         _ => None,
     };
-    let nonparallel_area = match plane_normal(weighted[0].1) {
-        Some(primary) => py::fsum(
-            weighted
-                .iter()
-                .filter(|(_, a, _)| {
-                    plane_normal(*a).is_some_and(|n| geom::dot(primary, n).abs() < 0.95)
-                })
-                .map(|w| w.0),
-        ),
-        None => 0.0,
-    };
+    let nonparallel_area = minimum_nonparallel_support(&weighted, plane_normal);
     if curved_area.max(nonparallel_area) < 0.1 * paired_area {
         return None;
     }
@@ -393,6 +383,36 @@ fn face_areas(part: &Part, faces: impl IntoIterator<Item = usize>) -> Option<BTr
         .into_iter()
         .map(|f| part.face_mass(f).map(|m| (f, m[0])))
         .collect()
+}
+
+/// All equally largest planar pairs must support the eligibility decision; selecting the
+/// first pair could turn a slab into a shell when another tied direction sees more area.
+fn minimum_nonparallel_support(
+    weighted: &[(f64, usize, usize)],
+    normal: impl Fn(usize) -> Option<V3>,
+) -> f64 {
+    let largest = weighted[0].0;
+    weighted
+        .iter()
+        .take_while(|w| py::round_to(w.0, 9) == py::round_to(largest, 9))
+        .map(|&(_, a, _)| match normal(a) {
+            Some(primary) => py::fsum(
+                weighted
+                    .iter()
+                    .filter(|(_, face, _)| {
+                        normal(*face).is_some_and(|n| geom::dot(primary, n).abs() < 0.95)
+                    })
+                    .map(|w| w.0),
+            ),
+            None => 0.0,
+        })
+        .fold(f64::INFINITY, f64::min)
+}
+
+/// Whether the two largest connected skins are selected by area without a third tied skin.
+fn unique_skin_pair(comps: &[BTreeSet<usize>], area: &BTreeMap<usize, f64>) -> bool {
+    let size = |g: &BTreeSet<usize>| py::round_to(py::fsum(g.iter().map(|&i| area[&i])), 9);
+    comps.len() >= 2 && (comps.len() == 2 || size(&comps[1]) > size(&comps[2]))
 }
 
 /// `_skin_components`: the paired faces' connected skins, largest area first.
@@ -465,7 +485,7 @@ fn history_hint(
     let paired = pair_faces(pairs);
     let comps = skin_components(part, area, &paired);
     let (mut outer, mut inner) = (BTreeSet::new(), BTreeSet::new());
-    if comps.len() >= 2 {
+    if unique_skin_pair(&comps, area) {
         let (first, second) = (&comps[0], &comps[1]);
         let cross = pairs
             .iter()
@@ -604,7 +624,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<ThinWallBody>> {
             continue;
         };
         let comps = skin_components(part, &area, &paired);
-        if comps.len() < 2 {
+        if !unique_skin_pair(&comps, &area) {
             continue;
         }
         let component_of = |f: usize| comps.iter().position(|g| g.contains(&f));
@@ -640,4 +660,29 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<ThinWallBody>> {
         });
     }
     out
+}
+
+#[cfg(test)]
+mod tie_tests {
+    use super::*;
+    #[test]
+    fn planar_support_tie_has_one_verdict_after_rotation_and_pair_permutation() {
+        for angle in [0_f64, 30., 90.] {
+            let (s, c) = angle.to_radians().sin_cos();
+            let mut weighted = vec![(10., 0, 0), (10., 1, 1)];
+            weighted.extend((2..102).map(|i| (9., i, i)));
+            let normal = |i| Some(if i == 1 { [-s, c, 0.] } else { [c, s, 0.] });
+            assert_eq!(minimum_nonparallel_support(&weighted, normal), 10.);
+            weighted.swap(0, 1);
+            assert_eq!(minimum_nonparallel_support(&weighted, normal), 10.);
+        }
+    }
+    #[test]
+    fn three_equal_skins_have_no_unique_pair() {
+        let mut comps: Vec<_> = (0..3).map(|i| BTreeSet::from([i])).collect();
+        let area = BTreeMap::from([(0, 10.), (1, 10.), (2, 10.)]);
+        assert!(!unique_skin_pair(&comps, &area));
+        comps.reverse();
+        assert!(!unique_skin_pair(&comps, &area));
+    }
 }

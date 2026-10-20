@@ -15,6 +15,8 @@
 //! "python", "rust"}`). Unlisted, stale and doubly listed differences fail, and a failing run
 //! prints the entries it needs. The view is also compared with itself under two rigid motions
 //! (`motions`, the same shapes with a `motion`, `rust` unmoved and `moved`).
+//! Historical entries with `resolved: true` stay in the ledger as absence ratchets: their
+//! exact discrepancy must not return. This flag is test metadata, not a document schema field.
 
 mod common;
 
@@ -297,17 +299,31 @@ fn known_problems(found: Vec<Value>, list: &str) -> String {
         let map = e.as_object_mut().unwrap();
         map.remove("verdict");
         map.remove("reason");
+        map.remove("resolved");
         e.to_string()
     };
     let mut listed: BTreeMap<String, bool> = BTreeMap::new();
+    let mut resolved = std::collections::BTreeSet::new();
     let mut problems = Vec::new();
     for e in entries {
+        // Keep the historical expectation, but ratchet a proved fix: this exact difference
+        // must stay absent. A resolved entry cannot permit a reintroduced discrepancy.
+        if e.get("resolved").and_then(Value::as_bool) == Some(true) {
+            if !resolved.insert(strip(e)) {
+                problems.push(format!("resolved twice: {e}"));
+            }
+            continue;
+        }
         if listed.insert(strip(e), false).is_some() {
             problems.push(format!("listed twice: {e}"));
         }
     }
     let mut needed = Vec::new();
     for difference in found {
+        if resolved.contains(&strip(&difference)) {
+            problems.push(format!("resolved difference returned: {difference}"));
+            continue;
+        }
         match listed.get_mut(&strip(&difference)) {
             Some(seen) => *seen = true,
             None => {

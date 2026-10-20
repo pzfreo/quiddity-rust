@@ -2,17 +2,19 @@
 //! free end found from the faces beyond its two axial ends.
 
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 use super::Context;
 use super::cylinders::{axis_point_at, full_cylinders, segments, z_then_cross};
 use super::evidence::{self, EvidenceError, Occurrence};
 use super::stacks::{End, classify_end};
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{self, V3};
+use crate::kernel::geom::{self, COORD_FLOOR, V3};
 use crate::kernel::py;
 
 /// A boss: `axis` points from its base to its free end, `location` is the axis point at the free
-/// end, `height` the axial length.
+/// end, `height` the axial length. When geometry leaves the two ends interchangeable,
+/// axis/location represent an end gauge, not an asserted material base/free direction.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct BossRecord {
     pub axis: V3,
@@ -31,6 +33,44 @@ pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<BossRecord>
     evidence::verified(ctx.part, discover(ctx))
 }
 
+/// An intrinsic body-relative origin, using the boundary-area distribution already cached by
+/// the kernel. Missing surface measurements cannot establish a direction.
+fn body_origin(part: &Part, solid: usize) -> Option<V3> {
+    let faces = part
+        .solids
+        .get(solid)
+        .map_or_else(|| (0..part.faces.len()).collect(), |s| s.faces.clone());
+    let weighted = faces
+        .into_iter()
+        .map(|f| {
+            let moments = part.face_moments(f)?;
+            Some((moments.area, moments.centroid))
+        })
+        .collect::<Option<Vec<_>>>()?;
+    let area = py::fsum(weighted.iter().map(|(a, _)| *a));
+    if !area.is_finite() || area <= 0. {
+        return None;
+    }
+    let origin = [0, 1, 2].map(|i| py::fsum(weighted.iter().map(|(a, c)| a * c[i])) / area);
+    origin.iter().all(|x| x.is_finite()).then_some(origin)
+}
+
+fn free_end(lo: End, hi: End, relative_body_origin: Option<f64>) -> (bool, bool) {
+    match (lo == End::Open, hi == End::Open) {
+        (true, false) => (false, false),
+        (false, true) => (true, false),
+        _ => {
+            // When end states tie, the free end points away from the body's boundary-area
+            // centre. With no established direction, retain the OD using its existing
+            // undirected cylinder-axis representative. Both ends are presentation-equivalent.
+            match relative_body_origin.filter(|offset| offset.abs() > COORD_FLOOR) {
+                Some(offset) => (offset < 0., false),
+                None => (true, true),
+            }
+        }
+    }
+}
+
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<BossRecord>> {
     let part = ctx.part;
     let (z, cross) = z_then_cross(ctx.cylinders());
@@ -40,11 +80,30 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<BossRecord>> {
         .filter(|c| c.external)
         .collect();
     let mut out = Vec::new();
+    let mut origins = BTreeMap::new();
     for seg in segments(&external) {
         let (lo_state, lo_faces) = classify_end(part, &seg, seg.s_lo, false);
         let (hi_state, hi_faces) = classify_end(part, &seg, seg.s_hi, true);
-        // The free end is the high one unless only the low end is open.
-        let from_hi = !(lo_state == End::Open && hi_state != End::Open);
+        let relative_origin = if (lo_state == End::Open) == (hi_state == End::Open) {
+            origins
+                .entry(seg.solid)
+                .or_insert_with(|| body_origin(part, seg.solid))
+                .map(|origin| {
+                    let middle = axis_point_at(&seg, (seg.s_lo + seg.s_hi) / 2.);
+                    geom::dot(geom::sub(origin, middle), seg.direction)
+                })
+        } else {
+            None
+        };
+        let (from_hi, presentation) = free_end(lo_state, hi_state, relative_origin);
+        let gauge_faces = if presentation {
+            let mut faces: Vec<_> = lo_faces.iter().chain(&hi_faces).copied().collect();
+            faces.sort_unstable();
+            faces.dedup();
+            faces
+        } else {
+            vec![]
+        };
         let (free_state, free_faces) = if from_hi {
             (hi_state, hi_faces)
         } else {
@@ -59,7 +118,9 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<BossRecord>> {
                 height: py::round_to(seg.s_hi - seg.s_lo, 2),
             },
             defining: seg.faces.clone(),
-            context: if free_state == End::Open {
+            context: if presentation && free_state == End::Open {
+                gauge_faces
+            } else if free_state == End::Open {
                 free_faces
             } else {
                 vec![]

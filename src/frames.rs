@@ -56,6 +56,7 @@ pub enum FrameGauge {
 #[serde(rename_all = "kebab-case")]
 pub enum FrameRefusal {
     NoMaterial,
+    /// No unique analytic direction can establish the required frame or axial line.
     NoAnalyticDirection,
     NonfiniteGeometry,
     UnmeasuredFace,
@@ -291,9 +292,17 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
     let Some(&first) = ranked.first() else {
         return Err(FrameRefusal::NoAnalyticDirection);
     };
-    // One axis leaves roll unconstrained: the world axis least along it seeds a deterministic
-    // representative of the axial gauge, not a material direction.
-    let (x, _) = classes[first].oriented();
+    // An axial gauge still needs one geometric direction line. Two equally ranked oblique
+    // lines establish their acute bisector (the unique principal line of their scatter tensor),
+    // independently of either support's sign or order. Three or more tied directions are not
+    // resolved by a first face; the existing refusal reports the missing unique analytic line.
+    let tied: Vec<_> = ranked
+        .iter()
+        .copied()
+        .take_while(|&i| signature_order(&signatures[first], &signatures[i]).is_eq())
+        .collect();
+    let x = axial_line(&classes, &tied)?;
+    // Roll around this established line is an explicit gauge; a world seed represents it.
     let seeds = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
     let seed = seeds[py::first_min(&seeds, |s| py::dot(&x, s).abs())];
     let along = py::dot(&x, &seed);
@@ -306,6 +315,19 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
         y,
         z,
         gauge: FrameGauge::Axial,
+    })
+}
+
+/// The unique line established by the top direction class, or by two tied oblique lines.
+fn axial_line(classes: &[DirectionClass], tied: &[usize]) -> Result<V3, FrameRefusal> {
+    Ok(match tied {
+        [_] => classes[tied[0]].oriented().0,
+        [a, b] => {
+            let (a, b) = (classes[*a].direction, classes[*b].direction);
+            let sign = if py::dot(&a, &b) < 0.0 { -1.0 } else { 1.0 };
+            canonical_sign(unit([0, 1, 2].map(|i| a[i] + sign * b[i]))?)
+        }
+        _ => return Err(FrameRefusal::NoAnalyticDirection),
     })
 }
 
@@ -424,4 +446,41 @@ pub struct FramedRecognition {
     pub frame: PartFrame,
     pub part: Part,
     pub features: Features,
+}
+
+#[cfg(test)]
+mod axial_tie_tests {
+    use super::*;
+    #[test]
+    fn oblique_bisector_follows_motion_and_ignores_support_sign_and_order() {
+        for (axis, degrees) in [(2, 0_f64), (2, 30.), (0, 30.), (0, 90.)] {
+            let (s, c) = degrees.to_radians().sin_cos();
+            let rotate = |mut v: V3| {
+                let (a, b) = ((axis + 1) % 3, (axis + 2) % 3);
+                let (x, y) = (v[a], v[b]);
+                v[a] = c * x - s * y;
+                v[b] = s * x + c * y;
+                v
+            };
+            let expected = rotate([3_f64.sqrt() / 2., 0.5, 0.]);
+            for sign in [-1., 1.] {
+                let classes: Vec<_> = [
+                    rotate([1., 0., 0.]),
+                    rotate([0.5, 3_f64.sqrt() / 2., 0.]).map(|c| c * sign),
+                ]
+                .into_iter()
+                .map(|direction| DirectionClass {
+                    direction,
+                    area: 1.,
+                    face_areas: vec![1.],
+                    face_offsets: vec![(0., 1.)],
+                })
+                .collect();
+                for order in [[0, 1], [1, 0]] {
+                    let actual = axial_line(&classes, &order).unwrap();
+                    assert!((py::dot(&actual, &expected).abs() - 1.).abs() < 1e-12);
+                }
+            }
+        }
+    }
 }

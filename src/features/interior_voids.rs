@@ -340,13 +340,15 @@ fn escapes(
         let Some(normal) = part.face_normal(face, s.uv.0, s.uv.1) else {
             continue;
         };
-        let Some(outside) = [-1.0, 1.0]
+        let outside: Vec<_> = [-1.0, 1.0]
             .iter()
             .map(|sign| geom::add(s.point, geom::scale(normal, sign * offset)))
-            .find(|&p| ctx.solid_classifier(solid).classify(p) == State::Out)
-        else {
+            .filter(|&p| ctx.solid_classifier(solid).classify(p) == State::Out)
+            .collect();
+        let [outside] = outside.as_slice() else {
             continue;
         };
+        let outside = *outside;
         let mut all_hit = true;
         for &dir in &directions {
             let Some(hits) = ctx.solid_rays(solid).hits(outside, dir, max_distance) else {
@@ -379,13 +381,28 @@ fn contact_faces(
                 continue;
             }
             let hits = ctx.solid_rays(solid).hits(source, dir, grid.pitch)?;
-            let first = hits
+            let contacts: Vec<_> = hits
                 .iter()
-                .find(|h| COORD_FLOOR * 10.0 < h.t && h.t < grid.pitch)?;
-            found.insert(first.face);
+                .filter(|h| COORD_FLOOR * 10.0 < h.t && h.t < grid.pitch)
+                .map(|h| (h.t, h.face))
+                .collect();
+            let nearest = nearest_contacts(&contacts)?;
+            found.extend(nearest);
         }
     }
     (!found.is_empty()).then_some(found)
+}
+
+/// A ray through a shared boundary may meet several source faces at once. All equally near
+/// faces are evidence of the same contact; neither ray hit order nor face number owns it.
+fn nearest_contacts(hits: &[(f64, usize)]) -> Option<BTreeSet<usize>> {
+    let first = hits.iter().map(|h| h.0).min_by(f64::total_cmp)?;
+    Some(
+        hits.iter()
+            .filter(|h| (h.0 - first).abs() <= COORD_FLOOR)
+            .map(|h| h.1)
+            .collect(),
+    )
 }
 
 /// `_opening_regions`: the faces next to the void's skin but not in it, grouped by adjacency.
@@ -605,6 +622,31 @@ mod tests {
                 let mirrored = other[axis] + (dims[axis] as f64 - cell as f64 - 0.5) * other_pitch;
                 assert!((point + mirrored - 123.456).abs() < 1e-12);
             }
+        }
+    }
+}
+
+#[cfg(test)]
+mod contact_tie_tests {
+    use super::*;
+    #[test]
+    fn equal_contact_faces_survive_motion_and_hit_permutation() {
+        for angle in [0_f64, 30., 90.] {
+            let (s, c) = angle.to_radians().sin_cos();
+            let moved = |p: V3| {
+                [
+                    c * p[0] - s * p[1] + 123.456,
+                    s * p[0] + c * p[1] - 78.9,
+                    p[2] + 41.3,
+                ]
+            };
+            let origin = moved([0.; 3]);
+            let contact = moved([1., 0., 0.]);
+            let distance = geom::dist(origin, contact);
+            let mut hits = vec![(distance, 7), (distance, 2), (distance + 1., 5)];
+            assert_eq!(nearest_contacts(&hits), Some(BTreeSet::from([2, 7])));
+            hits.reverse();
+            assert_eq!(nearest_contacts(&hits), Some(BTreeSet::from([2, 7])));
         }
     }
 }

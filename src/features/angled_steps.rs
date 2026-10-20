@@ -4,9 +4,9 @@
 use serde::Serialize;
 
 use super::Context;
-use super::bevel::{classify_bevel, convex_bevel, material_beyond_corner};
+use super::bevel::{classify_bevel, material_beyond_corner, proved_bevel_planes};
 use super::evidence::{self, EvidenceError, Occurrence};
-use super::planes::{axis_aligned_axis, nearest_axis_aligned_planes};
+use super::planes::axis_aligned_axis;
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, Curve, V3};
 use crate::kernel::py;
@@ -80,13 +80,9 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<AngledStep>> {
             continue;
         };
         let (centre, axis) = (bevel.bounds.centre(), bevel.edge_axis);
-        let planes = nearest_axis_aligned_planes(part, face, centre, axis, false);
-        if (0..3).any(|j| j != axis && !planes.contains_key(&j)) {
+        let Some(planes) = proved_bevel_planes(ctx, face, centre, axis) else {
             continue;
-        }
-        if !convex_bevel(ctx, centre, axis, &planes) {
-            continue; // concave: a pocket or passage wall, not a step
-        }
+        };
         if material_beyond_corner(ctx, centre, axis, &planes) {
             continue; // the corner two recess walls meet at, not a corner of the part
         }
