@@ -6,6 +6,15 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Changed
+
+- quiddity-rust and haecceity are relicensed from AGPL-3.0-only to Apache-2.0 by the copyright
+  owner, matching Python quiddity. `LICENSE`, `NOTICE`, the CLA and CONTRIBUTING say so.
+- Both crates are ready for crates.io: descriptions, repository, keywords and categories, an
+  `include` list (sources, README, CHANGELOG, LICENSE, NOTICE; no test fixtures), and an exact
+  version on quiddity's `haecceity` dependency. `cargo package --workspace` packages and
+  verifies both (haecceity 520 KiB, quiddity 505 KiB compressed).
+
 ### Fixed
 
 - Preserve a single sheet when converting radial `SURFACE_OF_REVOLUTION` line
