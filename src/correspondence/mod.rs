@@ -848,7 +848,7 @@ mod tests {
         assert!(!good.features.is_empty());
         assert!(correspond(&good, &good).is_ok());
         type Mutation = fn(&mut Fingerprints);
-        let bad: [(&str, Mutation); 6] = [
+        let bad: [(&str, Mutation); 7] = [
             ("face 999, beyond", |f| f.features[0].faces = vec![999]),
             ("neighbour 999", |f| {
                 f.faces[0].neighbours.push((999, "convex".into()))
@@ -857,6 +857,9 @@ mod tests {
             ("scale 0", |f| f.scale = 0.0),
             ("scale NaN", |f| f.scale = f64::NAN),
             ("version", |f| f.fingerprint_version = "other".into()),
+            ("fingerprint/2", |f| {
+                f.fingerprint_version = "quiddity-rust/fingerprint/2".into()
+            }),
         ];
         for (expected, mutate) in bad {
             let mut f = good.clone();
