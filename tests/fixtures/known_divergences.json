@@ -685,14 +685,6 @@
     "reason": "A deliberately malformed part. The port gives volume 2619.5708144 and area 1878.1326890 (unchanged under translation). tools/kernel_evidence.py solids, about the port's centre, gives 2629.3944944 and 1881.1376912, and agrees with the port face by face to 1.4e-11 mm³ and 5.5e-12 mm² except on planar face 1, where it follows OpenCascade's loops: 150.6086142 against the port's 147.6036120, twice the triangular hole's 1.5025 (its loop is oriented as an outer boundary), and a volume term 9.8237 larger, twice the triangle's (its area times the plane's distance 9.807 from the centre, over 3). Face 1's area is rust-correct analytically (the plate's dimensions give 147.6036119780; tests/fixtures/known_face_areas.json), so the port's masses are the solid's. OpenCascade's 2628.7805144 and 1881.1376912 (fixed and adaptive rules alike) carry the triangle, and its volume differs from the independent sum by a further 0.61 mm³ because, with the triangle added, the shell's area vector no longer vanishes (3.005 mm² along face 1's normal) and its flux depends on the centre it is taken from."
   },
   {
-    "file": "inventory_refusal/14052.step.gz",
-    "family": "recognise_plates",
-    "key": "{} records: 1 vs 1 records, fields {\"body_key\"}",
-    "count": 1,
-    "verdict": "rust-wrong",
-    "reason": "Same plate. Python's body key is None because OpenCascade's BRepCheck calls the solid invalid: face 1 is faulted (as written its circular hole crosses the outer loop, BRepCheck_IntersectingWires; after the import's healing BRepCheck_BadOrientationOfSubshape). The kernel finds that fault (Part::bad_faces, crates/haecceity/tests/validity.rs) and the port's evidence path refuses the plate as Python's does, but the body key comes from the topological check (Part::solid_is_valid, closed and orientable), which recognise() keeps until the maintainer settles whether an unproved solid should panic or carry a refusal there."
-  },
-  {
     "file": "mfcadpp/10138.step",
     "family": "kernel",
     "key": "solid masses differ by up to 1e-8",
@@ -1259,5 +1251,221 @@
     "key": "{} records: 1 vs 2 records, fields {}",
     "verdict": "rust-correct",
     "reason": "Analytic lattice-symmetry and motion-invariance evidence: a box-centred lattice with stable cell counts maps onto itself under axis reversal and interchange (interior_voids::tests; all five motions in tests/invariance.rs). Estimates retain their samples and volume in the output. The 11512 candidate on faces 33-34 lacks a stable widening witness on this lattice: it remains an InteriorVoidRefusal document record with every original field and unproved evidence status, rather than a placement-dependent recognised chamber. tests/recognition.rs pins that complete retained payload."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
+    "key": "{} records: 1 vs 1 records, fields {\"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "inventory_refusal/14052.step.gz",
+    "key": "{} records: 1 vs 1 records, fields {\"body_key\", \"hi\", \"lo\"}",
+    "verdict": "rust-wrong",
+    "reason": "The band midpoint and unrounded coordinates are motion-correct (plates::tests and tests/invariance.rs); the unchanged body-key defect remains rust-wrong: Same plate. Python's body key is None because OpenCascade's BRepCheck calls the solid invalid: face 1 is faulted (as written its circular hole crosses the outer loop, BRepCheck_IntersectingWires; after the import's healing BRepCheck_BadOrientationOfSubshape). The kernel finds that fault (Part::bad_faces, crates/haecceity/tests/validity.rs) and the port's evidence path refuses the plate as Python's does, but the body key comes from the topological check (Part::solid_is_valid, closed and orientable), which recognise() keeps until the maintainer settles whether an unproved solid should panic or carry a refusal there."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/1000.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10007.step",
+    "key": "{} records: 2 vs 2 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10033.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10038.step",
+    "key": "{} records: 2 vs 2 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10047.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10049.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10060.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/1007.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10096.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10119.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/10155.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp/1017.step",
+    "key": "{} records: 2 vs 2 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/181.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/182.step",
+    "key": "{} records: 3 vs 3 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/183.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/20273.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/238.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/257.step",
+    "key": "{} records: 2 vs 2 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/275.step",
+    "key": "{} records: 2 vs 2 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/340.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/419.step",
+    "key": "{} records: 2 vs 2 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_holdout/808.step",
+    "key": "{} records: 1 vs 1 records, fields {\"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "mfcadpp_regressions/11512.step",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "key": "{} records: 1 vs 1 records, fields {\"hi\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_plates",
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "key": "{} records: 5 vs 5 records, fields {\"hi\", \"lo\"}",
+    "verdict": "rust-correct",
+    "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
   }
 ]

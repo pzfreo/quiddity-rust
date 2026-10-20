@@ -365,5 +365,27 @@
     "test": "tests/test_interior_voids.py::test_polyhedral_core_with_small_port_survives_rigid_rotation",
     "verdict": "rust-correct",
     "reason": "Analytic lattice symmetry and motion-invariance evidence: cell counts use stable integral ratios and equal padding about the box centre, rather than phase from its minimum corner. The same polyhedral chamber and opening remain; its estimate now uses 4609 enclosed samples rather than 4610. This is a changed sampling estimate, not lost geometry. tests/invariance.rs and interior_voids::tests pin the symmetric lattice under placement."
+  },
+  {
+    "count": 1,
+    "file": "6d359acf631cc258.step.gz",
+    "function": "recognise_plates",
+    "options": {
+      "max_thick_frac": 1.1
+    },
+    "test": "tests/test_plate_attribution.py::test_real_face_coordinate_clusters_include_exact_tolerance_only[0.4999-3]",
+    "verdict": "rust-correct",
+    "reason": "Analytic face-band midpoint: planes at 0 and 0.4999 (or 0.5) have an intrinsic midpoint 0.24995 (or 0.25), rather than the lowest coordinate Python selects. The same source faces remain and the full-precision slab span survives reversal and a 0.00051 mm translation (plates::tests; tests/invariance.rs)."
+  },
+  {
+    "count": 1,
+    "file": "48b375c9e0553bf3.step.gz",
+    "function": "recognise_plates",
+    "options": {
+      "max_thick_frac": 1.1
+    },
+    "test": "tests/test_plate_attribution.py::test_real_face_coordinate_clusters_include_exact_tolerance_only[0.5-3]",
+    "verdict": "rust-correct",
+    "reason": "Analytic face-band midpoint: planes at 0 and 0.4999 (or 0.5) have an intrinsic midpoint 0.24995 (or 0.25), rather than the lowest coordinate Python selects. The same source faces remain and the full-precision slab span survives reversal and a 0.00051 mm translation (plates::tests; tests/invariance.rs)."
   }
 ]

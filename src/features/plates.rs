@@ -255,8 +255,8 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
             out.push(Occurrence {
                 record: Plate {
                     axis: axis_letter(i),
-                    lo: py::round_to(low, 3),
-                    hi: py::round_to(high, 3),
+                    lo: low,
+                    hi: high,
                     u: (low_group.u_sum + high_group.u_sum) / combined_area,
                     v: (low_group.v_sum + high_group.v_sum) / combined_area,
                     body_key: None,
@@ -297,7 +297,7 @@ impl Ord for Coord {
 }
 
 /// One side's faces clustered by plane coordinate (`cluster_coordinates`), keyed by each
-/// cluster's lowest coordinate, with sums in cluster order.
+/// cluster's midpoint, with sums in cluster order (unchanged by axis reversal).
 fn group(side: &[Entry], tol: f64) -> BTreeMap<Coord, Group> {
     let locations: Vec<f64> = side.iter().map(|e| e.0).collect();
     let mut groups = BTreeMap::new();
@@ -306,9 +306,13 @@ fn group(side: &[Entry], tol: f64) -> BTreeMap<Coord, Group> {
             .iter()
             .map(|&k| side[k].0)
             .fold(f64::INFINITY, f64::min);
+        let high = cluster
+            .iter()
+            .map(|&k| side[k].0)
+            .fold(f64::NEG_INFINITY, f64::max);
         let sum = |f: fn(&Entry) -> f64| cluster.iter().fold(0.0, |acc, &k| acc + f(&side[k]));
         groups.insert(
-            Coord(low),
+            Coord(0.5 * (low + high)),
             Group {
                 area: sum(|e| e.1),
                 u_sum: sum(|e| e.2),
@@ -406,4 +410,21 @@ fn oriented_cross_area(part: &Part, scope: &Scope, faces: &[usize], i: usize, ex
             size(other[0]) * size(other[1])
         })
         .fold(f64::INFINITY, f64::min)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn face_band_midpoint_is_covariant_under_axis_reversal() {
+        let side = [(0.0, 1.0, 0.0, 0.0, 0), (0.5, 1.0, 0.0, 0.0, 1)];
+        let groups = group(&side, 0.5);
+        assert_eq!(groups.len(), 1);
+        assert_eq!(groups.first_key_value().unwrap().0.0, 0.25);
+        let moved = side.map(|(c, a, u, v, f)| (123.456 - c, a, u, v, f));
+        let groups = group(&moved, 0.5);
+        assert_eq!(groups.len(), 1);
+        assert!((groups.first_key_value().unwrap().0.0 - (123.456 - 0.25)).abs() < 1e-12);
+    }
 }

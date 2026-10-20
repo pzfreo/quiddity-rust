@@ -104,61 +104,6 @@
     "faces": 72
   },
   {
-    "test": "invariance",
-    "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
-    "motion": "rot_y180",
-    "verdict": "rust-wrong",
-    "reason": "Fingerprint version 2 records a plate's thickness (hi - lo), and the plate recogniser's lo and hi are not invariant: each side's planar faces are clustered within the 0.5 mm tolerance and the cluster is placed at its lowest coordinate (plates.rs group, as Python's cluster_coordinates). Where one side has two faces less than 0.5 mm apart, which of them is lowest flips with the axis's sign, so the same defining faces give another thickness (mfcadpp_holdout/808: faces 7 at y=0 and 9 at y=0.5 with face 5 at y=3 give 3.0 unmoved and 2.5 under rot_z90). The record itself changes, and the correspondence honestly reports the plate adapted (to itself). The recogniser, not correspondence, is at fault; Python behaves the same.",
-    "features": [
-      "plates/0"
-    ],
-    "faces": 0
-  },
-  {
-    "test": "invariance",
-    "file": "mfcadpp/10049.step",
-    "motion": "rot_y180",
-    "verdict": "rust-wrong",
-    "reason": "Fingerprint version 2 records a plate's thickness (hi - lo), and the plate recogniser's lo and hi are not invariant: each side's planar faces are clustered within the 0.5 mm tolerance and the cluster is placed at its lowest coordinate (plates.rs group, as Python's cluster_coordinates). Where one side has two faces less than 0.5 mm apart, which of them is lowest flips with the axis's sign, so the same defining faces give another thickness (mfcadpp_holdout/808: faces 7 at y=0 and 9 at y=0.5 with face 5 at y=3 give 3.0 unmoved and 2.5 under rot_z90). The record itself changes, and the correspondence honestly reports the plate adapted (to itself). The recogniser, not correspondence, is at fault; Python behaves the same.",
-    "features": [
-      "plates/0"
-    ],
-    "faces": 0
-  },
-  {
-    "test": "invariance",
-    "file": "mfcadpp_holdout/182.step",
-    "motion": "rot_y180",
-    "verdict": "rust-wrong",
-    "reason": "Fingerprint version 2 records a plate's thickness (hi - lo), and the plate recogniser's lo and hi are not invariant: each side's planar faces are clustered within the 0.5 mm tolerance and the cluster is placed at its lowest coordinate (plates.rs group, as Python's cluster_coordinates). Where one side has two faces less than 0.5 mm apart, which of them is lowest flips with the axis's sign, so the same defining faces give another thickness (mfcadpp_holdout/808: faces 7 at y=0 and 9 at y=0.5 with face 5 at y=3 give 3.0 unmoved and 2.5 under rot_z90). The record itself changes, and the correspondence honestly reports the plate adapted (to itself). The recogniser, not correspondence, is at fault; Python behaves the same.",
-    "features": [
-      "plates/0"
-    ],
-    "faces": 0
-  },
-  {
-    "test": "invariance",
-    "file": "mfcadpp_holdout/340.step",
-    "motion": "rot_z90",
-    "verdict": "rust-wrong",
-    "reason": "Fingerprint version 2 records a plate's thickness (hi - lo), and the plate recogniser's lo and hi are not invariant: each side's planar faces are clustered within the 0.5 mm tolerance and the cluster is placed at its lowest coordinate (plates.rs group, as Python's cluster_coordinates). Where one side has two faces less than 0.5 mm apart, which of them is lowest flips with the axis's sign, so the same defining faces give another thickness (mfcadpp_holdout/808: faces 7 at y=0 and 9 at y=0.5 with face 5 at y=3 give 3.0 unmoved and 2.5 under rot_z90). The record itself changes, and the correspondence honestly reports the plate adapted (to itself). The recogniser, not correspondence, is at fault; Python behaves the same.",
-    "features": [
-      "plates/0"
-    ],
-    "faces": 0
-  },
-  {
-    "test": "invariance",
-    "file": "mfcadpp_holdout/808.step",
-    "motion": "rot_z90",
-    "verdict": "rust-wrong",
-    "reason": "Fingerprint version 2 records a plate's thickness (hi - lo), and the plate recogniser's lo and hi are not invariant: each side's planar faces are clustered within the 0.5 mm tolerance and the cluster is placed at its lowest coordinate (plates.rs group, as Python's cluster_coordinates). Where one side has two faces less than 0.5 mm apart, which of them is lowest flips with the axis's sign, so the same defining faces give another thickness (mfcadpp_holdout/808: faces 7 at y=0 and 9 at y=0.5 with face 5 at y=3 give 3.0 unmoved and 2.5 under rot_z90). The record itself changes, and the correspondence honestly reports the plate adapted (to itself). The recogniser, not correspondence, is at fault; Python behaves the same.",
-    "features": [
-      "plates/0"
-    ],
-    "faces": 0
-  },
-  {
     "test": "revisions",
     "case": "hole_moved",
     "check": "other step_levels/0: carried",
@@ -226,7 +171,7 @@
     "file": "mfcadpp/10170.step",
     "motion": "translate",
     "verdict": "rust-wrong",
-    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "reason": "Remaining absolute publication-grid effect: SectionRecessGeometry requires its run_interval endpoints on a three-decimal grid about a frame origin perpendicular to the run. On mfcadpp/10170 the independently rounded endpoints give run lengths 23.209 mm unmoved and 23.210 mm translated (also under rot_zx_moved), on the same faces. Local section side and opening sizes are now placement-independent; this interval needs a versioned intrinsic run-length representation or an along-run frame origin. The recogniser publication is wrong here, not correspondence; frozen Python shares it. tests/invariance.rs continues to pin this exact case.",
     "features": [
       "section_recesses/0"
     ],
@@ -237,7 +182,7 @@
     "file": "mfcadpp/10170.step",
     "motion": "rot_zx_moved",
     "verdict": "rust-wrong",
-    "reason": "The section recess's sizes move by one grid step: its section is published on a four-decimal grid about a frame origin on a three-decimal grid in absolute coordinates, and its run interval on a three-decimal grid, so the motion's translation shifts the grid under the feature and a rounded side, opening width or run length changes (by 1e-4 mm, or 1e-3 mm along the run). Same faces, same record otherwise. The recogniser's grid, not the kernel; Python behaves the same (checked translated, on mfcadpp/10170: run length 23.21 against 23.209; mfcadpp_holdout/419: sides 9.0082 and 30.2454 against 9.0081 and 30.2453; nist_ftc_08: 3.1033 against 3.1032; mfcadpp/10255 and mfcadpp_holdout/238: the same moved sides as the port's).",
+    "reason": "Remaining absolute publication-grid effect: SectionRecessGeometry requires its run_interval endpoints on a three-decimal grid about a frame origin perpendicular to the run. On mfcadpp/10170 the independently rounded endpoints give run lengths 23.209 mm unmoved and 23.210 mm translated (also under rot_zx_moved), on the same faces. Local section side and opening sizes are now placement-independent; this interval needs a versioned intrinsic run-length representation or an along-run frame origin. The recogniser publication is wrong here, not correspondence; frozen Python shares it. tests/invariance.rs continues to pin this exact case.",
     "features": [
       "section_recesses/0"
     ],

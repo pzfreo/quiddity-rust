@@ -290,14 +290,6 @@
   {
     "file": "mfcadpp/10049.step",
     "check": "caller_space",
-    "family": "plates",
-    "verdict": "rust-wrong",
-    "reason": "Independent analytic motion reference: reversing an axis maps an interval [lo,hi] to [-hi,-lo] and cannot change its physical thickness hi-lo. Here the same face cluster instead selects another support plane because it is represented by its lowest coordinate; 10049 has faces 11/19 at x=3.670 and tilted face 14 with origin x=3.733, so reversing sense changes the chosen extreme. The existing caller-space/default comparison isolates that axis-sense change on the same geometry for this file. Cause: a direction-dependent cluster representative, not a unique geometric thickness measurement; both coordinate-dependent readings cannot be a correct scalar thickness. This verdict records the defect and does not claim the default numeric thickness is an independently measured ground truth.",
-    "max_differing": 1
-  },
-  {
-    "file": "mfcadpp/10049.step",
-    "check": "caller_space",
     "family": "section_passages",
     "verdict": "equivalent",
     "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
@@ -736,14 +728,6 @@
     "max_differing": 1
   },
   {
-    "file": "mfcadpp_holdout/340.step",
-    "check": "caller_space",
-    "family": "plates",
-    "verdict": "rust-wrong",
-    "reason": "Independent analytic motion reference: reversing an axis maps an interval [lo,hi] to [-hi,-lo] and cannot change its physical thickness hi-lo. Here the same face cluster instead selects another support plane because it is represented by its lowest coordinate; 10049 has faces 11/19 at x=3.670 and tilted face 14 with origin x=3.733, so reversing sense changes the chosen extreme. The existing caller-space/default comparison isolates that axis-sense change on the same geometry for this file. Cause: a direction-dependent cluster representative, not a unique geometric thickness measurement; both coordinate-dependent readings cannot be a correct scalar thickness. This verdict records the defect and does not claim the default numeric thickness is an independently measured ground truth.",
-    "max_differing": 1
-  },
-  {
     "file": "mfcadpp_holdout/363.step",
     "check": "caller_space",
     "family": "circular_blind_steps",
@@ -837,14 +821,6 @@
     "family": "section_passages",
     "verdict": "equivalent",
     "reason": "Equivalent: the same passage. Its own frame (run sense, u and v) is chosen canonically by the dominant component of the run and a principal seed axis, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the ends' gradients are the same geometry expressed in the other passage frame.",
-    "max_differing": 1
-  },
-  {
-    "file": "mfcadpp_holdout/808.step",
-    "check": "caller_space",
-    "family": "plates",
-    "verdict": "rust-wrong",
-    "reason": "Independent analytic motion reference: reversing an axis maps an interval [lo,hi] to [-hi,-lo] and cannot change its physical thickness hi-lo. Here the same face cluster instead selects another support plane because it is represented by its lowest coordinate; 10049 has faces 11/19 at x=3.670 and tilted face 14 with origin x=3.733, so reversing sense changes the chosen extreme. The existing caller-space/default comparison isolates that axis-sense change on the same geometry for this file. Cause: a direction-dependent cluster representative, not a unique geometric thickness measurement; both coordinate-dependent readings cannot be a correct scalar thickness. This verdict records the defect and does not claim the default numeric thickness is an independently measured ground truth.",
     "max_differing": 1
   },
   {
