@@ -6,7 +6,7 @@ Run with a Python environment providing OCP, for example:
 The truck files are original exports, including invalid orientation flags and the
 pub hole file's duplicate IDs. Do not substitute OCCT's healed import for those
 source bytes. The hand-written fixtures use exact circular quadrant edges and
-bounded linear meridians; their analytic answers are the primary references.
+bounded or unbounded linear meridians; their analytic answers are the primary references.
 """
 
 import gzip
@@ -29,6 +29,7 @@ from OCP.TopoDS import TopoDS
 FIXTURES = Path(__file__).resolve().parent.parent / "tests" / "fixtures"
 ANALYTIC = {
     "revolution_shaft": (15000 * math.pi, 2850 * math.pi),
+    "revolution_line_shaft": (15000 * math.pi, 2850 * math.pi),
     "revolution_cone": (12 * math.pi, 24 * math.pi),
     "truck_master_shaft_only": (15000 * math.pi, 2850 * math.pi),
     "truck_pub_shaft_only": (15000 * math.pi, 2850 * math.pi),
@@ -36,7 +37,7 @@ ANALYTIC = {
 
 print(json.dumps({"OCP": OCP.__version__}))
 for name in [
-    "revolution_shaft", "revolution_cone",
+    "revolution_shaft", "revolution_line_shaft", "revolution_cone",
     "truck_master_shaft_only", "truck_master_shaft_hole",
     "truck_pub_shaft_only", "truck_pub_shaft_hole",
 ]:

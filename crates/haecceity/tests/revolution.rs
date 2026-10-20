@@ -3,6 +3,11 @@
 //! about +X, and degree-one B-spline meridians swept by SURFACE_OF_REVOLUTION.
 //! Shaft meridian (x,r): (0,0), (0,15), (40,15), (40,10), (100,10), (100,0).
 //! Cone meridian: (0,0), (0,3), (4,0). Neither uses truck or an OCCT exporter.
+//! revolution_line_shaft has the same exact quadrant topology but unbounded LINE
+//! meridians: the first disk starts on the axis, and the annulus's LINE starts
+//! at (40,-20,0) toward +Y, on the far side of the axis from its +Y trimming edges.
+//! Exact pcurves specify that sheet for STEP readers; haecceity's freeform
+//! integrator still projects the 3D boundary curves.
 //!
 //! Two input defects must not be hidden by changing the integral's sign or relaxing
 //! the parser. Master's revolution FACE_SURFACEs have same_sense=.F. despite their
@@ -57,6 +62,12 @@ fn revolution_shafts_and_cone_have_analytic_mass_and_moments() {
             [40.0, 0.0, 0.0],
         ),
         (
+            "revolution_line_shaft.step.gz",
+            15000.0 * PI,
+            2850.0 * PI,
+            [40.0, 0.0, 0.0],
+        ),
+        (
             "revolution_cone.step.gz",
             12.0 * PI,
             24.0 * PI,
@@ -102,13 +113,47 @@ fn revolution_shafts_and_cone_have_analytic_mass_and_moments() {
 
 #[test]
 fn mass_keeps_the_prescribed_orientation() {
-    let mut part = fixture("revolution_shaft.step.gz", &IDENTITY);
-    for face in &mut part.faces {
-        face.reversed = !face.reversed;
+    for name in ["revolution_shaft.step.gz", "revolution_line_shaft.step.gz"] {
+        let mut part = fixture(name, &IDENTITY);
+        for face in &mut part.faces {
+            face.reversed = !face.reversed;
+        }
+        let (volume, area) = part.solid_mass(0).unwrap();
+        close(volume, -15000.0 * PI);
+        close(area, 2850.0 * PI);
     }
-    let (volume, area) = part.solid_mass(0).unwrap();
-    close(volume, -15000.0 * PI);
-    close(area, 2850.0 * PI);
+}
+
+#[test]
+fn radial_line_disk_and_far_side_annulus_have_analytic_signed_flux() {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/fixtures/revolution_line_shaft.step.gz");
+    let text =
+        haecceity::step::decode_step_file_bytes(&path, std::fs::read(&path).unwrap()).unwrap();
+    // The swept curves themselves must be LINEs, not merely the seam edges.
+    let (model, _) = step_io::read(&text).unwrap();
+    assert_eq!(model.surface_of_revolution_arena.items.len(), 5);
+    assert!(
+        model
+            .surface_of_revolution_arena
+            .items
+            .iter()
+            .all(|s| matches!(s.swept_curve, step_io::generated::model::CurveRef::Line(_)))
+    );
+    let part = fixture("revolution_line_shaft.step.gz", &IDENTITY);
+    for (faces, x, quarter_area, nx) in [
+        (0..4, 0.0, 225.0 * PI / 4.0, -1.0),
+        (8..12, 40.0, 125.0 * PI / 4.0, 1.0),
+    ] {
+        for f in faces {
+            let [area, flux] = part.face_mass(f).unwrap();
+            close(area, quarter_area);
+            assert!((flux - x * nx * quarter_area).abs() < 1e-9 * quarter_area);
+            let m = part.face_moments(f).unwrap();
+            assert!((m.centroid[0] - x).abs() < 1e-9);
+            assert!(geom::dist(m.area_vector, [nx * quarter_area, 0.0, 0.0]) < 1e-9 * quarter_area);
+        }
+    }
 }
 
 #[test]

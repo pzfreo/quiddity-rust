@@ -415,9 +415,15 @@ impl Reader<'_> {
                 && geom::norm(geom::sub(radial, geom::scale(dir, along)))
                     <= 1e-12 * geom::norm(delta).max(1.0)
             {
+                // This correction requires a linear, two-pole profile. Refuse an
+                // unexpected dependency conversion instead of indexing or changing
+                // a higher-degree surface as though it were a line segment.
+                if n.degree_v != 1 || n.control_points.iter().any(|row| row.len() != 2) {
+                    return None;
+                }
                 let centre = geom::add(origin, geom::scale(z, geom::dot(delta, z)));
                 // Every rotated row meets the axis at the same profile parameter.
-                let first = &n.control_points[0];
+                let first = n.control_points.first()?;
                 let (a, b) = (first[0], first[1]);
                 let ab = geom::sub(b, a);
                 let t = geom::dot(geom::sub(centre, a), ab) / geom::dot(ab, ab);
