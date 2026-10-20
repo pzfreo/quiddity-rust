@@ -651,27 +651,17 @@ fn frame_gauge_mapping_preserves_claims_sizes_and_ids() {
 
 #[test]
 fn square_lattice_angle_is_a_gauge_preserving_claims_sizes_and_ids() {
-    use features::holes::{Bottom, HoleRecord};
-    let path = common::fixtures().join("golden_simple_through_hole.step");
+    let path = common::fixtures().join("ties/square_hole_grid.step");
     let part = read_step_file_placed(&path, &IDENTITY).unwrap();
     let mut original = features::recognise(&part);
-    original.holes = (0..3)
-        .flat_map(|x| {
-            (0..3).map(move |y| HoleRecord {
-                axis: [0., 0., -1.],
-                location: [x as f64 * 10., y as f64 * 10., 5.],
-                diameter: 2.,
-                depth: 10.,
-                bottom: Bottom::Through,
-                cbore: None,
-                spotface: None,
-                csink: None,
-            })
-        })
-        .collect();
-    original.defining.insert("holes", vec![vec![0]; 9]);
-    original.hole_patterns = features::hole_patterns::recognise_hole_patterns(&original.holes);
+    assert_eq!(original.holes.len(), 9);
     assert_eq!(original.hole_patterns.len(), 1);
+    let claims: std::collections::BTreeSet<_> = original.defining["holes"].iter().collect();
+    assert_eq!(
+        claims.len(),
+        9,
+        "member permutations must be observable as changed IDs"
+    );
     let before = claim_identity(&part, &original);
     // A 90-degree change of the square lattice representative claims the same members.
     let features::hole_patterns::HolePattern::RectGrid { angle, .. } =
