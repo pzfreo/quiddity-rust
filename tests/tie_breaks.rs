@@ -25,9 +25,21 @@ fn motions() -> Vec<Placement> {
     out
 }
 
+fn bore_ends(h: &features::holes::HoleRecord) -> [[f64; 3]; 2] {
+    let offset = h
+        .cbore
+        .iter()
+        .chain(&h.spotface)
+        .map(|s| s.depth)
+        .sum::<f64>();
+    [offset, offset + h.depth]
+        .map(|s| quiddity::kernel::geom::add(h.location, quiddity::kernel::geom::scale(h.axis, s)))
+}
+
 #[test]
-fn symmetric_double_mouth_keeps_the_bore_under_motion() {
+fn symmetric_double_mouth_keeps_the_bore_and_both_counterbores_under_motion() {
     let path = common::fixtures().join("ties/symmetric_double_mouth.step");
+    let mut claims = None;
     for at in motions() {
         let part = read_step_file_placed(&path, &at).unwrap();
         let found = features::holes::discover(&Context::new(&part), &[]);
@@ -37,11 +49,19 @@ fn symmetric_double_mouth_keeps_the_bore_under_motion() {
             (h.diameter, h.depth, h.bottom),
             (6., 18., features::holes::Bottom::Through)
         );
-        assert!(h.cbore.is_none() && h.spotface.is_none() && h.csink.is_none());
-        let ends = [
-            h.location,
-            quiddity::kernel::geom::add(h.location, quiddity::kernel::geom::scale(h.axis, h.depth)),
-        ];
+        assert_eq!(
+            h.cbore,
+            Some(features::holes::CounterBore {
+                diameter: 12.,
+                depth: 6.
+            })
+        );
+        assert!(h.spotface.is_none() && h.csink.is_none());
+        let mut faces = found[0].defining.clone();
+        faces.sort_unstable();
+        assert_eq!(faces.len(), 3, "bore and both enlarged mouth cylinders");
+        assert_eq!(claims.get_or_insert_with(|| faces.clone()), &faces);
+        let ends = bore_ends(h);
         for z in [-9., 9.] {
             let expected = [0, 1, 2].map(|i| at[i][3] + z * at[i][2]);
             assert!(
@@ -593,6 +613,38 @@ fn symmetric_double_counterbores_preserve_ftc10_and_captured_inventory() {
             ),
             (30, 7)
         );
+        let double_mouths = got.holes.iter().filter(|h| h.diameter == 7.).count();
+        assert_eq!(double_mouths, 4);
+        for at in motions() {
+            let moved = read_step_file_placed(&path, &at).unwrap();
+            let moved = features::recognise(&moved);
+            assert_eq!((moved.holes.len(), moved.hole_patterns.len()), (30, 7));
+            for (i, a) in got
+                .holes
+                .iter()
+                .enumerate()
+                .filter(|(_, h)| h.diameter == 7.)
+            {
+                let j = moved.defining["holes"]
+                    .iter()
+                    .position(|f| *f == got.defining["holes"][i])
+                    .unwrap();
+                let b = &moved.holes[j];
+                assert_eq!(
+                    (&a.cbore, a.diameter, a.depth, a.bottom),
+                    (&b.cbore, b.diameter, b.depth, b.bottom)
+                );
+                for p in bore_ends(a) {
+                    let expected =
+                        [0, 1, 2].map(|i| at[i][3] + (0..3).map(|j| at[i][j] * p[j]).sum::<f64>());
+                    assert!(
+                        bore_ends(b)
+                            .iter()
+                            .any(|q| quiddity::kernel::py::dist(&expected, q) < 1e-6)
+                    );
+                }
+            }
+        }
         // The two API contexts may reverse the same end gauge. Compare the actual physical
         // endpoints and defining claims, rather than requiring a material drilling-entry end.
         for (i, a) in got
@@ -614,17 +666,16 @@ fn symmetric_double_counterbores_preserve_ftc10_and_captured_inventory() {
                 (&a.cbore, &a.spotface, &a.csink),
                 (&b.cbore, &b.spotface, &b.csink)
             );
-            let ends = |h: &features::holes::HoleRecord| {
-                [
-                    h.location,
-                    quiddity::kernel::geom::add(
-                        h.location,
-                        quiddity::kernel::geom::scale(h.axis, h.depth),
-                    ),
-                ]
-            };
-            assert!(ends(a).iter().all(|p| {
-                ends(b)
+            assert_eq!(
+                a.cbore,
+                Some(features::holes::CounterBore {
+                    diameter: 10.,
+                    depth: 10.
+                })
+            );
+            assert_eq!(got.defining["holes"][i].len(), 3, "bore and both mouths");
+            assert!(bore_ends(a).iter().all(|p| {
+                bore_ends(b)
                     .iter()
                     .any(|q| quiddity::kernel::py::dist(p, q) < 1e-6)
             }));
@@ -638,13 +689,37 @@ fn symmetric_double_counterbores_preserve_ftc10_and_captured_inventory() {
         .filter_map(|c| c["file"].as_str())
         .find(|f| f.starts_with("f1d2c1f2"))
         .unwrap();
+    let mut claims = None;
     for at in motions() {
         let part =
             read_step_file_placed(&common::fixtures().join("captured").join(file), &at).unwrap();
+        let found = features::holes::discover(&Context::new(&part), &[]);
+        assert_eq!(found.len(), 1);
+        let h = &found[0].record;
         assert_eq!(
-            features::holes::discover(&Context::new(&part), &[]).len(),
-            1
+            (h.diameter, h.depth, h.bottom),
+            (10., 8., features::holes::Bottom::Through)
         );
+        assert_eq!(
+            h.cbore,
+            Some(features::holes::CounterBore {
+                diameter: 18.,
+                depth: 6.
+            })
+        );
+        assert!(h.spotface.is_none() && h.csink.is_none());
+        let mut faces = found[0].defining.clone();
+        faces.sort_unstable();
+        assert_eq!(faces.len(), 3, "bore and both enlarged mouth cylinders");
+        assert_eq!(claims.get_or_insert_with(|| faces.clone()), &faces);
+        for z in [-4., 4.] {
+            let expected = [0, 1, 2].map(|i| at[i][3] + z * at[i][2]);
+            assert!(
+                bore_ends(h)
+                    .iter()
+                    .any(|p| quiddity::kernel::py::dist(p, &expected) < 1e-6)
+            );
+        }
     }
 }
 

@@ -1123,6 +1123,10 @@ never removes a feature. A directed representative of an exactly symmetric part 
 modulo its stabilising symmetry: the undirected physical axis and both endpoints move with the
 part, while no material end is asserted.
 
+Matching counterbore or spotface dimensions at interchangeable mouths are retained, with
+both mouths claimed; the end attribution is a presentation gauge. The omission above applies
+only when the two readings differ, so an end gauge cannot lose identical machining callouts.
+
 The invariance harness also reports absent, reclassified and introduced occurrences per family,
 using the Python rigid-motion sweep's maximum-cardinality defining-face containment matching,
 same-family preference, overlap score and final pair-list tie. Baseline motion limits from `5fb1706`
