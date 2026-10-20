@@ -16,9 +16,9 @@ match, and report their removal.
 
 ## Contributor License Agreement
 
-quiddity-rust is released under the AGPL-3.0 and is also offered under separate
-commercial terms by the copyright owner. So that contributions can be included
-in both, every contributor agrees to the
+quiddity-rust is released under the Apache License 2.0. So that the copyright
+owner can keep licensing contributions on those and any other terms, every
+contributor agrees to the
 [Contributor License Agreement](CLA.md). You keep the copyright to your work;
 the CLA grants a licence, not an assignment.
 

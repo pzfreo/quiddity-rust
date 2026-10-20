@@ -5,7 +5,7 @@ geometry-only feature recognition for STEP B-Rep. No OpenCascade: STEP is read w
 [`step-io`](https://crates.io/crates/step-io) and everything the Python implementation asks of
 OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::kernel`).
 
-**Status: 0.1.0-alpha.8 (2026-10-20).** Changes are in [CHANGELOG.md](CHANGELOG.md); the alpha 1
+**Status: 0.1.0-alpha.9 (2026-10-20).** Changes are in [CHANGELOG.md](CHANGELOG.md); the alpha 1
 gates and their evidence in [docs/alpha1.md](docs/alpha1.md).
 
 ## Rust-first

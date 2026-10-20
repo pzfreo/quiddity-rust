@@ -2,11 +2,10 @@
 
 Thank you for contributing to **quiddity-rust**.
 
-quiddity-rust is released under the GNU Affero General Public License v3.0
-(AGPL-3.0) and is also offered under separate commercial terms by the Project
-Owner. So that contributions can be included in *both* the AGPL release and any
-commercially-licensed release, we ask every contributor to agree to this
-Contributor License Agreement ("Agreement").
+quiddity-rust is released under the Apache License, Version 2.0 (Apache-2.0).
+So that the Project Owner can keep licensing contributions under that and any
+other terms, we ask every contributor to agree to this Contributor License
+Agreement ("Agreement").
 
 This Agreement is for your protection as a contributor as well as the protection
 of the Project Owner and downstream users; it does **not** change your rights to
@@ -37,13 +36,13 @@ irrevocable copyright licence to reproduce, prepare derivative works of,
 publicly display, publicly perform, sublicense, and distribute Your
 Contributions and such derivative works.
 
-## 2. Right to relicense (dual licensing)
+## 2. Right to relicense
 
 You acknowledge that the Project Owner distributes quiddity-rust under the
-AGPL-3.0 **and** under separate commercial licence terms. Accordingly, the
+Apache-2.0 and may distribute it under other licence terms. Accordingly, the
 licence in Section 1 expressly includes the right for the Project Owner to
 license and sublicense Your Contributions, in source or object form, **under any
-licensing terms** — including the AGPL-3.0, other open-source licences, and
+licensing terms** — including the Apache-2.0, other open-source licences, and
 proprietary/commercial licences — and to do so without any obligation of
 accounting or payment to You. You retain all right, title, and interest in Your
 Contributions and may use them for any other purpose.
