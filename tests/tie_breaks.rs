@@ -579,6 +579,119 @@ fn a_radial_profile_keeps_its_stronger_axis_despite_tied_budget_cutoff() {
 }
 
 #[test]
+fn symmetric_double_counterbores_preserve_ftc10_and_captured_inventory() {
+    if let Some(dir) = common::corpus_dir() {
+        let part =
+            read_step_file_placed(&dir.join("nist/nist_ftc_10_asme1_rb.stp"), &IDENTITY).unwrap();
+        let got = features::recognise(&part);
+        assert_eq!((got.holes.len(), got.hole_patterns.len()), (30, 7));
+    }
+    let calls = common::load("captured/calls.json");
+    let file = calls["calls"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter_map(|c| c["file"].as_str())
+        .find(|f| f.starts_with("f1d2c1f2"))
+        .unwrap();
+    for at in motions() {
+        let part =
+            read_step_file_placed(&common::fixtures().join("captured").join(file), &at).unwrap();
+        assert_eq!(
+            features::holes::discover(&Context::new(&part), &[]).len(),
+            1
+        );
+    }
+}
+
+fn claim_identity(part: &quiddity::Part, f: &features::Features) -> Vec<serde_json::Value> {
+    quiddity::correspondence::fingerprint(part, f).features.iter().filter(|f| !matches!(f.family.as_str(), "step_levels" | "risers")).map(|f| serde_json::json!({"family":f.family,"id":f.id,"faces":f.faces,"sizes":f.sizes,"traits":f.traits})).collect()
+}
+
+fn assert_claim_identity(before: &[serde_json::Value], after: &[serde_json::Value]) {
+    assert_eq!(before.len(), after.len());
+    for (a, b) in before.iter().zip(after) {
+        for field in ["family", "id", "faces", "traits"] {
+            assert_eq!(a[field], b[field]);
+        }
+        // Surface-section lengths are recomputed from transformed endpoints; use the
+        // existing numeric parity comparator for the resulting floating-point roundoff.
+        assert!(
+            common::same(&a["sizes"], &b["sizes"]),
+            "{} vs {}",
+            a["sizes"],
+            b["sizes"]
+        );
+    }
+}
+
+#[test]
+fn frame_gauge_mapping_preserves_claims_sizes_and_ids() {
+    use quiddity::frames::{FrameGauge, infer_part_frame};
+    let mut gauges = Vec::new();
+    for file in ["ties/symmetric_cylinder.step", "ties/square_pocket.step"] {
+        let path = common::fixtures().join(file);
+        let part = read_step_file_placed(&path, &IDENTITY).unwrap();
+        gauges.push(infer_part_frame(&part).unwrap().gauge);
+        let original = features::recognise(&part);
+        let before = claim_identity(&part, &original);
+        assert!(!before.is_empty());
+        for at in motions() {
+            let moved = read_step_file_placed(&path, &at).unwrap();
+            let mapped = quiddity::framed_records::map_features(
+                original.clone(),
+                &quiddity::framed_records::Rigid::from_placement(&at),
+            );
+            assert_claim_identity(&before, &claim_identity(&moved, &mapped.features));
+        }
+    }
+    assert!(gauges.contains(&FrameGauge::Axial));
+    assert!(gauges.contains(&FrameGauge::Orthogonal));
+}
+
+#[test]
+fn square_lattice_angle_is_a_gauge_preserving_claims_sizes_and_ids() {
+    use features::holes::{Bottom, HoleRecord};
+    let path = common::fixtures().join("golden_simple_through_hole.step");
+    let part = read_step_file_placed(&path, &IDENTITY).unwrap();
+    let mut original = features::recognise(&part);
+    original.holes = (0..3)
+        .flat_map(|x| {
+            (0..3).map(move |y| HoleRecord {
+                axis: [0., 0., -1.],
+                location: [x as f64 * 10., y as f64 * 10., 5.],
+                diameter: 2.,
+                depth: 10.,
+                bottom: Bottom::Through,
+                cbore: None,
+                spotface: None,
+                csink: None,
+            })
+        })
+        .collect();
+    original.defining.insert("holes", vec![vec![0]; 9]);
+    original.hole_patterns = features::hole_patterns::recognise_hole_patterns(&original.holes);
+    assert_eq!(original.hole_patterns.len(), 1);
+    let before = claim_identity(&part, &original);
+    // A 90-degree change of the square lattice representative claims the same members.
+    let features::hole_patterns::HolePattern::RectGrid { angle, .. } =
+        &mut original.hole_patterns[0]
+    else {
+        panic!("expected grid")
+    };
+    *angle += 90.;
+    assert_eq!(before, claim_identity(&part, &original));
+    for at in motions() {
+        let moved = read_step_file_placed(&path, &at).unwrap();
+        let mapped = quiddity::framed_records::map_features(
+            original.clone(),
+            &quiddity::framed_records::Rigid::from_placement(&at),
+        );
+        assert_claim_identity(&before, &claim_identity(&moved, &mapped.features));
+    }
+}
+
+#[test]
 fn a_five_hundred_hole_perforated_plate_has_one_grid() {
     use features::holes::{Bottom, HoleRecord};
     let mut holes: Vec<_> = (0..20)
