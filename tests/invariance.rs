@@ -1173,3 +1173,65 @@ fn rolled_boss_rounds_are_specific_fillets() {
         }
     }
 }
+
+/// The circular corner cut's three section points already represent a roll of its side
+/// planes. The cylinder run and terminal stay principal; side-plane axis letters are needless.
+#[test]
+fn circular_steps_follow_rolled_supports() {
+    use features::{Context, circular_blind_steps};
+    let path = common::fixtures().join("golden_circular_blind_step.step");
+    let read = |at: &Placement| {
+        let part = read_step_file_placed(&path, at).unwrap();
+        circular_blind_steps::discover_verified(&Context::new(&part)).unwrap()
+    };
+    let baseline = read(&IDENTITY);
+    assert_eq!(baseline.len(), 1);
+    let before = &baseline[0].record;
+    assert_eq!((before.radius, before.length), (4., 25.));
+    for carrier in [
+        IDENTITY,
+        placement(&MOTIONS[4].1, &[0.; 3]),
+        [[0., 1., 0., 0.], [0., 0., 1., 0.], [1., 0., 0., 0.]],
+    ] {
+        for angle in [-30., -17., 17., 30.] {
+            let roll = rotation([1., 0., 0.], angle, [0.; 3]);
+            let at = [0, 1, 2].map(|i| {
+                [0, 1, 2, 3].map(|j| {
+                    if j == 3 {
+                        T[i]
+                    } else {
+                        (0..3).map(|k| carrier[i][k] * roll[k][j]).sum()
+                    }
+                })
+            });
+            let moved = read(&at);
+            assert_eq!(moved.len(), 1, "{at:?}");
+            assert_eq!(baseline[0].defining, moved[0].defining);
+            let after = &moved[0].record;
+            assert_eq!((before.radius, before.length), (after.radius, after.length));
+            let axis = (0..3).find(|&i| at[i][0].abs() > 0.999).unwrap();
+            assert_eq!(after.axis, ['x', 'y', 'z'][axis]);
+            let transform = |p: [f64; 3]| {
+                [0, 1, 2].map(|i| at[i][3] + (0..3).map(|j| at[i][j] * p[j]).sum::<f64>())
+            };
+            // Circular-step coordinates use six significant figures, not six decimals.
+            for i in 0..2 {
+                assert_eq!(
+                    transform(before.centreline[i]).map(quiddity::kernel::py::quantise6),
+                    after.centreline[i]
+                );
+            }
+            let transverse: Vec<_> = (0..3).filter(|&i| i != axis).collect();
+            for (index, p) in before.section.iter().enumerate() {
+                let point = transform([before.centreline[0][0], p[0], p[1]]);
+                let point = [point[transverse[0]], point[transverse[1]]]
+                    .map(quiddity::kernel::py::quantise6);
+                if index == 1 {
+                    assert_eq!(point, after.section[1]);
+                } else {
+                    assert!([0, 2].iter().any(|&j| point == after.section[j]));
+                }
+            }
+        }
+    }
+}

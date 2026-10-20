@@ -53,9 +53,7 @@
     },
     "golden_circular_blind_step.step": {
       "X30": {
-        "absent": {
-          "circular_blind_step": 1
-        },
+        "absent": {},
         "introduced": {},
         "reclassified": {}
       },
