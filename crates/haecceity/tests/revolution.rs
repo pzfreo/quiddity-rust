@@ -100,7 +100,10 @@ fn revolution_shafts_and_cone_have_analytic_mass_and_moments() {
                     centroid,
                 ) + placement[i][3]
             });
-            assert!(geom::dist(c, want) < 1e-8, "{name}: {c:?} vs {want:?}");
+            assert!(
+                geom::dist(c, want) < 1e-8,
+                "{name} centroid: {c:?} vs {want:?}"
+            );
             let mut sum = [0.0; 3];
             let mut face_area = 0.0;
             for i in 0..part.faces.len() {
@@ -113,7 +116,10 @@ fn revolution_shafts_and_cone_have_analytic_mass_and_moments() {
                 face_area,
                 area,
             );
-            assert!(geom::norm(sum) < 1e-9 * area, "{name}: {sum:?}");
+            assert!(
+                geom::norm(sum) < 1e-9 * area,
+                "{name} closed area vector: {sum:?}"
+            );
         }
     }
 }
@@ -220,6 +226,8 @@ fn malformed_truck_pub_hole_is_refused() {
     );
 }
 
+// Model last-ulp differences in step-io's trigonometric NURBS conversion, rebuilding
+// its caches too. Before the geometric retry, rotated shaft trial 0 gave 49974.59424876291.
 #[test]
 fn revolution_control_net_ulp_perturbations() {
     use haecceity::nurbs::NurbsSurface;
@@ -262,26 +270,28 @@ fn revolution_control_net_ulp_perturbations() {
                                 }
                             }
                         }
-                        *surface = Box::new(
-                            NurbsSurface::new(
-                                surface.degree_u,
-                                surface.degree_v,
-                                poles,
-                                surface.weights.clone(),
-                                surface.knots_u.clone(),
-                                surface.knots_v.clone(),
-                            )
-                            .unwrap(),
-                        );
+                        **surface = NurbsSurface::new(
+                            surface.degree_u,
+                            surface.degree_v,
+                            poles,
+                            surface.weights.clone(),
+                            surface.knots_u.clone(),
+                            surface.knots_v.clone(),
+                        )
+                        .unwrap();
                     }
                 }
                 let part =
                     haecceity::Part::new(faces, original.edges.clone(), original.solids.clone());
                 let context = format!("{name} control-net trial {trial} pose {placement:?}");
-                let (v, a) = part.solid_mass(0).unwrap();
+                let (v, a) = part
+                    .solid_mass(0)
+                    .unwrap_or_else(|| panic!("{context} solid mass unresolved"));
                 close(&format!("{context} volume"), v, volume);
                 close(&format!("{context} area"), a, area);
-                let (v, c) = part.volume_centroid().unwrap();
+                let (v, c) = part
+                    .volume_centroid()
+                    .unwrap_or_else(|| panic!("{context} centroid unresolved"));
                 close(&format!("{context} centroid volume"), v, volume);
                 let want = [0, 1, 2].map(|i| placement[i][0] * cx + placement[i][3]);
                 assert!(

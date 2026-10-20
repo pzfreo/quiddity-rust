@@ -427,9 +427,13 @@ impl Reader<'_> {
                 let (a, b) = (first[0], first[1]);
                 let ab = geom::sub(b, a);
                 let t = geom::dot(geom::sub(centre, a), ab) / geom::dot(ab, ab);
+                // An origin on the axis can acquire either sign through cancellation.
+                // Within 1e-12 of the profile cover's length it is on the axis: retain
+                // the forward half. A resolved far-side origin still retains its half.
+                let backward = along < -1e-12 * geom::norm(ab);
                 for row in &mut n.control_points {
                     let at_axis = geom::add(row[0], geom::scale(geom::sub(row[1], row[0]), t));
-                    row[usize::from(along < 0.0)] = at_axis;
+                    row[usize::from(backward)] = at_axis;
                 }
             }
         }
