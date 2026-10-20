@@ -8,6 +8,15 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Changed
 
+- Recognition no longer depends on a part's placement or on input order where ADR 0011 says it
+  must not: every first-wins, sign or ordering selector was audited and corrected (holes and
+  counterbore stacks, bosses, recesses and channels, plane corners, patterns, turned axes,
+  circular patterns, thin walls, voids, coordinate clusters, frames, oriented chamfers). A
+  remaining arbitrary choice is a presentation gauge, never a semantic one; only two readings
+  that would publish different features are refused. Identical counterbores at both ends of a
+  hole keep their dimensions and claim both mouths. A per-file, per-family inventory floor over
+  1,453 parts guards against losing features; the few changed counts each carry OpenCascade or
+  analytic evidence.
 - **Public `recess_reduce::merge_proposals` now refuses equal-width role ties with
   different run axes when no body extents are available.** Previously input order selected
   an interpretation. Part-aware recognition uses intrinsic body extents to accept a unique
