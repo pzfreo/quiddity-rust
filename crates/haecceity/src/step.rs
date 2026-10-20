@@ -376,7 +376,67 @@ impl Reader<'_> {
     }
 
     fn freeform(&self, face: &StepFace<'_>, kind: &'static str) -> Option<Surface> {
-        let n = face.to_nurbs()?;
+        let mut n = face.to_nurbs()?;
+        // An unbounded radial LINE has two preimages for every radius. step-io's
+        // conservative cover includes both, folding the disk over itself at the
+        // axis. Inversion can then change sheets, preserving |Su × Sv| but reversing
+        // the signed normal used by mass properties. Keep the half-line containing
+        // the profile's origin (the forward half when the origin is on the axis),
+        // retaining the profile's direction and a single cover of the disk.
+        if let SurfaceKind::Revolution(s) = face.surface().kind()
+            && let m::CurveRef::Line(i) = &s.swept_curve
+        {
+            // Work in file coordinates: deciding which sheet to retain must not
+            // depend on cancellation after a large instance translation.
+            let point = |r: &m::CartesianPointRef| {
+                let m::CartesianPointRef::CartesianPoint(i) = r else {
+                    return None;
+                };
+                let p = &self.model.cartesian_point_arena.get(i.0).coordinates;
+                Some([0, 1, 2].map(|k| p.get(k).copied().unwrap_or(0.0)))
+            };
+            let line = self.model.line_arena.get(i.0);
+            let base = point(&line.pnt)?;
+            let m::VectorRef::Vector(i) = &line.dir else {
+                return None;
+            };
+            let dir = self.raw_direction(&self.model.vector_arena.get(i.0).orientation)?;
+            let m::Axis1PlacementRef::Axis1Placement(i) = &s.axis_position;
+            let axis = self.model.axis1_placement_arena.get(i.0);
+            let origin = point(&axis.location)?;
+            let z = match &axis.axis {
+                Some(a) => self.raw_direction(a)?,
+                None => [0.0, 0.0, 1.0],
+            };
+            let delta = geom::sub(base, origin);
+            let radial = geom::sub(delta, geom::scale(z, geom::dot(delta, z)));
+            let along = geom::dot(radial, dir);
+            if geom::dot(dir, z).abs() <= 1e-12
+                && geom::norm(geom::sub(radial, geom::scale(dir, along)))
+                    <= 1e-12 * geom::norm(delta).max(1.0)
+            {
+                // This correction requires a linear, two-pole profile. Refuse an
+                // unexpected dependency conversion instead of indexing or changing
+                // a higher-degree surface as though it were a line segment.
+                if n.degree_v != 1 || n.control_points.iter().any(|row| row.len() != 2) {
+                    return None;
+                }
+                let centre = geom::add(origin, geom::scale(z, geom::dot(delta, z)));
+                // Every rotated row meets the axis at the same profile parameter.
+                let first = n.control_points.first()?;
+                let (a, b) = (first[0], first[1]);
+                let ab = geom::sub(b, a);
+                let t = geom::dot(geom::sub(centre, a), ab) / geom::dot(ab, ab);
+                // An origin on the axis can acquire either sign through cancellation.
+                // Within 1e-12 of the profile cover's length it is on the axis: retain
+                // the forward half. A resolved far-side origin still retains its half.
+                let backward = along < -1e-12 * geom::norm(ab);
+                for row in &mut n.control_points {
+                    let at_axis = geom::add(row[0], geom::scale(geom::sub(row[1], row[0]), t));
+                    row[usize::from(backward)] = at_axis;
+                }
+            }
+        }
         let place = |row: &Vec<[f64; 3]>| -> Vec<V3> {
             row.iter()
                 .map(|p| self.place_point(geom::scale(*p, self.to_mm)))

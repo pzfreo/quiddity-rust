@@ -744,6 +744,18 @@ impl Part {
         let (pu, pv) = surface.periodic();
         let lp = &self.uv_loops(face)?[i];
         let spans = closed_spans(surface);
+        let collapsed = collapsed_sides(surface);
+        let has_pole = collapsed.0.is_some() || collapsed.1.is_some();
+        let poles = match surface {
+            Surface::Freeform { surface: s, .. } => {
+                let (u0, _, v0, _) = s.domain();
+                [
+                    collapsed.0.map(|u| surface.value(u, v0)),
+                    collapsed.1.map(|v| surface.value(u0, v)),
+                ]
+            }
+            _ => [None, None],
+        };
         // The turn (or, round a closed B-spline surface, the whole span) nearest `near`.
         let unwrap = |(u, v): (f64, f64), near: (f64, f64)| {
             let span = |x: f64, near: f64, span: f64| {
@@ -821,11 +833,42 @@ impl Part {
                     }
                     _ => walk.last,
                 };
-                let (mut u, v) = foot(surface, spans, point, seed)?;
+                let (mut u, mut v) = foot(surface, spans, point, seed)?;
                 // Round a closed B-spline surface the point takes the parameters a whole span
                 // round that lie beside the walk (on the surface's seam it has both, and a
                 // boundary may cross that seam anywhere: a face's own seam need not lie on it).
-                let (su, sv) = surface.partials(u, v);
+                let (mut su, mut sv) = surface.partials(u, v);
+                if matches!(surface, Surface::Freeform { .. }) {
+                    let small_jacobian = geom::norm(su) <= 1e-12 * geom::norm(sv)
+                        || geom::norm(sv) <= 1e-12 * geom::norm(su);
+                    if small_jacobian || has_pole {
+                        let residual = geom::dist(surface.value(u, v), point);
+                        // Preserve the existing singular-Jacobian recovery. A last-ulp change in a
+                        // control point can also stall Newton *beside* the pole with a small
+                        // nonzero Jacobian, so rank alone must not gate the retry.
+                        let rank_stalled = small_jacobian && residual > 1e-9;
+                        // Each collapsed side supplies a known point on the surface. If the
+                        // proposed foot is no closer than that pole (within 1e-9 mm), it may
+                        // be a false local minimum. Accept this additional retry only for a
+                        // geometric improvement exceeding 1e-9 mm, not a last-ulp residual tie.
+                        let false_pole = !rank_stalled
+                            && has_pole
+                            && poles.iter().flatten().any(|&pole| {
+                                let distance = geom::dist(point, pole);
+                                distance > 1e-9 && residual >= distance - 1e-9
+                            });
+                        if rank_stalled || false_pole {
+                            let retry = crate::uv::beside_collapsed(surface, point, collapsed)?;
+                            if rank_stalled
+                                || geom::dist(surface.value(retry.0, retry.1), point) + 1e-9
+                                    < residual
+                            {
+                                (u, v) = retry;
+                                (su, sv) = surface.partials(u, v);
+                            }
+                        }
+                    }
+                }
                 if surface.singular_v(v).is_some() && geom::norm(su) <= 1e-6 * geom::norm(sv) {
                     // At the singular point itself u is round-off: it stays where the walk is,
                     // rather than setting the turn the rest of the edge unwraps against.

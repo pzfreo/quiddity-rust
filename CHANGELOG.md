@@ -32,6 +32,13 @@ in [docs/alpha1.md](docs/alpha1.md).
   version on quiddity's `haecceity` dependency. `cargo package --workspace` packages and
   verifies both (haecceity 520 KiB, quiddity 505 KiB compressed).
 
+### Fixed
+
+- Preserve a single sheet when converting radial `SURFACE_OF_REVOLUTION` line
+  profiles, and recover boundary inversion stalled at a collapsed surface side.
+  This corrects revolution face fluxes and mass properties without discarding
+  their prescribed orientation (#53).
+
 ## 0.1.0-alpha.9 (2026-10-20)
 
 Upgrading: fingerprints are now `quiddity-rust/fingerprint/3` and `correspond` refuses
