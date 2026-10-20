@@ -1245,4 +1245,22 @@ fn a_void_without_a_proved_throat_retains_its_measurements() {
     );
     assert!(!rec.fingerprints.features.iter().any(|f| f.id == record.id));
     assert_eq!(doc.schema_version, recognition::SCHEMA_VERSION);
+    // A refusal explains a candidate that was not published; it is not an unproved feature.
+    assert!(record.is_refusal());
+    let path = dir.join("mfcadpp_regressions/11512.step");
+    let (output, warnings) = serve::recognise_file(path.to_str().unwrap()).unwrap();
+    let refusals: Vec<_> = output
+        .document
+        .records
+        .iter()
+        .filter(|r| r.record_type == "InteriorVoidRefusal")
+        .map(|r| r.id.clone())
+        .collect();
+    assert!(!refusals.is_empty());
+    assert!(
+        warnings
+            .iter()
+            .all(|w| refusals.iter().all(|id| !w.contains(&format!("\"{id}\"")))),
+        "{warnings:?}"
+    );
 }

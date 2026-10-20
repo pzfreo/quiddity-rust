@@ -114,7 +114,7 @@ impl Record {
     pub fn is_refusal(&self) -> bool {
         matches!(
             self.record_type.as_str(),
-            "SectionRecessRefusal" | "ModelledThreadRefusal"
+            "SectionRecessRefusal" | "ModelledThreadRefusal" | "InteriorVoidRefusal"
         )
     }
 }
