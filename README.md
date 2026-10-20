@@ -1125,8 +1125,13 @@ part, while no material end is asserted.
 
 The invariance harness also reports absent, reclassified and introduced occurrences per family,
 using the Python rigid-motion sweep's maximum-cardinality defining-face containment matching,
-same-family preference, overlap score and final pair-list tie. Baseline limits from `5fb1706`
-are per part and motion and can only fall. The 34 pinned golden parts additionally run Z30,
+same-family preference, overlap score and final pair-list tie. Baseline motion limits from `5fb1706`
+are per part and motion and can only fall. The companion `tests/inventory_floor.rs` checks
+per-file, per-family raw physical and reconciled inventories across all 34 goldens, 100 corpus
+parts and 1,319 captured parts against the same revision. A lower baseline requires a named,
+evidence-backed allowance in `inventory_floor.json`; motion stability cannot hide lost records.
+`tests/tie_breaks.rs` additionally checks claims, sizes and result-local IDs through frame and
+square-lattice presentation mappings. The 34 pinned golden parts additionally run Z30,
 X30, X90 and translation, with face correspondence checked geometrically before matching.
 
 ## What parity means
