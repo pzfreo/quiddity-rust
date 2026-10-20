@@ -177,6 +177,11 @@ fn recognition_warnings(
     document: &RecognitionDocument,
 ) -> Vec<String> {
     let mut warnings: Vec<String> = trust_warning(path, part, document).into_iter().collect();
+    warnings.extend(
+        part.input_repairs()
+            .iter()
+            .map(|repair| format!("{path}: warning: {repair}")),
+    );
     if let Some(reason) = &recognition.features.section_recess_refusal {
         warnings.push(format!(
             "{path}: warning: section-recess projection refused: {reason}"

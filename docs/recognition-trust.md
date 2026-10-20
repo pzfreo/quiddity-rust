@@ -12,6 +12,13 @@ fingerprints keep their previous meaning. Readers should ignore unknown fields.
   when the local-degradation retry supplies the inventory. It describes the
   completed run, independently of coordinate frame. Strict describes the discovery
   mode, not a claim that every published record is verified.
+- `input_repairs`, when present, lists kernel repairs by zero-based solid index,
+  also emitted as CLI and `serve` warnings. `solid N: inverted closed shell repaired`
+  means a closed boundary with negative signed volume had inward material-side
+  witnesses on every face; the kernel reversed its face senses before recognition.
+  Mixed orientations or insufficient evidence retain their original senses and
+  signed volume. Ray-parity classification remains independent of those senses.
+  Missing `input_repairs` means no repair was reported, including in older documents.
 - Every `records[]` entry carries `evidence_status`: `verified` or `unproved`.
   Verified means the kernel's existing strict evidence ownership check succeeded:
   the record has defining faces and all defining and consulted faces belong to

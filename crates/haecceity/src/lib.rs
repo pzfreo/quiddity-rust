@@ -17,6 +17,7 @@ pub mod hlr;
 pub mod mass;
 pub mod mesh;
 pub mod nurbs;
+mod orientation;
 pub mod overlap;
 pub mod p21;
 pub mod pmi;

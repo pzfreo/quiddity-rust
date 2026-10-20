@@ -34,6 +34,9 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Fixed
 
+- Repair consistently inward closed solid boundaries on STEP import, reporting each
+  affected solid in input repairs and recognition warnings. Mixed or unproved
+  orientations remain unchanged (#53).
 - Preserve a single sheet when converting radial `SURFACE_OF_REVOLUTION` line
   profiles, and recover boundary inversion stalled at a collapsed surface side.
   This corrects revolution face fluxes and mass properties without discarding
