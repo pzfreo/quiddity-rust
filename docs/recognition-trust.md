@@ -28,10 +28,11 @@ including consulted faces absent from their fingerprints. Section recesses check
 both their defining and constituent faces. Source refusals are always `unproved`:
 they explain a failed claim and do not become verified features merely because
 their source faces have a valid owner. Consumers must distinguish the
-`SectionRecessRefusal` and `ModelledThreadRefusal` record types (or use Rust's
-`Record::is_refusal()`) before applying an evidence-status policy. These records
-explain why a source candidate could not publish unified recess or thread geometry;
-they are not feature claims whose evidence failed. A refusal alone does not imply
+`SectionRecessRefusal`, `ModelledThreadRefusal` and `InteriorVoidRefusal` record types
+(or use Rust's `Record::is_refusal()`) before applying an evidence-status policy. These
+records explain why a source candidate could not publish unified recess or thread geometry,
+or why a bounded-air candidate was not published as an interior void; they are not feature
+claims whose evidence failed. A refusal alone does not imply
 invalid geometry or invalidate verified features on the same part. Consumers that
 require complete projection coverage may separately reject its recorded refusal
 reason.
