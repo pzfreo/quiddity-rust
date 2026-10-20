@@ -79,6 +79,41 @@ fn symmetric_square_pocket_refuses_a_semantic_run_axis() {
 }
 
 #[test]
+fn crossing_equal_patterns_refuse_under_motion_and_member_permutation() {
+    use features::holes::{Bottom, HoleRecord};
+    for at in motions() {
+        let mut holes: Vec<_> = [
+            [0., 0., 0.],
+            [10., 0., 0.],
+            [20., 0., 0.],
+            [0., 10., 0.],
+            [0., 20., 0.],
+        ]
+        .map(|point| HoleRecord {
+            axis: [at[0][2], at[1][2], at[2][2]],
+            location: [0, 1, 2]
+                .map(|i| at[i][3] + (0..3).map(|j| at[i][j] * point[j]).sum::<f64>()),
+            diameter: 2.,
+            depth: 5.,
+            bottom: Bottom::Through,
+            cbore: None,
+            spotface: None,
+            csink: None,
+        })
+        .into();
+        for _ in 0..holes.len() {
+            assert!(
+                features::hole_patterns::recognise_hole_patterns(&holes).is_empty(),
+                "{at:?}"
+            );
+            holes.rotate_left(1);
+        }
+        holes.reverse();
+        assert!(features::hole_patterns::recognise_hole_patterns(&holes).is_empty());
+    }
+}
+
+#[test]
 fn equidistant_support_planes_refuse_under_principal_motion() {
     let path = common::fixtures().join("ties/square_pocket.step");
     for at in [motions()[0], motions()[1], motions()[4], motions()[5]] {
@@ -98,6 +133,45 @@ fn equidistant_support_planes_refuse_under_principal_motion() {
                 legacy_flag,
             );
             assert!(got.is_empty(), "{at:?}: {got:?}");
+        }
+    }
+}
+
+#[test]
+fn equal_pitch_grid_uses_population_to_assign_rows_under_motion() {
+    use features::hole_patterns::HolePattern;
+    use features::holes::{Bottom, HoleRecord};
+    for at in motions() {
+        let mut holes: Vec<_> = (0..3)
+            .flat_map(|x| (0..4).map(move |y| [10. * x as f64, 10. * y as f64, 0.]))
+            .map(|p| HoleRecord {
+                axis: [at[0][2], at[1][2], at[2][2]],
+                location: [0, 1, 2]
+                    .map(|i| at[i][3] + (0..3).map(|j| at[i][j] * p[j]).sum::<f64>()),
+                diameter: 2.,
+                depth: 5.,
+                bottom: Bottom::Through,
+                cbore: None,
+                spotface: None,
+                csink: None,
+            })
+            .collect();
+        for _ in 0..holes.len() {
+            let patterns = features::hole_patterns::recognise_hole_patterns(&holes);
+            let [
+                HolePattern::RectGrid {
+                    rows,
+                    cols,
+                    row_pitch,
+                    col_pitch,
+                    ..
+                },
+            ] = patterns.as_slice()
+            else {
+                panic!("{at:?}: {patterns:?}")
+            };
+            assert_eq!((*rows, *cols, *row_pitch, *col_pitch), (3, 4, 10., 10.));
+            holes.rotate_left(1);
         }
     }
 }

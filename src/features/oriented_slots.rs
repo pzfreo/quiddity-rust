@@ -346,15 +346,9 @@ pub fn recognise_oriented_slot_patterns(slots: &[OrientedSlot]) -> Vec<OrientedS
                 }
             },
         ));
-        candidates.sort_by_key(|c| std::cmp::Reverse(c.1.len()));
-        let mut used: Vec<usize> = Vec::new();
-        for (pattern, idx) in candidates {
-            if idx.iter().any(|i| used.contains(i)) {
-                continue;
-            }
-            used.extend(idx);
-            out.push(pattern);
-        }
+        out.extend(super::pattern_geometry::allocate_candidates(
+            candidates, &flat,
+        ));
     }
     out
 }
