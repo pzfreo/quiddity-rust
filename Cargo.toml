@@ -5,11 +5,17 @@ members = ["crates/haecceity"]
 name = "quiddity"
 version = "0.1.0-alpha.9"
 edition = "2024"
-license = "AGPL-3.0-only"
+license = "Apache-2.0"
+description = "Manufacturing feature recognition from STEP B-rep models: holes, bosses, pockets, slots, steps, patterns and turned features, with measured sizes."
+repository = "https://github.com/pzfreo/quiddity-rust"
+readme = "README.md"
+keywords = ["cad", "step", "brep", "feature-recognition", "manufacturing"]
+categories = ["science", "parser-implementations"]
+include = ["/src", "/README.md", "/CHANGELOG.md", "/LICENSE", "/NOTICE"]
 
 [dependencies]
 flate2 = "1.1.10"
-haecceity = { path = "crates/haecceity" }
+haecceity = { path = "crates/haecceity", version = "=0.1.0-alpha.9" }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = { version = "1.0.151", features = ["float_roundtrip"] }
 sha2 = "0.11.0"
