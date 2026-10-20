@@ -389,6 +389,19 @@ fn a_square_recess_needs_a_covariant_body_relative_run_for_correspondence() {
 }
 
 #[test]
+fn a_cube_refuses_competing_circular_pattern_axes_under_motion() {
+    let path = common::fixtures().join("ties/cube.step");
+    for at in motions() {
+        let part = read_step_file_placed(&path, &at).unwrap();
+        assert!(part.solid_is_valid(0));
+        // Every one of the three fourfold axes has equal analytic face-area support.
+        // The four side faces cannot silently become a different claimed pattern.
+        let found = features::circular_face_patterns::discover(&Context::new(&part));
+        assert!(found.is_empty(), "{at:?}: {found:?}");
+    }
+}
+
+#[test]
 fn a_symmetric_cylinder_refuses_an_arbitrary_boss_free_end_under_motion() {
     let path = common::fixtures().join("ties/symmetric_cylinder.step");
     for at in motions() {
