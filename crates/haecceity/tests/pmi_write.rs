@@ -4325,3 +4325,23 @@ fn schema_practice_conflicts_are_named_without_exemptions() {
             .any(|r| r.item == ItemRef::Tolerance(2) && r.why.contains("edition 4"))
     );
 }
+
+#[test]
+fn tolerance_table_counts_are_numbers_and_values_keep_qualifiers() {
+    let mut p = common::pmi_gaps::every_kind();
+    let GeneralTolerance::Table { cells, .. } = &mut p.general[0] else {
+        unreachable!()
+    };
+    cells[0].items[3].1 = CellValue::Count(dec("3")); // schema COUNT_MEASURE = NUMBER
+    let CellValue::Value(v) = &mut cells[0].items[1].1 else {
+        unreachable!()
+    };
+    v.decimal_places = Some(2);
+    let w = written(&gap_spool(), &p);
+    assert_verified(&gap_spool(), &w, &p);
+    assert!(
+        w.added()
+            .iter()
+            .any(|&id| w.text(id).contains("COUNT_MEASURE(3)"))
+    );
+}

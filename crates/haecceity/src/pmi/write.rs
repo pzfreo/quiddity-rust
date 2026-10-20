@@ -12,8 +12,9 @@
 //! [`Emitter::length_measure`] and [`Emitter::angle_measure`] (and the measure representation
 //! items built on them), which take a [`LengthUnitRef`] or [`AngleUnitRef`] found per value —
 //! a unit instance of the document equal to the value's own unit, or one added — so a value
-//! is written in its own unit with its own digits and nothing is converted; a value whose text
-//! is not a Part 21 REAL is refused, never rewritten. There is no function taking an untyped
+//! is written in its own unit with its own digits and nothing is converted; quantities that
+//! require REAL refuse non-REAL text, never rewriting it. COUNT_MEASURE is NUMBER, so canonical
+//! integer counts are written as INTEGER tokens. There is no function taking an untyped
 //! number. Complex instances are made only through [`p21::Complex`] (leaves sorted), and only
 //! when the set of types is not one entity's supertype closure (the internal mapping is used
 //! otherwise). `tolerance_value` is built only from deviations ([`Bounds`]: signed offsets,
@@ -486,6 +487,10 @@ pub fn write(
         preexisting_violations: Vec::new(),
         preexisting_rule_violations: Vec::new(),
     };
+
+    report
+        .note_migrations
+        .sort_by_key(|(part, note, _)| (*part, *note));
 
     // Replace and remove: one removal plan for every named part's consumed instances.
     let mut removed: BTreeSet<u64> = BTreeSet::new();
@@ -1021,6 +1026,13 @@ fn real(d: &Decimal) -> Result<A, String> {
     Ok(A::Real(d.to_f64()))
 }
 
+// COUNT_MEASURE is NUMBER, unlike lengths/angles/ratios (REAL). Preserve canonical
+// integer counts read from Part 21 as integers; do not add a decimal point to them.
+fn count_integer(d: &Decimal) -> Option<i64> {
+    let i = d.as_str().parse::<i64>().ok()?;
+    (i.to_string() == d.as_str()).then_some(i)
+}
+
 /// The emitter: the only way the writer makes records.
 pub struct Emitter<'a> {
     doc: &'a Document,
@@ -1539,7 +1551,13 @@ impl<'a> Emitter<'a> {
         if let Some(p) = places {
             qualifiers.push(self.format_qualifier(decimal, p)?);
         }
-        let v = real(decimal).map_err(WriteError::Internal)?;
+        let integer = (value_type == "count_measure")
+            .then(|| count_integer(decimal))
+            .flatten();
+        let v = match integer {
+            Some(i) => A::Integer(i),
+            None => real(decimal).map_err(WriteError::Internal)?,
+        };
         let mut types = vec!["measure_representation_item"];
         types.extend(leaf);
         if !qualifiers.is_empty() {
@@ -1553,7 +1571,12 @@ impl<'a> Emitter<'a> {
         if !qualifiers.is_empty() {
             vals.push((("", "qualifiers"), refs(qualifiers)));
         }
-        self.instance(&types, &vals, &[decimal])
+        let stated = if integer.is_some() {
+            Vec::new()
+        } else {
+            vec![decimal]
+        };
+        self.instance(&types, &vals, &stated)
     }
 
     /// `TOLERANCE_VALUE(lower_bound, upper_bound)` from deviations: signed offsets from the
@@ -1840,6 +1863,7 @@ impl<'a> PartPlan<'a> {
                         }
                         for (_, v) in &c.items {
                             let d = match v {
+                                CellValue::Count(d) if count_integer(d).is_some() => None,
                                 CellValue::Count(d) => Some(d),
                                 CellValue::Value(v) => Some(v.decimal()),
                                 _ => None,

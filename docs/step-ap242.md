@@ -185,7 +185,8 @@ misread as feature composition; document format version 2 is unchanged.
   a representation relationship named 'general tolerance definition' links the table to the
   'default tolerances' representation. The table context is 'default setting'. Decimal places
   are written when stated in an otherwise valid table cell, and must agree with the part's
-  default. A class retains decision 3's original form.
+  default. Counts use NUMBER (including canonical INTEGER tokens); REAL quantities retain
+  their own REAL text. A class retains decision 3's original form.
 - **Density (Material Identification and Density R2.1 §4.2)**: 'material property'/'density'
   holds a 'density measure' in its own `derived_unit`. Kilograms are `MASS_UNIT` +
   `SI_UNIT(.KILO.,.GRAM.)`; metres are a length unit, with exponents 1 and -3, respectively.
@@ -640,10 +641,10 @@ be read, e.g. the pre-4.0.6 datum forms of §6.5.2):
 | Group | `composite_group_shape_aspect` named 'multiple elements' / 'pattern of features', `shape_aspect_relationship` per member (§6.4); all around / between: `all_around_shape_aspect` / `between_shape_aspect` (§6.4.2–3) |
 | Derived feature | `derived_shape_aspect` (or the Table 3 subtype) with `shape_aspect_deriving_relationship`s (§5.1.4) — written only when the model states a derived feature |
 | Datum | one `datum` per label per part, established by `shape_aspect_relationship` from its `datum_feature` (the feature itself) and/or its `datum_target`s (§6.5, §6.6). A hole or boss datum is a datum feature on the cylindrical faces (§6.5.1, Figure 35); the axis is implied, so specify-core's "hole or boss axis" is written in that form, not as a derived axis |
-| Datum target | `placed_datum_target_feature` (point, line, rectangle, circle, circular curve with `shape_representation_with_parameters`) or `datum_target` on an area feature; `feature_for_datum_target_relationship`; 'movable direction' (§6.6) — read now, written later |
+| Datum target | `placed_datum_target_feature` (point, line, rectangle, circle, circular curve with `shape_representation_with_parameters`) or `datum_target` on an area feature; `feature_for_datum_target_relationship`; 'movable direction' (§6.6) — read; writing blocked by the description/WR5 conflict documented above |
 | Datum system | one `datum_system` per distinct system, `datum_reference_compartment` per position, never shared (§6.9.7); common datums as `datum_reference_element`s (§6.9.8) |
 | Size / location | `dimensional_size` / `dimensional_location` (+ angular, with path, directed) + `dimensional_characteristic_representation` + `shape_dimension_representation` with 'nominal value' (§5.1–§5.2.1); a datum feature with a size is the complex `dimensional_size_with_datum_feature` (§6.5.3) |
-| Decimal places | `value_format_type_qualifier` on the value (§5.4); the part default by the §4.1 construct |
+| Decimal places | `value_format_type_qualifier` on the value (§5.4); the part default by the §4.1 construct when supplied in a valid table cell; decimal-only Figure 3 conflicts with cell WR3/WR4 |
 | Deviations | `plus_minus_tolerance` → `tolerance_value(lower, upper)` with typed `length_measure_with_unit`s (§5.2.3) |
 | Limits | 'upper limit' and 'lower limit' items beside 'nominal value' (§5.2.4) |
 | Fit | `plus_minus_tolerance` → `limits_and_fits(form_variance='H', zone_variance='hole'/'shaft', grade='7', source='')` (§5.2.5); stated limits as 'upper limit'/'lower limit' items beside it |
