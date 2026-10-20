@@ -1,7 +1,7 @@
 """Record what OpenCascade's XCAF reader makes of the files haecceity's PMI writer wrote.
 
     cargo test --release -p haecceity --test pmi_write export_written_files -- --ignored
-    /Users/paul/repos/specify-core/.venv/bin/python tools/check_pmi_occt.py
+    ~/cld/quiddity/.venv/bin/python tools/check_pmi_occt.py [CASE ...]
 
 Every ``tests/fixtures/ap242/write/<case>.step.gz`` (written by the Rust test
 ``export_written_files``: every kind of item the writer makes on a specify-core part, and
@@ -35,7 +35,9 @@ cannot list the map's keys): XCAF puts user defined attributes there, so the wri
 not an authority: where it misreads (its ``known_misreads``), haecceity is rust-correct with
 the clause and the file text.
 
-Run with the specify-core venv (OCP 7.9); nothing in specify-core is changed.
+Run with an OCP venv (OCP 7.9); nothing outside this checkout is changed. Optional CASE
+names select fixtures. If specify_core is absent, its loader status is explicitly unavailable;
+XCAF transfer, safe label walking and the semantic capture still run.
 """
 
 from __future__ import annotations
@@ -209,7 +211,9 @@ def main() -> None:
         text = json.dumps(record, allow_nan=False, sort_keys=True, separators=(",", ":")) + "\n"
         (WRITE / f"{stem}.occt.json.gz").write_bytes(gzip.compress(text.encode(), mtime=0))
         if record["loads"] is not True:
-            print(path.name, "does not load:", record["loads"], file=sys.stderr)
+            print(path.name, "specify-core loader status:", record["loads"], file=sys.stderr)
+        if record["reads"] is not True:
+            print(path.name, "XCAF reader status:", record["reads"], file=sys.stderr)
             continue
         counts = [
             sum(len(p[k]) for p in record["parts"])

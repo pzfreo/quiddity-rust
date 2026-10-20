@@ -1787,8 +1787,10 @@ impl<'a> PartPlan<'a> {
                 _ => None,
             })
             .collect();
-        if let Some(places) = p.decimal_places
-            && (table_places.is_empty() || table_places.iter().any(|v| *v != f64::from(places)))
+        if (!table_places.is_empty() || p.decimal_places.is_some())
+            && (table_places.is_empty()
+                || p.decimal_places
+                    .is_none_or(|places| table_places.iter().any(|v| *v != f64::from(places))))
         {
             self.refuse(ItemRef::DecimalPlaces,
                 "default decimal places require a stated table cell: the decimal-only cell of §4.1 Figure 3 violates default_tolerance_table_cell WR3/WR4; no tolerance values are invented");
@@ -3160,10 +3162,21 @@ impl<'a> PartPlan<'a> {
                 return Ok(r);
             }
         }
+        let affected = self
+            .pmi
+            .tolerances
+            .iter()
+            .filter_map(|t| t.zone.as_ref().and_then(|z| z.affected_plane))
+            .any(|f| self.canonical[f.0] == c);
+        let description = if affected {
+            "representative plane element"
+        } else {
+            ""
+        };
         let base = |pd: bool| {
             vec![
                 (("shape_aspect", "name"), s("")),
-                (("shape_aspect", "description"), s("")),
+                (("shape_aspect", "description"), s(description)),
                 (("shape_aspect", "of_shape"), pds.a()),
                 (("shape_aspect", "product_definitional"), boolean(pd)),
             ]

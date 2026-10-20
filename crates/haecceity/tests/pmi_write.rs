@@ -3221,6 +3221,25 @@ fn compare_occt(
                 }
             }
         }
+        for (i, a) in p
+            .attributes
+            .iter()
+            .enumerate()
+            .filter(|(_, a)| a.name == "semantic text" && a.on.is_some())
+        {
+            for (_, value) in &a.items {
+                if let AttributeValue::Text(text) = value
+                    && !metadata
+                        .iter()
+                        .any(|m| m["strings"]["semantic text"].as_str() == Some(text))
+                {
+                    out.push((
+                        format!("{name} occt part {pi} feature semantic text {i}"),
+                        format!("not in XCAF metadata: {text:?}"),
+                    ));
+                }
+            }
+        }
         // Surface texture: XCAF has none.
         for (i, s) in p.surface_textures.iter().enumerate() {
             out.push((
@@ -3238,6 +3257,71 @@ fn compare_occt(
                         .join(", ")
                 ),
             ));
+        }
+    }
+    // XCAF's tolerance objects have no frame relations or general-table API.
+    for (pi, p) in r.parts.iter().enumerate() {
+        for (i, t) in p.tolerances.iter().enumerate() {
+            if t.zone.as_ref().and_then(|z| z.affected_plane).is_some()
+                && !otols.iter().any(|o| {
+                    o["affected_plane"].is_string()
+                        && t.magnitude.as_ref().is_some_and(|m| {
+                            occt_value(o["value"].as_f64().unwrap_or(0.), m).is_none()
+                        })
+                })
+            {
+                out.push((
+                    format!("{name} occt part {pi} affected plane {i}"),
+                    "XCAF exposes no affected plane on the tolerance".into(),
+                ));
+            }
+        }
+        for (i, rel) in p.tolerance_relations.iter().enumerate() {
+            out.push((
+                format!("{name} occt part {pi} tolerance relation {i}"),
+                format!(
+                    "{:?}: XCAF exposes the individual tolerances, no relation",
+                    rel.kind
+                ),
+            ));
+        }
+        for (i, g) in p.general.iter().enumerate() {
+            if let GeneralTolerance::Table { .. } = g {
+                out.push((
+                    format!("{name} occt part {pi} default table {i}"),
+                    "XCAF exposes no general tolerance table or part decimal default".into(),
+                ));
+            }
+        }
+        if let Some(m) = &p.material
+            && let Some(d) = &m.density
+        {
+            let mut expected = d.value.to_f64();
+            for (unit, power) in &d.unit {
+                let scale: f64 = match unit.as_str() {
+                    "kilogram" => 1000.,
+                    "gram" => 1.,
+                    "metre" => 100.,
+                    "centimetre" => 1.,
+                    _ => panic!("add expected density scale for {unit}"),
+                };
+                expected *= scale.powf(power.to_f64());
+            }
+            let material = occt["materials"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|o| o["name"].as_str() == Some(&m.id));
+            let actual = material.and_then(|o| o["density"].as_f64());
+            if actual.is_none_or(|a| (a - expected).abs() > 1e-10 * expected.abs()) {
+                out.push((
+                    format!("{name} occt part {pi} density"),
+                    format!(
+                        "XCAF {:?} g/cm³ vs {expected} g/cm³ from {} {:?}",
+                        actual, d.value, d.unit
+                    ),
+                ));
+            }
         }
     }
     // Material.
@@ -3275,6 +3359,18 @@ fn written_cases() -> Vec<(String, Option<Vec<u8>>)> {
                 .bytes()
                 .to_vec(),
         ),
+    ));
+    let mut gram = common::pmi_gaps::every_kind();
+    gram.material.as_mut().unwrap().density = Some(Density {
+        value: dec("7.85"),
+        unit: vec![
+            ("gram".into(), dec("1.")),
+            ("centimetre".into(), dec("-3.")),
+        ],
+    });
+    out.push((
+        "pmi_gaps_gram".into(),
+        Some(written(&gap_spool(), &gram).doc.bytes().to_vec()),
     ));
     // Every kind of item, replacing a specify-core part's PMI.
     let f = spool();
@@ -3598,7 +3694,16 @@ fn opencascade_reads_the_written_files() {
         // specify-core's load.load_all opens it (it crashed on the datum feature symbols'
         // mechanical_design_and_draughting_relationship, no longer written), and XCAF reads it
         // and every shape label's name.
-        if capture["loads"] != true || capture["reads"] != true {
+        let unavailable = pins["loader_unavailable"]
+            .as_object()
+            .and_then(|p| p.get(&name));
+        let loader_ok = capture["loads"] == true
+            || unavailable.is_some_and(|pin| {
+                pin["status"] == capture["loads"]
+                    && pin["verdict"] == "not-applicable"
+                    && pin["reason"].is_string()
+            });
+        if !loader_ok || capture["reads"] != true {
             problems.push(format!(
                 "{name}: OpenCascade does not open it: loads {} reads {}",
                 capture["loads"], capture["reads"]
@@ -4157,4 +4262,66 @@ fn python_requirements_replace_as_standard_requirements() {
             assert_reads_back(&second, *part, p);
         }
     }
+}
+
+#[test]
+fn schema_practice_conflicts_are_named_without_exemptions() {
+    let placement = Placement {
+        origin: std::array::from_fn(|_| length("0.", LengthUnit::Millimetre)),
+        axis: None,
+        ref_direction: None,
+    };
+    for shape in [
+        TargetShape::Point,
+        TargetShape::Line {
+            length: length("5.", LengthUnit::Millimetre),
+        },
+        TargetShape::Rectangle {
+            length: length("5.", LengthUnit::Millimetre),
+            width: length("3.", LengthUnit::Millimetre),
+        },
+        TargetShape::Circle {
+            diameter: length("5.", LengthUnit::Millimetre),
+        },
+        TargetShape::Area(FeatureId(0)),
+    ] {
+        let p = PartPmi {
+            features: vec![faces(&[0])],
+            datum_targets: vec![
+                DatumTarget::new(1, shape, Some(placement.clone()), None, Some(FeatureId(0)))
+                    .unwrap(),
+            ],
+            datums: vec![Datum::new(label("A"), None, vec![DatumTargetId(0)]).unwrap()],
+            ..PartPmi::default()
+        };
+        let Err(WriteError::Refused(r)) = write(&gap_spool(), &[(PartId(0), p)], Mode::Replace)
+        else {
+            panic!("target conflicts must be explicit");
+        };
+        assert!(
+            r.iter()
+                .any(|r| r.item == ItemRef::DatumTarget(0) && r.why.contains("WR5"))
+        );
+        assert!(r.iter().any(|r| r.item == ItemRef::Datum(0)));
+    }
+    let p = PartPmi {
+        decimal_places: Some(3),
+        ..PartPmi::default()
+    };
+    let Err(WriteError::Refused(r)) = write(&gap_spool(), &[(PartId(0), p)], Mode::Replace) else {
+        panic!("Figure 3 conflict must be explicit");
+    };
+    assert!(
+        r.iter()
+            .any(|r| r.item == ItemRef::DecimalPlaces && r.why.contains("WR3/WR4"))
+    );
+    let mut p = common::pmi_gaps::every_kind();
+    p.material = None;
+    let Err(WriteError::Refused(r)) = write(&spool(), &[(PartId(0), p)], Mode::Replace) else {
+        panic!("edition 1 excludes relation targets");
+    };
+    assert!(
+        r.iter()
+            .any(|r| r.item == ItemRef::Tolerance(2) && r.why.contains("edition 4"))
+    );
 }

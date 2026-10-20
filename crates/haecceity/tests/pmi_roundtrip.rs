@@ -864,3 +864,26 @@ fn newly_written_kinds_roundtrip_into_a_clean_copy() {
     let read2 = pmi::read(&second, &parts).unwrap();
     assert!(differences(&read.parts[0], &read2.parts[0]).is_empty());
 }
+
+#[test]
+fn read_replace_read_keeps_corpus_nist_requirements() {
+    let Some(corpus) = common::corpus_dir() else {
+        return;
+    };
+    let mut files: Vec<_> = std::fs::read_dir(corpus.join("nist"))
+        .unwrap()
+        .map(|e| e.unwrap().path())
+        .filter(|p| p.extension().is_some_and(|e| e == "stp"))
+        .collect();
+    files.sort();
+    assert_eq!(
+        files.len(),
+        10,
+        "update coverage explicitly if the corpus changes"
+    );
+    let mut problems = Vec::new();
+    let mut actual = serde_json::Map::new();
+    roundtrip(&files, &mut problems, &mut actual);
+    compare_pins("corpus_roundtrip", &actual, |_| true, &mut problems);
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+}

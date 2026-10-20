@@ -173,7 +173,9 @@ The unattended writer work follows the standard forms without exempting any newl
 instance from schema or rule checks. `pmi::write::standard_form` exposes the standard
 requirements a write represents; `differences_as_stated` remains an exact semantic comparison.
 The version 2 CLI write report gains `note_migrations` (part, original note index, form/reason).
-No JSON field is removed.
+No JSON field is removed. The reader binding becomes `haecceity-pmi-read/9` because affected
+planes and table-value qualifiers are now held, and toleranced relationships are no longer
+misread as feature composition; document format version 2 is unchanged.
 
 - **Relations (§6.9.9)**: all three model kinds are written with the stated endpoints. A
   tolerance whose target is a relationship uses the edition 4 SELECT member. Edition 1
@@ -223,6 +225,27 @@ rules (source: `express::TARGET.source_url`, WG12 N11521, SHA256 pinned in the t
    either a significant-digits measure or both range limits, and WR4 requires a tolerance.
    A standalone decimal default therefore remains refused: adding arbitrary range/tolerance
    values would invent requirements. A supplied complete cell can carry that count and passes.
+
+The `pmi_gaps` and `pmi_gaps_gram` written fixtures exercise all newly emitted kinds and
+five numbered part notes; both pass schema/rule checks and exact clean-copy round trips
+(`pmi_write.rs`, `pmi_roundtrip.rs`). Seven Python specify fixtures replace their notes, then
+replace the standardized reading again, without any 'manufacturing requirement' record.
+The existing untouched-record byte checks remain in force. The seven committed NIST AP242
+files retain their composite relations; refused target-dependent requirements keep their
+counts and explicit reasons. Ten additional corpus NIST files have geometry/presentation
+only; their pinned empty-semantic-PMI round trips do not count as new-kind coverage.
+
+OpenCascade 7.9.3.1 (the read-only quiddity venv) transfers both new fixtures and safely walks
+their labels. That environment has no `specify_core` module, so the separate application-loader
+check is recorded as unavailable, not passed. `known_pmi_write.json` retains every earlier
+verdict and adds the new differences. XCAF reads 7850 kg/m³ as 0.00785 g/cm³ instead of 7.85;
+its `ReadMaterials` handles conversion-based mass units but omits SI mass prefixes
+([7.9.3 source](https://github.com/Open-Cascade-SAS/OCCT/blob/V7_9_3/src/STEPCAFControl/STEPCAFControl_Reader.cxx#L5053)).
+The gram/cm³ control reads 7.85 correctly: the kilogram file is correct and OCCT misreads it.
+XCAF also attaches the shared-target tolerances to the projection-origin face rather than the
+controlled face, drops the edition 4 relationship target, and exposes no affected plane here.
+These are pinned rust-correct; absent XCAF APIs for tables, frame relations and surface texture
+are not-applicable. Part/feature text differences retain the §7.4 standard form, rust-correct.
 
 Other refusals remain: an unstated group kind, a dimension without its nominal (§5.2.1), a
 projected zone whose model holds no origin geometry (§6.9.2.2), thread/knurl parameter counts

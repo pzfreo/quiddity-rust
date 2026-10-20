@@ -448,9 +448,276 @@
    "key": "thumbwheel_notes_add occt dimension 0:1:4:1",
    "verdict": "rust-correct",
    "reason": "specify-core's own Ø10 (kept byte for byte by the add, not written by haecceity): '#648 = (... MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(10.),#633) ... REPRESENTATION_ITEM('nominal value'))', '#651 = DIMENSIONAL_SIZE(#646,'diameter')', '#654 = TOLERANCE_VALUE(#653,#652)' with both bounds below nominal (-0.028, -0.013), '#655 = PLUS_MINUS_TOLERANCE(#654,#651)'. OpenCascade's known misread of both deviations below nominal (the capture's known_misreads; specify-core writer.py) drops the deviations and garbles the value; haecceity reads 10 mm with the stated deviations. The same instance in the input file is pinned alike (known_pmi.json occt 'thumbwheel_thread_knurl occt dimension 0:1:4:1')."
+  },
+  {
+   "key": "pmi_gaps occt tolerance 0:1:4:1",
+   "detail": "Position 0.2 on faces [1]: no tolerance read on those faces",
+   "verdict": "rust-correct",
+   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
+  },
+  {
+   "key": "pmi_gaps occt tolerance 0:1:4:2",
+   "detail": "Position 0.1 on faces [1]: no tolerance read on those faces",
+   "verdict": "rust-correct",
+   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
+  },
+  {
+   "key": "pmi_gaps occt missing tolerance #6522",
+   "detail": "Position",
+   "verdict": "rust-correct",
+   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
+  },
+  {
+   "key": "pmi_gaps occt missing tolerance #6529",
+   "detail": "Position",
+   "verdict": "rust-correct",
+   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
+  },
+  {
+   "key": "pmi_gaps occt missing tolerance #6532",
+   "detail": "Position",
+   "verdict": "rust-correct",
+   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
+  },
+  {
+   "key": "pmi_gaps occt part 0 semantic text \"general note 1\"",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"5. Preserve this requirement.\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps occt part 0 semantic text \"general note 2\"",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"5. Preserve this requirement.\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps occt part 0 semantic text \"general note 3\"",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"5. Preserve this requirement.\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps occt part 0 semantic text \"general note 4\"",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"5. Preserve this requirement.\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps occt part 0 feature semantic text 5",
+   "detail": "not in XCAF metadata: \"M8 x 1.25-6H RH\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps occt part 0 surface texture 0",
+   "detail": "not read: any process allowed Ra 1.6Micrometre",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps occt part 0 affected plane 0",
+   "detail": "XCAF exposes no affected plane on the tolerance",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §6.9.2.1 Figure 53: the zone relates to its representative plane aspect by affected plane association (both name and description supplied because the figure and prose differ), with an axis2_placement_3d usage. Rust preserves the plane; XCAF exposes none."
+  },
+  {
+   "key": "pmi_gaps occt part 0 tolerance relation 0",
+   "detail": "Composite: XCAF exposes the individual tolerances, no relation",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps occt part 0 tolerance relation 1",
+   "detail": "Precedence: XCAF exposes the individual tolerances, no relation",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps occt part 0 tolerance relation 2",
+   "detail": "Simultaneity: XCAF exposes the individual tolerances, no relation",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps occt part 0 default table 0",
+   "detail": "XCAF exposes no general tolerance table or part decimal default",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps occt part 0 density",
+   "detail": "XCAF Some(0.00785) g/cm³ vs 7.85 g/cm³ from 7850. [(\"kilogram\", Decimal(\"1.\")), (\"metre\", Decimal(\"-3.\"))]",
+   "verdict": "rust-correct",
+   "reason": "ISO 10303-41 derived kg/m³, 7850 kg/m³ = 7.85 g/cm³. OCCT 7.9.3 ReadMaterials converts the length factor but handles mass only for ConversionBasedUnitAndMassUnit, omitting SiUnitAndMassUnit (.KILO.,.GRAM.); returns 0.00785 g/cm³. The gram/cm³ control reads 7.85 correctly. Source: Open-Cascade-SAS/OCCT V7_9_3 STEPCAFControl_Reader.cxx lines 5053–5078."
+  },
+  {
+   "key": "pmi_gaps_gram occt tolerance 0:1:4:1",
+   "detail": "Position 0.2 on faces [1]: no tolerance read on those faces",
+   "verdict": "rust-correct",
+   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
+  },
+  {
+   "key": "pmi_gaps_gram occt tolerance 0:1:4:2",
+   "detail": "Position 0.1 on faces [1]: no tolerance read on those faces",
+   "verdict": "rust-correct",
+   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
+  },
+  {
+   "key": "pmi_gaps_gram occt missing tolerance #6522",
+   "detail": "Position",
+   "verdict": "rust-correct",
+   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
+  },
+  {
+   "key": "pmi_gaps_gram occt missing tolerance #6529",
+   "detail": "Position",
+   "verdict": "rust-correct",
+   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
+  },
+  {
+   "key": "pmi_gaps_gram occt missing tolerance #6532",
+   "detail": "Position",
+   "verdict": "rust-correct",
+   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 semantic text \"general note 1\"",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"5. Preserve this requirement.\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 semantic text \"general note 2\"",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"5. Preserve this requirement.\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 semantic text \"general note 3\"",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"5. Preserve this requirement.\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 semantic text \"general note 4\"",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"5. Preserve this requirement.\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 feature semantic text 5",
+   "detail": "not in XCAF metadata: \"M8 x 1.25-6H RH\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 surface texture 0",
+   "detail": "not read: any process allowed Ra 1.6Micrometre",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 affected plane 0",
+   "detail": "XCAF exposes no affected plane on the tolerance",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §6.9.2.1 Figure 53: the zone relates to its representative plane aspect by affected plane association (both name and description supplied because the figure and prose differ), with an axis2_placement_3d usage. Rust preserves the plane; XCAF exposes none."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 tolerance relation 0",
+   "detail": "Composite: XCAF exposes the individual tolerances, no relation",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 tolerance relation 1",
+   "detail": "Precedence: XCAF exposes the individual tolerances, no relation",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 tolerance relation 2",
+   "detail": "Simultaneity: XCAF exposes the individual tolerances, no relation",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 default table 0",
+   "detail": "XCAF exposes no general tolerance table or part decimal default",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
   }
  ],
  "pin_changes_2026_10_20": {
-  "roundtrip": "No per-file pin removed. Specify notes no longer appear in refused/left-out because exact standard_form(read) is compared to the replacement reading, and dedicated tests assert no manufacturing requirement survives. NIST tolerance relations no longer appear in refused/left-out because all three standard relation kinds are emitted and compared with their resolved endpoints. Presentation removal counts and file hashes are unchanged. Target refusal counts remain unchanged; their reason now names the literal schema conflict rather than an implementation backlog."
+  "roundtrip": "No per-file pin removed. Specify notes no longer appear in refused/left-out because exact standard_form(read) is compared to the replacement reading, and dedicated tests assert no manufacturing requirement survives. NIST tolerance relations no longer appear in refused/left-out because all three standard relation kinds are emitted and compared with their resolved endpoints. Presentation removal counts and file hashes are unchanged. Target refusal counts remain unchanged; their reason now names the literal schema conflict rather than an implementation backlog.",
+  "corpus_roundtrip": "Ten corpus NIST geometry/presentation files are round-tripped separately, with exact hashes and unchanged presentation. They have no semantic targets, tolerance relations, tables or density; the committed AP242 NIST fixtures supply the semantic relation/target evidence. Do not interpret these empty-PMI round trips as coverage of the newly written semantic forms."
+ },
+ "corpus_roundtrip": {
+  "nist_ctc_01_asme1_rd": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "e081d518484d5c708c6729353237f94a7d97da2b74a10d60d4c0d146d67a5855"
+  },
+  "nist_ctc_02_asme1_rc": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "e6df6d0ed68fd8a91bd3f8360c7047f2af3d61068b89050d84423fe8ddb93bcf"
+  },
+  "nist_ctc_03_asme1_rc": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "95a775b1acdbc34de11319cb83b4cf6c6fdd7de8cbfc4af2d0afe5d3565cfdf8"
+  },
+  "nist_ctc_04_asme1_rd": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "cdb59a085a3364941b881f96b511265a7cb5f6e94180c4426bdc3025481f405a"
+  },
+  "nist_ctc_05_asme1_rd": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "5140b8f41fa1d0a069ea978e28c92a597f47220d0a11e667b79ff5f7c7243b86"
+  },
+  "nist_ftc_06_asme1_rd": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "5e30f0903f9470c14a98e70395ca005fe90bcd3fb704c381a80a69958838f169"
+  },
+  "nist_ftc_07_asme1_rd": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "a0bc551656780b26d7a0ee1beedbc07d43f41efa092f74f3c2d8383417f04481"
+  },
+  "nist_ftc_08_asme1_rc": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "4b7011b0b86cf6301058aa954b76a9587d23478b6dee2660f4a80caf0dfe8b73"
+  },
+  "nist_ftc_09_asme1_rd": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "e29c09bd2d454601ff1a0d77c4c4ffaf2ed78eee71031ce49f7b7bb5a6d1d4e8"
+  },
+  "nist_ftc_10_asme1_rb": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "2bd726f9fe86aeb96ab517ce876e5696e7951310df5c4fbca36276d65879067b"
+  }
+ },
+ "loader_unavailable": {
+  "pmi_gaps": {
+   "status": {
+    "unavailable": "specify_core is not installed in this environment"
+   },
+   "verdict": "not-applicable",
+   "reason": "The requested read-only quiddity venv contains OCP 7.9.3.1 but no specify_core. XCAF transfer and the safe label walk are required and captured independently; the separate specify-core application loader was not run. All earlier application-loader pins remain unchanged."
+  },
+  "pmi_gaps_gram": {
+   "status": {
+    "unavailable": "specify_core is not installed in this environment"
+   },
+   "verdict": "not-applicable",
+   "reason": "The requested read-only quiddity venv contains OCP 7.9.3.1 but no specify_core. XCAF transfer and the safe label walk are required and captured independently; the separate specify-core application loader was not run. All earlier application-loader pins remain unchanged."
+  }
  }
 }

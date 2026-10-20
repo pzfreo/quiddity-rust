@@ -229,8 +229,8 @@ fn pmi_read_of_one_part() {
 /// whenever the reader's output does: when this fails, bump `pmi_json::READER` if `pmi::read`
 /// changed (a JSON-form change bumps `VERSION` instead), then re-pin both.
 const READER_PIN: (&str, &str) = (
-    "haecceity-pmi-read/8",
-    "d60e06a3e3e6e589a34eb624d34fdab2d15a07fad439c1323816756c21f1db15",
+    "haecceity-pmi-read/9",
+    "e257b904a2f444e374f109d2984962ef268bbb96ef10fc2423d1da18c9a18289",
 );
 
 #[test]
@@ -837,7 +837,7 @@ fn read_back_differences(doc: &Json, back: &Json, label: &str) -> Vec<String> {
     for p in &written.parts {
         let read = &back.parts[p.part.0];
         assert_eq!(read.part, p.part);
-        for d in differences_as_stated(&p.pmi, &read.pmi) {
+        for d in differences_as_stated(&pmi::write::standard_form(&p.pmi), &read.pmi) {
             out.push(format!("{label} part {}: {d}", p.part.0));
         }
     }
@@ -943,6 +943,17 @@ fn roundtrip_cli(path: &Path, pins: &Json) -> (Vec<String>, bool) {
         return (problems, false);
     }
     let (report, _) = write_ok(&output, &stem);
+    let note_count: usize = doc["parts"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|p| p["pmi"]["notes"].as_array().map_or(0, Vec::len))
+        .sum();
+    assert_eq!(
+        report["note_migrations"].as_array().unwrap().len(),
+        note_count,
+        "{stem}: each legacy note migration is reported"
+    );
     if report["presentation_removed"].as_array().unwrap().len() as u64
         != pin["presentation removed"].as_u64().unwrap()
     {
@@ -999,15 +1010,9 @@ fn roundtrip_cli(path: &Path, pins: &Json) -> (Vec<String>, bool) {
     (problems, true)
 }
 
-/// spool_fits' PMI as `pmi read` gives it, without its notes (which the writer refuses), and the
-/// STEP path.
+/// spool_fits' complete reading, including legacy notes to migrate, and the STEP path.
 fn spool_writable() -> (Json, String) {
-    let (mut json, step) = spool();
-    json["parts"][0]["pmi"]
-        .as_object_mut()
-        .unwrap()
-        .remove("notes");
-    (json, step)
+    spool()
 }
 
 /// The same write twice gives the same bytes and the same report; a `.gz` output is the same
@@ -1050,7 +1055,6 @@ fn pmi_write_is_deterministic_and_keeps_inch_values_as_stated() {
         let (mut doc, _) = ok(&["pmi", "read", p]);
         for part in doc["parts"].as_array_mut().unwrap() {
             let pmi = part["pmi"].as_object_mut().unwrap();
-            pmi.remove("tolerance_relations");
             pmi.remove("attributes");
             // The writer refuses hole definitions (docs/step-ap242.md, Q-holes).
             pmi.remove("holes");
@@ -1131,7 +1135,8 @@ fn pmi_write_refusals_name_the_cause_and_create_nothing() {
     let (out, o) = write_cli(p, &nist, "datum-targets", &["--mode", "replace"]);
     let err = write_refused(&out, &o, "datum targets");
     assert!(
-        err.contains("DatumTarget(0): datum targets are read but not written yet"),
+        err.contains("DatumTarget(0): §6.6 requires a target description")
+            && err.contains("datum_target WR5"),
         "{err}"
     );
 

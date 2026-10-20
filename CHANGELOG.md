@@ -13,7 +13,9 @@ in [docs/alpha1.md](docs/alpha1.md).
   dimensionally correct derived unit; edition 4 relationship targets and affected-plane links.
 - Legacy manufacturing-requirement notes migrate to semantic text or unambiguous surface
   texture. `standard_form` exposes the expected requirements and the CLI write report adds
-  `note_migrations`. Replace removes legacy properties and their owned presentation.
+  `note_migrations`. Replace removes legacy properties and their owned presentation. Reader
+  binding `/9` holds affected planes and table qualifiers and separates relation targets from
+  feature composition; JSON document version 2 stays compatible.
 - Regression fixtures for the new forms, five ordered numbered part notes across replace and
   resumed add, and Python specify-note migration. Literal target and standalone-decimal
   schema/practice conflicts remain explicit refusals with their evidence in `step-ap242.md`.
