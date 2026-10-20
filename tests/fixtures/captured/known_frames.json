@@ -77,8 +77,8 @@
       "origin"
     ],
     "origin_within": 0.02,
-    "verdict": "undetermined",
-    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-wrong): the port's origin is 3.3e-4 from OpenCascade's adaptive integration (eps 1e-9) and 1.3e-2 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: tools/centroid_evidence.py integrates OCCT's exact surface evaluator over the 3D-edge boundary with 4/8/16 Lobatto panels, rather than supplied pcurves. The zero-first-flux-moment origin is (30.746994018194,-32.658330342808,-4.440670778747), 4.52e-8 mm from Rust (30.746994014776,-32.658330387712,-4.440670776034). Propagating the sum of absolute last-panel moment changes through the centroid Jacobian gives (6.23e-7,5.22e-7,3.06e-7) mm, inside the frame comparison tolerance; 131 faces fail the stricter per-component 1e-7 criterion and remain disclosed in the report. The fixed-point volume is 4382308.86592869, Rust 4382308.86603185; solid_mass uses a different reference point (known_divergences.json already settles that mass as rust-correct). This directly settles the origin and supersedes the old reason's stale rust-wrong mass dependency. Generic rigid-motion checking supports the moved case."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
@@ -87,8 +87,8 @@
       "origin"
     ],
     "origin_within": 0.02,
-    "verdict": "undetermined",
-    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-wrong): the port's origin is 3.3e-4 from OpenCascade's adaptive integration (eps 1e-9) and 1.3e-2 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: tools/centroid_evidence.py integrates OCCT's exact surface evaluator over the 3D-edge boundary with 4/8/16 Lobatto panels, rather than supplied pcurves. The zero-first-flux-moment origin is (30.746994018194,-32.658330342808,-4.440670778747), 4.52e-8 mm from Rust (30.746994014776,-32.658330387712,-4.440670776034). Propagating the sum of absolute last-panel moment changes through the centroid Jacobian gives (6.23e-7,5.22e-7,3.06e-7) mm, inside the frame comparison tolerance; 131 faces fail the stricter per-component 1e-7 criterion and remain disclosed in the report. The fixed-point volume is 4382308.86592869, Rust 4382308.86603185; solid_mass uses a different reference point (known_divergences.json already settles that mass as rust-correct). This directly settles the origin and supersedes the old reason's stale rust-wrong mass dependency. Generic rigid-motion checking supports the moved case."
   },
   {
     "file": "cadgenbench_inputs/cgb203.step",
@@ -99,8 +99,8 @@
       "origin"
     ],
     "origin_within": 0.2,
-    "verdict": "undetermined",
-    "reason": "The second axis is chosen among three cylinder classes of equal area (0.171950254, tilted at 120 degrees about z) by their face offsets, which differ only in the fifth decimal (41.90179 / 41.90177 / 41.90174 about the port's origin) and so are decided by the origin. The origins differ by 0.13 (Python's default rule; the port is 5.6e-4 from OpenCascade's adaptive centroid, and this file's mass difference is undetermined), so each side picks a different class. If the three are congruent the choice is round-off on both sides and neither frame's full gauge is established."
+    "verdict": "rust-correct",
+    "reason": "Independent 3D-boundary flux-moment integration, tools/centroid_evidence.py at 4/8/16 panels with the 30 unresolved face-moment components refined at 16/32/64, gives origin (-0.000053145201,-0.000184624317,46.573717787320), 2.50e-7 mm from Rust; propagated absolute last-panel changes are (6.56e-7,9.46e-7,6.31e-7) mm. These are convergence diagnostics, not certified error bounds; the report retains the 30 per-component convergence flags. The axis choice is separately checked: check_face_integrals.independent_reference at 16/32 panels gives the six small cylinder faces 70/82/94/106/118/141 equal area at 9 decimals (0.171950254), with centroid changes <=1.8e-15 mm. About the independently integrated origin their absolute axis offsets are respectively 41.901826422, 41.901883823, 41.901797239, 41.901631867, 41.901512237, 41.901668258 mm. Face 82 wins by 5.74e-5 mm, exceeding the propagated centroid panel-change diagnostic; its native cylinder direction (0.181963117019,0.983305356460,-0.000000948175), projected perpendicular to the dominant planar z class, is Rust's y axis. The classes are not tied at the 1e-9 signature rounding, so the former conjecture about congruent classes does not establish gauge ambiguity. Both origin and changed y/z choice are supported by independent surface evaluation plus the generic-motion check, not by Python's centroid."
   },
   {
     "file": "cadgenbench_inputs/cgb203.step",
@@ -111,8 +111,8 @@
       "origin"
     ],
     "origin_within": 0.2,
-    "verdict": "undetermined",
-    "reason": "The second axis is chosen among three cylinder classes of equal area (0.171950254, tilted at 120 degrees about z) by their face offsets, which differ only in the fifth decimal (41.90179 / 41.90177 / 41.90174 about the port's origin) and so are decided by the origin. The origins differ by 0.13 (Python's default rule; the port is 5.6e-4 from OpenCascade's adaptive centroid, and this file's mass difference is undetermined), so each side picks a different class. If the three are congruent the choice is round-off on both sides and neither frame's full gauge is established."
+    "verdict": "rust-correct",
+    "reason": "Independent 3D-boundary flux-moment integration, tools/centroid_evidence.py at 4/8/16 panels with the 30 unresolved face-moment components refined at 16/32/64, gives origin (-0.000053145201,-0.000184624317,46.573717787320), 2.50e-7 mm from Rust; propagated absolute last-panel changes are (6.56e-7,9.46e-7,6.31e-7) mm. These are convergence diagnostics, not certified error bounds; the report retains the 30 per-component convergence flags. The axis choice is separately checked: check_face_integrals.independent_reference at 16/32 panels gives the six small cylinder faces 70/82/94/106/118/141 equal area at 9 decimals (0.171950254), with centroid changes <=1.8e-15 mm. About the independently integrated origin their absolute axis offsets are respectively 41.901826422, 41.901883823, 41.901797239, 41.901631867, 41.901512237, 41.901668258 mm. Face 82 wins by 5.74e-5 mm, exceeding the propagated centroid panel-change diagnostic; its native cylinder direction (0.181963117019,0.983305356460,-0.000000948175), projected perpendicular to the dominant planar z class, is Rust's y axis. The classes are not tied at the 1e-9 signature rounding, so the former conjecture about congruent classes does not establish gauge ambiguity. Both origin and changed y/z choice are supported by independent surface evaluation plus the generic-motion check, not by Python's centroid."
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -121,8 +121,8 @@
       "origin"
     ],
     "origin_within": 0.02,
-    "verdict": "undetermined",
-    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, undetermined): the port's origin is 7.1e-4 from OpenCascade's adaptive integration (eps 1e-9) and 1.1e-2 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: tools/centroid_evidence.py integrates exact OCCT surface evaluations over the 3D-edge boundary at 8/16/32/64 panels and solves the zero-first-flux-moment origin. It gives (4.328218069115,-11.064267274925,-0.411747297900), 4.79e-9 mm from Rust (4.328218065328,-11.064267272027,-0.411747297460). The sum of absolute last-panel moment changes, propagated through the centroid Jacobian, is (8.96e-8,3.83e-8,3.70e-8) mm; the report discloses 45 faces not meeting the stricter per-component relative 1e-9 criterion. The zero-first-moment volume is 111690.59751429 (Rust 111690.59753630); solid_mass separately uses the vertex-use reference. Thus the residual against adaptive OCCT's supplied pcurves is not a Rust centroid error. The generic-motion frame check also supports the moved origin; motion alone was not used to establish its value."
   },
   {
     "file": "cadgenbench_inputs/cgb207.step",
@@ -131,8 +131,8 @@
       "origin"
     ],
     "origin_within": 0.02,
-    "verdict": "undetermined",
-    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, undetermined): the port's origin is 7.1e-4 from OpenCascade's adaptive integration (eps 1e-9) and 1.1e-2 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: tools/centroid_evidence.py integrates exact OCCT surface evaluations over the 3D-edge boundary at 8/16/32/64 panels and solves the zero-first-flux-moment origin. It gives (4.328218069115,-11.064267274925,-0.411747297900), 4.79e-9 mm from Rust (4.328218065328,-11.064267272027,-0.411747297460). The sum of absolute last-panel moment changes, propagated through the centroid Jacobian, is (8.96e-8,3.83e-8,3.70e-8) mm; the report discloses 45 faces not meeting the stricter per-component relative 1e-9 criterion. The zero-first-moment volume is 111690.59751429 (Rust 111690.59753630); solid_mass separately uses the vertex-use reference. Thus the residual against adaptive OCCT's supplied pcurves is not a Rust centroid error. The generic-motion frame check also supports the moved origin; motion alone was not used to establish its value."
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
@@ -141,8 +141,8 @@
       "origin"
     ],
     "origin_within": 0.006,
-    "verdict": "undetermined",
-    "reason": "Python's origin is OpenCascade's centroid at VolumeProperties' default (fixed) rule, (-6.117805, -1.853569, -8.039570) in place, volume 223533.796; its adaptive rule (eps 1e-9 and 1e-11 agree) gives (-6.118127, -1.849812, -8.043742), volume 223478.913. The port's centroid, (-6.118110, -1.849941, -8.043424) in place, is 3.9e-3 from the fixed rule's and 3.4e-4 from the adaptive one's (3.3e-3 moved). The remaining 3.4e-4 goes with the 5 mm^3 volume difference that this file's corpus mass entry leaves undetermined (the volume has no independent check), so which centroid is right is not shown. Before face 29 was integrated the port refused this frame."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: tools/centroid_evidence.py integrates the exact OCCT surface evaluator over the 3D-edge boundary (Green quadrature, 8/16/32/64 Lobatto panels) and solves the zero-first-flux-moment origin. It gives (-6.118110326095,-1.849940956845,-8.043423502462), 1.27e-9 mm from Rust (-6.118110326280,-1.849940955975,-8.043423501564). Propagating the sum of absolute last-panel changes through the moment Jacobian gives (3.84e-9,7.18e-9,1.04e-8) mm, well within the frame comparison tolerance; 46 faces still fail the stricter per-component relative 1e-9 criterion, disclosed in the scratch report. The zero-first-moment volume is 223473.60592346 (Rust 223473.60592944); this origin differs from the mean-vertex mass reference, so it must not be substituted for solid_mass's 223473.964367. Adaptive OCCT over pcurves gives a different origin; both as-imported and moved Rust origins are supported by the 3D boundary reference and generic-motion check."
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
@@ -151,8 +151,8 @@
       "origin"
     ],
     "origin_within": 0.005,
-    "verdict": "undetermined",
-    "reason": "Python's origin is OpenCascade's centroid at VolumeProperties' default (fixed) rule, (-6.117805, -1.853569, -8.039570) in place, volume 223533.796; its adaptive rule (eps 1e-9 and 1e-11 agree) gives (-6.118127, -1.849812, -8.043742), volume 223478.913. The port's centroid, (-6.118110, -1.849941, -8.043424) in place, is 3.9e-3 from the fixed rule's and 3.4e-4 from the adaptive one's (3.3e-3 moved). The remaining 3.4e-4 goes with the 5 mm^3 volume difference that this file's corpus mass entry leaves undetermined (the volume has no independent check), so which centroid is right is not shown. Before face 29 was integrated the port refused this frame."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: tools/centroid_evidence.py integrates the exact OCCT surface evaluator over the 3D-edge boundary (Green quadrature, 8/16/32/64 Lobatto panels) and solves the zero-first-flux-moment origin. It gives (-6.118110326095,-1.849940956845,-8.043423502462), 1.27e-9 mm from Rust (-6.118110326280,-1.849940955975,-8.043423501564). Propagating the sum of absolute last-panel changes through the moment Jacobian gives (3.84e-9,7.18e-9,1.04e-8) mm, well within the frame comparison tolerance; 46 faces still fail the stricter per-component relative 1e-9 criterion, disclosed in the scratch report. The zero-first-moment volume is 223473.60592346 (Rust 223473.60592944); this origin differs from the mean-vertex mass reference, so it must not be substituted for solid_mass's 223473.964367. Adaptive OCCT over pcurves gives a different origin; both as-imported and moved Rust origins are supported by the 3D boundary reference and generic-motion check."
   },
   {
     "file": "cadgenbench_inputs/cgb241.step",
@@ -161,8 +161,8 @@
       "origin"
     ],
     "origin_within": 0.6,
-    "verdict": "undetermined",
-    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-correct: OpenCascade integrates a planar face over pcurves 1% off its edges): the port's origin is 8.9e-3 from OpenCascade's adaptive integration (eps 1e-9) and 0.37 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: tools/centroid_evidence.py integrates OCCT's exact surface evaluator over the 3D-edge boundary with 4/8/16 panels, then refines the seven dominant moment-error faces 12/22/32/33/34/35/42 at 16/32/64 panels. The zero-first-flux-moment origin is (-208.099254575559,-4.111187946377,-49.665865419021), 1.21e-7 mm from Rust (-208.099254469800,-4.111187891744,-49.665865434594). Propagated absolute last-panel changes are (4.44e-7,1.03e-6,2.26e-7) mm, inside the coordinate-relative frame comparison tolerance; four per-component convergence flags remain disclosed. The fixed-point volume is 925611.35854708 (Rust 925611.35813269). Thus the centroid residual against OCCT's pcurves follows their different trim, not a wrong Rust origin; the planar-area discrepancy was already independently traced in known_divergences.json. Generic rigid-motion checking also supports the moved origin."
   },
   {
     "file": "cadgenbench_inputs/cgb241.step",
@@ -171,8 +171,8 @@
       "origin"
     ],
     "origin_within": 0.7,
-    "verdict": "undetermined",
-    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-correct: OpenCascade integrates a planar face over pcurves 1% off its edges): the port's origin is 8.9e-3 from OpenCascade's adaptive integration (eps 1e-9) and 0.37 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: tools/centroid_evidence.py integrates OCCT's exact surface evaluator over the 3D-edge boundary with 4/8/16 panels, then refines the seven dominant moment-error faces 12/22/32/33/34/35/42 at 16/32/64 panels. The zero-first-flux-moment origin is (-208.099254575559,-4.111187946377,-49.665865419021), 1.21e-7 mm from Rust (-208.099254469800,-4.111187891744,-49.665865434594). Propagated absolute last-panel changes are (4.44e-7,1.03e-6,2.26e-7) mm, inside the coordinate-relative frame comparison tolerance; four per-component convergence flags remain disclosed. The fixed-point volume is 925611.35854708 (Rust 925611.35813269). Thus the centroid residual against OCCT's pcurves follows their different trim, not a wrong Rust origin; the planar-area discrepancy was already independently traced in known_divergences.json. Generic rigid-motion checking also supports the moved origin."
   },
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
@@ -181,8 +181,8 @@
       "origin"
     ],
     "origin_within": 0.006,
-    "verdict": "undetermined",
-    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, undetermined): the port's origin is 1.8e-4 from OpenCascade's adaptive integration (eps 1e-9) and 4.3e-3 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: tools/centroid_evidence.py integrates exact OCCT surface evaluations over the 3D-edge boundary with 4/8/16 panels and refines the four dominant moment-error faces 9/35/47/104 at 16/32/64. It gives origin (-7.023732468131,-1.793476759449,6.408847575092), 1.51e-8 mm from Rust (-7.023732453140,-1.793476759976,6.408847575644). Propagated absolute last-panel changes are (4.68e-7,4.05e-7,8.65e-8) mm, within the frame comparison tolerance; the report retains 47 stricter per-component convergence flags. The zero-first-moment volume is 410952.52060525 (Rust 410952.51933559); solid_mass separately uses a mean-vertex reference. Tiny face 483 remains explicitly undetermined in the area and moment ledgers, not deleted or assigned zero. At the frame's comparison precision the independently integrated origin supports Rust; supplied-pcurve adaptive and fixed OCCT centroids are different references. Generic-motion checking supports the moved case."
   },
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
@@ -191,8 +191,8 @@
       "origin"
     ],
     "origin_within": 0.005,
-    "verdict": "undetermined",
-    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, undetermined): the port's origin is 1.8e-4 from OpenCascade's adaptive integration (eps 1e-9) and 4.3e-3 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: tools/centroid_evidence.py integrates exact OCCT surface evaluations over the 3D-edge boundary with 4/8/16 panels and refines the four dominant moment-error faces 9/35/47/104 at 16/32/64. It gives origin (-7.023732468131,-1.793476759449,6.408847575092), 1.51e-8 mm from Rust (-7.023732453140,-1.793476759976,6.408847575644). Propagated absolute last-panel changes are (4.68e-7,4.05e-7,8.65e-8) mm, within the frame comparison tolerance; the report retains 47 stricter per-component convergence flags. The zero-first-moment volume is 410952.52060525 (Rust 410952.51933559); solid_mass separately uses a mean-vertex reference. Tiny face 483 remains explicitly undetermined in the area and moment ledgers, not deleted or assigned zero. At the frame's comparison precision the independently integrated origin supports Rust; supplied-pcurve adaptive and fixed OCCT centroids are different references. Generic-motion checking supports the moved case."
   },
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
@@ -201,8 +201,8 @@
       "origin"
     ],
     "origin_within": 0.06,
-    "verdict": "undetermined",
-    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-correct: the helical thread face's area follows OpenCascade's pcurve approximation): the port's origin is 2.1e-2 from OpenCascade's adaptive integration (eps 1e-9) and 4.2e-2 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: tools/centroid_evidence.py integrates OCCT's exact surface evaluator over the 3D-edge boundary (4/8/16 panels; cone-tip faces refined at 16/32 after kernel_evidence.py's analytic-apex handling). It gives origin (-1.112585466618,-3.952181835008,0.785976631760), 7.66e-9 mm from Rust (-1.112585470798,-3.952181834361,0.785976625379). Propagated absolute last-panel changes are (9.03e-8,1.12e-7,9.33e-8) mm; 12 face components still fail their stricter relative criterion, disclosed in the report. The zero-first-moment volume is 297319.06763868 (Rust 297319.06766731). The rounded tips of 21 conical faces lie about 1.2e-9 mm from the exact apex; treating the vanishing-radius angular coordinate by its analytic limit closes their parameter loops, verified on an analytic cone (volume residual <1e-9 mm\u00b3, centroid residual <1e-9 mm). The former pcurve/helix residual does not establish a Rust origin error. The generic-motion frame check supports the moved case; no geometry or recogniser was changed."
   },
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
@@ -211,8 +211,8 @@
       "origin"
     ],
     "origin_within": 0.07,
-    "verdict": "undetermined",
-    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, rust-correct: the helical thread face's area follows OpenCascade's pcurve approximation): the port's origin is 2.1e-2 from OpenCascade's adaptive integration (eps 1e-9) and 4.2e-2 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: tools/centroid_evidence.py integrates OCCT's exact surface evaluator over the 3D-edge boundary (4/8/16 panels; cone-tip faces refined at 16/32 after kernel_evidence.py's analytic-apex handling). It gives origin (-1.112585466618,-3.952181835008,0.785976631760), 7.66e-9 mm from Rust (-1.112585470798,-3.952181834361,0.785976625379). Propagated absolute last-panel changes are (9.03e-8,1.12e-7,9.33e-8) mm; 12 face components still fail their stricter relative criterion, disclosed in the report. The zero-first-moment volume is 297319.06763868 (Rust 297319.06766731). The rounded tips of 21 conical faces lie about 1.2e-9 mm from the exact apex; treating the vanishing-radius angular coordinate by its analytic limit closes their parameter loops, verified on an analytic cone (volume residual <1e-9 mm\u00b3, centroid residual <1e-9 mm). The former pcurve/helix residual does not establish a Rust origin error. The generic-motion frame check supports the moved case; no geometry or recogniser was changed."
   },
   {
     "file": "cadgenbench_inputs/cgb245.step",
@@ -260,8 +260,8 @@
     "fields": [
       "refusal"
     ],
-    "verdict": "undetermined",
-    "reason": "A deliberately malformed corpus part (its shell is not orientable): OpenCascade's import yields no solid, so Python refuses for no material; the port reads the file's one solid and derives a frame (the corpus `solid count` entry)."
+    "verdict": "rust-wrong",
+    "reason": "Independent raw topology reference: this CLOSED_SHELL uses edge 15 only once (face 3) and edge 4 twice with the same sense (faces 1/3), so it is neither closed nor orientable (known_divergences.json solid count). There is no valid material solid whose centroid could define a material frame. Live examples/centroid reports valid=[false] yet infer_part_frame returns a full frame with origin (6.533406027939,22.141257001411,20.023088032735); OCCT imports no solid. Cause: material_origin accepts the declared invalid solid and its flux-derived centroid without a validity check. The source warning/invalid flag is useful retained information but does not establish a material frame; record the frame defect rather than choosing Python as the authority."
   },
   {
     "file": "inventory_refusal/13975.step.gz",
@@ -269,8 +269,8 @@
     "fields": [
       "refusal"
     ],
-    "verdict": "undetermined",
-    "reason": "A deliberately malformed corpus part (its shell is not orientable): OpenCascade's import yields no solid, so Python refuses for no material; the port reads the file's one solid and derives a frame (the corpus `solid count` entry)."
+    "verdict": "rust-wrong",
+    "reason": "Independent raw topology reference: this CLOSED_SHELL uses edge 15 only once (face 3) and edge 4 twice with the same sense (faces 1/3), so it is neither closed nor orientable (known_divergences.json solid count). There is no valid material solid whose centroid could define a material frame. Live examples/centroid reports valid=[false] yet infer_part_frame returns a full frame with origin (6.533406027939,22.141257001411,20.023088032735); OCCT imports no solid. Cause: material_origin accepts the declared invalid solid and its flux-derived centroid without a validity check. The source warning/invalid flag is useful retained information but does not establish a material frame; record the frame defect rather than choosing Python as the authority."
   },
   {
     "file": "inventory_refusal/14052.step.gz",
@@ -279,8 +279,8 @@
       "origin"
     ],
     "origin_within": 0.03,
-    "verdict": "undetermined",
-    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, undetermined: a deliberately malformed face whose region is ambiguous): the port's origin is 2.3e-2 from OpenCascade's adaptive integration (eps 1e-9) and 2.3e-2 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+    "verdict": "rust-correct",
+    "reason": "Independent 3D-boundary flux-moment integration (tools/centroid_evidence.py FluxSurface/_integrate, 4/8/16 panels), after interpreting face 1's 1.50250109546 mm\u00b2 triangular inner bound as a hole, gives volume 2619.570814375401 and centroid (11.923725969120719,8.279277124327994,9.427449208910039). The corrected planar area 147.603611977952 agrees with the analytic plate dimensions in known_face_areas.json; it reverses only that inner loop, not the other circular hole or any surface geometry. The total outward area vector is below 7e-12 mm\u00b2 per component, confirming closure. Rust centroid (11.923725969120685,8.279277124328011,9.427449208910096) agrees within 7e-14 mm; the absolute summed last-panel change of first-moment numerators is below 4.8e-10 mm\u2074. OCCT's original loops add the triangular hole instead. The former volume/region ambiguity is settled by the raw bound semantics and analytic hole, not by motion alone; tests/frames.rs also checks the generic moved case."
   },
   {
     "file": "inventory_refusal/14052.step.gz",
@@ -289,8 +289,8 @@
       "origin"
     ],
     "origin_within": 0.04,
-    "verdict": "undetermined",
-    "reason": "Origin only, following this file's solid mass difference (corpus `kernel solid masses` entry, undetermined: a deliberately malformed face whose region is ambiguous): the port's origin is 2.3e-2 from OpenCascade's adaptive integration (eps 1e-9) and 2.3e-2 from the default rule Python reads. The port's origin moves with the part to 1e-9 (tests/invariance.rs's framed check), so the residual is the B-spline integration difference that entry describes, not placement."
+    "verdict": "rust-correct",
+    "reason": "Independent 3D-boundary flux-moment integration (tools/centroid_evidence.py FluxSurface/_integrate, 4/8/16 panels), after interpreting face 1's 1.50250109546 mm\u00b2 triangular inner bound as a hole, gives volume 2619.570814375401 and centroid (11.923725969120719,8.279277124327994,9.427449208910039). The corrected planar area 147.603611977952 agrees with the analytic plate dimensions in known_face_areas.json; it reverses only that inner loop, not the other circular hole or any surface geometry. The total outward area vector is below 7e-12 mm\u00b2 per component, confirming closure. Rust centroid (11.923725969120685,8.279277124328011,9.427449208910096) agrees within 7e-14 mm; the absolute summed last-panel change of first-moment numerators is below 4.8e-10 mm\u2074. OCCT's original loops add the triangular hole instead. The former volume/region ambiguity is settled by the raw bound semantics and analytic hole, not by motion alone; tests/frames.rs also checks the generic moved case."
   },
   {
     "file": "nist/nist_ctc_01_asme1_rd.stp",

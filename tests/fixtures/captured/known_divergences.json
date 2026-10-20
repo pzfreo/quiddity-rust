@@ -46,8 +46,8 @@
     "file": "cdbb50ecd934508f.step.gz",
     "options": {},
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "As the corpus entry for cgb207: same wall pairs; thicknesses differ in the sixth figure with the probe placement, and the body key and paired area fraction follow the untraced B-spline area difference."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: tests/fixtures/known_divergences.json, cgb207 recognise_thin_wall_bodies and kernel solid masses. Green boundary integration of the 3D edges gives volume 111690.350113 and area 73707.384592, matching Rust 111690.350132 and 73707.384594; independently integrated face areas give paired_area_fraction 0.89481592, Rust 0.89481592. The same 58 wall pairs are retained; the corpus entry traces the thickness differences to B-spline normal/probe placement. This captured call inherits that rust-correct geometric verdict, not the frozen fixed-rule Python masses (111664.728, 73704.855)."
   },
   {
     "function": "recognise_thin_wall_bodies",
@@ -55,8 +55,8 @@
     "file": "cdbb50ecd934508f.step.gz",
     "options": {},
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "As the corpus entry for cgb207: same wall pairs; thicknesses differ in the sixth figure with the probe placement, and the body key and paired area fraction follow the untraced B-spline area difference."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: tests/fixtures/known_divergences.json, cgb207 recognise_thin_wall_bodies and kernel solid masses. Green boundary integration of the 3D edges gives volume 111690.350113 and area 73707.384592, matching Rust 111690.350132 and 73707.384594; independently integrated face areas give paired_area_fraction 0.89481592, Rust 0.89481592. The same 58 wall pairs are retained; the corpus entry traces the thickness differences to B-spline normal/probe placement. This captured call inherits that rust-correct geometric verdict, not the frozen fixed-rule Python masses (111664.728, 73704.855)."
   },
   {
     "function": "recognise_thin_wall_bodies",
@@ -237,8 +237,8 @@
     "file": "11ee4708f7675eb9.step.gz",
     "options": {},
     "count": 1,
-    "verdict": "undetermined",
-    "reason": "Same skins, cut faces, 26 flanges, 31 bends and 102 edge treatments (status non_tree). Two fields differ: the body key's volume, inherited from the thin-wall body (this file's untraced B-spline mass difference; see the corpus thin-wall entry for cgb245), and flange 4's area, which is face 53's: rust-correct per tests/fixtures/known_face_areas.json (OpenCascade's own integration driven to 1e-9 gives the port's 24749.46851; face.area's fixed Gauss rule gives 24749.5601)."
+    "verdict": "rust-correct",
+    "reason": "Independent reference: tools/kernel_evidence.py solids, recorded in known_divergences.json cgb245 kernel solid masses: Rust volume 121083.3066955 and area 127538.9199071, independent 121083.3066924 and 127538.9199065, and adaptive OCCT 121083.3066944 and 127538.9199072. These settle the body key. Flange 4 is face 53: adaptive OCCT area 24749.46851 agrees with Rust (known_face_areas.json); the frozen fixed Gauss rule gives 24749.5601. Same 26 flanges, 31 bends, 102 edge treatments and non_tree status; no information removed."
   },
   {
     "function": "recognise_channels",

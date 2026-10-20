@@ -189,6 +189,16 @@ class _Surface:
         """Whether u (and v) is arbitrary at the point: its partial derivative vanishes there."""
 
         u, v = self._wrapped(u, v)
+        if self.adaptor.GetType() == GeomAbs_Cone:
+            cone = self.adaptor.Cone()
+            # STEP's rounded apex can leave a nanometre radial residue (cgb243:
+            # 1.2e-9 mm). Use the analytic apex limit there instead of letting
+            # atan2 round-off introduce a whole spurious turn. This tip's
+            # radius is below cgb243's edge tolerance and its area O(1e-16 mm²).
+            # Scale down for tiny cones so their finite sides are never poles.
+            limit = 1e-8 * min(1.0, cone.RefRadius())
+            if abs(cone.RefRadius() + v*math.sin(cone.SemiAngle())) <= limit:
+                return True, False
         p, du, dv = gp_Pnt(), gp_Vec(), gp_Vec()
         self.adaptor.D1(u, v, p, du, dv)
         a, b = du.Magnitude(), dv.Magnitude()
