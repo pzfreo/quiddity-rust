@@ -27,6 +27,11 @@ cuts:
 direction given (towards the viewer), faces by their index (haecceity's). ``classify``:
 OpenCascade's classifier at each point.
 
+``silhouette FILE x,z...``: recover visible section silhouettes in 3D with OCCT's
+OutLineVCompound3d, then independently test their sight lines against the original
+solid's classifier, clipped at the section plane. Samples within 0.8 mm of the given
+projected points are printed as JSON. HLR coordinates include the camera offset.
+
 ``crates/haecceity/tests/drawings.rs`` (``failed_cuts_match_their_reference``) holds the port's
 side of the cut areas against the reference listed from here.
 """
@@ -244,6 +249,78 @@ def classify(name: str, points: list[str]) -> None:
         print(f"{name} at {point}: {', '.join(states)}")
 
 
+def silhouette(name: str, targets: list[str]) -> None:
+    """HLR supplies 3D locations; original-solid classification decides occlusion."""
+    from OCP.BRepAdaptor import BRepAdaptor_Curve
+    from OCP.HLRAlgo import HLRAlgo_Projector
+    from OCP.HLRBRep import HLRBRep_Algo, HLRBRep_HLRToShape
+    from OCP.gp import gp_Ax1, gp_Ax2
+
+    targets = [tuple(float(x) for x in p.split(",")) for p in targets]
+    if any(len(p) != 2 for p in targets):
+        raise ValueError("targets must be projected x,z pairs")
+    shape = capture_hlr._load(capture_hlr.CORPUS / name)
+    body = Compound(list(shape.solids()))
+    box = body.bounding_box()
+    cut_y = box.center().Y
+    big = 4 * max(box.size.X, box.size.Y, box.size.Z) + 10
+    cutter = Pos(box.center().X, cut_y-big/2, box.center().Z) * Box(big, big, big)
+    cut = capture_section._cut(body, cutter)
+    if cut is None:
+        raise ValueError("section boolean produced no solid; no silhouette reference")
+    kept, _ = cut
+    box = kept.bounding_box()
+    centre = box.center()
+    distance = 2 * math.sqrt(box.size.X**2 + box.size.Y**2 + box.size.Z**2) + 1
+    camera = gp_Pnt(centre.X, centre.Y-distance, centre.Z)
+    axes = gp_Ax2()
+    axes.SetAxis(gp_Ax1(camera, gp_Dir(0, -1, 0)))
+    axes.SetYDirection(gp_Dir(0, 0, 1))
+    projector = HLRAlgo_Projector(axes)
+    offset = projector.Project(camera)
+    algo = HLRBRep_Algo()
+    algo.Add(kept.wrapped)
+    algo.Projector(projector)
+    algo.Update()
+    algo.Hide()
+    outlines = HLRBRep_HLRToShape(algo).OutLineVCompound3d()
+    intersector = IntCurvesFace_ShapeIntersector()
+    intersector.Load(body.wrapped, 1e-7)
+    solids = list(body.solids())
+    rows = []
+    explorer = TopExp_Explorer(outlines, TopAbs_EDGE)
+    index = 0
+    while explorer.More():
+        curve = BRepAdaptor_Curve(TopoDS.Edge_s(explorer.Current()))
+        explorer.Next()
+        for j in range(1, 20):
+            t = curve.FirstParameter() + (curve.LastParameter()-curve.FirstParameter())*j/20
+            p = curve.Value(t)
+            x, z, _ = projector.Project(p)
+            projected = [x-offset[0], z-offset[1]]
+            if min(math.dist(projected, target) for target in targets) > 0.8:
+                continue
+            limit = p.Y()-cut_y
+            if limit <= 1e-4:
+                continue
+            intersector.Perform(gp_Lin(p, gp_Dir(0, -1, 0)), 1e-4, limit)
+            hits = sorted(intersector.WParameter(k) for k in range(1, intersector.NbPnt()+1)
+                          if 1e-4 < intersector.WParameter(k) < limit)
+            marks = [1e-4, *hits, limit]
+            inside = []
+            for a, b in zip(marks, marks[1:]):
+                if b-a <= 1e-5:
+                    continue
+                q = gp_Pnt(p.X(), p.Y()-(a+b)/2, p.Z())
+                if any(BRepClass3d_SolidClassifier(s.wrapped, q, 1e-7).State() == TopAbs_IN
+                       for s in solids):
+                    inside.append([a, b])
+            rows.append(dict(outline=index, projected=projected, point=list(p.Coord()),
+                             occluding_intervals=inside, occt_visible=True))
+        index += 1
+    print(json.dumps(dict(file=name, cut_y=cut_y, rows=rows), indent=2))
+
+
 def main() -> None:
     if len(sys.argv) >= 3 and sys.argv[1] == "cut":
         cut(sys.argv[2:])
@@ -251,6 +328,8 @@ def main() -> None:
         ray(sys.argv[2], sys.argv[3:])
     elif len(sys.argv) >= 4 and sys.argv[1] == "classify":
         classify(sys.argv[2], sys.argv[3:])
+    elif len(sys.argv) >= 4 and sys.argv[1] == "silhouette":
+        silhouette(sys.argv[2], sys.argv[3:])
     else:
         sys.exit(__doc__)
 

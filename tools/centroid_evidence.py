@@ -30,11 +30,13 @@ class FluxSurface(_Surface):
         u, v = self._wrapped(u, v)
         p, du, dv = gp_Pnt(), gp_Vec(), gp_Vec()
         self.adaptor.D1(u, v, p, du, dv)
-        q = np.array(p.Coord()) - self.centre
-        n = np.array(du.Crossed(dv).Coord())
-        qn = float(q @ n)
-        return np.concatenate(([np.linalg.norm(n), qn], n,
-                               np.outer(q, n).ravel(), q * qn))
+        x, y, z = (p.X()-self.centre[0], p.Y()-self.centre[1], p.Z()-self.centre[2])
+        normal = du.Crossed(dv)
+        nx, ny, nz = normal.Coord()
+        qn = x*nx+y*ny+z*nz
+        return np.array([normal.Magnitude(), qn, nx, ny, nz,
+                         x*nx, x*ny, x*nz, y*nx, y*ny, y*nz, z*nx, z*ny, z*nz,
+                         x*qn, y*qn, z*qn])
 
 
 def fixed_point(values, centre):
@@ -51,6 +53,22 @@ def fixed_point(values, centre):
             return dict(volume=float((s-d @ m)/3), centroid=(centre+d).tolist(),
                         area=float(values[0]), area_vector=m.tolist())
     return None
+
+
+def centroid_panel_change(values, change, centre, centroid):
+    """Linear propagation of the sum of absolute last-panel changes, in mm.
+
+    This is a convergence diagnostic, not a certified quadrature error bound.
+    Per-face relative tests can fail on cancelling moments near zero even when
+    the resulting centroid has converged well inside the frame tolerance.
+    """
+    d = np.array(centroid)-centre
+    s, m = values[1], values[2:5]
+    a = values[5:14].reshape(3, 3)
+    jacobian = (-a-s*np.eye(3)+np.eye(3)*(d @ m)+np.outer(d, m))/4
+    residual = (change[14:17] + change[5:14].reshape(3, 3) @ np.abs(d)
+                + change[1]*np.abs(d) + np.abs(d)*(np.abs(d) @ change[2:5]))/4
+    return (np.abs(np.linalg.inv(jacobian)) @ residual).tolist()
 
 
 def face_job(job):
@@ -114,7 +132,11 @@ def main():
     if not missing:
         totals = np.sum([r['values'] for r in rows], axis=0)
         result['independent'] = fixed_point(totals, np.array(centre))
-        result['sum_absolute_change'] = np.sum([r['change'] for r in rows], axis=0).tolist()
+        change = np.sum([r['change'] for r in rows], axis=0)
+        result['sum_absolute_change'] = change.tolist()
+        if result['independent'] is not None:
+            result['centroid_panel_change'] = centroid_panel_change(
+                totals, change, np.array(centre), result['independent']['centroid'])
     print(json.dumps(result, indent=2, allow_nan=False))
 
 
