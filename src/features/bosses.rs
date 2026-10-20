@@ -13,7 +13,8 @@ use crate::kernel::geom::{self, COORD_FLOOR, V3};
 use crate::kernel::py;
 
 /// A boss: `axis` points from its base to its free end, `location` is the axis point at the free
-/// end, `height` the axial length.
+/// end, `height` the axial length. When geometry leaves the two ends interchangeable,
+/// axis/location represent an end gauge, not an asserted material base/free direction.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct BossRecord {
     pub axis: V3,
@@ -41,7 +42,10 @@ fn body_origin(part: &Part, solid: usize) -> Option<V3> {
         .map_or_else(|| (0..part.faces.len()).collect(), |s| s.faces.clone());
     let weighted = faces
         .into_iter()
-        .map(|f| Some((part.face_mass(f)?[0], part.face_centre(f)?)))
+        .map(|f| {
+            let moments = part.face_moments(f)?;
+            Some((moments.area, moments.centroid))
+        })
         .collect::<Option<Vec<_>>>()?;
     let area = py::fsum(weighted.iter().map(|(a, _)| *a));
     if !area.is_finite() || area <= 0. {
@@ -51,15 +55,18 @@ fn body_origin(part: &Part, solid: usize) -> Option<V3> {
     origin.iter().all(|x| x.is_finite()).then_some(origin)
 }
 
-fn free_end(lo: End, hi: End, relative_body_origin: Option<f64>) -> Option<bool> {
+fn free_end(lo: End, hi: End, relative_body_origin: Option<f64>) -> (bool, bool) {
     match (lo == End::Open, hi == End::Open) {
-        (true, false) => Some(false),
-        (false, true) => Some(true),
+        (true, false) => (false, false),
+        (false, true) => (true, false),
         _ => {
             // When end states tie, the free end points away from the body's boundary-area
-            // centre. A zero axial moment supplies no base/free role and must refuse.
-            let offset = relative_body_origin?;
-            (offset.abs() > COORD_FLOOR).then_some(offset < 0.)
+            // centre. With no established direction, retain the OD using its existing
+            // undirected cylinder-axis representative. Both ends are presentation-equivalent.
+            match relative_body_origin.filter(|offset| offset.abs() > COORD_FLOOR) {
+                Some(offset) => (offset < 0., false),
+                None => (true, true),
+            }
         }
     }
 }
@@ -88,8 +95,14 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<BossRecord>> {
         } else {
             None
         };
-        let Some(from_hi) = free_end(lo_state, hi_state, relative_origin) else {
-            continue;
+        let (from_hi, presentation) = free_end(lo_state, hi_state, relative_origin);
+        let gauge_faces = if presentation {
+            let mut faces: Vec<_> = lo_faces.iter().chain(&hi_faces).copied().collect();
+            faces.sort_unstable();
+            faces.dedup();
+            faces
+        } else {
+            vec![]
         };
         let (free_state, free_faces) = if from_hi {
             (hi_state, hi_faces)
@@ -105,7 +118,9 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<BossRecord>> {
                 height: py::round_to(seg.s_hi - seg.s_lo, 2),
             },
             defining: seg.faces.clone(),
-            context: if free_state == End::Open {
+            context: if presentation && free_state == End::Open {
+                gauge_faces
+            } else if free_state == End::Open {
                 free_faces
             } else {
                 vec![]

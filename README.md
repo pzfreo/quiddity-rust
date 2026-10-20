@@ -1098,7 +1098,7 @@ result-local `<family>/<index>` addresses: the legacy caller-space coordinate so
 promise stable IDs between independently recognised placements; correspondence carries identity
 by evidence, and framed mapping does not re-sort those records.
 
-Symmetric machining-role ties refuse: equal hole-mouth profiles, recess run/width interpretations,
+Symmetric interpretation ties refuse: recess run/width interpretations,
 turning-axis support, overlapping equal-size pattern allocations, competing cap or wall evidence,
 ambiguous bounded coordinate partitions, and competing sheet hinge/skin proofs cannot be resolved by XYZ, sign, face number or input order.
 When no orthogonal basis exists, an axial frame also requires a unique geometric direction
@@ -1113,9 +1113,15 @@ remains a gauge because it chooses no side-dependent step claim. A tied profile 
 affine mean of coaxial supports; unequal inward hole geometry and grid populations decide
 intrinsically before any output representative is chosen.
 
-A boss's base/free direction is semantic too. When its end states tie, a nonzero axial
-boundary-area moment about its midpoint establishes the body-relative direction away from
-the body's boundary-area centre; a zero moment refuses instead of defaulting to the high end.
+When a boss's end states tie, a nonzero axial boundary-area moment about its midpoint
+establishes the body-relative direction away from the body's boundary-area centroid, computed
+from true surface area moments rather than surface parameter midpoints. A zero moment retains
+the boss with an end gauge. Symmetric hole-mouth profiles likewise retain the bore, omitting
+unproved one-sided counterbore or spotface attribution; tied countersink matches omit only that
+attachment. Equivalent closing faces are retained together as context. A direction or end gauge
+never removes a feature. A directed representative of an exactly symmetric part is understood
+modulo its stabilising symmetry: the undirected physical axis and both endpoints move with the
+part, while no material end is asserted.
 
 The invariance harness also reports absent, reclassified and introduced occurrences per family,
 using the Python rigid-motion sweep's maximum-cardinality defining-face containment matching,

@@ -293,29 +293,38 @@ fn merge_stacks(part: &Part, stacks: Vec<Vec<Segment>>) -> Vec<Vec<Segment>> {
 }
 
 /// Which end is the opening. Mouth diameter, then the complete inward axial profile decide
-/// intrinsically. A symmetric multi-segment stack has no proved drilling side and is refused.
-/// A plain through bore has no side-dependent step claim: its direction is presentation only.
-fn drilled_from(part: &Part, stack: &[Segment]) -> Option<(bool, usize, f64, Bottom, Vec<usize>)> {
+/// intrinsically. An unresolved side is an end gauge: retain the bore, without attributing
+/// one-sided steps to either mouth.
+struct Drilling {
+    from_hi: bool,
+    opening: usize,
+    opening_s: f64,
+    bottom: Bottom,
+    terminal: Vec<usize>,
+    presentation: bool,
+}
+
+fn drilled_from(part: &Part, stack: &[Segment]) -> Drilling {
     let lo = end_segment(stack, |s| -s.s_lo);
     let hi = end_segment(stack, |s| s.s_hi);
     let (lo_state, lo_faces) = classify_end(part, &stack[lo], stack[lo].s_lo, false);
     let (hi_state, hi_faces) = classify_end(part, &stack[hi], stack[hi].s_hi, true);
-    let from_hi = match (lo_state == End::Open, hi_state == End::Open) {
-        (true, false) => false,
-        (false, true) => true,
-        _ if lo == hi => true,
+    let (from_hi, presentation) = match (lo_state == End::Open, hi_state == End::Open) {
+        (true, false) => (false, false),
+        (false, true) => (true, false),
+        _ if lo == hi => (true, true),
         _ => match mouth_order(stack, lo, hi) {
-            Some(side) => side,
-            None if lo_state == End::Open
-                && hi_state == End::Open
-                && stack
-                    .iter()
-                    .all(|s| s.diameter >= stack[lo].diameter - COORD_FLOOR) =>
-            {
-                true
-            }
-            None => return None,
+            Some(side) => (side, false),
+            None => (true, true),
         },
+    };
+    let gauge_faces = if presentation {
+        let mut faces: Vec<_> = lo_faces.iter().chain(&hi_faces).copied().collect();
+        faces.sort_unstable();
+        faces.dedup();
+        faces
+    } else {
+        vec![]
     };
     let (opening, opening_s, bottom, faces) = if from_hi {
         (hi, stack[hi].s_hi, lo_state, lo_faces)
@@ -323,6 +332,7 @@ fn drilled_from(part: &Part, stack: &[Segment]) -> Option<(bool, usize, f64, Bot
         (lo, stack[lo].s_lo, hi_state, hi_faces)
     };
     let bottom = match bottom {
+        _ if presentation && lo_state != hi_state => Bottom::Unknown,
         End::Open => Bottom::Through,
         End::Flat => Bottom::Flat,
         End::DrillPoint => Bottom::DrillPoint,
@@ -330,15 +340,23 @@ fn drilled_from(part: &Part, stack: &[Segment]) -> Option<(bool, usize, f64, Bot
     };
     // Only a closing face is evidence of the bottom.
     let terminal = if matches!(bottom, Bottom::Flat | Bottom::DrillPoint) {
-        faces
+        if presentation { gauge_faces } else { faces }
     } else {
         vec![]
     };
-    Some((from_hi, opening, opening_s, bottom, terminal))
+    Drilling {
+        from_hi,
+        opening,
+        opening_s,
+        bottom,
+        terminal,
+        presentation,
+    }
 }
 
 /// Compare the two inward profiles using only distances and diameters. Source support signs,
-/// face indices and the input order carry no machining-side evidence. Equal profiles refuse.
+/// face indices and the input order carry no machining-side evidence. Equal profiles leave
+/// one-sided attribution unresolved, while retaining the bore.
 fn mouth_order(stack: &[Segment], lo: usize, hi: usize) -> Option<bool> {
     let profile = |from_hi: bool| {
         let mut values: Vec<[f64; 3]> = stack
@@ -491,10 +509,14 @@ pub fn discover(
     let mut out = Vec::new();
     for stack in stacks {
         let d = stack[0].direction;
-        let Some((from_hi, opening, opening_s, bottom, mut terminal)) = drilled_from(part, &stack)
-        else {
-            continue; // no unique drilling side; no directional hole record can be proved
-        };
+        let Drilling {
+            from_hi,
+            opening,
+            opening_s,
+            bottom,
+            mut terminal,
+            presentation,
+        } = drilled_from(part, &stack);
         let mut ordered = stack.clone();
         // Nearest the opening first: by the near end of each segment, which is s_hi drilling
         // down from the high end and s_lo drilling up from the low end. (Python sorts by s_hi
@@ -520,14 +542,28 @@ pub fn discover(
         });
         let bore_i = py::first_min(&ordered, |s| s.diameter);
         let bore = &ordered[bore_i];
-        let (cbore, spotface, step_faces) = near_side_steps(&ordered[..bore_i]);
-        let (depth, mut defining) = bore_depth(&stack, bore, bottom == Bottom::Through, from_hi);
+        let (cbore, spotface, step_faces) = if presentation {
+            (None, None, vec![])
+        } else {
+            near_side_steps(&ordered[..bore_i])
+        };
+        let (depth, mut defining) = bore_depth(
+            &stack,
+            bore,
+            bottom == Bottom::Through || presentation,
+            from_hi,
+        );
         defining.extend(step_faces);
         // A face counts once however many selections name it (Python resolves them to a set).
         let mut seen = std::collections::BTreeSet::new();
         defining.retain(|f| seen.insert(*f));
         let axis = if from_hi { geom::scale(d, -1.0) } else { d }.map(py::without_negative_zero);
-        let location = axis_point_at(&stack[opening], opening_s).map(|c| py::quantise(c, 11));
+        let location = if presentation {
+            axis_point_at(bore, if from_hi { bore.s_hi } else { bore.s_lo })
+        } else {
+            axis_point_at(&stack[opening], opening_s)
+        }
+        .map(|c| py::quantise(c, 11));
         let mut record = HoleRecord {
             axis,
             location,
@@ -557,15 +593,13 @@ pub fn discover(
             ]
         };
         matching.sort_by(|a, b| py::tuple_order(&rank(b), &rank(a)));
-        if matching.len() > 1
+        let ambiguous_seat = matching.len() > 1
             && rank(matching[0])
                 .iter()
                 .zip(rank(matching[1]))
-                .all(|(a, b)| (a - b).abs() <= COORD_FLOOR)
-        {
-            continue; // two indistinguishable seats cannot own this one-seat record
-        }
-        if let Some(cs) = matching.first() {
+                .all(|(a, b)| (a - b).abs() <= COORD_FLOOR);
+        // Ambiguous attribution cannot remove the independently established bore.
+        if let Some(cs) = matching.first().filter(|_| !ambiguous_seat) {
             record.csink = Some(cs.record.clone());
             // The seat's face is consulted evidence: it must share the hole's solid.
             terminal.extend(&cs.defining);

@@ -26,12 +26,29 @@ fn motions() -> Vec<Placement> {
 }
 
 #[test]
-fn symmetric_double_mouth_refuses_under_motion() {
+fn symmetric_double_mouth_keeps_the_bore_under_motion() {
     let path = common::fixtures().join("ties/symmetric_double_mouth.step");
     for at in motions() {
         let part = read_step_file_placed(&path, &at).unwrap();
         let found = features::holes::discover(&Context::new(&part), &[]);
-        assert!(found.is_empty(), "{at:?}: {found:?}");
+        assert_eq!(found.len(), 1, "{at:?}: {found:?}");
+        let h = &found[0].record;
+        assert_eq!(
+            (h.diameter, h.depth, h.bottom),
+            (6., 18., features::holes::Bottom::Through)
+        );
+        assert!(h.cbore.is_none() && h.spotface.is_none() && h.csink.is_none());
+        let ends = [
+            h.location,
+            quiddity::kernel::geom::add(h.location, quiddity::kernel::geom::scale(h.axis, h.depth)),
+        ];
+        for z in [-9., 9.] {
+            let expected = [0, 1, 2].map(|i| at[i][3] + z * at[i][2]);
+            assert!(
+                ends.iter()
+                    .any(|p| quiddity::kernel::py::dist(p, &expected) < 1e-6)
+            );
+        }
     }
 }
 
@@ -263,7 +280,7 @@ fn contradictory_equal_distance_end_supports_report_unknown_under_motion() {
 }
 
 #[test]
-fn tied_countersink_composition_refuses_under_motion_and_seat_permutation() {
+fn tied_countersink_attribution_keeps_the_bore_under_motion_and_seat_permutation() {
     use features::countersinks::CounterSink;
     use features::evidence::Occurrence;
     let path = common::fixtures().join("golden_simple_through_hole.step");
@@ -292,9 +309,15 @@ fn tied_countersink_composition_refuses_under_motion_and_seat_permutation() {
                 context: vec![],
             },
         ];
-        assert!(features::holes::discover(&ctx, &seats).is_empty());
+        let found = features::holes::discover(&ctx, &seats);
+        assert_eq!(found.len(), 1);
+        assert!(found[0].record.csink.is_none());
+        assert_eq!(found[0].defining, holes[0].defining);
         seats.reverse();
-        assert!(features::holes::discover(&ctx, &seats).is_empty());
+        let found = features::holes::discover(&ctx, &seats);
+        assert_eq!(found.len(), 1);
+        assert!(found[0].record.csink.is_none());
+        assert_eq!(found[0].defining, holes[0].defining);
     }
 }
 
@@ -486,14 +509,31 @@ fn a_cube_refuses_competing_circular_pattern_axes_under_motion() {
 }
 
 #[test]
-fn a_symmetric_cylinder_refuses_an_arbitrary_boss_free_end_under_motion() {
+fn a_symmetric_cylinder_keeps_its_boss_with_an_end_gauge_under_motion() {
     let path = common::fixtures().join("ties/symmetric_cylinder.step");
     for at in motions() {
         let part = read_step_file_placed(&path, &at).unwrap();
         let ctx = Context::new(&part);
         let cylinders: Vec<_> = ctx.cylinders().iter().filter(|c| c.external).collect();
         assert_eq!(cylinders.len(), 1);
-        assert!(features::bosses::discover(&ctx).is_empty(), "{at:?}");
+        let found = features::bosses::discover(&ctx);
+        assert_eq!(found.len(), 1, "{at:?}");
+        let b = &found[0].record;
+        assert_eq!((b.diameter, b.height), (10., 20.));
+        let ends = [
+            b.location,
+            quiddity::kernel::geom::sub(
+                b.location,
+                quiddity::kernel::geom::scale(b.axis, b.height),
+            ),
+        ];
+        for z in [-10., 10.] {
+            let expected = [0, 1, 2].map(|i| at[i][3] + z * at[i][2]);
+            assert!(
+                ends.iter()
+                    .any(|p| quiddity::kernel::py::dist(p, &expected) < 1e-6)
+            );
+        }
     }
 }
 
