@@ -9,6 +9,9 @@ mod common;
 #[path = "support/motion_breakdown.rs"]
 mod motion_breakdown;
 use motion_breakdown::Breakdown;
+#[path = "support/motion_sweep.rs"]
+mod motion_sweep;
+use motion_sweep::{SWEEP_FAMILIES, compose, occurrences as sweep_occurrences, rotation};
 #[macro_use]
 #[path = "support/slices.rs"]
 mod slices;
@@ -312,34 +315,6 @@ fn unexplained<'a>(
 /// reads world axes) is not expected to survive it; recognition in the part's own frame
 /// (`quiddity::frames`) is.
 const GENERIC: &str = "generic_framed";
-
-/// The rotation by *degrees* about *axis* (Rodrigues), then *translation*.
-fn rotation(axis: [f64; 3], degrees: f64, translation: [f64; 3]) -> Placement {
-    let n = (axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]).sqrt();
-    let [x, y, z] = axis.map(|c| c / n);
-    let (s, c) = degrees.to_radians().sin_cos();
-    let t = 1.0 - c;
-    [
-        [
-            t * x * x + c,
-            t * x * y - s * z,
-            t * x * z + s * y,
-            translation[0],
-        ],
-        [
-            t * x * y + s * z,
-            t * y * y + c,
-            t * y * z - s * x,
-            translation[1],
-        ],
-        [
-            t * x * z - s * y,
-            t * y * z + s * x,
-            t * z * z + c,
-            translation[2],
-        ],
-    ]
-}
 
 /// Every corpus part recognised in its own frame (`frames::prepare_framed`), unmoved and under
 /// the generic rotation: each family, face levels, step levels and risers included (in the frame
@@ -902,74 +877,7 @@ fn check_breakdown(suite: &str, file: &str, motion: &str, got: &Breakdown) -> Ve
     }
 }
 
-/// The reference sweep's census bindings, including its distinct-step compatibility projection.
-const SWEEP_FAMILIES: [(&str, &str); 28] = [
-    ("hole", "holes"),
-    ("hole_pattern", "hole_patterns"),
-    ("boss", "bosses"),
-    ("step", "turned_steps"),
-    ("groove", "grooves"),
-    ("flat", "flats"),
-    ("slot", "slots"),
-    ("oriented_slot", "oriented_slots"),
-    ("rectangular_blind_slot", "rectangular_blind_slots"),
-    ("round_bottom_blind_slot", "round_bottom_blind_slots"),
-    ("channel", "channels"),
-    ("pocket", "pockets"),
-    ("prismatic_pocket", "prismatic_pockets"),
-    ("edge_open_circular_pocket", "edge_open_circular_pockets"),
-    ("edge_open_prismatic_recess", "edge_open_prismatic_recesses"),
-    ("passage", "passages"),
-    ("chamfer", "chamfers"),
-    ("oriented_chamfer", "oriented_chamfers"),
-    ("angled_step", "angled_steps"),
-    ("gusset_rib", "gusset_ribs"),
-    ("paired_ramp_step", "paired_ramp_steps"),
-    ("through_step", "through_steps"),
-    ("oblique_through_step", "oblique_through_steps"),
-    ("circular_blind_step", "circular_blind_steps"),
-    ("blend", "blends"),
-    ("fillet", "fillets"),
-    ("countersink", "countersinks"),
-    ("plate", "plates"),
-];
-
-fn sweep_occurrences(part: &Part) -> Vec<motion_breakdown::Occurrence> {
-    use features::reconcile::ReasonCode;
-    let inventory = features::inventory(part).unwrap();
-    let compatible: Vec<_> = inventory
-        .dispositions
-        .iter()
-        .filter(|d| d.reason == ReasonCode::TurnedStepGrooveCompatible)
-        .map(|d| {
-            let mut f = d.candidate.defining.clone();
-            f.sort_unstable();
-            f
-        })
-        .collect();
-    let accepted = inventory.accepted();
-    let prints = correspondence::fingerprint(part, &accepted);
-    SWEEP_FAMILIES
-        .iter()
-        .flat_map(|&(family, field)| {
-            let compatible = &compatible;
-            prints
-                .features
-                .iter()
-                .filter(move |f| f.family == field)
-                .filter(move |f| field != "turned_steps" || !compatible.contains(&f.faces))
-                .map(move |f| motion_breakdown::Occurrence {
-                    family: family.into(),
-                    faces: f.faces.clone(),
-                })
-        })
-        .collect()
-}
-
-/// The 34 pinned golden STEP parts are the Python sweep's fixtures exported at the corpus pin.
-/// Raw inventory is intentional: this measures frame coupling, independently of the framed test.
-#[test]
-fn golden_sweep_matches_python_motion_definitions() {
+fn golden_paths() -> Vec<std::path::PathBuf> {
     let mut paths: Vec<_> = std::fs::read_dir(common::fixtures())
         .unwrap()
         .map(|p| p.unwrap().path())
@@ -984,6 +892,14 @@ fn golden_sweep_matches_python_motion_definitions() {
         .collect();
     paths.sort();
     assert_eq!(paths.len(), 34);
+    paths
+}
+
+/// The 34 pinned golden STEP parts are the Python sweep's fixtures exported at the corpus pin.
+/// Raw inventory is intentional: this measures frame coupling, independently of the framed test.
+#[test]
+fn golden_sweep_matches_python_motion_definitions() {
+    let paths = golden_paths();
     let motions = [
         ("Z30", rotation([0.0, 0.0, 1.0], 30.0, [0.0; 3])),
         ("X30", rotation([1.0, 0.0, 0.0], 30.0, [0.0; 3])),
@@ -1039,4 +955,264 @@ fn golden_sweep_matches_python_motion_definitions() {
         eprintln!("TOTAL {motion} {}", serde_json::to_string(&counts).unwrap());
     }
     assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
+
+/// Rolls of the transverse support planes on each possible principal run axis.
+fn principal_edge_rolls() -> Vec<Placement> {
+    [
+        IDENTITY,
+        placement(&MOTIONS[2].1, &[0.; 3]),
+        placement(&MOTIONS[4].1, &[0.; 3]),
+    ]
+    .into_iter()
+    .flat_map(|carrier| {
+        [-30., -17., 17., 30.].map(|angle| {
+            let roll = rotation([0., 0., 1.], angle, [0.; 3]);
+            [0, 1, 2].map(|i| {
+                [0, 1, 2, 3].map(|j| {
+                    if j == 3 {
+                        T[i]
+                    } else {
+                        (0..3).map(|k| carrier[i][k] * roll[k][j]).sum()
+                    }
+                })
+            })
+        })
+    })
+    .collect()
+}
+
+/// Rolling the supporting walls keeps the same chamfers, legs, anchors and virtual corners.
+#[test]
+fn principal_chamfers_follow_rolled_supports() {
+    use features::{Context, chamfers};
+    let path = common::fixtures().join("golden_chamfers_fillets_and_flats.step");
+    let read = |at: &Placement| {
+        let part = read_step_file_placed(&path, at).unwrap();
+        chamfers::discover_verified(&Context::new(&part), &Default::default())
+            .unwrap()
+            .into_iter()
+            .map(|o| (o.defining, o.record))
+            .collect::<BTreeMap<_, _>>()
+    };
+    let baseline = read(&IDENTITY);
+    assert_eq!(baseline.len(), 4);
+    for at in principal_edge_rolls() {
+        let moved = read(&at);
+        assert_eq!(
+            baseline.keys().collect::<Vec<_>>(),
+            moved.keys().collect::<Vec<_>>(),
+            "{at:?}"
+        );
+        let transform = |p: [f64; 3]| {
+            [0, 1, 2].map(|i| at[i][3] + (0..3).map(|j| at[i][j] * p[j]).sum::<f64>())
+        };
+        for (faces, before) in &baseline {
+            let after = &moved[faces];
+            assert_eq!(
+                (before.leg1, before.leg2, before.angle),
+                (after.leg1, after.leg2, after.angle)
+            );
+            // Two independently rounded 0.001-unit points differ by at most sqrt(3)*0.001.
+            assert!(
+                quiddity::kernel::py::dist(
+                    &transform(before.corner.unwrap()),
+                    &after.corner.unwrap()
+                ) < 0.002
+            );
+            assert!(quiddity::kernel::py::dist(&transform(before.at), &after.at) < 0.002);
+        }
+    }
+}
+
+/// Rolling the tangent planes keeps the same fillets, radii and centreline anchors.
+#[test]
+fn principal_fillets_follow_rolled_supports() {
+    use features::{Context, fillets};
+    let path = common::fixtures().join("golden_chamfers_fillets_and_flats.step");
+    let read = |at: &Placement| {
+        let part = read_step_file_placed(&path, at).unwrap();
+        fillets::discover_verified(&Context::new(&part), &Default::default())
+            .unwrap()
+            .into_iter()
+            .map(|o| (o.defining, o.record))
+            .collect::<BTreeMap<_, _>>()
+    };
+    let baseline = read(&IDENTITY);
+    assert_eq!(baseline.len(), 4);
+    for at in principal_edge_rolls() {
+        let moved = read(&at);
+        assert_eq!(
+            baseline.keys().collect::<Vec<_>>(),
+            moved.keys().collect::<Vec<_>>(),
+            "{at:?}"
+        );
+        let transform = |p: [f64; 3]| {
+            [0, 1, 2].map(|i| at[i][3] + (0..3).map(|j| at[i][j] * p[j]).sum::<f64>())
+        };
+        for (faces, before) in &baseline {
+            let after = &moved[faces];
+            assert_eq!(before.radius, after.radius);
+            assert!(quiddity::kernel::py::dist(&transform(before.at), &after.at) < 0.002);
+        }
+    }
+}
+/// Exercise the existing public file route directly, including record mapping and fingerprint
+/// construction. These checks deliberately leave the caller-space route unchanged.
+#[test]
+fn golden_public_framed_route_survives_oblique_poses() {
+    let z = rotation([0., 0., 1.], 17., [0.; 3]);
+    let x = rotation([1., 0., 0.], 23., [0.; 3]);
+    let compound = compose(x, z);
+    let motions = [
+        ("Z30", rotation([0., 0., 1.], 30., [0.; 3])),
+        ("X30", rotation([1., 0., 0.], 30., [0.; 3])),
+        ("Z17X23", compound),
+    ];
+    let paths = golden_paths();
+    let results = common::parallel::map(&paths, |path| {
+        let read = |at: &Placement| read_step_file_placed(path, at);
+        let census = |at: &Placement| {
+            let (_, recognition) = correspondence::recognise_placed(&read, at).unwrap();
+            assert!(matches!(
+                recognition.frame,
+                frames::RecordFrame::Inferred(_)
+            ));
+            SWEEP_FAMILIES
+                .iter()
+                .flat_map(|&(family, field)| {
+                    recognition
+                        .fingerprints
+                        .features
+                        .iter()
+                        .filter(move |f| f.family == field)
+                        .map(move |f| motion_breakdown::Occurrence {
+                            family: family.into(),
+                            faces: f.faces.clone(),
+                        })
+                })
+                .collect::<Vec<_>>()
+        };
+        let baseline = census(&IDENTITY);
+        motions
+            .iter()
+            .map(|(motion, at)| (*motion, Breakdown::compare(&baseline, &census(at))))
+            .collect::<Vec<_>>()
+    });
+    let mut problems = Vec::new();
+    let mut totals = BTreeMap::<_, Breakdown>::new();
+    for (path, results) in paths.iter().zip(results) {
+        for (motion, counts) in results {
+            problems.extend(check_breakdown(
+                "golden_public_framed",
+                path.file_name().unwrap().to_str().unwrap(),
+                motion,
+                &counts,
+            ));
+            totals.entry(motion).or_default().add(&counts);
+        }
+    }
+    for (motion, counts) in totals {
+        assert!(counts.baseline >= 112);
+        eprintln!(
+            "PUBLIC FRAMED TOTAL {motion} {}",
+            serde_json::to_string(&counts).unwrap()
+        );
+    }
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
+
+/// OpenCascade independently proves four R2 convex quarter cylinders with tangent supports
+/// rolled 45 degrees about Z. The specific fillets replace only duplicate accepted blends.
+#[test]
+fn rolled_boss_rounds_are_specific_fillets() {
+    let path = common::fixtures().join("captured/60275841a02f03b9.step.gz");
+    let mut baseline = None;
+    for angle in [0., -30., 17., 30.] {
+        let part = read_step_file_placed(&path, &rotation([0., 0., 1.], angle, T)).unwrap();
+        let inventory = features::inventory(&part).unwrap();
+        let physical_blends = inventory.physical.defining["blends"].clone();
+        let accepted = inventory.accepted();
+        assert_eq!(physical_blends.len(), 4);
+        assert_eq!(accepted.fillets.len(), 4);
+        assert!(accepted.blends.is_empty());
+        let mut faces = accepted.defining["fillets"].clone();
+        faces.sort();
+        let mut blends = physical_blends.clone();
+        blends.sort();
+        assert_eq!(faces, blends);
+        assert!(
+            accepted
+                .fillets
+                .iter()
+                .all(|r| r.radius == 2. && r.axis == 'z')
+        );
+        if let Some(expected) = &baseline {
+            assert_eq!(&faces, expected);
+        } else {
+            baseline = Some(faces);
+        }
+    }
+}
+
+/// The circular corner cut's three section points already represent a roll of its side
+/// planes. The cylinder run and terminal stay principal; side-plane axis letters are needless.
+#[test]
+fn circular_steps_follow_rolled_supports() {
+    use features::{Context, circular_blind_steps};
+    let path = common::fixtures().join("golden_circular_blind_step.step");
+    let read = |at: &Placement| {
+        let part = read_step_file_placed(&path, at).unwrap();
+        circular_blind_steps::discover_verified(&Context::new(&part)).unwrap()
+    };
+    let baseline = read(&IDENTITY);
+    assert_eq!(baseline.len(), 1);
+    let before = &baseline[0].record;
+    assert_eq!((before.radius, before.length), (4., 25.));
+    for carrier in [
+        IDENTITY,
+        placement(&MOTIONS[4].1, &[0.; 3]),
+        [[0., 1., 0., 0.], [0., 0., 1., 0.], [1., 0., 0., 0.]],
+    ] {
+        for angle in [-30., -17., 17., 30.] {
+            let roll = rotation([1., 0., 0.], angle, [0.; 3]);
+            let at = [0, 1, 2].map(|i| {
+                [0, 1, 2, 3].map(|j| {
+                    if j == 3 {
+                        T[i]
+                    } else {
+                        (0..3).map(|k| carrier[i][k] * roll[k][j]).sum()
+                    }
+                })
+            });
+            let moved = read(&at);
+            assert_eq!(moved.len(), 1, "{at:?}");
+            assert_eq!(baseline[0].defining, moved[0].defining);
+            let after = &moved[0].record;
+            assert_eq!((before.radius, before.length), (after.radius, after.length));
+            let axis = (0..3).find(|&i| at[i][0].abs() > 0.999).unwrap();
+            assert_eq!(after.axis, ['x', 'y', 'z'][axis]);
+            let transform = |p: [f64; 3]| {
+                [0, 1, 2].map(|i| at[i][3] + (0..3).map(|j| at[i][j] * p[j]).sum::<f64>())
+            };
+            // Circular-step coordinates use six significant figures, not six decimals.
+            for i in 0..2 {
+                assert_eq!(
+                    transform(before.centreline[i]).map(quiddity::kernel::py::quantise6),
+                    after.centreline[i]
+                );
+            }
+            let transverse: Vec<_> = (0..3).filter(|&i| i != axis).collect();
+            for (index, p) in before.section.iter().enumerate() {
+                let point = transform([before.centreline[0][0], p[0], p[1]]);
+                let point = [point[transverse[0]], point[transverse[1]]]
+                    .map(quiddity::kernel::py::quantise6);
+                if index == 1 {
+                    assert_eq!(point, after.section[1]);
+                } else {
+                    assert!([0, 2].iter().any(|&j| point == after.section[j]));
+                }
+            }
+        }
+    }
 }

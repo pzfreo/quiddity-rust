@@ -154,3 +154,69 @@ pub(crate) fn proved_bevel_planes(
     }
     proved.map(|(_, planes)| planes)
 }
+
+/// The two supporting planes intersected at a station along the run. Their normals and the
+/// corner are measured in caller coordinates; the planes need not be principal planes.
+pub(crate) struct TransverseCorner {
+    pub point: V3,
+    pub normals: [V3; 2],
+    pub areas: [f64; 2],
+}
+
+/// Read two distinct transverse supports in one neighbour traversal. Coplanar splits are one
+/// support; a third direction or a distinct parallel plane is a competing corner claim.
+pub(crate) fn transverse_corner(
+    part: &Part,
+    face: usize,
+    centre: V3,
+    run: V3,
+) -> Option<TransverseCorner> {
+    use super::planes::unit_plane_normal;
+    use crate::kernel::geom::{self, COORD_FLOOR, SMOOTH_ARC_GAP};
+    let mut supports: Vec<(V3, V3, f64)> = Vec::with_capacity(2);
+    for f in part.neighbours(face) {
+        let Surface::Plane { frame } = part.faces[f].surface else {
+            continue;
+        };
+        let normal = unit_plane_normal(part, f)?;
+        if geom::dot(normal, run).abs() > SMOOTH_ARC_GAP {
+            continue;
+        }
+        let area = part.face_mass(f)?[0];
+        if let Some((_, origin, total)) = supports
+            .iter_mut()
+            .find(|(n, _, _)| geom::dot(*n, normal).abs() >= 1. - SMOOTH_ARC_GAP)
+        {
+            if geom::dot(geom::sub(frame.origin, *origin), normal).abs() > COORD_FLOOR {
+                return None;
+            }
+            *total += area;
+            continue;
+        }
+        if supports.len() == 2
+            || supports
+                .iter()
+                .any(|(n, _, _)| geom::dot(*n, normal).abs() > SMOOTH_ARC_GAP)
+        {
+            return None;
+        }
+        supports.push((normal, frame.origin, area));
+    }
+    let [(a, pa, aa), (b, pb, ab)] = supports.as_slice() else {
+        return None;
+    };
+    let d = geom::dot(*a, *b);
+    let da = geom::dot(geom::sub(*pa, centre), *a);
+    let db = geom::dot(geom::sub(*pb, centre), *b);
+    Some(TransverseCorner {
+        point: geom::add(
+            centre,
+            geom::add(
+                geom::scale(*a, (da - d * db) / (1. - d * d)),
+                geom::scale(*b, (db - d * da) / (1. - d * d)),
+            ),
+        ),
+        normals: [*a, *b],
+        areas: [*aa, *ab],
+    })
+}

@@ -1,21 +1,6 @@
 {
  "accepted": [
   {
-   "family": "fillets",
-   "file": "cadgenbench_inputs/cgb202.step.gz",
-   "python": [],
-   "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` takes the retry only where its own strict hole evidence refuses, which on this part it does not (captured/local_degradation/known.json, retry), so it publishes it. Python skips the fillet because it touches the bad-face region of a solid OpenCascade's BRepCheck calls unorientable after its import healing re-orients wires; the file's own topology is closed and consistently oriented and the port accepts the solid, so publishing it is right (captured/local_degradation/known.json's two cgb202 fillet skips and this file's recognise_fillets evidence entry in known_divergences.json, rust-correct).",
-   "rust": [
-    [
-     1627
-    ],
-    [
-     698
-    ]
-   ],
-   "verdict": "rust-correct"
-  },
-  {
    "family": "holes",
    "file": "cadgenbench_inputs/cgb217.step.gz",
    "python": [
@@ -55,7 +40,7 @@
      158
     ]
    ],
-   "reason": "Not a reconciliation difference: the same through hole's candidate defining faces differ with its drilling end. Python drills this \u00d822 hole from the \u00d8102 end (it takes whichever segment comes first in face order at the \u00d8110 end, where the bore and the \u00d8110 segment end level), its counterbore the \u00d8102 one; the port drills from the wider \u00d8110 end, as Python's own rule says and as Python does with the part turned over, so the segments each side claims with the bore differ. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes axis/cbore entry in known_divergences.json (rust-correct).",
+   "reason": "Not a reconciliation difference: the same through hole's candidate defining faces differ with its drilling end. Python drills this Ø22 hole from the Ø102 end (it takes whichever segment comes first in face order at the Ø110 end, where the bore and the Ø110 segment end level), its counterbore the Ø102 one; the port drills from the wider Ø110 end, as Python's own rule says and as Python does with the part turned over, so the segments each side claims with the bore differ. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes axis/cbore entry in known_divergences.json (rust-correct).",
    "rust": [
     [
      156,
@@ -89,7 +74,7 @@
      232
     ]
    ],
-   "reason": "Not a reconciliation difference: the same hole's candidate defining faces differ. Python's hole claims the \u00d861.62 cylinder 0.47 mm inside the mouth it calls a spotface (with its faces) because it orders segments by their high end in either drilling direction; the port orders by the end nearest the opening, finds no spotface and claims the bore alone. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes spotface entry in known_divergences.json (rust-correct).",
+   "reason": "Not a reconciliation difference: the same hole's candidate defining faces differ. Python's hole claims the Ø61.62 cylinder 0.47 mm inside the mouth it calls a spotface (with its faces) because it orders segments by their high end in either drilling direction; the port orders by the end nearest the opening, finds no spotface and claims the bore alone. Python's public recognise_holes gives the same faces as its aggregate candidate (corpus.json). See this file's recognise_holes spotface entry in known_divergences.json (rust-correct).",
    "rust": [
     [
      133,
@@ -317,6 +302,60 @@
    ],
    "verdict": "rust-correct",
    "reason": "Independent OpenCascade measures four diameter-7 length-55 through bores on faces 146..149 and equal diameter-10 length-10 mouths on faces 130..144 at axial midpoints +-32.5. Rust retains CounterBore(10, 10) as a presentation end gauge, claiming both mouth cylinders plus the bore: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. Python claims just one mouth. These are different defining sets for the same 30 holes and seven patterns, not lost features. tests/tie_breaks.rs verifies the dimensions, both-mouth claims and physical endpoints under translation, Z30/X30/X90 and reversal."
+  },
+  {
+   "family": "fillets",
+   "file": "cadgenbench_inputs/cgb202.step.gz",
+   "python": [],
+   "reason": "Python's default inventory retries this part with local degradation (its strict hole evidence refuses on a solid BRepCheck calls invalid), and the retried run skips this record; `features::recognise` takes the retry only where its own strict hole evidence refuses, which on this part it does not (captured/local_degradation/known.json, retry), so it publishes it. Python skips the fillet because it touches the bad-face region of a solid OpenCascade's BRepCheck calls unorientable after its import healing re-orients wires; the file's own topology is closed and consistently oriented and the port accepts the solid, so publishing it is right (captured/local_degradation/known.json's two cgb202 fillet skips and this file's recognise_fillets evidence entry in known_divergences.json, rust-correct). The pre-existing accepted excess was faces 1627 and 698; the eight rolled-support rounds extend that set. OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json.",
+   "rust": [
+    [
+     1726
+    ],
+    [
+     2098
+    ],
+    [
+     1707
+    ],
+    [
+     1727
+    ],
+    [
+     1721
+    ],
+    [
+     2093
+    ],
+    [
+     1722
+    ],
+    [
+     1703
+    ],
+    [
+     1627
+    ],
+    [
+     698
+    ]
+   ],
+   "verdict": "rust-correct"
+  },
+  {
+   "family": "fillets",
+   "file": "cadgenbench_inputs/cgb242.step.gz",
+   "python": [],
+   "rust": [
+    [
+     376
+    ],
+    [
+     349
+    ]
+   ],
+   "verdict": "rust-correct",
+   "reason": "OpenCascade independently verifies the newly admitted rolled-support fillets: cgb202 faces 1703, 1707, 1721, 1722, 1726, 1727, 2093 and 2098 are R3 Y-axis quarter cylinders; cgb242 faces 349 and 376 are R1.5 Z-axis quarter cylinders. Each has two mutually perpendicular planar supports tangent at its radius (distance errors below 6e-11), and radial probes in the owning solid give IN inside and OUT outside. These physical rounds remain fillets when their supports roll about the cylinder axis, as exercised by principal_edge_finishes_follow_rolled_supports. See the corresponding recognise_fillets entries in known_divergences.json."
   }
  ],
  "decisions": [

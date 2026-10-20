@@ -8,6 +8,9 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Changed
 
+- Chamfers, fillets and circular blind steps recognise perpendicular supporting planes rolled
+  about a principal run axis, using the planes’ geometry. Motion tests and tighter breakdown
+  limits cover the recovered features; the default recognition route is unchanged.
 - Recognition no longer depends on a part's placement or on input order where ADR 0011 says it
   must not: every first-wins, sign or ordering selector was audited and corrected (holes and
   counterbore stacks, bosses, recesses and channels, plane corners, patterns, turned axes,

@@ -17032,6 +17032,14 @@
       "max_lost": 1,
       "reason": "Overlapping equal-support linear-array readings cannot allocate the central holes by input order.",
       "evidence": "Analytic NIST CTC02 x stations [-122,-74,-25,25,74,122] produce two overlapping three-member span-99/pitch-49.5 candidates, interchanged by a proper half-turn. They have distinct member claims and equal support; tests/tie_breaks.rs crossing-pattern motion/permutation control and known_divergences.json NIST CTC02 document this refusal."
+    },
+    {
+      "file": "captured/60275841a02f03b9.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 4,
+      "reason": "The same four cylinder faces are now recognised as the more specific external fillet family despite their supporting planes being rolled 45 degrees about the principal run. Reconciliation suppresses only the duplicate generic blend claims; all four physical blends and all four accepted features remain.",
+      "evidence": "Live OpenCascade via ~/cld/quiddity/.venv/bin/python: four cylinders, radius 2, angular span pi/2, axis Z; each meets two perpendicular planes at distance 2 from its axis, with normals (+/-sqrt(0.5), +/-sqrt(0.5), 0). Solid classification at radial offsets -0.001/+0.001 is IN/OUT for every cylinder. tests/invariance.rs::rolled_boss_rounds_are_specific_fillets checks the same defining faces and radius under roll."
     }
   ]
 }

@@ -10,9 +10,9 @@ use serde::Serialize;
 use super::Context;
 use super::cylinders::CylinderEvidence;
 use super::evidence::{self, EvidenceError, Occurrence, common_valid_solid};
-use super::planes::axis_aligned_axis;
+use super::planes::{axis_aligned_axis, unit_plane_normal};
 use crate::kernel::brep::{Arc, Part};
-use crate::kernel::geom::{COORD_FLOOR, SMOOTH_ARC_GAP};
+use crate::kernel::geom::{self, COORD_FLOOR, SMOOTH_ARC_GAP, Surface};
 use crate::kernel::py;
 
 /// Radians of cylindrical parameter noise admitted around an exact quarter turn
@@ -123,18 +123,37 @@ fn candidate(
     let length = high - low;
 
     let (mut axial, mut sides) = (Vec::new(), Vec::new());
+    let mut side_axes = Vec::new();
     for neighbour in part.neighbours(cylinder) {
         if neighbour == terminal {
             continue;
         }
-        let plane = axis_aligned_axis(part, neighbour)?;
         if part.arc(cylinder, neighbour) != Some(Arc::Convex) {
             return None;
         }
-        if plane.0 == axis {
+        if let Some(plane) = axis_aligned_axis(part, neighbour)
+            && plane.0 == axis
+        {
             axial.push(plane);
         } else {
-            sides.push(plane);
+            // The section contains actual transverse points, so its two side planes may
+            // roll about the principal cylinder without changing the record contract.
+            let Surface::Plane { frame } = part.faces[neighbour].surface else {
+                return None;
+            };
+            let normal = unit_plane_normal(part, neighbour)?;
+            let aligned = axis_aligned_axis(part, neighbour);
+            // Preserve the existing principal-plane admission; only newly admitted rolled
+            // supports need the additional intrinsic perpendicularity and axis-incidence proof.
+            if aligned.is_none()
+                && (geom::dot(normal, evidence.direction).abs() > SMOOTH_ARC_GAP
+                    || geom::dot(geom::sub(evidence.axis_point, frame.origin), normal).abs()
+                        > COORD_FLOOR)
+            {
+                return None;
+            }
+            sides.push(normal);
+            side_axes.push(aligned.map(|p| p.0));
         }
     }
     let transverse: [usize; 2] = match axis {
@@ -142,10 +161,14 @@ fn candidate(
         1 => [0, 2],
         _ => [0, 1],
     };
-    let mut side_axes: Vec<usize> = sides.iter().map(|p| p.0).collect();
-    side_axes.sort_unstable();
-    side_axes.dedup();
-    if axial.len() != 1 || sides.len() != 2 || side_axes != transverse {
+    if axial.len() != 1 || sides.len() != 2 {
+        return None;
+    }
+    let perpendicular = match side_axes.as_slice() {
+        [Some(a), Some(b)] => a != b,
+        _ => geom::dot(sides[0], sides[1]).abs() <= SMOOTH_ARC_GAP,
+    };
+    if !perpendicular {
         return None;
     }
     if !close(axial[0].1, opening_at) {
