@@ -5,13 +5,18 @@ use serde_json::{Value, json};
 use std::collections::BTreeMap;
 
 fn counts(f: &features::Features) -> BTreeMap<String, usize> {
-    serde_json::to_value(f)
+    let mut counts: BTreeMap<String, usize> = serde_json::to_value(f)
         .unwrap()
         .as_object()
         .unwrap()
         .iter()
         .filter_map(|(k, v)| v.as_array().map(|v| (k.clone(), v.len())))
-        .collect()
+        .collect();
+    counts.insert(
+        "section_recess_patterns".into(),
+        f.section_recess_patterns.len(),
+    );
+    counts
 }
 
 fn census() -> BTreeMap<String, Value> {
@@ -51,9 +56,16 @@ fn census() -> BTreeMap<String, Value> {
         raw.pocket_patterns = features::recess_patterns::recognise_pocket_patterns(&raw.pockets);
         raw.oriented_slot_patterns =
             features::oriented_slots::recognise_oriented_slot_patterns(&raw.oriented_slots);
+        let mut accepted = inventory.accepted();
+        // Include the public aggregate's unified recess projection, not just its sources.
+        // The public projection API performs its own inventory; this is test-only work.
+        if let Ok(projection) = features::section_recess_family::section_recess_projection(&part) {
+            accepted.section_recesses = projection.section_recesses;
+            accepted.section_recess_patterns = projection.patterns;
+        }
         (
             key.clone(),
-            json!({"physical": counts(&raw), "accepted": counts(&inventory.accepted())}),
+            json!({"physical": counts(&raw), "accepted": counts(&accepted)}),
         )
     })
     .into_iter()
