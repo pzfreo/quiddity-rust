@@ -18,7 +18,9 @@ impl Part {
     /// Coherently inward boundary wires are reversed too, preserving face validity and
     /// convexity; already outward wires are retained. Each repaired solid is named in
     /// [`Self::input_repairs`]. Mixed or unproved boundaries
-    /// retain their original face senses, signed mass and classification behaviour.
+    /// retain their original face senses, signed mass and classification behaviour, as does a
+    /// solid whose faces have only seam or vertex loops (a full sphere or torus), whose wire
+    /// sense cannot be established.
     pub fn repair_inverted_shells(mut self) -> Self {
         for solid in 0..self.solids.len() {
             if !self.solid_is_valid(solid)

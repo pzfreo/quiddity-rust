@@ -162,7 +162,9 @@ pub type EdgeSource = Source;
 
 /// A part's boundary representation: faces, edges and solids in OpenCascade's traversal order.
 ///
-/// Immutable after construction. `faces`, `edges` and `solids` are public for reading only:
+/// Immutable once queried: [`Part::repair_inverted_shells`] (which STEP import applies) is the
+/// only change, and it takes the part by value before any query. `faces`, `edges` and `solids`
+/// are public for reading only:
 /// the per-face caches (parameter-space loops and bounds, boxes, mass, recovered surfaces),
 /// the edge-to-face map and the solid validity are computed lazily from them on first use and
 /// never recomputed, so a change to the topology after any query leaves those answers stale.
