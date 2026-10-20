@@ -178,7 +178,7 @@
     "key": "{} records: 1 vs 1 records, fields {\"profile\"}",
     "count": 1,
     "verdict": "rust-correct",
-    "reason": "Same groove (Ø180, width 54, on face 2074). Only the profile's body key differs: Python has none because OpenCascade's BRepCheck calls this solid unorientable after its import healing (see this file's evidence entry), and for the same reason Python refuses the groove's evidence; the port keys the valid solid. Its body box also differs by OpenCascade's 1e-7 tolerance padding."
+    "reason": "Same groove (Ø180, width 54, on face 2074). Only the profile's body key differs: Python has none because OpenCascade's BRepCheck calls this solid unorientable after its import healing (see this file's evidence entry), and for the same reason Python refuses the groove's evidence; the port keys the valid solid. Its body box also differs by OpenCascade's 1e-7 tolerance padding. Groove selection now finds a joined matching-OD support at each floor end symmetrically, retaining face 2074 under rot_z90 as well (tests/invariance.rs). A proved helical root is excluded: cgb243 face 224 is carried by its measured 1.5 mm-pitch thread record, independently of the axial-band search (tests/modelled_threads.rs)."
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",

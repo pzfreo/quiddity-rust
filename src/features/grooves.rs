@@ -241,38 +241,58 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Groove>> {
         .any(|f| matches!(f.surface, Surface::Torus { .. }));
     let keys = ctx.body_keys(true);
     let mut out: Vec<Occurrence<Groove>> = Vec::new();
-    for ((axis, solid, _), mut bands) in shafts {
-        bands.sort_by(|a, b| py::order(a.s_lo, b.s_lo));
+    for ((axis, solid, _), bands) in shafts {
         let (bounds, key) = if part.solids.is_empty() {
             (*ctx.bounds(), None)
         } else {
             (part.solid_bounds(solid), keys[solid].clone())
         };
         let profile = profile_key_from_bands(axis, &bands, &bounds, key);
-        for i in 1..bands.len().saturating_sub(1) {
-            let (prev, cur, next) = (bands[i - 1], bands[i], bands[i + 1]);
+        for &cur in &bands {
             let adj_tol = policy::length_tol(cur.diameter, ADJ_FRAC);
-            if !joined(part, prev, cur, adj_tol, &cones, has_tori)
-                || !joined(part, cur, next, adj_tol, &cones, has_tori)
-            {
-                continue;
-            }
-            // A strict local OD minimum.
-            if cur.diameter > prev.diameter - DIA_MARGIN
-                || cur.diameter > next.diameter - DIA_MARGIN
-            {
-                continue;
-            }
-            // Cut into uniform stock: both walls step back to (nearly) the same OD.
-            let wider_dia = prev.diameter.max(next.diameter);
-            if (prev.diameter - next.diameter).abs() > policy::length_tol(wider_dia, WALL_DIA_FRAC)
-            {
-                continue;
-            }
-            // A narrow channel: narrower than the wider of its two walls.
+            // Split and overlapping bands need not be neighbours in start-coordinate order.
+            // Find actual supports at BOTH floor ends. Reversing the axis exchanges these
+            // sets, leaving the existence of a matching pair unchanged.
+            let lower: Vec<_> = bands
+                .iter()
+                .copied()
+                .filter(|b| {
+                    b.diameter >= cur.diameter + DIA_MARGIN
+                        && b.s_lo < cur.s_lo - geom::COORD_FLOOR
+                        && b.s_hi <= cur.s_lo + adj_tol
+                        && joined(part, b, cur, adj_tol, &cones, has_tori)
+                })
+                .collect();
+            let upper: Vec<_> = bands
+                .iter()
+                .copied()
+                .filter(|b| {
+                    b.diameter >= cur.diameter + DIA_MARGIN
+                        && b.s_hi > cur.s_hi + geom::COORD_FLOOR
+                        && b.s_lo >= cur.s_hi - adj_tol
+                        && joined(part, cur, b, adj_tol, &cones, has_tori)
+                })
+                .collect();
             let cur_w = cur.s_hi - cur.s_lo;
-            let wider_wall = (prev.s_hi - prev.s_lo).max(next.s_hi - next.s_lo);
-            if cur_w >= wider_wall - WIDTH_MARGIN {
+            if !lower.iter().any(|prev| {
+                upper.iter().any(|next| {
+                    let wider_dia = prev.diameter.max(next.diameter);
+                    let wider_wall = (prev.s_hi - prev.s_lo).max(next.s_hi - next.s_lo);
+                    (prev.diameter - next.diameter).abs()
+                        <= policy::length_tol(wider_dia, WALL_DIA_FRAC)
+                        && cur_w < wider_wall - WIDTH_MARGIN
+                })
+            }) {
+                continue;
+            }
+            // A helical root may sit between two larger bands too. Its independently proved
+            // thread record carries the root and all measurements; it is not an annular groove.
+            if ctx
+                .modelled_threads()
+                .threads
+                .iter()
+                .any(|t| t.record.root_faces.contains(&cur.face))
+            {
                 continue;
             }
             let bb = part.face_bounds(cur.face);

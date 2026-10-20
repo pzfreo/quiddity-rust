@@ -446,7 +446,7 @@ pub(crate) fn inventory_in(
         oriented_slots::discover(ctx, &passages)
             .unwrap_or_else(|e| panic!("oriented slots refused: {e}")),
     );
-    let thread_analysis = modelled_threads::analyse_modelled_threads(part);
+    let thread_analysis = ctx.modelled_threads();
     let claimed: BTreeSet<_> = thread_analysis
         .threads
         .iter()
@@ -455,7 +455,11 @@ pub(crate) fn inventory_in(
     let modelled_threads = if thread_analysis.threads.is_empty() {
         Vec::new()
     } else {
-        kept(&mut defining, "modelled_threads", thread_analysis.threads)
+        kept(
+            &mut defining,
+            "modelled_threads",
+            thread_analysis.threads.clone(),
+        )
     };
     let freeform_surfaces = kept(
         &mut defining,
@@ -589,7 +593,7 @@ pub(crate) fn inventory_in(
         ),
         freeform_surfaces,
         modelled_threads,
-        modelled_thread_refusals: thread_analysis.refusals,
+        modelled_thread_refusals: thread_analysis.refusals.clone(),
         polygonal_bosses: kept(
             &mut defining,
             "polygonal_bosses",
