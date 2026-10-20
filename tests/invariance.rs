@@ -1040,3 +1040,71 @@ fn golden_sweep_matches_python_motion_definitions() {
     }
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
+
+/// Rolls of the transverse support planes on each possible principal run axis.
+fn principal_edge_rolls() -> Vec<Placement> {
+    [
+        IDENTITY,
+        placement(&MOTIONS[2].1, &[0.; 3]),
+        placement(&MOTIONS[4].1, &[0.; 3]),
+    ]
+    .into_iter()
+    .flat_map(|carrier| {
+        [-30., -17., 17., 30.].map(|angle| {
+            let roll = rotation([0., 0., 1.], angle, [0.; 3]);
+            [0, 1, 2].map(|i| {
+                [0, 1, 2, 3].map(|j| {
+                    if j == 3 {
+                        T[i]
+                    } else {
+                        (0..3).map(|k| carrier[i][k] * roll[k][j]).sum()
+                    }
+                })
+            })
+        })
+    })
+    .collect()
+}
+
+/// Rolling the supporting walls keeps the same chamfers, legs, anchors and virtual corners.
+#[test]
+fn principal_chamfers_follow_rolled_supports() {
+    use features::{Context, chamfers};
+    let path = common::fixtures().join("golden_chamfers_fillets_and_flats.step");
+    let read = |at: &Placement| {
+        let part = read_step_file_placed(&path, at).unwrap();
+        chamfers::discover_verified(&Context::new(&part), &Default::default())
+            .unwrap()
+            .into_iter()
+            .map(|o| (o.defining, o.record))
+            .collect::<BTreeMap<_, _>>()
+    };
+    let baseline = read(&IDENTITY);
+    assert_eq!(baseline.len(), 4);
+    for at in principal_edge_rolls() {
+        let moved = read(&at);
+        assert_eq!(
+            baseline.keys().collect::<Vec<_>>(),
+            moved.keys().collect::<Vec<_>>(),
+            "{at:?}"
+        );
+        let transform = |p: [f64; 3]| {
+            [0, 1, 2].map(|i| at[i][3] + (0..3).map(|j| at[i][j] * p[j]).sum::<f64>())
+        };
+        for (faces, before) in &baseline {
+            let after = &moved[faces];
+            assert_eq!(
+                (before.leg1, before.leg2, before.angle),
+                (after.leg1, after.leg2, after.angle)
+            );
+            // Two independently rounded 0.001-unit points differ by at most sqrt(3)*0.001.
+            assert!(
+                quiddity::kernel::py::dist(
+                    &transform(before.corner.unwrap()),
+                    &after.corner.unwrap()
+                ) < 0.002
+            );
+            assert!(quiddity::kernel::py::dist(&transform(before.at), &after.at) < 0.002);
+        }
+    }
+}

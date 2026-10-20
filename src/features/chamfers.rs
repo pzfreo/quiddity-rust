@@ -8,12 +8,13 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 use super::Context;
-use super::bevel::{classify_bevel, proved_bevel_planes};
+use super::bevel::{classify_bevel, proved_bevel_planes, transverse_corner};
 use super::cylinders::CylinderEvidence;
 use super::evidence::{self, EvidenceError, Occurrence};
 use super::policy::AXIS_ALIGNED_COS;
 use super::turned::{self, cone_rims};
 use crate::kernel::brep::Part;
+use crate::kernel::classify::material_at;
 use crate::kernel::geom::{self, COORD_FLOOR, Surface, V3, dominant_axis};
 use crate::kernel::py;
 
@@ -97,7 +98,9 @@ pub fn discover(ctx: &Context<'_>, opts: &ChamferOptions) -> Vec<Occurrence<Cham
     let max_leg = opts.max_leg_frac * ctx.bounds().max_extent();
     let mut out = Vec::new();
     if opts.include_planar {
-        out.extend((0..part.faces.len()).filter_map(|f| planar(ctx, f, tol, max_leg)));
+        out.extend((0..part.faces.len()).filter_map(|f| {
+            planar(ctx, f, tol, max_leg).or_else(|| rolled_planar(ctx, f, tol, max_leg))
+        }));
     }
     let external = turned::external_cylinders(ctx);
     out.extend((0..part.faces.len()).filter_map(|f| turned(part, f, tol, max_leg, &external)));
@@ -135,6 +138,90 @@ fn planar(ctx: &Context<'_>, face: usize, tol: f64, max_leg: f64) -> Option<Occu
             at,
             false,
             Some(corner),
+        ),
+        defining: vec![face],
+        context: vec![],
+    })
+}
+
+/// A principal-run bevel with rolled supporting walls. Keep the legacy record and its
+/// principal run, measuring the legs on the actual supports instead of a coordinate box.
+fn rolled_planar(
+    ctx: &Context<'_>,
+    face: usize,
+    tol: f64,
+    max_leg: f64,
+) -> Option<Occurrence<Chamfer>> {
+    use super::planes::unit_plane_normal;
+    use crate::kernel::geom::SMOOTH_ARC_GAP;
+    let part = ctx.part;
+    let Surface::Plane { .. } = part.faces[face].surface else {
+        return None;
+    };
+    // Preserve the principal-run / oblique-face contract of this axis-letter family.
+    let axis = classify_bevel(part, face).ok()?.edge_axis;
+    if !super::planes::linear_quad(part, face) {
+        return None;
+    }
+    let normal = unit_plane_normal(part, face)?;
+    let at = part.face_centre(face)?;
+    let mut run = [0.; 3];
+    run[axis] = 1.;
+    let corner = transverse_corner(part, face, at, run)?;
+    // A broad stock wall between two small bevel strips has the same local plane
+    // arrangement. It is not a third chamfer: the supporting walls must dominate the strip.
+    let area = part.face_mass(face)?[0];
+    if corner
+        .areas
+        .iter()
+        .any(|&support| !super::policy::clears_threshold(support, area))
+    {
+        return None;
+    }
+    let supports = corner.normals;
+    let corner = corner.point;
+    // A bevel faces out between its supports and replaces their outer virtual edge.
+    if supports
+        .iter()
+        .any(|&n| geom::dot(normal, n) <= SMOOTH_ARC_GAP)
+        || geom::dot(geom::sub(at, corner), normal) >= -COORD_FLOOR
+    {
+        return None;
+    }
+    // This path repairs rolled supports only; an axis-aligned ambiguity must still
+    // be resolved by the existing corner proof, never bypassed here.
+    if !supports
+        .iter()
+        .any(|n| n.iter().all(|c| c.abs() < AXIS_ALIGNED_COS))
+    {
+        return None;
+    }
+    let distance = geom::dot(geom::sub(at, corner), normal).abs();
+    // The supports can differ from a right angle by the existing angular tolerance.
+    // Measure on each actual support, rather than treating its partner's normal as a tangent.
+    let legs = supports.map(|n| {
+        let tangent = geom::cross(run, n);
+        distance * geom::norm(tangent) / geom::dot(tangent, normal).abs()
+    });
+    let (leg_lo, leg_hi) = (legs[0].min(legs[1]), legs[0].max(legs[1]));
+    if below_minimum(leg_lo, tol) || leg_hi > max_leg || leg_lo <= COORD_FLOOR {
+        return None;
+    }
+    let near = geom::add(
+        corner,
+        geom::scale(geom::sub(at, corner), super::policy::INTERIOR_PROBE_FRAC),
+    );
+    if material_at(ctx.classifier(), near) {
+        return None;
+    }
+    Some(Occurrence {
+        record: chamfer(
+            axis,
+            leg_hi,
+            leg_lo,
+            at,
+            false,
+            Some(corner.map(py::round_to3)),
         ),
         defining: vec![face],
         context: vec![],

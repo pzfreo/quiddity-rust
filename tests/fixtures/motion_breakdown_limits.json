@@ -5,8 +5,7 @@
     "golden_angled_blind_step.step": {
       "X30": {
         "absent": {
-          "angled_step": 1,
-          "chamfer": 1
+          "angled_step": 1
         },
         "introduced": {},
         "reclassified": {}
@@ -47,9 +46,7 @@
         }
       },
       "Z30": {
-        "absent": {
-          "chamfer": 4
-        },
+        "absent": {},
         "introduced": {},
         "reclassified": {
           "fillet->blend": 4
