@@ -79,6 +79,30 @@ fn symmetric_square_pocket_refuses_a_semantic_run_axis() {
 }
 
 #[test]
+fn equidistant_support_planes_refuse_under_principal_motion() {
+    let path = common::fixtures().join("ties/square_pocket.step");
+    for at in [motions()[0], motions()[1], motions()[4], motions()[5]] {
+        let part = read_step_file_placed(&path, &at).unwrap();
+        // The intact bottom is bounded by four equally distant side planes.
+        let face = (0..part.faces.len())
+            .find(|&f| (part.face_mass(f).unwrap()[0] - 1600.).abs() < 1e-6)
+            .unwrap();
+        let (axis, _) = features::planes::axis_aligned_axis(&part, face).unwrap();
+        let centre = part.face_bounds(face).centre();
+        for legacy_flag in [false, true] {
+            let got = features::planes::nearest_axis_aligned_planes(
+                &part,
+                face,
+                centre,
+                axis,
+                legacy_flag,
+            );
+            assert!(got.is_empty(), "{at:?}: {got:?}");
+        }
+    }
+}
+
+#[test]
 fn contradictory_equal_distance_end_supports_report_unknown_under_motion() {
     use features::cylinders::Segment;
     use features::stacks::{End, classify_end};
@@ -193,6 +217,34 @@ fn a_symmetric_internal_relief_keeps_its_undirected_through_bore_under_motion() 
         let mut got = found[0].defining.clone();
         got.sort_unstable();
         assert_eq!(faces.get_or_insert_with(|| got.clone()), &got);
+    }
+}
+
+#[test]
+fn bevel_uses_its_cutting_plane_to_resolve_equal_support_distances_under_motion() {
+    let Some(dir) = common::corpus_dir() else {
+        return;
+    };
+    let path = dir.join("mfcadpp_holdout/483.step");
+    let part = read_step_file_placed(&path, &IDENTITY).unwrap();
+    let found = features::angled_steps::discover(&Context::new(&part));
+    assert_eq!(found.len(), 3);
+    let real = found.iter().find(|o| o.defining == [13]).unwrap();
+    // Independent OpenCascade plane equation: x=6.095095 at y=29.381039 is on the
+    // bevel itself; the removed corner is the opposite x support, 10.137419.
+    assert_eq!(real.record.corner, Some([10.137, 29.381, 13.064]));
+    let read = |at: &Placement| {
+        let framed = quiddity::frames::prepare_framed_file(&path, at).unwrap();
+        let mut found: Vec<_> = features::angled_steps::discover(&Context::new(&framed.part))
+            .into_iter()
+            .map(|o| o.defining)
+            .collect();
+        found.sort();
+        found
+    };
+    let baseline = read(&IDENTITY);
+    for at in motions() {
+        assert_eq!(read(&at), baseline, "{at:?}");
     }
 }
 

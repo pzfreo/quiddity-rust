@@ -50,47 +50,21 @@ pub fn axis_aligned_axis(part: &Part, face: usize) -> Option<(usize, f64)> {
 }
 
 /// Per axis, the coordinate of *face*'s nearest axis-aligned neighbour plane
-/// (`nearest_axis_aligned_planes`).
+/// (`nearest_axis_aligned_planes`). Distinct equidistant supports refuse: coordinate sign is
+/// not evidence of which corner a feature replaces. The legacy flag is accepted for source
+/// compatibility; both settings now fail closed on that ambiguity.
 pub fn nearest_axis_aligned_planes(
     part: &Part,
     face: usize,
     centre: [f64; 3],
     exclude_axis: usize,
-    refuse_equidistant: bool,
+    _refuse_equidistant: bool,
 ) -> BTreeMap<usize, f64> {
-    let mut candidates: BTreeMap<usize, Vec<f64>> = BTreeMap::new();
-    for other in part.neighbours(face) {
-        match axis_aligned_axis(part, other) {
-            Some((ax, coord)) if ax != exclude_axis => {
-                candidates.entry(ax).or_default().push(coord)
-            }
-            _ => {}
-        }
-    }
+    let candidates = nearest_axis_aligned_plane_candidates(part, face, centre, exclude_axis);
     let mut selected = BTreeMap::new();
     for (axis, coords) in candidates {
         let distance = |c: f64| (c - centre[axis]).abs();
-        if !refuse_equidistant {
-            let best = coords
-                .iter()
-                .copied()
-                .min_by(|a, b| distance(*a).total_cmp(&distance(*b)).then(a.total_cmp(b)))
-                .expect("non-empty");
-            selected.insert(axis, best);
-            continue;
-        }
-        let nearest = coords
-            .iter()
-            .map(|c| distance(*c))
-            .fold(f64::INFINITY, f64::min);
-        let tied: Vec<f64> = coords
-            .iter()
-            .copied()
-            .filter(|c| {
-                (distance(*c) - nearest).abs()
-                    <= policy::length_tol(distance(*c).max(nearest), 1e-9)
-            })
-            .collect();
+        let tied = coords;
         let far = tied
             .iter()
             .map(|c| distance(*c))
@@ -106,6 +80,43 @@ pub fn nearest_axis_aligned_planes(
         selected.insert(axis, 0.5 * (lo + hi));
     }
     selected
+}
+
+/// All equally nearest supports, for a caller with further intrinsic evidence to test.
+pub(crate) fn nearest_axis_aligned_plane_candidates(
+    part: &Part,
+    face: usize,
+    centre: V3,
+    exclude_axis: usize,
+) -> BTreeMap<usize, Vec<f64>> {
+    let mut candidates: BTreeMap<usize, Vec<f64>> = BTreeMap::new();
+    for other in part.neighbours(face) {
+        match axis_aligned_axis(part, other) {
+            Some((ax, coord)) if ax != exclude_axis => {
+                candidates.entry(ax).or_default().push(coord)
+            }
+            _ => {}
+        }
+    }
+    candidates
+        .into_iter()
+        .map(|(axis, coords)| {
+            let distance = |c: f64| (c - centre[axis]).abs();
+            let nearest = coords
+                .iter()
+                .map(|c| distance(*c))
+                .fold(f64::INFINITY, f64::min);
+            let tied: Vec<f64> = coords
+                .iter()
+                .copied()
+                .filter(|c| {
+                    (distance(*c) - nearest).abs()
+                        <= policy::length_tol(distance(*c).max(nearest), 1e-9)
+                })
+                .collect();
+            (axis, tied)
+        })
+        .collect()
 }
 
 /// `gp_Vec::Normalized` divides each component (multiplying by the reciprocal can differ in

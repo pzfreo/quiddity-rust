@@ -102,3 +102,55 @@ pub fn convex_bevel(
         near_corner(centre, edge_axis, planes, 1.0),
     )
 }
+
+/// A bevel's virtual corner must stand off its own cutting plane, into free space. A nearest
+/// support tie may include the bevel's terminal edge, which is not a removed sharp corner.
+/// Evaluate all tied support pairs and accept only one geometrically distinct proved corner.
+pub(crate) fn proved_bevel_planes(
+    ctx: &super::Context<'_>,
+    face: usize,
+    centre: V3,
+    edge_axis: usize,
+) -> Option<BTreeMap<usize, f64>> {
+    let crate::kernel::geom::Surface::Plane { frame } = ctx.part.faces[face].surface else {
+        return None;
+    };
+    let candidates =
+        super::planes::nearest_axis_aligned_plane_candidates(ctx.part, face, centre, edge_axis);
+    // Additional evidence resolves competing supports; preserve the existing single-support
+    // API when no tie exists. Auditing untied bevel hypotheses is a separate geometric task.
+    let ambiguous = candidates.values().any(|coords| {
+        let lo = coords.iter().copied().fold(f64::INFINITY, f64::min);
+        let hi = coords.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+        hi - lo > crate::kernel::geom::COORD_FLOOR
+    });
+    let others: Vec<_> = (0..3).filter(|&i| i != edge_axis).collect();
+    let mut proved: Option<(V3, BTreeMap<usize, f64>)> = None;
+    for &a in candidates.get(&others[0])? {
+        for &b in candidates.get(&others[1])? {
+            let planes = BTreeMap::from([(others[0], a), (others[1], b)]);
+            let mut corner = centre;
+            corner[others[0]] = a;
+            corner[others[1]] = b;
+            if (ambiguous
+                && crate::kernel::geom::dot(
+                    crate::kernel::geom::sub(corner, frame.origin),
+                    frame.z,
+                )
+                .abs()
+                    <= crate::kernel::geom::COORD_FLOOR)
+                || !convex_bevel(ctx, centre, edge_axis, &planes)
+            {
+                continue;
+            }
+            if let Some((previous, _)) = &proved {
+                if crate::kernel::py::dist(previous, &corner) > crate::kernel::geom::COORD_FLOOR {
+                    return None;
+                }
+            } else {
+                proved = Some((corner, planes));
+            }
+        }
+    }
+    proved.map(|(_, planes)| planes)
+}

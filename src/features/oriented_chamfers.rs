@@ -220,10 +220,7 @@ fn pair(
         (leg1, normalized(leg_vec1)?, first_span),
         (leg2, normalized(leg_vec2)?, second_span),
     ];
-    legs.sort_by(|a, b| {
-        py::order(-py::round_to(a.0, 6), -py::round_to(b.0, 6))
-            .then_with(|| py::tuple_order(&coordinates(a.1, 6), &coordinates(b.1, 6)))
-    });
+    legs.sort_by(leg_order);
     let span = |s: [f64; 2]| [py::round_to3(s[0] - station), py::round_to3(s[1] - station)];
     Some(OrientedChamfer {
         run: coordinates(run, 6),
@@ -238,6 +235,20 @@ fn pair(
         angle: py::round_to(legs[1].0.atan2(legs[0].0).to_degrees(), 2),
         body_key: None, // filled in by `discover`
     })
+}
+
+/// Coordinate order is only a presentation tie when every published measurement is equal.
+/// The six-decimal comparison bucket must not swap unequal millimetre legs or angles.
+fn leg_order(a: &(f64, V3, [f64; 2]), b: &(f64, V3, [f64; 2])) -> std::cmp::Ordering {
+    let primary = py::order(-py::round_to(a.0, 6), -py::round_to(b.0, 6));
+    if primary.is_ne() {
+        return primary;
+    }
+    let angle = |x: f64, y: f64| py::round_to(y.atan2(x).to_degrees(), 2);
+    if py::round_to3(a.0) != py::round_to3(b.0) || angle(a.0, b.0) != angle(b.0, a.0) {
+        return py::order(b.0, a.0);
+    }
+    py::tuple_order(&coordinates(a.1, 6), &coordinates(b.1, 6))
 }
 
 /// Panics unless `0 < max_leg_frac < 1`, where Python raises `ValueError`.
@@ -314,4 +325,28 @@ pub fn discover(
         .collect();
     out.sort_by(|a, b| py::tuple_order(&a.record.sort_key(), &b.record.sort_key()));
     out
+}
+
+#[cfg(test)]
+mod leg_tie_tests {
+    use super::*;
+    #[test]
+    fn serialized_direction_ties_cannot_swap_unequal_published_legs_under_motion() {
+        for angle in [0_f64, 30., 90., 180.] {
+            let (s, c) = angle.to_radians().sin_cos();
+            let mut legs = [
+                (0.7474998, [c, s, 0.], [0., 3.]),
+                (0.7475002, [-s, c, 0.], [0., 3.]),
+            ];
+            assert_eq!(py::round_to(legs[0].0, 6), py::round_to(legs[1].0, 6));
+            legs.sort_by(leg_order);
+            assert_eq!(
+                (py::round_to3(legs[0].0), py::round_to3(legs[1].0)),
+                (0.748, 0.747)
+            );
+            legs.reverse();
+            legs.sort_by(leg_order);
+            assert_eq!(legs[0].0, 0.7475002);
+        }
+    }
 }

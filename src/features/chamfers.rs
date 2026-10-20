@@ -8,10 +8,9 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 use super::Context;
-use super::bevel::{classify_bevel, convex_bevel};
+use super::bevel::{classify_bevel, proved_bevel_planes};
 use super::cylinders::CylinderEvidence;
 use super::evidence::{self, EvidenceError, Occurrence};
-use super::planes::nearest_axis_aligned_planes;
 use super::policy::AXIS_ALIGNED_COS;
 use super::turned::{self, cone_rims};
 use crate::kernel::brep::Part;
@@ -119,13 +118,7 @@ fn planar(ctx: &Context<'_>, face: usize, tol: f64, max_leg: f64) -> Option<Occu
     if below_minimum(bevel.leg_lo, tol) || bevel.leg_hi > max_leg {
         return None;
     }
-    let planes = nearest_axis_aligned_planes(part, face, centre, bevel.edge_axis, false);
-    if (0..3).any(|j| j != bevel.edge_axis && !planes.contains_key(&j)) {
-        return None;
-    }
-    if !convex_bevel(ctx, centre, bevel.edge_axis, &planes) {
-        return None; // a concave corner: a gusset, rib or web
-    }
+    let planes = proved_bevel_planes(ctx, face, centre, bevel.edge_axis)?;
     let corner = [0, 1, 2].map(|i| {
         py::round_to3(if i == bevel.edge_axis {
             centre[i]
