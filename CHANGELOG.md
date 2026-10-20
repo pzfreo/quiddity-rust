@@ -6,6 +6,14 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Changed
+
+- **Public `recess_reduce::merge_proposals` now refuses equal-width role ties with
+  different run axes when no body extents are available.** Previously input order selected
+  an interpretation. Part-aware recognition uses intrinsic body extents to accept a unique
+  reading; symmetric competing claims remain refused (ADR 0011). This changes the public
+  reducer's behaviour, without changing the document schema.
+
 ### Added
 
 - Add recognition document trust metadata: exact input-file SHA256, completed inventory
