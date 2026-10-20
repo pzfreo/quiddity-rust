@@ -966,10 +966,7 @@ fn sweep_occurrences(part: &Part) -> Vec<motion_breakdown::Occurrence> {
         .collect()
 }
 
-/// The 34 pinned golden STEP parts are the Python sweep's fixtures exported at the corpus pin.
-/// Raw inventory is intentional: this measures frame coupling, independently of the framed test.
-#[test]
-fn golden_sweep_matches_python_motion_definitions() {
+fn golden_paths() -> Vec<std::path::PathBuf> {
     let mut paths: Vec<_> = std::fs::read_dir(common::fixtures())
         .unwrap()
         .map(|p| p.unwrap().path())
@@ -984,6 +981,14 @@ fn golden_sweep_matches_python_motion_definitions() {
         .collect();
     paths.sort();
     assert_eq!(paths.len(), 34);
+    paths
+}
+
+/// The 34 pinned golden STEP parts are the Python sweep's fixtures exported at the corpus pin.
+/// Raw inventory is intentional: this measures frame coupling, independently of the framed test.
+#[test]
+fn golden_sweep_matches_python_motion_definitions() {
+    let paths = golden_paths();
     let motions = [
         ("Z30", rotation([0.0, 0.0, 1.0], 30.0, [0.0; 3])),
         ("X30", rotation([1.0, 0.0, 0.0], 30.0, [0.0; 3])),
@@ -1141,6 +1146,71 @@ fn principal_fillets_follow_rolled_supports() {
         }
     }
 }
+/// Exercise the existing public file route directly, including record mapping and fingerprint
+/// construction. These checks deliberately leave the caller-space route unchanged.
+#[test]
+fn golden_public_framed_route_survives_oblique_poses() {
+    let z = rotation([0., 0., 1.], 17., [0.; 3]);
+    let x = rotation([1., 0., 0.], 23., [0.; 3]);
+    let compound = [0, 1, 2].map(|i| [0, 1, 2, 3].map(|j| (0..3).map(|k| x[i][k] * z[k][j]).sum()));
+    let motions = [
+        ("Z30", rotation([0., 0., 1.], 30., [0.; 3])),
+        ("X30", rotation([1., 0., 0.], 30., [0.; 3])),
+        ("Z17X23", compound),
+    ];
+    let paths = golden_paths();
+    let results = common::parallel::map(&paths, |path| {
+        let read = |at: &Placement| read_step_file_placed(path, at);
+        let census = |at: &Placement| {
+            let (_, recognition) = correspondence::recognise_placed(&read, at).unwrap();
+            assert!(matches!(
+                recognition.frame,
+                frames::RecordFrame::Inferred(_)
+            ));
+            SWEEP_FAMILIES
+                .iter()
+                .flat_map(|&(family, field)| {
+                    recognition
+                        .fingerprints
+                        .features
+                        .iter()
+                        .filter(move |f| f.family == field)
+                        .map(move |f| motion_breakdown::Occurrence {
+                            family: family.into(),
+                            faces: f.faces.clone(),
+                        })
+                })
+                .collect::<Vec<_>>()
+        };
+        let baseline = census(&IDENTITY);
+        motions
+            .iter()
+            .map(|(motion, at)| (*motion, Breakdown::compare(&baseline, &census(at))))
+            .collect::<Vec<_>>()
+    });
+    let mut problems = Vec::new();
+    let mut totals = BTreeMap::<_, Breakdown>::new();
+    for (path, results) in paths.iter().zip(results) {
+        for (motion, counts) in results {
+            problems.extend(check_breakdown(
+                "golden_public_framed",
+                path.file_name().unwrap().to_str().unwrap(),
+                motion,
+                &counts,
+            ));
+            totals.entry(motion).or_default().add(&counts);
+        }
+    }
+    for (motion, counts) in totals {
+        assert!(counts.baseline >= 112);
+        eprintln!(
+            "PUBLIC FRAMED TOTAL {motion} {}",
+            serde_json::to_string(&counts).unwrap()
+        );
+    }
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
+
 /// OpenCascade independently proves four R2 convex quarter cylinders with tangent supports
 /// rolled 45 degrees about Z. The specific fillets replace only duplicate accepted blends.
 #[test]
