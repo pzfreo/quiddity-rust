@@ -299,6 +299,63 @@ fn tied_countersink_composition_refuses_under_motion_and_seat_permutation() {
 }
 
 #[test]
+fn dominant_component_sign_is_presentation_only_and_preserves_thread_claims_and_ids() {
+    let path = common::fixtures().join("modelled_threads/left_two_start.step.gz");
+    let part = read_step_file_placed(&path, &IDENTITY).unwrap();
+    let original = features::recognise(&part);
+    assert_eq!(original.modelled_threads.len(), 1);
+    let before = quiddity::correspondence::fingerprint(&part, &original);
+    for degrees in [45_f64, 135., 225., 315.] {
+        let (s, c) = degrees.to_radians().sin_cos();
+        let at = [[c, 0., s, 123.456], [0., 1., 0., -78.9], [-s, 0., c, 41.3]];
+        let moved = read_step_file_placed(&path, &at).unwrap();
+        let mapped = quiddity::framed_records::map_features(
+            original.clone(),
+            &quiddity::framed_records::Rigid::from_placement(&at),
+        );
+        let after = quiddity::correspondence::fingerprint(&moved, &mapped.features);
+        let thread = |prints: &quiddity::correspondence::Fingerprints| {
+            prints
+                .features
+                .iter()
+                .filter(|f| f.family == "modelled_threads")
+                .map(|f| {
+                    (
+                        f.id.clone(),
+                        f.faces.clone(),
+                        f.sizes.clone(),
+                        f.traits.clone(),
+                    )
+                })
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(thread(&before), thread(&after));
+        let a = &original.modelled_threads[0];
+        let b = &mapped.features.modelled_threads[0];
+        assert_eq!(
+            (a.hand, a.starts, a.pitch, a.length),
+            (b.hand, b.starts, b.pitch, b.length)
+        );
+        // Recanonicalisation must swap/negate parameters rather than moving the physical ends.
+        let ends = |t: &features::modelled_threads::ModelledThread| {
+            [t.start, t.end].map(|s| {
+                quiddity::kernel::geom::add(
+                    t.axis.point,
+                    quiddity::kernel::geom::scale(t.axis.direction, s),
+                )
+            })
+        };
+        let expected = ends(a)
+            .map(|p| [0, 1, 2].map(|i| at[i][3] + (0..3).map(|j| at[i][j] * p[j]).sum::<f64>()));
+        assert!(ends(b).iter().all(|p| {
+            expected
+                .iter()
+                .any(|q| quiddity::kernel::py::dist(p, q) < 1e-9)
+        }));
+    }
+}
+
+#[test]
 fn a_symmetric_internal_relief_keeps_its_undirected_through_bore_under_motion() {
     let path = common::fixtures().join("captured/ece751715f714026.step.gz");
     let mut faces = None;
