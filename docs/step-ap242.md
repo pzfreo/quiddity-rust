@@ -172,15 +172,23 @@ stepcode); section numbers (§) are the PMI practice's unless stated.
 The unattended writer work follows the standard forms without exempting any newly emitted
 instance from schema or rule checks. `pmi::write::standard_form` exposes the standard
 requirements a write represents; `differences_as_stated` remains an exact semantic comparison.
-The version 2 CLI write report gains `note_migrations` (part, original note index, form/reason).
-No JSON field is removed. The reader binding becomes `haecceity-pmi-read/9` because affected
-planes and table-value qualifiers are now held, and toleranced relationships are no longer
+The version 2 CLI write report gains `note_migrations` (part, original note index, form/reason)
+and `note_presentation_removed` (part, note index in the source reading, removed callout id/type). Callout
+names and attachments supplied in notes are also listed in migration reasons. `WriteReport`
+is non-exhaustive; consumers should use its returned fields rather than construct it literally.
+No JSON field is removed. The reader binding becomes `haecceity-pmi-read/10` because affected
+plane variants and table-value qualifiers are now held, and toleranced relationships are no longer
 misread as feature composition; document format version 2 is unchanged.
 
 - **Relations (§6.9.9)**: all three model kinds are written with the stated endpoints. A
   tolerance whose target is a relationship uses the edition 4 SELECT member. Edition 1
   excludes that member, so such a write into edition 1 is refused instead of changing its
-  schema claim. The reader excludes a toleranced relationship from feature composition.
+  schema claim. The practice has no relationship-target section: this uses the schema SELECT,
+  with fresh endpoint aspects composed of the original features (Figure 31 composition).
+  No aspect carrying other PMI is a relating endpoint of the controlled relationship.
+  OCCT traverses ordinary relationships as composition, so shared endpoints would move other
+  tolerances to the wrong faces. The reader excludes the controlled relationship from composition.
+  Cycles of any relation names are refused as `geometric_tolerance_relationship.WR3`.
 - **Default tables (§4.1)**: table cells preserve their items, values, units, and qualifiers;
   a representation relationship named 'general tolerance definition' links the table to the
   'default tolerances' representation. The table context is 'default setting'. Decimal places
@@ -197,11 +205,20 @@ misread as feature composition; document format version 2 is unchanged.
   zone to the representative plane feature carries 'affected plane association'. The figure
   labels `name`, while the prose says `description`; the writer supplies both. The reader
   accepts either, preserves the plane feature, and consumes the link with the tolerance.
+  `Zone.affected_plane_kind` distinguishes intersection line (polyline, description
+  'representative line element'), intersection plane (axis placement, 'representative plane
+  element'), and orientation plane (axis placement, undescribed aspect, Figure 54). It is an
+  optional additive JSON field; unspecified/unsupported variants are refused on write. The
+  reader infers the variant from these standard descriptions and geometry. Literal Rust
+  `Zone` construction must supply the new optional field.
 - **Legacy notes (§7.4)**: a replacement removes the old properties and their owned presentation
   under decision 7. Each note in words becomes a separate 'semantic text' attribute set, with
   the legacy kind as its descriptive item's variable name and the complete text retained.
-  A complete unqualified Ra/Rq/Rz/Rt/Rp/Rv value becomes ISO 10303-1110 surface texture,
-  using ISO 1302's basic symbol (any process allowed). A thread designation alone does not
+  A complete Ra/Rq/Rz/Rt/Rp/Rv value explicitly qualified in micrometres becomes ISO 10303-1110 surface texture,
+  using ISO 1302's basic symbol (any process allowed). Unitless values are conservatively
+  retained as semantic text even on metric parts: `standard_form` has no part-unit context,
+  and an inch part's 'Ra 32' can mean microinches. No micrometre unit is invented.
+  A thread designation alone does not
   state the schema's 'number of threads'; the schema does not establish that it means starts
   or pitch (question 6). Knurl prose with process conditions and a maximum after knurling is
   likewise not the model's complete nominal/major/diametral parameter set. Those requirements,
@@ -220,7 +237,9 @@ rules (source: `express::TARGET.source_url`, WG12 N11521, SHA256 pinned in the t
 
 1. `datum_target.WR5` is `NOT EXISTS(SELF\shape_aspect.description)`, whereas placed-target
    WR1 and §6.6 Tables 10–11 require 'point', 'line', 'rectangle', 'circle', 'circular curve',
-   'area' or 'curve'. These targets and the datums they establish remain explicitly refused.
+   'area' or 'curve'. Omitting the description passes the rules because the comparison is
+   UNKNOWN, but loses the target shape. These targets and the datums they establish remain
+   explicitly refused pending the maintainer's separate decision.
    Existing NIST target violations and their pins are retained, not exempted or reclassified.
 2. §4.1 Figure 3 shows a cell containing only 'number of decimal places'. Cell WR3 requires
    either a significant-digits measure or both range limits, and WR4 requires a tolerance.
@@ -239,14 +258,16 @@ only; their pinned empty-semantic-PMI round trips do not count as new-kind cover
 OpenCascade 7.9.3.1 (the read-only quiddity venv) transfers both new fixtures and safely walks
 their labels. That environment has no `specify_core` module, so the separate application-loader
 check is recorded as unavailable, not passed. `known_pmi_write.json` retains every earlier
-verdict and adds the new differences. XCAF reads 7850 kg/m³ as 0.00785 g/cm³ instead of 7.85;
+verdict except the review corrections described below, and adds the new differences. XCAF reads 7850 kg/m³ as 0.00785 g/cm³ instead of 7.85;
 its `ReadMaterials` handles conversion-based mass units but omits SI mass prefixes
 ([7.9.3 source](https://github.com/Open-Cascade-SAS/OCCT/blob/V7_9_3/src/STEPCAFControl/STEPCAFControl_Reader.cxx#L5053)).
 The gram/cm³ control reads 7.85 correctly: the kilogram file is correct and OCCT misreads it.
-XCAF also attaches the shared-target tolerances to the projection-origin face rather than the
-controlled face, drops the edition 4 relationship target, and exposes no affected plane here.
-These are pinned rust-correct; absent XCAF APIs for tables, frame relations and surface texture
-are not-applicable. Part/feature text differences retain the §7.4 standard form, rust-correct.
+The review traced the earlier wrong-face tolerances to shared relationship endpoints, not
+projection origins (OCCT `collectShapeAspect`, lines 2918–2934). With isolated endpoints, both
+ordinary Position tolerances remain on face #17; their obsolete wrong-face/missing pins are
+removed on that evidence. XCAF does not read the edition 4 relationship target. It never reads
+affected planes in 7.9.3, so that difference is **not-applicable**, along with absent XCAF APIs
+for tables, frame relations and surface texture. Part/feature text differences retain the §7.4 standard form, rust-correct.
 
 Other refusals remain: an unstated group kind, a dimension without its nominal (§5.2.1), a
 projected zone whose model holds no origin geometry (§6.9.2.2), thread/knurl parameter counts
@@ -650,9 +671,9 @@ be read, e.g. the pre-4.0.6 datum forms of §6.5.2):
 | Fit | `plus_minus_tolerance` → `limits_and_fits(form_variance='H', zone_variance='hole'/'shaft', grade='7', source='')` (§5.2.5); stated limits as 'upper limit'/'lower limit' items beside it |
 | Basic, reference | `descriptive_representation_item('dimensional note','theoretical')` / `'auxiliary'` (§5.3, Table 7); other modifiers under 'modifiers' (Table 8) |
 | Geometric tolerance | the leaf type (`flatness_tolerance`, …); a complex instance only when the table of datum references, modifiers, unit basis, maximum or unequal disposition requires it (§6.9) |
-| Tolerance target | the `datum_feature` / `shape_aspect`; the `dimensional_size` or `dimensional_location` for a feature of size; the `product_definition_shape` for the whole part (§6.1–§6.3); edition 4 also allows `shape_aspect_relationship` (earlier SELECTs do not) |
+| Tolerance target | the `datum_feature` / `shape_aspect`; the `dimensional_size` or `dimensional_location` for a feature of size; the `product_definition_shape` for the whole part (§6.1–§6.3); edition 4 also allows `shape_aspect_relationship` with private endpoint aspects (earlier SELECTs do not; no practice section for this target) |
 | Tolerance relation | §6.9.9 `geometric_tolerance_relationship` 'composite' / 'precedence' / 'simultaneity', relating and related frames preserved |
-| Zone | `tolerance_zone` + `tolerance_zone_form` (§6.9.2); `runout_zone_definition` (three attributes) only for a stated runout orientation; §6.9.2.1 'affected plane association' from zone to plane feature; projected origin and length (§6.9.2.2) |
+| Zone | `tolerance_zone` + `tolerance_zone_form` (§6.9.2); `runout_zone_definition` (three attributes) only for a stated runout orientation; §6.9.2.1 'affected plane association' from zone to explicitly typed intersection line/plane or orientation plane (Figures 53–54, descriptions as above); unspecified variants refused; projected origin and length (§6.9.2.2) |
 | General tolerance | `property_definition('default tolerances')` → `representation('default tolerances')` with `descriptive_representation_item('tolerance class', <text>)` (decision 3); §4.1 `default_tolerance_table` → `default_tolerance_table_cell` (typed `SET_REPRESENTATION_ITEM`), related by 'general tolerance definition'; stated counts include decimal places |
 | Thread / knurl | `thread` / `turned_knurl` with one `shape_representation_with_parameters` whose items are exactly the model's fields, named as the WHERE rules name them; 'applied shape', 'partial area occurrence', 'thread runout' relationships |
 | Material | Material practice R2.1 §4.1: `property_definition('material property','material name')` → `representation('material name')` → `descriptive_representation_item(id, name)`, as specify-core's files carry it (decision 2); §4.2 'density' → `measure_representation_item('density measure', POSITIVE_RATIO_MEASURE, derived unit)`; mass SI unit and length unit with exponents +1 and -3 (ISO 10303-41) |
@@ -775,8 +796,8 @@ tested; `pmi::write` (and replace built from the removal plan) is the next stage
   `Dimension.nominal` is optional and there is `Dimension.principle`; `Anchor::Geometry` and
   `PartPmi.geometry`; `Note.kind` and `NoteOwner`; `Material` has `id` and `name`;
   `ProjectedZone.end` is optional; `TargetShape::Curve`; `GroupKind::Unstated`;
-  `GeometricTolerance.auxiliary` and `.description`. Reported, not held: the affected-plane
-  zone, a derived feature's explicit geometry, hole definition parameters, datum-system axis
+  `GeometricTolerance.auxiliary` and `.description`; affected-plane zones now include an explicit
+  variant (`affected_plane_kind`). Reported, not held: a derived feature's explicit geometry, hole definition parameters, datum-system axis
   placement, material on a sub-shape, material as a product. Open: what a thread's 'number of
   threads' counts (kept as stated; no pitch derived).
 - **Removal plan** (`crates/haecceity/src/removal.rs`, `tests/removal.rs`): `plan(doc, seeds,
@@ -935,7 +956,7 @@ Settled by the implementation (where the design was open or silent):
   right it is a second instance composed of it. A knurl's area is its own faces (the model holds
   no other). Ratios take a context-dependent unit 'ratio' with the ratio unit (the reader resolves
   a named unit by its leaves), counts one named 'count'.
-- *Refused, by name* (beyond the design's datum targets and tolerance relations): notes
+- *Historical refusals (superseded by “Writer gaps and schema conflicts” above)*: notes
   (decision 5), tables and the part's decimal places (decision 3), material density
   (decision 2), groups of unstated kind, dimensions without a nominal value, tolerances on a
   `shape_aspect_relationship` (the reader reads one from a feature as its composition), projected
@@ -943,7 +964,7 @@ Settled by the implementation (where the design was open or silent):
   booleans in attribute sets, attribute units the file does not name uniquely, and values that
   are not Part 21 REALs (written verbatim, never rewritten).
 
-Reader gaps the writer found (`pmi/read.rs`, not changed here): a `boolean_representation_item`'s
+Historical reader gaps the writer found (affected planes, relation composition and boolean lookup are fixed in the current reader): a `boolean_representation_item`'s
 value is looked up as its own attribute (it is `boolean_literal.the_value`), so booleans never
 read; a bare 'thread runout' aspect (WR16, no runout feature) is reported unconsumed (fixed
 2026-10-09: read with its thread, "For specify-core-rust (2026-10-09): U14 and U10" below); a simple

@@ -22,16 +22,18 @@
 //! are placed by name through the schema table, so an instance cannot have too few or too many.
 //!
 //! **What is refused** (every refusal of every part at once, [`WriteError::Refused`], naming
-//! the item): targets whose required §6.6 description contradicts datum_target WR5 and the
-//! datums they establish; decimal places without a stated valid table cell (Figure 3's
+//! the item): targets whose §6.6 shape description contradicts datum_target WR5 (omission
+//! passes rules as UNKNOWN but loses the shape) and the datums they establish; decimal places without a stated valid table cell (Figure 3's
 //! decimal-only cell contradicts cell WR3/WR4); empty/invalid tolerance tables; hole definitions;
 //! groups of unstated kind; dimensions without a nominal; projected zones without an origin;
-//! thread and knurl parameter sets rejected by their WHERE rules; density units without a
-//! known scale or without dimensions M L^-3; and values that are not Part 21 REALs.
+//! unspecified or unsupported affected-plane variants; thread and knurl parameter sets rejected
+//! by their WHERE rules; density units without a known scale or without dimensions M L^-3; and values that are not Part 21 REALs.
 //!
 //! Tolerance relations (§6.9.9), tables (§4.1), density (material practice §4.2), relationship
-//! targets and affected planes (§6.9.2.1) use their standard entities. Legacy notes migrate via
-//! [`standard_form`]: complete roughness requirements use ISO 10303-1110; other wording uses
+//! targets (edition 4 SELECT, isolated endpoint aspects) and explicitly typed affected planes
+//! (§6.9.2.1 Figures 53–54) use their standard entities. Legacy notes migrate via
+//! [`standard_form`]: complete roughness requirements with stated micrometre units use ISO
+//! 10303-1110; unitless wording stays semantic text; other wording uses
 //! semantic text (§7.4), with every choice in [`WriteReport::note_migrations`]. Several notes
 //! remain separate sets in input order; §7.4.4 offers no standardized ordering relationship.
 //!
@@ -263,6 +265,7 @@ impl std::fmt::Display for UpgradeRepair {
 
 /// What a write did.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct WriteReport {
     pub schema: SchemaChange,
     /// R1/R2 upgrade repairs, in instance id order; empty whenever no upgrade occurs.
@@ -287,6 +290,8 @@ pub struct WriteReport {
     pub datum_symbols: Vec<(PartId, String)>,
     /// Legacy note migrations: part, original note index, standard form and reason.
     pub note_migrations: Vec<(PartId, usize, String)>,
+    /// Removed presentation roots, with their note index in the source reading and instance type.
+    pub note_presentation_removed: Vec<(PartId, usize, u64, String)>,
     /// The file's `FILE_SCHEMA` when its AP242 edition has no table: the written instances were
     /// validated against [`WriteReport::validated_against`] (the target edition), so whether
     /// they are valid instances of the file's own edition is undetermined.
@@ -348,9 +353,10 @@ fn note_texture(n: &Note) -> Option<SurfaceTexture> {
     if value.to_f64() <= 0. || real(&value).is_err() {
         return None;
     }
-    // ISO 1302's unqualified Ra value is in micrometres and uses the basic symbol.
+    // Without the part unit here an unqualified value could mean microinches.
+    // Preserve its wording rather than guessing a unit.
     let rest: Vec<_> = words.collect();
-    if !rest.is_empty() && rest != ["µm"] && rest != ["μm"] && rest != ["um"] {
+    if rest != ["µm"] && rest != ["μm"] && rest != ["um"] {
         return None;
     }
     Some(SurfaceTexture {
@@ -366,12 +372,22 @@ fn note_texture(n: &Note) -> Option<SurfaceTexture> {
     })
 }
 
-fn migration_reason(n: &Note) -> &'static str {
-    if note_texture(n).is_some() {
+fn migration_reason(n: &Note) -> String {
+    let reason = if note_texture(n).is_some() {
         "surface texture (ISO 10303-1110): complete roughness value, ISO 1302 basic symbol"
     } else {
-        "semantic text (§7.4): complete wording retained; a complete supported semantic parameter set and scope cannot be emitted"
+        "semantic text (§7.4): complete wording retained; units or a complete supported semantic parameter set and scope are not stated"
+    };
+    let mut reason = reason.to_string();
+    for callout in &n.callouts {
+        use std::fmt::Write as _;
+        let _ = write!(
+            reason,
+            "; presentation omitted from migrated note: {:?} on {:?}",
+            callout.name, callout.features
+        );
     }
+    reason
 }
 
 enum DensityUnit {
@@ -507,6 +523,7 @@ pub fn write(
         removed: Vec::new(),
         rewritten: Vec::new(),
         presentation_removed: Vec::new(),
+        note_presentation_removed: Vec::new(),
         left_unreferenced: Vec::new(),
         reused_datums: Vec::new(),
         reused_geometry: Vec::new(),
@@ -517,7 +534,7 @@ pub fn write(
                 p.notes
                     .iter()
                     .enumerate()
-                    .map(move |(i, n)| (*part, i, migration_reason(n).to_string()))
+                    .map(move |(i, n)| (*part, i, migration_reason(n)))
             })
             .collect(),
         edition_undetermined: (ap242 && express::edition(&first).is_none()).then(|| first.clone()),
@@ -600,6 +617,27 @@ pub fn write(
             report.presentation_removed.extend(emptied);
             report.presentation_removed.sort();
             report.left_unreferenced = plan.report.left_unreferenced.clone();
+            for (part, _) in &order {
+                for (note, callouts) in read.provenance.parts[part.0]
+                    .note_callouts
+                    .iter()
+                    .enumerate()
+                {
+                    for &id in callouts {
+                        if removed.contains(&id) {
+                            let kind =
+                                removal::entity_name(doc.get(id).expect("read callout exists"));
+                            report
+                                .note_presentation_removed
+                                .push((*part, note, id, kind.clone()));
+                            if !report.presentation_removed.iter().any(|(i, _)| *i == id) {
+                                report.presentation_removed.push((id, kind));
+                            }
+                        }
+                    }
+                }
+            }
+            report.presentation_removed.sort();
         }
         for (p, _) in &order {
             for f in &read.findings {
@@ -1858,7 +1896,7 @@ impl<'a> PartPlan<'a> {
         }
         for i in 0..p.datum_targets.len() {
             self.refuse(ItemRef::DatumTarget(i),
-                "§6.6 requires a target description, but datum_target WR5 forbids it (placed_datum_target_feature WR1 also requires it); the schema/practice conflict cannot pass the unchanged rule checks");
+                "§6.6 states the target shape in its description, but datum_target WR5 forbids it; omitting the description passes the rules with UNKNOWN but loses the target shape");
         }
         for i in 0..p.holes.len() {
             self.refuse(
@@ -2097,6 +2135,38 @@ impl<'a> PartPlan<'a> {
                     ItemRef::Feature(*f),
                     format!("a group or derived feature used as {rs:?}"),
                 );
+            }
+        }
+        let mut plane_kinds = BTreeMap::new();
+        for (i, t) in p.tolerances.iter().enumerate() {
+            if let Some(z) = &t.zone {
+                if z.affected_plane.is_none() && z.affected_plane_kind.is_some() {
+                    self.refuse(
+                        ItemRef::Tolerance(i),
+                        "affected plane kind has no affected plane feature",
+                    );
+                }
+                if let Some(f) = z.affected_plane {
+                    let valid = match (&p.features[f.0], z.affected_plane_kind) {
+                        (Feature::Items(items), Some(kind)) if items.len() == 1 => {
+                            matches!(items[0], Anchor::Geometry(g) if matches!(
+                                (p.geometry[g.0].item.entity().as_str(), kind),
+                                ("polyline", AffectedPlaneKind::IntersectionLine) |
+                                ("axis2_placement_3d", AffectedPlaneKind::IntersectionPlane | AffectedPlaneKind::OrientationPlane)
+                            ))
+                        }
+                        _ => false,
+                    };
+                    if !valid {
+                        self.refuse(ItemRef::Tolerance(i), "affected plane requires an explicit intersection line, intersection plane or orientation plane kind and its matching polyline/axis2_placement_3d geometry (§6.9.2.1)");
+                    }
+                    if let Some(old) =
+                        plane_kinds.insert(self.canonical[f.0], z.affected_plane_kind)
+                        && old != z.affected_plane_kind
+                    {
+                        self.refuse(ItemRef::Tolerance(i), "one affected plane feature has conflicting variants; use separate features with distinct geometry");
+                    }
+                }
             }
         }
         // Features something refers to other than as a thread's or knurl's area or a thread's
@@ -3224,17 +3294,14 @@ impl<'a> PartPlan<'a> {
                 return Ok(r);
             }
         }
-        let affected = self
+        let description = self
             .pmi
             .tolerances
             .iter()
-            .filter_map(|t| t.zone.as_ref().and_then(|z| z.affected_plane))
-            .any(|f| self.canonical[f.0] == c);
-        let description = if affected {
-            "representative plane element"
-        } else {
-            ""
-        };
+            .filter_map(|t| t.zone.as_ref())
+            .find(|z| z.affected_plane.is_some_and(|f| self.canonical[f.0] == c))
+            .and_then(|z| z.affected_plane_kind)
+            .map_or("", AffectedPlaneKind::description);
         let base = |pd: bool| {
             vec![
                 (("shape_aspect", "name"), s("")),
@@ -3848,6 +3915,36 @@ impl<'a> PartPlan<'a> {
         Ok(dim)
     }
 
+    /// Private endpoints prevent composition traversal from changing other PMI's targets.
+    fn relationship_endpoint(
+        &self,
+        em: &mut Emitter<'_>,
+        st: &mut Emitted,
+        pds: R,
+        f: FeatureId,
+    ) -> Result<R, WriteError> {
+        let member = self.feature(em, st, pds, f.0)?;
+        let endpoint = em.simple(
+            "shape_aspect",
+            &[
+                ("name", s("")),
+                ("description", s("")),
+                ("of_shape", pds.a()),
+                ("product_definitional", boolean(true)),
+            ],
+        )?;
+        em.simple(
+            "shape_aspect_relationship",
+            &[
+                ("name", s("")),
+                ("description", s("")),
+                ("relating_shape_aspect", endpoint.a()),
+                ("related_shape_aspect", member.a()),
+            ],
+        )?;
+        Ok(endpoint)
+    }
+
     fn tolerance(
         &self,
         em: &mut Emitter<'_>,
@@ -3865,8 +3962,8 @@ impl<'a> PartPlan<'a> {
                 related,
                 name,
             } => {
-                let a = self.feature(em, st, pds, relating.0)?;
-                let b = self.feature(em, st, pds, related.0)?;
+                let a = self.relationship_endpoint(em, st, pds, *relating)?;
+                let b = self.relationship_endpoint(em, st, pds, *related)?;
                 em.simple(
                     "shape_aspect_relationship",
                     &[
@@ -5673,7 +5770,8 @@ impl Keys<'_> {
                     .as_ref()
                     .map(|p| (p.end.map(|f| self.feature(f)), self.value(&p.length))),
                 self.ov(&z.runout_angle),
-                z.affected_plane.map(|f| self.feature(f))
+                z.affected_plane
+                    .map(|f| (self.feature(f), z.affected_plane_kind))
             )
         });
         let unit = t.unit_basis.as_ref().map(|u| {

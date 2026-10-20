@@ -20,6 +20,20 @@ in [docs/alpha1.md](docs/alpha1.md).
   resumed add, and Python specify-note migration. Literal target and standalone-decimal
   schema/practice conflicts remain explicit refusals with their evidence in `step-ap242.md`.
 
+### Fixed
+
+- Isolate relationship tolerance endpoints so OCCT composition traversal leaves other
+  tolerances on their original faces. Correct the earlier projection-origin diagnosis.
+- Distinguish affected intersection line/plane and orientation plane descriptions (§6.9.2.1)
+  with optional `Zone.affected_plane_kind`; ambiguous variants are refused. Reader binding
+  becomes `/10`; the JSON addition is optional. Rust literals of `Zone` require the new field.
+- Keep unitless legacy roughness as semantic text rather than invent micrometres. Report
+  every supplied note callout and link removed callout ids/types to their original note in
+  `note_presentation_removed`. `WriteReport` is now `#[non_exhaustive]`.
+- Check and name tolerance relationship cycles as `geometric_tolerance_relationship.WR3`.
+  Clarify that omitting a target description passes rules but loses its shape; targets and
+  decimal-only defaults remain refused. OCCT affected-plane verdicts are not-applicable.
+
 ## 0.1.0-alpha.9 (2026-10-20)
 
 Upgrading: fingerprints are now `quiddity-rust/fingerprint/3` and `correspond` refuses

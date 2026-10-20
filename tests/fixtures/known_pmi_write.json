@@ -12,7 +12,7 @@
   "no part definitions": "NIST FTC-08's -tg file is tessellated only: read_part_definitions finds no solid or shell with faces, so there is no part to write to (as for the reader).",
   "removal refused": "The file has PMI of the part the reader did not read (an unread tolerance whose toleranced feature or datum did not resolve, with its measure qualification, pinned in read/findings.json) that references instances the replace removes; kept PMI must not dangle, so the replace is refused naming it (design item 6: anything else blocks). The id_attributes listed beside it would be removed with their items.",
   "Datum: datum … requires targets whose §N.N description conflicts with datum_target WRN": "The unchanged edition 4 source schema datum_target.WR5 forbids a description, but PMI practice §6.6 and placed_datum_target_feature.WR1 require it. No target rule or NIST violation pin is exempted; datums that require these targets remain refused.",
-  "DatumTarget: §N.N requires a target description, but datum_target WRN forbids it (placed_datum_target_feature WRN also requires it); the schema/practice conflict cannot pass the unchanged rule checks": "WG12 N11521 datum_target.WR5 is NOT EXISTS(description); placed-target WR1 and §6.6 Tables 10–11 require the target shape in description. The writer cannot satisfy both without weakening a rule or writing a nonstandard form."
+  "DatumTarget: §N.N states the target shape in its description, but datum_target WRN forbids it; omitting the description passes the rules with UNKNOWN but loses the target shape": "WG12 N11521 datum_target.WR5 is NOT EXISTS(description); placed-target WR1 and §6.6 Tables 10–11 require the target shape in description. Omitting the description passes the WHERE checks (UNKNOWN), but loses the target shape. The writer keeps refusing rather than lose that meaning."
  },
  "roundtrip": {
   "assembly": {
@@ -68,7 +68,7 @@
    "refuse policy": "refused: 181 presentation blockers of 215",
    "refused": {
     "Datum: datum … requires targets whose §N.N description conflicts with datum_target WRN": 4,
-    "DatumTarget: §N.N requires a target description, but datum_target WRN forbids it (placed_datum_target_feature WRN also requires it); the schema/practice conflict cannot pass the unchanged rule checks": 9
+    "DatumTarget: §N.N states the target shape in its description, but datum_target WRN forbids it; omitting the description passes the rules with UNKNOWN but loses the target shape": 9
    },
    "sha256": "99a0a2079ddeb64d05c2432cbe931fa17c89da60d8b0bcb0b11bd0ed94fa2e68"
   },
@@ -150,7 +150,7 @@
    "refused": {
     "Attribute: \"\": N units of the file are named \"derived_unit\"; which one is not stated": 12,
     "Datum: datum … requires targets whose §N.N description conflicts with datum_target WRN": 2,
-    "DatumTarget: §N.N requires a target description, but datum_target WRN forbids it (placed_datum_target_feature WRN also requires it); the schema/practice conflict cannot pass the unchanged rule checks": 4
+    "DatumTarget: §N.N states the target shape in its description, but datum_target WRN forbids it; omitting the description passes the rules with UNKNOWN but loses the target shape": 4
    },
    "sha256": "9d7711f48e81831c5d1838fdac5c11c0de1aa9b61f3c1d67930a7638b3b25e69"
   },
@@ -450,34 +450,10 @@
    "reason": "specify-core's own Ø10 (kept byte for byte by the add, not written by haecceity): '#648 = (... MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(10.),#633) ... REPRESENTATION_ITEM('nominal value'))', '#651 = DIMENSIONAL_SIZE(#646,'diameter')', '#654 = TOLERANCE_VALUE(#653,#652)' with both bounds below nominal (-0.028, -0.013), '#655 = PLUS_MINUS_TOLERANCE(#654,#651)'. OpenCascade's known misread of both deviations below nominal (the capture's known_misreads; specify-core writer.py) drops the deviations and garbles the value; haecceity reads 10 mm with the stated deviations. The same instance in the input file is pinned alike (known_pmi.json occt 'thumbwheel_thread_knurl occt dimension 0:1:4:1')."
   },
   {
-   "key": "pmi_gaps occt tolerance 0:1:4:1",
-   "detail": "Position 0.2 on faces [1]: no tolerance read on those faces",
-   "verdict": "rust-correct",
-   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
-  },
-  {
-   "key": "pmi_gaps occt tolerance 0:1:4:2",
-   "detail": "Position 0.1 on faces [1]: no tolerance read on those faces",
-   "verdict": "rust-correct",
-   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
-  },
-  {
-   "key": "pmi_gaps occt missing tolerance #6522",
+   "key": "pmi_gaps occt missing tolerance #6536",
    "detail": "Position",
    "verdict": "rust-correct",
-   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
-  },
-  {
-   "key": "pmi_gaps occt missing tolerance #6529",
-   "detail": "Position",
-   "verdict": "rust-correct",
-   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
-  },
-  {
-   "key": "pmi_gaps occt missing tolerance #6532",
-   "detail": "Position",
-   "verdict": "rust-correct",
-   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
+   "reason": "The review traced earlier face movement to shared shape_aspect_relationship endpoints: OCCT 7.9.3 collectShapeAspect treats ordinary relationships as composition (STEPCAFControl_Reader.cxx lines 2918–2934). Fresh private endpoints now leave both ordinary Position tolerances on face #17, proven by both re-captured fixtures and isolated_relationship_endpoints_keep_occt_tolerances_on_their_faces. The edition 4 SELECT permits the remaining relationship target, which Rust preserves exactly; XCAF does not read that target. No practice section defines relationship targets; endpoint composition uses Figure 31."
   },
   {
    "key": "pmi_gaps occt part 0 semantic text \"general note 1\"",
@@ -518,8 +494,8 @@
   {
    "key": "pmi_gaps occt part 0 affected plane 0",
    "detail": "XCAF exposes no affected plane on the tolerance",
-   "verdict": "rust-correct",
-   "reason": "PMI practice §6.9.2.1 Figure 53: the zone relates to its representative plane aspect by affected plane association (both name and description supplied because the figure and prose differ), with an axis2_placement_3d usage. Rust preserves the plane; XCAF exposes none."
+   "verdict": "not-applicable",
+   "reason": "OCCT 7.9.3 STEPCAFControl_Reader never reads affected planes, so its absence is outside the XCAF cross-check. The §6.9.2.1 Figure 53 intersection plane uses representative plane element with axis2_placement_3d; Rust preserves its explicit variant and geometry, and tests cover all three standard variants and reject an unspecified one."
   },
   {
    "key": "pmi_gaps occt part 0 tolerance relation 0",
@@ -552,34 +528,10 @@
    "reason": "ISO 10303-41 derived kg/m³, 7850 kg/m³ = 7.85 g/cm³. OCCT 7.9.3 ReadMaterials converts the length factor but handles mass only for ConversionBasedUnitAndMassUnit, omitting SiUnitAndMassUnit (.KILO.,.GRAM.); returns 0.00785 g/cm³. The gram/cm³ control reads 7.85 correctly. Source: Open-Cascade-SAS/OCCT V7_9_3 STEPCAFControl_Reader.cxx lines 5053–5078."
   },
   {
-   "key": "pmi_gaps_gram occt tolerance 0:1:4:1",
-   "detail": "Position 0.2 on faces [1]: no tolerance read on those faces",
-   "verdict": "rust-correct",
-   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
-  },
-  {
-   "key": "pmi_gaps_gram occt tolerance 0:1:4:2",
-   "detail": "Position 0.1 on faces [1]: no tolerance read on those faces",
-   "verdict": "rust-correct",
-   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
-  },
-  {
-   "key": "pmi_gaps_gram occt missing tolerance #6522",
+   "key": "pmi_gaps_gram occt missing tolerance #6536",
    "detail": "Position",
    "verdict": "rust-correct",
-   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
-  },
-  {
-   "key": "pmi_gaps_gram occt missing tolerance #6529",
-   "detail": "Position",
-   "verdict": "rust-correct",
-   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
-  },
-  {
-   "key": "pmi_gaps_gram occt missing tolerance #6532",
-   "detail": "Position",
-   "verdict": "rust-correct",
-   "reason": "The written tolerance target is aspect #6515, whose usage identifies face #17 (index 0). Projected-zone origin aspect #6517 identifies #129 (index 1). XCAF attaches both shared-target tolerances to the projection end #129 instead, and drops the third tolerance whose shape_aspect_relationship target is valid in edition 4. The standard target and origin read back distinctly in Rust; no geometry was changed."
+   "reason": "The review traced earlier face movement to shared shape_aspect_relationship endpoints: OCCT 7.9.3 collectShapeAspect treats ordinary relationships as composition (STEPCAFControl_Reader.cxx lines 2918–2934). Fresh private endpoints now leave both ordinary Position tolerances on face #17, proven by both re-captured fixtures and isolated_relationship_endpoints_keep_occt_tolerances_on_their_faces. The edition 4 SELECT permits the remaining relationship target, which Rust preserves exactly; XCAF does not read that target. No practice section defines relationship targets; endpoint composition uses Figure 31."
   },
   {
    "key": "pmi_gaps_gram occt part 0 semantic text \"general note 1\"",
@@ -620,8 +572,8 @@
   {
    "key": "pmi_gaps_gram occt part 0 affected plane 0",
    "detail": "XCAF exposes no affected plane on the tolerance",
-   "verdict": "rust-correct",
-   "reason": "PMI practice §6.9.2.1 Figure 53: the zone relates to its representative plane aspect by affected plane association (both name and description supplied because the figure and prose differ), with an axis2_placement_3d usage. Rust preserves the plane; XCAF exposes none."
+   "verdict": "not-applicable",
+   "reason": "OCCT 7.9.3 STEPCAFControl_Reader never reads affected planes, so its absence is outside the XCAF cross-check. The §6.9.2.1 Figure 53 intersection plane uses representative plane element with axis2_placement_3d; Rust preserves its explicit variant and geometry, and tests cover all three standard variants and reject an unspecified one."
   },
   {
    "key": "pmi_gaps_gram occt part 0 tolerance relation 0",

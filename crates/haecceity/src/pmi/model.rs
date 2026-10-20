@@ -1739,6 +1739,25 @@ pub struct Zone {
     pub runout_angle: Option<Value>,
     /// The affected plane feature (§6.9.2.1).
     pub affected_plane: Option<FeatureId>,
+    /// Explicit variant; unspecified legacy planes are read but refused when writing.
+    pub affected_plane_kind: Option<AffectedPlaneKind>,
+}
+
+/// Affected plane variants in §6.9.2.1 Figures 53–54.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum AffectedPlaneKind {
+    IntersectionLine,
+    IntersectionPlane,
+    OrientationPlane,
+}
+impl AffectedPlaneKind {
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::IntersectionLine => "representative line element",
+            Self::IntersectionPlane => "representative plane element",
+            Self::OrientationPlane => "",
+        }
+    }
 }
 
 /// `projected_zone_definition`: the projection's origin feature and length.
@@ -2832,6 +2851,24 @@ impl PartPmi {
             };
             if r.relating == r.related {
                 bad(format!("relation {i} relates a tolerance to itself"));
+            }
+            let mut pending = vec![r.related.0];
+            let mut seen = std::collections::BTreeSet::new();
+            while let Some(node) = pending.pop() {
+                if node == r.relating.0 {
+                    bad(format!(
+                        "relation {i} is cyclic (geometric_tolerance_relationship.WR3)"
+                    ));
+                    break;
+                }
+                if seen.insert(node) {
+                    pending.extend(
+                        self.tolerance_relations
+                            .iter()
+                            .filter(|e| e.relating.0 == node)
+                            .map(|e| e.related.0),
+                    );
+                }
             }
             if r.kind == RelationKind::Composite {
                 let kinds = [

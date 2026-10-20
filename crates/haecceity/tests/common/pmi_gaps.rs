@@ -141,6 +141,7 @@ pub fn every_kind() -> PartPmi {
         non_uniform: None,
         runout_angle: None,
         affected_plane: Some(FeatureId(2)),
+        affected_plane_kind: Some(AffectedPlaneKind::IntersectionPlane),
     });
     p
 }

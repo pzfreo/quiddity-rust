@@ -48,7 +48,7 @@ pub const PARTS_FORMAT: &str = "quiddity-parts";
 pub const VERSION: u64 = 2;
 /// The reader the anchors and items were produced by; bumped whenever `pmi::read`'s output for
 /// a file can change, so a document read by another reader version is refused, not trusted.
-pub const READER: &str = "haecceity-pmi-read/9";
+pub const READER: &str = "haecceity-pmi-read/10";
 
 /// Why a JSON document was refused: the JSON path and the reason.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -1486,6 +1486,12 @@ fn zone_form_json(f: &ZoneForm) -> Json {
     }
 }
 
+const AFFECTED_PLANE_KINDS: [(&str, AffectedPlaneKind); 3] = [
+    ("intersection line", AffectedPlaneKind::IntersectionLine),
+    ("intersection plane", AffectedPlaneKind::IntersectionPlane),
+    ("orientation plane", AffectedPlaneKind::OrientationPlane),
+];
+
 fn zone_json(z: &Zone) -> Json {
     Out::new()
         .put("form", zone_form_json(&z.form))
@@ -1505,6 +1511,11 @@ fn zone_json(z: &Zone) -> Json {
         )
         .opt("runout_angle", z.runout_angle.as_ref().map(value_json))
         .opt("affected_plane", z.affected_plane.map(|f| json!(f.0)))
+        .opt(
+            "affected_plane_kind",
+            z.affected_plane_kind
+                .map(|k| json!(name_of(&AFFECTED_PLANE_KINDS, k))),
+        )
         .done()
 }
 
@@ -1515,6 +1526,7 @@ fn zone_from(v: &Json, path: &str) -> R<Zone> {
         "non_uniform",
         "runout_angle",
         "affected_plane",
+        "affected_plane_kind",
     ];
     let o = object(v, path, &keys)?;
     Ok(Zone {
@@ -1531,6 +1543,9 @@ fn zone_from(v: &Json, path: &str) -> R<Zone> {
         non_uniform: o.opt_with("non_uniform", |x, p| list(x, p, feature_id))?,
         runout_angle: o.opt_with("runout_angle", value_from)?,
         affected_plane: o.opt_with("affected_plane", feature_id)?,
+        affected_plane_kind: o.opt_with("affected_plane_kind", |x, p| {
+            term(&AFFECTED_PLANE_KINDS, x, p)
+        })?,
     })
 }
 
@@ -2676,6 +2691,16 @@ pub fn write_report_json(
             ),
         )
         .put(
+            "note_presentation_removed",
+            json!(
+                report
+                    .note_presentation_removed
+                    .iter()
+                    .map(|(p, n, id, kind)| json!({"part":p.0,"note":n,"id":id,"entity":kind}))
+                    .collect::<Vec<_>>()
+            ),
+        )
+        .put(
             "note_migrations",
             json!(
                 report
@@ -3020,6 +3045,7 @@ mod tests {
                         non_uniform: Some(vec![]),
                         runout_angle: Some(Value::angle(d("100"), other_angle)),
                         affected_plane: Some(FeatureId(0)),
+                        affected_plane_kind: Some(AffectedPlaneKind::IntersectionPlane),
                     }),
                     modifiers: vec![ToleranceModifier::LeastMaterialRequirement],
                     unit_basis: Some(UnitBasis {

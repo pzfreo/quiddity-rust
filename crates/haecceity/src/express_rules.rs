@@ -24,7 +24,7 @@
 //!   practice §6.9.7, compartments are never shared);
 //! - `geometric_tolerance` WR1, WR3, WR5, `geometric_tolerance_with_datum_reference` WR1,
 //!   `flatness_tolerance`, `straightness_tolerance`, `roundness_tolerance` and
-//!   `cylindricity_tolerance` WR1, `geometric_tolerance_relationship` WR1–WR2;
+//!   `cylindricity_tolerance` WR1, `geometric_tolerance_relationship` WR1–WR3;
 //! - `plus_minus_tolerance` UR1;
 //! - the rules of `item_identified_representation_usage` that the PMI practice relies on for
 //!   `geometric_item_specific_usage` (§5.1, §6.1: one usage per item and per aspect in a
@@ -256,6 +256,11 @@ pub const RULES: &[Rule] = &[
         "geometric_tolerance_relationship",
         "WR2",
         Check::Where(geometric_tolerance_relationship_wr2)
+    ),
+    rule!(
+        "geometric_tolerance_relationship",
+        "WR3",
+        Check::Where(geometric_tolerance_relationship_wr3)
     ),
     rule!(
         "plus_minus_tolerance",
@@ -1449,6 +1454,26 @@ fn geometric_tolerance_relationship_wr2(ctx: &Ctx, x: u64) -> Option<String> {
     let ta = ctx.reference(a, GT, "toleranced_shape_aspect")?;
     let tb = ctx.reference(b, GT, "toleranced_shape_aspect")?;
     (ta != tb).then(|| format!("composite of #{a} on #{ta} and #{b} on #{tb}"))
+}
+
+/// WR3: the tolerance relationship graph is acyclic (all relationship names).
+fn geometric_tolerance_relationship_wr3(ctx: &Ctx, x: u64) -> Option<String> {
+    let start = ctx.reference(x, GTR, "related_geometric_tolerance")?;
+    let mut pending = vec![ctx.reference(x, GTR, "relating_geometric_tolerance")?];
+    let mut seen = BTreeSet::new();
+    while let Some(node) = pending.pop() {
+        if node == start {
+            return Some(format!("cyclic tolerance relationship through #{start}"));
+        }
+        if seen.insert(node) {
+            pending.extend(
+                ctx.used_in(node, GTR, "related_geometric_tolerance")
+                    .into_iter()
+                    .filter_map(|r| ctx.reference(r, GTR, "relating_geometric_tolerance")),
+            );
+        }
+    }
+    None
 }
 
 /// plus_minus_tolerance UR1: one plus/minus tolerance per toleranced dimension.

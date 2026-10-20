@@ -229,8 +229,8 @@ fn pmi_read_of_one_part() {
 /// whenever the reader's output does: when this fails, bump `pmi_json::READER` if `pmi::read`
 /// changed (a JSON-form change bumps `VERSION` instead), then re-pin both.
 const READER_PIN: (&str, &str) = (
-    "haecceity-pmi-read/9",
-    "e257b904a2f444e374f109d2984962ef268bbb96ef10fc2423d1da18c9a18289",
+    "haecceity-pmi-read/10",
+    "4838faf842ff57b10052e4fd281e46d282af2c0cdd195367c608ede5606aa695",
 );
 
 #[test]
@@ -1135,7 +1135,7 @@ fn pmi_write_refusals_name_the_cause_and_create_nothing() {
     let (out, o) = write_cli(p, &nist, "datum-targets", &["--mode", "replace"]);
     let err = write_refused(&out, &o, "datum targets");
     assert!(
-        err.contains("DatumTarget(0): §6.6 requires a target description")
+        err.contains("DatumTarget(0): §6.6 states the target shape")
             && err.contains("datum_target WR5"),
         "{err}"
     );

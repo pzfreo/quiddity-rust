@@ -111,7 +111,7 @@ fn rule_labels_are_the_schemas() {
     ] {
         want(form, &["WR1"]);
     }
-    want("geometric_tolerance_relationship", &["WR1", "WR2"]);
+    want("geometric_tolerance_relationship", &["WR1", "WR2", "WR3"]);
     want("plus_minus_tolerance", &["UR1"]);
     want(
         "item_identified_representation_usage",
@@ -877,4 +877,42 @@ fn committed_files_meet_the_global_rules() {
     let v: Vec<&String> = results.iter().flat_map(|(v, _)| v).collect();
     assert!(v.is_empty(), "{v:#?}");
     assert!(results.iter().any(|&(_, h)| h));
+}
+
+#[test]
+fn tolerance_relationship_wr3_checks_cycles_across_names() {
+    let text = String::from_utf8({
+        use std::io::Read;
+        let mut bytes = Vec::new();
+        flate2::read::GzDecoder::new(
+            std::fs::File::open(common::fixtures().join("ap242/write/pmi_gaps.step.gz")).unwrap(),
+        )
+        .read_to_end(&mut bytes)
+        .unwrap();
+        bytes
+    })
+    .unwrap();
+    let relations = instances(&text, "GEOMETRIC_TOLERANCE_RELATIONSHIP");
+    let [a, b] = refs_in(line(&text, relations[0]))[..] else {
+        panic!("two tolerance references");
+    };
+    let id = 999999;
+    let cycled = append(
+        &text,
+        &[format!(
+            "#{id}=GEOMETRIC_TOLERANCE_RELATIONSHIP('precedence',$,#{b},#{a});"
+        )],
+    );
+    let doc = Document::parse(cycled.into_bytes()).unwrap();
+    assert!(
+        check_all(&doc)
+            .iter()
+            .any(|v| v.id == id && v.rule == "geometric_tolerance_relationship.WR3")
+    );
+    let valid = Document::parse(text.into_bytes()).unwrap();
+    assert!(
+        !check_all(&valid)
+            .iter()
+            .any(|v| v.rule == "geometric_tolerance_relationship.WR3")
+    );
 }

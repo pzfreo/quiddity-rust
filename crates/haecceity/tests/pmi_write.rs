@@ -595,6 +595,7 @@ fn runout_zone_definitions_have_their_three_attributes() {
         non_uniform: None,
         runout_angle: Some(Value::angle(dec("30."), AngleUnit::Degree)),
         affected_plane: None,
+        affected_plane_kind: None,
     });
     p.tolerances.push(t);
     let mut plain = tolerance(
@@ -609,6 +610,7 @@ fn runout_zone_definitions_have_their_three_attributes() {
         non_uniform: None,
         runout_angle: None,
         affected_plane: None,
+        affected_plane_kind: None,
     });
     p.tolerances.push(plain);
     let w = written(&spool(), &p);
@@ -2291,6 +2293,7 @@ fn intent_pmi(intent: &Json) -> (PartPmi, Vec<String>) {
                         non_uniform: None,
                         runout_angle: None,
                         affected_plane: None,
+                        affected_plane_kind: None,
                     });
                 }
                 if r["mmc"].as_bool() == Some(true) {
@@ -3424,6 +3427,7 @@ fn written_cases() -> Vec<(String, Option<Vec<u8>>)> {
         non_uniform: None,
         runout_angle: None,
         affected_plane: None,
+        affected_plane_kind: None,
     };
     let mut pos = tolerance(
         ToleranceKind::Position,
@@ -4246,6 +4250,47 @@ fn python_requirements_replace_as_standard_requirements() {
             w.report.note_migrations.len(),
             old.parts.iter().map(|p| p.notes.len()).sum::<usize>()
         );
+        let expected_callouts: Vec<_> = old
+            .provenance
+            .parts
+            .iter()
+            .enumerate()
+            .flat_map(|(part, prov)| {
+                prov.note_callouts
+                    .iter()
+                    .enumerate()
+                    .flat_map(move |(note, ids)| {
+                        ids.iter().map(move |&id| (PartId(part), note, id))
+                    })
+            })
+            .collect();
+        if matches!(name, "assembly_plate_pin" | "bolt_thread_knurl") {
+            assert!(
+                !expected_callouts.is_empty(),
+                "{name} must exercise real Python presentation"
+            );
+        }
+        for (part, note, id) in &expected_callouts {
+            assert!(
+                w.doc.get(*id).is_none(),
+                "{name}: old callout #{id} survived"
+            );
+            assert!(
+                w.report.presentation_removed.iter().any(|(i, _)| i == id),
+                "{name}: unreported #{id}"
+            );
+            assert!(
+                w.report
+                    .note_presentation_removed
+                    .iter()
+                    .any(|(p, n, i, _)| p == part && n == note && i == id),
+                "{name}: #{id} lost its note association"
+            );
+        }
+        assert_eq!(
+            w.report.note_presentation_removed.len(),
+            expected_callouts.len()
+        );
         for (part, p) in &requests {
             assert_reads_back(&w, *part, p);
         }
@@ -4376,7 +4421,7 @@ fn a_refused_migrated_note_names_the_original_input_item() {
 
 #[test]
 fn legacy_finish_numbers_migrate_without_refusing_the_note() {
-    for (text, textures) in [("Ra 3e0 µm", 1), ("Ra 1e9999 µm", 0)] {
+    for (text, textures) in [("Ra 3e0 µm", 1), ("Ra 1e9999 µm", 0), ("Ra 32", 0)] {
         let p = PartPmi {
             features: vec![faces(&[0])],
             notes: vec![Note {
@@ -4398,4 +4443,133 @@ fn legacy_finish_numbers_migrate_without_refusing_the_note() {
             }));
         }
     }
+}
+
+#[test]
+fn tolerance_relationship_cycles_are_refused_by_name() {
+    let mut p = common::pmi_gaps::every_kind();
+    // Opposite directions with different names must still be acyclic.
+    p.tolerance_relations.push(ToleranceRelation {
+        kind: RelationKind::Precedence,
+        relating: ToleranceId(1),
+        related: ToleranceId(0),
+    });
+    let Err(WriteError::Invalid { errors, .. }) =
+        write(&gap_spool(), &[(PartId(0), p)], Mode::Replace)
+    else {
+        panic!("cycle must be refused");
+    };
+    assert!(
+        errors
+            .iter()
+            .any(|e| e.0.contains("geometric_tolerance_relationship.WR3"))
+    );
+}
+
+#[test]
+fn affected_plane_variants_and_ambiguous_refusal() {
+    for kind in [
+        AffectedPlaneKind::IntersectionPlane,
+        AffectedPlaneKind::OrientationPlane,
+        AffectedPlaneKind::IntersectionLine,
+    ] {
+        let mut p = common::pmi_gaps::every_kind();
+        p.tolerances[0].zone.as_mut().unwrap().affected_plane_kind = Some(kind);
+        let description = match kind {
+            AffectedPlaneKind::IntersectionPlane => "representative plane element",
+            AffectedPlaneKind::OrientationPlane => "",
+            AffectedPlaneKind::IntersectionLine => {
+                let point = p.geometry[0].item.leaves[0].1[1].clone();
+                let mut second = point.clone();
+                if let GeometryValue::Item(item) = &mut second
+                    && let GeometryValue::List(coords) = &mut item.leaves[0].1[1]
+                {
+                    coords[0] = GeometryValue::Real(dec("10."));
+                }
+                p.geometry[0].item = GeometryItem {
+                    leaves: vec![(
+                        "POLYLINE".into(),
+                        vec![
+                            GeometryValue::Text("".into()),
+                            GeometryValue::List(vec![point, second]),
+                        ],
+                    )],
+                };
+                "representative line element"
+            }
+        };
+        let f = gap_spool();
+        let w = written(&f, &p);
+        assert_verified(&f, &w, &p);
+        let z = w.read.parts[0].tolerances[0].zone.as_ref().unwrap();
+        assert_eq!(z.affected_plane_kind, Some(kind));
+        let aspects: Vec<_> = w
+            .added()
+            .into_iter()
+            .filter(|&id| {
+                w.names(id) == ["shape_aspect"] && w.text(id).contains(&format!("'{description}'"))
+            })
+            .collect();
+        assert!(!aspects.is_empty());
+    }
+    let mut p = common::pmi_gaps::every_kind();
+    p.tolerances[0].zone.as_mut().unwrap().affected_plane_kind = None;
+    let Err(WriteError::Refused(r)) = write(&gap_spool(), &[(PartId(0), p)], Mode::Replace) else {
+        panic!("ambiguous plane");
+    };
+    assert!(
+        r.iter()
+            .any(|r| r.item == ItemRef::Tolerance(0) && r.why.contains("explicit intersection"))
+    );
+}
+
+#[test]
+fn isolated_relationship_endpoints_keep_occt_tolerances_on_their_faces() {
+    for name in ["pmi_gaps", "pmi_gaps_gram"] {
+        let capture: Json = serde_json::from_slice(&file_bytes(
+            &write_dir().join(format!("{name}.occt.json.gz")),
+        ))
+        .unwrap();
+        let tol: Vec<_> = capture["parts"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .chain([&capture["unattached"]])
+            .flat_map(|p| p["geometric_tolerances"].as_array().unwrap())
+            .collect();
+        for value in [0.2, 0.1] {
+            let t = tol
+                .iter()
+                .find(|t| t["value"].as_f64() == Some(value))
+                .expect("ordinary Position tolerance read by OCCT");
+            assert_eq!(
+                t["faces"],
+                serde_json::json!([{"advanced_face":"#17", "face":0, "part":0}]),
+                "{name}: {t}"
+            );
+        }
+    }
+}
+
+#[test]
+fn unitless_roughness_on_an_inch_part_keeps_its_words() {
+    let f = fixture("ap242/nist/nist_stc_06_asme1_ap242-e3.stp.gz");
+    let p = PartPmi {
+        features: vec![faces(&[0])],
+        notes: vec![Note {
+            kind: "surface finish".into(),
+            text: "Ra 32".into(),
+            on: Some(NoteOwner::Feature(FeatureId(0))),
+            callouts: Vec::new(),
+        }],
+        ..PartPmi::default()
+    };
+    let w = written(&f, &p);
+    assert!(w.read.parts[0].surface_textures.is_empty());
+    assert!(w.report.note_migrations[0].2.starts_with("semantic text"));
+    assert!(w.report.note_migrations[0].2.contains("units"));
+    assert_eq!(
+        w.read.parts[0].attributes[0].items[0].1,
+        AttributeValue::Text("Ra 32".into())
+    );
 }

@@ -1109,6 +1109,7 @@ impl<'a> Reader<'a> {
                 .copied()
                 .find(|&id| self.is(id, "property_definition"))
             else {
+                st.prov.note_callouts.push(Vec::new());
                 continue;
             };
             let mut subjects = vec![pdef];
@@ -1154,6 +1155,9 @@ impl<'a> Reader<'a> {
                     }
                 }
             }
+            st.prov
+                .note_callouts
+                .push(callouts.iter().copied().collect());
             let mut held = Vec::new();
             for c in callouts {
                 let mut features = BTreeSet::new();
@@ -3824,6 +3828,7 @@ impl<'a> Reader<'a> {
             non_uniform: None,
             runout_angle: None,
             affected_plane: None,
+            affected_plane_kind: None,
         };
         for def in self.referrers_by(
             zone,
@@ -3941,6 +3946,22 @@ impl<'a> Reader<'a> {
             {
                 let f = self.get_ref(r, "shape_aspect_relationship", "related_shape_aspect")?;
                 out.affected_plane = Some(self.feature(st, f)?);
+                out.affected_plane_kind = match self
+                    .get_str(f, "shape_aspect", "description")
+                    .as_deref()
+                {
+                    Some("representative line element") => {
+                        Some(AffectedPlaneKind::IntersectionLine)
+                    }
+                    Some("representative plane element") => {
+                        Some(AffectedPlaneKind::IntersectionPlane)
+                    }
+                    // Figure 54 has an undescribed aspect and an axis2 placement.
+                    Some("") | None if matches!(&st.pmi.features[out.affected_plane?.0], Feature::Items(items) if matches!(items.as_slice(), [Anchor::Geometry(g)] if st.pmi.geometry[g.0].item.entity() == "axis2_placement_3d")) => {
+                        Some(AffectedPlaneKind::OrientationPlane)
+                    }
+                    _ => None,
+                };
                 prov.push(r);
             }
         }
