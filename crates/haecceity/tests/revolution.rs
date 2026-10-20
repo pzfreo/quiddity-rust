@@ -157,8 +157,7 @@ fn malformed_truck_pub_hole_is_refused() {
             .join("../../tests/fixtures/truck_pub_shaft_hole.step.gz"),
         &IDENTITY,
     )
-    .err()
-    .expect("duplicate STEP entity IDs must not be silently overwritten");
+    .expect_err("duplicate STEP entity IDs must not be silently overwritten");
     assert!(
         error.to_string().contains("duplicate entity #539"),
         "{error}"
