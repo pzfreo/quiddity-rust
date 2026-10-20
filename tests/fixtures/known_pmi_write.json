@@ -330,16 +330,16 @@
      "attribute only in the first",
      "\"pattern\""
     ],
-    "verdict": "undetermined",
-    "reason": "The intent states a knurl's pattern, pitch and diameter only; turned_knurl needs 6 to 9 parameters (WR2) and a helix angle for a diamond knurl (WR9), which the intent does not state, so no TURNED_KNURL is written rather than guess them (the case's 'not written' says so). specify-core's attribute set is not reproduced: whether the knurl should be written with assumed standard parameters (DIN 82) is for the maintainer."
+    "verdict": "rust-wrong",
+    "reason": "Independent evidence: crates/haecceity/tests/pmi_write.rs::intent_pmi handles the knurl intent in its catch-all arm, recording only a not-written message and omitting its stated pattern, pitch and diameter from PartPmi. The emitted STEP consequently has neither those manufacturing attributes nor their knurl feature binding. The AP242 turned_knurl WR2/WR9 parameter requirements justify refusing to invent a standard knurl, but do not justify losing the supplied information: it could remain explicit manufacturing attributes as thread pitch does in the same adapter. Cause: incomplete intent translation in the test adapter, not a failure of the writer to serialize a fully specified Knurl. Recorded without changing expectations or adding assumed DIN 82 parameters."
    },
    {
     "key": "knurl feature not written (no knurl)",
     "match": [
      "feature only in the first"
     ],
-    "verdict": "undetermined",
-    "reason": "The knurled faces are a feature in specify-core's file only because its knurl attribute set is on them; with no knurl written (previous entry) there is no feature on them."
+    "verdict": "rust-wrong",
+    "reason": "Independent evidence: crates/haecceity/tests/pmi_write.rs::intent_pmi handles the knurl intent in its catch-all arm, recording only a not-written message and omitting its stated pattern, pitch and diameter from PartPmi. The emitted STEP consequently has neither those manufacturing attributes nor their knurl feature binding. The AP242 turned_knurl WR2/WR9 parameter requirements justify refusing to invent a standard knurl, but do not justify losing the supplied information: it could remain explicit manufacturing attributes as thread pitch does in the same adapter. Cause: incomplete intent translation in the test adapter, not a failure of the writer to serialize a fully specified Knurl. Recorded without changing expectations or adding assumed DIN 82 parameters."
    },
    {
     "key": "specify-core: values stated in metres",
