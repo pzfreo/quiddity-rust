@@ -344,6 +344,33 @@ fn bevel_uses_its_cutting_plane_to_resolve_equal_support_distances_under_motion(
 }
 
 #[test]
+fn symmetric_nonorthogonal_frame_directions_refuse_after_motion_and_face_permutation() {
+    use quiddity::frames::{FrameRefusal, infer_part_frame};
+    let path = common::fixtures().join("ties/regular_tetrahedron.step");
+    for at in motions() {
+        let part = read_step_file_placed(&path, &at).unwrap();
+        assert_eq!(
+            infer_part_frame(&part),
+            Err(FrameRefusal::NoAnalyticDirection)
+        );
+        let n = part.faces.len();
+        let mut faces = part.faces.clone();
+        faces.reverse();
+        let mut solids = part.solids.clone();
+        for solid in &mut solids {
+            for f in &mut solid.faces {
+                *f = n - 1 - *f;
+            }
+        }
+        let permuted = quiddity::Part::new(faces, part.edges.clone(), solids);
+        assert_eq!(
+            infer_part_frame(&permuted),
+            Err(FrameRefusal::NoAnalyticDirection)
+        );
+    }
+}
+
+#[test]
 fn a_square_recess_needs_a_covariant_body_relative_run_for_correspondence() {
     let Some(dir) = common::corpus_dir() else {
         return;
