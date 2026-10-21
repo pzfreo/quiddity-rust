@@ -6,6 +6,30 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Added
+
+- AP242 PMI writing of composite, precedence and simultaneity tolerance relations; stated
+  default-tolerance table cells and decimal places within them; material density in its own
+  dimensionally correct derived unit; edition 4 relationship targets and affected-plane links.
+- Legacy manufacturing-requirement notes migrate to semantic text or unambiguous surface
+  texture. `standard_form` exposes the expected requirements and the CLI write report adds
+  `note_migrations`. Replace removes legacy properties and their owned presentation. Reader
+  binding `/9` holds affected planes and table qualifiers and separates relation targets from
+  feature composition; JSON document version 2 stays compatible.
+- Regression fixtures for the new forms, five ordered numbered part notes across replace and
+  resumed add, and Python specify-note migration. Literal target and standalone-decimal
+  schema/practice conflicts use the reported exemptions authorized on 2026-10-20 (evidence
+  in `step-ap242.md`).
+
+- Write every model datum-target shape and the datums it establishes (PMI practice §6.6),
+  and decimal-only Figure 3 tolerance cells/defaults. `practice_schema_conflicts` reports the
+  exact added instance/rule exemptions authorized by the maintainer (target WR5 only, decimal
+  cell WR3/WR4). Structural validation and every other rule remain mandatory; raw rules and
+  NIST file-wrong pins are unchanged. Reader binding `/11` projects anonymous decimal-only
+  carriers to part defaults and keeps semantic text on targets separate from parameters.
+- Synthetic target/precision fixtures, the 13 CTC-02/FTC-10 target clean-copy round trips,
+  and OCCT cross-checks including shared target supports; no target-refusal stripping.
+
 ### Changed
 
 - Chamfers, fillets and circular blind steps recognise perpendicular supporting planes rolled
@@ -37,6 +61,23 @@ in [docs/alpha1.md](docs/alpha1.md).
 - Repair consistently inward closed solid boundaries on STEP import, reporting each
   affected solid in input repairs and recognition warnings. Mixed or unproved
   orientations remain unchanged (#53).
+- Restore regression coverage for original-input note indices in refusals, reporting
+  semantic-text and surface-texture requirements on unwritable features by their own items.
+  Narrow datum-target exemptions to WR5; WR4 remains mandatory because every emitted
+  target name is empty.
+
+- Isolate relationship tolerance endpoints so OCCT composition traversal leaves other
+  tolerances on their original faces. Correct the earlier projection-origin diagnosis.
+- Distinguish affected intersection line/plane and orientation plane descriptions (§6.9.2.1)
+  with optional `Zone.affected_plane_kind`; ambiguous variants are refused. Reader binding
+  becomes `/10`; the JSON addition is optional. Rust literals of `Zone` require the new field.
+- Keep unitless legacy roughness as semantic text rather than invent micrometres. Report
+  every supplied note callout and link removed callout ids/types to their original note in
+  `note_presentation_removed`. `WriteReport` is now `#[non_exhaustive]`.
+- Check and name tolerance relationship cycles as `geometric_tolerance_relationship.WR3`.
+  Clarify that omitting a target description passes rules but loses its shape. OCCT
+  affected-plane verdicts are not-applicable.
+
 - Preserve a single sheet when converting radial `SURFACE_OF_REVOLUTION` line
   profiles, and recover boundary inversion stalled at a collapsed surface side.
   This corrects revolution face fluxes and mass properties without discarding

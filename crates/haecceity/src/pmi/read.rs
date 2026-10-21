@@ -1109,6 +1109,7 @@ impl<'a> Reader<'a> {
                 .copied()
                 .find(|&id| self.is(id, "property_definition"))
             else {
+                st.prov.note_callouts.push(Vec::new());
                 continue;
             };
             let mut subjects = vec![pdef];
@@ -1154,6 +1155,9 @@ impl<'a> Reader<'a> {
                     }
                 }
             }
+            st.prov
+                .note_callouts
+                .push(callouts.iter().copied().collect());
             let mut held = Vec::new();
             for c in callouts {
                 let mut features = BTreeSet::new();
@@ -1238,6 +1242,27 @@ impl<'a> Reader<'a> {
             ]
             .iter()
             .any(|t| self.is(r, t))
+            {
+                continue;
+            }
+            // A tolerance's relation target and a zone's affected-plane link do not
+            // compose the relating feature of the related one.
+            if self
+                .get_str(r, "shape_aspect_relationship", "name")
+                .as_deref()
+                == Some("affected plane association")
+                || self
+                    .get_str(r, "shape_aspect_relationship", "description")
+                    .as_deref()
+                    == Some("affected plane association")
+                || !self
+                    .referrers_by(
+                        r,
+                        "geometric_tolerance",
+                        "geometric_tolerance",
+                        "toleranced_shape_aspect",
+                    )
+                    .is_empty()
             {
                 continue;
             }
@@ -2295,7 +2320,18 @@ impl<'a> Reader<'a> {
                     }
                 }
             }
-            if !used {
+            if !used
+                && self.get_str(pdef, "property_definition", "name").as_deref()
+                    != Some("semantic text")
+                && self
+                    .referrers_by(
+                        pdef,
+                        "general_property_association",
+                        "general_property_association",
+                        "derived_definition",
+                    )
+                    .is_empty()
+            {
                 self.find(
                     FindingKind::Unsupported,
                     part,
@@ -3803,6 +3839,7 @@ impl<'a> Reader<'a> {
             non_uniform: None,
             runout_angle: None,
             affected_plane: None,
+            affected_plane_kind: None,
         };
         for def in self.referrers_by(
             zone,
@@ -3901,6 +3938,42 @@ impl<'a> Reader<'a> {
                     "a tolerance zone definition of an unknown kind; tolerance not read",
                 );
                 return None;
+            }
+        }
+        for r in self.referrers_by(
+            zone,
+            "shape_aspect_relationship",
+            "shape_aspect_relationship",
+            "relating_shape_aspect",
+        ) {
+            if self
+                .get_str(r, "shape_aspect_relationship", "name")
+                .as_deref()
+                == Some("affected plane association")
+                || self
+                    .get_str(r, "shape_aspect_relationship", "description")
+                    .as_deref()
+                    == Some("affected plane association")
+            {
+                let f = self.get_ref(r, "shape_aspect_relationship", "related_shape_aspect")?;
+                out.affected_plane = Some(self.feature(st, f)?);
+                out.affected_plane_kind = match self
+                    .get_str(f, "shape_aspect", "description")
+                    .as_deref()
+                {
+                    Some("representative line element") => {
+                        Some(AffectedPlaneKind::IntersectionLine)
+                    }
+                    Some("representative plane element") => {
+                        Some(AffectedPlaneKind::IntersectionPlane)
+                    }
+                    // Figure 54 has an undescribed aspect and an axis2 placement.
+                    Some("") | None if matches!(&st.pmi.features[out.affected_plane?.0], Feature::Items(items) if matches!(items.as_slice(), [Anchor::Geometry(g)] if st.pmi.geometry[g.0].item.entity() == "axis2_placement_3d")) => {
+                        Some(AffectedPlaneKind::OrientationPlane)
+                    }
+                    _ => None,
+                };
+                prov.push(r);
             }
         }
         Some(Some(out))
@@ -4799,14 +4872,12 @@ impl<'a> Reader<'a> {
                                     }
                                     CellValue::Count(d)
                                 }
-                                Ok(Measured::Length(l)) => CellValue::Value(Value {
-                                    quantity: Quantity::Length(l),
-                                    decimal_places: None,
-                                }),
-                                Ok(Measured::Angle(a)) => CellValue::Value(Value {
-                                    quantity: Quantity::Angle(a),
-                                    decimal_places: None,
-                                }),
+                                Ok(Measured::Length(_) | Measured::Angle(_)) => {
+                                    let Some(value) = self.value(st, ci, Want::Any, &mut p) else {
+                                        return;
+                                    };
+                                    CellValue::Value(value)
+                                }
                                 Ok(other) => {
                                     self.find(
                                         FindingKind::Unsupported,
@@ -4831,10 +4902,14 @@ impl<'a> Reader<'a> {
                     st.pmi.decimal_places = Some(pl);
                     st.prov.decimal_places = ids(p.clone());
                 }
-                st.pmi
-                    .general
-                    .push(GeneralTolerance::Table { name: tname, cells });
-                st.prov.general.push(ids(p));
+                if !(tname.is_empty()
+                    && matches!(cells.as_slice(), [c] if c.decimal_default().is_some()))
+                {
+                    st.pmi
+                        .general
+                        .push(GeneralTolerance::Table { name: tname, cells });
+                    st.prov.general.push(ids(p));
+                }
                 read_any = true;
             }
             if !read_any {

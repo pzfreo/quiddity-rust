@@ -4,11 +4,11 @@
 rule checks; writer; the `quiddity` command line `parts`, `pmi read`, `pmi check` and, stage 4,
 `pmi write` verified by reading back). Since 2026-10-13 the writer upgrades all 100 corpus
 files, six with the closed, reported R1/R2 repairs below.
-Still refused by the writer, by name: datum targets, tolerance relations, notes, general tolerance
-tables and decimal places, and material density (the material name is written). See
-[Status](#status). Since 2026-10-09 ([decisions](#maintainer-decisions-2026-10-09)) part notes
-in words are written as 'semantic text' (§7.4) and surface texture in AP242's surface conditions
-form; the refused notes are the non-standard 'manufacturing requirement' route.
+Since 2026-10-20 the writer also writes tolerance relations, stated general tolerance tables
+(including default decimal places in their cells), material density with its own derived unit,
+edition 4 relationship targets, and affected planes. Legacy manufacturing-requirement notes
+migrate to standard requirements. Targets and standalone decimal defaults now follow the
+practice with narrow, reported exemptions authorized on 2026-10-20; see [Writer gaps and schema conflicts](#writer-gaps-and-schema-conflicts-2026-10-20).
 
 haecceity reads STEP geometry today (`crates/haecceity/src/step.rs`, through step-io's typed
 model). This document adds what specify-core and draftwright still need OpenCascade for: reading
@@ -166,6 +166,165 @@ implemented, with the evidence found doing it; the open points are under
 
 Schema references below are to the AP242 MIM long form `242_mim_lf.exp` (WG12 N11521, from
 stepcode); section numbers (§) are the PMI practice's unless stated.
+
+## Maintainer decisions (2026-10-20)
+
+1. **Datum targets: practice form, documented exemption.** Write the target shape in
+   `shape_aspect.description`, as PMI practice v4.1 §6.6 Tables 10–11 and Figures 43–46
+   specify. Use `placed_datum_target_feature` for point, line, rectangle, circle and circular
+   curve, with 'orientation' and the named length/width/diameter parameters; use `datum_target`
+   and explicit area/curve geometry otherwise. Relate each target to the datum it establishes.
+   The stepcode WG12 N11521 `242_mim_lf.exp` lines 13564–13567 require an empty name (WR4)
+   and no description (WR5), while lines 27169–27175 require the placed shape description
+   and valid parameters (function at 51872–51955). The practice form conflicts with WR5.
+   NIST CTC-02 encodes nine placed targets (#102–#110, point/circle descriptions and names
+   'Datum Target.…'); FTC-10 encodes four area targets (#18373, #18405, #18437, #18469,
+   names K/L). Those original WR4/WR5 violations remain pinned **file-wrong** in
+   `tests/fixtures/ap242/rules/known_nist_rule_violations.json`; the rule engine is unchanged.
+   The writer always uses empty names and satisfies WR4. Re-review narrows the target
+   exemption to WR5 only; WR4 remains mandatory.
+2. **Decimal-only cells: same policy.** Figure 3's 'number of decimal places' count is
+   written alone, without inventing a range or tolerance. Cell WR3/WR4 (entity lines
+   13622–13623; functions 41271–41319) still report its missing range/digits and tolerance.
+3. **Exemption boundary.** Only `datum_target.WR5` on target additions
+   registered by the emitter, and `default_tolerance_table_cell.WR3/WR4` on its exact
+   decimal-only cell additions, can pass the writer backstop. `practice_schema_conflicts`
+   lists every actual violation with its final instance id and rule (also entity/message).
+   Existing records, rewritten containers, and every other rule are outside the exemption.
+   All added instances still pass structural EXPRESS validation. No NIST source pin is relaxed.
+
+Source: [pinned stepcode schema](https://github.com/stepcode/stepcode/blob/8cc8fc75905a10333e5bf29b6e6a568d737dffa3/data/ap242/242_mim_lf.exp),
+[PMI practice v4.1](https://www.mbx-if.org/home/wp-content/uploads/2024/06/rec_pracs_pmi_v41.pdf).
+
+## Writer gaps and schema conflicts (2026-10-20)
+
+The writer follows the standard forms with only the exact reported rule exemptions authorized
+above; structural schema validation and the raw rule engine remain unchanged. `pmi::write::standard_form` exposes the standard
+requirements a write represents; `differences_as_stated` remains an exact semantic comparison.
+The version 2 CLI write report gains `note_migrations` (part, original note index, form/reason)
+and `note_presentation_removed` (part, note index in the source reading, removed callout id/type). Callout
+names and attachments supplied in notes are also listed in migration reasons. `WriteReport`
+is non-exhaustive; consumers should use its returned fields rather than construct it literally.
+No JSON field is removed. The reader binding becomes `haecceity-pmi-read/11` because affected
+plane variants and table-value qualifiers are held, the anonymous decimal-only carrier is
+projected to the part default, semantic text on targets is read separately from parameters, and
+toleranced relationships are no longer misread as feature composition; document format version 2 is unchanged.
+
+- **Relations (§6.9.9)**: all three model kinds are written with the stated endpoints. A
+  tolerance whose target is a relationship uses the edition 4 SELECT member. Edition 1
+  excludes that member, so such a write into edition 1 is refused instead of changing its
+  schema claim. The practice has no relationship-target section: this uses the schema SELECT,
+  with fresh endpoint aspects composed of the original features (Figure 31 composition).
+  No aspect carrying other PMI is a relating endpoint of the controlled relationship.
+  OCCT traverses ordinary relationships as composition, so shared endpoints would move other
+  tolerances to the wrong faces. The reader excludes the controlled relationship from composition.
+  Cycles of any relation names are refused as `geometric_tolerance_relationship.WR3`.
+- **Default tables (§4.1)**: table cells preserve their items, values, units, and qualifiers;
+  a representation relationship named 'general tolerance definition' links the table to the
+  'default tolerances' representation. The table context is 'default setting'. Decimal places
+  are written in complete cells or a Figure 3 decimal-only cell and must agree with the part
+  default. A bare part default gets an anonymous single-cell carrier; the reader projects
+  precisely that anonymous carrier back to `decimal_places` instead of inventing an extra
+  model table. Named tables retain the decimal-only cell and its stated count text. Counts use NUMBER (including canonical INTEGER tokens); REAL quantities retain
+  their own REAL text. A class retains decision 3's original form.
+- **Density (Material Identification and Density R2.1 §4.2)**: 'material property'/'density'
+  holds a 'density measure' in its own `derived_unit`. Kilograms are `MASS_UNIT` +
+  `SI_UNIT(.KILO.,.GRAM.)`; metres are a length unit, with exponents 1 and -3, respectively.
+  Gram/centimetre and the other supported SI prefixes retain their stated scale and digits.
+  Unknown scale names and exponents other than aggregate M L^-3 are refused; no geometry
+  unit is substituted for the density unit.
+- **Affected planes (§6.9.2.1 Figures 53–54)**: a shape-aspect relationship from the tolerance
+  zone to the representative plane feature carries 'affected plane association'. The figure
+  labels `name`, while the prose says `description`; the writer supplies both. The reader
+  accepts either, preserves the plane feature, and consumes the link with the tolerance.
+  `Zone.affected_plane_kind` distinguishes intersection line (polyline, description
+  'representative line element'), intersection plane (axis placement, 'representative plane
+  element'), and orientation plane (axis placement, undescribed aspect, Figure 54). It is an
+  optional additive JSON field; unspecified/unsupported variants are refused on write. The
+  reader infers the variant from these standard descriptions and geometry. Literal Rust
+  `Zone` construction must supply the new optional field.
+- **Legacy notes (§7.4)**: a replacement removes the old properties and their owned presentation
+  under decision 7. Each note in words becomes a separate 'semantic text' attribute set, with
+  the legacy kind as its descriptive item's variable name and the complete text retained.
+  A complete Ra/Rq/Rz/Rt/Rp/Rv value explicitly qualified in micrometres becomes ISO 10303-1110 surface texture,
+  using ISO 1302's basic symbol (any process allowed). Unitless values are conservatively
+  retained as semantic text even on metric parts: `standard_form` has no part-unit context,
+  and an inch part's 'Ra 32' can mean microinches. No micrometre unit is invented.
+  A thread designation alone does not
+  state the schema's 'number of threads'; the schema does not establish that it means starts
+  or pitch (question 6). Knurl prose with process conditions and a maximum after knurling is
+  likewise not the model's complete nominal/major/diametral parameter set. Those requirements,
+  and text with 'unless otherwise specified', remain complete semantic text rather than
+  gaining guessed parameters or losing scope. Every choice is in the write report.
+- **Several general notes**: one property per note on `product_definition_shape`, as NIST
+  FTC-07 and §7.4 specify. The reader preserves instance order through replace and resumed
+  add. Section 7.4.4 explicitly leaves representation ordering unresolved: the practice offers
+  no ordering relationship. Numbered text preserves a reader-independent visible sequence;
+  record order is the fallback for unnumbered notes, not an interoperable ordering guarantee.
+  XCAF-based consumers expose only the last 'semantic text' string on a part label. The
+  standard file retains every note; consumers needing all notes must inspect the properties.
+
+The two practice/schema conflicts now use the maintainer's reported exemptions above.
+`datum_targets` covers all seven model shapes; `decimal_default` covers a bare precision
+setting. Tests compare raw violations to the report, pin WR5 alone (and WR4 after adding a
+name), and prove that WR4, every other rule and unregistered instances are never covered.
+NIST CTC-02 and FTC-10's target subsets (13 targets, their datums and required features)
+round-trip through PMI-free copies without stripping any target. Full-reading
+read → replace → read remains covered separately by `known_pmi_write.json` pins. Their old target/datums/tolerance refusal entries are retired
+on that evidence;
+FTC-10's unrelated ambiguous attribute-unit refusals stay unchanged.
+
+Target support aspects used by other PMI get a private composition endpoint for the
+`feature_for_datum_target_relationship`. Otherwise OCCT treats that relationship as
+composition and can move/drop other tolerances. Dedicated, otherwise unused support aspects
+use Figure 45's direct usage. Datum feature symbols (decision 6) still belong to actual datum
+features; a target-only datum does not acquire a fabricated datum feature or its symbol.
+Movable lines are writable; movable point/circle/rectangle/circular-curve parameter sets still
+fail the *non-exempt* `placed_datum_target_feature.WR3` item count and are refused by name.
+
+The NIST cross-check fixtures contain explicit synthetic test FCFs referencing the original
+target datums so XCAF exposes them. These are test probes only: production writes never add
+such tolerances. The clean-copy NIST tests compare the original target requirements without
+any probes. Every observed OCCT difference is pinned with its verdict below/in the fixture.
+
+The `pmi_gaps` and `pmi_gaps_gram` written fixtures exercise all newly emitted kinds and
+five numbered part notes; both pass schema/rule checks and exact clean-copy round trips
+(`pmi_write.rs`, `pmi_roundtrip.rs`). Seven Python specify fixtures replace their notes, then
+replace the standardized reading again, without any 'manufacturing requirement' record.
+The existing untouched-record byte checks remain in force. The seven committed NIST AP242
+files retain their composite relations and now write their target-dependent requirements;
+unrelated refusal counts and explicit reasons stay pinned. Ten additional corpus NIST files have geometry/presentation
+only; their pinned empty-semantic-PMI round trips do not count as new-kind coverage.
+
+OpenCascade 7.9.3.1 (the read-only quiddity venv) transfers both new fixtures and safely walks
+their labels. That environment has no `specify_core` module, so the separate application-loader
+check is recorded as unavailable, not passed. `known_pmi_write.json` retains every earlier
+verdict except the review corrections described below, and adds the new differences. XCAF reads 7850 kg/m³ as 0.00785 g/cm³ instead of 7.85;
+its `ReadMaterials` handles conversion-based mass units but omits SI mass prefixes
+([7.9.3 source](https://github.com/Open-Cascade-SAS/OCCT/blob/V7_9_3/src/STEPCAFControl/STEPCAFControl_Reader.cxx#L5053)).
+The gram/cm³ control reads 7.85 correctly: the kilogram file is correct and OCCT misreads it.
+The review traced the earlier wrong-face tolerances to shared relationship endpoints, not
+projection origins (OCCT `collectShapeAspect`, lines 2918–2934). With isolated endpoints, both
+ordinary Position tolerances remain on face #17; their obsolete wrong-face/missing pins are
+removed on that evidence. XCAF does not read the edition 4 relationship target. It never reads
+affected planes in 7.9.3, so that difference is **not-applicable**, along with absent XCAF APIs
+for tables, frame relations and surface texture. Part/feature text differences retain the §7.4 standard form, rust-correct.
+
+The five target/precision cross-check fixtures also transfer successfully. XCAF reads all
+nine CTC-02 targets and the synthetic point/line/rectangle/circle targets with their stated
+sizes and placement axes. Both synthetic Position tolerances stay on face #17. Four shared
+support associations are missing in XCAF because `ReadDatums` looks for a direct usage on
+the relationship endpoint rather than following its composition (lines 3055–3074); these
+are **rust-correct**. Its enum has no circular-curve or curve target, and its placed-target
+cast skips FTC-10's four base area targets (lines 3032–3035). These ten unsupported target
+objects and three table/precision API gaps are **not-applicable**. All 17 new differences
+have individual verdicts in `known_pmi_write.json`; the NIST CTC-02 capture has no target
+semantic difference. The absent `specify_core` application loader remains explicitly unavailable.
+
+Other refusals remain: target sizes/placements that cannot be stated validly, non-exempt movable-target WR3 failures, an unstated group kind, a dimension without its nominal (§5.2.1), a
+projected zone whose model holds no origin geometry (§6.9.2.2), thread/knurl parameter counts
+outside their WHERE rules, non-REAL decimal text, unresolved attribute units/boolean values,
+and the separately scoped hole-definition writer (question 7). They are not silently omitted.
 
 ## Requirements
 
@@ -478,8 +637,8 @@ never a silent fix):
    validates against the target table after only decision 1's closed R1/R2 repairs, else the
    edit is refused naming the violations. Repairs retain instance ids and are reported with
    exact original and new records; recovering repaired original bytes requires that report.
-   No new `express_rules` violation is allowed. For an
-   AP242 file, the edit is refused if it introduces a violation the original did not have;
+   No new `express_rules` violation is allowed outside the exact addition/rule pairs in
+   maintainer decision 2026-10-20. For an AP242 file, every other new violation is refused;
    violations the original already had are reported, not repaired.
 3. **Face provenance** in `step.rs`: each `Part` face and edge records its `advanced_face` /
    `edge_curve` id and its placed instance. step-io fills each arena in ascending id order over
@@ -555,21 +714,21 @@ be read, e.g. the pre-4.0.6 datum forms of §6.5.2):
 | Group | `composite_group_shape_aspect` named 'multiple elements' / 'pattern of features', `shape_aspect_relationship` per member (§6.4); all around / between: `all_around_shape_aspect` / `between_shape_aspect` (§6.4.2–3) |
 | Derived feature | `derived_shape_aspect` (or the Table 3 subtype) with `shape_aspect_deriving_relationship`s (§5.1.4) — written only when the model states a derived feature |
 | Datum | one `datum` per label per part, established by `shape_aspect_relationship` from its `datum_feature` (the feature itself) and/or its `datum_target`s (§6.5, §6.6). A hole or boss datum is a datum feature on the cylindrical faces (§6.5.1, Figure 35); the axis is implied, so specify-core's "hole or boss axis" is written in that form, not as a derived axis |
-| Datum target | `placed_datum_target_feature` (point, line, rectangle, circle, circular curve with `shape_representation_with_parameters`) or `datum_target` on an area feature; `feature_for_datum_target_relationship`; 'movable direction' (§6.6) — read now, written later |
+| Datum target | `placed_datum_target_feature` (point, line, rectangle, circle, circular curve with `shape_representation_with_parameters`) or `datum_target` on an area feature; `feature_for_datum_target_relationship`; named parameters and 'movable direction' (§6.6); WR5 conflicts on additions reported per decision 2026-10-20; non-exempt placed-target WR3 still enforced |
 | Datum system | one `datum_system` per distinct system, `datum_reference_compartment` per position, never shared (§6.9.7); common datums as `datum_reference_element`s (§6.9.8) |
 | Size / location | `dimensional_size` / `dimensional_location` (+ angular, with path, directed) + `dimensional_characteristic_representation` + `shape_dimension_representation` with 'nominal value' (§5.1–§5.2.1); a datum feature with a size is the complex `dimensional_size_with_datum_feature` (§6.5.3) |
-| Decimal places | `value_format_type_qualifier` on the value (§5.4); the part default by the §4.1 construct |
+| Decimal places | `value_format_type_qualifier` on the value (§5.4); the part default by the §4.1 Figure 3 decimal-only cell (WR3/WR4 conflicts reported only on registered additions), or within a complete table cell |
 | Deviations | `plus_minus_tolerance` → `tolerance_value(lower, upper)` with typed `length_measure_with_unit`s (§5.2.3) |
 | Limits | 'upper limit' and 'lower limit' items beside 'nominal value' (§5.2.4) |
 | Fit | `plus_minus_tolerance` → `limits_and_fits(form_variance='H', zone_variance='hole'/'shaft', grade='7', source='')` (§5.2.5); stated limits as 'upper limit'/'lower limit' items beside it |
 | Basic, reference | `descriptive_representation_item('dimensional note','theoretical')` / `'auxiliary'` (§5.3, Table 7); other modifiers under 'modifiers' (Table 8) |
 | Geometric tolerance | the leaf type (`flatness_tolerance`, …); a complex instance only when the table of datum references, modifiers, unit basis, maximum or unequal disposition requires it (§6.9) |
-| Tolerance target | the `datum_feature` / `shape_aspect`; the `dimensional_size` or `dimensional_location` for a feature of size; the `product_definition_shape` for the whole part (§6.1–§6.3) |
-| Tolerance relation | `geometric_tolerance_relationship` 'composite tolerance' / 'precedence' / 'simultaneity' — read now, written later |
-| Zone | `tolerance_zone` + `tolerance_zone_form` (§6.9.2); `runout_zone_definition` (three attributes) only for a stated runout orientation |
-| General tolerance | `property_definition('default tolerances')` → `representation('default tolerances')` with `descriptive_representation_item('tolerance class', <text>)` (decision 3); `default_tolerance_table` read only |
+| Tolerance target | the `datum_feature` / `shape_aspect`; the `dimensional_size` or `dimensional_location` for a feature of size; the `product_definition_shape` for the whole part (§6.1–§6.3); edition 4 also allows `shape_aspect_relationship` with private endpoint aspects (earlier SELECTs do not; no practice section for this target) |
+| Tolerance relation | §6.9.9 `geometric_tolerance_relationship` 'composite' / 'precedence' / 'simultaneity', relating and related frames preserved |
+| Zone | `tolerance_zone` + `tolerance_zone_form` (§6.9.2); `runout_zone_definition` (three attributes) only for a stated runout orientation; §6.9.2.1 'affected plane association' from zone to explicitly typed intersection line/plane or orientation plane (Figures 53–54, descriptions as above); unspecified variants refused; projected origin and length (§6.9.2.2) |
+| General tolerance | `property_definition('default tolerances')` → `representation('default tolerances')` with `descriptive_representation_item('tolerance class', <text>)` (decision 3); §4.1 `default_tolerance_table` → `default_tolerance_table_cell` (typed `SET_REPRESENTATION_ITEM`), related by 'general tolerance definition'; stated counts include decimal places |
 | Thread / knurl | `thread` / `turned_knurl` with one `shape_representation_with_parameters` whose items are exactly the model's fields, named as the WHERE rules name them; 'applied shape', 'partial area occurrence', 'thread runout' relationships |
-| Material | Material practice R2.1 §4.1: `property_definition('material property','material name')` → `representation('material name')` → `descriptive_representation_item(id, name)`, as specify-core's files carry it (decision 2); §4.2 'density' → `measure_representation_item('density measure', POSITIVE_RATIO_MEASURE, derived unit)`, read only |
+| Material | Material practice R2.1 §4.1: `property_definition('material property','material name')` → `representation('material name')` → `descriptive_representation_item(id, name)`, as specify-core's files carry it (decision 2); §4.2 'density' → `measure_representation_item('density measure', POSITIVE_RATIO_MEASURE, derived unit)`; mass SI unit and length unit with exponents +1 and -3 (ISO 10303-41) |
 | Attributes | UDA practice §5–7: `general_property` 'user defined attribute' |
 | Note in words | §7.4 'semantic text': an attribute set of that name, one per note, on the part's `product_definition_shape` or a feature (decisions of 2026-10-09, 3) |
 | Surface texture | ISO 10303-1110 `Surface_texture` / `Standard_surface_texture_parameter`: `property_definition('surface texture')`, related (by 'surface texture parameter') 'surface_condition' property definitions with `surface_texture_representation`s and `general_property` 'surface_condition' (decisions of 2026-10-09, 3) |
@@ -590,7 +749,7 @@ before anything is written (the backstop for everything).
 | ISO 286 grade written wrongly (fits as bare limits) | types | `Iso286Class` is two enums; `limits_and_fits` is built only from it | Ø20 H7, Ø70 g6, and Ø20 H7 (20.000/20.021) read back as fits |
 | Tolerance unit taken from the last dimension written (1000×) | types | every value carries its own unit; the emission layer takes the unit per measure; the writer holds no unit state | tolerances on a part with no dimension; mm values into an inch-context part |
 | Values changed by unit conversion | types | values are kept as stated decimals in their own unit; nothing is converted on write | every value's text kept by read → replace on every inch NIST file |
-| PMI that has been read cannot be written back | design + test | read and write share one model; `replace(part, read(part))` is an operation like any other | read → replace → read over every NIST file and specify input, semantically equal; what the writer cannot write yet (datum targets, tolerance relations) refused by name and pinned |
+| PMI that has been read cannot be written back | design + test | read and write share one model; `replace(part, read(part))` is an operation like any other | read → replace → read over every NIST file and specify input, semantically equal; remaining unsupported forms refused by name; the 13 target refusals became written under decision 2026-10-20 |
 | Malformed `RUNOUT_ZONE_DEFINITION` | validator | written only when the model states an orientation; attribute count checked | validator test with a two-attribute zone |
 | Untyped `MEASURE_WITH_UNIT` | types + validator | the emission layer has only typed measure functions; `express` rejects untyped SELECT values | validator test; scan of every written instance |
 | Complex entities where the simple form is expected | types + validator | `Complex` holds sorted leaves; the mapping table chooses complex only when required; `express` requires a minimal set | validator test with a complex perpendicularity |
@@ -689,8 +848,8 @@ tested; `pmi::write` (and replace built from the removal plan) is the next stage
   `Dimension.nominal` is optional and there is `Dimension.principle`; `Anchor::Geometry` and
   `PartPmi.geometry`; `Note.kind` and `NoteOwner`; `Material` has `id` and `name`;
   `ProjectedZone.end` is optional; `TargetShape::Curve`; `GroupKind::Unstated`;
-  `GeometricTolerance.auxiliary` and `.description`. Reported, not held: the affected-plane
-  zone, a derived feature's explicit geometry, hole definition parameters, datum-system axis
+  `GeometricTolerance.auxiliary` and `.description`; affected-plane zones now include an explicit
+  variant (`affected_plane_kind`). Reported, not held: a derived feature's explicit geometry, hole definition parameters, datum-system axis
   placement, material on a sub-shape, material as a product. Open: what a thread's 'number of
   threads' counts (kept as stated; no pitch derived).
 - **Removal plan** (`crates/haecceity/src/removal.rs`, `tests/removal.rs`): `plan(doc, seeds,
@@ -849,7 +1008,7 @@ Settled by the implementation (where the design was open or silent):
   right it is a second instance composed of it. A knurl's area is its own faces (the model holds
   no other). Ratios take a context-dependent unit 'ratio' with the ratio unit (the reader resolves
   a named unit by its leaves), counts one named 'count'.
-- *Refused, by name* (beyond the design's datum targets and tolerance relations): notes
+- *Historical refusals (superseded by “Writer gaps and schema conflicts” above)*: notes
   (decision 5), tables and the part's decimal places (decision 3), material density
   (decision 2), groups of unstated kind, dimensions without a nominal value, tolerances on a
   `shape_aspect_relationship` (the reader reads one from a feature as its composition), projected
@@ -857,7 +1016,7 @@ Settled by the implementation (where the design was open or silent):
   booleans in attribute sets, attribute units the file does not name uniquely, and values that
   are not Part 21 REALs (written verbatim, never rewritten).
 
-Reader gaps the writer found (`pmi/read.rs`, not changed here): a `boolean_representation_item`'s
+Historical reader gaps the writer found (affected planes, relation composition and boolean lookup are fixed in the current reader): a `boolean_representation_item`'s
 value is looked up as its own attribute (it is `boolean_literal.the_value`), so booleans never
 read; a bare 'thread runout' aspect (WR16, no runout feature) is reported unconsumed (fixed
 2026-10-09: read with its thread, "For specify-core-rust (2026-10-09): U14 and U10" below); a simple
@@ -1149,10 +1308,8 @@ What was done meanwhile is in each.
 - **Graphic presentation** other than datum feature symbols (callouts, polylines, tessellated
   presentation, saved views) derived from the semantics. Existing presentation is kept byte for
   byte, or removed and reported under the `RemovePresentation` policy; it is never updated.
-- **Writing datum targets and tolerance relations** (composite frames). Both are read and in the
-  model; the writer refuses them by name.
 - **PMI on assembly occurrences** (`assembly_component_usage` paths); reported as findings.
-- **Writing material density** (read only).
+- **Density units whose scale is not stated**: refused; known SI mass/length units and inch/foot lengths are written in their own units.
 - **A general EXPRESS rule engine**; named checks cover what the writer emits.
 - **ISO 286 limit computation** from a class.
 - **AP242 XML, external references, validation properties written.**

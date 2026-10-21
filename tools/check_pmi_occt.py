@@ -1,7 +1,7 @@
 """Record what OpenCascade's XCAF reader makes of the files haecceity's PMI writer wrote.
 
     cargo test --release -p haecceity --test pmi_write export_written_files -- --ignored
-    /Users/paul/repos/specify-core/.venv/bin/python tools/check_pmi_occt.py
+    ~/cld/quiddity/.venv/bin/python tools/check_pmi_occt.py [CASE ...]
 
 Every ``tests/fixtures/ap242/write/<case>.step.gz`` (written by the Rust test
 ``export_written_files``: every kind of item the writer makes on a specify-core part, and
@@ -35,12 +35,15 @@ cannot list the map's keys): XCAF puts user defined attributes there, so the wri
 not an authority: where it misreads (its ``known_misreads``), haecceity is rust-correct with
 the clause and the file text.
 
-Run with the specify-core venv (OCP 7.9); nothing in specify-core is changed.
+Run with an OCP venv (OCP 7.9); nothing outside this checkout is changed. Optional CASE
+names select fixtures. If specify_core is absent, its loader status is explicitly unavailable;
+XCAF transfer, safe label walking and the semantic capture still run.
 """
 
 from __future__ import annotations
 
 import gzip
+import importlib.util
 import json
 import re
 import subprocess
@@ -105,6 +108,9 @@ class WrittenCapture(Capture):
     def datum(self, label) -> dict:
         out = super().datum(label)
         obj = XCAFDoc_Datum.Set_s(label).GetObject()
+        if obj.IsDatumTarget() and obj.HasDatumTargetParams():
+            x = obj.GetDatumTargetAxis().XDirection()
+            out["target"]["ref_direction"] = [x.X(), x.Y(), x.Z()]
         shape = obj.GetPresentation()
         if shape.IsNull():
             out["presentation"] = None
@@ -184,8 +190,10 @@ def check(path: Path) -> dict:
     with tempfile.TemporaryDirectory() as tmp:
         plain = Path(tmp) / path.name.removesuffix(".gz")
         plain.write_bytes(data)
-        status = {"loads": ends("load", plain), "reads": ends("read", plain)}
-        if status["loads"] is not True:
+        loads = (ends("load", plain) if importlib.util.find_spec("specify_core") is not None
+                 else {"unavailable": "specify_core is not installed in this environment"})
+        status = {"loads": loads, "reads": ends("read", plain)}
+        if status["reads"] is not True:
             return {"file": path.name, "sha256": capture_pmi_occt.sha256(path), **status}
         record = capture_file(path)
         record["metadata"] = WrittenCapture(plain).metadata(_candidate_names(data.decode("latin-1")))
@@ -196,7 +204,8 @@ def check(path: Path) -> dict:
 def main() -> None:
     if sys.argv[1:2] == ["--child"]:
         child(sys.argv[2], sys.argv[3])
-    files = sorted(WRITE.glob("*.step.gz"))
+    files = ([WRITE / f"{name}.step.gz" for name in sys.argv[1:]]
+             if sys.argv[1:] else sorted(WRITE.glob("*.step.gz")))
     if not files:
         sys.exit(f"no written files in {WRITE}: run export_written_files first")
     for path in files:
@@ -205,7 +214,9 @@ def main() -> None:
         text = json.dumps(record, allow_nan=False, sort_keys=True, separators=(",", ":")) + "\n"
         (WRITE / f"{stem}.occt.json.gz").write_bytes(gzip.compress(text.encode(), mtime=0))
         if record["loads"] is not True:
-            print(path.name, "does not load:", record["loads"], file=sys.stderr)
+            print(path.name, "specify-core loader status:", record["loads"], file=sys.stderr)
+        if record["reads"] is not True:
+            print(path.name, "XCAF reader status:", record["reads"], file=sys.stderr)
             continue
         counts = [
             sum(len(p[k]) for p in record["parts"])

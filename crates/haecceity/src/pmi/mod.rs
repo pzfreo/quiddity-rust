@@ -133,6 +133,8 @@ pub struct PartProvenance {
     pub knurls: Vec<Vec<u64>>,
     pub material: Vec<u64>,
     pub notes: Vec<Vec<u64>>,
+    /// Presentation roots for each note; read only, excluded from consumed semantic ids.
+    pub note_callouts: Vec<Vec<u64>>,
     pub surface_textures: Vec<Vec<u64>>,
     pub attributes: Vec<Vec<u64>>,
     /// Per supplemental geometry: every instance of its item tree.

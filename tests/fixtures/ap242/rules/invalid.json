@@ -360,6 +360,14 @@
   {
    "id": 926,
    "rule": "mechanical_design_and_draughting_relationship.WR3"
+  },
+  {
+   "id": 930,
+   "rule": "geometric_tolerance_relationship.WR3"
+  },
+  {
+   "id": 931,
+   "rule": "geometric_tolerance_relationship.WR3"
   }
  ]
 }

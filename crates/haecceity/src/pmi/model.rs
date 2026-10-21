@@ -1739,6 +1739,25 @@ pub struct Zone {
     pub runout_angle: Option<Value>,
     /// The affected plane feature (§6.9.2.1).
     pub affected_plane: Option<FeatureId>,
+    /// Explicit variant; unspecified legacy planes are read but refused when writing.
+    pub affected_plane_kind: Option<AffectedPlaneKind>,
+}
+
+/// Affected plane variants in §6.9.2.1 Figures 53–54.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum AffectedPlaneKind {
+    IntersectionLine,
+    IntersectionPlane,
+    OrientationPlane,
+}
+impl AffectedPlaneKind {
+    pub(crate) fn description(self) -> &'static str {
+        match self {
+            Self::IntersectionLine => "representative line element",
+            Self::IntersectionPlane => "representative plane element",
+            Self::OrientationPlane => "",
+        }
+    }
 }
 
 /// `projected_zone_definition`: the projection's origin feature and length.
@@ -2201,7 +2220,7 @@ pub enum GeneralTolerance {
         text: String,
         standard: Option<crate::pmi::standards::Iso2768>,
     },
-    /// A `default_tolerance_table` (§4.1), read and reported.
+    /// A `default_tolerance_table` (§4.1), with its cells as stated.
     Table {
         name: String,
         cells: Vec<ToleranceCell>,
@@ -2212,6 +2231,21 @@ pub enum GeneralTolerance {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ToleranceCell {
     pub items: Vec<(String, CellValue)>,
+}
+
+impl ToleranceCell {
+    /// A Figure 3 decimal-only default cell (no range or tolerance is invented).
+    pub(crate) fn decimal_default(&self) -> Option<u8> {
+        let [(name, CellValue::Count(value))] = self.items.as_slice() else {
+            return None;
+        };
+        let v = value.to_f64();
+        (name == "number of decimal places"
+            && v.is_finite()
+            && v.fract() == 0.
+            && (0. ..=255.).contains(&v))
+        .then_some(v as u8)
+    }
 }
 
 /// The value of a table cell item.
@@ -2362,7 +2396,7 @@ pub struct Note {
     pub text: String,
     pub on: Option<NoteOwner>,
     /// The callouts that present it (§7.3), in the order of their instances. Read only:
-    /// `pmi::write` refuses notes of this route by name, and its comparison does not carry them.
+    /// `pmi::write` migrates the requirement to a standard form and removes replaced presentation.
     pub callouts: Vec<Callout>,
 }
 
@@ -2832,6 +2866,24 @@ impl PartPmi {
             };
             if r.relating == r.related {
                 bad(format!("relation {i} relates a tolerance to itself"));
+            }
+            let mut pending = vec![r.related.0];
+            let mut seen = std::collections::BTreeSet::new();
+            while let Some(node) = pending.pop() {
+                if node == r.relating.0 {
+                    bad(format!(
+                        "relation {i} is cyclic (geometric_tolerance_relationship.WR3)"
+                    ));
+                    break;
+                }
+                if seen.insert(node) {
+                    pending.extend(
+                        self.tolerance_relations
+                            .iter()
+                            .filter(|e| e.relating.0 == node)
+                            .map(|e| e.related.0),
+                    );
+                }
             }
             if r.kind == RelationKind::Composite {
                 let kinds = [

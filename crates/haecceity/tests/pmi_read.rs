@@ -2837,8 +2837,7 @@ fn reads_threads_and_knurls_by_their_schema_parameters() {
 
 #[test]
 fn reads_general_tolerance_table_decimal_places_material_density_and_standard() {
-    let r = with_pmi(
-        "#1200=DIMENSIONAL_EXPONENTS(0.,0.,0.,0.,0.,0.,0.);
+    let records = "#1200=DIMENSIONAL_EXPONENTS(0.,0.,0.,0.,0.,0.,0.);
 #1201=NAMED_UNIT(#1200);
 #1202=(MEASURE_REPRESENTATION_ITEM()MEASURE_WITH_UNIT(COUNT_MEASURE(3.),#1201)REPRESENTATION_ITEM('number of decimal places'));
 #1203=DEFAULT_TOLERANCE_TABLE_CELL('',SET_REPRESENTATION_ITEM((#1202)));
@@ -2862,20 +2861,36 @@ fn reads_general_tolerance_table_decimal_places_material_density_and_standard() 
 #1405=DOCUMENT('ISO 1101','Geometrical tolerancing','',#1404);
 #1406=APPLIED_DOCUMENT_REFERENCE(#1405,'',(#1401));
 #1407=OBJECT_ROLE('mandatory','');
-#1408=ROLE_ASSOCIATION(#1407,#1406);",
-    );
+#1408=ROLE_ASSOCIATION(#1407,#1406);";
+    let r = with_pmi(records);
     let p = &r.parts[0];
-    // specify-core's own 'default tolerances' (#513-#515) carries the class; the table is added.
+    // Reader /11 projects Figure 3's anonymous single decimal-only carrier to the
+    // part default, retaining its provenance. Named tables retain the stated cell and digits.
+    // specify-core's own 'default tolerances' (#513-#515) still carries the class.
     assert!(
         matches!(&p.general[0], pmi::GeneralTolerance::Class { text, standard: Some(_) } if text == "ISO 2768-m"),
         "{:?}",
         p.general
     );
-    match &p.general[1] {
-        pmi::GeneralTolerance::Table { cells, .. } => {
+    assert_eq!(p.general.len(), 1);
+    let named = with_pmi(&records.replace(
+        "DEFAULT_TOLERANCE_TABLE('',",
+        "DEFAULT_TOLERANCE_TABLE('precision',",
+    ));
+    assert_eq!(named.parts[0].general.len(), 2);
+    match &named.parts[0].general[1] {
+        pmi::GeneralTolerance::Table { name, cells } => {
+            assert_eq!(name, "precision");
+            assert_eq!(cells.len(), 1);
+            assert_eq!(cells[0].items.len(), 1);
             assert_eq!(cells[0].items[0].0, "number of decimal places");
+            assert!(matches!(&cells[0].items[0].1, pmi::CellValue::Count(v) if v.as_str() == "3."));
         }
         g => panic!("{g:?}"),
+    }
+    assert_eq!(named.parts[0].decimal_places, Some(3));
+    for id in [1203, 1205, 1206] {
+        assert!(named.provenance.parts[0].general[1].contains(&id));
     }
     assert_eq!(p.decimal_places, Some(3));
     let m = p.material.as_ref().unwrap();

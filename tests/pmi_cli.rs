@@ -229,8 +229,8 @@ fn pmi_read_of_one_part() {
 /// whenever the reader's output does: when this fails, bump `pmi_json::READER` if `pmi::read`
 /// changed (a JSON-form change bumps `VERSION` instead), then re-pin both.
 const READER_PIN: (&str, &str) = (
-    "haecceity-pmi-read/8",
-    "d60e06a3e3e6e589a34eb624d34fdab2d15a07fad439c1323816756c21f1db15",
+    "haecceity-pmi-read/11",
+    "b5c164d2d5b67c2dcbbf0434ad2a79d1faf1ad02665cd01199f3f3a8a1451a91",
 );
 
 #[test]
@@ -837,7 +837,7 @@ fn read_back_differences(doc: &Json, back: &Json, label: &str) -> Vec<String> {
     for p in &written.parts {
         let read = &back.parts[p.part.0];
         assert_eq!(read.part, p.part);
-        for d in differences_as_stated(&p.pmi, &read.pmi) {
+        for d in differences_as_stated(&pmi::write::standard_form(&p.pmi), &read.pmi) {
             out.push(format!("{label} part {}: {d}", p.part.0));
         }
     }
@@ -881,8 +881,9 @@ fn pmi_write_replace_round_trips_through_the_command_line() {
     assert!(problems.is_empty(), "{}", problems.join("\n"));
     // The assembly, six of the seven specify-core inputs (nist_ctc_01_merge has dimensions
     // without a nominal value) and the committed NIST models whose refusals are leaves (ftc_07,
-    // stc_06, stc_09, stc_10); of NIST's set, also ftc_08 and stc_07.
-    assert_eq!(written, if with_nist { 13 } else { 11 }, "files written");
+    // stc_06, stc_09, stc_10), plus CTC-02/FTC-10 now their 13 targets are written
+    // under the 2026-10-20 practice exemption; of NIST's set, also ftc_08 and stc_07.
+    assert_eq!(written, if with_nist { 15 } else { 13 }, "files written");
 }
 
 /// One file of [`pmi_write_replace_round_trips_through_the_command_line`]: its problems, and
@@ -943,6 +944,17 @@ fn roundtrip_cli(path: &Path, pins: &Json) -> (Vec<String>, bool) {
         return (problems, false);
     }
     let (report, _) = write_ok(&output, &stem);
+    let note_count: usize = doc["parts"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|p| p["pmi"]["notes"].as_array().map_or(0, Vec::len))
+        .sum();
+    assert_eq!(
+        report["note_migrations"].as_array().unwrap().len(),
+        note_count,
+        "{stem}: each legacy note migration is reported"
+    );
     if report["presentation_removed"].as_array().unwrap().len() as u64
         != pin["presentation removed"].as_u64().unwrap()
     {
@@ -999,15 +1011,9 @@ fn roundtrip_cli(path: &Path, pins: &Json) -> (Vec<String>, bool) {
     (problems, true)
 }
 
-/// spool_fits' PMI as `pmi read` gives it, without its notes (which the writer refuses), and the
-/// STEP path.
+/// spool_fits' complete reading, including legacy notes to migrate, and the STEP path.
 fn spool_writable() -> (Json, String) {
-    let (mut json, step) = spool();
-    json["parts"][0]["pmi"]
-        .as_object_mut()
-        .unwrap()
-        .remove("notes");
-    (json, step)
+    spool()
 }
 
 /// The same write twice gives the same bytes and the same report; a `.gz` output is the same
@@ -1050,7 +1056,6 @@ fn pmi_write_is_deterministic_and_keeps_inch_values_as_stated() {
         let (mut doc, _) = ok(&["pmi", "read", p]);
         for part in doc["parts"].as_array_mut().unwrap() {
             let pmi = part["pmi"].as_object_mut().unwrap();
-            pmi.remove("tolerance_relations");
             pmi.remove("attributes");
             // The writer refuses hole definitions (docs/step-ap242.md, Q-holes).
             pmi.remove("holes");
@@ -1082,7 +1087,7 @@ fn pmi_write_is_deterministic_and_keeps_inch_values_as_stated() {
 
 /// Every refusal names its cause on stderr, exits 1, and creates nothing: a document bound to
 /// another file or reader version, a remove naming PMI to write, presentation in the way under
-/// `--presentation refuse`, items the writer does not write (datum targets), a value that is not
+/// `--presentation refuse`, invalid parameters, a value that is not
 /// a Part 21 REAL; an existing file at the destination is left as it was.
 #[test]
 fn pmi_write_refusals_name_the_cause_and_create_nothing() {
@@ -1129,11 +1134,21 @@ fn pmi_write_refusals_name_the_cause_and_create_nothing() {
     let p = ctc02.to_str().unwrap();
     let (nist, _) = ok(&["pmi", "read", p]);
     let (out, o) = write_cli(p, &nist, "datum-targets", &["--mode", "replace"]);
-    let err = write_refused(&out, &o, "datum targets");
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+    let report: Json = serde_json::from_slice(&o.stdout).unwrap();
+    let conflicts = report["practice_schema_conflicts"].as_array().unwrap();
+    assert_eq!(conflicts.len(), 9);
     assert!(
-        err.contains("DatumTarget(0): datum targets are read but not written yet"),
-        "{err}"
+        conflicts
+            .iter()
+            .all(|v| v["rule"] == "datum_target.WR5" && v["id"].as_u64().is_some())
     );
+    let (read, _) = ok(&["pmi", "read", out.to_str().unwrap()]);
+    assert_eq!(
+        read["parts"][0]["pmi"]["datum_targets"],
+        nist["parts"][0]["pmi"]["datum_targets"]
+    );
+    no_temporary_left(&out, "datum targets");
 
     // An existing destination stays as it was.
     let json = scratch().join("keep.json");

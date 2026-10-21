@@ -622,7 +622,7 @@ fn roundtrip(
                 let doc1 = Document::parse(bytes.clone()).unwrap();
                 let r1 = pmi::read(&doc1, &parts1).unwrap();
                 for (i, p) in o.written.iter().enumerate() {
-                    for d in differences(p, &r1.parts[i]) {
+                    for d in differences(&pmi::write::standard_form(p), &r1.parts[i]) {
                         problems.push(format!("{stem} part {i}: {d}"));
                     }
                 }
@@ -660,6 +660,16 @@ fn roundtrip(
                             report.validated_against
                         )
                         .into(),
+                    );
+                }
+                if !report.practice_schema_conflicts.is_empty() {
+                    let mut counts = BTreeMap::<&str, usize>::new();
+                    for v in &report.practice_schema_conflicts {
+                        *counts.entry(v.rule).or_default() += 1;
+                    }
+                    entry.insert(
+                        "practice/schema conflicts".into(),
+                        serde_json::to_value(counts).unwrap(),
                     );
                 }
                 // The same with policy Refuse: refused, naming the presentation, or written.
@@ -754,6 +764,14 @@ fn compare_pins(
     must_run: impl Fn(&str) -> bool,
     problems: &mut Vec<String>,
 ) {
+    if let Some(dir) = std::env::var_os("HAECCEITY_PMI_WRITE_ACTUAL") {
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(
+            Path::new(&dir).join(format!("{section}.json")),
+            serde_json::to_vec_pretty(actual).unwrap(),
+        )
+        .unwrap();
+    }
     let pins = load_pins();
     let reasons = pins["reasons"].as_object().unwrap();
     let pinned = pins[section].as_object().unwrap();
@@ -830,4 +848,168 @@ fn read_replace_read_keeps_nist_files() {
         &mut problems,
     );
     assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
+
+#[test]
+fn newly_written_kinds_roundtrip_into_a_clean_copy() {
+    let bytes = file_bytes(&common::fixtures().join("ap242/specify/spool_fits.step.gz"));
+    let parts = read_part_definitions(&bytes).unwrap();
+    let doc = Document::parse(bytes).unwrap();
+    let mut schema = haecceity::p21::Edit::new();
+    schema.set_file_schema(vec![haecceity::express::TARGET_SCHEMA.into()]);
+    let doc = Document::parse(doc.apply(&schema).unwrap().bytes).unwrap();
+    let original = common::pmi_gaps::every_kind();
+    let (edit, _) = pmi::write(
+        &doc,
+        &parts,
+        &[(PartId(0), original.clone())],
+        Mode::Replace,
+        PresentationPolicy::RemovePresentation,
+    )
+    .unwrap();
+    let first = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
+    let read = pmi::read(&first, &parts).unwrap();
+    assert!(differences(&pmi::write::standard_form(&original), &read.parts[0]).is_empty());
+    let (edit, _) = pmi::write(
+        &doc,
+        &parts,
+        &[(PartId(0), read.parts[0].clone())],
+        Mode::Replace,
+        PresentationPolicy::RemovePresentation,
+    )
+    .unwrap();
+    let second = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
+    let read2 = pmi::read(&second, &parts).unwrap();
+    assert!(differences(&read.parts[0], &read2.parts[0]).is_empty());
+}
+
+#[test]
+fn read_replace_read_keeps_corpus_nist_requirements() {
+    let Some(corpus) = common::corpus_dir() else {
+        return;
+    };
+    let mut files: Vec<_> = std::fs::read_dir(corpus.join("nist"))
+        .unwrap()
+        .map(|e| e.unwrap().path())
+        .filter(|p| p.extension().is_some_and(|e| e == "stp"))
+        .collect();
+    files.sort();
+    assert_eq!(
+        files.len(),
+        10,
+        "update coverage explicitly if the corpus changes"
+    );
+    let mut problems = Vec::new();
+    let mut actual = serde_json::Map::new();
+    roundtrip(&files, &mut problems, &mut actual);
+    compare_pins("corpus_roundtrip", &actual, |_| true, &mut problems);
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
+
+#[test]
+fn practice_targets_and_precision_roundtrip_into_a_clean_copy() {
+    let bytes = file_bytes(&common::fixtures().join("ap242/specify/spool_fits.step.gz"));
+    let parts = read_part_definitions(&bytes).unwrap();
+    let original_doc = Document::parse(bytes).unwrap();
+    let (remove, _) = pmi::write(
+        &original_doc,
+        &parts,
+        &[(PartId(0), PartPmi::default())],
+        Mode::Remove,
+        PresentationPolicy::RemovePresentation,
+    )
+    .unwrap();
+    let clean = Document::parse(original_doc.apply(&remove).unwrap().bytes).unwrap();
+    for original in [
+        common::pmi_targets::every_kind(),
+        PartPmi {
+            decimal_places: Some(3),
+            ..PartPmi::default()
+        },
+    ] {
+        let (edit, report) = pmi::write(
+            &clean,
+            &parts,
+            &[(PartId(0), original.clone())],
+            Mode::Replace,
+            PresentationPolicy::RemovePresentation,
+        )
+        .unwrap();
+        assert!(!report.practice_schema_conflicts.is_empty());
+        let doc = Document::parse(clean.apply(&edit).unwrap().bytes).unwrap();
+        let first = pmi::read(&doc, &parts).unwrap();
+        assert!(differences(&original, &first.parts[0]).is_empty());
+        let (edit, _) = pmi::write(
+            &clean,
+            &parts,
+            &[(PartId(0), first.parts[0].clone())],
+            Mode::Replace,
+            PresentationPolicy::RemovePresentation,
+        )
+        .unwrap();
+        let doc = Document::parse(clean.apply(&edit).unwrap().bytes).unwrap();
+        let second = pmi::read(&doc, &parts).unwrap();
+        assert!(differences(&first.parts[0], &second.parts[0]).is_empty());
+    }
+}
+
+#[test]
+fn thirteen_nist_target_subsets_with_datums_and_required_features_roundtrip_into_clean_copies() {
+    let mut total = 0;
+    for (name, count) in [
+        ("nist_ctc_02_asme1_ap242-e2", 9),
+        ("nist_ftc_10_asme1_ap242-e2", 4),
+    ] {
+        let bytes = file_bytes(&common::fixtures().join(format!("ap242/nist/{name}.stp.gz")));
+        let parts = read_part_definitions(&bytes).unwrap();
+        let source = Document::parse(bytes).unwrap();
+        let original = pmi::read(&source, &parts).unwrap();
+        let wanted = common::pmi_targets::from_read(&original.parts[0]);
+        assert_eq!(wanted.datum_targets.len(), count);
+        let (edit, _) = pmi::write(
+            &source,
+            &parts,
+            &[(PartId(0), PartPmi::default())],
+            Mode::Remove,
+            PresentationPolicy::RemovePresentation,
+        )
+        .unwrap();
+        let clean = Document::parse(source.apply(&edit).unwrap().bytes).unwrap();
+        assert!(
+            pmi::read(&clean, &parts).unwrap().parts[0]
+                .datum_targets
+                .is_empty()
+        );
+        let (edit, report) = pmi::write(
+            &clean,
+            &parts,
+            &[(PartId(0), wanted.clone())],
+            Mode::Replace,
+            PresentationPolicy::RemovePresentation,
+        )
+        .unwrap_or_else(|e| panic!("{name}: {e}"));
+        let written = clean.apply(&edit).unwrap();
+        assert!(
+            report.practice_schema_conflicts.iter().all(|v| written
+                .ids
+                .values()
+                .any(|&id| id == v.id)
+                && v.rule == "datum_target.WR5")
+        );
+        assert_eq!(
+            report
+                .practice_schema_conflicts
+                .iter()
+                .filter(|v| v.rule == "datum_target.WR5")
+                .count(),
+            count
+        );
+        let doc = Document::parse(written.bytes).unwrap();
+        let read = pmi::read(&doc, &parts).unwrap();
+        let diff = differences(&wanted, &read.parts[0]);
+        assert!(diff.is_empty(), "{name}: {}", diff.join("\n"));
+        assert_eq!(read.parts[0].datum_targets.len(), count);
+        total += count;
+    }
+    assert_eq!(total, 13);
 }
