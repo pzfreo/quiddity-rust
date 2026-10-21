@@ -273,73 +273,75 @@ pub struct Inventory {
 }
 
 impl Inventory {
-    /// The accepted inventory (`accepted_set` on every family) with its patterns derived
-    /// (`_derive_patterns`): each rejected candidate's record and defining faces dropped, in
-    /// order. Section recesses are not projected here (`recognise` does, from the run).
-    pub fn accepted(self) -> Features {
-        let mut f = self.physical;
-        let mut rejected: BTreeMap<reconcile::Family, BTreeSet<usize>> = BTreeMap::new();
-        for d in &self.dispositions {
-            if d.outcome == reconcile::Outcome::Rejected {
-                rejected
-                    .entry(d.candidate.family)
-                    .or_default()
-                    .insert(d.candidate.index);
-            }
-        }
-        for (family, indices) in &rejected {
-            // Risers have no Family::field; use the same slot as their special arm below.
-            let field = family.field().unwrap_or("risers");
-            let statuses = f
-                .evidence_status
-                .get_mut(field)
-                .expect("every candidate has a status");
-            drop_rejected(statuses, indices);
-            use reconcile::Family as F;
-            match family {
-                F::AngledSteps => drop_rejected(&mut f.angled_steps, indices),
-                F::Blends => drop_rejected(&mut f.blends, indices),
-                F::Bosses => drop_rejected(&mut f.bosses, indices),
-                F::Chamfers => drop_rejected(&mut f.chamfers, indices),
-                F::CircularBlindSteps => drop_rejected(&mut f.circular_blind_steps, indices),
-                F::DoubleDBores => drop_rejected(&mut f.double_d_bores, indices),
-                F::EdgeOpenCircularPockets => {
-                    drop_rejected(&mut f.edge_open_circular_pockets, indices)
+    parity_entry! {
+        /// The accepted inventory (`accepted_set` on every family) with its patterns derived
+        /// (`_derive_patterns`): each rejected candidate's record and defining faces dropped, in
+        /// order. Section recesses are not projected here (`recognise` does, from the run).
+        pub fn accepted(self) -> Features {
+            let mut f = self.physical;
+            let mut rejected: BTreeMap<reconcile::Family, BTreeSet<usize>> = BTreeMap::new();
+            for d in &self.dispositions {
+                if d.outcome == reconcile::Outcome::Rejected {
+                    rejected
+                        .entry(d.candidate.family)
+                        .or_default()
+                        .insert(d.candidate.index);
                 }
-                F::Fillets => drop_rejected(&mut f.fillets, indices),
-                F::Grooves => drop_rejected(&mut f.grooves, indices),
-                F::Holes => drop_rejected(&mut f.holes, indices),
-                F::OrientedSlots => drop_rejected(&mut f.oriented_slots, indices),
-                F::Passages => drop_rejected(&mut f.section_passages, indices),
-                F::Plates => drop_rejected(&mut f.plates, indices),
-                F::Pockets => drop_rejected(&mut f.pockets, indices),
-                F::PrismaticPockets => drop_rejected(&mut f.prismatic_pockets, indices),
-                F::RectangularBlindSlots => drop_rejected(&mut f.rectangular_blind_slots, indices),
-                F::Risers => {
-                    // Not a reconciliation field (`Family::field`), so dropped here.
-                    drop_rejected(&mut f.risers, indices);
-                    let defining = f.defining.get_mut("risers").expect("risers are carried");
-                    drop_rejected(defining, indices);
-                    continue;
-                }
-                F::Slots => drop_rejected(&mut f.slots, indices),
-                F::ThinWallBodies => drop_rejected(&mut f.thin_wall_bodies, indices),
-                F::TurnedSteps => drop_rejected(&mut f.turned_steps, indices),
             }
-            let field = family.field().expect("a carried family has a field");
-            let defining = f
-                .defining
-                .get_mut(field)
-                .expect("every family has defining faces");
-            drop_rejected(defining, indices);
+            for (family, indices) in &rejected {
+                // Risers have no Family::field; use the same slot as their special arm below.
+                let field = family.field().unwrap_or("risers");
+                let statuses = f
+                    .evidence_status
+                    .get_mut(field)
+                    .expect("every candidate has a status");
+                drop_rejected(statuses, indices);
+                use reconcile::Family as F;
+                match family {
+                    F::AngledSteps => drop_rejected(&mut f.angled_steps, indices),
+                    F::Blends => drop_rejected(&mut f.blends, indices),
+                    F::Bosses => drop_rejected(&mut f.bosses, indices),
+                    F::Chamfers => drop_rejected(&mut f.chamfers, indices),
+                    F::CircularBlindSteps => drop_rejected(&mut f.circular_blind_steps, indices),
+                    F::DoubleDBores => drop_rejected(&mut f.double_d_bores, indices),
+                    F::EdgeOpenCircularPockets => {
+                        drop_rejected(&mut f.edge_open_circular_pockets, indices)
+                    }
+                    F::Fillets => drop_rejected(&mut f.fillets, indices),
+                    F::Grooves => drop_rejected(&mut f.grooves, indices),
+                    F::Holes => drop_rejected(&mut f.holes, indices),
+                    F::OrientedSlots => drop_rejected(&mut f.oriented_slots, indices),
+                    F::Passages => drop_rejected(&mut f.section_passages, indices),
+                    F::Plates => drop_rejected(&mut f.plates, indices),
+                    F::Pockets => drop_rejected(&mut f.pockets, indices),
+                    F::PrismaticPockets => drop_rejected(&mut f.prismatic_pockets, indices),
+                    F::RectangularBlindSlots => drop_rejected(&mut f.rectangular_blind_slots, indices),
+                    F::Risers => {
+                        // Not a reconciliation field (`Family::field`), so dropped here.
+                        drop_rejected(&mut f.risers, indices);
+                        let defining = f.defining.get_mut("risers").expect("risers are carried");
+                        drop_rejected(defining, indices);
+                        continue;
+                    }
+                    F::Slots => drop_rejected(&mut f.slots, indices),
+                    F::ThinWallBodies => drop_rejected(&mut f.thin_wall_bodies, indices),
+                    F::TurnedSteps => drop_rejected(&mut f.turned_steps, indices),
+                }
+                let field = family.field().expect("a carried family has a field");
+                let defining = f
+                    .defining
+                    .get_mut(field)
+                    .expect("every family has defining faces");
+                drop_rejected(defining, indices);
+            }
+            f.hole_patterns = hole_patterns::recognise_hole_patterns(&f.holes);
+            f.gusset_rib_patterns = gussets::recognise_gusset_rib_patterns(&f.gusset_ribs);
+            f.slot_patterns = recess_patterns::recognise_slot_patterns(&f.slots);
+            f.pocket_patterns = recess_patterns::recognise_pocket_patterns(&f.pockets);
+            f.oriented_slot_patterns =
+                oriented_slots::recognise_oriented_slot_patterns(&f.oriented_slots);
+            f
         }
-        f.hole_patterns = hole_patterns::recognise_hole_patterns(&f.holes);
-        f.gusset_rib_patterns = gussets::recognise_gusset_rib_patterns(&f.gusset_ribs);
-        f.slot_patterns = recess_patterns::recognise_slot_patterns(&f.slots);
-        f.pocket_patterns = recess_patterns::recognise_pocket_patterns(&f.pockets);
-        f.oriented_slot_patterns =
-            oriented_slots::recognise_oriented_slot_patterns(&f.oriented_slots);
-        f
     }
 }
 
