@@ -34,7 +34,7 @@ def main():
         ids, out = Path(tmp) / 'ids.txt', Path(tmp) / 'scores.json'
         ids.write_text('\n'.join(m['id'] for m in baseline['models']) + '\n')
         env = dict(os.environ, CARGO_BUILD_JOBS='6', RUST_TEST_THREADS='6')
-        subprocess.run(['cargo', 'run', '--release', '--example', 'mfinstseg_score', '--', str(root), str(ids), str(out), '6'], cwd=repo, env=env, check=True)
+        subprocess.run(['cargo', 'run', '--release', '--features', 'python-parity', '--example', 'mfinstseg_score', '--', str(root), str(ids), str(out), '6'], cwd=repo, env=env, check=True)
         report = json.loads(out.read_text())
     assert not report['label_errors'] and not report['label_warnings'] and not report['recognition_failures'] and not report['section_recess_refusals']
     scores = [c['counts'] for c in report['classes']]
