@@ -158,14 +158,6 @@
   },
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
-    "family": "recognise_fillets",
-    "key": "{\"include_cylindrical\":true} evidence refused by Python only",
-    "count": 1,
-    "verdict": "rust-correct",
-    "reason": "OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid and Python refuses evidence for it."
-  },
-  {
-    "file": "cadgenbench_inputs/cgb202.step.gz",
     "family": "recognise_flats",
     "key": "{} evidence refused by Python only",
     "count": 1,
@@ -1045,14 +1037,6 @@
     "reason": "All 8 faces: the port's latitude range is the face's edges' (within 1e-14, sampled densely and projected); OpenCascade's overshoots by 6.0e-4, the control polygon of a pcurve it builds on import."
   },
   {
-    "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "family": "recognise_hole_patterns",
-    "key": "{\"csinks\":\"auto\"} records: 7 vs 7 records, fields {\"center\", \"holes\"}",
-    "count": 1,
-    "verdict": "rust-correct",
-    "reason": "The grid's member holes carry the opening-location difference recorded for this file's recognise_holes."
-  },
-  {
     "file": "ttt_inputs/sm-hanger.step",
     "family": "recognise_sheet_metal_bodies",
     "key": "{} records: 1 vs 1 records, fields {\"flat_pattern\"}",
@@ -1064,9 +1048,9 @@
     "count": 1,
     "family": "recognise_pockets",
     "file": "mfcadpp/10049.step",
-    "key": "{} records: 3 vs 3 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
+    "key": "{} records: 3 vs 3 records, fields {\"hi\"}",
     "verdict": "rust-correct",
-    "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
+    "reason": "The square run is now established by the unique longer body-relative transverse envelope; a square cannot be a presentation-only axis gauge because fingerprints consume long_axis semantically. The covariance test in tests/tie_breaks.rs exercises the formerly changing axis-cycle placement. The square width/run interchange now uses one intrinsic body-relative convention; this resolves the formerly listed axis/coordinate-label difference without dropping the entry or changing its wall claim. The remaining hi difference was already present at 5fb1706: independent OpenCascade gives radius 0.747778401591 and cap axis coordinates 2.066027147327 and 3.066027147327 mm, so the true upper end is 3.813805548918 mm, which publishes as Rust 3.81, not the twice-rounded-radius result 3.82. Motion tests retain the square gauge and its defining faces."
   },
   {
     "count": 1,
@@ -1080,17 +1064,17 @@
     "count": 1,
     "family": "recognise_pockets",
     "file": "mfcadpp/10146.step",
-    "key": "{} records: 4 vs 4 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
+    "key": "{} evidence faces differ",
     "verdict": "rust-correct",
-    "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
+    "reason": "The square run is now established by the unique longer body-relative transverse envelope; a square cannot be a presentation-only axis gauge because fingerprints consume long_axis semantically. The covariance test in tests/tie_breaks.rs exercises the formerly changing axis-cycle placement. The existing square-pocket axis-label difference is now a intrinsic body-relative convention, so this same entry names the remaining evidence difference instead. OpenCascade planes 10/12 and 11/13 are the two 2-mm opposed wall pairs of one square footprint on floor 27. Rust retains their complete union [10,11,12,13], already retained at 5fb1706, while Python names [11,13]. Axis interchange cannot change that union, classification, sizes or result-local occurrence ID; tests/tie_breaks.rs checks the square under rigid motions."
   },
   {
     "count": 1,
     "family": "recognise_pockets",
     "file": "mfcadpp_holdout/118.step",
-    "key": "{} records: 2 vs 2 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
+    "key": "{} evidence faces differ",
     "verdict": "rust-correct",
-    "reason": "Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
+    "reason": "ADR 0011 and motion-correspondence evidence: long_axis is semantic, so the in-plane square role must be established by the solid's unequal transverse envelope, rather than XYZ or face index. Rust selects the unique longer body-relative transverse run and retains the union of all supporting walls; otherwise it refuses. tests/tie_breaks.rs pins a symmetric refusal and verifies fingerprints (including their actual axes and sizes) after translation, X90, Y180 and the formerly failing axis-cycle move. Only the axis/coordinate-label part of this difference is changed; existing independently established raw-radius/dimension differences remain. Previous evidence: Motion-invariance evidence: the 2 mm square wall-pair footprint admits both pairs at width == length within COORD_FLOOR. Retain all defining walls and choose equal-width interpretations by original face identity, which survives placement, rather than world axis order or the last bits of a translated coordinate. tests/invariance.rs checks the same faces under translation, principal rotations and a generic rotation in the part frame; mfcadpp/10038 also checks the formerly changing depth interpretation. Frozen Python chooses a different pair or axis at this tie."
   },
   {
     "count": 1,
@@ -1184,9 +1168,9 @@
     "count": 1,
     "family": "recognise_pockets",
     "file": "mfcadpp/10103.step",
-    "key": "{} records: 4 vs 4 records, fields {\"hi\", \"length\", \"lo\", \"long_axis\", \"w_center\", \"width\", \"width_axis\"}",
+    "key": "{} records: 4 vs 4 records, fields {\"length\", \"lo\", \"width\"}",
     "verdict": "rust-correct",
-    "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band. Equal width/length wall pairs retain both defining pairs and select the record by original face identity, stable under placement."
+    "reason": "ADR 0011 and motion-correspondence evidence: long_axis is semantic, so the in-plane square role must be established by the solid's unequal transverse envelope, rather than XYZ or face index. Rust selects the unique longer body-relative transverse run and retains the union of all supporting walls; otherwise it refuses. tests/tie_breaks.rs pins a symmetric refusal and verifies fingerprints (including their actual axes and sizes) after translation, X90, Y180 and the formerly failing axis-cycle move. Only the axis/coordinate-label part of this difference is changed; existing independently established raw-radius/dimension differences remain. Previous evidence: Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band. Equal width/length wall pairs retain both defining pairs and select the record by original face identity, stable under placement."
   },
   {
     "count": 1,
@@ -1208,9 +1192,9 @@
     "count": 1,
     "family": "recognise_pockets",
     "file": "mfcadpp/10245.step",
-    "key": "{} records: 3 vs 3 records, fields {\"hi\", \"length\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
+    "key": "{} records: 3 vs 3 records, fields {\"length\"}",
     "verdict": "rust-correct",
-    "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band. Equal width/length wall pairs retain both defining pairs and select the record by original face identity, stable under placement."
+    "reason": "The square run is now established by the unique longer body-relative transverse envelope; a square cannot be a presentation-only axis gauge because fingerprints consume long_axis semantically. The covariance test in tests/tie_breaks.rs exercises the formerly changing axis-cycle placement. The existing square-gauge axis labels now agree, so this same entry pins only the previously listed length difference. Independent OpenCascade gives cap radius 1.562284924055 and cap axes 21.489536593815 and 26.691411505718 mm: true overall length 8.326444760013 publishes as Rust 8.33, not Python 8.32 from twice-rounded cap radii. Raw-span motion and measurement-rounding tests remain unchanged; the complete four-wall square evidence is retained."
   },
   {
     "count": 1,
@@ -1219,22 +1203,6 @@
     "key": "{} records: 4 vs 4 records, fields {\"length\"}",
     "verdict": "rust-correct",
     "reason": "Independent analytic and motion-invariance evidence: reductions use raw cylinder radii and wall spans, then tolerance-aware ties-to-even rounding; position publication happens last. OpenCascade independently reads radius 0.642597010474 mm on mfcadpp/10000.step, giving diameter 1.285194020948 mm and rounded width 1.29 mm, rather than twice rounded radius 0.64 mm. Cap extensions also use the raw radii. tests/invariance.rs checks all five principal motions; policy::tests pins half-way sizes and values beyond the coordinate-noise band."
-  },
-  {
-    "count": 1,
-    "family": "recognise_holes",
-    "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "key": "{\"csinks\":\"auto\"} records: 30 vs 30 records, fields {\"axis\", \"location\"}",
-    "verdict": "rust-correct",
-    "reason": "Motion-invariance evidence: the equally wide distinct mouths of the doubly counterbored nist_ftc_10 through holes have no geometric drilling-entry preference. Tie-breaking by the original cylinder support direction (on the lowest-index mouth face) moves with the part; world-high does not. The record consistently retains one counterbore on the same original faces through all five rigid motions. Both ends remain in the original face inventory and fingerprints, and the existing one-counterbore record schema is retained. Previous independent verdict retained: Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge. Previous independent verdict retained: Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
-  },
-  {
-    "count": 1,
-    "family": "recognise_holes",
-    "file": "nist/nist_ftc_10_asme1_rb.stp",
-    "key": "{} records: 30 vs 30 records, fields {\"axis\", \"location\"}",
-    "verdict": "rust-correct",
-    "reason": "Motion-invariance evidence: the equally wide distinct mouths of the doubly counterbored nist_ftc_10 through holes have no geometric drilling-entry preference. Tie-breaking by the original cylinder support direction (on the lowest-index mouth face) moves with the part; world-high does not. The record consistently retains one counterbore on the same original faces through all five rigid motions. Both ends remain in the original face inventory and fingerprints, and the existing one-counterbore record schema is retained. Previous independent verdict retained: Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge. Previous independent verdict retained: Hole opening locations differ by 0.002-0.02 mm: this file gives no exact parameter-space curves for these bores' boundary edges, so OpenCascade approximates B-spline pcurves on import and sizes the face's axial range from their control polygons, overshooting the boundary; the port measures the exact edge."
   },
   {
     "count": 1,
@@ -1467,5 +1435,149 @@
     "key": "{} records: 5 vs 5 records, fields {\"hi\", \"lo\"}",
     "verdict": "rust-correct",
     "reason": "Analytic band geometry and motion-invariance evidence: face-coordinate bands are represented by the midpoint of their extreme supporting planes, which reverses with the part instead of selecting the world-lowest face. The full-precision band coordinates are retained so hi - lo measures the raw span before any position rounding. plates::tests pins the 0.5 mm band midpoint under reversal; tests/invariance.rs checks the analytic 0.4999 mm fixture under a 0.00051 mm translation and every corpus part under principal motions. All original defining faces remain."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp/10038.step",
+    "key": "{} records: 4 vs 4 records, fields {\"d_hi\", \"d_lo\", \"depth\", \"hi\", \"length\", \"lo\", \"long_axis\", \"open_sign\", \"w_center\", \"width_axis\"}",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: equal published widths do not let a face index choose depth. OpenCascade independently measures the competing spans as 6.604417336301 versus 1.110764220727 mm, and 27.820120692311 versus 1.424895624516 mm. Rust keeps the unique shallow reading in each group; the second is a 27.82-mm run of depth 1.42 mm, rather than a depth-27.82 reading of a 2-mm run. The role permutation/translation unit test proves this decision intrinsically; corpus motion tests preserve the complete combined wall evidence."
+  },
+  {
+    "count": 1,
+    "family": "recognise_hole_patterns",
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "key": "{\"csinks\":\"auto\"} records: 13 vs 14 records, fields {}",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: the row of diameter-8.38 drill-point holes at y=128 has independently verified OpenCascade x coordinates [-122,-74,-25,25,74,122]. Under the existing pitch tolerance, equal three-member candidates [-74,-25,25] and [-25,25,74] both have span 99 and pitch 49.5 and share two members. A proper half-turn exchanges them. The previous greedy input order selected one; Rust refuses the tied allocation. The symmetric L-shaped member test exercises the same overlap tie under rotations, translation and input permutations, without changing a tolerance."
+  },
+  {
+    "count": 1,
+    "family": "recognise_angled_steps",
+    "file": "mfcadpp_holdout/483.step",
+    "key": "{} records: 3 vs 3 records, fields {\"corner\"}",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011: equal-distance x supports at 6.095095283663 and 10.137418667605 cannot be resolved by coordinate order. Independent OpenCascade gives the bevel plane through (6.095095283663,29.381038860266,24.738497159151), normal (-0.9866267809523651,-0.16299569045706033,0). Python's putative corner (6.095095283663,29.381038860266,13.063651414565) is exactly on that cutting plane, so it is an existing bevel edge, not the removed sharp corner. The opposite x support has plane gap 3.9882645078671675 mm and uniquely proves the free virtual corner; Rust publishes x=10.137. The three real angled steps are retained. tests/tie_breaks.rs pins the independently established corner and carries the feature through all requested motions in its explicit frame."
+  },
+  {
+    "count": 1,
+    "family": "recognise_pockets",
+    "file": "mfcadpp_holdout/265.step",
+    "key": "{} records: 3 vs 3 records, fields {\"hi\", \"lo\", \"long_axis\", \"w_center\", \"width_axis\"}",
+    "verdict": "rust-correct",
+    "reason": "Independent OpenCascade plane measurements: faces 5/7 lie at y=25.928672778221/27.928672778221 and faces 6/8 at z=10.235442753049/12.235442753049, giving one 2x2 square recess with floor face 30 at x=3.178259204712. Both perpendicular wall readings describe this same box. The body transverse spans are y=44.597706048835 and z=13.300106698560464, so the uniquely longer body-relative run is y; Rust retains all four walls [5,6,7,8] and floor [30]. Python chooses the z reading by its axis order. The other two pockets retain their geometry. The square-recess correspondence control verifies the selected body-relative run after translation and principal-axis rotations."
+  },
+  {
+    "count": 1,
+    "family": "recognise_bosses",
+    "file": "cadgenbench/flanged_spool_132.step",
+    "key": "{} records: 3 vs 3 records, fields {\"axis\", \"location\"}",
+    "verdict": "rust-correct",
+    "reason": "End-state ties are directed away from the owning body boundary-area centroid, using true face area moments. Independent OpenCascade SurfaceProperties measures centroid(s) [[-2.010590868462072e-14, 1.8599870326361854e-13, 70.37584785928544]]; this is the same quantity used by bosses::body_origin, unlike surface parameter midpoints. Nonzero axial offset establishes a physical end; zero offset retains an end gauge. Sizes and cylinder claims are retained. Z30/X30/X90/translation/reversal controls verify geometry and evidence covariance."
+  },
+  {
+    "count": 1,
+    "family": "recognise_bosses",
+    "file": "cadgenbench/threaded_connector_109.step",
+    "key": "{} records: 11 vs 11 records, fields {\"axis\", \"location\"}",
+    "verdict": "rust-correct",
+    "reason": "End-state ties are directed away from the owning body boundary-area centroid, using true face area moments. Independent OpenCascade SurfaceProperties measures centroid(s) [[0.022059213068122502, 0.05736909052458868, 206.01633452627934]]; this is the same quantity used by bosses::body_origin, unlike surface parameter midpoints. Nonzero axial offset establishes a physical end; zero offset retains an end gauge. Sizes and cylinder claims are retained. Z30/X30/X90/translation/reversal controls verify geometry and evidence covariance."
+  },
+  {
+    "count": 1,
+    "family": "recognise_bosses",
+    "file": "cadgenbench_inputs/cgb217.step.gz",
+    "key": "{} records: 9 vs 9 records, fields {\"axis\", \"location\"}",
+    "verdict": "rust-correct",
+    "reason": "End-state ties are directed away from the owning body boundary-area centroid, using true face area moments. Independent OpenCascade SurfaceProperties measures centroid(s) [[-5.390738438165694, 0.07437560058840552, -8.597102505232607]]; this is the same quantity used by bosses::body_origin, unlike surface parameter midpoints. Nonzero axial offset establishes a physical end; zero offset retains an end gauge. Sizes and cylinder claims are retained. Z30/X30/X90/translation/reversal controls verify geometry and evidence covariance."
+  },
+  {
+    "count": 1,
+    "family": "recognise_bosses",
+    "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
+    "key": "{} records: 4 vs 4 records, fields {\"axis\", \"location\"}",
+    "verdict": "rust-correct",
+    "reason": "End-state ties are directed away from the owning body boundary-area centroid, using true face area moments. Independent OpenCascade SurfaceProperties measures centroid(s) [[6.891029262862062, 1.6020666059437753e-16, 6.23402683322006e-14]]; this is the same quantity used by bosses::body_origin, unlike surface parameter midpoints. Nonzero axial offset establishes a physical end; zero offset retains an end gauge. Sizes and cylinder claims are retained. Z30/X30/X90/translation/reversal controls verify geometry and evidence covariance."
+  },
+  {
+    "count": 1,
+    "family": "recognise_bosses",
+    "file": "gramel/GRM-05_depth_lock_bolt.step",
+    "key": "{} records: 3 vs 3 records, fields {\"axis\", \"location\"}",
+    "verdict": "rust-correct",
+    "reason": "End-state ties are directed away from the owning body boundary-area centroid, using true face area moments. Independent OpenCascade SurfaceProperties measures centroid(s) [[-1.8525166823338807e-13, -5.116327018489675e-17, 13.574908524697042]]; this is the same quantity used by bosses::body_origin, unlike surface parameter midpoints. Nonzero axial offset establishes a physical end; zero offset retains an end gauge. Sizes and cylinder claims are retained. Z30/X30/X90/translation/reversal controls verify geometry and evidence covariance."
+  },
+  {
+    "count": 1,
+    "family": "recognise_bosses",
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "key": "{} records: 3 vs 3 records, fields {\"axis\", \"location\"}",
+    "verdict": "rust-correct",
+    "reason": "End-state ties are directed away from the owning body boundary-area centroid, using true face area moments. Independent OpenCascade SurfaceProperties measures centroid(s) [[0.04262888327075982, -0.6850137257588306, 81.1297156159733]]; this is the same quantity used by bosses::body_origin, unlike surface parameter midpoints. Nonzero axial offset establishes a physical end; zero offset retains an end gauge. Sizes and cylinder claims are retained. Z30/X30/X90/translation/reversal controls verify geometry and evidence covariance."
+  },
+  {
+    "count": 1,
+    "family": "recognise_bosses",
+    "file": "nist/nist_ftc_06_asme1_rd.stp",
+    "key": "{} records: 8 vs 8 records, fields {\"axis\", \"location\"}",
+    "verdict": "rust-correct",
+    "reason": "End-state ties are directed away from the owning body boundary-area centroid, using true face area moments. Independent OpenCascade SurfaceProperties measures centroid(s) [[-0.0003975606494559004, 34.47490451073887, -113.59747175360474]]; this is the same quantity used by bosses::body_origin, unlike surface parameter midpoints. Nonzero axial offset establishes a physical end; zero offset retains an end gauge. Sizes and cylinder claims are retained. Z30/X30/X90/translation/reversal controls verify geometry and evidence covariance."
+  },
+  {
+    "count": 1,
+    "family": "recognise_bosses",
+    "file": "cadgenbench_inputs/cgb241.step",
+    "key": "{} records: 3 vs 3 records, fields {\"axis\", \"location\"}",
+    "verdict": "rust-correct",
+    "reason": "All three bosses, cylinder claims and sizes are retained. Independent OpenCascade SurfaceProperties gives the single body area 619139.6843780482 and centroid (-208.49605717379535,-4.624815684346591,-49.48355332187378). The diameter-46 boss lies at z=-76.374722717657..-29.609102204657 (midpoint -52.991912461157); its body centroid is +3.508359139283 mm above that midpoint, so the free direction is negative z. Python defaults to high z. Rust now uses true face area moments for this same quantity, replacing surface parameter midpoints; the directed NIST and end-gauge cylinder controls verify covariance."
+  },
+  {
+    "count": 1,
+    "family": "recognise_hole_patterns",
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "key": "{\"csinks\":\"auto\"} records: 7 vs 7 records, fields {\"center\", \"holes\", \"pitch\"}",
+    "verdict": "rust-correct",
+    "reason": "All 30 holes and seven patterns are retained, including CounterBore(10, 10) on the four diameter-7 length-55 through bores. Independent OpenCascade measures bore endpoints z=-27.5 and +27.5 and equal diameter-10 length-10 mouths extending to z=+-37.5. Rust retains the identical mouth dimensions as an end gauge and claims both mouths. The pre-existing diameter-2.5 opening-location difference remains: this file omits exact pcurves for those edges; OpenCascade fits B-spline pcurves and boxes their control polygons, while Rust measures the true edges. The grid centre inherits that difference. No tolerance is changed."
+  },
+  {
+    "count": 1,
+    "family": "recognise_holes",
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "key": "{\"csinks\":\"auto\"} records: 30 vs 30 records, fields {\"location\"}",
+    "verdict": "rust-correct",
+    "reason": "All 30 holes and seven patterns are retained, including CounterBore(10, 10) on the four diameter-7 length-55 through bores. Independent OpenCascade measures bore endpoints z=-27.5 and +27.5 and equal diameter-10 length-10 mouths extending to z=+-37.5. Rust retains the identical mouth dimensions as an end gauge and claims both mouths. The pre-existing diameter-2.5 opening-location difference remains: this file omits exact pcurves for those edges; OpenCascade fits B-spline pcurves and boxes their control polygons, while Rust measures the true edges. The grid centre inherits that difference. No tolerance is changed."
+  },
+  {
+    "count": 1,
+    "family": "recognise_holes",
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "key": "{} records: 30 vs 30 records, fields {\"location\"}",
+    "verdict": "rust-correct",
+    "reason": "All 30 holes and seven patterns are retained, including CounterBore(10, 10) on the four diameter-7 length-55 through bores. Independent OpenCascade measures bore endpoints z=-27.5 and +27.5 and equal diameter-10 length-10 mouths extending to z=+-37.5. Rust retains the identical mouth dimensions as an end gauge and claims both mouths. The pre-existing diameter-2.5 opening-location difference remains: this file omits exact pcurves for those edges; OpenCascade fits B-spline pcurves and boxes their control polygons, while Rust measures the true edges. The grid centre inherits that difference. No tolerance is changed."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "recognise_fillets",
+    "key": "{\"include_cylindrical\":true} evidence refused by Python only",
+    "count": 0,
+    "verdict": "rust-correct",
+    "reason": "OpenCascade's BRepCheck reports BRepCheck_UnorientableShape for this solid after its import healing (ShapeFix) re-orients wires; the file's own topology is closed and consistently oriented, so the port accepts the solid and Python refuses evidence for it. Inactive count 0 after rolled-support recognition changes the records from 288 to 296: tests/corpus.rs skips its evidence comparison when record values differ. The refusal behaviour itself is unchanged (direct Rust discover_verified still accepts all 296 occurrences; the captured Python evidence refuses). The historical entry is retained rather than deleted; if record parity returns, the evidence comparison and its count must be revisited."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb202.step.gz",
+    "family": "recognise_fillets",
+    "key": "{\"include_cylindrical\":true} records: 296 vs 288 records, fields {}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Rolled supporting planes used to exclude 8 external quarter-cylinder fillets whose run is principal Y. Live OpenCascade via ~/cld/quiddity/.venv/bin/python independently confirms radius 3, angular span pi/2, two perpendicular planar supports each at distance 3 from the cylinder axis (error below 6e-11), and owning-solid classification IN/OUT at radial offsets -0.001/+0.001 for every additional face. Rounded surface anchors identify the faces independently of import face order: [[-204.58, -132.193, 20.947], [-204.58, -132.145, -30.502], [-202.964, -132.193, -36.532], [-202.964, -132.193, 26.977], [-170.282, -132.366, 78.279], [-170.282, -127.0, -87.834], [-165.499, -132.366, 82.292], [-165.499, -132.192, -91.846]]. The intrinsic support-plane fallback now retains these fillets. No Python value is used as geometric truth."
+  },
+  {
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "family": "recognise_fillets",
+    "key": "{\"include_cylindrical\":true} records: 130 vs 128 records, fields {}",
+    "count": 1,
+    "verdict": "rust-correct",
+    "reason": "Rolled supporting planes used to exclude 2 external quarter-cylinder fillets whose run is principal Z. Live OpenCascade via ~/cld/quiddity/.venv/bin/python independently confirms radius 1.5, angular span pi/2, two perpendicular planar supports each at distance 1.5 from the cylinder axis (error below 6e-11), and owning-solid classification IN/OUT at radial offsets -0.001/+0.001 for every additional face. Rounded surface anchors identify the faces independently of import face order: [[-29.72, -14.359, 20.943], [-25.293, 27.76, 20.943]]. The intrinsic support-plane fallback now retains these fillets. No Python value is used as geometric truth."
   }
 ]

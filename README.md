@@ -1086,6 +1086,59 @@ it finds the same features on the same faces with the same values, and on the co
 is compared with caller-space recognition, every difference listed with a verdict in
 `tests/fixtures/known_framed_document.json`.
 
+### Intrinsic ties and presentation gauges
+
+ADR 0011 permits a representative of an unobservable gauge, not a hidden material direction.
+Dominant-component-positive axis signs (including recognition-4's Z-first tie), free-axis
+section bases, cyclic boundary starts, interchangeable equal chamfer legs, and square-grid
+angles are presentation choices. Reversing an axis also reverses its intervals and the physical
+endpoints stay fixed; these choices do not select a face claim, subtype or intrinsic size.
+`map_features` preserves record order and IDs when canonicalising directions. IDs are still
+result-local `<family>/<index>` addresses: the legacy caller-space coordinate sorts do not
+promise stable IDs between independently recognised placements; correspondence carries identity
+by evidence, and framed mapping does not re-sort those records.
+
+Symmetric interpretation ties refuse: recess run/width interpretations,
+turning-axis support, overlapping equal-size pattern allocations, competing cap or wall evidence,
+ambiguous bounded coordinate partitions, and competing sheet hinge/skin proofs cannot be resolved by XYZ, sign, face number or input order.
+When no orthogonal basis exists, an axial frame also requires a unique geometric direction
+line; two equal oblique lines establish their intrinsic acute bisector, while a remaining
+multidirection tie uses the existing `no-analytic-direction` frame refusal.
+A square recess's `long_axis` is consumed semantically by fingerprints and pattern grouping,
+so it requires a unique body-relative transverse direction; a symmetric body cannot supply one.
+Record-only entry points omit those unproved candidates; existing evidence paths retain
+`CompetingCaps`/`SharedEvidence` errors, while contradictory equidistant hole-end evidence reports
+`Unknown`. There is no new document schema or refusal family. A plain through cylinder's end sign
+remains a gauge because it chooses no side-dependent step claim. A tied profile origin is an
+affine mean of coaxial supports; unequal inward hole geometry and grid populations decide
+intrinsically before any output representative is chosen.
+
+When a boss's end states tie, a nonzero axial boundary-area moment about its midpoint
+establishes the body-relative direction away from the body's boundary-area centroid, computed
+from true surface area moments rather than surface parameter midpoints. A zero moment retains
+the boss with an end gauge. Symmetric hole-mouth profiles likewise retain the bore, omitting
+unproved one-sided counterbore or spotface attribution; tied countersink matches omit only that
+attachment. Equivalent closing faces are retained together as context. A direction or end gauge
+never removes a feature. A directed representative of an exactly symmetric part is understood
+modulo its stabilising symmetry: the undirected physical axis and both endpoints move with the
+part, while no material end is asserted.
+
+Matching counterbore or spotface dimensions at interchangeable mouths are retained, with
+both mouths claimed; the end attribution is a presentation gauge. The omission above applies
+only when the two readings differ, so an end gauge cannot lose identical machining callouts.
+
+The invariance harness also reports absent, reclassified and introduced occurrences per family,
+using the Python rigid-motion sweep's maximum-cardinality defining-face containment matching,
+same-family preference, overlap score and final pair-list tie. Baseline motion limits from `5fb1706`
+are per part and motion and can only fall. The companion `tests/inventory_floor.rs` checks
+per-file, per-family raw physical and reconciled inventories, including the published unified
+section-recess records and patterns, across all 34 goldens, 100 corpus
+parts and 1,319 captured parts against the same revision. A lower baseline requires a named,
+evidence-backed allowance in `inventory_floor.json`; motion stability cannot hide lost records.
+`tests/tie_breaks.rs` additionally checks claims, sizes and result-local IDs through frame and
+square-lattice presentation mappings. The 34 pinned golden parts additionally run Z30,
+X30, X90 and translation, with face correspondence checked geometrically before matching.
+
 ## What parity means
 
 Python's *specified* numeric behaviour is matched exactly: rounding grids, summation order,

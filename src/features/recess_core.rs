@@ -22,7 +22,7 @@ use super::recess_obround::{
 };
 use super::recess_radii::with_proved_corner_radius;
 use super::recess_records::{AXES, Channel, Pocket, Recess, Slot};
-use super::recess_reduce::{Proposal, collapse_collinear_proposals, merge_proposals};
+use super::recess_reduce::{Proposal, collapse_collinear_proposals, merge_proposals_in};
 use super::volume_probe::{Spans, prism_is_empty};
 use super::wire_seed::{inner_wires, wire_seed};
 use crate::kernel::brep::{Arc, Part};
@@ -112,6 +112,22 @@ impl<'a> Graph<'a> {
             .filter(|n| theirs.contains(n))
             .collect()
     }
+}
+
+/// Assign run/depth from intrinsic extents; an unresolved geometric tie refuses.
+fn slot_axes(axes: [usize; 2], overlaps: [f64; 2], envelope: [f64; 3]) -> Option<(usize, usize)> {
+    let [a, b] = axes;
+    let difference = overlaps[0] - overlaps[1];
+    let near = difference.abs() <= LENGTH_TIE_FRAC * overlaps[0].max(overlaps[1]);
+    let score = if near && (envelope[a] - envelope[b]).abs() > COORD_FLOOR {
+        envelope[a] - envelope[b]
+    } else {
+        difference
+    };
+    if score.abs() <= COORD_FLOOR {
+        return None;
+    }
+    Some(if score > 0.0 { (a, b) } else { (b, a) })
 }
 
 /// One solid's scan: its faces, cylinders, envelope and graph.
@@ -317,19 +333,11 @@ impl<'c, 'a> Scan<'c, 'a> {
             return None;
         }
         let width = (c_b - c_a).abs();
-        // The longer shared extent is the length, the other the depth (sorted descending,
-        // stable); a near tie goes to the part's longer axis.
-        let ((ax0, ov0), (ax1, ov1)) = if py::order(ov[1], ov[0]).is_gt() {
-            ((others[1], ov[1]), (others[0], ov[0]))
-        } else {
-            ((others[0], ov[0]), (others[1], ov[1]))
-        };
-        let (long_axis, length, depth_axis) =
-            if (ov0 - ov1) <= LENGTH_TIE_FRAC * ov0 && self.part_ext[ax1] > self.part_ext[ax0] {
-                (ax1, ov1, ax0)
-            } else {
-                (ax0, ov0, ax1)
-            };
+        // Within the established overlap tie band, the solid's transverse extents decide.
+        // If those too are equal, neither XYZ order nor last-bit noise proves a run axis.
+        let (long_axis, depth_axis) =
+            slot_axes([others[0], others[1]], [ov[0], ov[1]], self.part_ext)?;
+        let length = overlap_len(&fa.bb, &fb.bb, long_axis);
         if width > length + COORD_FLOOR || length >= SLOT_MAX_SPAN_FRAC * self.part_ext[long_axis] {
             return None;
         }
@@ -497,7 +505,11 @@ pub fn slot_proposals(
         }
     }
     candidates.extend(slots_from_ends(&scan.faces, &scan.cylinders));
-    let merged = collapse_collinear_proposals(ctx, solid, merge_proposals(candidates));
+    let merged = collapse_collinear_proposals(
+        ctx,
+        solid,
+        merge_proposals_in(candidates, Some(scan.part_ext)),
+    );
     let extended = extend_obround_proposals(merged, &scan.cylinders, strict)?;
     Ok(extended
         .into_iter()
@@ -539,7 +551,11 @@ pub fn pocket_proposals(
     }
     candidates.extend(corner_notch_proposals(&scan.faces, &scan.envelope));
     candidates.extend(pockets_from_ends(&scan.faces, &scan.cylinders));
-    let extended = extend_obround_proposals(merge_proposals(candidates), &scan.cylinders, strict)?;
+    let extended = extend_obround_proposals(
+        merge_proposals_in(candidates, Some(scan.part_ext)),
+        &scan.cylinders,
+        strict,
+    )?;
     let proposals: Vec<Proposal<Pocket>> = extended
         .into_iter()
         .map(|p| {
@@ -825,4 +841,25 @@ fn corner_notch_proposals(faces: &[Face], pbb: &Bounds) -> Vec<Proposal<Pocket>>
         out.push(group.swap_remove(0).1);
     }
     out
+}
+
+#[cfg(test)]
+mod axis_tie_tests {
+    use super::*;
+    #[test]
+    fn tied_overlap_and_envelope_refuses_after_axis_permutation_and_reversal() {
+        for axes in [[0, 1], [1, 0], [0, 2], [2, 0], [1, 2], [2, 1]] {
+            assert_eq!(slot_axes(axes, [12., 12.], [40.; 3]), None);
+            assert_eq!(
+                slot_axes(axes, [12.1, 12.], [40.; 3]),
+                Some((axes[0], axes[1]))
+            );
+            let mut envelope = [40.; 3];
+            envelope[axes[1]] = 60.;
+            assert_eq!(
+                slot_axes(axes, [12., 12.], envelope),
+                Some((axes[1], axes[0]))
+            );
+        }
+    }
 }

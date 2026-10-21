@@ -139,9 +139,9 @@
     "file": "cadgenbench_inputs/cgb242.step.gz",
     "check": "caller_space",
     "family": "bosses",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same boss cylinder: the axis is negated and the location moves to the other end, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
-    "max_differing": 1
+    "verdict": "rust-correct",
+    "reason": "Resolved: boss free ends now follow a uniquely open end or the intrinsic axial boundary-area moment of their owning body; a zero moment retains a presentation end gauge. The symmetric-cylinder and NIST CTC05 controls verify claims, physical endpoints and context under Z30/X30/X90/translation/reversal. The old frame-versus-caller-space discrepancy must remain absent (zero allowance). Historical observation: Equivalent: the same boss cylinder: the axis is negated and the location moves to the other end, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 0
   },
   {
     "file": "cadgenbench_inputs/cgb242.step.gz",
@@ -931,9 +931,9 @@
     "file": "nist/nist_ftc_06_asme1_rd.stp",
     "check": "caller_space",
     "family": "bosses",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same boss cylinder: the axis is negated and the location moves to the other end, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
-    "max_differing": 4
+    "verdict": "rust-correct",
+    "reason": "Resolved: boss free ends now follow a uniquely open end or the intrinsic axial boundary-area moment of their owning body; a zero moment retains a presentation end gauge. The symmetric-cylinder and NIST CTC05 controls verify claims, physical endpoints and context under Z30/X30/X90/translation/reversal. The old frame-versus-caller-space discrepancy must remain absent (zero allowance). Historical observation: Equivalent: the same boss cylinder: the axis is negated and the location moves to the other end, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
+    "max_differing": 0
   },
   {
     "file": "nist/nist_ftc_06_asme1_rd.stp",
@@ -2909,6 +2909,14 @@
     "family": "section_recesses",
     "verdict": "equivalent",
     "reason": "Equivalent geometry expressed in the recognition run's section basis: the inferred frame changes run sense (swapping ends and interval), u/v axes, boundary start/winding, open-profile material side and occurrence order. Python prepare_framed_part(part).recognise() reproduces run/end reversal on 10000 and reordering on 10047 (oracle 6d544e0). Lifting boundary vertices, arc midpoints and end-surface samples to file coordinates on every matched occurrence of these 69 files agrees within 0.001558 mm, below the document test's 0.01 mm publication-grid bound. Classification, body and both evidence lists agree; the caller-space publication test separately checks exact Python record fields and order on the 30 quality parts.",
+    "max_differing": 4
+  },
+  {
+    "file": "nist/nist_ftc_10_asme1_rb.stp",
+    "check": "caller_space",
+    "family": "holes",
+    "verdict": "equivalent",
+    "reason": "The four double-counterbored holes have interchangeable ends. Independent OpenCascade establishes diameter-7 length-55 bores between z=-27.5 and +27.5 and equal diameter-10 length-10 mouths extending to z=+-37.5. Caller space presents axis -Z at +37.5; the inferred-frame API presents +Z at -37.5. Both retain CounterBore(10, 10) and claim the bore plus both mouths: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. tests/tie_breaks.rs::symmetric_double_counterbores_preserve_ftc10_and_captured_inventory checks both APIs retain 30 holes/seven patterns and verifies the physical bore endpoints, dimensions and claims under rigid motions. Only the presentation end gauge differs; no numeric tolerance or allowance changes.",
     "max_differing": 4
   }
 ]

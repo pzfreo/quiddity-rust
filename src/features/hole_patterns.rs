@@ -346,15 +346,9 @@ pub fn recognise_hole_patterns(holes: &[HoleRecord]) -> Vec<HolePattern> {
         }
         let locations: Vec<V3> = members.iter().map(|m| m.location).collect();
         candidates.extend(linear_array_candidates(&members, &locations, hole_linear));
-        candidates.sort_by_key(|c| std::cmp::Reverse(c.1.len()));
-        let mut used: Vec<usize> = Vec::new();
-        for (pattern, idx) in candidates {
-            if idx.iter().any(|i| used.contains(i)) {
-                continue;
-            }
-            used.extend(idx);
-            patterns.push(pattern);
-        }
+        patterns.extend(super::pattern_geometry::allocate_candidates(
+            candidates, &locations,
+        ));
     }
     patterns
 }

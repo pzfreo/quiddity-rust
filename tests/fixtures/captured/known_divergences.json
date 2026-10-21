@@ -387,5 +387,68 @@
     "test": "tests/test_plate_attribution.py::test_real_face_coordinate_clusters_include_exact_tolerance_only[0.5-3]",
     "verdict": "rust-correct",
     "reason": "Analytic face-band midpoint: planes at 0 and 0.4999 (or 0.5) have an intrinsic midpoint 0.24995 (or 0.25), rather than the lowest coordinate Python selects. The same source faces remain and the full-precision slab span survives reversal and a 0.00051 mm translation (plates::tests; tests/invariance.rs)."
+  },
+  {
+    "count": 1,
+    "file": "eb62c370e8bb503b.step.gz",
+    "function": "recognise_slots",
+    "options": {},
+    "test": "tests/test_slot_attribution.py::test_route_matrix_matches_fresh_complete_role_inventory[part1-4-0]",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011 and correspondence-consumer evidence: this is a 20x20 through window in stock 120x60x20. The directional Slot.long_axis is consumed as a semantic fingerprint/pattern axis, so its square width/run interchange cannot be an arbitrary XYZ or face-order gauge. The stock uniquely establishes the 120-mm transverse direction as run; Rust uses that intrinsic direction and retains all four walls. A symmetric 40x40 stock square-pocket control refuses, and the corpus square-recess motion test checks the actual fingerprint axis under translation, X90, Y180 and an axis-cycle move without changing the fingerprint schema or tolerances."
+  },
+  {
+    "count": 1,
+    "file": "eb62c370e8bb503b.step.gz",
+    "function": "recognise_slots",
+    "options": {},
+    "test": "tests/test_slot_claims.py::test_a_candidate_merged_away_gives_up_its_walls",
+    "verdict": "rust-correct",
+    "reason": "ADR 0011 and correspondence-consumer evidence: this is a 20x20 through window in stock 120x60x20. The directional Slot.long_axis is consumed as a semantic fingerprint/pattern axis, so its square width/run interchange cannot be an arbitrary XYZ or face-order gauge. The stock uniquely establishes the 120-mm transverse direction as run; Rust uses that intrinsic direction and retains all four walls. A symmetric 40x40 stock square-pocket control refuses, and the corpus square-recess motion test checks the actual fingerprint axis under translation, X90, Y180 and an axis-cycle move without changing the fingerprint schema or tolerances."
+  },
+  {
+    "count": 1,
+    "file": "8adc57b328863b43.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+    "verdict": "rust-correct",
+    "reason": "All bosses are retained. Independent OpenCascade SurfaceProperties gives the owning body boundary-area centroid [[11.243718957117412, 2.6301377460097785e-16, 26.488541905790008]]. Its nonzero axial offset from the first boss midpoint directs that boss away from the body centre, unlike Python’s high-coordinate fallback; the other boss records and sizes are unchanged. Rust uses true face area moments for this same quantity. A zero offset instead retains an end gauge; the symmetric-cylinder and NIST CTC05 motion controls cover both cases."
+  },
+  {
+    "count": 1,
+    "file": "0a3141da4c6d054d.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_recogniser_contract.py::test_writing_claims_changes_nothing_about_the_records",
+    "verdict": "rust-correct",
+    "reason": "All bosses are retained. Independent OpenCascade SurfaceProperties gives the owning body boundary-area centroid [[4.3013666205785264e-13, 1.0444333215180704e-15, 0.885906040267824]]. Its nonzero axial offset from the first boss midpoint directs that boss away from the body centre, unlike Python’s high-coordinate fallback; the other boss records and sizes are unchanged. Rust uses true face area moments for this same quantity. A zero offset instead retains an end gauge; the symmetric-cylinder and NIST CTC05 motion controls cover both cases."
+  },
+  {
+    "count": 1,
+    "file": "a6a6d0ca1d0d10bd.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_boss_attribution.py::test_stepped_external_shaft_and_distinct_equal_radius_occurrences",
+    "verdict": "rust-correct",
+    "reason": "All bosses are retained. Independent OpenCascade SurfaceProperties gives the owning body boundary-area centroid [[2.5366682288258446, -3.844222580216967e-14, 0.8102307353599374]]. Its nonzero axial offset from the first boss midpoint directs that boss away from the body centre, unlike Python’s high-coordinate fallback; the other boss records and sizes are unchanged. Rust uses true face area moments for this same quantity. A zero offset instead retains an end gauge; the symmetric-cylinder and NIST CTC05 motion controls cover both cases."
+  },
+  {
+    "count": 1,
+    "file": "f2bd461093efbb24.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[toroidal_blends_turned]",
+    "verdict": "rust-correct",
+    "reason": "All bosses are retained. Independent OpenCascade SurfaceProperties gives the owning body boundary-area centroid [[11.243718957117412, 2.6301377460097785e-16, 26.488541905790008]]. Its nonzero axial offset from the first boss midpoint directs that boss away from the body centre, unlike Python’s high-coordinate fallback; the other boss records and sizes are unchanged. Rust uses true face area moments for this same quantity. A zero offset instead retains an end gauge; the symmetric-cylinder and NIST CTC05 motion controls cover both cases."
+  },
+  {
+    "count": 1,
+    "file": "0a3141da4c6d054d.step.gz",
+    "function": "recognise_bosses",
+    "options": {},
+    "test": "tests/test_golden_parity.py::test_package_matches_pinned_draftwright_semantic_golden[turned_steps_and_grooves]",
+    "verdict": "rust-correct",
+    "reason": "All bosses are retained. Independent OpenCascade SurfaceProperties gives the owning body boundary-area centroid [[4.3013666205785264e-13, 1.0444333215180704e-15, 0.885906040267824]]. Its nonzero axial offset from the first boss midpoint directs that boss away from the body centre, unlike Python’s high-coordinate fallback; the other boss records and sizes are unchanged. Rust uses true face area moments for this same quantity. A zero offset instead retains an end gauge; the symmetric-cylinder and NIST CTC05 motion controls cover both cases."
   }
 ]

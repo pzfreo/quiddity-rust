@@ -39,9 +39,8 @@ fn occurrence(proposal: Proposal<Pocket>) -> (Occurrence<Pocket>, Vec<usize>) {
     (found, members.into_iter().collect())
 }
 
-/// Every pocket with its faces, in (width, centre) order. Competing caps at one end do not
-/// refuse here: the record is extended from the first matching cap cluster at each end and
-/// keeps only those clusters, as `recognise_pockets` does (`strict_cap_ambiguity=False`).
+/// Every pocket with its faces, in (width, centre) order. Competing cap clusters skip the
+/// ambiguous occurrence on this record path; the evidence path returns `CompetingCaps`.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Pocket>> {
     body_scoped(ctx, |ctx, solid| pocket_proposals(ctx, solid, false))
         .unwrap_or_else(|_| unreachable!("only a strict scan refuses"))

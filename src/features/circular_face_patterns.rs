@@ -98,7 +98,7 @@ fn face_axis(part: &Part, face: usize, area: f64) -> Option<Axis> {
 }
 
 fn same_axis(a: &Axis, b: &Axis, part_scale: f64) -> bool {
-    py::dot(&a.direction, &b.direction) > 1.0 - 1e-8
+    py::dot(&a.direction, &b.direction).abs() > 1.0 - 1e-8
         && length(cross(sub(a.origin, b.origin), a.direction))
             <= COORD_FLOOR.max(part_scale * AXIS_LINE_FRAC)
 }
@@ -120,15 +120,18 @@ fn axes(facts: &[FaceFact], centre: V3, part_scale: f64) -> Vec<Axis> {
     }
     // A stable sort on the negated score, as Python's.
     merged.sort_by(|a, b| (-a.score).total_cmp(&-b.score));
-    merged.truncate(4);
+    // A four-axis budget may not select the first of equally scored physical axes.
+    if merged.len() > 4 && merged[3].score == merged[4].score {
+        // Only the cutoff group is ambiguous. Higher-supported axes remain valid trials;
+        // refusing the entire list would lose a uniquely supported principal pattern.
+        let cutoff = merged[3].score;
+        merged.retain(|a| a.score > cutoff);
+    } else {
+        merged.truncate(4);
+    }
     if merged.is_empty() {
-        merged = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
-            .map(|direction| Axis {
-                origin: centre,
-                direction,
-                score: 0.0,
-            })
-            .to_vec();
+        // Trial directions must come from the part, rather than three caller-space axes.
+        return Vec::new();
     }
     merged
         .into_iter()
@@ -345,7 +348,7 @@ fn recognise_solid(
     let deflection = part_scale * MESH_DEFLECTION_FRAC;
     let tolerance = deflection * MATCH_DEFLECTIONS;
     // A face whose area cannot be integrated leaves the solid unread (not read as area 0).
-    let facts: Vec<FaceFact> = faces
+    let mut facts: Vec<FaceFact> = faces
         .iter()
         .map(|&face| {
             let area = part.face_mass(face)?[0];
@@ -358,6 +361,24 @@ fn recognise_solid(
             })
         })
         .collect::<Option<_>>()?;
+    if facts.iter().all(|f| f.axis.is_none()) {
+        // Planar fallback trials pass through the surface-area centroid, which moves with
+        // this solid. A plane's STEP parameter origin need not sit on a symmetry axis.
+        let area = py::fsum(facts.iter().map(|f| f.area));
+        if area <= 0.0 {
+            return None;
+        }
+        let centre = [0, 1, 2].map(|i| py::fsum(facts.iter().map(|f| f.area * f.centre[i])) / area);
+        for fact in &mut facts {
+            if let Surface::Plane { frame } = part.faces[fact.face].surface {
+                fact.axis = Some(Axis {
+                    origin: centre,
+                    direction: frame.z,
+                    score: fact.area,
+                });
+            }
+        }
+    }
     let mut clouds = Clouds {
         part,
         deflection,
@@ -365,7 +386,12 @@ fn recognise_solid(
         total: 0,
     };
     let mut probes = std::collections::HashMap::new();
-    for axis in axes(&facts, bounds.centre(), part_scale) {
+    let mut winner = None;
+    let mut winner_score = None;
+    'axis: for axis in axes(&facts, bounds.centre(), part_scale) {
+        if winner_score.is_some_and(|score| axis.score < score) {
+            break;
+        }
         'count: for count in (MIN_COUNT..=MAX_COUNT).rev() {
             let pitch = TAU / count as f64;
             let mut excluded = BTreeSet::new();
@@ -429,12 +455,18 @@ fn recognise_solid(
                         .into_iter()
                         .map(|g| g.into_iter().collect())
                         .collect();
-                    return Some((record, groups));
+                    // Equal-ranked distinct physical axes prove no unique circular reading.
+                    if winner.is_some() {
+                        return None;
+                    }
+                    winner_score = Some(axis.score);
+                    winner = Some((record, groups));
+                    continue 'axis;
                 }
             }
         }
     }
-    None
+    winner
 }
 
 /// The surface's `geom_type` name, as the area-per-kind comparison keys it.
@@ -487,4 +519,48 @@ pub fn discover_with_groups(
         .collect();
     out.sort_by(|a, b| py::tuple_order(&a.0.record.sort_key(), &b.0.record.sort_key()));
     out
+}
+
+#[cfg(test)]
+mod axis_tie_tests {
+    use super::*;
+    #[test]
+    fn axis_budget_refuses_equal_support_after_motion_and_input_reversal() {
+        for angle in [0_f64, 30., 90.] {
+            let (s, c) = angle.to_radians().sin_cos();
+            let rotate = |v: V3| [c * v[0] - s * v[1], s * v[0] + c * v[1], v[2]];
+            let mut facts: Vec<_> = [
+                [1., 0., 0.],
+                [0., 1., 0.],
+                [0., 0., 1.],
+                [1., 1., 0.],
+                [1., 0., 1.],
+            ]
+            .into_iter()
+            .enumerate()
+            .map(|(face, d)| FaceFact {
+                face,
+                centre: [123.456, -78.9, 41.3],
+                area: 1.,
+                kind: "CYLINDER",
+                axis: Some(Axis {
+                    origin: [123.456, -78.9, 41.3],
+                    direction: py::unit(rotate(d)).unwrap(),
+                    score: 1.,
+                }),
+            })
+            .collect();
+            assert!(axes(&facts, [123.456, -78.9, 41.3], 10.).is_empty());
+            facts.reverse();
+            assert!(axes(&facts, [123.456, -78.9, 41.3], 10.).is_empty());
+            // An ambiguous budget cutoff cannot discard a stronger, independent axis.
+            facts[0].axis.as_mut().unwrap().score = 2.;
+            let expected = facts[0].axis.unwrap().direction;
+            let kept = axes(&facts, [123.456, -78.9, 41.3], 10.);
+            assert_eq!(kept.len(), 1);
+            assert_eq!(kept[0].direction, expected);
+            facts.reverse();
+            assert_eq!(axes(&facts, [123.456, -78.9, 41.3], 10.).len(), 1);
+        }
+    }
 }

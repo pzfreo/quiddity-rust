@@ -22,6 +22,13 @@ pub enum End {
 /// that end (within a margin for lips dipping off the end plane), nearest first
 /// (`_end_partners`).
 pub fn end_partners(part: &Part, seg: &Segment, s_end: f64) -> Vec<usize> {
+    ranked_end_partners(part, seg, s_end)
+        .into_iter()
+        .map(|(_, face)| face)
+        .collect()
+}
+
+fn ranked_end_partners(part: &Part, seg: &Segment, s_end: f64) -> Vec<(f64, usize)> {
     let d = seg.direction;
     let margin = policy::length_tol(seg.diameter, STACK_GAP_FRAC)
         .max((0.45 * (seg.s_hi - seg.s_lo)).min(0.5 * seg.diameter));
@@ -54,98 +61,131 @@ pub fn end_partners(part: &Part, seg: &Segment, s_end: f64) -> Vec<usize> {
         }
     }
     ranked.sort_by(|a, b| py::order(a.0, b.0).then(a.1.cmp(&b.1)));
-    ranked.into_iter().map(|r| r.2).collect()
+    ranked.into_iter().map(|r| (r.0, r.2)).collect()
 }
 
 /// Classify one axial end of a segment from the face beyond it (`_classify_end`), with the
 /// faces that close it (its `terminal_faces`). Planes, cones and tori decide; a curved wall is a
 /// weak signal that counts only when nothing decides.
 pub fn classify_end(part: &Part, seg: &Segment, s_end: f64, hi_end: bool) -> (End, Vec<usize>) {
-    let d = seg.direction;
-    let e_sign = if hi_end { 1.0 } else { -1.0 };
-    let mut weak = None;
-    for partner in end_partners(part, seg, s_end) {
-        let surface = &part.faces[partner].surface;
-        match surface {
-            Surface::Cone { .. } => {
-                let apex = surface.cone_apex().expect("a cone");
-                let outward = (geom::dot(apex, d) - s_end) * e_sign > 0.0;
-                if seg.external {
-                    return (if outward { End::Open } else { End::Flat }, vec![]);
-                }
-                if !outward {
-                    return (End::Open, vec![]); // an entry chamfer or countersink widens the bore
-                }
-                // Apex outward closes the bore — unless a plane across the cone faces back
-                // along the axis, which makes it a chamfered flat floor.
-                for e2 in part.face_edges(partner) {
-                    for &n in &part.edge_faces()[e2] {
-                        if n == partner || seg.faces.contains(&n) {
-                            continue;
-                        }
-                        if native_plane_normal(part, n)
-                            .is_some_and(|normal| geom::dot(normal, d).abs() > 0.9)
-                        {
-                            return (End::Flat, vec![n]);
-                        }
-                    }
-                }
-                return (End::DrillPoint, vec![partner]);
-            }
-            Surface::Torus { major, .. } => {
-                let curls_in = *major < seg.diameter / 2.0;
-                let state = if seg.external != curls_in {
-                    End::Flat
-                } else {
-                    End::Open
-                };
-                return (state, vec![]);
-            }
-            Surface::Plane { .. } => {
-                let normal = native_plane_normal(part, partner).expect("a plane");
-                let alignment = py::dot(&normal, &d) * e_sign;
-                if alignment < -0.5 {
-                    return (End::Flat, vec![partner]);
-                }
-                if alignment > 0.5 {
-                    return (End::Open, vec![partner]);
-                }
-            }
-            Surface::Sphere { .. } => {
-                let convex = part.frame_points_outward(partner).unwrap_or(false);
-                let state = if seg.external == convex {
-                    End::Flat
-                } else {
-                    End::Open
-                };
-                weak = Some((state, vec![partner]));
-            }
-            Surface::Cylinder { .. } => {
-                weak = Some((if seg.external { End::Flat } else { End::Open }, vec![]));
-            }
-            // A freeform face that is an exact plane in spline form decides as a plane.
-            Surface::Freeform { .. } => {
-                let Some(Surface::Plane { .. }) = part.recovered(partner) else {
-                    continue;
-                };
-                let Some(at) = probe_samples(part, partner).first().map(|s| s.point) else {
-                    continue;
-                };
-                let Some(normal) = part.outward_at(partner, at) else {
-                    continue;
-                };
-                let alignment = py::dot(&normal, &d) * e_sign;
-                if alignment < -0.5 {
-                    return (End::Flat, vec![partner]);
-                }
-                if alignment > 0.5 {
-                    return (End::Open, vec![partner]);
-                }
-            }
-            _ => {}
+    let mut strong = Vec::new();
+    let mut weak = Vec::new();
+    for (distance, partner) in ranked_end_partners(part, seg, s_end) {
+        if let Some((state, faces, is_strong)) = partner_state(part, seg, s_end, hi_end, partner) {
+            let target = if is_strong { &mut strong } else { &mut weak };
+            target.push((distance, state, faces));
         }
     }
-    weak.unwrap_or((End::Unknown, vec![]))
+    let answers = if strong.is_empty() { weak } else { strong };
+    let Some((nearest, state, _)) = answers.first() else {
+        return (End::Unknown, vec![]);
+    };
+    let mut terminal = Vec::new();
+    for (distance, other, faces) in &answers {
+        if distance - nearest > geom::COORD_FLOOR {
+            break;
+        }
+        if other != state {
+            return (End::Unknown, vec![]);
+        }
+        terminal.extend(faces);
+    }
+    terminal.sort_unstable();
+    terminal.dedup();
+    (*state, terminal)
+}
+
+/// A support's verdict; `false` means a curved-wall fallback, subordinate to strong evidence.
+fn partner_state(
+    part: &Part,
+    seg: &Segment,
+    s_end: f64,
+    hi_end: bool,
+    partner: usize,
+) -> Option<(End, Vec<usize>, bool)> {
+    let d = seg.direction;
+    let e_sign = if hi_end { 1.0 } else { -1.0 };
+    let surface = &part.faces[partner].surface;
+    match surface {
+        Surface::Cone { .. } => {
+            let apex = surface.cone_apex()?;
+            let outward = (geom::dot(apex, d) - s_end) * e_sign > 0.;
+            if seg.external {
+                return Some((if outward { End::Open } else { End::Flat }, vec![], true));
+            }
+            if !outward {
+                return Some((End::Open, vec![], true));
+            }
+            let mut floors = Vec::new();
+            for e in part.face_edges(partner) {
+                for &n in &part.edge_faces()[e] {
+                    if n != partner
+                        && !seg.faces.contains(&n)
+                        && native_plane_normal(part, n)
+                            .is_some_and(|normal| geom::dot(normal, d).abs() > 0.9)
+                    {
+                        floors.push(n);
+                    }
+                }
+            }
+            floors.sort_unstable();
+            floors.dedup();
+            if floors.is_empty() {
+                Some((End::DrillPoint, vec![partner], true))
+            } else {
+                Some((End::Flat, floors, true))
+            }
+        }
+        Surface::Torus { major, .. } => {
+            let curls_in = *major < seg.diameter / 2.;
+            Some((
+                if seg.external != curls_in {
+                    End::Flat
+                } else {
+                    End::Open
+                },
+                vec![],
+                true,
+            ))
+        }
+        Surface::Plane { .. } | Surface::Freeform { .. } => {
+            let normal = if matches!(surface, Surface::Plane { .. }) {
+                native_plane_normal(part, partner)?
+            } else {
+                if !matches!(part.recovered(partner), Some(Surface::Plane { .. })) {
+                    return None;
+                }
+                let at = probe_samples(part, partner).first()?.point;
+                part.outward_at(partner, at)?
+            };
+            let alignment = py::dot(&normal, &d) * e_sign;
+            if alignment < -0.5 {
+                Some((End::Flat, vec![partner], true))
+            } else if alignment > 0.5 {
+                Some((End::Open, vec![partner], true))
+            } else {
+                None
+            }
+        }
+        Surface::Sphere { .. } => {
+            let convex = part.frame_points_outward(partner).unwrap_or(false);
+            Some((
+                if seg.external == convex {
+                    End::Flat
+                } else {
+                    End::Open
+                },
+                vec![partner],
+                false,
+            ))
+        }
+        Surface::Cylinder { .. } => Some((
+            if seg.external { End::Flat } else { End::Open },
+            vec![],
+            false,
+        )),
+        _ => None,
+    }
 }
 
 /// A native plane's outward normal as the face reports it, not renormalised

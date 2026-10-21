@@ -30,11 +30,38 @@ in [docs/alpha1.md](docs/alpha1.md).
 - Synthetic target/precision fixtures, the 13 CTC-02/FTC-10 target clean-copy round trips,
   and OCCT cross-checks including shared target supports; no target-refusal stripping.
 
+### Changed
+
+- Chamfers, fillets and circular blind steps recognise perpendicular supporting planes rolled
+  about a principal run axis, using the planes’ geometry. Motion tests and tighter breakdown
+  limits cover the recovered features; the default recognition route is unchanged.
+- Recognition no longer depends on a part's placement or on input order where ADR 0011 says it
+  must not: every first-wins, sign or ordering selector was audited and corrected (holes and
+  counterbore stacks, bosses, recesses and channels, plane corners, patterns, turned axes,
+  circular patterns, thin walls, voids, coordinate clusters, frames, oriented chamfers). A
+  remaining arbitrary choice is a presentation gauge, never a semantic one; only two readings
+  that would publish different features are refused. Identical counterbores at both ends of a
+  hole keep their dimensions and claim both mouths. A per-file, per-family inventory floor over
+  1,453 parts guards against losing features; the few changed counts each carry OpenCascade or
+  analytic evidence.
+- **Public `recess_reduce::merge_proposals` now refuses equal-width role ties with
+  different run axes when no body extents are available.** Previously input order selected
+  an interpretation. Part-aware recognition uses intrinsic body extents to accept a unique
+  reading; symmetric competing claims remain refused (ADR 0011). This changes the public
+  reducer's behaviour, without changing the document schema.
+- quiddity-rust and haecceity are relicensed from AGPL-3.0-only to Apache-2.0 by the copyright
+  owner, matching Python quiddity. `LICENSE`, `NOTICE`, the CLA and CONTRIBUTING say so.
+- Both crates are ready for crates.io: descriptions, repository, keywords and categories, an
+  `include` list (sources, README, CHANGELOG, LICENSE, NOTICE; no test fixtures), and an exact
+  version on quiddity's `haecceity` dependency. `cargo package --workspace` packages and
+  verifies both (haecceity 520 KiB, quiddity 505 KiB compressed).
+
 ### Fixed
 
 - Restore regression coverage for original-input note indices in refusals, reporting
-  semantic-text and surface-texture requirements on unwritable features by their own items. Narrow datum-target exemptions to WR5;
-  WR4 remains mandatory because every emitted target name is empty.
+  semantic-text and surface-texture requirements on unwritable features by their own items.
+  Narrow datum-target exemptions to WR5; WR4 remains mandatory because every emitted
+  target name is empty.
 
 - Isolate relationship tolerance endpoints so OCCT composition traversal leaves other
   tolerances on their original faces. Correct the earlier projection-origin diagnosis.
@@ -47,6 +74,11 @@ in [docs/alpha1.md](docs/alpha1.md).
 - Check and name tolerance relationship cycles as `geometric_tolerance_relationship.WR3`.
   Clarify that omitting a target description passes rules but loses its shape. OCCT
   affected-plane verdicts are not-applicable.
+
+- Preserve a single sheet when converting radial `SURFACE_OF_REVOLUTION` line
+  profiles, and recover boundary inversion stalled at a collapsed surface side.
+  This corrects revolution face fluxes and mass properties without discarding
+  their prescribed orientation (#53).
 
 ## 0.1.0-alpha.9 (2026-10-20)
 

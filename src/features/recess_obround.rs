@@ -181,8 +181,11 @@ pub fn extend_obround_proposals<R: Recess>(
         let record = &proposal.record;
         let low = matching_end_groups(&ends, record, record.lo());
         let high = matching_end_groups(&ends, record, record.hi());
-        if strict && (low.len() > 1 || high.len() > 1) {
-            return Err(CompetingCaps);
+        if low.len() > 1 || high.len() > 1 {
+            if strict {
+                return Err(CompetingCaps);
+            }
+            continue; // the record path also refuses; no first cap cluster owns the claim
         }
         if let (Some(low), Some(high)) = (low.first(), high.first()) {
             let low_radius = ends.iter().find(|e| e.patches == *low).unwrap().radius;
@@ -411,4 +414,80 @@ pub fn pockets_from_ends(faces: &[Face], cylinders: &[Cylinder]) -> Vec<Proposal
             Recovered::Slot(_) => None,
         })
         .collect()
+}
+
+#[cfg(test)]
+mod ambiguity_tests {
+    use super::*;
+    #[test]
+    fn competing_caps_refuse_on_both_paths_after_axis_motion_and_input_permutation() {
+        for [w, l, d] in [
+            [0, 1, 2],
+            [1, 0, 2],
+            [2, 1, 0],
+            [0, 2, 1],
+            [1, 2, 0],
+            [2, 0, 1],
+        ] {
+            for shift in [0., 123.456] {
+                let cap = |node, centre, flat, sign: f64| {
+                    let mut location = [shift; 3];
+                    location[w] += centre;
+                    location[l] += flat;
+                    let mut min = [shift; 3];
+                    let mut max = [shift; 3];
+                    min[w] += centre - 2.;
+                    max[w] += centre + 2.;
+                    min[l] += flat + (-2. * sign).min(0.);
+                    max[l] += flat + (-2. * sign).max(0.);
+                    max[d] += 3.;
+                    Cylinder {
+                        node,
+                        axis: d,
+                        radius: 2.,
+                        location,
+                        bb: crate::kernel::geom::Bounds { min, max },
+                        concave: true,
+                    }
+                };
+                let mut cylinders =
+                    vec![cap(9, 0., 0., 1.), cap(2, 0.2, 0., 1.), cap(5, 0., 8., -1.)];
+                let record = Slot {
+                    width_axis: AXES[w],
+                    long_axis: AXES[l],
+                    width: 4.,
+                    length: 8.,
+                    w_center: shift,
+                    lo: shift,
+                    hi: shift + 8.,
+                    d_lo: shift,
+                    d_hi: shift + 3.,
+                    body_key: None,
+                    end_radius: None,
+                    corner_radius: None,
+                };
+                for _ in 0..3 {
+                    assert_eq!(
+                        extend_obround_proposals(
+                            vec![Proposal::new(record.clone())],
+                            &cylinders,
+                            true
+                        )
+                        .unwrap_err(),
+                        CompetingCaps
+                    );
+                    assert!(
+                        extend_obround_proposals(
+                            vec![Proposal::new(record.clone())],
+                            &cylinders,
+                            false
+                        )
+                        .unwrap()
+                        .is_empty()
+                    );
+                    cylinders.rotate_left(1);
+                }
+            }
+        }
+    }
 }

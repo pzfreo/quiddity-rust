@@ -151,7 +151,8 @@ fn proposals_one<'c>(part: &Part, scope: &Scope<'c>) -> Vec<Proposal<'c>> {
     if supported.is_empty() {
         return vec![];
     }
-    // Counter.most_common(1): the highest count, the first seen of ties.
+    // Cylinder support establishes a unique modal axis; equal support refuses.
+    // Input order and the z-first inventory are not material-axis evidence.
     let mut counts: Vec<(usize, usize)> = Vec::new();
     for c in &supported {
         match counts.iter_mut().find(|(a, _)| *a == c.axis) {
@@ -159,10 +160,12 @@ fn proposals_one<'c>(part: &Part, scope: &Scope<'c>) -> Vec<Proposal<'c>> {
             None => counts.push((c.axis, 1)),
         }
     }
-    let axis = counts
-        .iter()
-        .fold(counts[0], |best, &c| if c.1 > best.1 { c } else { best })
-        .0;
+    let most = counts.iter().map(|c| c.1).max().unwrap();
+    let modes: Vec<_> = counts.iter().filter(|c| c.1 == most).collect();
+    let [mode] = modes.as_slice() else {
+        return vec![];
+    };
+    let axis = mode.0;
     let lines: Vec<Vec<f64>> = supported
         .iter()
         .filter(|c| c.axis == axis)

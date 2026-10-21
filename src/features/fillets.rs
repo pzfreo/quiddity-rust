@@ -9,14 +9,15 @@ use std::f64::consts::PI;
 use serde::{Deserialize, Serialize};
 
 use super::Context;
-use super::bevel::convex_bevel;
+use super::bevel::{convex_bevel, transverse_corner};
 use super::cylinders::CylinderEvidence;
 use super::evidence::{self, EvidenceError, Occurrence};
 use super::planes::nearest_axis_aligned_planes;
 use super::policy::AXIS_ALIGNED_COS;
 use super::turned;
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{Surface, V3, dominant_axis};
+use crate::kernel::classify::material_at;
+use crate::kernel::geom::{self, Surface, V3, dominant_axis};
 use crate::kernel::py;
 
 /// A minimum-evidence threshold, deliberately absolute (ADR 0008).
@@ -153,13 +154,34 @@ fn prismatic(
     let edge_axis = principal_axis(frame.z)?;
     let centre = part.face_bounds(face).centre();
     let planes = nearest_axis_aligned_planes(part, face, centre, edge_axis, true);
-    if (0..3).any(|j| j != edge_axis && !planes.contains_key(&j)) {
-        return None;
-    }
-    if !convex_bevel(ctx, centre, edge_axis, &planes) {
-        return None;
-    }
     let at = fillet_anchor(part, face)?;
+    if (0..3).all(|j| j == edge_axis || planes.contains_key(&j)) {
+        if !convex_bevel(ctx, centre, edge_axis, &planes) {
+            return None;
+        }
+    } else {
+        // A principal cylinder can have transverse supports at any roll. Its axis-letter
+        // record remains exact; only the support-plane test needed to become intrinsic.
+        if part.frame_points_outward(face) != Some(true) {
+            return None;
+        }
+        let corner = transverse_corner(part, face, at, frame.z)?;
+        // The two planes must be tangent to this cylinder, not unrelated nearby walls.
+        if corner.normals.iter().any(|&n| {
+            (geom::dot(geom::sub(frame.origin, corner.point), n).abs() - radius).abs()
+                > super::policy::length_tol(radius, 1e-7)
+        }) {
+            return None;
+        }
+        let corner = corner.point;
+        let near = geom::add(
+            corner,
+            geom::scale(geom::sub(at, corner), super::policy::INTERIOR_PROBE_FRAC),
+        );
+        if material_at(ctx.classifier(), near) {
+            return None;
+        }
+    }
     Some(occurrence(edge_axis, radius, at, false, face, vec![]))
 }
 

@@ -1,0 +1,320 @@
+{
+  "_baseline": "5fb1706",
+  "_matching": "Maximum cardinality, then same family, evidence overlap, lexicographic pair list. World-Z construction levels are excluded, as in the Python census.",
+  "golden": {
+    "golden_angled_blind_step.step": {
+      "X30": {
+        "absent": {
+          "angled_step": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      },
+      "Z30": {
+        "absent": {
+          "angled_step": 1
+        },
+        "introduced": {},
+        "reclassified": {
+          "chamfer->oriented_chamfer": 1
+        }
+      }
+    },
+    "golden_blind_pockets_and_pocket_patterns.step": {
+      "X30": {
+        "absent": {
+          "pocket": 6
+        },
+        "introduced": {},
+        "reclassified": {}
+      },
+      "Z30": {
+        "absent": {},
+        "introduced": {},
+        "reclassified": {
+          "pocket->prismatic_pocket": 6
+        }
+      }
+    },
+    "golden_chamfers_fillets_and_flats.step": {
+      "X30": {
+        "absent": {},
+        "introduced": {},
+        "reclassified": {
+          "chamfer->oriented_chamfer": 4,
+          "fillet->blend": 4
+        }
+      },
+      "Z30": {
+        "absent": {},
+        "introduced": {},
+        "reclassified": {}
+      }
+    },
+    "golden_circular_blind_step.step": {
+      "X30": {
+        "absent": {},
+        "introduced": {},
+        "reclassified": {}
+      },
+      "Z30": {
+        "absent": {
+          "circular_blind_step": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      }
+    },
+    "golden_gusset_rib_patterns.step": {
+      "X30": {
+        "absent": {
+          "gusset_rib": 2,
+          "plate": 2
+        },
+        "introduced": {},
+        "reclassified": {}
+      },
+      "Z30": {
+        "absent": {
+          "gusset_rib": 2,
+          "plate": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      }
+    },
+    "golden_gusset_ribs.step": {
+      "X30": {
+        "absent": {
+          "gusset_rib": 2,
+          "plate": 2,
+          "slot": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      },
+      "Z30": {
+        "absent": {
+          "gusset_rib": 2,
+          "plate": 1,
+          "slot": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      }
+    },
+    "golden_oblique_through_step.step": {
+      "X30": {
+        "absent": {
+          "oblique_through_step": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      },
+      "Z30": {
+        "absent": {
+          "oblique_through_step": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      }
+    },
+    "golden_open_channels.step": {
+      "X30": {
+        "absent": {
+          "channel": 1,
+          "plate": 3
+        },
+        "introduced": {},
+        "reclassified": {}
+      },
+      "Z30": {
+        "absent": {
+          "channel": 1,
+          "plate": 2
+        },
+        "introduced": {},
+        "reclassified": {}
+      }
+    },
+    "golden_paired_ramp_step.step": {
+      "X30": {
+        "absent": {
+          "paired_ramp_step": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      },
+      "Z30": {
+        "absent": {
+          "paired_ramp_step": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      }
+    },
+    "golden_plates_pads_levels_and_slanted_steps.step": {
+      "X30": {
+        "absent": {
+          "plate": 1,
+          "pocket": 2,
+          "through_step": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      },
+      "Z30": {
+        "absent": {
+          "plate": 1,
+          "pocket": 2,
+          "through_step": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      }
+    },
+    "golden_polygonal_boss.step": {
+      "X30": {
+        "absent": {
+          "plate": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      }
+    },
+    "golden_rectangular_blind_slot.step": {
+      "X30": {
+        "absent": {
+          "rectangular_blind_slot": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      },
+      "Z30": {
+        "absent": {
+          "rectangular_blind_slot": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      }
+    },
+    "golden_rectangular_through_step.step": {
+      "X30": {
+        "absent": {
+          "through_step": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      },
+      "Z30": {
+        "absent": {
+          "through_step": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      }
+    },
+    "golden_round_bottom_blind_slot.step": {
+      "X30": {
+        "absent": {
+          "round_bottom_blind_slot": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      },
+      "Z30": {
+        "absent": {
+          "round_bottom_blind_slot": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      }
+    },
+    "golden_slanted_steps.step": {
+      "X30": {
+        "absent": {
+          "pocket": 2,
+          "through_step": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      },
+      "Z30": {
+        "absent": {
+          "pocket": 2,
+          "through_step": 1
+        },
+        "introduced": {},
+        "reclassified": {}
+      }
+    },
+    "golden_straight_and_obround_slots.step": {
+      "X30": {
+        "absent": {
+          "slot": 1
+        },
+        "introduced": {},
+        "reclassified": {
+          "slot->oriented_slot": 4
+        }
+      },
+      "Z30": {
+        "absent": {
+          "slot": 1
+        },
+        "introduced": {},
+        "reclassified": {
+          "slot->oriented_slot": 4
+        }
+      }
+    },
+    "golden_traversal_order.step": {
+      "X30": {
+        "absent": {
+          "plate": 6
+        },
+        "introduced": {},
+        "reclassified": {
+          "slot->oriented_slot": 3
+        }
+      },
+      "Z30": {
+        "absent": {
+          "plate": 6
+        },
+        "introduced": {},
+        "reclassified": {
+          "slot->oriented_slot": 3
+        }
+      }
+    },
+    "golden_triangular_and_hex_pockets.step": {
+      "X30": {
+        "absent": {
+          "pocket": 1,
+          "prismatic_pocket": 2
+        },
+        "introduced": {},
+        "reclassified": {}
+      },
+      "Z30": {
+        "absent": {},
+        "introduced": {},
+        "reclassified": {
+          "pocket->prismatic_pocket": 1
+        }
+      }
+    },
+    "golden_turned_steps_and_grooves.step": {
+      "X30": {
+        "absent": {},
+        "introduced": {
+          "boss": 1
+        },
+        "reclassified": {
+          "step->boss": 2
+        }
+      }
+    }
+  }
+}

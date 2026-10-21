@@ -663,8 +663,10 @@ fn unexplained(
             }
         }
     }
-    for (key, _) in &known {
-        if !seen.contains(key) {
+    for (key, most) in &known {
+        // Zero is an absence ratchet for a resolved historical discrepancy. Any return is
+        // still rejected above; retaining the entry does not permit a difference.
+        if *most != 0 && !seen.contains(key) {
             problems.push(format!(
                 "{key:?} is listed but no longer differs: remove it"
             ));

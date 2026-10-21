@@ -56,7 +56,10 @@ pub enum Bottom {
 /// A drilled hole: `axis` points from the opening into the hole, `location` is the axis point at
 /// the opening; `diameter`/`depth` describe the bore (the narrowest segment), with `depth` from
 /// the top of the bore to the hole's deep end. `bottom` is `"through"`, `"flat"`,
-/// `"drill_point"` or `"unknown"`.
+/// `"drill_point"` or `"unknown"`. For interchangeable mouths, axis/location are a
+/// presentation end gauge. Identical counterbore/spotface readings at both mouths are retained
+/// with both sets of defining faces; differing readings are omitted. With no proved attachment,
+/// the gauge is on the bore itself. No material drilling-entry end is asserted.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct HoleRecord {
     pub axis: V3,
@@ -251,8 +254,8 @@ fn merge_stacks(part: &Part, stacks: Vec<Vec<Segment>>) -> Vec<Vec<Segment>> {
         let mut stacks = line.into_iter();
         let mut cur = stacks.next().expect("a non-empty group");
         for nxt in stacks {
-            let ai = py::first_max(&cur, |s| s.s_hi);
-            let bi = py::first_min(&nxt, |s| s.s_lo);
+            let ai = end_segment(&cur, |s| s.s_hi);
+            let bi = end_segment(&nxt, |s| -s.s_lo);
             let (a, b) = (&cur[ai], &nxt[bi]);
             let closed = |end: End| matches!(end, End::Flat | End::DrillPoint);
             if same_diameter(a.diameter, b.diameter)
@@ -292,31 +295,39 @@ fn merge_stacks(part: &Part, stacks: Vec<Vec<Segment>>) -> Vec<Vec<Segment>> {
     merged
 }
 
-/// Which end of a stack is the opening and what closes the other (`_drilled_from`). With both
-/// ends open the wider segment's end wins (counterbores sit at the opening); a tie uses the
-/// cylinder support's intrinsic direction for equally wide distinct mouths. That direction
-/// moves with the part; world-high does not. A single through cylinder has no end-step choice.
-fn drilled_from(part: &Part, stack: &[Segment]) -> (bool, usize, f64, Bottom, Vec<usize>) {
+/// Which end is the opening. Mouth diameter, then the complete inward axial profile decide
+/// intrinsically. An unresolved side is an end gauge: retain the bore and any identical
+/// mouth-step readings, without asserting a material drilling-entry end.
+struct Drilling {
+    from_hi: bool,
+    opening: usize,
+    opening_s: f64,
+    bottom: Bottom,
+    terminal: Vec<usize>,
+    presentation: bool,
+}
+
+fn drilled_from(part: &Part, stack: &[Segment]) -> Drilling {
     let lo = end_segment(stack, |s| -s.s_lo);
     let hi = end_segment(stack, |s| s.s_hi);
     let (lo_state, lo_faces) = classify_end(part, &stack[lo], stack[lo].s_lo, false);
     let (hi_state, hi_faces) = classify_end(part, &stack[hi], stack[hi].s_hi, true);
-    let from_hi = match (lo_state == End::Open, hi_state == End::Open) {
-        (true, false) => false,
-        (false, true) => true,
-        _ if lo != hi && (stack[hi].diameter - stack[lo].diameter).abs() <= COORD_FLOOR => {
-            let face = stack[lo]
-                .faces
-                .iter()
-                .chain(&stack[hi].faces)
-                .min()
-                .unwrap();
-            let Surface::Cylinder { frame, .. } = part.faces[*face].surface else {
-                unreachable!("a hole segment is cylindrical");
-            };
-            geom::dot(frame.z, stack[hi].direction) > 0.0
-        }
-        _ => stack[hi].diameter >= stack[lo].diameter,
+    let (from_hi, presentation) = match (lo_state == End::Open, hi_state == End::Open) {
+        (true, false) => (false, false),
+        (false, true) => (true, false),
+        _ if lo == hi => (true, true),
+        _ => match mouth_order(stack, lo, hi) {
+            Some(side) => (side, false),
+            None => (true, true),
+        },
+    };
+    let gauge_faces = if presentation {
+        let mut faces: Vec<_> = lo_faces.iter().chain(&hi_faces).copied().collect();
+        faces.sort_unstable();
+        faces.dedup();
+        faces
+    } else {
+        vec![]
     };
     let (opening, opening_s, bottom, faces) = if from_hi {
         (hi, stack[hi].s_hi, lo_state, lo_faces)
@@ -324,6 +335,7 @@ fn drilled_from(part: &Part, stack: &[Segment]) -> (bool, usize, f64, Bottom, Ve
         (lo, stack[lo].s_lo, hi_state, hi_faces)
     };
     let bottom = match bottom {
+        _ if presentation && lo_state != hi_state => Bottom::Unknown,
         End::Open => Bottom::Through,
         End::Flat => Bottom::Flat,
         End::DrillPoint => Bottom::DrillPoint,
@@ -331,11 +343,48 @@ fn drilled_from(part: &Part, stack: &[Segment]) -> (bool, usize, f64, Bottom, Ve
     };
     // Only a closing face is evidence of the bottom.
     let terminal = if matches!(bottom, Bottom::Flat | Bottom::DrillPoint) {
-        faces
+        if presentation { gauge_faces } else { faces }
     } else {
         vec![]
     };
-    (from_hi, opening, opening_s, bottom, terminal)
+    Drilling {
+        from_hi,
+        opening,
+        opening_s,
+        bottom,
+        terminal,
+        presentation,
+    }
+}
+
+/// Compare the two inward profiles using only distances and diameters. Source support signs,
+/// face indices and the input order carry no machining-side evidence. Equal profiles leave
+/// one-sided attribution unresolved, while retaining the bore and identical mouth steps.
+fn mouth_order(stack: &[Segment], lo: usize, hi: usize) -> Option<bool> {
+    let profile = |from_hi: bool| {
+        let mut values: Vec<[f64; 3]> = stack
+            .iter()
+            .map(|s| {
+                let (near, far) = if from_hi {
+                    (stack[hi].s_hi - s.s_hi, stack[hi].s_hi - s.s_lo)
+                } else {
+                    (s.s_lo - stack[lo].s_lo, s.s_hi - stack[lo].s_lo)
+                };
+                [near, -s.diameter, -far]
+            })
+            .collect();
+        values.sort_by(|a, b| py::tuple_order(a, b));
+        values
+    };
+    let (low, high) = (profile(false), profile(true));
+    for (a, b) in low.iter().zip(&high) {
+        for (a, b) in a.iter().zip(b) {
+            if (a - b).abs() > COORD_FLOOR {
+                return Some(b < a);
+            }
+        }
+    }
+    None
 }
 
 /// The segment that forms one end of a stack: the one reaching furthest by *reach*, and of
@@ -389,6 +438,34 @@ fn near_side_steps(steps: &[Segment]) -> (Option<CounterBore>, Option<CounterBor
         }
     }
     (cbore, spotface, faces)
+}
+
+/// Read a stack inward from either end, putting the widest level segment first.
+fn ordered_from(stack: &[Segment], from_hi: bool) -> Vec<Segment> {
+    let mut ordered = stack.to_vec();
+    // Nearest the opening first: by the near end of each segment, which is s_hi drilling
+    // down from the high end and s_lo drilling up from the low end. (Python sorts by s_hi
+    // both ways, so overlapping segments order differently once the part is turned over.)
+    // Segments starting level with each other put the wider first, as the mouth is outermost
+    // (Python keeps them in face order). The sort is stable.
+    ordered.sort_by(|a, b| {
+        let near = if from_hi {
+            py::order(a.s_hi, b.s_hi).reverse()
+        } else {
+            py::order(a.s_lo, b.s_lo)
+        };
+        let level = if from_hi {
+            a.s_hi - b.s_hi
+        } else {
+            a.s_lo - b.s_lo
+        };
+        if level.abs() <= COORD_FLOOR {
+            py::order(a.diameter, b.diameter).reverse()
+        } else {
+            near
+        }
+    });
+    ordered
 }
 
 /// Depth from the top of the bore to the deep end (`_bore_depth`): the deep end is the whole
@@ -463,40 +540,52 @@ pub fn discover(
     let mut out = Vec::new();
     for stack in stacks {
         let d = stack[0].direction;
-        let (from_hi, opening, opening_s, bottom, mut terminal) = drilled_from(part, &stack);
-        let mut ordered = stack.clone();
-        // Nearest the opening first: by the near end of each segment, which is s_hi drilling
-        // down from the high end and s_lo drilling up from the low end. (Python sorts by s_hi
-        // both ways, so overlapping segments order differently once the part is turned over.)
-        // Segments starting level with each other put the wider first, as the mouth is outermost
-        // (Python keeps them in face order). The sort is stable.
-        ordered.sort_by(|a, b| {
-            let near = if from_hi {
-                py::order(a.s_hi, b.s_hi).reverse()
-            } else {
-                py::order(a.s_lo, b.s_lo)
-            };
-            let level = if from_hi {
-                a.s_hi - b.s_hi
-            } else {
-                a.s_lo - b.s_lo
-            };
-            if level.abs() <= COORD_FLOOR {
-                py::order(a.diameter, b.diameter).reverse()
-            } else {
-                near
-            }
-        });
+        let Drilling {
+            from_hi,
+            opening,
+            opening_s,
+            bottom,
+            mut terminal,
+            presentation,
+        } = drilled_from(part, &stack);
+        let ordered = ordered_from(&stack, from_hi);
         let bore_i = py::first_min(&ordered, |s| s.diameter);
         let bore = &ordered[bore_i];
-        let (cbore, spotface, step_faces) = near_side_steps(&ordered[..bore_i]);
-        let (depth, mut defining) = bore_depth(&stack, bore, bottom == Bottom::Through, from_hi);
+        let (mut cbore, mut spotface, mut step_faces) = near_side_steps(&ordered[..bore_i]);
+        if presentation {
+            let opposite = ordered_from(&stack, !from_hi);
+            let other_bore_i = py::first_min(&opposite, |s| s.diameter);
+            let (other_cbore, other_spotface, other_faces) =
+                near_side_steps(&opposite[..other_bore_i]);
+            // An end gauge cannot choose between different published readings. Identical
+            // readings retain their dimensions and claim both mouths, so reversal changes
+            // only the representative end, never an attachment or its supporting evidence.
+            if cbore == other_cbore && spotface == other_spotface {
+                step_faces.extend(other_faces);
+                step_faces.sort_unstable();
+            } else {
+                cbore = None;
+                spotface = None;
+                step_faces.clear();
+            }
+        }
+        let (depth, mut defining) = bore_depth(
+            &stack,
+            bore,
+            bottom == Bottom::Through || presentation,
+            from_hi,
+        );
         defining.extend(step_faces);
         // A face counts once however many selections name it (Python resolves them to a set).
         let mut seen = std::collections::BTreeSet::new();
         defining.retain(|f| seen.insert(*f));
         let axis = if from_hi { geom::scale(d, -1.0) } else { d }.map(py::without_negative_zero);
-        let location = axis_point_at(&stack[opening], opening_s).map(|c| py::quantise(c, 11));
+        let location = if presentation && cbore.is_none() && spotface.is_none() {
+            axis_point_at(bore, if from_hi { bore.s_hi } else { bore.s_lo })
+        } else {
+            axis_point_at(&stack[opening], opening_s)
+        }
+        .map(|c| py::quantise(c, 11));
         let mut record = HoleRecord {
             axis,
             location,
@@ -514,10 +603,25 @@ pub fn discover(
             depth: record.depth,
             through: record.bottom == Bottom::Through,
         };
-        if let Some(cs) = csinks
+        let mut matching: Vec<_> = csinks
             .iter()
-            .find(|cs| countersink_matches_hole(&cs.record, &mouth))
-        {
+            .filter(|cs| countersink_matches_hole(&cs.record, &mouth))
+            .collect();
+        let rank = |cs: &Occurrence<CounterSink>| {
+            [
+                cs.record.major_diameter,
+                cs.record.depth,
+                cs.record.included_angle,
+            ]
+        };
+        matching.sort_by(|a, b| py::tuple_order(&rank(b), &rank(a)));
+        let ambiguous_seat = matching.len() > 1
+            && rank(matching[0])
+                .iter()
+                .zip(rank(matching[1]))
+                .all(|(a, b)| (a - b).abs() <= COORD_FLOOR);
+        // Ambiguous attribution cannot remove the independently established bore.
+        if let Some(cs) = matching.first().filter(|_| !ambiguous_seat) {
             record.csink = Some(cs.record.clone());
             // The seat's face is consulted evidence: it must share the hole's solid.
             terminal.extend(&cs.defining);

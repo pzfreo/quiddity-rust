@@ -382,11 +382,24 @@ fn sides(s: &Sheet<'_>) -> Option<(BTreeSet<usize>, BTreeSet<usize>)> {
     if plane_pairs.len() < 2 {
         return None;
     }
-    let seed = plane_pairs[py::first_max(&plane_pairs, |p| {
-        s.area[&p.first_face] + s.area[&p.second_face]
-    })];
-    let first = s.smooth_region(seed.first_face);
-    let second = s.smooth_region(seed.second_face);
+    let score = |p: &WallFacePair| s.area[&p.first_face] + s.area[&p.second_face];
+    let largest = plane_pairs
+        .iter()
+        .map(|p| score(p))
+        .fold(f64::NEG_INFINITY, f64::max);
+    let mut readings = plane_pairs
+        .iter()
+        .filter(|p| py::round_to(score(p), 9) == py::round_to(largest, 9))
+        .map(|p| {
+            (
+                s.smooth_region(p.first_face),
+                s.smooth_region(p.second_face),
+            )
+        });
+    let (first, second) = readings.next()?;
+    if readings.any(|(a, b)| !((a == first && b == second) || (a == second && b == first))) {
+        return None;
+    }
     if !first.is_disjoint(&second) {
         return None;
     }
@@ -837,10 +850,19 @@ fn joint_edges(
     first: &BTreeSet<usize>,
 ) -> Option<(usize, usize, usize)> {
     let part = s.part;
-    let longest = |edges: Vec<usize>| {
+    let longest = |edges: Vec<usize>| -> Option<usize> {
         let lengths: Vec<f64> = edges.iter().map(|&e| edge_length(part, e)).collect();
-        edges[py::first_max(&lengths, |l| *l)]
+        let best = py::first_max(&lengths, |l| *l);
+        for (i, &length) in lengths.iter().enumerate() {
+            if (length - lengths[best]).abs() <= geom::COORD_FLOOR
+                && !same_joint_line(part, edges[best], edges[i])
+            {
+                return None;
+            }
+        }
+        Some(edges[best])
     };
+    let mut found = None;
     for pair in pairs {
         let reference = if first.contains(&pair.first_face) {
             pair.first_face
@@ -856,10 +878,31 @@ fn joint_edges(
         };
         let (parent_edges, child_edges) = (shared(parent), shared(child));
         if !parent_edges.is_empty() && !child_edges.is_empty() {
-            return Some((reference, longest(parent_edges), longest(child_edges)));
+            let candidate = (reference, longest(parent_edges)?, longest(child_edges)?);
+            if let Some((_, a, b)) = found {
+                if !same_joint_line(part, a, candidate.1) || !same_joint_line(part, b, candidate.2)
+                {
+                    return None;
+                }
+            } else {
+                found = Some(candidate);
+            }
         }
     }
-    None
+    found
+}
+
+fn same_joint_line(part: &Part, a: usize, b: usize) -> bool {
+    let (a, b) = (&part.edges[a], &part.edges[b]);
+    joint_lines_agree(a.start, a.end, b.start, b.end)
+}
+fn joint_lines_agree(a: V3, b: V3, c: V3, d: V3) -> bool {
+    let Some(axis) = py::unit(geom::sub(b, a)) else {
+        return false;
+    };
+    [c, d]
+        .iter()
+        .all(|&p| geom::norm(geom::cross(geom::sub(p, a), axis)) <= geom::COORD_FLOOR)
 }
 
 /// `_flat_pattern_plan`: the flanges unfolded about their bends into the base (largest)
@@ -1428,5 +1471,28 @@ mod tests {
                 .iter()
                 .all(|c| orient(flat[c[0]], flat[c[1]], flat[c[2]]) > 0.0)
         );
+    }
+}
+
+#[cfg(test)]
+mod hinge_tie_tests {
+    use super::*;
+    #[test]
+    fn equal_hinges_require_the_same_geometric_line_after_motion() {
+        for angle in [0_f64, 30., 90.] {
+            let (s, c) = angle.to_radians().sin_cos();
+            let moved = |p: V3| {
+                [
+                    c * p[0] - s * p[1] + 123.456,
+                    s * p[0] + c * p[1] - 78.9,
+                    p[2] + 41.3,
+                ]
+            };
+            let [a, b, c, d] = [[0., 0., 0.], [2., 0., 0.], [2., 0., 0.], [4., 0., 0.]].map(moved);
+            assert!(joint_lines_agree(a, b, c, d));
+            let [c, d] = [[0., 1., 0.], [2., 1., 0.]].map(moved);
+            assert!(!joint_lines_agree(a, b, c, d));
+            assert!(!joint_lines_agree(c, d, a, b));
+        }
     }
 }
