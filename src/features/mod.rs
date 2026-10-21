@@ -2,7 +2,7 @@
 //! per-run machinery they share.
 //!
 //! Each family module has a crate-private `recognise_*` (records only, exposed solely by
-//! the unsupported `python-parity` test feature) and a `discover` taking the run's `Context`, returning
+//! the unsupported crate tests) and a `discover` taking the run's `Context`, returning
 //! [`Occurrence`]s carrying the faces that define each record. Shared analysis — the cylinder
 //! inventory, the point classifier, the part's box — lives in the context so a run computes it
 //! once however many families ask.
@@ -18,7 +18,7 @@ pub mod chamfers;
 pub mod channels;
 pub mod circular_blind_steps;
 pub mod circular_face_patterns;
-parity_entry! { pub mod context; }
+internal_entry! { pub mod context; }
 pub mod countersinks;
 pub mod cylinders;
 pub mod cylindrical_channels;
@@ -94,7 +94,7 @@ pub mod turned_steps;
 pub mod volume_probe;
 pub mod wire_seed;
 
-parity_entry! { pub use context::Context; }
+internal_entry! { pub use context::Context; }
 pub use evidence::{EvidenceError, Occurrence};
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -202,7 +202,7 @@ pub struct Features {
 /// Defining faces by family field name, then record.
 pub type Defining = BTreeMap<&'static str, Vec<Vec<usize>>>;
 
-parity_entry! {
+internal_entry! {
 /// Recognise every ported family on *part* with default options, as Python's aggregate does:
 /// holes carry their countersinks, every candidate the reconciliation rejects is dropped (with
 /// its defining faces), and patterns are found among the accepted holes, gusset ribs, slots,
@@ -273,7 +273,7 @@ pub struct Inventory {
 }
 
 impl Inventory {
-    parity_entry! {
+    internal_entry! {
         /// The accepted inventory (`accepted_set` on every family) with its patterns derived
         /// (`_derive_patterns`): each rejected candidate's record and defining faces dropped, in
         /// order. Section recesses are not projected here (`recognise` does, from the run).
@@ -355,7 +355,7 @@ fn drop_rejected<T>(items: &mut Vec<T>, indices: &BTreeSet<usize>) {
     });
 }
 
-parity_entry! {
+internal_entry! {
 /// Every ported family's candidates on *part* with default options and the reconciliation's
 /// decisions on them, or the reconciliation's refusal; locally degraded where Python's
 /// aggregate retries so (`take_inventory`).
@@ -679,7 +679,7 @@ fn kept<R>(kept: &mut Kept<'_>, family: &'static str, found: Vec<Occurrence<R>>)
     records(found)
 }
 
-parity_entry! {
+internal_entry! {
 /// The records of a family's occurrences, in order.
 pub fn records<R>(found: Vec<Occurrence<R>>) -> Vec<R> {
     found.into_iter().map(|o| o.record).collect()

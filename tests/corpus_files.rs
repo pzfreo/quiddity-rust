@@ -3,7 +3,7 @@
 //! its sha256. A file added upstream would never be checked, and a changed one would fail other
 //! tests for no reason of this repository's, so both fail here instead.
 
-mod common;
+use super::common;
 
 use std::path::Path;
 

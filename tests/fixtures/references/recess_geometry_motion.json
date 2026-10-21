@@ -1,11 +1,5 @@
 [
   {
-    "case": "candidates",
-    "file": "parts/2e5c3ece457e6e43.step.gz",
-    "verdict": "equivalent",
-    "reason": "The passage on walls 10, 11, 12 publishes frame origin z 91.234 here and 91.235 in Python, a three-decimal rounding tie: the test part places it at 91.2345, the port's passage prover gives 91.2345 (the double just below) and Python's 91.23450000000001, one ulp apart (tests/section_geometry.rs agrees at 1e-6). Everything else agrees, and from Python's own proof the port's projection gives Python's 91.235 (this part's passage call agrees). One geometry, rounded to either side of a tie."
-  },
-  {
     "case": "invariance",
     "file": "parts/e1da410e93e1147c.step.gz",
     "motion": "translate",

@@ -2,8 +2,7 @@
 fn main() {
     let path = std::env::args().nth(1).unwrap();
     let part = quiddity::read_step_file(std::path::Path::new(&path)).expect("read");
-    let ctx = quiddity::features::Context::new(&part);
-    for c in ctx.cylinders() {
+    for c in quiddity::features::cylinders::analyse_cylinders(&part) {
         println!(
             "face {:3} solid {} d={} axis={} u={:.6} ap={:?} dir={:?} s=[{}, {}] ext={}",
             c.face,

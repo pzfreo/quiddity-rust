@@ -1,24 +1,6 @@
-//! The recognition evidence view against Python's (`tools/capture_evidence.py`,
-//! `tests/fixtures/captured/recognition_evidence/capture.json.gz`).
-//!
-//! On every corpus part [`build_recognition_evidence`] is compared with Python's
-//! `build_recognition_evidence`. Features are keyed by family and defining faces: each one's
-//! constituent faces, host faces, instance groups and members (by their keys) are compared, and
-//! each family's order. Projected candidates are keyed the same way: each one's index, outcome,
-//! reason, constituent faces and related candidates (by their keys).
-//!
-//! Every difference is listed in `captured/recognition_evidence/known_differences.json` with a
-//! verdict and a reason, under `features` (`{"file", "family", "defining", "field", "python",
-//! "rust"}`, where `field` is `present`, `order` (with `defining` null and each side's defining
-//! lists), `constituent`, `hosts`, `groups` or `members`), `candidates` (`{"file", "family",
-//! "defining", "python", "rust"}`, each side's summary or null) and `errors` (`{"file",
-//! "python", "rust"}`). Unlisted, stale and doubly listed differences fail, and a failing run
-//! prints the entries it needs. The view is also compared with itself under two rigid motions
-//! (`motions`, the same shapes with a `motion`, `rust` unmoved and `moved`).
-//! Historical entries with `resolved: true` stay in the ledger as absence ratchets: their
-//! exact discrepancy must not return. This flag is test metadata, not a document schema field.
+//! Rust recognition evidence snapshots, structural checks and unchanged motion references.
 
-mod common;
+use super::common;
 
 use std::collections::BTreeMap;
 use std::io::Read;
@@ -30,7 +12,7 @@ use quiddity::kernel::step::{Placement, read_step_file, read_step_file_placed};
 use serde_json::{Value, json};
 
 const CAPTURE: &str = "captured/recognition_evidence/capture.json.gz";
-const KNOWN: &str = "captured/recognition_evidence/known_differences.json";
+const KNOWN: &str = "references/recognition_evidence_motion.json";
 
 fn corpus() -> Option<PathBuf> {
     let corpus = common::corpus_dir();
@@ -79,13 +61,6 @@ fn as_json(view: &RecognitionEvidence<'_>) -> Value {
            "rejected": view.rejected_candidates})
 }
 
-fn python_view(part: &Value) -> Result<Value, String> {
-    match part.get("error") {
-        Some(error) => Err(error.as_str().unwrap().to_owned()),
-        None => Ok(part.clone()),
-    }
-}
-
 type Key = (String, Vec<u64>);
 
 fn key(item: &Value) -> Key {
@@ -96,13 +71,12 @@ fn key(item: &Value) -> Key {
     )
 }
 
-/// How two views are compared: the port with Python, or the port with itself moved (where the
+/// How two views are compared: the port with unmoved Rust, or the port with itself moved (where the
 /// order of records, a candidate's index, a pattern's member order and a circular pattern's
 /// group order follow the placement, and step levels and risers, read along world Z, are
 /// compared only when the motion keeps Z vertical).
 #[derive(Clone, Copy, PartialEq)]
 enum Compare {
-    Python,
     Moved { z_vertical: bool },
 }
 
@@ -130,7 +104,7 @@ fn features(view: &Value, mode: Compare) -> BTreeMap<Key, Vec<BTreeMap<&'static 
                 json!([family, defining])
             })
             .collect();
-        if mode != Compare::Python {
+        {
             groups.sort_by_key(|g| g.to_string());
             members.sort_by_key(|m| m.to_string());
         }
@@ -141,16 +115,6 @@ fn features(view: &Value, mode: Compare) -> BTreeMap<Key, Vec<BTreeMap<&'static 
             ("members", Value::Array(members)),
         ]);
         out.entry(key(f)).or_default().push(fields);
-    }
-    out
-}
-
-/// Each family's defining lists in the view's order.
-fn orders(view: &Value) -> BTreeMap<String, Vec<Vec<u64>>> {
-    let mut out: BTreeMap<String, Vec<Vec<u64>>> = BTreeMap::new();
-    for f in view["features"].as_array().unwrap() {
-        let (family, defining) = key(f);
-        out.entry(family).or_default().push(defining);
     }
     out
 }
@@ -176,7 +140,7 @@ fn candidates(view: &Value, mode: Compare) -> BTreeMap<Key, Vec<Value>> {
             "index": c["index"], "outcome": c["outcome"], "reason": c["reason"],
             "constituent": c["constituent"],
         });
-        if mode != Compare::Python {
+        {
             summary.as_object_mut().unwrap().remove("index");
             related.sort_by_key(|r| r.to_string());
         }
@@ -212,7 +176,7 @@ fn differences(
                 };
                 out.entry("errors")
                     .or_default()
-                    .push(json!({"file": file, "python": side(left), "rust": side(right)}));
+                    .push(json!({"file": file, "unmoved": side(left), "rust": side(right)}));
             }
             return out;
         }
@@ -224,7 +188,7 @@ fn differences(
     for k in keys {
         let entry = |field: &str, p: Value, q: Value| {
             json!({"file": file, "family": k.0, "defining": k.1, "field": field,
-                   "python": p, "rust": q})
+                   "unmoved": p, "rust": q})
         };
         match (lf.get(k), rf.get(k)) {
             (Some(a), Some(b)) if a.len() == 1 && b.len() == 1 => {
@@ -250,21 +214,6 @@ fn differences(
             }
         }
     }
-    let (lo, ro) = (orders(l), orders(r));
-    for (family, a) in lo.iter().filter(|_| mode == Compare::Python) {
-        if let Some(b) = ro.get(family) {
-            let (mut sa, mut sb) = (a.clone(), b.clone());
-            sa.sort();
-            sb.sort();
-            if sa == sb && a != b {
-                out.entry("features").or_default().push(json!({
-                    "file": file, "family": family, "defining": null, "field": "order",
-                    "python": a, "rust": b,
-                }));
-            }
-        }
-    }
-
     let (lc, rc) = (candidates(l, mode), candidates(r, mode));
     let mut keys: Vec<&Key> = lc.keys().chain(rc.keys()).collect();
     keys.sort();
@@ -273,7 +222,7 @@ fn differences(
         let (a, b) = (one_or_all(lc.get(k)), one_or_all(rc.get(k)));
         if a != b {
             out.entry("candidates").or_default().push(
-                json!({"file": file, "family": k.0, "defining": k.1, "python": a, "rust": b}),
+                json!({"file": file, "family": k.0, "defining": k.1, "unmoved": a, "rust": b}),
             );
         }
     }
@@ -375,7 +324,7 @@ fn capture_covers_the_corpus() {
 }
 
 #[test]
-fn view_agrees_with_python() {
+fn rust_snapshot_recognition_evidence() {
     let Some(dir) = corpus() else { return };
     let capture = capture();
     let entries = parts(&capture);
@@ -383,7 +332,7 @@ fn view_agrees_with_python() {
         let file = p["file"].as_str().unwrap();
         let part = read(&dir, file);
         let rust = port_view(&part);
-        // Structure Python's view guarantees: a pattern's members are accepted holes, and every
+        // Structure unmoved Rust's view guarantees: a pattern's members are accepted holes, and every
         // rejected position names a rejected candidate.
         if let Ok(view) = build_recognition_evidence(&part) {
             for f in &view.features {
@@ -399,20 +348,9 @@ fn view_agrees_with_python() {
                 assert!(record.is_object(), "{file}: {} has no record", f.family);
             }
         }
-        differences(file, &python_view(p), &rust, Compare::Python)
+        json!({"file":file,"view":rust})
     });
-    let mut lists: BTreeMap<&str, Vec<Value>> = BTreeMap::new();
-    for part in found {
-        for (list, entries) in part {
-            lists.entry(list).or_default().extend(entries);
-        }
-    }
-    let problems: Vec<String> = ["features", "candidates", "errors"]
-        .into_iter()
-        .map(|list| known_problems(lists.remove(list).unwrap_or_default(), list))
-        .filter(|p| !p.is_empty())
-        .collect();
-    assert!(problems.is_empty(), "{}", problems.join("\n"));
+    common::snapshot::check(&common::fixtures(), "recognition_evidence", &json!(found));
 }
 
 /// Two of `tests/invariance.rs`'s rigid motions: one moving every axis and the origin, and one
@@ -460,8 +398,8 @@ fn view_is_placement_independent() {
                     map.insert("list".into(), json!(list));
                     map.insert("motion".into(), json!(motion));
                     map.insert("moved".into(), map["rust"].clone());
-                    map.insert("rust".into(), map["python"].clone());
-                    map.remove("python");
+                    map.insert("rust".into(), map["unmoved"].clone());
+                    map.remove("unmoved");
                     out.push(d);
                 }
             }

@@ -1,17 +1,6 @@
-//! Framed recognition (`quiddity.frames`) against Python's frames: for every STEP fixture, every
-//! corpus file and the hand-built parts of Python's frame tests, as read and under the generic
-//! motion (37° about (1, 2, 3), then a translation), the frame `infer_part_frame` derives must be
-//! Python's (`tests/fixtures/captured/frames.json`, `tools/capture_frames.py`): the same refusal,
-//! or the same gauge with axes agreeing to 1e-9 and the origin to 1e-9 of the part's size. The
-//! port's frame must also move with the part (case `equivariance`): the same gauge, the origin
-//! carried to 1e-9 of the part's size and, for a full gauge, the axes to 1e-9.
-//!
-//! Differences are listed in `tests/fixtures/captured/known_frames.json`, each with its file,
-//! `case` (`frame`: as read, `moved`, or `equivariance`), the `fields` that differ (`refusal`,
-//! `gauge`, `x`, `y`, `z`, `origin`), for an origin the largest coordinate difference it may
-//! reach (`origin_within`), and a verdict. A failing run prints the entry each difference needs.
+//! Rust frame snapshots (axes 1e-9, origin 1e-9 of part size) and unchanged motion-equivariance references.
 
-mod common;
+use super::common;
 
 use std::path::PathBuf;
 
@@ -66,72 +55,12 @@ fn captured_motion(captured: &Value) -> Placement {
     )
 }
 
-fn gauge_name(g: FrameGauge) -> &'static str {
-    match g {
-        FrameGauge::Full => "full",
-        FrameGauge::Orthogonal => "orthogonal",
-        FrameGauge::Axial => "axial",
-    }
-}
-
 fn vector(v: &Value) -> [f64; 3] {
     [0, 1, 2].map(|i| v[i].as_f64().unwrap())
 }
 
 fn largest_difference(a: [f64; 3], b: [f64; 3]) -> f64 {
     (0..3).map(|i| (a[i] - b[i]).abs()).fold(0.0, f64::max)
-}
-
-/// How the port's frame differs from Python's: the fields that differ (`refusal`, `gauge`, `x`,
-/// `y`, `z`, `origin`), the origin's largest coordinate difference, and a description. Axes
-/// agree to 1e-9; the origin to 1e-9 of *size* (at least 1e-9).
-fn frame_difference(
-    got: &Result<PartFrame, FrameRefusal>,
-    want: &Value,
-    size: f64,
-) -> (Vec<&'static str>, f64, String) {
-    match (got, want["refused"].as_str()) {
-        (Err(r), Some(w)) if r.as_str() == w => (vec![], 0.0, String::new()),
-        (Err(r), _) => (
-            vec!["refusal"],
-            0.0,
-            format!("refused {}, Python {}", r.as_str(), want),
-        ),
-        (Ok(f), Some(w)) => (
-            vec!["refusal"],
-            0.0,
-            format!("{} frame, Python refused {w}", gauge_name(f.gauge)),
-        ),
-        (Ok(f), None) => {
-            let (mut fields, mut text) = (Vec::new(), Vec::new());
-            if gauge_name(f.gauge) != want["gauge"].as_str().unwrap() {
-                fields.push("gauge");
-                text.push(format!(
-                    "gauge {}, Python {}",
-                    gauge_name(f.gauge),
-                    want["gauge"]
-                ));
-            }
-            for (name, axis) in [("x", f.x), ("y", f.y), ("z", f.z)] {
-                let w = vector(&want[name]);
-                let off = largest_difference(axis, w);
-                if off > 1e-9 {
-                    fields.push(name);
-                    text.push(format!("{name} {axis:?}, Python {w:?} (off {off:.1e})"));
-                }
-            }
-            let w = vector(&want["origin"]);
-            let off = largest_difference(f.origin, w);
-            if off > 1e-9 * size.max(1.0) {
-                fields.push("origin");
-                text.push(format!(
-                    "origin {:?}, Python {w:?} (off {off:.1e})",
-                    f.origin
-                ));
-            }
-            (fields, off, text.join("; "))
-        }
-    }
 }
 
 fn apply(m: &Placement, p: [f64; 3], point: bool) -> [f64; 3] {
@@ -186,7 +115,7 @@ fn equivariance(
 
 /// Also checks that the port's frame moves with the part: listed as case `equivariance`.
 #[test]
-fn frames_agree_with_python() {
+fn rust_snapshot_frames_and_equivariance() {
     let captured = captured();
     let generic = captured_motion(&captured);
     let corpus = common::corpus_dir();
@@ -196,7 +125,7 @@ fn frames_agree_with_python() {
             "QUIDDITY_CORPUS_REQUIRED is set but the corpus was not found"
         );
     }
-    let known = common::load("captured/known_frames.json");
+    let known = common::load("references/frame_equivariance.json");
     let known = known.as_array().unwrap();
     common::check_verdicts("known_frames.json", known);
     let parts: Vec<&Value> = captured["parts"].as_array().unwrap().iter().collect();
@@ -215,16 +144,38 @@ fn frames_agree_with_python() {
         };
         let mut out = Vec::new();
         let mut frames = Vec::new();
+        let mut snapshot = serde_json::Map::new();
         for (case, placement) in [("frame", IDENTITY), ("moved", generic)] {
             let part = read_step_file_placed(&path, &placement).unwrap();
             let size = part.bounds().diagonal();
             let frame = infer_part_frame(&part);
-            let (fields, off, text) = frame_difference(&frame, &entry[case], size);
-            if !fields.is_empty() {
-                out.push((file.to_string(), case, fields, off, text));
-            }
+            let value = frame.as_ref().map_or_else(
+                |r| serde_json::json!({"refused":r.as_str()}),
+                |f| serde_json::to_value(f).unwrap(),
+            );
+            snapshot.insert(case.into(), value);
             frames.push((frame, size));
         }
+        let equal = |a: &Value, b: &Value| {
+            ["frame", "moved"].iter().enumerate().all(|(i, case)| {
+                let (a, b) = (&a[case], &b[case]);
+                if a.get("refused").is_some() || b.get("refused").is_some() {
+                    return a == b;
+                }
+                a["gauge"] == b["gauge"]
+                    && ["x", "y", "z"]
+                        .iter()
+                        .all(|k| largest_difference(vector(&a[k]), vector(&b[k])) <= 1e-9)
+                    && largest_difference(vector(&a["origin"]), vector(&b["origin"]))
+                        <= 1e-9 * frames[i].1.max(1.0)
+            })
+        };
+        common::snapshot::check_with(
+            &common::fixtures(),
+            &format!("frames/{}/{}", entry["source"].as_str().unwrap(), file),
+            &Value::Object(snapshot),
+            &equal,
+        );
         let (fields, off, text) = equivariance(&generic, &frames[0].0, &frames[1].0, frames[0].1);
         if !fields.is_empty() {
             out.push((file.to_string(), "equivariance", fields, off, text));

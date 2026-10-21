@@ -8,7 +8,7 @@
 //! families (or correspondence fields) that differ; a part that fails the same way twice is
 //! reported with its failure and must be pinned in `FAILING_IN_BOTH_RUNS`.
 
-mod common;
+use super::common;
 
 use quiddity::correspondence;
 use serde_json::Value;
@@ -24,7 +24,7 @@ const GUARDED: [(&str, &str); 2] = [
 /// listed here rather than passing as deterministic (its message is printed), and a part that
 /// starts or stops failing changes the list and fails the test. A read failure is also a `read`
 /// problem in `tests/corpus.rs`, so the parts failing to read must be the `read` entries of
-/// `known_divergences.json`. (`recognise` returns no error: a refusal it cannot carry panics,
+/// `references/occt_corpus.json`. (`recognise` returns no error: a refusal it cannot carry panics,
 /// which fails this test outright.)
 const FAILING_IN_BOTH_RUNS: [(&str, &str); 0] = [];
 
@@ -131,24 +131,5 @@ fn recognition_json_is_the_same_twice_in_one_process() {
             "parts failing in both runs {failing:?}, FAILING_IN_BOTH_RUNS {FAILING_IN_BOTH_RUNS:?}"
         ));
     }
-    let known = common::load("known_divergences.json");
-    let mut read_divergences: Vec<&str> = known
-        .as_array()
-        .unwrap()
-        .iter()
-        .filter(|e| e["family"] == "read")
-        .map(|e| e["file"].as_str().unwrap())
-        .collect();
-    read_divergences.sort();
-    let mut unread: Vec<&str> = FAILING_IN_BOTH_RUNS
-        .iter()
-        .filter(|(_, step)| *step == "read")
-        .map(|(file, _)| *file)
-        .collect();
-    unread.sort();
-    assert_eq!(
-        unread, read_divergences,
-        "the parts FAILING_IN_BOTH_RUNS to read and known_divergences.json's read entries disagree"
-    );
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }

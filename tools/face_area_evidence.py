@@ -1,5 +1,5 @@
 """Independent areas of corpus faces over the region their 3D edge curves bound: the evidence
-behind the verdicts in ``tests/fixtures/known_face_areas.json``.
+behind the verdicts in ``tests/fixtures/references/face_areas.json``.
 
     QUIDDITY=../quiddity ../quiddity/.venv/bin/python tools/face_area_evidence.py faces.json
     QUIDDITY=../quiddity ../quiddity/.venv/bin/python tools/face_area_evidence.py --show FILE FACE...

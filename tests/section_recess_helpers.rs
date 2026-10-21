@@ -1,31 +1,6 @@
-//! The section-recess helpers against Python's answers (`tools/capture_section_recess_helpers.py`,
-//! fixtures in `tests/fixtures/captured/section_recess_helpers/`): `_cylindrical_seats`,
-//! `_cylindrical_end_surface` and `_plane_envelope_passages` have no `recognise_*` entry point,
-//! so their calls are replayed directly.
-//!
-//! - `values.json.gz`: every `CylindricalEndSurface` the Python tests build, and every `height`
-//!   and `polygon_height_bounds` question asked of one, with its answer or its refusal (the same
-//!   message);
-//! - `proofs.json.gz`: `cylindrical_seat_proofs` and `plane_envelope_passage_proofs` on the parts
-//!   the Python tests hand them, the golden fixtures and the corpus, and every private `_prove`
-//!   question asked on the way, each replayed on its own. The test parts include a sample of
-//!   those on which Python proves nothing (the rest are counted as `unselected`), where the port
-//!   must prove nothing too.
-//!
-//! Floats agree to one part in a million (`common::same`), refusals exactly. Python orders
-//! envelope proofs by its unspecified component walk, so a part's proofs are compared sorted by
-//! their faces, and traces a seat's arc in a direction that changes from run to run, so seats
-//! are compared in one direction (`seat_direction`). Differences are listed in
-//! `tests/fixtures/captured/known_section_recess_helpers.json`: per entry its `case` (`value`,
-//! `seats`, `envelopes`, `seat_call`, `envelope_call`), what identifies it (a value's `kind` and
-//! `given` input, a part's `file`, a call's `file` and `walls`, and an envelope call's `mouth`),
-//! a verdict and a reason. A failing run prints the entries it needs.
-//!
-//! The proofs are also checked under `tests/invariance.rs`'s rigid motions: every part on which
-//! Python proves something is re-read moved, and must prove the same on the same faces, with the
-//! same placement-free values (`case` `invariance`, identified by `file` and `motion`).
+//! Rust end-surface and seat/envelope snapshots with the existing proof motion checks.
 
-mod common;
+use super::common;
 
 use std::collections::BTreeSet;
 use std::io::Read;
@@ -43,7 +18,7 @@ use quiddity::features::sections::{LocalFrame, SectionError, SectionVertex};
 use quiddity::kernel::step::{Placement, read_step_file, read_step_file_placed};
 use serde_json::{Value, json};
 
-const KNOWN: &str = "captured/known_section_recess_helpers.json";
+const KNOWN: &str = "references/section_helper_motion.json";
 
 fn dir() -> std::path::PathBuf {
     common::fixtures().join("captured/section_recess_helpers")
@@ -164,15 +139,6 @@ fn value_answer(kind: &str, given: &Value) -> Value {
     }
 }
 
-/// What a captured record answered, without its identifying input.
-fn answer_of(record: &Value) -> Value {
-    let mut answer = record.clone();
-    let map = answer.as_object_mut().unwrap();
-    map.remove("kind");
-    map.remove("given");
-    answer
-}
-
 /// Checks *found* differences (identity, description) against the listed entries of *case*, and
 /// fails on an unlisted difference or a listed entry that no longer differs (of the files *ran*,
 /// when given: without the corpus its entries are not checked).
@@ -210,29 +176,16 @@ fn check_known(case: &str, found: Vec<(Value, String)>, ran: Option<&BTreeSet<St
 }
 
 #[test]
-fn end_surface_values_agree_with_python() {
-    let captured = load_gz("values.json.gz");
-    let values = captured["values"].as_array().unwrap();
-    assert!(!values.is_empty());
-    let mut found = Vec::new();
-    for record in values {
-        let kind = record["kind"].as_str().unwrap();
-        let got = value_answer(kind, &record["given"]);
-        let want = answer_of(record);
-        if !common::same(&got, &want) {
-            found.push((
-                json!({"case": "value", "kind": kind, "given": record["given"]}),
-                format!("{kind} {}: {}", record["given"], common::diff(&got, &want)),
-            ));
-        }
-    }
-    eprintln!(
-        "end-surface values: {} captured, {} differ, {} skipped by the capture",
-        values.len(),
-        found.len(),
-        captured["skipped"]
-    );
-    check_known("value", found, None);
+fn rust_snapshot_end_surface_values() {
+    let inputs = load_gz("values.json.gz");
+    let actual: Vec<Value> = inputs["values"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|record| value_answer(record["kind"].as_str().unwrap(), &record["given"]))
+        .collect();
+    assert!(!actual.is_empty());
+    common::snapshot::check(&common::fixtures(), "end_surface_values", &json!(actual));
 }
 
 /// An envelope proof with its two roof terms in gradient order when their heights agree to
@@ -312,145 +265,76 @@ fn read(source: &str, file: &str) -> Option<Part> {
     Some(read_step_file(&path).unwrap_or_else(|e| panic!("{file}: {e}")))
 }
 
-/// What one call replay found: a difference, or a match, per module.
-#[derive(Default)]
-struct Tally {
-    seat_calls: usize,
-    envelope_calls: usize,
-    found: Vec<(Value, String)>,
-}
-
 #[test]
-fn seat_and_envelope_proofs_agree_with_python() {
-    let captured = load_gz("proofs.json.gz");
-    let runs: Vec<&Value> = captured["runs"].as_array().unwrap().iter().collect();
-    let corpus = common::corpus_dir();
-    if corpus.is_none() {
-        assert!(
-            std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
-            "QUIDDITY_CORPUS_REQUIRED is set but the corpus was not found"
-        );
-    }
-    let ran: BTreeSet<String> = runs
-        .iter()
-        .filter(|r| corpus.is_some() || r["source"] != "corpus")
-        .map(|r| r["file"].as_str().unwrap().to_string())
-        .collect();
-    let tallies = common::parallel::map(&runs, |run| {
+fn rust_snapshot_seat_and_envelope_proofs() {
+    let inputs = load_gz("proofs.json.gz");
+    assert!(
+        common::corpus_dir().is_some() || std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none()
+    );
+    common::parallel::map(inputs["runs"].as_array().unwrap(), |run| {
         let file = run["file"].as_str().unwrap();
-        let mut tally = Tally::default();
-        let Some(part) = read(run["source"].as_str().unwrap(), file) else {
-            return tally;
+        let source = run["source"].as_str().unwrap();
+        let Some(part) = read(source, file) else {
+            return;
         };
         let ctx = Context::new(&part);
-        let seats = json!(
+        let seats = sorted(&json!(
             cylindrical_seat_proofs(&ctx)
                 .iter()
                 .map(seat_json)
                 .collect::<Vec<_>>()
-        );
-        let envelopes = json!(
+        ));
+        let envelopes = sorted(&json!(
             plane_envelope_passage_proofs(&ctx)
                 .iter()
                 .map(envelope_json)
                 .collect::<Vec<_>>()
-        );
-        for (case, got) in [("seats", seats), ("envelopes", envelopes)] {
-            let (got, want) = (sorted(&got), sorted(&run[case]));
-            if !common::same(&got, &want) {
-                tally.found.push((
-                    json!({"case": case, "file": file}),
-                    format!("{file} {case}: {}", common::diff(&got, &want)),
-                ));
-            }
-        }
-        for call in run["seat_calls"].as_array().unwrap() {
-            tally.seat_calls += 1;
-            let walls = indices(&call["walls"]);
-            let cylinder = SeatCylinder {
-                radius: float(&call["radius"]),
-                axis: floats::<3>(&call["axis"]),
-                origin: floats::<3>(&call["origin"]),
-            };
-            let got = prove_seat(&ctx, &walls, &cylinder).map_or(Value::Null, |p| seat_json(&p));
-            if !common::same(&seat_direction(&got), &seat_direction(&call["proof"])) {
-                tally.found.push((
-                    json!({"case": "seat_call", "file": file, "walls": walls}),
-                    format!(
-                        "{file} seat {walls:?}: {}",
-                        common::diff(&got, &call["proof"])
-                    ),
-                ));
-            }
-        }
-        for call in run["envelope_calls"].as_array().unwrap() {
-            tally.envelope_calls += 1;
-            let walls = indices(&call["walls"]);
-            let mouth = call["mouth"].as_u64().unwrap() as usize;
-            let b = &call["base"];
-            let base = LocalFrame::new(
-                floats::<3>(&b["origin"]),
-                floats::<3>(&b["run"]),
-                floats::<3>(&b["u"]),
-                floats::<3>(&b["v"]),
-            )
-            .unwrap();
-            let got = prove_envelope(&ctx, mouth, &walls, &base)
-                .map_or(Value::Null, |p| envelope_json(&p));
-            if !common::same(&tied_terms(&got), &tied_terms(&call["proof"])) {
-                tally.found.push((
-                    json!({"case": "envelope_call", "file": file, "mouth": mouth, "walls": walls}),
-                    format!(
-                        "{file} envelope {mouth} {walls:?}: {}",
-                        common::diff(&got, &call["proof"])
-                    ),
-                ));
-            }
-        }
-        tally
-    });
-    let seat_calls: usize = tallies.iter().map(|t| t.seat_calls).sum();
-    let envelope_calls: usize = tallies.iter().map(|t| t.envelope_calls).sum();
-    let found: Vec<(Value, String)> = tallies.into_iter().flat_map(|t| t.found).collect();
-    let mut problems = Vec::new();
-    for case in ["seats", "envelopes", "seat_call", "envelope_call"] {
-        let mine: Vec<_> = found
+        ));
+        let seat_calls: Vec<Value> = run["seat_calls"]
+            .as_array()
+            .unwrap()
             .iter()
-            .filter(|(identity, _)| identity["case"] == case)
-            .cloned()
+            .map(|call| {
+                let cylinder = SeatCylinder {
+                    radius: float(&call["radius"]),
+                    axis: floats::<3>(&call["axis"]),
+                    origin: floats::<3>(&call["origin"]),
+                };
+                let got = prove_seat(&ctx, &indices(&call["walls"]), &cylinder)
+                    .map_or(Value::Null, |p| seat_json(&p));
+                seat_direction(&got)
+            })
             .collect();
-        eprintln!("{case}: {} differ", mine.len());
-        if let Err(e) = std::panic::catch_unwind(|| check_known(case, mine, Some(&ran))) {
-            problems.push(
-                e.downcast_ref::<String>()
-                    .cloned()
-                    .unwrap_or_else(|| "check failed".into()),
-            );
-        }
-    }
-    let nothing = runs
-        .iter()
-        .filter(|r| r["source"] == "test" && r["seats"] == json!([]) && r["envelopes"] == json!([]))
-        .count();
-    eprintln!(
-        "{} parts ({nothing} test parts on which Python proves nothing, {} more left out by the \
-         capture), {seat_calls} seat calls, {envelope_calls} envelope calls replayed",
-        ran.len(),
-        captured["unselected"]
-    );
-    assert!(problems.is_empty(), "{}", problems.join("\n"));
-    assert_eq!(
-        (nothing, captured["unselected"].as_u64()),
-        (NO_PROOF_TEST_PARTS, Some(UNSELECTED_TEST_PARTS)),
-        "the capture's test parts on which Python proves nothing, and those it left out, changed: \
-         update the counts after checking the recapture"
-    );
+        let envelope_calls: Vec<Value> = run["envelope_calls"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|call| {
+                let b = &call["base"];
+                let base = LocalFrame::new(
+                    floats::<3>(&b["origin"]),
+                    floats::<3>(&b["run"]),
+                    floats::<3>(&b["u"]),
+                    floats::<3>(&b["v"]),
+                )
+                .unwrap();
+                let got = prove_envelope(
+                    &ctx,
+                    call["mouth"].as_u64().unwrap() as usize,
+                    &indices(&call["walls"]),
+                    &base,
+                )
+                .map_or(Value::Null, |p| envelope_json(&p));
+                tied_terms(&got)
+            })
+            .collect();
+        common::snapshot::check(
+            &common::fixtures(),
+            &format!("section_helpers/{source}/{file}"),
+            &json!({"seats":seats,"envelopes":envelopes,"seat_calls":seat_calls,"envelope_calls":envelope_calls}),
+        );
+    });
 }
-
-/// Test parts on which Python proves nothing that the capture keeps (a fixed sample per test).
-const NO_PROOF_TEST_PARTS: usize = 60;
-/// Test parts on which Python proves nothing that the capture leaves out.
-const UNSELECTED_TEST_PARTS: u64 = 428;
 
 /// `tests/invariance.rs`'s motions: a non-round translation and right-angle rotations.
 const T: [f64; 3] = [123.456, -78.9, 41.3];
@@ -536,11 +420,7 @@ fn proofs_do_not_depend_on_placement() {
         .as_array()
         .unwrap()
         .iter()
-        .filter(|r| {
-            ["seats", "envelopes"]
-                .iter()
-                .any(|k| r[k].as_array().is_some_and(|a| !a.is_empty()))
-        })
+        .filter(|r| r["motion_input"] == true)
         .collect();
     assert!(!runs.is_empty());
     let found: Vec<(Value, String)> = common::parallel::map(&runs, |run| {

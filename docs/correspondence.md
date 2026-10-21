@@ -140,9 +140,9 @@ The CLI, service and recognition document use this same route. `recognise_placed
 Caller-space recognition, discovery, inventory, context construction and evidence builders
 are crate-private by default. Record types remain public at their existing paths. The legacy
 `frames::prepare_framed*`, `working_part`, `FramedPart` and `FramedError` helpers and the
-`RecordFrame::CallerSpace` variant are feature-only. The hidden `python-parity`
-feature exposes them only for unchanged Python parity tests, outside the supported API.
-Feature record types remain public.
+`RecordFrame::CallerSpace` variant are private to crate tests. Caller-space recognition,
+discovery and inventory are implementation details; tests exercise them internally. Rust
+snapshots own the regression record; see the README for regeneration and review.
 
 
 ### Fingerprints (`fingerprint.rs`, version `quiddity-rust/fingerprint/3`)
@@ -295,7 +295,7 @@ their partners. Its exact expectations and listed verdicts remain in the fixture
 ### Limits
 
 The remaining section run-interval publication cases are explicitly pinned in
-`known_correspondence.json`: absolute endpoints still use the public three-decimal grid.
+`references/correspondence.json`: absolute endpoints still use the public three-decimal grid.
 Fixing them requires an intrinsic run-length representation or a versioned frame origin
 along the run. The recognised geometry and its current sizes remain visible in the output.
 

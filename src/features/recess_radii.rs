@@ -133,7 +133,7 @@ fn proved_corner_radius<R: Recess>(record: &R, cylinders: &[Cylinder]) -> Option
     }
 }
 
-parity_entry! {
+internal_entry! {
 /// The record with a proved corner radius published and each end extended by it, the walls
 /// having located `lo`/`hi` at the arc tangencies; otherwise unchanged
 /// (`_with_proved_corner_radius`).

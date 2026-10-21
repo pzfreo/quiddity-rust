@@ -7,14 +7,14 @@ use super::planes::{normalized, unit_plane_normal};
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{Surface, V3};
 
-parity_entry! {
+internal_entry! {
 /// Whether the face is a native plane (`FaceGraph.is_planar`).
 pub fn is_planar(part: &Part, face: usize) -> bool {
     matches!(part.faces[face].surface, Surface::Plane { .. })
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The face's unit normal as `FaceGraph.normal` reads it (`face.normal_at()`): at the centre of
 /// its parameter range, flipped on a reversed face. `None` for a face without one there.
 pub fn normal(part: &Part, face: usize) -> Option<V3> {
@@ -29,7 +29,7 @@ pub fn normal(part: &Part, face: usize) -> Option<V3> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The face's box as `(low, high)` along *axis* (`FaceGraph.bounds(node)[axis]`).
 pub fn span(part: &Part, face: usize, axis: usize) -> (f64, f64) {
     let b = part.face_bounds(face);
@@ -37,7 +37,7 @@ pub fn span(part: &Part, face: usize, axis: usize) -> (f64, f64) {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The face's distinct vertex points (`face.vertices()`), each edge read in its stored
 /// direction, edges in [`Part::face_edges`] order. The oblique through-step reading: it uses
 /// the points as a set (their depths, each point's offset).
@@ -57,7 +57,7 @@ pub fn face_vertices(part: &Part, face: usize) -> Vec<V3> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The face's distinct vertex points (`face.vertices()`) in boundary order: every loop walked
 /// in its own direction, each edge's ends as the walk meets them. The gusset reading: its
 /// order reaches the record (the first square corner found, the centroid's sum). It names the
@@ -83,7 +83,7 @@ pub fn face_vertices_along_loops(part: &Part, face: usize) -> Vec<V3> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The neighbours every one of *faces* shares, in the first face's neighbour order.
 pub fn common_neighbours(part: &Part, faces: &[usize]) -> Vec<usize> {
     let Some((&first, rest)) = faces.split_first() else {
@@ -97,7 +97,7 @@ pub fn common_neighbours(part: &Part, faces: &[usize]) -> Vec<usize> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The edges two faces share whose uses pair up uniquely in opposite directions
 /// (`FaceGraph.shared_occurrences`): an edge read a different number of times by the two
 /// faces, or without one opposite partner per use, has no traversal-independent pairing and is
@@ -136,7 +136,7 @@ pub fn shared_occurrences(part: &Part, a: usize, b: usize) -> Vec<usize> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// *nodes* as one open chain from its lower-numbered end, two nodes linked where they are
 /// neighbours and *joined* holds (`edge_open_prismatic_recesses._ordered_open_chain`, every
 /// neighbour; `edge_open_circular_recesses._ordered_chain`, smooth arcs only). `None` unless

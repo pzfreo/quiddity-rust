@@ -63,7 +63,7 @@ impl Default for OrientedChamferOptions {
     }
 }
 
-parity_entry! {
+internal_entry! {
 /// `recognise_oriented_chamfers`.
 pub fn recognise_oriented_chamfers(
     part: &Part,
@@ -73,7 +73,7 @@ pub fn recognise_oriented_chamfers(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path: each chamfer with its bevel face.
 pub fn discover_verified(
     ctx: &Context<'_>,
@@ -255,7 +255,7 @@ fn leg_order(a: &(f64, V3, [f64; 2]), b: &(f64, V3, [f64; 2])) -> std::cmp::Orde
     py::tuple_order(&coordinates(a.1, 6), &coordinates(b.1, 6))
 }
 
-parity_entry! {
+internal_entry! {
 /// Panics unless `0 < max_leg_frac < 1`, where Python raises `ValueError`.
 pub fn discover(
     ctx: &Context<'_>,

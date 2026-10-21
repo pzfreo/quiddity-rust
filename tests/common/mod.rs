@@ -4,6 +4,7 @@
 #![allow(dead_code)]
 
 pub mod parallel;
+pub mod snapshot;
 
 use std::path::{Path, PathBuf};
 
@@ -476,4 +477,15 @@ pub fn check_verdicts(list: &str, entries: &[Value]) {
             "{list}: entry without a reason: {e}"
         );
     }
+}
+
+/// Integration tests ensure Cargo builds this binary; unit tests locate it beside deps/.
+pub fn quiddity_binary() -> PathBuf {
+    std::env::current_exe()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .join(format!("quiddity{}", std::env::consts::EXE_SUFFIX))
 }

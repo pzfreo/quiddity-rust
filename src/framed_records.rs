@@ -23,7 +23,7 @@
 //! within a family, a direction's canonical sense, which end of a through hole is its entry, a
 //! section's starting vertex and direction) are the frame's and are kept, so they do not depend
 //! on placement either; they can differ from caller-space recognition's, which chooses them by
-//! the file's axes (`tests/fixtures/known_framed_document.json` lists each such difference).
+//! the file's axes (`tests/fixtures/references/framed_document.json` lists each such difference).
 
 use std::collections::BTreeMap;
 

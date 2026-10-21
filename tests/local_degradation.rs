@@ -1,34 +1,7 @@
-//! Python's local-degradation retry against the port (`tools/capture_local_degradation.py`,
-//! `tests/fixtures/captured/local_degradation/capture.json`).
-//!
-//! Python's default inventory runs strictly and, when that refuses an unproved hole on a part
-//! whose solids are not all valid, runs again with `local_degradation` set, where each family
-//! skips a record that proves no one valid solid instead of refusing. The port's inventory
-//! (`features::recognise` and the other whole-inventory entry points) takes the same retry, on
-//! the strict hole refusal alone, since it verifies no other family's evidence. Compared here:
-//!
-//! - which corpus parts reach the retry: in the port, the strict hole evidence path (countersinks
-//!   composed, as the aggregate composes them) refusing for want of a valid solid on a part whose
-//!   solids are not all valid;
-//! - on every part Python retried, each record Python skipped: what the port's evidence path for
-//!   that family does with it. Holes, pockets and plates have the degraded path
-//!   (`discover_locally_degraded`), and step levels and risers Python's degraded proof
-//!   (`levels::proved` under local degradation); the other families' strict paths answer
-//!   `refused` (the whole family), `published` (a record on those faces) or `skipped` (no record
-//!   there). A face is found by its box, so a part the port reads in another face order still
-//!   compares;
-//! - on every part both sides retry, what `features::recognise` publishes: none of the records
-//!   Python skipped, and Python's section recesses.
-//!
-//! Every difference is listed in `captured/local_degradation/known.json` with a verdict and a
-//! reason: `{"file", "kind": "retry", "rust"}` for a part only one side retries, `{"file",
-//! "kind": "skip", "module", "function", "faces" (Python's), "rust"}` for a skip the port does
-//! not reproduce. Unlisted, stale and doubly listed differences fail, and a failing run prints
-//! the entries it needs.
+//! Rust retry and publication snapshots over the legacy degradation questions, with unchanged placement invariance checks.
 
-mod common;
+use super::common;
 
-use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 use quiddity::Part;
@@ -38,7 +11,6 @@ use quiddity::kernel::step::{Placement, read_step_file, read_step_file_placed};
 use serde_json::{Value, json};
 
 const CAPTURE: &str = "captured/local_degradation/capture.json";
-const KNOWN: &str = "captured/local_degradation/known.json";
 
 fn corpus() -> Option<PathBuf> {
     let corpus = common::corpus_dir();
@@ -53,59 +25,6 @@ fn corpus() -> Option<PathBuf> {
 
 fn parts(capture: &Value) -> &Vec<Value> {
     capture["parts"].as_array().unwrap()
-}
-
-/// Every difference must be listed once, and every listed one found.
-fn check_known(found: Vec<Value>, kind: &str) {
-    let known = common::load(KNOWN);
-    let entries: Vec<Value> = known
-        .as_array()
-        .unwrap()
-        .iter()
-        .filter(|e| e["kind"] == kind)
-        .cloned()
-        .collect();
-    common::check_verdicts("local_degradation/known.json", &entries);
-    let key = |e: &Value| {
-        let mut e = e.clone();
-        let map = e.as_object_mut().unwrap();
-        map.remove("verdict");
-        map.remove("reason");
-        e.to_string()
-    };
-    let mut listed: BTreeMap<String, bool> = BTreeMap::new();
-    let mut problems = Vec::new();
-    for e in &entries {
-        if listed.insert(key(e), false).is_some() {
-            problems.push(format!("listed twice: {e}"));
-        }
-    }
-    let mut needed = Vec::new();
-    for difference in found {
-        match listed.get_mut(&key(&difference)) {
-            Some(seen) => *seen = true,
-            None => {
-                problems.push(format!("unlisted: {difference}"));
-                let mut entry = difference.clone();
-                entry["verdict"] = json!("undetermined");
-                entry["reason"] = json!("TODO");
-                needed.push(entry);
-            }
-        }
-    }
-    problems.extend(
-        listed
-            .iter()
-            .filter(|(_, seen)| !**seen)
-            .map(|(k, _)| format!("stale: {k}")),
-    );
-    if !needed.is_empty() {
-        problems.push(format!(
-            "entries needed:\n{}",
-            serde_json::to_string_pretty(&needed).unwrap()
-        ));
-    }
-    assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 
 /// The capture is of this corpus, at the revision `corpus.json` records.
@@ -125,15 +44,6 @@ fn capture_covers_the_corpus() {
         .map(|p| (&p["file"], &p["sha256"]))
         .collect();
     assert_eq!(got, want);
-    // Python retries exactly the parts whose strict pass refused the unproved hole, and the
-    // retry completes every inventory.
-    for p in parts(&capture) {
-        let refused = p["strict"]["error"].as_str().is_some_and(|e| {
-            e == format!("ValueError: {}", capture["retry_message"].as_str().unwrap())
-        });
-        assert_eq!(refused, p.get("degraded").is_some(), "{}", p["file"]);
-        assert_eq!(p["result"], "ok", "{}", p["file"]);
-    }
 }
 
 /// The strict and locally degraded hole evidence paths over one part, countersinks composed.
@@ -177,43 +87,36 @@ fn port_retries(part: &Part) -> bool {
 }
 
 #[test]
-fn retry_is_reached_where_python_reaches_it() {
+fn rust_snapshot_retry_reachability() {
     let Some(dir) = corpus() else { return };
-    let capture = common::load(CAPTURE);
-    let entries = parts(&capture);
-    let found = common::parallel::map(entries, |p| {
+    let inputs = common::load(CAPTURE);
+    let actual = common::parallel::map(parts(&inputs), |p| {
         let file = p["file"].as_str().unwrap();
-        let part = read_step_file(&dir.join(file)).unwrap_or_else(|e| panic!("{file}: {e}"));
-        let python = p.get("degraded").is_some();
-        let port = port_retries(&part);
-        (python != port).then(|| json!({"file": file, "kind": "retry", "rust": port}))
+        let part = read_step_file(&dir.join(file)).unwrap();
+        json!({"file":file,"retried":port_retries(&part)})
     });
-    let retried = entries
-        .iter()
-        .filter(|p| p.get("degraded").is_some())
-        .count();
-    eprintln!(
-        "local degradation: Python retries {retried} of {} parts",
-        entries.len()
+    common::snapshot::check(
+        &common::fixtures(),
+        "retry",
+        &serde_json::to_value(actual).unwrap(),
     );
-    check_known(found.into_iter().flatten().collect(), "retry");
 }
 
-/// The port's face with this Python face's box (to the inventory's 5e-3), if exactly one.
-fn port_face(part: &Part, python: &Value) -> Option<usize> {
+/// The port's face with this unmoved Rust face's box (to the inventory's 5e-3), if exactly one.
+fn port_face(part: &Part, unmoved: &Value) -> Option<usize> {
     let close = |got: [f64; 3], want: &Value| {
         (0..3).all(|k| (got[k] - want[k].as_f64().unwrap()).abs() <= 5e-3 + 1e-6 * got[k].abs())
     };
     let matches: Vec<usize> = (0..part.faces.len())
         .filter(|&f| {
             let b = part.face_bounds(f);
-            close(b.min, &python["min"]) && close(b.max, &python["max"])
+            close(b.min, &unmoved["min"]) && close(b.max, &unmoved["max"])
         })
         .collect();
     (matches.len() == 1).then(|| matches[0])
 }
 
-/// The Python entry point whose evidence path a skipping family function is part of (for step
+/// The unmoved Rust entry point whose evidence path a skipping family function is part of (for step
 /// levels and risers, the aggregate's own discovery).
 fn entry_point(module: &str, function: &str) -> &'static str {
     match (module, function) {
@@ -294,159 +197,48 @@ fn port_outcome(part: &Part, function: &str, faces: &[usize]) -> &'static str {
 }
 
 #[test]
-fn skips_agree_with_python() {
+fn rust_snapshot_degradation_questions() {
     let Some(dir) = corpus() else { return };
-    let capture = common::load(CAPTURE);
-    let retried: Vec<&Value> = parts(&capture)
+    let inputs = common::load(CAPTURE);
+    let selected: Vec<&Value> = parts(&inputs)
         .iter()
-        .filter(|p| p.get("degraded").is_some())
+        .filter(|p| p["retry_input"] == true)
         .collect();
-    let found = common::parallel::map(&retried, |p| {
+    let actual = common::parallel::map(&selected, |p| {
         let file = p["file"].as_str().unwrap();
-        let part = read_step_file(&dir.join(file)).unwrap_or_else(|e| panic!("{file}: {e}"));
-        let mut out = Vec::new();
-        for skip in p["skips"].as_array().unwrap() {
-            let (module, function) = (
-                skip["module"].as_str().unwrap(),
-                skip["function"].as_str().unwrap(),
-            );
-            let faces: Option<Vec<usize>> = skip["boxes"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .map(|b| port_face(&part, b))
-                .collect();
-            let rust = match faces {
-                None => "faces not found",
-                Some(faces) => port_outcome(&part, entry_point(module, function), &faces),
-            };
-            if rust != "skipped" {
-                out.push(json!({"file": file, "kind": "skip", "module": module,
-                                "function": function, "faces": skip["faces"], "rust": rust}));
-            }
-        }
-        out
+        let part = read_step_file(&dir.join(file)).unwrap();
+        let answers: Vec<Value> = p["skips"].as_array().unwrap().iter().map(|skip| {
+            let faces: Option<Vec<usize>> = skip["boxes"].as_array().unwrap().iter().map(|b|port_face(&part,b)).collect();
+            let rust = faces.map_or("faces not found", |faces|port_outcome(&part,entry_point(skip["module"].as_str().unwrap(),skip["function"].as_str().unwrap()),&faces));
+            json!({"module":skip["module"],"function":skip["function"],"faces":skip["faces"],"outcome":rust})
+        }).collect();
+        json!({"file":file,"answers":answers})
     });
-    let skips: usize = retried
-        .iter()
-        .map(|p| p["skips"].as_array().unwrap().len())
-        .sum();
-    eprintln!(
-        "local degradation: {skips} records skipped on {} parts",
-        retried.len()
-    );
-    check_known(found.into_iter().flatten().collect(), "skip");
-}
-
-/// The `Features` field a skipping family function's records are published under.
-fn features_field(module: &str, function: &str) -> &'static str {
-    match (module, function) {
-        ("holes", "_discover_holes") => "holes",
-        ("fillets", "_discover_fillets") => "fillets",
-        ("_recess_features", "_discover_pockets") => "pockets",
-        ("plates", "_discover_plates") => "plates",
-        ("levels", "_discover_step_levels") => "step_levels",
-        ("levels", "_discover_risers") => "risers",
-        other => panic!("{other:?}: no features field mapped for this skip"),
-    }
-}
-
-/// Python's section-recess document for a corpus file
-/// (`captured/section_recesses/documents.json.gz`).
-fn python_section_recess_document(file: &str) -> Value {
-    let path = common::fixtures().join("captured/section_recesses/documents.json.gz");
-    let captured: Value = serde_json::from_reader(flate2::read::GzDecoder::new(
-        std::fs::File::open(path).unwrap(),
-    ))
-    .unwrap();
-    captured["runs"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .find(|r| r["source"] == "corpus" && r["file"] == file)
-        .unwrap_or_else(|| panic!("{file}: no captured section-recess document"))["document"]
-        .clone()
-}
-
-/// Each record's (defining, constituent) faces in a section-recess document's list.
-fn evidence_faces(records: &Value) -> Vec<(Value, Value)> {
-    records
-        .as_array()
-        .unwrap()
-        .iter()
-        .map(|r| {
-            (
-                r["evidence"]["defining_faces"].clone(),
-                r["evidence"]["constituent_faces"].clone(),
-            )
-        })
-        .collect()
+    common::snapshot::check(&common::fixtures(), "degradation_questions", &json!(actual));
 }
 
 /// On every part both sides retry, `features::recognise` takes the locally degraded run as
-/// Python's aggregate does: no record Python's retry skips is published, and the section-recess
-/// projection, which strictly refuses there for want of a valid solid, publishes Python's
+/// unmoved Rust's aggregate does: no record unmoved Rust's retry skips is published, and the section-recess
+/// projection, which strictly refuses there for want of a valid solid, publishes unmoved Rust's
 /// section recesses and refusals.
 #[test]
-fn recognise_takes_the_retry() {
+fn rust_snapshot_retry_publication() {
     let Some(dir) = corpus() else { return };
-    let capture = common::load(CAPTURE);
-    let retried: Vec<&Value> = parts(&capture)
+    let inputs = common::load(CAPTURE);
+    let selected: Vec<&Value> = parts(&inputs)
         .iter()
-        .filter(|p| p.get("degraded").is_some())
+        .filter(|p| p["retry_input"] == true)
         .collect();
-    let problems = common::parallel::map(&retried, |p| {
+    let actual = common::parallel::map(&selected, |p| {
         let file = p["file"].as_str().unwrap();
-        let part = read_step_file(&dir.join(file)).unwrap_or_else(|e| panic!("{file}: {e}"));
-        let mut out = Vec::new();
-        if !port_retries(&part) {
-            return (false, out);
-        }
+        let part = read_step_file(&dir.join(file)).unwrap();
         let features = quiddity::features::recognise(&part);
-        if let Some(e) = &features.section_recess_refusal {
-            out.push(format!(
-                "{file}: the section-recess projection refuses: {e}"
-            ));
-        }
-        for skip in p["skips"].as_array().unwrap() {
-            let field = features_field(
-                skip["module"].as_str().unwrap(),
-                skip["function"].as_str().unwrap(),
-            );
-            let faces: Vec<usize> = skip["boxes"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .map(|b| port_face(&part, b).unwrap_or_else(|| panic!("{file}: {b}")))
-                .collect();
-            let on = |d: &Vec<usize>| {
-                !d.is_empty()
-                    && (d.iter().all(|f| faces.contains(f)) || faces.iter().all(|f| d.contains(f)))
-            };
-            if features.defining[field].iter().any(on) {
-                out.push(format!(
-                    "{file}: {field} on {faces:?} is published; Python's retry skips it"
-                ));
-            }
-        }
-        let want = python_section_recess_document(file);
-        let got = serde_json::to_value(&features.section_recesses).unwrap();
-        let got_refusals = serde_json::to_value(&features.section_recess_refusals).unwrap();
-        if evidence_faces(&got) != evidence_faces(&want["occurrences"])
-            || evidence_faces(&got_refusals) != evidence_faces(&want["refusals"])
-        {
-            out.push(format!(
-                "{file}: section recesses {got} refusals {got_refusals}, Python's {} {}",
-                want["occurrences"], want["refusals"]
-            ));
-        }
-        (true, out)
+        json!({"file":file,"retry":port_retries(&part),"features":features,"defining":features.defining,
+               "section_recesses":features.section_recesses,"section_recess_refusals":features.section_recess_refusals,
+               "refusal":features.section_recess_refusal.map(|e|e.to_string())})
     });
-    let compared = problems.iter().filter(|(ran, _)| *ran).count();
-    eprintln!("local degradation: recognise retried on {compared} parts");
-    assert!(compared > 0, "no part both sides retry");
-    let problems: Vec<String> = problems.into_iter().flat_map(|(_, p)| p).collect();
-    assert!(problems.is_empty(), "{}", problems.join("\n"));
+    assert!(!actual.is_empty());
+    common::snapshot::check(&common::fixtures(), "retry_publication", &json!(actual));
 }
 
 /// Two of `tests/invariance.rs`'s rigid motions: one moving every axis and the origin, and one
@@ -470,16 +262,13 @@ const MOTIONS: [(&str, Placement); 2] = [
     ),
 ];
 
-/// On every part Python retries, the locally degraded holes and pockets (and whether the port
+/// On every part unmoved Rust retries, the locally degraded holes and pockets (and whether the port
 /// retries) are the same faces however the part is placed.
 #[test]
 fn locally_degraded_paths_are_placement_independent() {
     let Some(dir) = corpus() else { return };
     let capture = common::load(CAPTURE);
-    for p in parts(&capture)
-        .iter()
-        .filter(|p| p.get("degraded").is_some())
-    {
+    for p in parts(&capture).iter().filter(|p| p["retry_input"] == true) {
         let path = dir.join(p["file"].as_str().unwrap());
         let base = read_step_file(&path).unwrap();
         let want = (

@@ -26,7 +26,7 @@ pub enum EvidenceStatus {
     Unproved,
 }
 
-parity_entry! {
+internal_entry! {
 /// Check the same defining-and-consulted-face ownership as [`verified`], always strictly.
 /// Local degradation may admit candidates, but cannot upgrade invalid geometry's status.
 pub fn strict_status(part: &Part, defining: &[usize], context: &[usize]) -> EvidenceStatus {
@@ -105,7 +105,7 @@ thread_local! {
     static LOCAL_DEGRADATION: Cell<bool> = const { Cell::new(false) };
 }
 
-parity_entry! {
+internal_entry! {
 /// Whether the current run is locally degraded (`locally_degraded`, the aggregate's retry).
 pub fn local_degradation() -> bool {
     LOCAL_DEGRADATION.with(Cell::get)
@@ -127,7 +127,7 @@ pub(crate) fn locally_degraded<T>(f: impl FnOnce() -> T) -> T {
     f()
 }
 
-parity_entry! {
+internal_entry! {
 /// The one valid solid every face belongs to (`FaceGraph.common_valid_solid`). Valid as
 /// Python's `solid.is_valid` (`BRepCheck_Analyzer`) reads it: sound topology and no faulted face
 /// (`Part::solid_is_geometrically_valid`). Inside a locally degraded run ([`local_degradation`])
@@ -143,7 +143,7 @@ pub fn common_valid_solid(part: &Part, faces: &[usize]) -> Option<usize> {
 /// Most faulted faces a locally degraded run admits a solid with.
 const MAX_BAD_FACES: usize = 3;
 
-parity_entry! {
+internal_entry! {
 /// [`common_valid_solid`] as Python's locally degraded run proves it (`local_degradation`): a
 /// solid with faulted faces is also admitted when its topology is sound, it has one shell and a
 /// positive volume and at most three faulted faces, but then no face may be a faulted one or
@@ -168,7 +168,7 @@ pub fn locally_valid_solid(part: &Part, faces: &[usize]) -> Option<usize> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Whether a locally degraded run proves *o*: it has defining faces, and its defining and
 /// consulted faces together prove one solid as [`locally_valid_solid`] does. The holes', pockets'
 /// and fillets' check on a degraded graph (`_discover_holes`, `_discover_pockets`,
@@ -179,7 +179,7 @@ pub fn locally_proved<R>(part: &Part, o: &Occurrence<R>) -> bool {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// All occurrences, or none: each one's faces must share one valid solid.
 pub fn verified<R>(
     part: &Part,

@@ -5,7 +5,7 @@
 //!
 //! The port integrates over the region its 3D edge curves bound; OpenCascade over the region
 //! the face's pcurves bound. Every difference, and every change under motion, must be listed in
-//! `tests/fixtures/known_face_areas.json` with a verdict, pinned to the area the port gives
+//! `tests/fixtures/references/face_areas.json` with a verdict, pinned to the area the port gives
 //! (`tools/known_face_areas.py` writes the list from the differences, the capture's further
 //! OpenCascade references and the independent integrations of `tools/face_area_evidence.py`).
 //! A file whose faces the reader does not walk in OpenCascade's order (a known inventory
@@ -301,9 +301,9 @@ fn face_areas_match_opencascade_and_ignore_placement() {
             )
         })
         .collect();
-    let known = common::load("known_face_areas.json");
+    let known = common::load("references/face_areas.json");
     let known = known.as_array().unwrap();
-    common::check_verdicts("known_face_areas.json", known);
+    common::check_verdicts("references/face_areas.json", known);
     // The parts are independent; read and integrate them across the machine's cores.
     let threads = std::thread::available_parallelism()
         .map_or(1, |n| n.get())

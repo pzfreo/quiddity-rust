@@ -1,36 +1,6 @@
-//! Parity over the shared STEP corpus: for every corpus file, the face inventory, the kernel
-//! answers recognisers lean on (and solid masses) and each ported recogniser's answer must match
-//! what `tools/export_corpus.py` recorded from Python, except for the differences listed (with
-//! reasons) in `tests/fixtures/known_divergences.json`.
-//!
-//! Every difference is a problem with an exact identity: the file, a family (`read`,
-//! `inventory`, `kernel`, or the recogniser's Python name) and a key, and a list entry names that
-//! identity exactly with the number of problems it explains:
-//!
-//! ```json
-//! {"file": "nist/nist_ctc_01_asme1_rd.stp", "family": "inventory", "key": "edge count",
-//!  "count": 13, "verdict": "rust-correct", "reason": "..."}
-//! ```
-//!
-//! Keys: `inventory` has `face count`, `face type`, `edge count` and `face bounds` (one problem
-//! per face); `kernel` has `solid count`, `solid masses differ by up to 1e<n>` (one per file),
-//! `uv_bounds <surface kind>` or, when an angular direction differs only by whole turns or by
-//! where a full turn starts, `uv_bounds <surface kind> (same range, another turn)` (one per
-//! face), and `arcs` (one per neighbour pair); a recogniser has
-//! `<options> records: <n> vs <m> records, fields {...}` and `<options> evidence ...` (one per
-//! run), where `<options>` is the run's options as compact JSON with sorted keys. The test fails
-//! on a problem no entry names, on an entry whose count differs from the problems it names, and
-//! on two entries with one identity (a problem must have one explanation). A failure prints each
-//! unlisted problem group as the entry it needs (verdict and reason to be added), with the first
-//! few details.
-//!
-//! When the problems of one identity need different verdicts, the per-face `kernel` keys
-//! (`uv_bounds ...` and `arcs`) can be split by face: an entry with `"faces": [1428, 1448]` (face
-//! indices; for `arcs`, pairs as `"361-362"`) names only those faces' problems, and the entry for
-//! that identity without `faces`, if any, names the rest. Two entries listing one face, or two
-//! without `faces`, fail as two explanations of one problem.
+//! OpenCascade corpus references and Rust-owned recognition snapshots. The inventory, mass, UV and arc bands remain unchanged.
 
-mod common;
+use super::common;
 
 use std::collections::BTreeMap;
 
@@ -74,7 +44,7 @@ impl Problem {
 type Entry = (String, String, String, Option<Vec<String>>, u64);
 
 #[test]
-fn corpus_matches_python() {
+fn corpus_matches_opencascade() {
     let Some(dir) = common::corpus_dir() else {
         assert!(
             std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
@@ -91,7 +61,7 @@ fn corpus_matches_python() {
     // the problems are listed as one file after another would list them.
     let found = common::parallel::map(&files, |entry| {
         let mut problems = Vec::new();
-        let mut counts = BTreeMap::<String, (usize, usize)>::new();
+        let counts = BTreeMap::<String, (usize, usize)>::new();
         let name = entry["file"].as_str().unwrap();
         let part = match read_step_file(&dir.join(name)) {
             Ok(p) => p,
@@ -109,30 +79,6 @@ fn corpus_matches_python() {
         // types); edge counts and boxes may differ (seams OpenCascade's healing adds).
         check_kernel(name, &part, &entry["kernel"], aligned, &mut problems);
         let masses = entry["kernel"]["solids"].as_array().unwrap().len() == part.solids.len();
-        for (function, runs) in entry["results"].as_object().unwrap() {
-            for run in runs.as_array().unwrap() {
-                let tally = counts.entry(function.clone()).or_default();
-                let got = common::recognise(function, &part, &run["options"]);
-                if !common::same(&got, &run["result"]) {
-                    tally.1 += 1;
-                    problems.push(Problem::new(
-                        name,
-                        function,
-                        format!(
-                            "{} records: {}",
-                            run["options"],
-                            common::diff_summary(&got, &run["result"])
-                        ),
-                        common::diff(&got, &run["result"]),
-                    ));
-                    continue;
-                }
-                tally.0 += 1;
-                if run.get("defining").is_some() || run.get("evidence_error").is_some() {
-                    check_evidence(name, function, &part, run, &mut problems);
-                }
-            }
-        }
         (problems, counts, Some((masses, aligned)))
     });
     let mut problems = Vec::new();
@@ -159,21 +105,22 @@ fn corpus_matches_python() {
          per-face answers on {per_face_runs})",
         files.len()
     );
-    let known: Vec<Value> = serde_json::from_value(common::load("known_divergences.json")).unwrap();
-    common::check_verdicts("known_divergences.json", &known);
+    let known: Vec<Value> =
+        serde_json::from_value(common::load("references/occt_corpus.json")).unwrap();
+    common::check_verdicts("references/occt_corpus.json", &known);
     let entry = |d: &Value| -> Entry {
         let field = |k: &str| {
             d[k].as_str()
-                .unwrap_or_else(|| panic!("known_divergences.json: entry without {k}: {d}"))
+                .unwrap_or_else(|| panic!("references/occt_corpus.json: entry without {k}: {d}"))
                 .to_owned()
         };
         let count = d["count"]
             .as_u64()
-            .unwrap_or_else(|| panic!("known_divergences.json: entry without count: {d}"));
+            .unwrap_or_else(|| panic!("references/occt_corpus.json: entry without count: {d}"));
         let faces = d.get("faces").map(|faces| {
             faces
                 .as_array()
-                .unwrap_or_else(|| panic!("known_divergences.json: `faces` not a list: {d}"))
+                .unwrap_or_else(|| panic!("references/occt_corpus.json: `faces` not a list: {d}"))
                 .iter()
                 .map(|f| match f {
                     Value::String(pair) => pair.clone(),
@@ -193,7 +140,7 @@ fn corpus_matches_python() {
         for face in subjects {
             assert!(
                 seen.insert((file, family, key, face)),
-                "known_divergences.json: two entries for {file} {family} {key:?} {face:?}"
+                "references/occt_corpus.json: two entries for {file} {family} {key:?} {face:?}"
             );
         }
     }
@@ -241,42 +188,6 @@ fn corpus_matches_python() {
         unexpected.len(),
         unexpected.join("\n")
     );
-}
-
-/// The defining faces (or the refusal) of the evidence path agree with Python's.
-fn check_evidence(
-    name: &str,
-    function: &str,
-    part: &quiddity::Part,
-    run: &Value,
-    problems: &mut Vec<Problem>,
-) {
-    let ours = common::defining(function, part, &run["options"]);
-    let opts = &run["options"];
-    let mut problem = |what: &str, detail: String| {
-        problems.push(Problem::new(
-            name,
-            function,
-            format!("{opts} evidence {what}"),
-            detail,
-        ));
-    };
-    match (ours, run.get("evidence_error"), run.get("defining")) {
-        (Err(_), Some(_), _) => {}
-        (Ok(faces), None, Some(want)) => {
-            let want: Vec<Vec<usize>> = serde_json::from_value(want.clone()).unwrap();
-            if faces != want {
-                problem("faces differ", format!("{faces:?}, Python {want:?}"));
-            }
-        }
-        (Ok(faces), Some(error), _) => {
-            problem(
-                "refused by Python only",
-                format!("{faces:?}, Python {error}"),
-            );
-        }
-        (got, want, _) => problem("differs", format!("{got:?}, Python {want:?}")),
-    }
 }
 
 /// Whether two UV ranges `[u0, u1, v0, v1]` cover the same parameters: equal in each
@@ -392,4 +303,31 @@ fn check_kernel(
             );
         }
     }
+}
+
+#[test]
+fn rust_snapshot_corpus() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let corpus = common::load("corpus.json");
+    let actual = common::parallel::map(corpus["files"].as_array().unwrap(), |entry| {
+        let file = entry["file"].as_str().unwrap();
+        let part = read_step_file(&dir.join(file)).unwrap();
+        let mut results = serde_json::Map::new();
+        for (function, runs) in entry["results"].as_object().unwrap() {
+            let runs: Vec<Value> = runs.as_array().unwrap().iter().map(|run| {
+                let mut result = serde_json::json!({"options":run["options"], "records":common::recognise(function, &part, &run["options"])});
+                if run["check_evidence"] == true {
+                    result["defining"] = serde_json::to_value(common::defining(function,&part,&run["options"])).unwrap();
+                }
+                result
+            }).collect();
+            results.insert(function.clone(), Value::Array(runs));
+        }
+        let recognised = quiddity::correspondence::recognise(&part);
+        serde_json::json!({"file":file,"results":results,"document":quiddity::recognition::document(&recognised,part.faces.len()),"fingerprints":recognised.fingerprints})
+    });
+    common::snapshot::check(&common::fixtures(), "corpus", &serde_json::json!(actual));
 }

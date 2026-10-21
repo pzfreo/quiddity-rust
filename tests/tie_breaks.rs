@@ -1,5 +1,5 @@
 //! ADR 0011: topology numbering and support parametrisation cannot establish machining roles.
-mod common;
+use super::common;
 use quiddity::features::{self, Context};
 use quiddity::kernel::step::{IDENTITY, Placement, read_step_file_placed};
 

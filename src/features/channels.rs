@@ -14,7 +14,7 @@ use crate::kernel::py;
 
 pub use super::recess_records::Channel;
 
-parity_entry! {
+internal_entry! {
 /// `recognise_channels`.
 pub fn recognise_channels(part: &Part) -> Vec<Channel> {
     records(discover(&Context::new(part)))
@@ -95,7 +95,7 @@ fn retained(ctx: &Context<'_>, strict: bool) -> Result<Vec<ChannelProposal>, Evi
     Ok(out)
 }
 
-parity_entry! {
+internal_entry! {
 /// Every channel with its two side walls and floor, in record order.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Channel>> {
     retained(ctx, false)
@@ -106,7 +106,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Channel>> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path (`_discover_channels` with a writer): one record on two wall pairs, side
 /// walls that are one face, a floor missing or among the walls, or faces without one valid
 /// solid refuse.

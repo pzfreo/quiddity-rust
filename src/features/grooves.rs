@@ -43,14 +43,14 @@ pub struct Groove {
     pub profile: Option<TurnedProfileKey>,
 }
 
-parity_entry! {
+internal_entry! {
 /// `recognise_grooves`: sorted by axis, then `at`.
 pub fn recognise_grooves(part: &Part) -> Vec<Groove> {
     super::records(discover(&Context::new(part)))
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path: each groove with its floor band, on one valid solid, and no turned
 /// profile key shared by two solids.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<Groove>>, EvidenceError> {
@@ -222,7 +222,7 @@ fn shaft_key(c: &CylinderEvidence) -> ShaftKey {
     )
 }
 
-parity_entry! {
+internal_entry! {
 /// Each groove with its floor band as the defining face, sorted by axis then `at`.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Groove>> {
     let part = ctx.part;

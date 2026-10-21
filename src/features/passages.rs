@@ -297,7 +297,7 @@ impl SectionPassage {
     }
 }
 
-parity_entry! {
+internal_entry! {
 /// Recognise the legacy prismatic passages of *part* (`recognise_passages`): one per closed
 /// ring capped at neither end, by axis then centre. Through slots are reported too (a closed
 /// uncapped ring); Python's aggregate reconciles them, and neither does it here.
@@ -309,7 +309,7 @@ pub fn recognise_passages(part: &Part) -> Vec<Passage> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Recognise the section passages of *part* (`recognise_section_passages`), or the refusal
 /// Python raises.
 pub fn recognise_section_passages(part: &Part) -> Checked<Vec<SectionPassage>> {
@@ -317,7 +317,7 @@ pub fn recognise_section_passages(part: &Part) -> Checked<Vec<SectionPassage>> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The section passages with their defining walls and consulted faces (the proposal's further
 /// constituent faces: entry treatments or region), or a refusal.
 pub fn discover(ctx: &Context<'_>) -> Checked<Vec<Occurrence<SectionPassage>>> {
@@ -336,7 +336,7 @@ pub fn discover(ctx: &Context<'_>) -> Checked<Vec<Occurrence<SectionPassage>>> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Each section passage's frozen compatibility view (Python's `passage_compatibility`), in
 /// `discover`'s order: the slot grouping reconciliation reads ([`super::reconcile`]).
 pub fn compatibility_views(ctx: &Context<'_>) -> Checked<Vec<PassageCompatibilityView>> {
@@ -347,7 +347,7 @@ pub fn compatibility_views(ctx: &Context<'_>) -> Checked<Vec<PassageCompatibilit
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Like `discover`, every occurrence's faces checked to share one valid solid; for the
 /// evidence comparison.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<SectionPassage>>, String> {
@@ -356,7 +356,7 @@ pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<SectionPass
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Two legacy passages describe one closed section (`_same_legacy_passage_geometry`): the same
 /// axis, sides, length and canonical section, and the same centre, or a centre whose differing
 /// coordinates are opposite 3-decimal roundings of one half-quantum *exact_at* coordinate.
@@ -510,7 +510,7 @@ fn proposal_legacy_projection(
     principal_projection(f.origin, f.run, f.u, f.v, o.run_interval(), &points)
 }
 
-parity_entry! {
+internal_entry! {
 /// The frozen pre-0.4 finder and its discovery order (`_legacy_roster`): every ring capped at
 /// neither end as a legacy passage with its walls, by axis then centre.
 pub fn legacy_roster(ctx: &Context<'_>) -> Vec<(Passage, Vec<usize>)> {

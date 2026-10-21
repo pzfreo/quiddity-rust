@@ -1,9 +1,7 @@
-//! Section recesses in the document handed to draftwright: Python's captured records on its
-//! 30 quality parts, caller and inferred frames, and in-run additivity of publication.
+//! Rust publication snapshots on 30 quality parts and pattern inputs, plus unchanged inferred-frame, additivity and geometry checks.
 
-mod common;
+use super::common;
 
-use std::io::Read;
 use std::sync::OnceLock;
 
 use quiddity::correspondence;
@@ -11,8 +9,6 @@ use quiddity::kernel::step::IDENTITY;
 use quiddity::recognition::{self, RecognitionDocument};
 use quiddity::serve;
 use serde_json::{Value, json};
-
-const KNOWN: &str = "captured/section_recesses/known_differences.json";
 
 struct Run {
     baseline: Value,
@@ -40,7 +36,7 @@ fn runs() -> &'static [Run] {
             let file = baseline["file"].as_str().unwrap();
             let path = corpus.join(file);
             let part = quiddity::read_step_file(&path).unwrap();
-            let caller = correspondence::python_parity_recognise(&part);
+            let caller = correspondence::caller_space_recognise(&part);
             assert!(caller.features.section_recess_refusal.is_none(), "{file}");
             let caller_doc = recognition::document(&caller, part.faces.len());
             let (_, framed, _) = serve::recognise_step(path.to_str().unwrap(), &IDENTITY).unwrap();
@@ -84,104 +80,18 @@ fn recesses(doc: &RecognitionDocument) -> Vec<Value> {
 }
 
 #[test]
-fn quality_part_section_recesses_match_python() {
+fn rust_snapshot_quality_section_recesses() {
     if runs().is_empty() {
         return;
     }
-    let mut text = String::new();
-    flate2::read::GzDecoder::new(
-        std::fs::File::open(common::fixtures().join("captured/section_recesses/documents.json.gz"))
-            .unwrap(),
-    )
-    .read_to_string(&mut text)
-    .unwrap();
-    let python: Value = serde_json::from_str(&text).unwrap();
-    let known = common::load(KNOWN);
-    let known = known.as_array().unwrap();
-    common::check_verdicts(KNOWN, known);
-    let mut used = Vec::new();
-    let mut counts = [0; 4];
-    let mut parts = [0; 4];
-    let mut refusals = 0;
-    let mut refusal_parts = 0;
-    for run in runs() {
-        let file = run.baseline["file"].as_str().unwrap();
-        let capture = python["runs"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .find(|r| r["source"] == "corpus" && r["file"] == file)
-            .unwrap_or_else(|| panic!("no Python capture for {file}"));
-        let mut expected = Vec::new();
-        for record in capture["document"]["occurrences"].as_array().unwrap() {
-            let key = json!([record["body"], record["evidence"]["constituent_faces"]]);
-            if let Some((i, verdict)) = known
-                .iter()
-                .enumerate()
-                .find(|(_, k)| k["file"] == file && k["item"] == "occurrence" && k["key"] == key)
-            {
-                // Keep proved Rust-first corrections: omit NIST slots mispublished by
-                // Python's cap boolean, or apply the explicit per-field geometry corrections.
-                assert_eq!(verdict["verdict"], "rust-correct");
-                used.push(i);
-                match verdict["kind"].as_str().unwrap() {
-                    "missing" => {}
-                    "differs" => {
-                        // Rust-first corrections are explicit per-field expectations. Check
-                        // their frozen Python inputs and compare the complete corrected record.
-                        let mut corrected = record.clone();
-                        for change in verdict["corrections"].as_array().unwrap() {
-                            let path = change["path"].as_str().unwrap();
-                            assert_eq!(corrected.pointer(path), Some(&change["python"]));
-                            *corrected.pointer_mut(path).unwrap() = change["rust"].clone();
-                        }
-                        corrected["index"] = json!(expected.len());
-                        expected.push(corrected);
-                    }
-                    other => panic!("unsupported quality-part correction: {other}"),
-                }
-            } else {
-                let mut record = record.clone();
-                record["index"] = json!(expected.len());
-                expected.push(record);
-            }
-        }
-        let expected_refusals = capture["document"]["refusals"].as_array().unwrap();
-        refusals += expected_refusals.len();
-        refusal_parts += usize::from(!expected_refusals.is_empty());
-        expected.extend(expected_refusals.iter().cloned());
-        let got = recesses(&run.caller);
-        assert!(
-            common::same(&json!(got), &json!(expected)),
-            "{file}: {}",
-            common::diff(&json!(got), &json!(expected))
-        );
-        let mut present = [false; 4];
-        for r in got.iter().filter(|r| r.get("reason").is_none()) {
-            let kind = r["classification"]["feature_kind"].as_str().unwrap();
-            let i = ["pocket", "channel", "passage", "edge_open_recess"]
-                .iter()
-                .position(|k| *k == kind)
-                .unwrap();
-            counts[i] += 1;
-            present[i] = true;
-        }
-        for (i, found) in present.into_iter().enumerate() {
-            parts[i] += usize::from(found);
-        }
-    }
-    assert_eq!((refusals, refusal_parts), (12, 5));
-    let relevant: Vec<usize> = known
+    let actual: Vec<Value> = runs()
         .iter()
-        .enumerate()
-        .filter(|(_, k)| runs().iter().any(|r| r.baseline["file"] == k["file"]))
-        .map(|(i, _)| i)
+        .map(|run| json!({"file":run.baseline["file"],"records":recesses(&run.caller)}))
         .collect();
-    used.sort_unstable();
-    assert_eq!(used, relevant, "stale or unchecked quality-part verdict");
-    eprintln!(
-        "quality section recesses: counts {counts:?}, parts {parts:?}, verdicts {}",
-        used.len()
+    common::snapshot::check(
+        &common::fixtures(),
+        "quality_recess_publication",
+        &json!(actual),
     );
 }
 
@@ -267,39 +177,36 @@ fn section_recess_publication_is_additive() {
 /// The payload actually published, including patterns that used to be discarded. The Python
 /// capture includes rectangular, obround and rounded profiles, arrays and grids.
 #[test]
-fn pattern_publication_matches_python() {
-    let mut text = String::new();
-    flate2::read::GzDecoder::new(
+fn rust_snapshot_pattern_publication() {
+    let input: Value = serde_json::from_reader(flate2::read::GzDecoder::new(
         std::fs::File::open(common::fixtures().join("captured/section_recesses/documents.json.gz"))
             .unwrap(),
-    )
-    .read_to_string(&mut text)
+    ))
     .unwrap();
-    let capture: Value = serde_json::from_str(&text).unwrap();
     let mut checked = 0;
-    for run in capture["runs"].as_array().unwrap().iter().filter(|r| {
-        r["source"] == "test"
-            && r["document"]["patterns"]
-                .as_array()
-                .is_some_and(|p| !p.is_empty())
-    }) {
+    for run in input["runs"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|r| r["source"] == "test" && r["pattern_input"] == true)
+    {
+        let file = run["file"].as_str().unwrap();
         let path = common::fixtures()
             .join("captured/section_recesses")
-            .join(run["file"].as_str().unwrap());
+            .join(file);
         let part = quiddity::read_step_file(&path).unwrap();
-        let rec = correspondence::python_parity_recognise(&part);
+        let rec = correspondence::caller_space_recognise(&part);
         let doc = recognition::document(&rec, part.faces.len());
-        assert_eq!(doc.schema_version, "quiddity-rust/recognition/3");
-        let patterns: Vec<_> = doc
+        let patterns: Vec<Value> = doc
             .records
             .iter()
             .filter(|r| r.family == "section_recess_patterns")
             .map(|r| Value::Object(r.parameters.clone()))
             .collect();
-        assert!(
-            common::same(&json!(patterns), &run["document"]["patterns"]),
-            "{}",
-            run["file"]
+        common::snapshot::check(
+            &common::fixtures(),
+            &format!("pattern_publication/{file}"),
+            &json!(patterns),
         );
         for p in doc
             .records
@@ -308,14 +215,13 @@ fn pattern_publication_matches_python() {
         {
             let mut faces: Vec<usize> = Vec::new();
             for m in p.parameters["members"].as_array().unwrap() {
-                let index = m.as_u64().unwrap();
                 let member = doc
                     .records
                     .iter()
                     .find(|r| {
                         r.family == "section_recesses"
                             && r.record_type == "SectionRecess"
-                            && r.parameters["index"] == index
+                            && r.parameters["index"] == *m
                     })
                     .unwrap();
                 faces.extend(&member.faces);
@@ -330,7 +236,7 @@ fn pattern_publication_matches_python() {
 }
 
 #[test]
-fn k3_degraded_records_remain_pythons_in_the_published_document() {
+fn k3_degraded_records_keep_their_geometry_in_the_published_document() {
     let Some(corpus) = common::corpus_dir() else {
         return;
     };
@@ -338,7 +244,7 @@ fn k3_degraded_records_remain_pythons_in_the_published_document() {
         let part =
             quiddity::read_step_file(&corpus.join(format!("inventory_refusal/{name}.step.gz")))
                 .unwrap();
-        let rec = correspondence::python_parity_recognise(&part);
+        let rec = correspondence::caller_space_recognise(&part);
         assert!(rec.features.section_recess_refusal.is_none());
         let doc = recognition::document(&rec, part.faces.len());
         let records: Vec<_> = doc

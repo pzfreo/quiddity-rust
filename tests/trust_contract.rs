@@ -1,5 +1,5 @@
 //! Additive source identity and completed-run provenance, without changing feature payloads.
-mod common;
+use super::common;
 
 use quiddity::correspondence;
 use quiddity::kernel::step::{IDENTITY, read_step_file};
@@ -23,7 +23,7 @@ fn source_digest_is_of_the_exact_input_bytes_in_cli_and_serve() {
         Some(expected.as_str())
     );
     assert_eq!(output.document.run_mode, RunMode::Strict);
-    let cli = Command::new(env!("CARGO_BIN_EXE_quiddity"))
+    let cli = Command::new(common::quiddity_binary())
         .arg(&path)
         .output()
         .unwrap();
@@ -118,7 +118,7 @@ fn broken_geometry_records_remain_visible_with_truthful_cli_and_serve_warnings()
         ("open_shell.step", "fillets", 2),
     ] {
         let path = common::fixtures().join(name);
-        let cli = Command::new(env!("CARGO_BIN_EXE_quiddity"))
+        let cli = Command::new(common::quiddity_binary())
             .arg(&path)
             .output()
             .unwrap();
@@ -292,7 +292,7 @@ fn clean_source_refusals_remain_published_without_a_feature_evidence_warning() {
         );
         assert!(warnings.is_empty(), "{name}: {warnings:?}");
 
-        let cli = Command::new(env!("CARGO_BIN_EXE_quiddity"))
+        let cli = Command::new(common::quiddity_binary())
             .arg(&path)
             .output()
             .unwrap();
@@ -325,7 +325,7 @@ fn inverted_shell_repair_is_reported_in_documents_cli_and_serve() {
     let (output, warnings) = serve::recognise_file(path.to_str().unwrap()).unwrap();
     assert_eq!(output.document.input_repairs, [message]);
     assert!(warnings.iter().any(|w| w.contains(message)));
-    let cli = Command::new(env!("CARGO_BIN_EXE_quiddity"))
+    let cli = Command::new(common::quiddity_binary())
         .arg(&path)
         .output()
         .unwrap();

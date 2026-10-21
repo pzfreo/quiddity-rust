@@ -1,27 +1,6 @@
-//! The cylindrical proofs section-recess geometry composes against Python's answers
-//! (`tools/capture_section_geometry.py`, fixtures in `tests/fixtures/captured/section_geometry/`):
-//! `_cylindrical_channels`, `_cylindrical_pockets` and `_cylindrical_passages` have no
-//! `recognise_*` entry point, so their calls are replayed directly.
-//!
-//! `proofs.json.gz` holds, per part (the parts the Python tests hand these proofs, the golden
-//! fixtures and the corpus), `cylindrical_pocket_proofs` with every `_proofs(floor)` question,
-//! `cylindrical_passage_proofs` with the native bores and every `_cell_proof` question, and every
-//! `prove_cylindrical_channel` question (on a test part those its tests asked, on a fixture or
-//! corpus part those Python's recognition asks), each replayed on its own.
-//!
-//! Floats agree to one part in a million (`common::same`). Python orders passage proofs by its
-//! unspecified component walk, so a part's passage proofs are compared sorted by their faces.
-//! Differences are listed in `tests/fixtures/captured/known_section_geometry.json`: per entry its
-//! `case` (`pockets`, `passages`, `bores`, `pocket_call`, `passage_call`, `channel_call`), what
-//! identifies it (a part's `file`, a pocket call's `floor`, a passage call's `planar`,
-//! `cylinder` and `walls`, a channel call's `defining`), a verdict and a reason. A failing run
-//! prints the entries it needs.
-//!
-//! The proofs are also checked under `tests/invariance.rs`'s rigid motions: every part on which
-//! Python proves something is re-read moved, and must prove the same on the same faces, with the
-//! same placement-free values (`case` `invariance`, identified by `file` and `motion`).
+//! Rust cylindrical proof snapshots and unchanged placement invariance checks.
 
-mod common;
+use super::common;
 
 use std::collections::BTreeSet;
 use std::io::Read;
@@ -40,7 +19,7 @@ use quiddity::features::sections::LocalFrame;
 use quiddity::kernel::step::{Placement, read_step_file, read_step_file_placed};
 use serde_json::{Value, json};
 
-const KNOWN: &str = "captured/known_section_geometry.json";
+const KNOWN: &str = "references/cylindrical_proof_motion.json";
 
 fn dir() -> std::path::PathBuf {
     common::fixtures().join("captured/section_geometry")
@@ -190,17 +169,6 @@ fn read(source: &str, file: &str) -> Option<Part> {
     Some(read_step_file(&path).unwrap_or_else(|e| panic!("{file}: {e}")))
 }
 
-/// What one part's replay found.
-#[derive(Default)]
-struct Tally {
-    pocket_calls: usize,
-    passage_calls: usize,
-    channel_calls: usize,
-    /// Channel questions the capture could not answer (a timed-out or refused recognition).
-    uncaptured: usize,
-    found: Vec<(Value, String)>,
-}
-
 /// The port's answer to one captured channel question.
 fn channel_answer(ctx: &Context<'_>, surfaces: &EffectiveFaces<'_, '_>, call: &Value) -> Value {
     let set = |v: &Value| indices(v).into_iter().collect::<BTreeSet<usize>>();
@@ -217,26 +185,16 @@ fn channel_answer(ctx: &Context<'_>, surfaces: &EffectiveFaces<'_, '_>, call: &V
 }
 
 #[test]
-fn cylindrical_proofs_agree_with_python() {
-    let captured = load_gz("proofs.json.gz");
-    let runs: Vec<&Value> = captured["runs"].as_array().unwrap().iter().collect();
-    let corpus = common::corpus_dir();
-    if corpus.is_none() {
-        assert!(
-            std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
-            "QUIDDITY_CORPUS_REQUIRED is set but the corpus was not found"
-        );
-    }
-    let ran: BTreeSet<String> = runs
-        .iter()
-        .filter(|r| corpus.is_some() || r["source"] != "corpus")
-        .map(|r| r["file"].as_str().unwrap().to_string())
-        .collect();
-    let tallies = common::parallel::map(&runs, |run| {
+fn rust_snapshot_cylindrical_proofs() {
+    let inputs = load_gz("proofs.json.gz");
+    assert!(
+        common::corpus_dir().is_some() || std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none()
+    );
+    common::parallel::map(inputs["runs"].as_array().unwrap(), |run| {
+        let source = run["source"].as_str().unwrap();
         let file = run["file"].as_str().unwrap();
-        let mut tally = Tally::default();
-        let Some(part) = read(run["source"].as_str().unwrap(), file) else {
-            return tally;
+        let Some(part) = read(source, file) else {
+            return;
         };
         let ctx = Context::new(&part);
         let surfaces = EffectiveFaces::new(&ctx);
@@ -246,138 +204,63 @@ fn cylindrical_proofs_agree_with_python() {
                 .map(pocket_json)
                 .collect::<Vec<_>>()
         );
-        let passages = json!(
+        let passages = sorted(&json!(
             cylindrical_passage_proofs(&ctx, &surfaces)
                 .iter()
                 .map(passage_json)
                 .collect::<Vec<_>>()
-        );
+        ));
         let bores = json!(native_bores(&ctx, &surfaces));
-        for (case, got) in [
-            ("pockets", pockets),
-            ("passages", passages),
-            ("bores", bores),
-        ] {
-            let (got, want) = if case == "passages" {
-                (sorted(&got), sorted(&run[case]))
-            } else {
-                (got, run[case].clone())
-            };
-            if !common::same(&got, &want) {
-                tally.found.push((
-                    json!({"case": case, "file": file}),
-                    format!("{file} {case}: {}", common::diff(&got, &want)),
-                ));
-            }
-        }
-        for call in run["pocket_calls"].as_array().unwrap() {
-            tally.pocket_calls += 1;
-            let floor = call["floor"].as_u64().unwrap() as usize;
-            let got = json!(
-                pocket_proofs(&ctx, &surfaces, floor)
-                    .iter()
-                    .map(pocket_json)
-                    .collect::<Vec<_>>()
-            );
-            if !common::same(&got, &call["proofs"]) {
-                tally.found.push((
-                    json!({"case": "pocket_call", "file": file, "floor": floor}),
-                    format!(
-                        "{file} pocket floor {floor}: {}",
-                        common::diff(&got, &call["proofs"])
-                    ),
-                ));
-            }
-        }
-        for call in run["passage_calls"].as_array().unwrap() {
-            tally.passage_calls += 1;
-            let walls = indices(&call["walls"]);
-            let planar = call["planar"].as_u64().unwrap() as usize;
-            let cylinder = call["cylinder"].as_u64().unwrap() as usize;
-            let b = &call["base"];
-            let base = LocalFrame::new(
-                floats::<3>(&b["origin"]),
-                floats::<3>(&b["run"]),
-                floats::<3>(&b["u"]),
-                floats::<3>(&b["v"]),
-            )
-            .unwrap();
-            let got = prove_passage(&ctx, &surfaces, planar, cylinder, &walls, &base)
-                .map_or(Value::Null, |p| passage_json(&p));
-            if !common::same(&got, &call["proof"]) {
-                tally.found.push((
-                    json!({"case": "passage_call", "file": file, "planar": planar,
-                           "cylinder": cylinder, "walls": walls}),
-                    format!(
-                        "{file} passage {planar} {cylinder} {walls:?}: {}",
-                        common::diff(&got, &call["proof"])
-                    ),
-                ));
-            }
-        }
-        match run["channel_calls"].as_array() {
-            None => tally.uncaptured += 1,
-            Some(calls) => {
-                for call in calls {
-                    if call.get("refused").is_some() {
-                        tally.uncaptured += 1;
-                        continue;
-                    }
-                    tally.channel_calls += 1;
-                    let got = channel_answer(&ctx, &surfaces, call);
-                    if !common::same(&got, &call["proof"]) {
-                        tally.found.push((
-                            json!({"case": "channel_call", "file": file,
-                                   "defining": call["defining"]}),
-                            format!(
-                                "{file} channel {}: {}",
-                                call["defining"],
-                                common::diff(&got, &call["proof"])
-                            ),
-                        ));
-                    }
-                }
-            }
-        }
-        tally
-    });
-    let count = |f: fn(&Tally) -> usize| tallies.iter().map(f).sum::<usize>();
-    let (pocket_calls, passage_calls, channel_calls, uncaptured) = (
-        count(|t| t.pocket_calls),
-        count(|t| t.passage_calls),
-        count(|t| t.channel_calls),
-        count(|t| t.uncaptured),
-    );
-    let found: Vec<(Value, String)> = tallies.into_iter().flat_map(|t| t.found).collect();
-    let mut problems = Vec::new();
-    for case in [
-        "pockets",
-        "passages",
-        "bores",
-        "pocket_call",
-        "passage_call",
-        "channel_call",
-    ] {
-        let mine: Vec<_> = found
+        let pocket_calls: Vec<Value> = run["pocket_calls"]
+            .as_array()
+            .unwrap()
             .iter()
-            .filter(|(identity, _)| identity["case"] == case)
-            .cloned()
+            .map(|call| {
+                json!(
+                    pocket_proofs(&ctx, &surfaces, call["floor"].as_u64().unwrap() as usize)
+                        .iter()
+                        .map(pocket_json)
+                        .collect::<Vec<_>>()
+                )
+            })
             .collect();
-        eprintln!("{case}: {} differ", mine.len());
-        if let Err(e) = std::panic::catch_unwind(|| check_known(case, mine, &ran)) {
-            problems.push(
-                e.downcast_ref::<String>()
-                    .cloned()
-                    .unwrap_or_else(|| "check failed".into()),
-            );
-        }
-    }
-    eprintln!(
-        "{} parts, {pocket_calls} pocket calls, {passage_calls} passage calls, {channel_calls} \
-         channel calls replayed, {uncaptured} channel runs or calls not captured",
-        ran.len()
-    );
-    assert!(problems.is_empty(), "{}", problems.join("\n"));
+        let passage_calls: Vec<Value> = run["passage_calls"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|call| {
+                let b = &call["base"];
+                let base = LocalFrame::new(
+                    floats::<3>(&b["origin"]),
+                    floats::<3>(&b["run"]),
+                    floats::<3>(&b["u"]),
+                    floats::<3>(&b["v"]),
+                )
+                .unwrap();
+                prove_passage(
+                    &ctx,
+                    &surfaces,
+                    call["planar"].as_u64().unwrap() as usize,
+                    call["cylinder"].as_u64().unwrap() as usize,
+                    &indices(&call["walls"]),
+                    &base,
+                )
+                .map_or(Value::Null, |p| passage_json(&p))
+            })
+            .collect();
+        let channel_calls: Vec<Value> = run["channel_calls"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter(|c| c.get("refused").is_none())
+            .map(|call| channel_answer(&ctx, &surfaces, call))
+            .collect();
+        common::snapshot::check(
+            &common::fixtures(),
+            &format!("cylindrical_proofs/{source}/{file}"),
+            &json!({"pockets":pockets,"passages":passages,"bores":bores,"pocket_calls":pocket_calls,"passage_calls":passage_calls,"channel_calls":channel_calls}),
+        );
+    });
 }
 
 /// `tests/invariance.rs`'s motions: a non-round translation and right-angle rotations.
@@ -496,19 +379,12 @@ fn placement_free(part: &Part, channel_calls: &[Value], rotation: &[[f64; 3]; 3]
 #[test]
 fn proofs_do_not_depend_on_placement() {
     let captured = load_gz("proofs.json.gz");
-    let proved_call = |c: &Value| !c["proof"].is_null() && c.get("proof").is_some();
+    let proved_call = |c: &Value| c["proved"] == true;
     let runs: Vec<&Value> = captured["runs"]
         .as_array()
         .unwrap()
         .iter()
-        .filter(|r| {
-            ["pockets", "passages"]
-                .iter()
-                .any(|k| r[k].as_array().is_some_and(|a| !a.is_empty()))
-                || r["channel_calls"]
-                    .as_array()
-                    .is_some_and(|a| a.iter().any(proved_call))
-        })
+        .filter(|r| r["motion_input"] == true)
         .collect();
     assert!(!runs.is_empty());
     let found: Vec<(Value, String)> = common::parallel::map(&runs, |run| {

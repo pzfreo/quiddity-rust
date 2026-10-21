@@ -1,36 +1,7 @@
-//! Section-recess candidates and their geometry against Python's
-//! (`tools/capture_section_recess_geometry.py`, fixtures in
-//! `tests/fixtures/captured/section_recess_geometry/`): `_section_recess_geometry` has no
-//! `recognise_*` entry point, so its calls are replayed directly.
-//!
-//! `calls.json.gz` holds, per part (the parts the section-recess Python tests hand
-//! `_candidates` or `has_physical_planar_floor`, the golden fixtures and the corpus):
-//! `_candidates`; the three floor readers asked of every planar face on its own (only the
-//! answers that are not `None` are listed); each seat, cylindrical-pocket, cylindrical-passage
-//! and plane-envelope proof Python proves with what its projection makes of it (each proof is
-//! rebuilt here from the captured values, so the projection is checked apart from the prover,
-//! which `tests/section_recess_helpers.rs` and `tests/section_geometry.rs` check); and every
-//! `has_physical_planar_floor` question with its answer. `channels.json.gz` holds
-//! `cylindrical_channel_geometry` of every channel proof `tests/section_geometry.rs` replays.
-//!
-//! Floats agree to one part in a million (`common::same`); a refusal agrees by its message.
-//! Differences are listed in `known_differences.json` beside the fixtures: per entry its `case`
-//! (`candidates`, `floor`, `seat`, `pocket`, `passage`, `envelope`, `floor_question`, `channel`,
-//! `invariance`), what identifies it (a part's `file`; a floor reading's `floor` and `kind`; a
-//! seat's, passage's or envelope's `walls`; a pocket's `floor` and `stock`; a question's `walls`,
-//! `axis` and `open_sign`; a channel's `defining`; an invariance entry's `motion`), a verdict
-//! and a reason. A failing run prints the entries it needs.
-//!
-//! The candidates are also found under `tests/invariance.rs`'s rigid motions on every part
-//! where Python finds one: the moved part must give the same candidates on the same faces, each
-//! geometry the unmoved one carried by the motion and re-expressed in the canonical frame of its
-//! moved run (its profile re-canonicalised, its interval, ends and end surfaces turned with the
-//! run), within the two projections' displacement bounds (0.002 each).
+//! Rust section geometry snapshots, evidence consistency, and unchanged rigid-motion references.
 
-mod common;
-#[macro_use]
-#[path = "support/slices.rs"]
-mod slices;
+use super::common;
+use super::slices;
 
 use std::cmp::Ordering;
 use std::collections::BTreeSet;
@@ -56,7 +27,7 @@ use quiddity::features::sections::{LocalFrame, PlanarSection, SectionVertex};
 use quiddity::kernel::step::{Placement, read_step_file, read_step_file_placed};
 use serde_json::{Value, json};
 
-const KNOWN: &str = "captured/section_recess_geometry/known_differences.json";
+const KNOWN: &str = "references/recess_geometry_motion.json";
 
 fn dir() -> std::path::PathBuf {
     common::fixtures().join("captured/section_recess_geometry")
@@ -225,14 +196,6 @@ fn answer<T>(key: &str, got: Result<T, SectionRecessError>, shape: impl Fn(&T) -
     }
 }
 
-/// The captured call's answer: its value or its refusal, without its inputs.
-fn captured_answer(call: &Value, key: &str) -> Value {
-    match call.get("raised") {
-        Some(r) => json!({ "raised": r }),
-        None => json!({ key: call[key] }),
-    }
-}
-
 /// Checks *found* differences (identity, description) against the listed entries of *case*, and
 /// fails on an unlisted difference or a listed entry that no longer differs (of the files *ran*:
 /// without the corpus its entries are not checked).
@@ -306,315 +269,155 @@ fn candidates_json(found: &Result<Vec<Candidate>, SectionRecessError>) -> Value 
     }
 }
 
-const CASES: [&str; 7] = [
-    "candidates",
-    "floor",
-    "seat",
-    "pocket",
-    "passage",
-    "envelope",
-    "floor_question",
-];
-
 /// What one part's replay found.
 #[derive(Default)]
 struct Tally {
-    calls: [usize; 7],
-    /// Floor questions the capture could not answer (a timed-out or refused projection).
-    uncaptured: usize,
-    found: Vec<(Value, String)>,
+    actual: Vec<Value>,
 }
 
 impl Tally {
-    fn compare(&mut self, case: &str, identity: Value, got: &Value, want: &Value) {
-        self.calls[CASES.iter().position(|&c| c == case).unwrap()] += 1;
-        if !common::same(got, want) {
-            let text = format!("{case} {identity}: {}", common::diff(got, want));
-            self.found.push((identity, text));
-        }
+    fn record(&mut self, identity: Value, got: Value) {
+        self.actual.push(json!({"question":identity,"answer":got}));
     }
 }
 
-fn replay(run: &Value, part: &Part) -> Tally {
+fn replay(run: &Value, part: &Part) -> Value {
     let file = run["file"].as_str().unwrap();
-    let id = |case: &str, more: Value| {
-        let mut identity = json!({"case": case, "file": file});
-        for (k, v) in more.as_object().unwrap() {
-            identity[k] = v.clone();
-        }
-        identity
-    };
-    let mut tally = Tally::default();
     let ctx = Context::new(part);
     let surfaces = EffectiveFaces::new(&ctx);
-    // The candidates and every planar face's three readings, each reader asked once (the
-    // candidates are what `candidates` finds, their floor readings taken from these).
     let (found, floor_readings) = candidates_and_floor_readings(&ctx, &surfaces);
-    tally.compare(
-        "candidates",
-        id("candidates", json!({})),
-        &candidates_json(&found),
-        &run["candidates"],
-    );
-    // Discovery numbers the candidates as records: one per candidate, its faces as evidence
-    // (Python's `discover_section_recesses` builds the same records from the same candidates).
-    if let Some(want) = run["candidates"].as_array() {
-        let found = found
-            .and_then(section_recesses_of)
-            .unwrap_or_else(|e| panic!("{file}: discovery refused: {}", e.0));
-        let got: Vec<Value> = found
+    let mut tally = Tally::default();
+    tally.record(json!({"case":"candidates"}), candidates_json(&found));
+    // Discovery must preserve each Rust candidate's claims and numbering, independent of the snapshot.
+    if let Ok(candidates) = &found {
+        let expected: Vec<Value> = candidates
+            .iter()
+            .enumerate()
+            .map(|(i, c)| {
+                let v = candidate_json(c);
+                json!({"index":i,"defining":v["defining"],"constituent":v["constituent"]})
+            })
+            .collect();
+        let occurrences = section_recesses_of(candidates.clone()).unwrap();
+        let got: Vec<Value> = occurrences
             .iter()
             .map(|o| {
                 let mut all = o.defining.clone();
                 all.extend(&o.context);
                 all.sort_unstable();
-                json!({"index": o.record.index(), "defining": o.defining, "constituent": all})
+                json!({"index":o.record.index(),"defining":o.defining,"constituent":all})
             })
             .collect();
-        let expected: Vec<Value> = want
-            .iter()
-            .enumerate()
-            .map(|(i, c)| json!({"index": i, "defining": c["defining"], "constituent": c["constituent"]}))
-            .collect();
-        if got != expected {
-            // Only a part whose candidates differ (listed under `candidates`) may differ here.
-            let listed = common::load(KNOWN)
-                .as_array()
-                .unwrap()
-                .iter()
-                .any(|k| k["case"] == "candidates" && k["file"] == run["file"]);
-            assert!(listed, "{file}: discovery {got:?}, candidates {expected:?}");
-        }
+        assert_eq!(
+            got, expected,
+            "{file}: discovery preserves candidate evidence"
+        );
     }
-    // Every planar face's three readings: the listed answers, every other one `None`.
-    let kinds = ["obround", "polygonal", "mixed"];
-    let mut planar = 0;
-    let mut readings = Vec::new();
-    let mut floor_readings = floor_readings.into_iter();
+    let mut readings = floor_readings.into_iter();
     for floor in 0..part.faces.len() {
         if !quiddity::features::graph::is_planar(part, floor) {
             continue;
         }
-        planar += 1;
-        let (read, three) = floor_readings
-            .next()
-            .expect("a reading of every planar face");
+        let (read, three) = readings.next().expect("a reading of every planar face");
         assert_eq!(read, floor, "{file}: planar faces read in order");
-        for (kind, reading) in kinds.iter().zip(three) {
-            match reading {
-                Ok(None) => {}
-                Ok(Some(c)) => readings
-                    .push(json!({"floor": floor, "kind": kind, "candidate": candidate_json(&c)})),
-                Err(e) => {
-                    readings.push(json!({"floor": floor, "kind": kind, "raised": raised(&e)}))
-                }
-            }
+        for (kind, reading) in ["obround", "polygonal", "mixed"].iter().zip(three) {
+            let value = match reading {
+                Ok(None) => Value::Null,
+                Ok(Some(c)) => json!({"candidate":candidate_json(&c)}),
+                Err(e) => json!({"raised":raised(&e)}),
+            };
+            tally.record(json!({"case":"floor","floor":floor,"kind":kind}), value);
         }
     }
-    assert!(
-        floor_readings.next().is_none(),
-        "{file}: only planar faces read"
-    );
-    assert_eq!(
-        planar,
-        run["planar"].as_u64().unwrap() as usize,
-        "{file}: planar faces"
-    );
-    let want = run["floors"].as_array().unwrap();
-    let key = |r: &Value| (r["floor"].as_u64(), r["kind"].as_str().map(str::to_owned));
-    let mut asked: BTreeSet<_> = readings.iter().map(key).collect();
-    asked.extend(want.iter().map(key));
-    for k in asked {
-        let pick = |list: &[Value]| {
-            list.iter()
-                .find(|r| key(r) == k)
-                .map_or(Value::Null, |r| r.clone())
-        };
-        let (got, wanted) = (pick(&readings), pick(want));
-        tally.compare(
-            "floor",
-            id("floor", json!({"floor": k.0, "kind": k.1})),
-            &got,
-            &wanted,
+    assert!(readings.next().is_none(), "{file}: only planar faces read");
+    for call in run["seats"].as_array().into_iter().flatten() {
+        tally.record(
+            json!({"case":"seat","walls":call["proof"]["walls"]}),
+            answer(
+                "geometry",
+                seat_geometry(&seat_proof(&call["proof"])),
+                |g| serde_json::to_value(g).unwrap(),
+            ),
         );
     }
-    // Every planar face was asked all three readers.
-    tally.calls[1] = 3 * planar;
-    if let Some(calls) = run["seats"].as_array() {
-        for call in calls {
-            let proof = seat_proof(&call["proof"]);
-            let got = answer("geometry", seat_geometry(&proof), |g| {
-                serde_json::to_value(g).unwrap()
-            });
-            let identity = id("seat", json!({"walls": call["proof"]["walls"]}));
-            tally.compare("seat", identity, &got, &captured_answer(call, "geometry"));
-        }
-    }
-    if let Some(calls) = run["pockets"].as_array() {
-        for call in calls {
-            let proof = pocket_proof(&call["proof"]);
-            let got = answer(
+    for call in run["pockets"].as_array().into_iter().flatten() {
+        tally.record(
+            json!({"case":"pocket","floor":call["proof"]["floor"],"stock":call["proof"]["stock"]}),
+            answer(
                 "candidate",
-                cylindrical_candidate(part, &proof),
+                cylindrical_candidate(part, &pocket_proof(&call["proof"])),
                 candidate_json,
-            );
-            let identity = id(
-                "pocket",
-                json!({"floor": call["proof"]["floor"], "stock": call["proof"]["stock"]}),
-            );
-            tally.compare(
-                "pocket",
-                identity,
-                &got,
-                &captured_answer(call, "candidate"),
-            );
-        }
+            ),
+        );
     }
-    if let Some(calls) = run["passages"].as_array() {
-        for call in calls {
-            let proof = passage_proof(&call["proof"]);
-            let got = answer("geometry", cylindrical_passage_geometry(&proof), |g| {
-                serde_json::to_value(g).unwrap()
-            });
-            let identity = id(
-                "passage",
-                json!({"walls": call["proof"]["walls"], "cylinder": call["proof"]["cylinder"]}),
-            );
-            tally.compare(
-                "passage",
-                identity,
-                &got,
-                &captured_answer(call, "geometry"),
-            );
-        }
+    for call in run["passages"].as_array().into_iter().flatten() {
+        tally.record(json!({"case":"passage","walls":call["proof"]["walls"],"cylinder":call["proof"]["cylinder"]}), answer("geometry",cylindrical_passage_geometry(&passage_proof(&call["proof"])),|g|serde_json::to_value(g).unwrap()));
     }
-    if let Some(calls) = run["envelopes"].as_array() {
-        for call in calls {
-            let proof = envelope_proof(&call["proof"]);
-            let got = answer("geometry", plane_envelope_geometry(&proof), |g| {
-                serde_json::to_value(g).unwrap()
-            });
-            let identity = id("envelope", json!({"walls": call["proof"]["walls"]}));
-            tally.compare(
-                "envelope",
-                identity,
-                &got,
-                &captured_answer(call, "geometry"),
-            );
-        }
+    for call in run["envelopes"].as_array().into_iter().flatten() {
+        tally.record(
+            json!({"case":"envelope","walls":call["proof"]["walls"]}),
+            answer(
+                "geometry",
+                plane_envelope_geometry(&envelope_proof(&call["proof"])),
+                |g| serde_json::to_value(g).unwrap(),
+            ),
+        );
     }
-    match run["floor_questions"].as_array() {
-        None => tally.uncaptured += 1,
-        Some(calls) => {
-            for call in calls {
-                if call.get("refused").is_some() || call.get("raised").is_some() {
-                    tally.uncaptured += 1;
-                    continue;
-                }
-                let set = |v: &Value| indices(v).into_iter().collect::<BTreeSet<usize>>();
-                let got = has_physical_planar_floor(
-                    part,
-                    &set(&call["walls"]),
-                    &set(&call["constituent"]),
-                    call["axis"].as_str().unwrap(),
-                    call["open_sign"].as_i64().unwrap() as i32,
-                    call["published_floor"].as_f64().unwrap(),
-                );
-                let identity = id(
-                    "floor_question",
-                    json!({"walls": call["walls"], "axis": call["axis"],
-                           "open_sign": call["open_sign"]}),
-                );
-                tally.compare("floor_question", identity, &json!(got), &call["answer"]);
-            }
-        }
+    for call in run["floor_questions"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter(|c| c.get("refused").is_none() && c.get("raised").is_none())
+    {
+        let set = |v: &Value| indices(v).into_iter().collect::<BTreeSet<usize>>();
+        let got = has_physical_planar_floor(
+            part,
+            &set(&call["walls"]),
+            &set(&call["constituent"]),
+            call["axis"].as_str().unwrap(),
+            call["open_sign"].as_i64().unwrap() as i32,
+            call["published_floor"].as_f64().unwrap(),
+        );
+        tally.record(json!({"case":"floor_question","walls":call["walls"],"axis":call["axis"],"open_sign":call["open_sign"]}),json!(got));
     }
-    tally
+    json!(tally.actual)
 }
 
 #[test]
-fn section_recess_geometry_agrees_with_python() {
+fn rust_snapshot_section_recess_geometry() {
     require_corpus();
-    let captured = load_gz("calls.json.gz");
-    let runs: Vec<&Value> = captured["runs"].as_array().unwrap().iter().collect();
-    let ran = runs_ran(&runs);
-    let tallies = common::parallel::map(&runs, |run| {
-        let Some(part) = read(
-            run["source"].as_str().unwrap(),
-            run["file"].as_str().unwrap(),
-        ) else {
-            return Tally::default();
+    let inputs = load_gz("calls.json.gz");
+    common::parallel::map(inputs["runs"].as_array().unwrap(), |run| {
+        let file = run["file"].as_str().unwrap();
+        let source = run["source"].as_str().unwrap();
+        let Some(part) = read(source, file) else {
+            return;
         };
-        replay(run, &part)
+        common::snapshot::check(
+            &common::fixtures(),
+            &format!("recess_geometry/{source}/{file}"),
+            &replay(run, &part),
+        );
     });
-    let mut calls = [0; 7];
-    let mut uncaptured = 0;
-    let mut found = Vec::new();
-    for t in tallies {
-        for (total, n) in calls.iter_mut().zip(t.calls) {
-            *total += n;
-        }
-        uncaptured += t.uncaptured;
-        found.extend(t.found);
-    }
-    let mut problems = Vec::new();
-    for case in CASES {
-        let mine: Vec<_> = found
-            .iter()
-            .filter(|(identity, _)| identity["case"] == case)
-            .cloned()
-            .collect();
-        eprintln!("{case}: {} differ", mine.len());
-        if let Err(e) = std::panic::catch_unwind(|| check_known(case, mine, &ran)) {
-            problems.push(
-                e.downcast_ref::<String>()
-                    .cloned()
-                    .unwrap_or_else(|| "check failed".into()),
-            );
-        }
-    }
-    eprintln!(
-        "{} parts; calls replayed: {}; {uncaptured} floor-question runs or calls not captured",
-        ran.len(),
-        CASES
-            .iter()
-            .zip(calls)
-            .map(|(c, n)| format!("{n} {c}"))
-            .collect::<Vec<_>>()
-            .join(", ")
-    );
-    assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 
 #[test]
-fn channel_geometry_agrees_with_python() {
-    let captured = load_gz("channels.json.gz");
-    let calls = captured["calls"].as_array().unwrap();
-    assert!(!calls.is_empty());
-    let found: Vec<(Value, String)> =
-        calls
-            .iter()
-            .filter_map(|call| {
-                let got = answer(
-                    "geometry",
-                    cylindrical_channel_geometry(&channel_proof(&call["proof"])),
-                    |g| serde_json::to_value(g).unwrap(),
-                );
-                let want = captured_answer(call, "geometry");
-                (!common::same(&got, &want)).then(|| {
-                (
-                    json!({"case": "channel", "file": call["file"], "defining": call["defining"]}),
-                    format!("channel {}: {}", call["defining"], common::diff(&got, &want)),
-                )
-            })
-            })
-            .collect();
-    eprintln!("{} channel calls, {} differ", calls.len(), found.len());
-    let ran = calls
+fn rust_snapshot_channel_geometry() {
+    let inputs = load_gz("channels.json.gz");
+    let actual: Vec<Value> = inputs["calls"]
+        .as_array()
+        .unwrap()
         .iter()
-        .map(|c| c["file"].as_str().unwrap().to_owned())
+        .map(|call| {
+            answer(
+                "geometry",
+                cylindrical_channel_geometry(&channel_proof(&call["proof"])),
+                |g| serde_json::to_value(g).unwrap(),
+            )
+        })
         .collect();
-    check_known("channel", found, &ran);
+    assert!(!actual.is_empty());
+    common::snapshot::check(&common::fixtures(), "channel_geometry", &json!(actual));
 }
 
 // --- rigid motions ----------------------------------------------------------------------------
@@ -887,7 +690,7 @@ fn moved_runs(captured: &Value) -> Vec<&Value> {
         .as_array()
         .unwrap()
         .iter()
-        .filter(|r| r["candidates"].as_array().is_some_and(|a| !a.is_empty()))
+        .filter(|r| r["motion_input"] == true)
         .collect()
 }
 

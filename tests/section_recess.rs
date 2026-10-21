@@ -1,25 +1,6 @@
-//! The section-recess records against Python's (`tools/capture_section_recess.py`, fixture
-//! `tests/fixtures/captured/section_recess/values.json.gz`): every construction of a
-//! `quiddity._section_recess` record that the section-recess Python tests and
-//! `build_section_recess_document` over the corpus make, with its inputs and its `to_dict()` or
-//! its refusal. Each is rebuilt here from the same inputs (nested records through their own
-//! constructors) and must give the same dictionary (floats to one part in a million,
-//! `common::same`) or the same message.
-//!
-//! The geometric records are also built moved by `tests/invariance.rs`'s motions: a pattern's
-//! directions and centre under every motion, and a geometry on a principal run under the
-//! translation (its frame origin across the run, its interval, cylinder axis height and plane
-//! term heights along it, each on its grid). Each must be accepted and publish the moved
-//! values. A geometry under a rotation is a different canonical value (its profile re-expressed
-//! in the rotated run's canonical basis and re-canonicalised), which the projection that builds
-//! it, not these records, owns.
-//!
-//! Differences are listed in `tests/fixtures/captured/section_recess/known_differences.json`:
-//! per entry its `case` (`value` or `invariance`), the record's `class` and `given` inputs (and
-//! an invariance entry's `motion`), a verdict and a reason. A failing run prints the entries it
-//! needs.
+//! Rust snapshots of section-recess record construction, with unchanged geometric motion references.
 
-mod common;
+use super::common;
 
 use std::io::Read;
 
@@ -34,7 +15,7 @@ use quiddity::features::section_recess::{
 };
 use serde_json::{Value, json};
 
-const KNOWN: &str = "captured/section_recess/known_differences.json";
+const KNOWN: &str = "references/section_record_motion.json";
 
 fn load_gz(name: &str) -> Value {
     let path = common::fixtures()
@@ -383,36 +364,20 @@ fn check_known(case: &str, found: Vec<(Value, String)>) {
 }
 
 #[test]
-fn records_agree_with_python() {
-    let captured = load_gz("values.json.gz");
-    let values = items(&captured["values"]);
-    assert!(!values.is_empty());
-    let mut found = Vec::new();
-    let mut refused = 0;
-    for record in values {
-        let given = &record["given"];
-        let want = if record.get("dict").is_some() {
-            json!({"dict": record["dict"]})
-        } else {
-            refused += 1;
-            json!({"refused": record["refused"]})
-        };
-        let got = answer(&build(given));
-        if !common::same(&got, &want) {
-            found.push((
-                json!({"case": "value", "class": class(given), "given": given}),
-                format!("{} {given}: {}", class(given), common::diff(&got, &want)),
-            ));
-        }
-    }
-    eprintln!(
-        "section-recess records: {} captured ({refused} refused), {} differ, skipped by the \
-         capture {}",
-        values.len(),
-        found.len(),
-        captured["skipped"]
+fn rust_snapshot_section_recess_records() {
+    let inputs = load_gz("values.json.gz");
+    let actual: Vec<Value> = inputs["values"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|record| answer(&build(&record["given"])))
+        .collect();
+    assert!(!actual.is_empty());
+    common::snapshot::check(
+        &common::fixtures(),
+        "section_recess_records",
+        &json!(actual),
     );
-    check_known("value", found);
 }
 
 /// `tests/invariance.rs`'s motions: a non-round translation and right-angle rotations.
@@ -532,7 +497,7 @@ fn geometric_records_do_not_depend_on_placement() {
     let captured = load_gz("values.json.gz");
     let accepted: Vec<&Value> = items(&captured["values"])
         .iter()
-        .filter(|r| r.get("dict").is_some())
+        .filter(|r| r["motion_input"] == true)
         .map(|r| &r["given"])
         .collect();
     let mut found = Vec::new();

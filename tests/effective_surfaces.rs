@@ -1,21 +1,6 @@
-//! The effective-surface query against Python's answers (`tools/capture_effective_surfaces.py`,
-//! `tests/fixtures/captured/effective_surfaces/faces.json.gz`): every face of the parts the
-//! helper's and its consumers' Python tests build, the golden fixtures and the corpus, asked for
-//! its effective fact, `recovery_nominal` / `recovery_tolerance`, and its surface use with a
-//! material-side certificate.
-//!
-//! Compared: a refusal's reason (the port's `NotRecovered` stands for the three Python recovery
-//! outcomes it does not tell apart); a fact's kind, provenance, parameters and requested
-//! tolerance; the nominal and tolerance; a certificate's sign and probe distance, and a plane's
-//! outward normal (a cylinder's `outward` is its first sample's radial direction, and the samples
-//! are the port's own). Floats agree to one part in a million (`common::same`).
-//!
-//! Differences are listed in `tests/fixtures/captured/known_effective_surfaces.json`, each with
-//! its `file`, `field` (`fact`, `nominal`, `use`, or `<motion>:<field>` for the invariance check)
-//! and exactly the `faces` it covers, a verdict and a reason. Unlisted, stale and doubly listed
-//! differences fail, and a failing run prints the entries it needs.
+//! Rust effective-surface snapshots with unchanged material orientation, dependency and motion checks.
 
-mod common;
+use super::common;
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::io::Read;
@@ -108,78 +93,13 @@ fn port_face(effective: &EffectiveFaces, part: &Part, face: usize) -> Value {
     json!({"fact": fact, "nominal": lengths, "use": surface_use, "orientation": orientation})
 }
 
-/// Whether the port's answer for one field agrees with Python's. Where the nominal lengths
-/// differ (a listed `nominal` difference), what follows from them (a recovered fact's requested
-/// tolerance, the probe distance) is not compared again.
-fn agrees(field: &str, port: &Value, python: &Value, lengths_agree: bool) -> bool {
-    match field {
-        "fact" => match (&port["refused"], &python["refused"]) {
-            (Value::Array(reasons), Value::String(r)) => reasons.iter().any(|x| x == r),
-            (Value::Null, Value::Null) => {
-                ["kind", "provenance", "parameters"]
-                    .iter()
-                    .all(|k| common::same(&port[k], &python[k]))
-                    && (!lengths_agree
-                        || common::same(
-                            &port["requested_tolerance"],
-                            &python["requested_tolerance"],
-                        ))
-            }
-            _ => false,
-        },
-        "orientation" => port != false,
-        "nominal" => match python.get("nominal_refused") {
-            Some(_) => port["refused"] == true,
-            None => {
-                common::same(&port["nominal"], &python["nominal"])
-                    && common::same(&port["tolerance"], &python["tolerance"])
-            }
-        },
-        _ => match (&port["refused"], &python["refused"]) {
-            (Value::String(a), Value::String(b)) => a == b,
-            (Value::Null, Value::Null) => {
-                port["sign"] == python["sign"]
-                    && (!lengths_agree
-                        || common::same(&port["probe_distance"], &python["probe_distance"]))
-                    && (port["kind"] != "plane"
-                        || common::same(&port["outward"], &python["outward"]))
-            }
-            _ => false,
-        },
-    }
-}
-
-/// The Python answer for one field of a captured face.
-fn python_field(face: &Value, field: &str) -> Value {
-    match field {
-        "nominal" => {
-            let mut v = json!({});
-            for k in [
-                "nominal",
-                "tolerance",
-                "nominal_refused",
-                "area",
-                "adaptive_area",
-                "perimeter",
-                "precise_perimeter",
-            ] {
-                if !face[k].is_null() {
-                    v[k] = face[k].clone();
-                }
-            }
-            v
-        }
-        _ => face[field].clone(),
-    }
-}
-
 /// A difference: (file, field) and the face, with what each side said.
 type Difference = ((String, String), usize, String);
 
 /// Checks the differences against the known list (entries for the given fields only): every
 /// difference listed exactly once, every listed face differing.
 fn check_known(found: Vec<Difference>, fields: &dyn Fn(&str) -> bool, files: &BTreeSet<String>) {
-    let known = common::load("captured/known_effective_surfaces.json");
+    let known = common::load("references/effective_surface_motion.json");
     let entries: Vec<&Value> = known
         .as_array()
         .unwrap()
@@ -247,7 +167,7 @@ struct Run<'v> {
     source: &'v str,
     file: &'v str,
     faces: &'v [Value],
-    refused: Option<&'v str>,
+    partial: bool,
 }
 
 fn runs(captured: &Value) -> Vec<Run<'_>> {
@@ -260,7 +180,7 @@ fn runs(captured: &Value) -> Vec<Run<'_>> {
             file: r["file"].as_str().unwrap(),
             // A part Python refused, or whose answering died, keeps the faces it answered.
             faces: r["faces"].as_array().map_or(&[][..], Vec::as_slice),
-            refused: r["refused"].as_str(),
+            partial: r["partial"] == true,
         })
         .collect()
 }
@@ -289,7 +209,7 @@ fn corpus() -> Option<PathBuf> {
 const FIELDS: [&str; 4] = ["fact", "nominal", "use", "orientation"];
 
 #[test]
-fn effective_surfaces_agree_with_python() {
+fn rust_snapshot_effective_surfaces() {
     let captured = load_gz("faces.json.gz");
     let runs = runs(&captured);
     let corpus = corpus();
@@ -303,7 +223,7 @@ fn effective_surfaces_agree_with_python() {
             return (0, Vec::new());
         };
         let part = read_step_file(&path).unwrap_or_else(|e| panic!("{}: {e}", run.file));
-        if run.refused.is_none() {
+        if !run.partial {
             assert_eq!(
                 part.faces.len(),
                 run.faces.len(),
@@ -313,7 +233,8 @@ fn effective_surfaces_agree_with_python() {
         }
         let ctx = Context::new(&part);
         let effective = EffectiveFaces::new(&ctx);
-        let mut out = Vec::new();
+        let out = Vec::new();
+        let mut snapshots = Vec::new();
         for captured in run.faces {
             let face = captured["face"].as_u64().unwrap() as usize;
             let port = port_face(&effective, &part, face);
@@ -337,41 +258,18 @@ fn effective_surfaces_agree_with_python() {
                     .as_ref()
                     .map(|u| u.material_side.is_some()),
             );
-            let lengths_agree = agrees(
-                "nominal",
-                &port["nominal"],
-                &python_field(captured, "nominal"),
-                true,
-            );
-            for field in FIELDS {
-                let python = python_field(captured, field);
-                // Not captured: OpenCascade did not finish meshing the face in time.
-                if python["timeout"] == true {
-                    continue;
-                }
-                if !agrees(field, &port[field], &python, lengths_agree) {
-                    out.push((
-                        (run.file.to_string(), field.to_string()),
-                        face,
-                        format!("port {}, Python {python}", port[field]),
-                    ));
-                }
-            }
+            assert_ne!(port["orientation"], false, "{} face {face}", run.file);
+            snapshots.push(json!({"face":face,"surface":port}));
         }
+        common::snapshot::check(
+            &common::fixtures(),
+            &format!("effective_surfaces/{}/{}", run.source, run.file),
+            &json!(snapshots),
+        );
         (run.faces.len(), out)
     });
     // The orientation check is the port's own, not a captured answer.
     let calls: usize = results.iter().map(|r| r.0).sum::<usize>() * (FIELDS.len() - 1);
-    let timed_out = runs
-        .iter()
-        .flat_map(|r| r.faces)
-        .filter(|f| f["use"]["timeout"] == true)
-        .count();
-    let refused: Vec<String> = runs
-        .iter()
-        .filter_map(|r| r.refused.map(|e| format!("{}: {e}", r.file)))
-        .collect();
-    eprintln!("not captured: {timed_out} uses timed out; parts refused: {refused:?}");
     let found: Vec<Difference> = results.into_iter().flat_map(|r| r.1).collect();
     eprintln!(
         "effective surfaces: {calls} captured answers, {} differ",

@@ -11,7 +11,7 @@ use crate::kernel::brep::Part;
 
 pub use super::recess_records::Slot;
 
-parity_entry! {
+internal_entry! {
 /// `recognise_slots`.
 pub fn recognise_slots(part: &Part) -> Vec<Slot> {
     records(discover(&Context::new(part)))
@@ -26,7 +26,7 @@ fn occurrence(proposal: Proposal<Slot>) -> Occurrence<Slot> {
     }
 }
 
-parity_entry! {
+internal_entry! {
 /// Every slot with its faces, in (width, centre) order. Competing cap clusters skip the
 /// ambiguous occurrence on this record path; the evidence path returns `CompetingCaps`.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Slot>> {
@@ -38,7 +38,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Slot>> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path (`_discover_slots` with a writer): competing cap clusters refuse, as do
 /// faces without one valid solid and one record given two face sets on one solid; a record
 /// found twice from the same faces is published once.

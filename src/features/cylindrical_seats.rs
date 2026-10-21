@@ -150,7 +150,7 @@ fn empty(ctx: &Context<'_>, owner: usize, probe: Option<&Part>) -> bool {
         .is_some_and(|f| f <= 1e-9)
 }
 
-parity_entry! {
+internal_entry! {
 /// The seat proof for one group of same-surface walls, sorted by face (`_prove`); `None` for
 /// anything outside the contract.
 pub fn prove(
@@ -377,7 +377,7 @@ pub fn prove(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Every proved seat (`cylindrical_seat_proofs`): the concave native cylinders grouped, from
 /// each face in order, with the neighbours on the same surface, and each group proved.
 pub fn cylindrical_seat_proofs(ctx: &Context<'_>) -> Vec<CylindricalSeatProof> {

@@ -63,7 +63,7 @@ fn unit(v: V3) -> Checked<V3> {
     py::unit(v).map_or_else(|| refuse("direction is nonfinite or degenerate"), Ok)
 }
 
-parity_entry! {
+internal_entry! {
 /// `_round_clean`: Python's `round`, without a negative zero.
 pub fn round_clean(value: f64, digits: usize) -> f64 {
     py::without_negative_zero(py::round_to(value, digits))
@@ -614,7 +614,7 @@ pub(crate) fn validate_simple(vertices: &[SectionVertex], closed: bool) -> Check
     Ok(())
 }
 
-parity_entry! {
+internal_entry! {
 /// Prove the span between two termination planes (`span + gradient · p`) positive at every
 /// vertex and every arc's extreme along the gradient (`validate_section_end_separation`); an
 /// open chain has no closing edge.
@@ -873,7 +873,7 @@ fn validate_occurrence_value(o: &SectionOccurrence) -> Checked<()> {
     Ok(())
 }
 
-parity_entry! {
+internal_entry! {
 /// Revalidate an occurrence and its run-owned body (`validate_occurrence`).
 pub fn validate_occurrence(o: &SectionOccurrence, body_refs: &BodyRefIssuer) -> Checked<()> {
     body_refs.validate(&o.body)?;
@@ -903,7 +903,7 @@ pub struct SectionValue {
     pub boundary: Vec<VertexValue>,
 }
 
-parity_entry! {
+internal_entry! {
 pub fn section_vertex_value(vertex: &SectionVertex) -> Checked<VertexValue> {
     let [x, y, bulge] = serialized(vertex)?;
     Ok(VertexValue {
@@ -913,7 +913,7 @@ pub fn section_vertex_value(vertex: &SectionVertex) -> Checked<VertexValue> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The occurrence as published (`occurrence_geometry_dict`): origin and interval to 3
 /// decimals, directions to 6, refused unless the rounded values still describe the geometry
 /// within 2e-3.

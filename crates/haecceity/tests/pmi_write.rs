@@ -2440,12 +2440,12 @@ fn original(input: &str) -> Option<PathBuf> {
 /// For every specify-core case: its intent written onto the ORIGINAL file (AP214 files become
 /// AP242, decision 1, each pinned upgradable in corpus_upgrade.json) reads back as written;
 /// compared with what specify-core wrote, every difference matches a pinned pattern with a
-/// verdict (`known_pmi_write.json` "corpus").
+/// verdict (`references/pmi_write.json` "corpus").
 #[test]
 fn specify_intents_written_onto_the_original_files() {
     let pins = load_pins();
     let patterns = pins["corpus"]["patterns"].as_array().unwrap();
-    common::check_verdicts("known_pmi_write.json corpus", patterns);
+    common::check_verdicts("references/pmi_write.json corpus", patterns);
     let mut problems = Vec::new();
     let mut actual = serde_json::Map::new();
     let dir = common::fixtures().join("ap242/specify");
@@ -2559,7 +2559,7 @@ fn specify_intents_written_onto_the_original_files() {
 
 fn load_pins() -> Json {
     serde_json::from_str(
-        &std::fs::read_to_string(common::fixtures().join("known_pmi_write.json")).unwrap(),
+        &std::fs::read_to_string(common::fixtures().join("references/pmi_write.json")).unwrap(),
     )
     .unwrap()
 }
@@ -3847,12 +3847,12 @@ fn written_files_are_the_writers_current_output() {
 
 /// Oracle: OpenCascade XCAF's reading of each written file against haecceity's (equal to
 /// what was written, checked above); every difference pinned with a verdict
-/// (`known_pmi_write.json` "occt"); and every datum's symbol read as its presentation.
+/// (`references/pmi_write.json` "occt"); and every datum's symbol read as its presentation.
 #[test]
 fn opencascade_reads_the_written_files() {
     let pins = load_pins();
     let pinned = pins["occt"].as_array().unwrap();
-    common::check_verdicts("known_pmi_write.json occt", pinned);
+    common::check_verdicts("references/pmi_write.json occt", pinned);
     let mut problems = Vec::new();
     let mut actual = Vec::new();
     let mut names: Vec<String> = std::fs::read_dir(write_dir())

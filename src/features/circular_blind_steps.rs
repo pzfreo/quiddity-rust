@@ -44,14 +44,14 @@ impl CircularBlindStep {
     }
 }
 
-parity_entry! {
+internal_entry! {
 /// `recognise_circular_blind_steps`.
 pub fn recognise_circular_blind_steps(part: &Part) -> Vec<CircularBlindStep> {
     super::records(discover(&Context::new(part)))
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path: each step with its cylindrical wall and terminal.
 pub fn discover_verified(
     ctx: &Context<'_>,
@@ -201,7 +201,7 @@ fn candidate(
     })
 }
 
-parity_entry! {
+internal_entry! {
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<CircularBlindStep>> {
     let part = ctx.part;
     let mut cylinders: Vec<&CylinderEvidence> = ctx.cylinders().iter().collect();

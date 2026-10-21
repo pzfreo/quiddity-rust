@@ -2,19 +2,17 @@
 //! re-read under rigid motions that keep principal axes principal (a translation and right-angle
 //! rotations), and every family must find the same features on the same faces. Python is not
 //! consulted; differences it shares are still failures here. Explained exceptions live in
-//! `tests/fixtures/known_invariance.json`, each with the most occurrences it may differ by
+//! `tests/fixtures/references/invariance.json`, each with the most occurrences it may differ by
 //! (`max_differing`), so a listed difference that grows still fails.
 
-mod common;
+use super::common;
 #[path = "support/motion_breakdown.rs"]
 mod motion_breakdown;
 use motion_breakdown::Breakdown;
 #[path = "support/motion_sweep.rs"]
 mod motion_sweep;
+use super::slices;
 use motion_sweep::{SWEEP_FAMILIES, compose, occurrences as sweep_occurrences, rotation};
-#[macro_use]
-#[path = "support/slices.rs"]
-mod slices;
 
 use std::collections::BTreeMap;
 
@@ -111,9 +109,9 @@ fn known_entries(
     motions: &[&str],
     owned: impl Fn(&str) -> bool,
 ) -> Vec<((String, String, String), usize)> {
-    let known = common::load("known_invariance.json");
+    let known = common::load("references/invariance.json");
     let known = known.as_array().unwrap();
-    common::check_verdicts("known_invariance.json", known);
+    common::check_verdicts("references/invariance.json", known);
     known
         .iter()
         .filter(|k| {
@@ -147,9 +145,9 @@ struct Difference {
 
 /// Every corpus part under every motion: one test per slice of the corpus
 /// (`tests/support/slices.rs`). Each reading is recognised once, and serves two checks: the
-/// families find the same features on the same faces (`known_invariance.json`), and the moved part
+/// families find the same features on the same faces (`references/invariance.json`), and the moved part
 /// corresponds with its unmoved self, every feature and face carried to itself
-/// (`known_correspondence.json`'s invariance entries; `tests/correspondence.rs`).
+/// (`references/correspondence.json`'s invariance entries; `tests/correspondence.rs`).
 fn invariant_under_rigid_motion(k: usize, n: usize) {
     let Some(dir) = common::corpus_dir() else {
         assert!(
@@ -311,7 +309,7 @@ fn unexplained<'a>(
 }
 
 /// Review M8's generic rotation (37° about (1, 2, 3), then the translation `T`), under its name in
-/// `known_invariance.json`. No principal axis stays principal, so caller-space recognition (which
+/// `references/invariance.json`. No principal axis stays principal, so caller-space recognition (which
 /// reads world axes) is not expected to survive it; recognition in the part's own frame
 /// (`quiddity::frames`) is.
 const GENERIC: &str = "generic_framed";
@@ -540,7 +538,7 @@ fn faces_of<'a>(f: &'a Fingerprints, id: &str) -> &'a [usize] {
 
 /// What a correspondence of a part with itself moved gets wrong: the old features not carried
 /// to themselves (and new features, as `new:<id>`), the faces not carried to themselves, and a
-/// description. Families whose recognition is listed as not invariant (`known_invariance.json`)
+/// description. Families whose recognition is listed as not invariant (`references/invariance.json`)
 /// are left out, with the patterns made of them.
 struct Problems {
     features: Vec<String>,
@@ -671,9 +669,9 @@ struct Moved {
 }
 
 fn known_correspondence() -> Vec<Value> {
-    let known = common::load("known_correspondence.json");
+    let known = common::load("references/correspondence.json");
     let known = known.as_array().unwrap().clone();
-    common::check_verdicts("known_correspondence.json", &known);
+    common::check_verdicts("references/correspondence.json", &known);
     known
 }
 
@@ -718,7 +716,7 @@ fn correspondence_problems(
             )
         })
         .collect();
-    let invariance = common::load("known_invariance.json");
+    let invariance = common::load("references/invariance.json");
     let cases: Vec<(usize, usize, &Motion)> = (0..files.len())
         .filter(|&i| unmoved[i].is_some()) // the corpus test reports read failures
         .flat_map(|i| {

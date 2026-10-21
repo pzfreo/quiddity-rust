@@ -9,10 +9,8 @@
 //! recognition says; see [`the_default_document_moves_with_the_part`] and
 //! [`the_default_document_agrees_with_caller_space_recognition`].
 
-mod common;
-#[macro_use]
-#[path = "support/slices.rs"]
-mod slices;
+use super::common;
+use super::slices;
 #[path = "support/recess_samples.rs"]
 mod recess_samples;
 
@@ -611,12 +609,12 @@ fn under_motion(
     }
 }
 
-/// `known_framed_document.json`'s entries, keyed by (file, check, family), with the most
+/// `references/framed_document.json`'s entries, keyed by (file, check, family), with the most
 /// records each may differ by.
 fn known_entries() -> Vec<((String, String, String), usize)> {
-    let known = common::load("known_framed_document.json");
+    let known = common::load("references/framed_document.json");
     let known = known.as_array().unwrap();
-    common::check_verdicts("known_framed_document.json", known);
+    common::check_verdicts("references/framed_document.json", known);
     known
         .iter()
         .map(|k| {
@@ -682,7 +680,7 @@ fn unexplained(
 /// placement and not the other). A parameter left in the frame (a letter, a coordinate along a
 /// frame axis) is compared in the frame: the moved part's frame must be the unmoved one moved, and
 /// the records carried into it must agree. Differences are listed in
-/// `tests/fixtures/known_framed_document.json` under the motion's name.
+/// `tests/fixtures/references/framed_document.json` under the motion's name.
 ///
 /// One test per slice of the corpus (`tests/support/slices.rs`); the grid count printed is the
 /// slice's.
@@ -768,11 +766,11 @@ sliced!(
 const CALLER_SPACE: &str = "caller_space";
 
 /// On every corpus part, the default document against caller-space recognition
-/// (`correspondence::python_parity_recognise`, Python's entry points' space) of the part as read: the same
+/// (`correspondence::caller_space_recognise`, Python's entry points' space) of the part as read: the same
 /// features on the same faces, every parameter in the file's coordinates agreeing as
 /// [`the_default_document_moves_with_the_part`] compares them. A parameter the default leaves in
 /// the frame (a part whose frame is not the file's axes up to order and sign) has no file-space
-/// value to compare. Every difference is listed in `tests/fixtures/known_framed_document.json`
+/// value to compare. Every difference is listed in `tests/fixtures/references/framed_document.json`
 /// under `caller_space`, with a verdict.
 ///
 /// One test per slice of the corpus (`tests/support/slices.rs`); the counts printed are the
@@ -794,8 +792,8 @@ fn agrees_with_caller_space(k: usize, n: usize) {
         else {
             return (Vec::new(), 0, 0);
         };
-        let caller = correspondence::python_parity_recognise(&part);
-        let known = common::load("known_framed_document.json");
+        let caller = correspondence::caller_space_recognise(&part);
+        let known = common::load("references/framed_document.json");
         if known.as_array().unwrap().iter().any(|v| {
             v["file"] == *name
                 && v["check"] == CALLER_SPACE
@@ -930,7 +928,7 @@ fn rejected_candidates_are_absent_from_recognition_and_the_document() {
         let part = quiddity::read_step_file(&dir.join(file)).unwrap();
         let inventory = features::inventory(&part).unwrap();
         let rejected = rejected(&inventory);
-        let recognition = correspondence::python_parity_recognise(&part);
+        let recognition = correspondence::caller_space_recognise(&part);
         let document = recognition::document(&recognition, part.faces.len());
         let reasons: Vec<&str> = inventory
             .dispositions
@@ -1064,7 +1062,7 @@ fn a_pattern_never_includes_a_rejected_member() {
     }
 }
 
-/// On every corpus part `features::recognise` (through `correspondence::python_parity_recognise`) carries the
+/// On every corpus part `features::recognise` (through `correspondence::caller_space_recognise`) carries the
 /// section recesses `recognise_section_recesses` gives, or its refusal, each defined by its
 /// record's own defining faces and fingerprinted; the default (framed) recognition fingerprints
 /// those its run finds, and the document publishes every one with its file-space geometry,
@@ -1080,7 +1078,7 @@ fn carries_section_recesses(k: usize, n: usize) {
     let files = slices::slice(&corpus_files(), k, n);
     let problems = common::parallel::map(&files, |file| {
         let part = quiddity::read_step_file(&dir.join(file)).unwrap();
-        let recognition = correspondence::python_parity_recognise(&part);
+        let recognition = correspondence::caller_space_recognise(&part);
         let features = &recognition.features;
         let mut out = Vec::new();
         match recognise_section_recesses(&part) {
@@ -1220,7 +1218,7 @@ fn a_void_without_a_proved_throat_retains_its_measurements() {
         return;
     };
     let part = quiddity::read_step_file(&dir.join("mfcadpp_regressions/11512.step")).unwrap();
-    let rec = correspondence::python_parity_recognise(&part);
+    let rec = correspondence::caller_space_recognise(&part);
     let refused = rec
         .features
         .interior_void_refusals

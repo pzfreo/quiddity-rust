@@ -1,0 +1,18 @@
+{
+  "files": [
+    "ap242/specify/assembly_plate_pin.step.gz",
+    "ap242/specify/bolt_thread_knurl.step.gz",
+    "ap242/specify/bracket_positions.step.gz",
+    "ap242/nist/nist_ctc_01_asme1_ap242-e1.stp.gz",
+    "ap242/specify/nist_ctc_01_merge.step.gz",
+    "ap242/nist/nist_ctc_02_asme1_ap242-e2.stp.gz",
+    "ap242/nist/nist_ftc_07_asme1_ap242-e2.stp.gz",
+    "ap242/nist/nist_ftc_10_asme1_ap242-e2.stp.gz",
+    "ap242/nist/nist_stc_06_asme1_ap242-e3.stp.gz",
+    "ap242/nist/nist_stc_09_asme1_ap242-e4.stp.gz",
+    "ap242/nist/nist_stc_10_asme1_ap242-e2.stp.gz",
+    "ap242/specify/spool_fits.step.gz",
+    "ap242/specify/string_post_tapped.step.gz",
+    "ap242/specify/thumbwheel_thread_knurl.step.gz"
+  ]
+}

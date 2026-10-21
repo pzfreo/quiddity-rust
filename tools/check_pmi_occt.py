@@ -25,7 +25,7 @@ specify-core files (specify-core's ``load.py`` numbering), and the capture is wr
 as ``<case>.occt.json.gz``. ``crates/haecceity/tests/pmi_write.rs``
 (``opencascade_reads_the_written_files``) requires every file to load and read, compares each
 capture with haecceity's reading of the same file, which equals what was written, and requires
-a verdict for every difference in ``tests/fixtures/known_pmi_write.json`` ("occt"). Each datum
+a verdict for every difference in ``tests/fixtures/references/pmi_write.json`` ("occt"). Each datum
 also records the presentation XCAF links to it (its datum feature symbol: name, edge count,
 whether it has an annotation plane). ``metadata`` records, per shape label that has any, the
 strings and reals XCAF's metadata reader (``TDataStd_NamedData``) holds under each name the

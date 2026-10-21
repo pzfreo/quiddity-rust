@@ -71,7 +71,7 @@ Overturnable judgement calls:
 - The single-part write uses specify-core's committed intent for the pin
   (`specify/assembly_plate_pin.intent.json`, binding part 1), so the PMI is realistic rather than
   made up. It is a new `written_cases` entry (`editor_assembly_pin_alone`), so the existing
-  current-output and OpenCascade oracles cover it too; no new `known_pmi_write.json` pin was
+  current-output and OpenCascade oracles cover it too; no new `references/pmi_write.json` pin was
   needed. Its capture was made for that file alone (the other captures are unchanged).
 - "Part 0's instances byte-identical" is checked as everything part 0's product definition,
   product_definition_shape and faces reach, and also every original instance of the file.
@@ -142,7 +142,7 @@ every published record's fields, defining faces and frame labels on all 100 corp
 
 Publication exposed 69 previously untested caller-space versus inferred-frame section-recess
 comparisons in `tests/recognition.rs`. No tolerances or comparisons were relaxed. The added
-`known_framed_document.json` verdicts are 66 equivalent section-basis/order representations and
+`references/framed_document.json` verdicts are 66 equivalent section-basis/order representations and
 3 undetermined placement-dependent proofs. An independent reconstruction compared the section
 boundary vertices, arc midpoints and low/high end-surface samples of all 222 matched records on
 these 69 files in file coordinates: maximum coordinate difference 0.001557470029111883 mm, below
@@ -174,7 +174,7 @@ command at a time):
 Files changed: `src/features/mod.rs`, `src/recognition.rs`,
 `src/correspondence/fingerprint.rs`, `tests/recognition.rs`,
 `tests/section_recess_publication.rs`, `tests/fixtures/section_recess_publication_baseline.json`,
-`tests/fixtures/known_framed_document.json`, `README.md`, `CHANGELOG.md`, `docs/alpha1.md` and
+`tests/fixtures/references/framed_document.json`, `README.md`, `CHANGELOG.md`, `docs/alpha1.md` and
 this file. No commits or pushes. No Python or draftwright repository changes.
 
 ## G7a fix round (2026-10-11)

@@ -1,6 +1,6 @@
 """Build revision pairs for the correspondence tests, as a designer would revise a part.
 
-    ../quiddity/.venv/bin/python tools/capture_revisions.py
+    ../quiddity/.venv/bin/python tools/make_revision_fixtures.py
 
 Writes ``tests/fixtures/revisions/<case>.old.step.gz`` and ``<case>.new.step.gz`` and
 ``tests/fixtures/revisions/expected.json``: per case, whether an alignment should be found and
@@ -367,7 +367,7 @@ def main():
             )
         )
     (OUT / "expected.json").write_text(
-        json.dumps({"tool": "tools/capture_revisions.py", "cases": expected}, indent=2) + "\n"
+        json.dumps({"tool": "tools/make_revision_fixtures.py", "cases": expected}, indent=2) + "\n"
     )
     print(f"{len(expected)} revision pairs in {OUT}")
 

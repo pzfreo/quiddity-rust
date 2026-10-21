@@ -206,7 +206,7 @@ impl RecognitionEvidence<'_> {
         record.expect("records serialise")
     }
 
-    parity_entry! {
+    internal_entry! {
         /// One face's planar outer profile (`RecognitionEvidence.planar_outer_profile`).
         pub fn planar_outer_profile(
             &self,
@@ -230,7 +230,7 @@ fn sorted(faces: &[usize]) -> Vec<usize> {
     set.into_iter().collect()
 }
 
-parity_entry! {
+internal_entry! {
 /// Recognise *part* and project the outcome onto its faces (`build_recognition_evidence`), or
 /// the reconciliation's or the section-recess projection's refusal. The projection
 /// (`section_recess_projection`) recognises the part again, on its own run context: the same

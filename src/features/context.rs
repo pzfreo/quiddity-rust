@@ -30,7 +30,7 @@ pub struct Context<'a> {
 }
 
 impl<'a> Context<'a> {
-parity_entry! {
+internal_entry! {
     pub fn new(part: &'a Part) -> Self {
         Context {
             part,

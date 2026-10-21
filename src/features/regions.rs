@@ -20,7 +20,7 @@ pub type Region = BTreeSet<usize>;
 
 const LENGTH_REL: f64 = 1e-7;
 
-parity_entry! {
+internal_entry! {
 /// Kernel-coordinate equality scaled to the largest of the relevant local lengths
 /// (`_length_tolerance`).
 pub fn length_tolerance(values: &[f64]) -> f64 {
@@ -35,7 +35,7 @@ fn extents_across(b: &Bounds, axis: usize) -> impl Iterator<Item = f64> + '_ {
         .map(|i| b.max[i] - b.min[i])
 }
 
-parity_entry! {
+internal_entry! {
 /// Connected same-principal-plane faces, without crossing a tangent blend (`_coplanar_region`):
 /// empty when the seed is not an axis-aligned plane.
 pub fn coplanar_region(part: &Part, seed: usize) -> Region {
@@ -66,7 +66,7 @@ pub fn coplanar_region(part: &Part, seed: usize) -> Region {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// How two regions meet, when every pair of faces that meets does so the same way
 /// (`_relation`).
 pub fn relation(part: &Part, left: &Region, right: &Region) -> Option<Arc> {
@@ -84,7 +84,7 @@ pub fn relation(part: &Part, left: &Region, right: &Region) -> Option<Arc> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The box of a region's faces (`_region_bounds`).
 pub fn region_bounds(part: &Part, nodes: &Region) -> Bounds {
     let mut b = Bounds::empty();
@@ -95,7 +95,7 @@ pub fn region_bounds(part: &Part, nodes: &Region) -> Bounds {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The common extent of the regions along *axis*, if they all share it (`_same_span`).
 pub fn same_span(part: &Part, regions: &[&Region], axis: usize) -> Option<(f64, f64)> {
     let spans: Vec<(f64, f64)> = regions
@@ -162,7 +162,7 @@ fn run_kind(part: &Part, edge: usize) -> Option<RunKind> {
     }
 }
 
-parity_entry! {
+internal_entry! {
 /// A circular edge's radius.
 pub fn edge_radius(part: &Part, edge: usize) -> Option<f64> {
     match part.edges[edge].curve {
@@ -172,7 +172,7 @@ pub fn edge_radius(part: &Part, edge: usize) -> Option<f64> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// An edge's length: exact for lines and circular arcs, along its samples otherwise.
 pub fn edge_length(part: &Part, edge: usize) -> f64 {
     let e = &part.edges[edge];
@@ -187,14 +187,14 @@ pub fn edge_length(part: &Part, edge: usize) -> f64 {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The total length of a run of edges.
 pub fn run_length(part: &Part, run: &[WireEdge]) -> f64 {
     run.iter().map(|w| edge_length(part, w.edge)).sum()
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The edges a region's faces use once, joined end to end into its one closed boundary wire
 /// (`_region_boundary_wire`): `None` when an edge is used by more than two of the faces, when
 /// the boundary is not exactly one closed wire, or, with *planar*, when the wire bounds no plane.
@@ -282,7 +282,7 @@ fn is_planar(part: &Part, wire: &[WireEdge]) -> bool {
         .all(|p| geom::dot(normal, geom::sub(*p, centroid)).abs() <= COORD_FLOOR)
 }
 
-parity_entry! {
+internal_entry! {
 /// Co-directed straight or same-radius circular runs around one boundary (`_boundary_runs`):
 /// `None` when an edge is neither a line nor a circle. A run split by the wire's seam is joined.
 pub fn boundary_runs(part: &Part, wire: &[WireEdge]) -> Option<Vec<(RunKind, Vec<WireEdge>)>> {
@@ -329,7 +329,7 @@ pub fn boundary_runs(part: &Part, wire: &[WireEdge]) -> Option<Vec<(RunKind, Vec
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Whether a planar region is one valid hole-free principal rectangle (`_principal_rectangle`).
 pub fn principal_rectangle(part: &Part, nodes: &Region, normal_axis: usize) -> bool {
     let Some(wire) = region_boundary(part, nodes, true) else {
@@ -373,7 +373,7 @@ pub fn principal_rectangle(part: &Part, nodes: &Region, normal_axis: usize) -> b
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Whether one plane normal to *normal_axis* at *station* (within the tolerance of *nominal*),
 /// taken as its coplanar region, meets every source region and only convexly
 /// (`_common_convex_context`): the stock face a feature opens through.
@@ -422,7 +422,7 @@ pub fn common_convex_context(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Whether the cap region bounded by *wire* (in the plane `run = cap_station`), swept along
 /// *run* to *open_station*, shares no volume with the solid (`_empty_sweep`).
 pub fn empty_sweep(

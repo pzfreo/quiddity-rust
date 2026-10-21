@@ -4,7 +4,7 @@
 //! (`correspondence::fingerprint::FAMILIES`), every path in a table being some leaf's, and every
 //! feature's fingerprint has a size. Run over the STEP fixtures and, when present, the corpus.
 
-mod common;
+use super::common;
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::PathBuf;

@@ -901,16 +901,16 @@ fn compare_nist(
 
 /// Pinned differences of one list: `[{file?, key, verdict, reason}]`.
 fn pinned(list: &str) -> BTreeMap<String, Json> {
-    let path = common::fixtures().join("known_pmi.json");
+    let path = common::fixtures().join("references/pmi.json");
     let all: Json = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
     let entries = all[list].as_array().cloned().unwrap_or_default();
-    common::check_verdicts(&format!("known_pmi.json {list}"), &entries);
+    common::check_verdicts(&format!("references/pmi.json {list}"), &entries);
     let mut out = BTreeMap::new();
     for e in entries {
         let k = e["key"].as_str().unwrap().to_string();
         assert!(
             out.insert(k.clone(), e).is_none(),
-            "known_pmi.json {list}: {k} listed twice"
+            "references/pmi.json {list}: {k} listed twice"
         );
     }
     out
@@ -976,7 +976,7 @@ const NIST_MODELS: [&str; 7] = [
 
 /// Oracle 1: NIST's expected PMI. Every row is found with equal semantics (values to 1e-12
 /// relative, decimal places as shown, datum frames in order, modifiers, classes, targets), every
-/// read item is a row; each difference is pinned in `known_pmi.json` "nist" with its verdict.
+/// read item is a row; each difference is pinned in `references/pmi.json` "nist" with its verdict.
 #[test]
 fn nist_expected_pmi() {
     let mut diffs = Vec::new();
@@ -1708,7 +1708,7 @@ fn attr_text<'a>(a: &'a pmi::AttributeSet, k: &str) -> Option<&'a pmi::Attribute
 }
 
 /// Oracle 5: the PMI read from each specify-core output against the intent's requirements and
-/// datums (faces are numbered alike); differences pinned in `known_pmi.json` "specify".
+/// datums (faces are numbered alike); differences pinned in `references/pmi.json` "specify".
 fn compare_specify(case: &str, intent: &Json, p: &PartPmi, pi: usize) -> Vec<(String, String)> {
     let mut out = Vec::new();
     let key = |what: String| format!("{case} part {pi} {what}");
@@ -2038,31 +2038,16 @@ fn specify_core_outputs() {
 /// `existing.notes(path, part=k)`. Part notes stay on the part, and every instance is consumed
 /// (no finding names the notes' aspects).
 #[test]
-fn specify_core_notes_on_faces_are_anchored() {
+fn rust_snapshot_specify_notes_on_faces_are_anchored() {
     let dir = common::fixtures().join("ap242/specify");
-    // (case, part, [(note kind, faces)]).
-    type Notes = &'static [(&'static str, &'static [usize])];
-    let python: &[(&str, usize, Notes)] = &[
-        ("assembly_plate_pin", 0, &[("internal thread", &[11])]),
-        ("assembly_plate_pin", 1, &[("internal thread", &[3])]),
-        (
-            "bolt_thread_knurl",
-            0,
-            &[("external thread", &[0]), ("knurl", &[4])],
-        ),
-        ("string_post_tapped", 0, &[("internal thread", &[17])]),
-        (
-            "thumbwheel_thread_knurl",
-            0,
-            &[
-                ("external thread", &[2]),
-                ("internal thread", &[12]),
-                ("knurl", &[9]),
-            ],
-        ),
-        ("spool_fits", 0, &[]),
-    ];
-    for &(case, part, want) in python {
+    for (case, part) in [
+        ("assembly_plate_pin", 0),
+        ("assembly_plate_pin", 1),
+        ("bolt_thread_knurl", 0),
+        ("string_post_tapped", 0),
+        ("thumbwheel_thread_knurl", 0),
+        ("spool_fits", 0),
+    ] {
         let r = read_bytes(file_bytes(&dir.join(format!("{case}.step.gz"))));
         let p = &r.parts[part];
         let mut got: Vec<(String, Vec<usize>)> = p
@@ -2074,11 +2059,12 @@ fn specify_core_notes_on_faces_are_anchored() {
             })
             .collect();
         got.sort();
-        let want: Vec<(String, Vec<usize>)> = want
-            .iter()
-            .map(|(k, f)| (k.to_string(), f.to_vec()))
-            .collect();
-        assert_eq!(got, want, "{case} part {part}");
+        common::snapshot::check_with(
+            &common::fixtures(),
+            &format!("notes/{case}/{part}"),
+            &json!(got),
+            &|a, b| a == b,
+        );
         for n in &p.notes {
             if n.on.is_none() {
                 assert!(

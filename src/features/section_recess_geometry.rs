@@ -116,7 +116,7 @@ impl From<&CylindricalPassageProof> for CylinderEnd {
     }
 }
 
-parity_entry! {
+internal_entry! {
 /// Whether an observed plane caps the original wall support (`has_physical_planar_floor`): a
 /// planar constituent face facing out along *axis* on the open side, of no thickness along it,
 /// level with every wall's capped end and within 0.002 of the published floor.
@@ -399,7 +399,7 @@ fn public_geometry(
     project_section_recess_geometry(&occurrence, &issuer)
 }
 
-parity_entry! {
+internal_entry! {
 /// A closed private section occurrence as the public geometry
 /// (`project_section_recess_geometry`): its published frame, interval and boundary, each end
 /// capped or open under a flat plane.
@@ -696,7 +696,7 @@ fn one_obround_candidate(ctx: &Context<'_>, floor: usize) -> Option<Candidate> {
     })
 }
 
-parity_entry! {
+internal_entry! {
 /// The section shape a polygon's corners name (`_polygonal_shape`).
 pub fn polygonal_shape(points: &[V2]) -> &'static str {
     match points.len() {
@@ -1055,7 +1055,7 @@ fn one_mixed_candidate(ctx: &Context<'_>, floor: usize) -> Option<Candidate> {
     })
 }
 
-parity_entry! {
+internal_entry! {
 /// A proved cylindrical-ended pocket as a candidate (`_cylindrical_candidate`): its floor
 /// polygon in the run's canonical frame, capped at the floor, the cylinder at the mouth.
 pub fn cylindrical_candidate(part: &Part, proof: &CylindricalPocketProof) -> Checked<Candidate> {
@@ -1106,7 +1106,7 @@ pub fn cylindrical_candidate(part: &Part, proof: &CylindricalPocketProof) -> Che
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// A proved U-channel ending on a cylinder as its public geometry, without its temporary probe
 /// closure (`cylindrical_channel_geometry`): the rectangular probe domain from the original
 /// bounds, its one edge on the mouth published as the opening.
@@ -1169,7 +1169,7 @@ pub fn cylindrical_channel_geometry(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// A proved plane-envelope passage as its public geometry (`_plane_envelope_geometry`): both
 /// observed planes published under one complete 0.002 displacement bound.
 pub fn plane_envelope_geometry(
@@ -1295,7 +1295,7 @@ fn open_profile(chain: Vec<PassageSectionVertex>) -> Checked<OpenSectionProfile>
     OpenSectionProfile::new("open", chain, opening, Some(side))
 }
 
-parity_entry! {
+internal_entry! {
 /// One whole-occurrence error bound for an observed cylindrical termination
 /// (`_cylindrical_geometry`).
 ///
@@ -1526,7 +1526,7 @@ pub fn cylindrical_geometry(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// A proved open seat as its public geometry (`_seat_geometry`): the actual open arc under a
 /// complete 0.002 displacement bound.
 pub fn seat_geometry(seat: &CylindricalSeatProof) -> Checked<SectionRecessGeometry> {
@@ -1608,7 +1608,7 @@ pub type FloorReading = Checked<Option<Candidate>>;
 /// Each planar face with its three `floor_readings`, in face order.
 pub type PlanarFloorReadings = Vec<(usize, [FloorReading; 3])>;
 
-parity_entry! {
+internal_entry! {
 /// The three floor readers on one face, each asked on its own: obround, polygonal, mixed.
 pub fn floor_readings(ctx: &Context<'_>, floor: usize) -> [FloorReading; 3] {
     [
@@ -1619,7 +1619,7 @@ pub fn floor_readings(ctx: &Context<'_>, floor: usize) -> [FloorReading; 3] {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The passage geometry `_candidates` gives a cylindrical passage proof.
 pub fn cylindrical_passage_geometry(
     passage: &CylindricalPassageProof,
@@ -1664,7 +1664,7 @@ fn preferred(
     })
 }
 
-parity_entry! {
+internal_entry! {
 /// Every candidate on the part (`_candidates`), each once, ordered by constituent faces, shape
 /// and mouth: seats, then each planar face's specific reading before the general one, then
 /// cylindrical pockets and passages and plane-envelope passages. A proof whose projection
@@ -1680,7 +1680,7 @@ pub fn candidates(ctx: &Context<'_>, surfaces: &EffectiveFaces<'_, '_>) -> Check
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// [`candidates`] together with every planar face's three `floor_readings`, in face order,
 /// each reader asked once: the candidates take their floor readings from these (the readers
 /// answer the same whenever they are asked), so a caller that wants both does not read every

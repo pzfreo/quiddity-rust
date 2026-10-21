@@ -43,7 +43,7 @@ from OCP.TopoDS import TopoDS  # noqa: E402
 from quiddity import import_step_geometry  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from export_fixtures import _inventory  # noqa: E402
+from _occt_inventory import _inventory  # noqa: E402
 
 CORPUS = QUIDDITY / "tests" / "corpus"
 FIXTURES = Path(__file__).resolve().parent.parent / "tests" / "fixtures"

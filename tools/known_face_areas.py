@@ -1,4 +1,4 @@
-"""Write ``tests/fixtures/known_face_areas.json``: a verdict for every face area the port gives
+"""Write ``tests/fixtures/references/face_areas.json``: a verdict for every face area the port gives
 that differs from OpenCascade's, with the evidence.
 
     FACE_AREAS_DUMP=/tmp/found.json QUIDDITY_CORPUS=../quiddity/tests/corpus \\
@@ -35,7 +35,7 @@ import sys
 from pathlib import Path
 
 FIXTURES = Path(__file__).resolve().parent.parent / "tests" / "fixtures"
-OUT = FIXTURES / "known_face_areas.json"
+OUT = FIXTURES / "references/face_areas.json"
 
 PLACEMENT = (
     "Under the test's motion (a translation and 37 degrees about (1, 2, 3)) this B-spline face's "

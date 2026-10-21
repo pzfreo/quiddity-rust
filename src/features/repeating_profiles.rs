@@ -100,7 +100,7 @@ struct BoundaryEvidence {
     orbits: Vec<Vec<usize>>,
 }
 
-parity_entry! {
+internal_entry! {
 /// `recognise_repeating_radial_profiles`.
 pub fn recognise_repeating_radial_profiles(
     part: &Part,
@@ -110,14 +110,14 @@ pub fn recognise_repeating_radial_profiles(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Every profile of every solid with its two opposed source faces, in record order.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<RepeatingRadialProfile>> {
     discover_with(ctx.part, RepeatingRadialProfileOptions::default().tol)
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path (`_discover_repeating_radial_profiles` with a writer): refused when a
 /// profile's two faces are one face, when a face is claimed by two profiles, or when the faces
 /// do not share one valid solid.

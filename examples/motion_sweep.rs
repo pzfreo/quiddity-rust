@@ -7,22 +7,21 @@ use motion_breakdown::{Breakdown, Occurrence};
 #[path = "../tests/support/motion_sweep.rs"]
 mod motion_sweep;
 use motion_sweep::{compose, occurrences, rotation};
-use quiddity::frames;
 use quiddity::kernel::step::{IDENTITY, Placement, read_step_file_placed};
 use std::sync::{
     Mutex,
     atomic::{AtomicUsize, Ordering},
 };
 fn census(path: &std::path::Path, framed: bool, at: &Placement) -> Result<Vec<Occurrence>, String> {
-    if framed {
-        frames::prepare_framed_file(path, at)
-            .map(|p| occurrences(&p.part))
-            .map_err(|e| e.to_string())
+    let part = read_step_file_placed(path, at).map_err(|e| e.to_string())?;
+    let part = if framed {
+        let frame = quiddity::frames::infer_part_frame(&part).map_err(|e| e.as_str().to_owned())?;
+        part.transformed(&frame.normalisation())
+            .map_err(|e| e.to_string())?
     } else {
-        read_step_file_placed(path, at)
-            .map(|p| occurrences(&p))
-            .map_err(|e| e.to_string())
-    }
+        part
+    };
+    Ok(occurrences(&part))
 }
 
 fn record(o: &Occurrence) -> serde_json::Value {

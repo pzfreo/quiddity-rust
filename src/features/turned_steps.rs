@@ -51,14 +51,14 @@ impl TurnedStep {
     }
 }
 
-parity_entry! {
+internal_entry! {
 /// `recognise_turned_steps`: sorted by profile, then axis, `lo`, `hi` and diameter.
 pub fn recognise_turned_steps(part: &Part) -> Vec<TurnedStep> {
     sorted(super::records(discover(&Context::new(part))))
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Steps in the order `recognise_turned_steps` returns them (`discover` keeps proposal order,
 /// which is the order Python issues their evidence in).
 pub fn sorted(mut steps: Vec<TurnedStep>) -> Vec<TurnedStep> {
@@ -67,7 +67,7 @@ pub fn sorted(mut steps: Vec<TurnedStep>) -> Vec<TurnedStep> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Occurrences in the order [`sorted`] gives their records.
 pub fn sorted_occurrences(mut found: Vec<Occurrence<TurnedStep>>) -> Vec<Occurrence<TurnedStep>> {
     found.sort_by(|a, b| order(&a.record, &b.record));
@@ -89,7 +89,7 @@ fn order(a: &TurnedStep, b: &TurnedStep) -> std::cmp::Ordering {
         .then(py::order(a.diameter, b.diameter))
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path: every step with the bands that set its diameter, all on one valid solid.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<TurnedStep>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
@@ -105,7 +105,7 @@ struct Scope<'c> {
     cyls: Vec<&'c CylinderEvidence>,
 }
 
-parity_entry! {
+internal_entry! {
 /// Each step in proposal order (body, then axis line, then along the axis) with the bands that
 /// set its diameter as its defining faces.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<TurnedStep>> {

@@ -8,7 +8,7 @@ use crate::kernel::brep::Part;
 use crate::kernel::geom::{Curve, Surface, V3, dominant_axis, norm};
 use crate::kernel::py;
 
-parity_entry! {
+internal_entry! {
 /// A planar face's plane as `validated_parameters(PLANE, …)` gives it: the unit normal with its
 /// dominant component (ties to the later axis) made non-negative, and the plane's offset along
 /// it. A B-spline or Bezier face counts when it is certified a plane (`_effective_surfaces`).
@@ -38,7 +38,7 @@ pub fn effective_plane(part: &Part, face: usize) -> Option<(V3, f64)> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The axis a planar face's normal aligns with and the plane's coordinate along it.
 pub fn axis_aligned_axis(part: &Part, face: usize) -> Option<(usize, f64)> {
     let Surface::Plane { frame } = &part.faces[face].surface else {
@@ -53,7 +53,7 @@ pub fn axis_aligned_axis(part: &Part, face: usize) -> Option<(usize, f64)> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Per axis, the coordinate of *face*'s nearest axis-aligned neighbour plane
 /// (`nearest_axis_aligned_planes`). Distinct equidistant supports refuse: coordinate sign is
 /// not evidence of which corner a feature replaces. The legacy flag is accepted for source
@@ -125,7 +125,7 @@ pub(crate) fn nearest_axis_aligned_plane_candidates(
         .collect()
 }
 
-parity_entry! {
+internal_entry! {
 /// `gp_Vec::Normalized` divides each component (multiplying by the reciprocal can differ in
 /// the last bit). `None` for a zero vector, where `gp_Vec::Normalized` raises.
 pub fn normalized(a: V3) -> Option<V3> {
@@ -134,14 +134,14 @@ pub fn normalized(a: V3) -> Option<V3> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// `_coordinates`: each component rounded, without a negative zero.
 pub fn coordinates(p: V3, digits: usize) -> V3 {
     p.map(|c| py::without_negative_zero(py::round_to(c, digits)))
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// A plane bounded by one loop of four straight edges (`_linear_quad`).
 pub fn linear_quad(part: &Part, face: usize) -> bool {
     let f = &part.faces[face];
@@ -163,7 +163,7 @@ pub fn linear_quad(part: &Part, face: usize) -> bool {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// A plane's unit outward normal (`face.normal_at()`, which `gp_Vec::Normalized` returns): read
 /// at parameter `(0, 0)` and divided by its length. The surface type is not checked: the caller
 /// passes a plane (on any other face this is the normal at that one parameter point).

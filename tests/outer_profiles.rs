@@ -1,21 +1,6 @@
-//! Planar outer-profile evidence against Python's answers (`tools/capture_outer_profiles.py`,
-//! `tests/fixtures/captured/outer_profiles/faces.json.gz`): every face of the parts quiddity's
-//! outer-profile tests build, the golden fixtures draftwright's profile angles read and the
-//! corpus, asked for `planar_outer_profile`.
-//!
-//! Compared per face: the outcome (a refusal's reason, or a profile), a profile's origin, normal,
-//! inner-loop count, schema version and supports in order (kind, ends, and an arc's centre,
-//! radius and sweep), and the faces of its body. Floats agree to one part in a million
-//! (`common::same`). Independently of Python, every profile's supports must correspond to its
-//! source edges: distinct edges of the face's outer loop, each with the support's vertices, kind
-//! and circle.
-//!
-//! Differences are listed in `tests/fixtures/captured/outer_profiles/known_differences.json`,
-//! each with its `file`, `field` (`outcome`, `profile`, `body`, or `<motion>:<field>` for the
-//! invariance check) and exactly the `faces` it covers, a verdict and a reason. Unlisted, stale
-//! and doubly listed differences fail, and a failing run prints the entries it needs.
+//! Rust outer-profile snapshots, analytic support correspondence, and unchanged rigid-motion checks.
 
-mod common;
+use super::common;
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::io::Read;
@@ -29,7 +14,7 @@ use quiddity::kernel::geom::Curve;
 use quiddity::kernel::step::{Placement, read_step_file, read_step_file_placed};
 use serde_json::{Value, json};
 
-const KNOWN: &str = "captured/outer_profiles/known_differences.json";
+const KNOWN: &str = "references/outer_profile_motion.json";
 
 fn captured() -> Value {
     let path = common::fixtures().join("captured/outer_profiles/faces.json.gz");
@@ -40,7 +25,7 @@ fn captured() -> Value {
     serde_json::from_str(&text).unwrap()
 }
 
-/// The port's answer for one face, shaped as the capture records Python's (the body as its
+/// The port's answer for one face, shaped as the capture records unmoved Rust's (the body as its
 /// face roster rather than a position in the run's list).
 fn port_face(part: &Part, face: usize) -> Value {
     match planar_outer_profile(part, face) {
@@ -57,49 +42,6 @@ fn port_face(part: &Part, face: usize) -> Value {
             })
         }
     }
-}
-
-/// The fields of one face's answers that differ: (field, what each side said).
-fn differences(port: &Value, python: &Value) -> Vec<(&'static str, String)> {
-    let outcome = |v: &Value| v["refused"].as_str().unwrap_or("profile").to_string();
-    if outcome(port) != outcome(python) {
-        return vec![(
-            "outcome",
-            format!("port {}, Python {}", outcome(port), outcome(python)),
-        )];
-    }
-    if !port["refused"].is_null() {
-        return Vec::new();
-    }
-    let mut out = Vec::new();
-    let keys = [
-        "origin",
-        "normal",
-        "inner_loop_count",
-        "schema_version",
-        "supports",
-    ];
-    if !keys.iter().all(|k| common::same(&port[k], &python[k])) {
-        let first = keys
-            .iter()
-            .find(|k| !common::same(&port[**k], &python[**k]))
-            .unwrap();
-        out.push((
-            "profile",
-            format!("{first}: port {}, Python {}", port[first], python[first]),
-        ));
-    }
-    if port["body"] != python["body"] {
-        out.push((
-            "body",
-            format!(
-                "port {} faces, Python {}",
-                port["body"].as_array().map_or(0, Vec::len),
-                python["body"].as_array().map_or(0, Vec::len)
-            ),
-        ));
-    }
-    out
 }
 
 /// `assert_support_correspondence`: each support's source edge is a distinct edge of the face's
@@ -212,7 +154,6 @@ struct Run<'v> {
     file: &'v str,
     test: Option<&'v str>,
     faces: &'v [Value],
-    bodies: &'v [Value],
 }
 
 fn runs(captured: &Value) -> Vec<Run<'_>> {
@@ -223,7 +164,7 @@ fn runs(captured: &Value) -> Vec<Run<'_>> {
         .map(|r| {
             assert!(
                 r["refused"].is_null(),
-                "{}: Python refused the part",
+                "{}: unmoved Rust refused the part",
                 r["file"]
             );
             Run {
@@ -231,7 +172,6 @@ fn runs(captured: &Value) -> Vec<Run<'_>> {
                 file: r["file"].as_str().unwrap(),
                 test: r["test"].as_str(),
                 faces: r["faces"].as_array().unwrap(),
-                bodies: r["bodies"].as_array().unwrap(),
             }
         })
         .collect()
@@ -267,7 +207,7 @@ fn available<'r>(runs: &'r [Run<'r>], corpus: &Option<PathBuf>) -> BTreeSet<Stri
 }
 
 #[test]
-fn outer_profiles_agree_with_python() {
+fn rust_snapshot_outer_profiles() {
     let captured = captured();
     let runs = runs(&captured);
     let corpus = corpus();
@@ -283,7 +223,8 @@ fn outer_profiles_agree_with_python() {
             "{}: face count",
             run.file
         );
-        let mut out = Vec::new();
+        let out = Vec::new();
+        let mut snapshots = Vec::new();
         let mut profiles = 0;
         for captured in run.faces {
             let face = captured["face"].as_u64().unwrap() as usize;
@@ -294,14 +235,13 @@ fn outer_profiles_agree_with_python() {
                 }
             }
             let port = port_face(&part, face);
-            let mut python = captured.clone();
-            if let Some(body) = captured["body"].as_u64() {
-                python["body"] = run.bodies[body as usize].clone();
-            }
-            for (field, message) in differences(&port, &python) {
-                out.push(((run.file.to_string(), field.to_string()), face, message));
-            }
+            snapshots.push(json!({"face":face,"profile":port}));
         }
+        common::snapshot::check(
+            &common::fixtures(),
+            &format!("outer_profiles/{}/{}", run.source, run.file),
+            &json!(snapshots),
+        );
         (run.faces.len(), profiles, out)
     });
     let faces: usize = results.iter().map(|r| r.0).sum();
@@ -461,7 +401,7 @@ fn outer_profiles_are_placement_independent() {
 }
 
 /// The applicable cases of quiddity's `tests/test_planar_outer_profiles.py`, asserted on the
-/// parts each test built (captured as STEP) rather than against Python's answers. Not ported:
+/// parts each test built (captured as STEP) rather than against unmoved Rust's answers. Not ported:
 /// the evidence view's laziness, caching, authority and serialisation guards (the port's
 /// evidence is a plain value of the part, not an issued run-local binding), the framed view
 /// (recognition in the part's own frame is `correspondence::recognise`'s, not this

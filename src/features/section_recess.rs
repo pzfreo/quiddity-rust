@@ -226,7 +226,7 @@ impl OpenSectionProfile {
     }
 }
 
-parity_entry! {
+internal_entry! {
 /// The solid side of a canonical recess wall chain (`_open_profile_material_side`).
 ///
 /// Closing the absent opening only for this orientation calculation gives the removed

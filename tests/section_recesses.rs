@@ -1,25 +1,7 @@
-//! The section-recess family's entry point against Python's (`tools/capture_section_recesses.py`,
-//! fixtures in `tests/fixtures/captured/section_recesses/`): `build_section_recess_document` on
-//! the parts the section-recess Python tests hand `build_section_recess_document` or
-//! `recognise_section_recesses`, the two golden passage fixtures and every corpus part.
-//!
-//! The port's document is compared with Python's item by item: occurrences by body and
-//! constituent faces (the region `_unique_section_recesses` keys them by), refusals by body and
-//! evidence, patterns by their members' regions; floats agree to one part in a million
-//! (`common::same`), and the occurrences' order (their indices) must agree too. A document
-//! Python refuses must be refused with the same message. A part whose projection Python did not
-//! finish within the capture's timeout is not compared, and is counted.
-//!
-//! Differences are listed in `known_differences.json` beside the fixtures: per entry the part's
-//! `file`, the `item` (`document`, `order`, `occurrence`, `refusal`, `pattern`), its `key` (the
-//! region, or for a pattern its members' regions) and `kind` (`missing`: Python's only,
-//! `extra`: the port's only, `differs`), a verdict and a reason. A failing run prints the
-//! entries it needs.
+//! Rust section-recess document snapshots and unchanged motion checks over the complete legacy input selection.
 
-mod common;
-#[macro_use]
-#[path = "support/slices.rs"]
-mod slices;
+use super::common;
+use super::slices;
 
 use std::collections::BTreeSet;
 use std::io::Read;
@@ -29,7 +11,7 @@ use quiddity::features::section_recess_family::build_section_recess_document;
 use quiddity::kernel::step::{Placement, read_step_file, read_step_file_placed};
 use serde_json::{Value, json};
 
-const KNOWN: &str = "captured/section_recesses/known_differences.json";
+const KNOWN: &str = "references/recess_document_motion.json";
 
 fn dir() -> std::path::PathBuf {
     common::fixtures().join("captured/section_recesses")
@@ -67,208 +49,25 @@ fn read(source: &str, file: &str) -> Option<Part> {
     Some(read_step_file(&path).unwrap_or_else(|e| panic!("{file}: {e}")))
 }
 
-/// An occurrence's or refusal's region: its body and constituent faces.
-fn region(item: &Value) -> Value {
-    json!([item["body"], item["evidence"]["constituent_faces"]])
-}
-
-/// A refusal's key: its body and both evidence lists.
-fn refusal_key(item: &Value) -> Value {
-    json!([
-        item["body"],
-        item["evidence"]["defining_faces"],
-        item["evidence"]["constituent_faces"]
-    ])
-}
-
-/// A pattern with its member indices replaced by their occurrences' regions.
-fn pattern_by_region(pattern: &Value, occurrences: &[Value]) -> Value {
-    let mut p = pattern.clone();
-    p["members"] = json!(
-        pattern["members"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(|m| region(&occurrences[m.as_u64().unwrap() as usize]))
-            .collect::<Vec<_>>()
-    );
-    p
-}
-
-/// The differences between two documents, each as (identity, description).
-fn differences(file: &str, got: &Value, want: &Value) -> Vec<(Value, String)> {
-    let mut out = Vec::new();
-    let mut push = |item: &str, key: Value, kind: &str, text: String| {
-        out.push((
-            json!({"file": file, "item": item, "key": key, "kind": kind}),
-            format!("{file} {item} {kind}: {text}"),
-        ));
-    };
-    if got.get("refused").is_some() || want.get("refused").is_some() {
-        if got != want {
-            push(
-                "document",
-                Value::Null,
-                "differs",
-                format!("port {got}, python {want}"),
-            );
-        }
-        return out;
-    }
-    for field in ["schema_version", "reference_scope", "bodies", "faces"] {
-        if got[field] != want[field] {
-            push(
-                "document",
-                json!(field),
-                "differs",
-                format!("port {}, python {}", got[field], want[field]),
-            );
-        }
-    }
-    let occ = |d: &Value| d["occurrences"].as_array().unwrap().clone();
-    let (got_occ, want_occ) = (occ(got), occ(want));
-    let strip = |o: &Value| {
-        let mut o = o.clone();
-        o["index"] = Value::Null;
-        o
-    };
-    for w in &want_occ {
-        match got_occ.iter().find(|g| region(g) == region(w)) {
-            None => push("occurrence", region(w), "missing", w.to_string()),
-            Some(g) if !common::same(&strip(g), &strip(w)) => push(
-                "occurrence",
-                region(w),
-                "differs",
-                common::diff(&strip(g), &strip(w)),
-            ),
-            Some(_) => {}
-        }
-    }
-    for g in &got_occ {
-        if !want_occ.iter().any(|w| region(w) == region(g)) {
-            push("occurrence", region(g), "extra", g.to_string());
-        }
-    }
-    // The order among the occurrences both publish.
-    let common_order = |a: &[Value], b: &[Value]| -> Vec<Value> {
-        a.iter()
-            .map(region)
-            .filter(|r| b.iter().any(|o| &region(o) == r))
-            .collect()
-    };
-    if common_order(&got_occ, &want_occ) != common_order(&want_occ, &got_occ) {
-        push(
-            "order",
-            Value::Null,
-            "differs",
-            format!(
-                "port {:?}, python {:?}",
-                common_order(&got_occ, &want_occ),
-                common_order(&want_occ, &got_occ)
-            ),
-        );
-    }
-    let refusals = |d: &Value| -> Vec<Value> { d["refusals"].as_array().unwrap().clone() };
-    let (got_ref, want_ref) = (refusals(got), refusals(want));
-    for w in &want_ref {
-        if !got_ref.contains(w) {
-            push("refusal", refusal_key(w), "missing", w.to_string());
-        }
-    }
-    for g in &got_ref {
-        if !want_ref.contains(g) {
-            push("refusal", refusal_key(g), "extra", g.to_string());
-        }
-    }
-    let patterns = |d: &Value, o: &[Value]| -> Vec<Value> {
-        d["patterns"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(|p| pattern_by_region(p, o))
-            .collect()
-    };
-    let (got_pat, want_pat) = (patterns(got, &got_occ), patterns(want, &want_occ));
-    for w in &want_pat {
-        match got_pat.iter().find(|g| g["members"] == w["members"]) {
-            None => push("pattern", w["members"].clone(), "missing", w.to_string()),
-            Some(g) if !common::same(g, w) => push(
-                "pattern",
-                w["members"].clone(),
-                "differs",
-                common::diff(g, w),
-            ),
-            Some(_) => {}
-        }
-    }
-    for g in &got_pat {
-        if !want_pat.iter().any(|w| w["members"] == g["members"]) {
-            push("pattern", g["members"].clone(), "extra", g.to_string());
-        }
-    }
-    out
-}
-
 /// Whether a run is compared: Python finished it.
 fn compared(run: &Value) -> bool {
-    run["document"].get("timeout").is_none()
+    run["snapshot_input"] == true
 }
 
-/// What one run compared.
-#[derive(Default)]
-struct Tally {
-    documents: usize,
-    occurrences: usize,
-    refusals: usize,
-    patterns: usize,
-    refused: usize,
-    timed_out: Vec<String>,
-    found: Vec<(Value, String)>,
-}
-
-fn replay(run: &Value) -> Tally {
+fn replay(run: &Value) -> Option<Value> {
+    if !compared(run) {
+        return None;
+    }
     let file = run["file"].as_str().unwrap();
-    let want = &run["document"];
-    let mut tally = Tally::default();
-    if want.get("timeout").is_some() {
-        tally.timed_out.push(file.to_string());
-        return tally;
-    }
-    let Some(part) = read(run["source"].as_str().unwrap(), file) else {
-        return tally;
-    };
-    // `recognise` panics where Python's aggregate raises in a family (passages, oriented
-    // slots, pads): that is the port's refusal of the whole document.
-    let started = std::time::Instant::now();
-    let got = match std::panic::catch_unwind(|| build_section_recess_document(&part)) {
-        Ok(Ok(document)) => serde_json::to_value(&document).unwrap(),
-        Ok(Err(e)) => json!({ "refused": format!("ValueError: {}", e.0) }),
-        Err(panic) => json!({
-            "refused": format!(
-                "panicked: {}",
-                panic
-                    .downcast_ref::<String>()
-                    .cloned()
-                    .or_else(|| panic.downcast_ref::<&str>().map(|s| s.to_string()))
-                    .unwrap_or_default()
-            )
-        }),
-    };
-    let seconds = started.elapsed().as_secs();
-    if seconds >= 30 {
-        eprintln!("{file}: {seconds} s");
-    }
-    tally.documents = 1;
-    if want.get("refused").is_some() {
-        tally.refused = 1;
-    } else {
-        let count = |key: &str| want[key].as_array().unwrap().len();
-        tally.occurrences = count("occurrences");
-        tally.refusals = count("refusals");
-        tally.patterns = count("patterns");
-    }
-    tally.found = differences(file, &got, want);
-    tally
+    let part = read(run["source"].as_str().unwrap(), file)?;
+    let result = std::panic::catch_unwind(|| build_section_recess_document(&part));
+    Some(match result {
+        Ok(Ok(document)) => serde_json::to_value(document).unwrap(),
+        Ok(Err(e)) => json!({"refused":e.0}),
+        Err(panic) => {
+            json!({"panicked":panic.downcast_ref::<String>().cloned().or_else(||panic.downcast_ref::<&str>().map(|s|s.to_string())).unwrap_or_default()})
+        }
+    })
 }
 
 fn require_corpus() {
@@ -290,70 +89,23 @@ fn documents_agree(k: usize, n: usize) {
         .iter()
         .filter(|r| mine.iter().any(|f| r["file"] == f.as_str()))
         .collect();
-    let tallies = common::parallel::map(&selected, |run| replay(run));
-    let ran: BTreeSet<String> = selected
-        .iter()
-        .filter(|r| common::corpus_dir().is_some() || r["source"] != "corpus")
-        .filter(|r| compared(r))
-        .map(|r| r["file"].as_str().unwrap().to_string())
-        .collect();
-    let mut total = Tally::default();
-    for t in tallies {
-        total.documents += t.documents;
-        total.occurrences += t.occurrences;
-        total.refusals += t.refusals;
-        total.patterns += t.patterns;
-        total.refused += t.refused;
-        total.timed_out.extend(t.timed_out);
-        total.found.extend(t.found);
-    }
-    eprintln!(
-        "slice {k}/{n}: {} documents ({} refused by Python), {} occurrences, {} refusals, {} \
-         patterns; {} differences; not captured (Python timed out): {:?}",
-        total.documents,
-        total.refused,
-        total.occurrences,
-        total.refusals,
-        total.patterns,
-        total.found.len(),
-        total.timed_out
-    );
-
-    let known = common::load(KNOWN);
-    let known = known.as_array().unwrap();
-    common::check_verdicts("section_recesses/known_differences.json", known);
-    let listed: Vec<&Value> = known
-        .iter()
-        .filter(|e| e["item"] != "invariance")
-        .filter(|e| slices::owns(&files, k, n, e["file"].as_str().unwrap()))
-        .filter(|e| ran.contains(e["file"].as_str().unwrap()))
-        .collect();
-    let mut problems = Vec::new();
-    let mut seen = vec![false; listed.len()];
-    for (identity, text) in &total.found {
-        let position = listed.iter().position(|e| {
-            identity
-                .as_object()
-                .unwrap()
-                .iter()
-                .all(|(key, value)| &e[key] == value)
-        });
-        match position {
-            Some(i) if seen[i] => problems.push(format!("listed twice: {identity}")),
-            Some(i) => seen[i] = true,
-            None => problems.push(format!("unlisted difference: {text}\n  entry: {identity}")),
+    common::parallel::map(&selected, |run| {
+        if let Some(actual) = replay(run) {
+            common::snapshot::check(
+                &common::fixtures(),
+                &format!(
+                    "recess_documents/{}/{}",
+                    run["source"].as_str().unwrap(),
+                    run["file"].as_str().unwrap()
+                ),
+                &actual,
+            );
         }
-    }
-    for (i, e) in listed.iter().enumerate() {
-        if !seen[i] {
-            problems.push(format!("listed entry no longer differs: {e}"));
-        }
-    }
-    assert!(problems.is_empty(), "{}", problems.join("\n"));
+    });
 }
 
 sliced!(
-    documents_agree_with_python,
+    rust_snapshot_documents,
     super::documents_agree,
     files: super::run_files,
     [0 => slice_0, 1 => slice_1, 2 => slice_2, 3 => slice_3]
@@ -380,16 +132,11 @@ fn capture_covers_the_corpus() {
         2
     );
     assert!(runs().iter().any(|r| r["source"] == "test"));
-    for run in runs() {
-        let d = &run["document"];
-        assert!(
-            d.get("occurrences").is_some()
-                || d.get("refused").is_some()
-                || d.get("timeout").is_some(),
-            "{}: unanswered",
-            run["file"]
-        );
-    }
+    assert!(
+        runs()
+            .iter()
+            .all(|r| r["snapshot_input"].is_boolean() && r["motion_input"].is_boolean())
+    );
 }
 
 /// `tests/invariance.rs`'s translation and quarter turn about z.
@@ -412,11 +159,7 @@ fn moved_files() -> Vec<String> {
     runs()
         .iter()
         .filter(|r| r["source"] == "corpus")
-        .filter(|r| {
-            ["occurrences", "refusals"]
-                .iter()
-                .any(|k| r["document"][k].as_array().is_some_and(|a| !a.is_empty()))
-        })
+        .filter(|r| r["motion_input"] == true)
         .map(|r| r["file"].as_str().unwrap().to_string())
         .collect()
 }

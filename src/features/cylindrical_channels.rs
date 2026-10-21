@@ -639,7 +639,7 @@ pub(crate) fn branch_extent(cap: &Cap, run: V3, footprint: &[V3]) -> Option<(f64
     Some((lo, hi))
 }
 
-parity_entry! {
+internal_entry! {
 /// The channel proof (`prove_cylindrical_channel`): `None` for anything outside the contract,
 /// including an axis name outside `x`, `y`, `z` (where Python raises and swallows).
 pub fn prove(

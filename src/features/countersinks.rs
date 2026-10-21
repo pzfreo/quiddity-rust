@@ -43,7 +43,7 @@ pub struct HoleMouth {
     pub through: bool,
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path: each countersink with its cone face, published only if every one is
 /// owned by a valid solid.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<CounterSink>>, EvidenceError> {
@@ -51,7 +51,7 @@ pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<CounterSink
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// `recognise_countersinks`.
 pub fn recognise_countersinks(part: &Part) -> Vec<CounterSink> {
     discover(&Context::new(part))
@@ -61,7 +61,7 @@ pub fn recognise_countersinks(part: &Part) -> Vec<CounterSink> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Whether the countersink is seated at this bore's mouth: its minor circle sits at a bore end
 /// on the bore's axis, with a matching drill diameter.
 pub fn countersink_matches_hole(cs: &CounterSink, hole: &HoleMouth) -> bool {
@@ -104,7 +104,7 @@ fn dist_to_line(point: V3, line_point: V3, line_dir: V3) -> f64 {
     geom::norm(geom::sub(v, geom::scale(line_dir, geom::dot(v, line_dir))))
 }
 
-parity_entry! {
+internal_entry! {
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<CounterSink>> {
     let part = ctx.part;
     let cones: Vec<usize> = (0..part.faces.len())

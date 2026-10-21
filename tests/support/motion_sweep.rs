@@ -1,7 +1,9 @@
 //! Shared poses and occurrence census for the invariance suite and read-only sweep example.
 use super::motion_breakdown::Occurrence;
+#[cfg(test)]
+use quiddity::features;
 use quiddity::kernel::step::Placement;
-use quiddity::{Part, correspondence, features};
+use quiddity::{Part, correspondence};
 
 /// The rotation by *degrees* about *axis* (Rodrigues), then *translation*.
 pub fn rotation(axis: [f64; 3], degrees: f64, translation: [f64; 3]) -> Placement {
@@ -72,6 +74,25 @@ pub const SWEEP_FAMILIES: [(&str, &str); 28] = [
     ("plate", "plates"),
 ];
 
+#[cfg(not(test))]
+pub fn occurrences(part: &Part) -> Vec<Occurrence> {
+    let recognition = correspondence::recognise(part);
+    SWEEP_FAMILIES
+        .iter()
+        .flat_map(|&(family, field)| {
+            recognition
+                .fingerprints
+                .features
+                .iter()
+                .filter(move |f| f.family == field)
+                .map(move |f| Occurrence {
+                    family: family.into(),
+                    faces: f.faces.clone(),
+                })
+        })
+        .collect()
+}
+#[cfg(test)]
 pub fn occurrences(part: &Part) -> Vec<Occurrence> {
     use features::reconcile::ReasonCode;
     let inventory = features::inventory(part).unwrap();

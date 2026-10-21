@@ -1,5 +1,5 @@
 //! Recognition inventories at 5fb1706: motion stability alone cannot detect a lost feature.
-mod common;
+use super::common;
 use quiddity::{features, read_step_file};
 use serde_json::{Value, json};
 use std::collections::BTreeMap;

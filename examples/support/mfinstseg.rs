@@ -359,7 +359,7 @@ pub fn evaluate(
         if part.faces.len() != truth.as_ref().unwrap().seg.len() {
             return Err("STEP/label face count mismatch".into());
         }
-        Ok(quiddity::features::recognise(&part))
+        Ok(quiddity::correspondence::recognise(&part).features)
     }));
     let (features, error) = match result {
         Ok(Ok(f)) => (Some(f), None),

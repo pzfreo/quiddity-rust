@@ -123,7 +123,7 @@ implemented, with the evidence found doing it; the open points are under
    aspect and usage per face), and the feature is composed of its members by
    `shape_aspect_relationship` (§5.1 Figure 5's composition), which the reader already read as
    the feature's faces. OpenCascade reads all of them: the five sizes and tolerances it dropped
-   in the written files (`known_pmi_write.json` "occt") now read on their faces with their datums.
+   in the written files (`references/pmi_write.json` "occt") now read on their faces with their datums.
 3. **Notes and surface finish in standard forms** (Q3, decision 5).
    - *Part notes in words* (coating, heat treatment, edges) are the practice's editable text,
      §7.4: a 'semantic text' user defined attribute (`AttributeSet { name: "semantic text", items:
@@ -270,7 +270,7 @@ setting. Tests compare raw violations to the report, pin WR5 alone (and WR4 afte
 name), and prove that WR4, every other rule and unregistered instances are never covered.
 NIST CTC-02 and FTC-10's target subsets (13 targets, their datums and required features)
 round-trip through PMI-free copies without stripping any target. Full-reading
-read → replace → read remains covered separately by `known_pmi_write.json` pins. Their old target/datums/tolerance refusal entries are retired
+read → replace → read remains covered separately by `references/pmi_write.json` pins. Their old target/datums/tolerance refusal entries are retired
 on that evidence;
 FTC-10's unrelated ambiguous attribute-unit refusals stay unchanged.
 
@@ -298,7 +298,7 @@ only; their pinned empty-semantic-PMI round trips do not count as new-kind cover
 
 OpenCascade 7.9.3.1 (the read-only quiddity venv) transfers both new fixtures and safely walks
 their labels. That environment has no `specify_core` module, so the separate application-loader
-check is recorded as unavailable, not passed. `known_pmi_write.json` retains every earlier
+check is recorded as unavailable, not passed. `references/pmi_write.json` retains every earlier
 verdict except the review corrections described below, and adds the new differences. XCAF reads 7850 kg/m³ as 0.00785 g/cm³ instead of 7.85;
 its `ReadMaterials` handles conversion-based mass units but omits SI mass prefixes
 ([7.9.3 source](https://github.com/Open-Cascade-SAS/OCCT/blob/V7_9_3/src/STEPCAFControl/STEPCAFControl_Reader.cxx#L5053)).
@@ -318,7 +318,7 @@ the relationship endpoint rather than following its composition (lines 3055–30
 are **rust-correct**. Its enum has no circular-curve or curve target, and its placed-target
 cast skips FTC-10's four base area targets (lines 3032–3035). These ten unsupported target
 objects and three table/precision API gaps are **not-applicable**. All 17 new differences
-have individual verdicts in `known_pmi_write.json`; the NIST CTC-02 capture has no target
+have individual verdicts in `references/pmi_write.json`; the NIST CTC-02 capture has no target
 semantic difference. The absent `specify_core` application loader remains explicitly unavailable.
 
 Other refusals remain: target sizes/placements that cannot be stated validly, non-exempt movable-target WR3 failures, an unstated group kind, a dimension without its nominal (§5.2.1), a
@@ -812,7 +812,7 @@ reading of the result with verdicts; determinism (same input, same bytes, fresh 
 - **Face provenance** (`step.rs`, `brep.rs`, `tests/face_sources.rs`): each part's faces and
   edges carry their `ADVANCED_FACE`/`EDGE_CURVE` `#N`, with per-part numbering, so PMI binds to
   faces by `#N`. Compared with OpenCascade by instance, with one verdict per cause in
-  `tests/fixtures/known_face_sources.json` (93 rust-correct, 43 undetermined, 1 not-applicable);
+  `tests/fixtures/references/face_sources.json` (93 rust-correct, 43 undetermined, 1 not-applicable);
   the undetermined ones are OpenCascade's edge order within loops, which follows its ShapeFix
   healing. Edge indices are haecceity's own: anchor edges by `#N`. Includes a two-part assembly
   fixture (`tests/fixtures/ap242/assembly/`). Reading now parses each file twice (+28 to 37%,
@@ -837,7 +837,7 @@ tested; `pmi::write` (and replace built from the removal plan) is the next stage
   is consumed by a part or named by a finding (kinds include not-modelled, nonconformance,
   unitless-measure, conflict, assembly-pmi, occurrence-pmi); measure and unit errors are typed.
   All 17 NIST AP242 files are read and fully accounted for, with findings pinned per file in
-  `tests/fixtures/ap242/read/findings.json`. Verdicts (`tests/fixtures/known_pmi.json`,
+  `tests/fixtures/ap242/read/findings.json`. Verdicts (`tests/fixtures/references/pmi.json`,
   `known_pmi_draftwright.json`): NIST expected PMI 74 (65 rust-correct, 9 equivalent);
   OpenCascade 403 (402 rust-correct, 1 rust-wrong: ftc_08's tessellated-only part has no B-rep
   anchor); specify-core intent 38 (20 rust-correct, 18 not-applicable); draftwright 117 (111
@@ -885,7 +885,7 @@ integrated on `ap242` from streams `ap242-writer` (datum feature symbols, decisi
 and `ap242-cli-read`.
 
 - **`pmi::write`** (`crates/haecceity/src/pmi/write.rs`, `tests/pmi_write.rs`,
-  `tests/pmi_roundtrip.rs`, `tests/fixtures/known_pmi_write.json`, `tests/fixtures/ap242/write/`):
+  `tests/pmi_roundtrip.rs`, `tests/fixtures/references/pmi_write.json`, `tests/fixtures/ap242/write/`):
   `write(doc, parts, &[(PartId, PartPmi)], Mode::{Add, Replace, Remove}, PresentationPolicy)
   -> (Edit, WriteReport)`, every part in one edit, deterministic. Every item the writer will not
   write is refused at once, by part and item (`Refusal`, `ItemRef`), before anything is made.
@@ -896,7 +896,7 @@ and `ap242-cli-read`.
   collections as sets, values as quantities to 1e-12), `differences_as_stated` by value text and
   unit too.
 - **Round trips** (read → replace every part with what was read → read, values as stated),
-  pinned per file in `known_pmi_write.json` "roundtrip" with the file's sha256 (a pin is never
+  pinned per file in `references/pmi_write.json` "roundtrip" with the file's sha256 (a pin is never
   matched against another file of the same name): equal for 18 of 21 files, the 7 specify-core
   inputs and the assembly plus 10 of NIST's (nist_ctc_01, ctc_02, ctc_03, ftc_07, ftc_08-e2,
   ftc_10, stc_06, stc_07, stc_09-e4, stc_10), with the refused items left out and pinned with a
@@ -1095,7 +1095,7 @@ U9, in the library, so its stand-ins can go:
   escapes: both 'Gehäuse Ø'), the corpus's 10 NIST files and NIST's AP242 set: every product
   name agrees with XCAF's label for the product (FTC-08 and CTC-04: the id; NIST CTC-02 AP242
   crashed OpenCascade in that check, so has the capture's result only). The one kind of
-  difference left is pinned in `known_face_sources.json`, verdict rust-correct: where XCAF makes
+  difference left is pinned in `references/face_sources.json`, verdict rust-correct: where XCAF makes
   a NIST product an assembly of its representation items, specify-core names the part after the
   item's label ('SOLID'); haecceity names it by its product. Three earlier pins (an empty name
   reported as written) are gone. Since part names are in `pmi read`'s output and `pmi check`
@@ -1123,7 +1123,7 @@ value is not a Part 21 REAL).
 - *OpenCascade* (`check_pmi_occt.py`, specify-core's venv, OCP 7.9.3.1): all five written files
   load in specify-core's `load.load_all` and read in XCAF; the stage 3 `every_kind` (with the
   relationship) still crashes `load.load_all` (SIGSEGV) and reads in the safe walk. Differences,
-  `known_pmi_write.json` "occt", 5 (was 6): the H7 fit read as its limits' middle (rust-correct,
+  `references/pmi_write.json` "occt", 5 (was 6): the H7 fit read as its limits' middle (rust-correct,
   as before, its instance renumbered), two of `every_kind`'s three part notes (XCAF keeps the
   last 'semantic text' only; rust-correct) and its two surface textures (XCAF has none;
   not-applicable). The five "feature identified by a `set_representation_item`" differences are

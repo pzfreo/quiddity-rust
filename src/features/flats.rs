@@ -34,14 +34,14 @@ pub struct Flat {
     pub axis_direction: V3,
 }
 
-parity_entry! {
+internal_entry! {
 /// `recognise_flats`.
 pub fn recognise_flats(part: &Part) -> Vec<Flat> {
     super::records(discover(&Context::new(part)))
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path: each flat with its planar face.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<Flat>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
@@ -99,7 +99,7 @@ struct Candidate<'c> {
     face: usize,
 }
 
-parity_entry! {
+internal_entry! {
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Flat>> {
     let part = ctx.part;
     let (z, cross) = z_then_cross(ctx.cylinders());

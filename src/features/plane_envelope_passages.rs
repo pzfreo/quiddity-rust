@@ -134,7 +134,7 @@ fn material(ctx: &Context<'_>, owner: usize, probe: &Part) -> Option<f64> {
     )
 }
 
-parity_entry! {
+internal_entry! {
 /// The passage proof for one mouth and one concave component of its convex planar neighbours
 /// along the run of *base* (`_prove`); `None` for anything outside the contract.
 pub fn prove(
@@ -405,7 +405,7 @@ pub fn prove(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Every proved passage (`plane_envelope_passage_proofs`): from each planar mouth, its convex
 /// planar neighbours along its normal, grouped by concave adjacency, each group proved. Uses
 /// original mouth/wall adjacency, without expected side counts or labels.

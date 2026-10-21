@@ -4,6 +4,7 @@
 //! when `HAECCEITY_NIST_PMI` names their directory (required when
 //! `HAECCEITY_NIST_PMI_REQUIRED=1`), and a corpus part (`QUIDDITY_CORPUS`).
 
+#[path = "common/public.rs"]
 mod common;
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -759,7 +760,7 @@ fn refusals(stderr: &str) -> Vec<(usize, String, Option<usize>, String)> {
         .collect()
 }
 
-/// A refusal's pin key, as `known_pmi_write.json` "roundtrip" "refused" writes it (the
+/// A refusal's pin key, as `references/pmi_write.json` "roundtrip" "refused" writes it (the
 /// writer's `pmi_roundtrip.rs`): kind and reason, digits as `N`, a datum's label as `…`.
 fn refusal_key(kind: &str, why: &str) -> String {
     let why = match why.strip_prefix("datum ").and_then(|r| r.split_once(' ')) {
@@ -819,7 +820,7 @@ fn without_refused_leaves(
     Some(doc)
 }
 
-/// The stem `known_pmi_write.json` names a file by.
+/// The stem `references/pmi_write.json` names a file by.
 fn stem(path: &Path) -> String {
     name(path)
         .trim_end_matches(".gz")
@@ -845,7 +846,7 @@ fn read_back_differences(doc: &Json, back: &Json, label: &str) -> Vec<String> {
 }
 
 /// read → write (replace, presentation removed) → read through the command line, for every
-/// fixture and NIST file, against the writer's own round trip pins (`known_pmi_write.json`
+/// fixture and NIST file, against the writer's own round trip pins (`references/pmi_write.json`
 /// "roundtrip", of the same file by sha256):
 ///
 /// - The JSON `pmi read` printed is written back as it is. Where the writer refuses items, the
@@ -862,7 +863,7 @@ fn read_back_differences(doc: &Json, back: &Json, label: &str) -> Vec<String> {
 #[test]
 fn pmi_write_replace_round_trips_through_the_command_line() {
     let pins: Json = serde_json::from_str(
-        &std::fs::read_to_string(common::fixtures().join("known_pmi_write.json")).unwrap(),
+        &std::fs::read_to_string(common::fixtures().join("references/pmi_write.json")).unwrap(),
     )
     .unwrap();
     let mut files = fixtures();

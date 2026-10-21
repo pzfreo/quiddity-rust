@@ -14,7 +14,9 @@ fn sweep(path: &std::path::Path) -> serde_json::Value {
         Err(e) => return serde_json::json!({"status": "unreadable", "message": e.to_string()}),
     };
     let faces = part.faces.len();
-    match catch_unwind(AssertUnwindSafe(|| quiddity::features::recognise(&part))) {
+    match catch_unwind(AssertUnwindSafe(|| {
+        quiddity::correspondence::recognise(&part).features
+    })) {
         Ok(features) => {
             let mut counts: serde_json::Map<String, serde_json::Value> =
                 match serde_json::to_value(&features).expect("features serialise") {

@@ -4,15 +4,15 @@
 //!   self with every feature and every face carried, each to the very feature (same defining
 //!   faces) and face (same index) it is. It runs in `tests/invariance.rs`, on the same readings
 //!   as recognition's invariance.
-//! - Revision pairs: build123d parts revised as a designer would (`tools/capture_revisions.py`,
+//! - Revision pairs: build123d parts revised as a designer would (`tools/make_revision_fixtures.py`,
 //!   `tests/fixtures/revisions/`), each feature's class checked against the expected one, each
 //!   carried feature's faces (patterns aside) checked carried onto its partner's, and every face of a whole-part
 //!   motion checked carried.
 //!
-//! Differences are listed with verdicts in `tests/fixtures/known_correspondence.json`; the test
+//! Differences are listed with verdicts in `tests/fixtures/references/correspondence.json`; the test
 //! fails on an unlisted one and on a listed one that has gone.
 
-mod common;
+use super::common;
 
 use std::collections::BTreeMap;
 
@@ -24,14 +24,14 @@ fn faces_of<'a>(f: &'a Fingerprints, id: &str) -> &'a [usize] {
 }
 
 fn known() -> Vec<Value> {
-    let known = common::load("known_correspondence.json");
+    let known = common::load("references/correspondence.json");
     let known = known.as_array().unwrap().clone();
-    common::check_verdicts("known_correspondence.json", &known);
+    common::check_verdicts("references/correspondence.json", &known);
     known
 }
 
 /// The revision pairs: each case's expected class for named features, by the feature's
-/// family and position (fixture `expected.json`, written by `tools/capture_revisions.py`).
+/// family and position (fixture `expected.json`, written by `tools/make_revision_fixtures.py`).
 #[test]
 fn revision_pairs_have_their_expected_classes() {
     let root = common::fixtures().join("revisions");
@@ -54,7 +54,7 @@ fn revision_pairs_have_their_expected_classes() {
         let read = |which: &str| {
             let part =
                 quiddity::read_step_file(&root.join(format!("{name}.{which}.step.gz"))).unwrap();
-            correspondence::python_parity_recognise(&part).fingerprints
+            correspondence::caller_space_recognise(&part).fingerprints
         };
         let (old, new) = (read("old"), read("new"));
         let c = correspondence::correspond(&old, &new).unwrap();
