@@ -12,11 +12,14 @@ pub mod model;
 mod read;
 pub mod standards;
 pub mod verify;
+mod without;
 pub mod write;
 
 pub use model::*;
 pub use read::read;
 pub use verify::{Problem, Snapshot, Verification, verify};
+pub use without::without;
+pub(crate) use without::{Kept, without_kept};
 pub use write::{Mode, write};
 
 /// The result of reading a file's PMI.
