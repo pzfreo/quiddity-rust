@@ -374,7 +374,7 @@ pub fn recovery_nominal(part: &Part, face: usize) -> Option<f64> {
 
 /// `_physical_boundary_length`: the face's trim perimeter, without its seams (edges its loops use
 /// twice). A degenerate edge (a pole) has no length.
-pub fn physical_boundary_length(part: &Part, face: usize) -> f64 {
+pub(crate) fn physical_boundary_length(part: &Part, face: usize) -> f64 {
     let mut uses = std::collections::BTreeMap::<usize, usize>::new();
     for lp in &part.faces[face].loops {
         for &(e, _) in &lp.edges {
@@ -395,7 +395,7 @@ pub fn physical_boundary_length(part: &Part, face: usize) -> f64 {
 /// relative). Chords, not the integrated
 /// speed: a B-spline's short knot span can carry a fast stretch that fixed integration panels
 /// step over (nist_ftc_10 face 178's edge, 3e-6 short at 64 Gauss panels).
-pub fn arc_length(part: &Part, edge: usize) -> f64 {
+pub(crate) fn arc_length(part: &Part, edge: usize) -> f64 {
     let e = &part.edges[edge];
     let curve = &e.curve;
     if matches!(curve, Curve::Line { .. } | Curve::Circle { .. }) {

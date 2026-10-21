@@ -1,8 +1,12 @@
 //! Print the cylinder inventory: `cargo run --example cylinders -- file.step`.
+// Internal diagnostic: use the exact engine implementation without exporting caller-space APIs.
+include!("../src/engine.rs");
+extern crate self as quiddity;
 fn main() {
     let path = std::env::args().nth(1).unwrap();
     let part = quiddity::read_step_file(std::path::Path::new(&path)).expect("read");
-    for c in quiddity::features::cylinders::analyse_cylinders(&part) {
+    let ctx = quiddity::features::Context::new(&part);
+    for c in ctx.cylinders() {
         println!(
             "face {:3} solid {} d={} axis={} u={:.6} ap={:?} dir={:?} s=[{}, {}] ext={}",
             c.face,

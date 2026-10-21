@@ -2,6 +2,9 @@
 //! recognition completed or panicked, and the record count of every `Features` family.
 //! `cargo run --release --example coverage_sweep -- STEPS_DIR IDS_FILE OUT.jsonl [WORKERS]`.
 //! `tools/coverage_sweep_report.py` turns the lines into the MFInstSeg coverage-sweep report.
+// Internal diagnostic: use the exact engine implementation without exporting caller-space APIs.
+include!("../src/engine.rs");
+extern crate self as quiddity;
 use std::io::Write;
 use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::sync::Mutex;
@@ -14,9 +17,7 @@ fn sweep(path: &std::path::Path) -> serde_json::Value {
         Err(e) => return serde_json::json!({"status": "unreadable", "message": e.to_string()}),
     };
     let faces = part.faces.len();
-    match catch_unwind(AssertUnwindSafe(|| {
-        quiddity::correspondence::recognise(&part).features
-    })) {
+    match catch_unwind(AssertUnwindSafe(|| quiddity::features::recognise(&part))) {
         Ok(features) => {
             let mut counts: serde_json::Map<String, serde_json::Value> =
                 match serde_json::to_value(&features).expect("features serialise") {

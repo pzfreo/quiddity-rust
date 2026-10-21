@@ -97,7 +97,7 @@ fn recovered_external(part: &Part, face: usize, frame: &Frame) -> Option<bool> {
     (sides.len() >= 2 && sides.iter().all(|&x| x == sides[0])).then(|| sides[0])
 }
 
-pub fn analyse_cylinders(part: &Part) -> Vec<CylinderEvidence> {
+pub(crate) fn analyse_cylinders(part: &Part) -> Vec<CylinderEvidence> {
     let faces: Vec<(usize, usize)> = if part.solids.is_empty() {
         (0..part.faces.len()).map(|f| (0, f)).collect()
     } else {

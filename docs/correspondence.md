@@ -215,9 +215,8 @@ Version 3 retains the complete size catalogue and changes recognition measuremen
   so thickness is a difference of intrinsic measurements rather than published grid positions.
 
 Version 2 files must be recognised again before correspondence. The version check refuses
-mixing either revision with an older fingerprint. Frozen Python captures remain regression
-records; deliberate departures are explained by independent geometry and motion evidence in
-the parity ledgers.
+mixing either revision with an older fingerprint. The Rust snapshot owns the regression record; independent geometry and motion references
+remain mandatory. Python-written fingerprints remain readable test inputs.
 
 ### Correspond
 

@@ -32,6 +32,3 @@ name = "rigid_transform"
 
 [[test]]
 name = "pmi_cli"
-
-[[test]]
-name = "mfinstseg"

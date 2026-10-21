@@ -25,6 +25,8 @@ mod invariance;
 mod inventory_floor;
 #[path = "local_degradation.rs"]
 mod local_degradation;
+#[path = "mfinstseg.rs"]
+mod mfinstseg;
 #[path = "modelled_threads.rs"]
 mod modelled_threads;
 #[path = "outer_profiles.rs"]
@@ -57,6 +59,8 @@ mod section_recess_publication;
 mod section_recesses;
 #[path = "sections.rs"]
 mod sections;
+#[path = "snapshot_provenance.rs"]
+mod snapshot_provenance;
 #[path = "step_levels.rs"]
 mod step_levels;
 #[path = "tie_breaks.rs"]

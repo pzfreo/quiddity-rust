@@ -11,7 +11,6 @@ none of them interprets or corrects.
 | `nist/*.stp.gz` | 7 NIST MBE PMI test models (AP242 semantic PMI) | copied, gzipped (`mtime=0`) |
 | `nist/<model>.expected.json` | NIST's expected PMI for each of them | `tools/nist_expected.py` |
 | `occt/<file>.json.gz` | OpenCascade XCAF's reading of every NIST AP242 file and every `specify/` file | `tools/capture_pmi_occt.py` |
-| `draftwright/<file>.json.gz` | draftwright's extraction of every `nist/` and `specify/` file | `tools/capture_pmi_draftwright.py` |
 | `specify/<case>.*` | specify-core's output on corpus parts, with intent and answers | `tools/make_specify_inputs.py` |
 
 ## NIST models (`nist/`)
@@ -82,16 +81,13 @@ faces are on no part are under `unattached`. Captured: every `*_ap242-*.stp` of 
   Ø130 g6 as `value 65.0195, range, lower_bound 130.0, upper_bound 0.039`, and NIST magnitudes
   held in complex entities read as 0. Each difference from the haecceity reader gets a verdict.
 
-## draftwright (`draftwright/`)
+## Rust PMI regression record
 
-`tools/capture_pmi_draftwright.py` in draftwright's own environment (a detached worktree of its
-`origin/main`, `uv sync --frozen`). Per file: `extract_pmi_report` (the `pmi='annotate'` path,
-no part frame) — every census source with its outcome and reason, every record without the
-fields that hold coordinates (listed in the tool), material facts — and each `_pmi_part21`
-reader's facts as returned (geometric tolerances, datum occurrences and definitions, dimension
-associations, display facts, length factor, material, manufacturing requirements prose and
-structured, surface labels, common labels). A reader that raises is recorded with its exception.
-`draftwright` in each capture is the commit (`4dfc63f0693bffa0e0e2836d254f53e15cce6f9f`).
+Python draftwright outputs and its capture tool have been retired. The same 14 STEP inputs
+are listed in `../pmi_inputs.json`; `tests/pmi_snapshot.rs` records their complete Rust semantic
+PMI documents and part bindings through `tools/rust_snapshot.py`. NIST, stated intent,
+OpenCascade XCAF, analytic writer and round-trip reference checks remain independent.
+Historical verdicts and evidence are in `docs/history/python-parity.md`.
 
 ## specify-core inputs (`specify/`)
 
@@ -157,7 +153,6 @@ python3 -I tools/nist_expected.py S/SFA-5.51.zip S/NIST-PMI-STEP-Files
 QUIDDITY_CORPUS=../quiddity/tests/corpus NIST_PMI=S/NIST-PMI-STEP-Files ASSEMBLY=<assembly.step> \
   SPECIFY_CORE=../specify-core python3 tools/make_specify_inputs.py      # --check to compare
 ../specify-core/.venv/bin/python tools/capture_pmi_occt.py S/NIST-PMI-STEP-Files
-DRAFTWRIGHT=<draftwright worktree> <draftwright worktree>/.venv/bin/python tools/capture_pmi_draftwright.py
 ```
 
 Order matters: the OpenCascade and draftwright captures read `specify/` and `nist/`.

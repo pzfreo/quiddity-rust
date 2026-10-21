@@ -43,8 +43,8 @@ in [docs/alpha1.md](docs/alpha1.md).
   with `--diff BASE_REF`, and verify current HEAD with `--check`. Python is no longer consulted.
 - Removed Python recognition/PMI oracle outputs, capture-only tools, parity harnesses and the
   `python-parity` Cargo feature. Caller-space algorithms are private; their internal tests
-  retain independent reference checks. The MFInstSeg scorer uses the supported recognition
-  route without a feature flag. Python-written inputs, live OCCT checks, NIST/design-intent,
+  retain independent reference checks. The MFInstSeg scorer compiles the shared private engine
+  without a feature flag, preserving its scoring semantics and label floors. Python-written inputs, live OCCT checks, NIST/design-intent,
   analytic, label, motion and inventory-floor tests stay. Independent ledgers live under
   `tests/fixtures/references/`; retired verdicts are archived with evidence and commits in
   `docs/history/python-parity.md`.

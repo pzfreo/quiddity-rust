@@ -156,12 +156,12 @@ cross-checks (`tools/check_face_integrals.py`, `tools/check_pmi_occt.py`) remain
 
 ## Labelled accuracy
 
-`examples/mfinstseg_score.rs` uses the supported recognition API and the committed class
-mapping. No feature flag is required:
+`examples/mfinstseg_score.rs` compiles the same private Rust engine as the library and
+retains the original caller-space evaluation semantics and committed class mapping. No feature flag is required:
 
 ```sh
 cargo run --release --example mfinstseg_score -- DATASET IDS.txt OUT.json 6
-QUIDDITY_MFINSTSEG=/path/to/MFInstSeg cargo test --release --test mfinstseg
+QUIDDITY_MFINSTSEG=/path/to/MFInstSeg cargo test --release --lib regression_tests::mfinstseg
 ```
 
 MFInstSeg has `steps/` and `labels/`; for MFCAD++ pass its STEP directory and append

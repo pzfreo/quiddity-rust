@@ -2,7 +2,7 @@
 //! No dataset files are redistributed: permission to redistribute was not established.
 //! `tools/update_mfinstseg_baseline.py` records improvements without allowing regressions.
 #[path = "../examples/support/mfinstseg.rs"]
-mod mfinstseg;
+mod scoring;
 
 /// All seven PARABOLA-bearing files in the 62,495-model dataset. Open CASCADE 8.0
 /// reads every solid as valid; these volumes use BRepGProp at Eps=1e-10.
@@ -56,7 +56,7 @@ struct Baseline {
     schema: usize,
     mapping_sha256: String,
     models: Vec<Model>,
-    scores: Vec<mfinstseg::Score>,
+    scores: Vec<scoring::Score>,
 }
 fn hash(path: &Path) -> String {
     Sha256::digest(std::fs::read(path).unwrap())
@@ -66,7 +66,7 @@ fn hash(path: &Path) -> String {
 }
 
 /// Exact rational comparison, with the scorer's zero-denominator convention.
-fn no_drop(got: &mfinstseg::Counts, baseline: &mfinstseg::Counts) -> bool {
+fn no_drop(got: &scoring::Counts, baseline: &scoring::Counts) -> bool {
     fn ratio_ge(n: u64, d: u64, bn: u64, bd: u64) -> bool {
         let (n, d) = if d == 0 { (0, 1) } else { (n, d) };
         let (bn, bd) = if bd == 0 { (0, 1) } else { (bn, bd) };
@@ -87,7 +87,7 @@ fn no_drop(got: &mfinstseg::Counts, baseline: &mfinstseg::Counts) -> bool {
 
 #[test]
 fn rational_ratchet_detects_precision_and_recall_regressions() {
-    use mfinstseg::Counts;
+    use scoring::Counts;
     let base = Counts {
         true_positive: 3,
         predicted: 4,
@@ -137,7 +137,7 @@ fn independent_label_accuracy_ratchet() {
         baseline.mapping_sha256,
         "mapping changed: review evidence and rebaseline explicitly"
     );
-    let classes = mfinstseg::mapping();
+    let classes = scoring::mapping();
     assert_eq!(baseline.scores.len(), classes.len());
     let next = AtomicUsize::new(0);
     let results = Mutex::new(Vec::new());
@@ -166,13 +166,13 @@ fn independent_label_accuracy_ratchet() {
                         results
                             .lock()
                             .unwrap()
-                            .push(mfinstseg::evaluate(root, &model.id, false, &classes).unwrap());
+                            .push(scoring::evaluate(root, &model.id, false, &classes).unwrap());
                     }
                 })
                 .unwrap();
         }
     });
-    let mut scores = vec![mfinstseg::Score::default(); classes.len()];
+    let mut scores = vec![scoring::Score::default(); classes.len()];
     for model in results.into_inner().unwrap() {
         assert!(
             model.instances_available,
