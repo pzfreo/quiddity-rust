@@ -1561,10 +1561,16 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
                             if !resolved {
                                 unresolved_edges.push(edges_out.len());
                             }
+                            // A substituted chord keeps its own parameterisation, even if
+                            // the unresolved STEP entity names an analytic curve.
                             line_directions.push(
-                                reader
-                                    .line_direction(&raw_edge_curve(reader.model, &edge))
-                                    .map(|d| (context.clone(), d)),
+                                if resolved && matches!(&read.curve, Curve::Line { .. }) {
+                                    reader
+                                        .line_direction(&raw_edge_curve(reader.model, &edge))
+                                        .map(|d| (context.clone(), d))
+                                } else {
+                                    None
+                                },
                             );
                             let mut native = if reader.placement != IDENTITY {
                                 let native_reader = Reader {
@@ -1580,9 +1586,13 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
                                 ..reader
                             };
                             hyperbolas.push(
-                                native_reader
-                                    .hyperbola(&raw_edge_curve(reader.model, &edge))
-                                    .map(|h| (h, context.clone())),
+                                if resolved && matches!(&read.curve, Curve::Nurbs(_)) {
+                                    native_reader
+                                        .hyperbola(&raw_edge_curve(reader.model, &edge))
+                                        .map(|h| (h, context.clone()))
+                                } else {
+                                    None
+                                },
                             );
                             native.samples.clear();
                             let native = Some((std::sync::Arc::new(native), context.clone()));
