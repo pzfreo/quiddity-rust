@@ -59,8 +59,10 @@ let holes = &recognition.features.holes; // read local fields through recognitio
 
 Modelled screw threads are also measured natively (`analyse_modelled_threads`): axis,
 side, diameters, pitch, hand, starts, axial span and claimed faces, with explicit refusals.
-They use [recognition document 4](docs/recognition-4.md); parts without the extension retain
-version 3 and their existing bytes. The [corpus survey](docs/modelled-threads.md) records the
+Their record payloads follow [recognition document 4](docs/recognition-4.md).
+All new documents use [version 5](docs/face-accounting.md), which accounts for every
+face as feature, body (with positive geometry evidence), refused, or unexplained.
+The [corpus survey](docs/modelled-threads.md) records the
 measurements and supported profile limits. Nominal thread designations belong to consumers.
 
 From the command line (see [Running](#running)): `quiddity part.step` (records, fingerprints,
@@ -725,7 +727,7 @@ src/
                      bound to the file's sha256 and the reader version, enums as standard
                      terms; refusals name the JSON path; a write's report
   recognition.rs     the versioned recognition document for draftwright (`quiddity-rust/
-                     recognition/3` or the optional `/4` thread extension): the part's frame,
+                     recognition/5`): the part's frame, complete face accounting,
                      and per feature its family, Python
                      record type, faces, record and the fields left in the frame
   serve.rs           `quiddity serve`: recognise and correspond as a JSON-lines service, each

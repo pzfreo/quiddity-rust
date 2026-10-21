@@ -1,5 +1,8 @@
 # Recognition document 3
 
+Historical contract. All newly emitted documents use [version 5](face-accounting.md),
+with the same record payloads plus complete face accounting.
+
 `quiddity-rust/recognition/3` is the native drawing contract. Version 2 already
 published unified `section_recesses`, including `SectionRecessRefusal` records
 following the occurrences, and the `step_levels` and `risers` evidence families.
@@ -25,5 +28,5 @@ refusals and patterns; `tests/section_recess_publication.rs` checks the records
 actually handed to consumers, including the 13975/14052 local-degradation retry.
 
 Measured helical threads use the optional [version 4 extension](recognition-4.md).
-Documents without measured-thread records or refusals retain version 3 and their
-existing bytes.
+Before version 5, documents without measured-thread records or refusals retained
+version 3 and their existing bytes.
