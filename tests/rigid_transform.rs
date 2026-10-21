@@ -336,6 +336,7 @@ fn loaded_transform_matches_reader_on_every_fixture_and_corpus_part() {
         if failed.load(std::sync::atomic::Ordering::Relaxed) {
             return false;
         }
+        eprintln!("transform equivalence: begin {}", path.display());
         let Ok(part) = read_step_file_placed(path, &IDENTITY) else {
             return false;
         };
@@ -350,6 +351,7 @@ fn loaded_transform_matches_reader_on_every_fixture_and_corpus_part() {
         for i in 0..part.solids.len() {
             let _ = part.bad_faces(i);
         }
+        eprintln!("transform equivalence: caches warmed {}", path.display());
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             for at in [
                 IDENTITY,
@@ -363,6 +365,10 @@ fn loaded_transform_matches_reader_on_every_fixture_and_corpus_part() {
                 let moved = part.transformed(&at).unwrap();
                 let read = read_step_file_placed(path, &at).unwrap();
                 compare(&moved, &read);
+                eprintln!(
+                    "transform equivalence: geometry checked {} at {at:?}",
+                    path.display()
+                );
                 let (a, b) = (recognition_bytes(&moved), recognition_bytes(&read));
                 match (&a, &b) {
                     (Ok(a), Ok(b)) if a != b => {
@@ -384,6 +390,10 @@ fn loaded_transform_matches_reader_on_every_fixture_and_corpus_part() {
                     (Ok(_), Ok(_)) => {}
                     _ => assert_eq!(a, b, "recognition refusal differs"),
                 }
+                eprintln!(
+                    "transform equivalence: recognition checked {} at {at:?}",
+                    path.display()
+                );
             }
         }));
         if result.is_err() {
