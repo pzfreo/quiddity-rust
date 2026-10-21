@@ -312,3 +312,55 @@ fn clean_source_refusals_remain_published_without_a_feature_evidence_warning() {
         assert!(response.get("warnings").is_none(), "{name}: {response}");
     }
 }
+
+#[test]
+fn inverted_shell_repair_is_reported_in_documents_cli_and_serve() {
+    use std::process::Command;
+    let path = common::fixtures().join("truck_master_shaft_only.step.gz");
+    let message = "solid 0: inverted closed shell repaired";
+    let part = read_step_file(&path).unwrap();
+    let recognition = correspondence::recognise(&part);
+    let doc = recognition::document(&recognition, part.faces.len());
+    assert_eq!(doc.input_repairs, [message]);
+    let (output, warnings) = serve::recognise_file(path.to_str().unwrap()).unwrap();
+    assert_eq!(output.document.input_repairs, [message]);
+    assert!(warnings.iter().any(|w| w.contains(message)));
+    let cli = Command::new(env!("CARGO_BIN_EXE_quiddity"))
+        .arg(&path)
+        .output()
+        .unwrap();
+    assert!(cli.status.success());
+    assert!(String::from_utf8(cli.stderr).unwrap().contains(message));
+    let cli: serde_json::Value = serde_json::from_slice(&cli.stdout).unwrap();
+    let response =
+        serve::respond(&serde_json::json!({"id":53,"op":"recognise","step":path}).to_string())
+            .unwrap();
+    let response: serde_json::Value = serde_json::from_str(&response).unwrap();
+    assert_eq!(response["result"], cli);
+    assert_eq!(
+        cli["document"]["input_repairs"],
+        serde_json::json!([message])
+    );
+    assert_eq!(
+        cli["document"]["schema_version"],
+        output.document.schema_version
+    );
+    assert!(
+        response["warnings"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|w| w.as_str().unwrap().contains(message))
+    );
+
+    let mut old = serde_json::to_value(output.document).unwrap();
+    old.as_object_mut().unwrap().remove("input_repairs");
+    let old: recognition::RecognitionDocument = serde_json::from_value(old).unwrap();
+    assert!(old.input_repairs.is_empty());
+    assert!(
+        serde_json::to_value(old)
+            .unwrap()
+            .get("input_repairs")
+            .is_none()
+    );
+}

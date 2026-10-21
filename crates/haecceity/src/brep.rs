@@ -162,7 +162,9 @@ pub type EdgeSource = Source;
 
 /// A part's boundary representation: faces, edges and solids in OpenCascade's traversal order.
 ///
-/// Immutable after construction. `faces`, `edges` and `solids` are public for reading only:
+/// Immutable once queried: [`Part::repair_inverted_shells`] (which STEP import applies) is the
+/// only change, and it takes the part by value before any query. `faces`, `edges` and `solids`
+/// are public for reading only:
 /// the per-face caches (parameter-space loops and bounds, boxes, mass, recovered surfaces),
 /// the edge-to-face map and the solid validity are computed lazily from them on first use and
 /// never recomputed, so a change to the topology after any query leaves those answers stale.
@@ -180,6 +182,7 @@ pub struct Part {
     unresolved_edges: Vec<usize>,
     face_sources: Vec<Source>,
     edge_sources: Vec<Source>,
+    input_repairs: Vec<String>,
 }
 
 impl Part {
@@ -197,6 +200,7 @@ impl Part {
             unresolved_edges: Vec::new(),
             face_sources: Vec::new(),
             edge_sources: Vec::new(),
+            input_repairs: Vec::new(),
         }
     }
 
@@ -236,6 +240,32 @@ impl Part {
     /// The edges whose curve did not resolve: each carries its chord in its place.
     pub fn unresolved_edges(&self) -> &[usize] {
         &self.unresolved_edges
+    }
+
+    /// Repairs applied while constructing this part, naming the affected solid (zero-based).
+    /// Empty when the input was retained without repair.
+    pub fn input_repairs(&self) -> &[String] {
+        &self.input_repairs
+    }
+
+    pub(super) fn record_inverted_shell_repair(&mut self, solid: usize, reverse_wires: bool) {
+        self.input_repairs
+            .push(format!("solid {solid}: inverted closed shell repaired"));
+        // Domains can use the face sense to choose a periodic band; no derived answer from
+        // the input orientation may survive the repair.
+        for &f in &self.solids[solid].faces {
+            self.faces[f].reversed = !self.faces[f].reversed;
+            if reverse_wires {
+                for lp in &mut self.faces[f].loops {
+                    lp.edges.reverse();
+                    for (_, forward) in &mut lp.edges {
+                        *forward = !*forward;
+                    }
+                }
+            }
+            self.cache[f] = FaceCache::default();
+        }
+        self.bad_faces = OnceLock::new();
     }
 
     /// The face's axis-aligned box: its boundary plus any interior axis extremes.

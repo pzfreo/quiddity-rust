@@ -58,6 +58,9 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Fixed
 
+- Repair consistently inward closed solid boundaries on STEP import, reporting each
+  affected solid in input repairs and recognition warnings. Mixed or unproved
+  orientations remain unchanged (#53).
 - Restore regression coverage for original-input note indices in refusals, reporting
   semantic-text and surface-texture requirements on unwritable features by their own items.
   Narrow datum-target exemptions to WR5; WR4 remains mandatory because every emitted

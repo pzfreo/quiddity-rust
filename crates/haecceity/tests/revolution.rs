@@ -9,11 +9,10 @@
 //! Exact pcurves specify that sheet for STEP readers; haecceity's freeform
 //! integrator still projects the 3D boundary curves.
 //!
-//! Two input defects must not be hidden by changing the integral's sign or relaxing
-//! the parser. Master's revolution FACE_SURFACEs have same_sense=.F. despite their
-//! meridians generating outward normals; its hole B-spline faces have correct senses.
-//! OCCT repairs these orientations. Pub's hole file repeats entity #539 (and others),
-//! with different types. Its permissive OCCT import is not a valid reference solid.
+//! The master shaft's wholly inward boundary is repaired and reported. The master
+//! bore is mixed: its four bore faces already face outward, so it is retained unchanged.
+//! OCCT heals both on import. Pub's hole file repeats entity #539 (and others), with
+//! different types. Its permissive OCCT import is not a valid reference solid.
 
 use std::f64::consts::PI;
 use std::path::Path;
@@ -174,40 +173,136 @@ fn radial_line_disk_and_far_side_annulus_have_analytic_signed_flux() {
 }
 
 #[test]
-fn truck_master_has_reversed_revolution_senses() {
-    for name in [
-        "truck_master_shaft_only.step.gz",
-        "truck_master_shaft_hole.step.gz",
-    ] {
-        let mut part = fixture(name, &IDENTITY);
-        assert!(part.solid_mass(0).unwrap().0 < 0.0);
-        // Diagnostic correction of the source defect, deliberately confined to this
-        // test. No production code overrides STEP face senses or takes abs(volume).
-        for face in &mut part.faces {
-            if matches!(
-                face.surface,
-                Surface::Freeform {
-                    kind: "REVOLUTION",
-                    ..
-                }
-            ) {
-                assert!(face.reversed);
-                face.reversed = false;
-            }
-        }
+fn truck_master_inward_shell_is_repaired_and_reported() {
+    for placement in [IDENTITY, motion()] {
+        let part = fixture("truck_master_shaft_only.step.gz", &placement);
+        assert_eq!(
+            part.input_repairs(),
+            ["solid 0: inverted closed shell repaired"]
+        );
         let (volume, area) = part.solid_mass(0).unwrap();
-        if name.contains("only") {
-            close(&format!("{name} corrected volume"), volume, 15000.0 * PI);
-            close(&format!("{name} area"), area, 2850.0 * PI);
-        } else {
-            // OCP 7.9, adaptive BRepGProp.VolumeProperties(1e-10): 46135.47088917437.
-            // OCCT projects approximate pcurves on these revolutions: even the exact
-            // unbored shaft reads 47118.969265311505 rather than 15000π (4.92 mm³ low).
-            // Compare its hole result to 2e-4; analytic fixtures above require 1e-9.
-            assert!(
-                (volume - 46135.47088917437).abs() < 2e-4 * 46135.47088917437,
-                "{volume}"
-            );
+        // Exact geometry; OCCT's approximate pcurve projection gives 47118.969265311505.
+        close(
+            "truck_master_shaft_only.step.gz repaired volume",
+            volume,
+            15000.0 * PI,
+        );
+        close(
+            "truck_master_shaft_only.step.gz repaired area",
+            area,
+            2850.0 * PI,
+        );
+        assert!(part.faces.iter().all(|f| !f.reversed));
+    }
+}
+
+#[test]
+fn truck_master_bore_has_mixed_senses_and_is_retained() {
+    use haecceity::classify::{Classifier, State};
+    let part = fixture("truck_master_shaft_hole.step.gz", &IDENTITY);
+    assert!(part.input_repairs().is_empty());
+    // Unchanged raw-input result. OCCT's +46135.47088917437 additionally heals the
+    // mixed face senses; globally reversing this shell would give +47426.50384208946.
+    close(
+        "truck_master_shaft_hole.step.gz unrepaired mixed volume",
+        part.solid_mass(0).unwrap().0,
+        -47426.50384208946,
+    );
+    let classifier = Classifier::for_solid(&part, 0);
+    for (face, want) in [
+        (0, (State::In, State::Out)),
+        (15, (State::Out, State::In)),
+        (16, (State::Out, State::In)),
+        (21, (State::Out, State::In)),
+        (22, (State::Out, State::In)),
+    ] {
+        let (p, (u, v)) = part.position_at(face, 0.37, 0.41).unwrap();
+        let n = part.face_normal(face, u, v).unwrap();
+        let sides = (
+            classifier.classify(geom::add(p, geom::scale(n, 1e-3))),
+            classifier.classify(geom::sub(p, geom::scale(n, 1e-3))),
+        );
+        assert_eq!(sides, want, "face {face}");
+    }
+}
+
+#[test]
+fn independent_inverted_shell_is_repaired_but_negative_mixed_shell_is_not() {
+    use haecceity::classify::{Classifier, State};
+    for name in ["revolution_shaft.step.gz", "revolution_line_shaft.step.gz"] {
+        let original = fixture(name, &IDENTITY);
+        assert!(original.input_repairs().is_empty());
+        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../tests/fixtures")
+            .join(name);
+        let text =
+            haecceity::step::decode_step_file_bytes(&path, std::fs::read(&path).unwrap()).unwrap();
+        let text = String::from_utf8(text).unwrap();
+        for mixed in [false, true] {
+            // Change only the independent file's face senses, exercising the import path
+            // without changing the fixture bytes or relying on truck's exporter.
+            let mut face_count = 0;
+            let inverted = text
+                .lines()
+                .map(|line| {
+                    if line.contains(" = ADVANCED_FACE(") {
+                        let i = face_count;
+                        face_count += 1;
+                        assert!(line.ends_with(",.T.);"));
+                        if !mixed || i != 0 {
+                            return line.replace(",.T.);", ",.F.);");
+                        }
+                    }
+                    line.to_owned()
+                })
+                .collect::<Vec<_>>()
+                .join("\n");
+            assert_eq!(face_count, original.faces.len());
+            let imported = haecceity::read_step(inverted.as_bytes()).unwrap();
+            let mut faces = original.faces.clone();
+            for (i, face) in faces.iter_mut().enumerate() {
+                if !mixed || i != 0 {
+                    face.reversed = !face.reversed;
+                }
+            }
+            let raw = haecceity::Part::new(faces, original.edges.clone(), original.solids.clone());
+            let before = raw.solid_mass(0).unwrap();
+            assert!(before.0 < 0.0);
+            let repaired = raw.repair_inverted_shells();
+            assert_eq!(imported.input_repairs(), repaired.input_repairs());
+            assert_eq!(imported.solid_mass(0), repaired.solid_mass(0));
+            if mixed {
+                assert!(repaired.input_repairs().is_empty());
+                assert_eq!(repaired.solid_mass(0).unwrap(), before);
+            } else {
+                assert_eq!(
+                    repaired.input_repairs(),
+                    ["solid 0: inverted closed shell repaired"]
+                );
+                close(
+                    &format!("{name} repaired volume"),
+                    repaired.solid_mass(0).unwrap().0,
+                    15000.0 * PI,
+                );
+                close(
+                    &format!("{name} repaired centroid volume"),
+                    repaired.volume_centroid().unwrap().0,
+                    15000.0 * PI,
+                );
+                for f in 0..original.faces.len() {
+                    assert_eq!(repaired.faces[f].reversed, original.faces[f].reversed);
+                    assert!(
+                        geom::dist(
+                            repaired.face_moments(f).unwrap().area_vector,
+                            original.face_moments(f).unwrap().area_vector
+                        ) < 1e-8
+                    );
+                }
+                let classifier = Classifier::for_solid(&repaired, 0);
+                assert_eq!(classifier.classify([20.0, 0.0, 0.0]), State::In);
+                assert_eq!(classifier.classify([20.0, 20.0, 0.0]), State::Out);
+                assert_eq!(repaired.repair_inverted_shells().input_repairs().len(), 1);
+            }
         }
     }
 }
@@ -358,5 +453,91 @@ fn radial_line_sheet_choice_tolerates_axis_coordinate_roundoff() {
             geom::dist(c, [40., 1., 0.]) < 1e-9,
             "{context} centroid {c:?}"
         );
+    }
+}
+
+#[test]
+fn fully_reversed_shell_restores_wires_validity_and_convexity() {
+    let name = "captured/frames/box_moved.step";
+    let original = fixture(name, &IDENTITY);
+    assert_eq!(original.faces.len(), 6);
+    assert!(
+        original
+            .faces
+            .iter()
+            .all(|f| matches!(f.surface, Surface::Plane { .. }))
+    );
+    assert!(original.solid_is_geometrically_valid(0));
+    // This box is rigidly moved, including a rotation. Its three mutually orthogonal
+    // incident edge vectors give the analytic volume independently of surface flux.
+    let vertex = original.edges[0].vertices.0;
+    let sides: Vec<_> = original
+        .edges
+        .iter()
+        .filter_map(|e| {
+            if e.vertices.0 == vertex {
+                Some(geom::sub(e.end, e.start))
+            } else if e.vertices.1 == vertex {
+                Some(geom::sub(e.start, e.end))
+            } else {
+                None
+            }
+        })
+        .collect();
+    assert_eq!(sides.len(), 3);
+    for i in 0..3 {
+        for j in i + 1..3 {
+            assert!(
+                geom::dot(sides[i], sides[j]).abs()
+                    < 1e-9 * geom::norm(sides[i]) * geom::norm(sides[j])
+            );
+        }
+    }
+    let volume = geom::dot(sides[0], geom::cross(sides[1], sides[2])).abs();
+    close(
+        &format!("{name} analytic box volume"),
+        original.solid_mass(0).unwrap().0,
+        volume,
+    );
+    let mut faces = original.faces.clone();
+    for face in &mut faces {
+        face.reversed = !face.reversed;
+        for lp in &mut face.loops {
+            lp.edges.reverse();
+            for (_, forward) in &mut lp.edges {
+                *forward = !*forward;
+            }
+        }
+    }
+    let raw = haecceity::Part::new(faces, original.edges.clone(), original.solids.clone());
+    assert!(raw.solid_is_valid(0));
+    close(
+        &format!("{name} fully reversed volume"),
+        raw.solid_mass(0).unwrap().0,
+        -volume,
+    );
+    let repaired = raw.repair_inverted_shells();
+    assert_eq!(
+        repaired.input_repairs(),
+        ["solid 0: inverted closed shell repaired"]
+    );
+    close(
+        &format!("{name} repaired volume"),
+        repaired.solid_mass(0).unwrap().0,
+        volume,
+    );
+    assert!(
+        repaired.solid_is_geometrically_valid(0),
+        "{name} repaired bad faces: {:?}",
+        repaired.bad_faces(0)
+    );
+    for f in 0..original.faces.len() {
+        for n in original.neighbours(f) {
+            assert_eq!(
+                repaired.arc(f, n),
+                original.arc(f, n),
+                "{name} convexity at {f}/{n}"
+            );
+        }
     }
 }

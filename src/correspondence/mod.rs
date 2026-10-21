@@ -49,6 +49,9 @@ pub struct Recognition {
     /// SHA256 of the exact input file bytes; absent for caller-supplied in-memory geometry.
     #[serde(skip)]
     pub source_sha256: Option<String>,
+    /// Reported kernel input repairs, carried into the recognition document.
+    #[serde(skip)]
+    pub input_repairs: Vec<String>,
 }
 
 /// Recognise every ported family on *part* as it is placed (caller-space, as Python's entry
@@ -63,6 +66,7 @@ pub fn recognise(part: &Part) -> Recognition {
         frame: RecordFrame::CallerSpace,
         local: LocalFields::new(),
         source_sha256: None,
+        input_repairs: part.input_repairs().to_vec(),
     }
 }
 
@@ -96,6 +100,7 @@ pub fn recognise_placed(
         frame: RecordFrame::Inferred(frame),
         local,
         source_sha256: None,
+        input_repairs: part.input_repairs().to_vec(),
     };
     Ok((part, recognition))
 }
