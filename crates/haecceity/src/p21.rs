@@ -29,6 +29,33 @@ use std::ops::Range;
 pub use step_io::parser::{Attribute, RawEntity, RawEntityPart};
 use step_io::parser::{Graph, Span};
 
+/// Preserve the duplicate-id diagnostic's source column: step-io 0.3 reports only
+/// its line and the first definition's line. Recover the declaration from that line.
+pub(super) fn parse_message(bytes: &[u8], error: &step_io::Error) -> String {
+    if let step_io::Error::DuplicateEntityId { id, line, .. } = error {
+        let declaration = format!("#{id}");
+        let column = bytes
+            .split(|&b| b == b'\n')
+            .nth(line.saturating_sub(1) as usize)
+            .and_then(|text| {
+                text.windows(declaration.len())
+                    .enumerate()
+                    .find_map(|(i, word)| {
+                        (word == declaration.as_bytes()
+                            && text[i + word.len()..]
+                                .iter()
+                                .copied()
+                                .find(|b| !b.is_ascii_whitespace())
+                                == Some(b'='))
+                        .then_some(i + 1)
+                    })
+            })
+            .unwrap_or(1);
+        return format!("parse error at line {line}, column {column}: duplicate entity #{id}");
+    }
+    error.to_string()
+}
+
 /// Why a document could not be read, an edit could not be applied, or a record or string could
 /// not be written.
 #[derive(Debug, Clone, PartialEq)]
@@ -321,8 +348,8 @@ impl Document {
     /// Reads a file: step-io's records, this module's extents, and the check that both see the
     /// same instances.
     pub fn parse(bytes: Vec<u8>) -> Result<Document, P21Error> {
-        let graph =
-            step_io::parser::parse(bytes.as_slice()).map_err(|e| P21Error::Parse(e.to_string()))?;
+        let graph = step_io::parser::parse(bytes.as_slice())
+            .map_err(|e| P21Error::Parse(parse_message(&bytes, &e)))?;
         let scan = scan(&bytes)?;
 
         if scan.header.len() != graph.header.len() {

@@ -1555,8 +1555,9 @@ struct Parsed {
 
 impl Parsed {
     fn new(bytes: &[u8]) -> Result<Parsed, StepError> {
-        let (model, report) = step_io::read(bytes).map_err(|e| StepError::Parse(e.to_string()))?;
-        let graph = step_io::parser::parse(bytes).map_err(|e| StepError::Parse(e.to_string()))?;
+        let parse_error = |e| StepError::Parse(crate::p21::parse_message(bytes, &e));
+        let (model, report) = step_io::read(bytes).map_err(parse_error)?;
+        let graph = step_io::parser::parse(bytes).map_err(parse_error)?;
         refuse_dropped_shapes(&graph, &report)?;
         Ok(Parsed {
             model,
@@ -2782,5 +2783,9 @@ mod tests {
         assert!(error("broken/truncated_closed.step").contains("#105 is referenced"));
         assert!(error("broken/deleted_face.step").contains("#109 is referenced"));
         assert!(error("broken/unresolved_closed_curve.step").contains("closed edge's curve"));
+        assert_eq!(
+            error("broken/truck_pub_shaft_hole.step.gz"),
+            "STEP parse error: parse error at line 639, column 1: duplicate entity #539"
+        );
     }
 }
