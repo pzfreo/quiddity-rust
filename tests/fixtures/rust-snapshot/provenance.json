@@ -3011,8 +3011,8 @@
     "tests/fixtures/prismatic_scale3.step": "9072823826149d16330612e34a111cf1815a0540a64a942e40b696ba9c98988c",
     "tests/fixtures/prismatic_translated.step": "1fa8ab721215b637d51a95d67ca8e1ad1d909cb4158ef38760047ebb3117bde6",
     "tests/fixtures/probes.json.gz": "5d90e0512277d3ef76182eac6d4897c8eec0bce67b76f520232be2f8d7791ae1",
-    "tests/fixtures/references/body_measurement_evidence.json": "b4b8f510341936fe140cd17695c423d31cece690c246093173d03604a9789584",
-    "tests/fixtures/references/body_measurements.json.gz": "2084c8a9ff41dc9fda90df0c888d68c41f2bb1bfd03ae38eb16b8959a840cbca",
+    "tests/fixtures/references/body_measurement_evidence.json": "d499c04fd0f74b6b668be4e0d45cd1cc4270f5d678a5a7748c7d0472416b711f",
+    "tests/fixtures/references/body_measurements.json.gz": "4e29f03e5e6b76964d80b6a78a4fb75499d191cdc46f891469b9951e96c46f7b",
     "tests/fixtures/references/classify.json": "c18f99bdc2838c953f7b4468a75749b733a742f36509e669319efc7414416309",
     "tests/fixtures/references/correspondence.json": "d9b0fa19648ca077a55c6f87b78b1f15eb7d893ccfdfe70f9ca5fd9c8534dea4",
     "tests/fixtures/references/cylindrical_proof_motion.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
@@ -5799,5 +5799,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "44b538611c09e6461a87a19e4c040f21bb595c0e"
+  "source_commit": "0fdbc702b339cf03885c7aa22812636f8cb46420"
 }
