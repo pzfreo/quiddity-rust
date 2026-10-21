@@ -324,7 +324,7 @@ fn varying_pitch_and_a_shallow_helical_groove_report_refusals_and_claim_nothing(
             analysis.refusals
         );
         assert_eq!(analysis.refusals[0].reason, reason);
-        let recognised = quiddity::correspondence::recognise(&part);
+        let recognised = quiddity::correspondence::python_parity_recognise(&part);
         assert_eq!(
             recognised.features.freeform_surfaces,
             quiddity::recognise_freeform_surfaces(&part)
