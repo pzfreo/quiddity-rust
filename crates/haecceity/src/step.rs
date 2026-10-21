@@ -1576,7 +1576,8 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
         .collect::<Result<_, StepError>>()?;
     let part = Part::new(out_faces, edges_out, solids)
         .with_unresolved(unresolved_faces, unresolved_edges)
-        .with_sources(face_sources, edge_sources);
+        .with_sources(face_sources, edge_sources)
+        .repair_inverted_shells();
     Ok(Read {
         part,
         instances: instance_of,

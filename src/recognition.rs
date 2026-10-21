@@ -78,6 +78,9 @@ pub struct RecognitionDocument {
     /// Strict inventory or its local-degradation retry; unknown only in older documents.
     #[serde(default)]
     pub run_mode: RunMode,
+    /// Kernel input repairs, naming each affected solid; absent in older or unrepaired input.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub input_repairs: Vec<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -408,6 +411,7 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
         records,
         source_sha256: recognition.source_sha256.clone(),
         run_mode: recognition.features.run_mode,
+        input_repairs: recognition.input_repairs.clone(),
     }
 }
 
