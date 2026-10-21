@@ -49,10 +49,12 @@ pub fn schema_version(_features: &Features) -> &'static str {
 }
 
 /// Stable positive evidence codes; see docs/face-accounting.md.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BodyReason {
     StockBoxSide,
+    StockBoxNotched,
+    StockBoxSplit,
 }
 
 /// A named refusal record and its original reason code.

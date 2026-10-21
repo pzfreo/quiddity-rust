@@ -77,6 +77,11 @@ fn accounting_baseline_is_complete_and_totals_match() {
     for model in &baseline.models {
         assert_eq!(model.accounting.feature_as_body, 0, "{}", model.id);
         assert!(model.accounting.stock_unexplained <= model.accounting.unexplained);
+        assert_eq!(model.accounting.stock_body, model.accounting.body);
+        assert_eq!(
+            model.accounting.body_reasons.values().sum::<u64>(),
+            model.accounting.body
+        );
         total.add(&model.accounting);
     }
     assert_eq!(total, baseline.accounting);

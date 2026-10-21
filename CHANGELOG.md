@@ -9,8 +9,9 @@ in [docs/alpha1.md](docs/alpha1.md).
 ### Added
 
 - Complete recognition face accounting: feature record IDs, named refusals and reasons,
-  positively established body faces (`stock_box_side`), or unexplained. The conservative
-  geometry rule and independent MFInstSeg ratchet are in [docs/face-accounting.md](docs/face-accounting.md).
+  positively established body faces (`stock_box_side`, `stock_box_notched`,
+  `stock_box_split`), or unexplained. The conservative
+  geometry rules and independent MFInstSeg ratchet are in [docs/face-accounting.md](docs/face-accounting.md).
   No feature record or fingerprint changes.
   **Upgrading:** all newly emitted recognition documents, including `quiddity serve`, use
   `quiddity-rust/recognition/5` and include a `face_accounting` array indexed by file face.

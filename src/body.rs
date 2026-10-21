@@ -3,7 +3,7 @@
 use std::collections::BTreeMap;
 
 use crate::Part;
-use crate::kernel::geom::{Curve, Surface};
+use crate::kernel::geom::{Bounds, Curve, Surface, V3};
 use crate::recognition::BodyReason;
 
 pub(crate) fn evidence(part: &Part) -> BTreeMap<usize, BodyReason> {
@@ -97,10 +97,91 @@ pub(crate) fn evidence(part: &Part) -> BTreeMap<usize, BodyReason> {
             });
             if rectangle {
                 out.insert(f, BodyReason::StockBoxSide);
+            } else if let Some(reason) = broken_side(part, solid, f, normal, axis, bounds, tol) {
+                out.insert(f, reason);
             }
         }
     }
     out
+}
+
+/// A surviving stock corner distinguishes a cut box outline from an isolated cap.
+/// A lower, outward platform at the stock perimeter is evidence of a raised
+/// feature; veto even when the platform is split into several faces by a rib.
+fn broken_side(
+    part: &Part,
+    solid: usize,
+    face: usize,
+    normal: V3,
+    axis: usize,
+    bounds: Bounds,
+    tol: f64,
+) -> Option<BodyReason> {
+    let at = if normal[axis] > 0.0 {
+        bounds.max[axis]
+    } else {
+        bounds.min[axis]
+    };
+    let fb = part.face_bounds(face);
+    if (fb.min[axis] - at).abs() > tol || (fb.max[axis] - at).abs() > tol {
+        return None;
+    }
+    let transverse: Vec<_> = (0..3).filter(|&j| j != axis).collect();
+    let stock_corner = part.face_edges(face).iter().any(|&e| {
+        [part.edges[e].start, part.edges[e].end].iter().any(|p| {
+            (p[axis] - at).abs() <= tol
+                && transverse.iter().all(|&j| {
+                    (p[j] - bounds.min[j]).abs() <= tol || (p[j] - bounds.max[j]).abs() <= tol
+                })
+        })
+    });
+    if !stock_corner {
+        return None;
+    }
+    let mut platforms = Vec::new();
+    let mut coplanar = 0;
+    for &g in &part.solids[solid].faces {
+        if !matches!(part.faces[g].surface, Surface::Plane { .. }) {
+            continue;
+        }
+        let Some(n) = part.face_normal(g, 0.0, 0.0) else {
+            continue;
+        };
+        if (0..3).any(|j| (n[j] - normal[j]).abs() > 1e-9) {
+            continue;
+        }
+        let gb = part.face_bounds(g);
+        if (gb.min[axis] - gb.max[axis]).abs() > tol {
+            continue;
+        }
+        let level = 0.5 * (gb.min[axis] + gb.max[axis]);
+        if (level - at).abs() <= tol {
+            coplanar += 1;
+        } else if normal[axis] * (level - at) < -tol {
+            platforms.push((level, gb));
+        }
+    }
+    platforms.sort_by(|a, b| a.0.total_cmp(&b.0));
+    let mut i = 0;
+    while i < platforms.len() {
+        let mut b = platforms[i].1;
+        let mut j = i + 1;
+        while j < platforms.len() && platforms[j].0 - platforms[j - 1].0 <= tol {
+            b.merge(&platforms[j].1);
+            j += 1;
+        }
+        if transverse.iter().all(|&k| {
+            (b.min[k] - bounds.min[k]).abs() <= tol || (b.max[k] - bounds.max[k]).abs() <= tol
+        }) {
+            return None;
+        }
+        i = j;
+    }
+    Some(if coplanar > 1 {
+        BodyReason::StockBoxSplit
+    } else {
+        BodyReason::StockBoxNotched
+    })
 }
 
 #[cfg(test)]
@@ -109,6 +190,101 @@ mod tests {
     use crate::frames;
     use crate::kernel::step::Placement;
     use std::path::{Path, PathBuf};
+
+    fn profile(points: &[[f64; 2]]) -> Part {
+        use crate::kernel::brep::{Edge, Face, Loop};
+        use crate::kernel::geom::{Frame, sub};
+        let vertices: Vec<V3> = points.iter().map(|p| [p[0], 0.0, p[1]]).collect();
+        let edges = (0..vertices.len())
+            .map(|i| {
+                let j = (i + 1) % vertices.len();
+                Edge {
+                    curve: Curve::Line {
+                        origin: vertices[i],
+                        dir: sub(vertices[j], vertices[i]),
+                    },
+                    start: vertices[i],
+                    end: vertices[j],
+                    vertices: (i, j),
+                    same_sense: true,
+                    samples: vec![vertices[i], vertices[j]],
+                }
+            })
+            .collect();
+        let source = Part::new(
+            vec![Face {
+                surface: Surface::Plane {
+                    frame: Frame {
+                        origin: [0.0; 3],
+                        x: [1.0, 0.0, 0.0],
+                        y: [0.0, 0.0, 1.0],
+                        z: [0.0, -1.0, 0.0],
+                    },
+                },
+                reversed: false,
+                loops: vec![Loop {
+                    edges: (0..vertices.len()).map(|e| (e, true)).collect(),
+                    vertex: None,
+                }],
+                solid: None,
+                pcurves: vec![],
+            }],
+            edges,
+            vec![],
+        );
+        crate::kernel::sweep::extrude_face(&source, 0, [0.0; 3], [0.0, -10.0, 0.0]).unwrap()
+    }
+
+    #[test]
+    fn unrecognised_edge_pad_and_rib_caps_abstain_but_cut_stock_sides_qualify() {
+        // Direct geometry evidence: no recognition records exist to mask a mistake.
+        for points in [
+            vec![[0., 0.], [10., 0.], [10., 2.], [3., 2.], [3., 5.], [0., 5.]],
+            vec![
+                [0., 0.],
+                [10., 0.],
+                [10., 2.],
+                [6., 2.],
+                [6., 5.],
+                [4., 5.],
+                [4., 2.],
+                [0., 2.],
+            ],
+        ] {
+            let part = profile(&points);
+            assert!(part.solid_is_geometrically_valid(0));
+            let body = evidence(&part);
+            let caps: Vec<_> = (0..part.faces.len())
+                .filter(|&f| {
+                    let b = part.face_bounds(f);
+                    (b.min[2] - 5.0).abs() < 1e-9 && (b.max[2] - 5.0).abs() < 1e-9
+                })
+                .collect();
+            assert!(!caps.is_empty());
+            for f in caps {
+                assert!(!body.contains_key(&f), "raised cap {f}");
+            }
+            assert!(body.values().any(|&r| r == BodyReason::StockBoxNotched));
+        }
+        let slot = profile(&[
+            [0., 0.],
+            [10., 0.],
+            [10., 5.],
+            [7., 5.],
+            [7., 2.],
+            [3., 2.],
+            [3., 5.],
+            [0., 5.],
+        ]);
+        assert!(slot.solid_is_geometrically_valid(0));
+        assert_eq!(
+            evidence(&slot)
+                .values()
+                .filter(|&&r| r == BodyReason::StockBoxSplit)
+                .count(),
+            2
+        );
+    }
 
     fn normalized_evidence(part: &Part) -> BTreeMap<usize, BodyReason> {
         frames::infer_part_frame(part)
@@ -199,9 +375,12 @@ mod tests {
         let hole =
             crate::read_step_file(&fixtures.join("golden_simple_through_hole.step")).unwrap();
         let body = normalized_evidence(&hole);
-        // This fixture also has a boss rising above the block. Only the bottom
-        // spans the complete solid box; the four short sides and boss cap abstain.
-        assert_eq!(body.keys().copied().collect::<Vec<_>>(), vec![4]);
+        // This fixture also has a boss rising above the block. Its cap must
+        // abstain independently of whether the boss recognizer publishes a record.
+        assert_eq!(
+            body.keys().copied().collect::<Vec<_>>(),
+            vec![0, 1, 3, 4, 5]
+        );
         assert!(!body.contains_key(&8));
         assert!(
             body.keys()
@@ -223,18 +402,13 @@ mod tests {
                 let solid = face.solid.unwrap();
                 let b = part.solid_bounds(solid);
                 let fb = part.face_bounds(f);
-                // Any plane strictly inside a solid extent, or a partial cap,
-                // is excluded even if no recognizer ever claims it.
-                let covers_side = (0..3).any(|k| {
+                // Interior planes remain unexplained without feature claims.
+                let on_extreme = (0..3).any(|k| {
                     (fb.max[k] - fb.min[k]).abs() < 1e-6
                         && ((fb.min[k] - b.min[k]).abs() < 1e-6
                             || (fb.min[k] - b.max[k]).abs() < 1e-6)
-                        && (0..3).filter(|&j| j != k).all(|j| {
-                            (fb.min[j] - b.min[j]).abs() < 1e-6
-                                && (fb.max[j] - b.max[j]).abs() < 1e-6
-                        })
                 });
-                if !covers_side {
+                if !on_extreme {
                     assert!(!body.contains_key(&f), "{name} face {f}");
                     excluded += 1;
                 }

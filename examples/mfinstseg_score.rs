@@ -98,5 +98,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if !errors.is_empty() {
         return Err(format!("{} label errors; accuracy report incomplete", errors.len()).into());
     }
+    if report["accounting"]["feature_as_body"].as_u64() != Some(0) {
+        return Err("labelled feature faces classified body; see report".into());
+    }
     Ok(())
 }

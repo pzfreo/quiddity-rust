@@ -84,6 +84,10 @@ pub struct ModelScore {
 pub struct Accounting {
     pub feature_as_body: u64,
     pub stock_unexplained: u64,
+    #[serde(default)]
+    pub stock_body: u64,
+    #[serde(default)]
+    pub body_reasons: BTreeMap<quiddity::recognition::BodyReason, u64>,
     pub feature: u64,
     pub body: u64,
     pub refused: u64,
@@ -93,6 +97,10 @@ impl Accounting {
     pub fn add(&mut self, other: &Self) {
         self.feature_as_body += other.feature_as_body;
         self.stock_unexplained += other.stock_unexplained;
+        self.stock_body += other.stock_body;
+        for (&reason, &count) in &other.body_reasons {
+            *self.body_reasons.entry(reason).or_default() += count;
+        }
         self.feature += other.feature;
         self.body += other.body;
         self.refused += other.refused;
@@ -105,8 +113,10 @@ impl Accounting {
         for (group, &label) in groups.iter().zip(seg) {
             match group {
                 FaceAccounting::Feature { .. } => out.feature += 1,
-                FaceAccounting::Body { .. } => {
+                FaceAccounting::Body { reason } => {
                     out.body += 1;
+                    out.stock_body += u64::from(label == 24);
+                    *out.body_reasons.entry(*reason).or_default() += 1;
                     out.feature_as_body += u64::from(label != 24);
                 }
                 FaceAccounting::Refused { .. } => out.refused += 1,
@@ -470,6 +480,8 @@ mod tests {
         let counts = Accounting::measure(&groups, &[23, 24, 24, 0]);
         assert_eq!(counts.feature_as_body, 1);
         assert_eq!(counts.stock_unexplained, 1);
+        assert_eq!(counts.stock_body, 1);
+        assert_eq!(counts.body_reasons[&BodyReason::StockBoxSide], 2);
         assert_eq!(counts.body, 2);
         assert_eq!(counts.unexplained, 2);
     }
