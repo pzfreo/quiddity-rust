@@ -4,6 +4,39 @@
 #[path = "../examples/support/mfinstseg.rs"]
 mod mfinstseg;
 
+/// All seven PARABOLA-bearing files in the 62,495-model dataset. Open CASCADE 8.0
+/// reads every solid as valid; these volumes use BRepGProp at Eps=1e-10.
+/// The dataset stays external, just as it does for the label ratchet below.
+#[test]
+fn parabola_models_keep_every_face_and_edge() {
+    let Some(root) = std::env::var_os("QUIDDITY_MFINSTSEG") else {
+        eprintln!("external parabola regression skipped: set QUIDDITY_MFINSTSEG to enable");
+        return;
+    };
+    for (id, faces, edges, volume) in [
+        ("20221121_154648_21526", 34, 89, 45956.2418205826),
+        ("20221121_154648_4306", 15, 41, 4973.484360445477),
+        ("20221123_142528_10559", 38, 97, 28823.819620136084),
+        ("20221123_142528_13568", 20, 48, 21052.923274488247),
+        ("20221123_142528_19464", 30, 70, 147656.72812030592),
+        ("20221124_154714_13230", 20, 49, 58543.0670631267),
+        ("20221124_154714_16830", 12, 29, 223279.54767780998),
+    ] {
+        let path = Path::new(&root).join("steps").join(format!("{id}.step"));
+        let part = quiddity::read_step_file(&path).unwrap_or_else(|e| panic!("{id}: {e}"));
+        assert_eq!((part.faces.len(), part.edges.len()), (faces, edges), "{id}");
+        assert!(part.unresolved_faces().is_empty(), "{id}");
+        assert!(part.unresolved_edges().is_empty(), "{id}");
+        assert_eq!(part.solids.len(), 1, "{id}");
+        assert!(part.solid_is_valid(0), "{id}");
+        let actual = part.solid_mass(0).unwrap().0;
+        assert!(
+            (actual - volume).abs() < 1e-7 * volume,
+            "{id}: {actual} vs {volume}"
+        );
+    }
+}
+
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use std::path::Path;

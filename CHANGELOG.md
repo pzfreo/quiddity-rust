@@ -8,6 +8,12 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Added
 
+- Read parabola edges and faces bounded by them. Like hyperbolas, finite parabola spans
+  use exact quadratic B-splines for evaluation, sampling, bounds and mass/area integration;
+  rigid transforms retain their native conic geometry. OCCT trim points take precedence
+  over conflicting parabola parameters; parameter-only trims use ISO 10303-42's
+  dimensionless parameter `(F*u*u, 2*F*u)` because no point establishes a writer's convention.
+
 - AP242 PMI writing of composite, precedence and simultaneity tolerance relations; stated
   default-tolerance table cells and decimal places within them; material density in its own
   dimensionally correct derived unit; edition 4 relationship targets and affected-plane links.
@@ -31,6 +37,16 @@ in [docs/alpha1.md](docs/alpha1.md).
   and OCCT cross-checks including shared target supports; no target-refusal stripping.
 
 ### Changed
+
+- Haecceity now uses step-io 0.3, including its read-only model API, streaming readers,
+  typed conics and shell/face/bound/edge-use `Orientation`. Haecceity's B-rep orientation
+  flags and public geometry API remain unchanged. Hyperbola spans retain the existing
+  arithmetic, using step-io's typed geometry as their source.
+  **Public Part 21 API:** `p21::Attribute::String` and `Document::graph()` now contain
+  decoded Unicode text. Pass plain text to `Attribute::String`; `p21::encode` escapes
+  it on output. `p21::escape`/`decode` still convert encoded string bodies, and must
+  not be applied to already decoded attributes. Re-exported parser spans use `u64`
+  byte offsets, as in step-io 0.3.
 
 - One supported recognition entry point: `correspondence::recognise(&Part)` recognises in the
   inferred part frame using an in-memory rigid transform, without a reader closure or second

@@ -615,6 +615,57 @@ impl Hyperbola {
     }
 }
 
+/// Analytic conics behind exact edge-bounded quadratic B-splines. Retaining the native
+/// frame lets rigid transformations reconstruct poles with the reader's arithmetic.
+#[derive(Clone, Debug)]
+pub(super) enum Conic {
+    Hyperbola(Hyperbola),
+    /// ISO 10303-42: (F t², 2F t, 0), with focal distance F.
+    Parabola {
+        frame: Frame,
+        focal_dist: f64,
+    },
+}
+
+impl Conic {
+    pub(super) fn frame_mut(&mut self) -> &mut Frame {
+        match self {
+            Self::Hyperbola(h) => &mut h.frame,
+            Self::Parabola { frame, .. } => frame,
+        }
+    }
+
+    pub(super) fn arc(&self, a: V3, b: V3) -> Option<Curve> {
+        match self {
+            Self::Hyperbola(h) => h.arc(a, b),
+            Self::Parabola {
+                frame,
+                focal_dist: f,
+            } => {
+                let on = |t: f64| frame.to_world([f * t * t, 2.0 * f * t, 0.0]);
+                let parameter = |p| {
+                    let t = frame.to_local(p)[1] / (2.0 * f);
+                    (dist(on(t), p) <= 1e-4).then_some(t)
+                };
+                let (ta, tb) = (parameter(a)?, parameter(b)?);
+                let (t0, t1) = (ta.min(tb), ta.max(tb));
+                if t1 - t0 < 1e-9 {
+                    return None;
+                }
+                // The middle Bezier pole is the intersection of the end tangents.
+                let middle = frame.to_world([f * t0 * t1, f * (t0 + t1), 0.0]);
+                NurbsCurve::new(
+                    2,
+                    vec![on(t0), middle, on(t1)],
+                    vec![1.0; 3],
+                    vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
+                )
+                .map(Curve::Nurbs)
+            }
+        }
+    }
+}
+
 /// The curve under an edge.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Curve {

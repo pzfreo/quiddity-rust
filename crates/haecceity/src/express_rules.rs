@@ -53,7 +53,7 @@ use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use crate::express::TARGET;
-use crate::p21::{Attribute, Document, RawEntity, decode};
+use crate::p21::{Attribute, Document, RawEntity};
 
 /// One instance that violates one rule.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -508,7 +508,7 @@ impl<'a> Ctx<'a> {
     /// A STRING attribute, decoded; `None` when unset or not a string.
     fn text(&self, id: u64, entity: &str, name: &str) -> Option<String> {
         match self.attr(id, entity, name)? {
-            Attribute::String(s) => Some(decode(s).unwrap_or_else(|_| s.clone())),
+            Attribute::String(s) => Some(s.clone()),
             _ => None,
         }
     }

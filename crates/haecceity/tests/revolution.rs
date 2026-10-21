@@ -143,14 +143,12 @@ fn radial_line_disk_and_far_side_annulus_have_analytic_signed_flux() {
     let text =
         haecceity::step::decode_step_file_bytes(&path, std::fs::read(&path).unwrap()).unwrap();
     // The swept curves themselves must be LINEs, not merely the seam edges.
-    let (model, _) = step_io::read(&text).unwrap();
-    assert_eq!(model.surface_of_revolution_arena.items.len(), 5);
+    let (model, _) = step_io::read(text.as_slice()).unwrap();
+    assert_eq!(model.all::<step_io::model::SurfaceOfRevolution>().len(), 5);
     assert!(
         model
-            .surface_of_revolution_arena
-            .items
-            .iter()
-            .all(|s| matches!(s.swept_curve, step_io::generated::model::CurveRef::Line(_)))
+            .all::<step_io::model::SurfaceOfRevolution>()
+            .all(|(_, s)| matches!(s.swept_curve, step_io::model::CurveRef::Line(_)))
     );
     let part = fixture("revolution_line_shaft.step.gz", &IDENTITY);
     for (faces, x, quarter_area, nx) in [

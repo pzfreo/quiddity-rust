@@ -3,17 +3,15 @@
 //! `FILE_SCHEMA`) written so that every untouched byte is copied unchanged. With no edit, the
 //! output is the input. It knows nothing about any schema or about PMI.
 //!
-//! Records are step-io's [`RawEntity`] with step-io's string convention: an
-//! [`Attribute::String`] holds the text between the quotes with `''` decoded to `'` and every
-//! other escape (`\\`, `\X\HH`, `\X2\…\X0\`, `\X4\…\X0\`, `\S\`, `\P?\`) still raw; [`decode`]
-//! resolves those, [`escape`] makes them, and [`encode`] doubles `'` again when it writes.
+//! Records are step-io's [`RawEntity`]. [`Attribute::String`] contains decoded Unicode
+//! text; [`encode`] escapes backslashes and non-ASCII characters and doubles quotes.
+//! [`decode`] and [`escape`] operate on encoded Part 21 string bodies, not attributes.
 //!
-//! Instance extents come from this module's own scanner over the original bytes (step-io's spans
-//! cover only the `#N` token, and step-io re-encodes a non-UTF-8 file as Latin-1 before it
-//! lexes, which shifts offsets): from each `#N` to its terminating `;` outside strings, binaries
-//! and comments. The ids the scanner finds must be exactly step-io's, or the file is refused.
+//! Instance extents come from this module's scanner over the original bytes, from each
+//! `#N` to its terminating `;` outside strings, binaries and comments. The ids must be
+//! exactly step-io's, or the file is refused.
 //! The scanner knows every section (HEADER, the edition 3 ANCHOR and REFERENCE sections, one or
-//! more DATA sections), but step-io 0.2.5 reads a single DATA section, so a file with several is
+//! more DATA sections), but step-io 0.3 reads a single DATA section, so a file with several is
 //! refused with step-io's parse error; additions go before the last DATA section's `ENDSEC`.
 //!
 //! A complex instance's leaves are written in the external mapping's order, sorted by entity
@@ -324,7 +322,7 @@ impl Document {
     /// same instances.
     pub fn parse(bytes: Vec<u8>) -> Result<Document, P21Error> {
         let graph =
-            step_io::parser::parse_bytes(&bytes).map_err(|e| P21Error::Parse(e.to_string()))?;
+            step_io::parser::parse(bytes.as_slice()).map_err(|e| P21Error::Parse(e.to_string()))?;
         let scan = scan(&bytes)?;
 
         if scan.header.len() != graph.header.len() {
@@ -980,9 +978,8 @@ fn encode_attribute(
             None => out.push_str(&encode_real(*v)?),
         },
         Attribute::String(s) => {
-            check_body(s)?;
             out.push('\'');
-            out.push_str(&s.replace('\'', "''"));
+            out.push_str(&escape(s).replace('\'', "''"));
             out.push('\'');
         }
         Attribute::Enum(s) => {
@@ -1125,10 +1122,10 @@ fn parse_real_text(decimal: &str) -> Result<f64, P21Error> {
 // Strings
 // ---------------------------------------------------------------------------------------------
 
-/// `text` as a string attribute value in step-io's convention: `\` as `\\`, characters outside
+/// `text` as an encoded Part 21 string body: `\` as `\\`, characters outside
 /// printable ASCII as `\X2\HHHH…\X0\` (UTF-16 code units; `\X4\HHHHHHHH…\X0\` for a run
 /// containing a character beyond the BMP), every other character as itself. A `'` stays single
-/// here; [`encode`] doubles it when it writes the string.
+/// here; a quoted Part 21 literal also doubles it. [`encode`] handles decoded attributes.
 #[must_use]
 pub fn escape(text: &str) -> String {
     let mut out = String::with_capacity(text.len());
@@ -1166,7 +1163,7 @@ pub fn escape(text: &str) -> String {
     out
 }
 
-/// The text of a string attribute value in step-io's convention, every escape resolved:
+/// Decode an encoded Part 21 string body (not an [`Attribute::String`]):
 /// `\\`, `\X\HH` (ISO 8859-1), `\X2\…\X0\` (UTF-16), `\X4\…\X0\` (UCS-4), and `\S\c` under the
 /// default code page `\PA\` (ISO 8859-1). Other code pages (`\PB\` … `\PI\`) are refused as
 /// unsupported; malformed escapes are refused. Line breaks (`\r`, `\n`) are print control, not
@@ -1174,24 +1171,6 @@ pub fn escape(text: &str) -> String {
 /// dropped. Characters outside ASCII that a file carries raw are kept as they are.
 pub fn decode(body: &str) -> Result<String, P21Error> {
     decode_with(body, false)
-}
-
-/// A string attribute value [`encode`] can write: printable ASCII and line breaks (which a file's
-/// own strings carry and readers drop) only, escapes well formed (every code page switch `\PA\` … `\PI\` accepted, as they are valid Part 21).
-fn check_body(body: &str) -> Result<(), P21Error> {
-    if let Some(c) = body
-        .chars()
-        .find(|c| !(' '..='~').contains(c) && !matches!(c, '\r' | '\n'))
-    {
-        return Err(P21Error::Encode(format!(
-            "string {body:?} holds {c:?}, which Part 21 writes only escaped (see p21::escape)"
-        )));
-    }
-    match decode_with(body, true) {
-        Ok(_) => Ok(()),
-        Err(P21Error::Decode(m)) => Err(P21Error::Encode(m)),
-        Err(e) => Err(e),
-    }
 }
 
 fn decode_with(body: &str, any_page: bool) -> Result<String, P21Error> {

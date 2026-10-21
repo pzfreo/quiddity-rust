@@ -210,7 +210,7 @@ pub struct Part {
     input_repairs: Vec<String>,
     // STEP LINE direction ratios before normalisation, for reader-equivalent rotations.
     line_directions: std::collections::BTreeMap<usize, V3>,
-    hyperbolas: std::collections::BTreeMap<usize, geom::Hyperbola>,
+    conics: std::collections::BTreeMap<usize, geom::Conic>,
     native_faces: Vec<Native<Face>>,
     native_edges: Vec<Native<Edge>>,
 }
@@ -232,7 +232,7 @@ impl Part {
             edge_sources: Vec::new(),
             input_repairs: Vec::new(),
             line_directions: Default::default(),
-            hyperbolas: Default::default(),
+            conics: Default::default(),
             native_faces: Vec::new(),
             native_edges: Vec::new(),
         }
@@ -400,9 +400,9 @@ impl Part {
                 Curve::Circle { frame: f, .. } | Curve::Ellipse { frame: f, .. } => frame(&at, f),
                 Curve::Nurbs(curve) => curve.transform_points(point),
             }
-            if let Some(native) = self.hyperbolas.get(&index) {
+            if let Some(native) = self.conics.get(&index) {
                 let mut conic = native.clone();
-                frame(&at, &mut conic.frame);
+                frame(&at, conic.frame_mut());
                 if let Some(curve) = conic.arc(edge.start, edge.end) {
                     edge.curve = curve;
                 }
@@ -422,7 +422,7 @@ impl Part {
         part.edge_sources = self.edge_sources.clone();
         part.input_repairs = self.input_repairs.clone();
         part.line_directions = self.line_directions.clone();
-        part.hyperbolas = self.hyperbolas.clone();
+        part.conics = self.conics.clone();
         part.native_faces = native_faces;
         part.native_edges = native_edges;
         Ok(part)
@@ -440,11 +440,11 @@ impl Part {
         self
     }
 
-    pub(super) fn with_hyperbolas(
+    pub(super) fn with_conics(
         mut self,
-        hyperbolas: std::collections::BTreeMap<usize, geom::Hyperbola>,
+        conics: std::collections::BTreeMap<usize, geom::Conic>,
     ) -> Self {
-        self.hyperbolas = hyperbolas;
+        self.conics = conics;
         self
     }
 

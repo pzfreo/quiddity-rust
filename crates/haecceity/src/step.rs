@@ -5,9 +5,9 @@
 
 use std::collections::HashMap;
 
-use step_io::generated::model as m;
+use step_io::model as m;
 use step_io::parser::{Attribute, RawEntity};
-use step_io::scene::geometry::{Edge as StepEdge, Face as StepFace, SurfaceKind};
+use step_io::scene::{Edge as StepEdge, Face as StepFace, SurfaceKind};
 
 use super::brep::{Edge, Face, GeometryPlacement, Loop, Part, Pcurve, Solid, Source};
 use super::geom::{self, Curve, Frame, Surface, V3};
@@ -100,7 +100,11 @@ impl Reader<'_> {
         let m::CartesianPointRef::CartesianPoint(i) = r else {
             return None;
         };
-        let c = &self.model.cartesian_point_arena.get(i.0).coordinates;
+        let c = &self
+            .model
+            .get(m::CartesianPointId(i.0))
+            .expect("validated STEP reference")
+            .coordinates;
         let get = |k: usize| c.get(k).copied().unwrap_or(0.0) * self.to_mm;
         Some(self.place_point([get(0), get(1), get(2)]))
     }
@@ -109,7 +113,11 @@ impl Reader<'_> {
         let m::DirectionRef::Direction(i) = r else {
             return None;
         };
-        let c = &self.model.direction_arena.get(i.0).direction_ratios;
+        let c = &self
+            .model
+            .get(m::DirectionId(i.0))
+            .expect("validated STEP reference")
+            .direction_ratios;
         let get = |k: usize| c.get(k).copied().unwrap_or(0.0);
         geom::unit(self.place_direction([get(0), get(1), get(2)]))
     }
@@ -119,7 +127,11 @@ impl Reader<'_> {
         let m::DirectionRef::Direction(i) = r else {
             return None;
         };
-        let c = &self.model.direction_arena.get(i.0).direction_ratios;
+        let c = &self
+            .model
+            .get(m::DirectionId(i.0))
+            .expect("validated STEP reference")
+            .direction_ratios;
         let get = |k: usize| c.get(k).copied().unwrap_or(0.0);
         geom::unit([get(0), get(1), get(2)])
     }
@@ -127,7 +139,10 @@ impl Reader<'_> {
     /// `AXIS2_PLACEMENT_3D` as OpenCascade builds it: a missing or degenerate reference
     /// direction falls back to `gp_Ax2`'s own choice of x axis for the given z.
     fn frame3(&self, id: m::Axis2Placement3dId) -> Option<Frame> {
-        let a = self.model.axis2_placement3d_arena.get(id.0);
+        let a = self
+            .model
+            .get(m::Axis2Placement3dId(id.0))
+            .expect("validated STEP reference");
         let origin = self.point(&a.location)?;
         let z = match &a.axis {
             Some(d) => self.raw_direction(d)?,
@@ -192,26 +207,48 @@ impl Reader<'_> {
             SurfaceKind::Bezier(_) => self.freeform(face, "BEZIER"),
             SurfaceKind::LinearExtrusion(_) => self.freeform(face, "EXTRUSION"),
             SurfaceKind::Revolution(_) => self.freeform(face, "REVOLUTION"),
+            // step-io 0.3 adds these conversions independently of conic support.
+            // Preserve haecceity's existing unresolved-surface behaviour for them.
+            SurfaceKind::Offset(_) | SurfaceKind::DegenerateToroidal(_) => None,
             _ => self.freeform(face, "OTHER"),
         }
     }
 
     /// The point of a `VERTEX_LOOP` bound, if that is what this bound is.
-    fn vertex_loop(&self, bound: &step_io::scene::geometry::Bound<'_>) -> Option<V3> {
+    fn vertex_loop(&self, bound: &step_io::scene::Bound<'_>) -> Option<V3> {
         let r = match bound.key() {
-            m::EntityKey::FaceBound(i) => &self.model.face_bound_arena.get(i.0).bound,
-            m::EntityKey::FaceOuterBound(i) => &self.model.face_outer_bound_arena.get(i.0).bound,
+            m::EntityKey::FaceBound(i) => {
+                &self
+                    .model
+                    .get(m::FaceBoundId(i.0))
+                    .expect("validated STEP reference")
+                    .bound
+            }
+            m::EntityKey::FaceOuterBound(i) => {
+                &self
+                    .model
+                    .get(m::FaceOuterBoundId(i.0))
+                    .expect("validated STEP reference")
+                    .bound
+            }
             _ => return None,
         };
         let m::LoopRef::VertexLoop(id) = r else {
             return None;
         };
-        let m::VertexRef::VertexPoint(v) = &self.model.vertex_loop_arena.get(id.0).loop_vertex
+        let m::VertexRef::VertexPoint(v) = &self
+            .model
+            .get(m::VertexLoopId(id.0))
+            .expect("validated STEP reference")
+            .loop_vertex
         else {
             return None;
         };
-        let m::PointRef::CartesianPoint(c) =
-            &self.model.vertex_point_arena.get(v.0).vertex_geometry
+        let m::PointRef::CartesianPoint(c) = &self
+            .model
+            .get(m::VertexPointId(v.0))
+            .expect("validated STEP reference")
+            .vertex_geometry
         else {
             return None;
         };
@@ -227,9 +264,7 @@ impl Reader<'_> {
         edge_index: &HashMap<m::EntityKey, usize>,
         edges: &[Edge],
     ) -> Vec<(usize, Pcurve)> {
-        let Ok(basis) = m::SurfaceRef::from_any(face.surface().key()) else {
-            return Vec::new();
-        };
+        let basis = face.surface().key();
         let (su, sv) = match surface {
             Surface::Plane { .. } => (self.to_mm, self.to_mm),
             Surface::Cylinder { .. } => (self.to_rad, self.to_mm),
@@ -245,7 +280,7 @@ impl Reader<'_> {
                 let Some(&index) = edge_index.get(&edge.key()) else {
                     continue;
                 };
-                let vertex = |v: Option<step_io::scene::geometry::Vertex<'_>>| {
+                let vertex = |v: Option<step_io::scene::Vertex<'_>>| {
                     v.and_then(|v| v.point())
                         .map(|p| self.place_point(geom::scale(p.xyz(), self.to_mm)))
                 };
@@ -254,10 +289,18 @@ impl Reader<'_> {
                 };
                 let associated = match &raw_edge_curve(self.model, &edge) {
                     m::CurveRef::SurfaceCurve(i) => {
-                        &self.model.surface_curve_arena.get(i.0).associated_geometry
+                        &self
+                            .model
+                            .get(m::SurfaceCurveId(i.0))
+                            .expect("validated STEP reference")
+                            .associated_geometry
                     }
                     m::CurveRef::SeamCurve(i) => {
-                        &self.model.seam_curve_arena.get(i.0).associated_geometry
+                        &self
+                            .model
+                            .get(m::SeamCurveId(i.0))
+                            .expect("validated STEP reference")
+                            .associated_geometry
                     }
                     _ => continue,
                 };
@@ -265,8 +308,11 @@ impl Reader<'_> {
                     let m::PcurveOrSurfaceRef::Pcurve(p) = g else {
                         continue;
                     };
-                    let pcurve = self.model.pcurve_arena.get(p.0);
-                    if pcurve.basis_surface != basis {
+                    let pcurve = self
+                        .model
+                        .get(m::PcurveId(p.0))
+                        .expect("validated STEP reference");
+                    if pcurve.basis_surface.entity_key() != basis {
                         continue;
                     }
                     let m::DefinitionalRepresentationRef::DefinitionalRepresentation(d) =
@@ -274,7 +320,12 @@ impl Reader<'_> {
                     else {
                         continue;
                     };
-                    for item in &self.model.definitional_representation_arena.get(d.0).items {
+                    for item in &self
+                        .model
+                        .get(m::DefinitionalRepresentationId(d.0))
+                        .expect("validated STEP reference")
+                        .items
+                    {
                         if let Some((point, dir)) = self.line_2d(item) {
                             let dir = (dir.0 * su, dir.1 * sv);
                             out.push((
@@ -307,9 +358,9 @@ impl Reader<'_> {
 
     /// A (rational) B-spline curve written as a STEP complex entity — `B_SPLINE_CURVE` +
     /// `B_SPLINE_CURVE_WITH_KNOTS` (+ `RATIONAL_B_SPLINE_CURVE`) — in NURBS form.
-    fn complex_bspline(&self, parts: &[m::UnitPart]) -> Option<Curve> {
+    fn complex_bspline(&self, parts: &[m::PartialEntity]) -> Option<Curve> {
         let (degree, refs) = parts.iter().find_map(|p| match p {
-            m::UnitPart::BSplineCurve {
+            m::PartialEntity::BSplineCurve {
                 degree,
                 control_points_list,
                 ..
@@ -317,7 +368,7 @@ impl Reader<'_> {
             _ => None,
         })?;
         let (mults, values) = parts.iter().find_map(|p| match p {
-            m::UnitPart::BSplineCurveWithKnots {
+            m::PartialEntity::BSplineCurveWithKnots {
                 knot_multiplicities,
                 knots,
                 ..
@@ -328,7 +379,9 @@ impl Reader<'_> {
         let weights = parts
             .iter()
             .find_map(|p| match p {
-                m::UnitPart::RationalBSplineCurve { weights_data } => Some(weights_data.clone()),
+                m::PartialEntity::RationalBSplineCurve { weights_data } => {
+                    Some(weights_data.clone())
+                }
                 _ => None,
             })
             .unwrap_or_else(|| vec![1.0; points.len()]);
@@ -345,18 +398,34 @@ impl Reader<'_> {
         let m::RepresentationItemRef::Line(i) = item else {
             return None;
         };
-        let line = self.model.line_arena.get(i.0);
+        let line = self
+            .model
+            .get(m::LineId(i.0))
+            .expect("validated STEP reference");
         let m::CartesianPointRef::CartesianPoint(p) = &line.pnt else {
             return None;
         };
-        let c = &self.model.cartesian_point_arena.get(p.0).coordinates;
+        let c = &self
+            .model
+            .get(m::CartesianPointId(p.0))
+            .expect("validated STEP reference")
+            .coordinates;
         let m::VectorRef::Vector(v) = &line.dir else {
             return None;
         };
-        let m::DirectionRef::Direction(d) = &self.model.vector_arena.get(v.0).orientation else {
+        let m::DirectionRef::Direction(d) = &self
+            .model
+            .get(m::VectorId(v.0))
+            .expect("validated STEP reference")
+            .orientation
+        else {
             return None;
         };
-        let r = &self.model.direction_arena.get(d.0).direction_ratios;
+        let r = &self
+            .model
+            .get(m::DirectionId(d.0))
+            .expect("validated STEP reference")
+            .direction_ratios;
         Some(((*c.first()?, *c.get(1)?), (*r.first()?, *r.get(1)?)))
     }
 
@@ -365,18 +434,18 @@ impl Reader<'_> {
             m::RepresentationItemRef::BSplineCurveWithKnots(i) => {
                 &self
                     .model
-                    .b_spline_curve_with_knots_arena
-                    .get(i.0)
+                    .get(m::BSplineCurveWithKnotsId(i.0))
+                    .expect("validated STEP reference")
                     .control_points_list
             }
             m::RepresentationItemRef::Complex(c) => self
                 .model
-                .complex_unit_arena
-                .get(c.0)
+                .get(m::ComplexEntityId(c.0))
+                .expect("validated STEP reference")
                 .parts
                 .iter()
                 .find_map(|part| match part {
-                    m::UnitPart::BSplineCurve {
+                    m::PartialEntity::BSplineCurve {
                         control_points_list,
                         ..
                     } => Some(control_points_list),
@@ -389,7 +458,11 @@ impl Reader<'_> {
                 let m::CartesianPointRef::CartesianPoint(i) = r else {
                     return None;
                 };
-                let c = &self.model.cartesian_point_arena.get(i.0).coordinates;
+                let c = &self
+                    .model
+                    .get(m::CartesianPointId(i.0))
+                    .expect("validated STEP reference")
+                    .coordinates;
                 Some((*c.first()?, *c.get(1)?))
             })
             .collect()
@@ -412,17 +485,33 @@ impl Reader<'_> {
                 let m::CartesianPointRef::CartesianPoint(i) = r else {
                     return None;
                 };
-                let p = &self.model.cartesian_point_arena.get(i.0).coordinates;
+                let p = &self
+                    .model
+                    .get(m::CartesianPointId(i.0))
+                    .expect("validated STEP reference")
+                    .coordinates;
                 Some([0, 1, 2].map(|k| p.get(k).copied().unwrap_or(0.0)))
             };
-            let line = self.model.line_arena.get(i.0);
+            let line = self
+                .model
+                .get(m::LineId(i.0))
+                .expect("validated STEP reference");
             let base = point(&line.pnt)?;
             let m::VectorRef::Vector(i) = &line.dir else {
                 return None;
             };
-            let dir = self.raw_direction(&self.model.vector_arena.get(i.0).orientation)?;
+            let dir = self.raw_direction(
+                &self
+                    .model
+                    .get(m::VectorId(i.0))
+                    .expect("validated STEP reference")
+                    .orientation,
+            )?;
             let m::Axis1PlacementRef::Axis1Placement(i) = &s.axis_position;
-            let axis = self.model.axis1_placement_arena.get(i.0);
+            let axis = self
+                .model
+                .get(m::Axis1PlacementId(i.0))
+                .expect("validated STEP reference");
             let origin = point(&axis.location)?;
             let z = match &axis.axis {
                 Some(a) => self.raw_direction(a)?,
@@ -481,22 +570,43 @@ impl Reader<'_> {
     fn line_direction(&self, curve: &m::CurveRef) -> Option<V3> {
         match curve {
             m::CurveRef::Line(i) => {
-                let m::VectorRef::Vector(v) = &self.model.line_arena.get(i.0).dir else {
-                    return None;
-                };
-                let m::DirectionRef::Direction(d) = &self.model.vector_arena.get(v.0).orientation
+                let m::VectorRef::Vector(v) = &self
+                    .model
+                    .get(m::LineId(i.0))
+                    .expect("validated STEP reference")
+                    .dir
                 else {
                     return None;
                 };
-                let ratios = &self.model.direction_arena.get(d.0).direction_ratios;
+                let m::DirectionRef::Direction(d) = &self
+                    .model
+                    .get(m::VectorId(v.0))
+                    .expect("validated STEP reference")
+                    .orientation
+                else {
+                    return None;
+                };
+                let ratios = &self
+                    .model
+                    .get(m::DirectionId(d.0))
+                    .expect("validated STEP reference")
+                    .direction_ratios;
                 Some([0, 1, 2].map(|i| ratios.get(i).copied().unwrap_or(0.0)))
             }
-            m::CurveRef::SurfaceCurve(i) => {
-                self.line_direction(&self.model.surface_curve_arena.get(i.0).curve_3d)
-            }
-            m::CurveRef::SeamCurve(i) => {
-                self.line_direction(&self.model.seam_curve_arena.get(i.0).curve_3d)
-            }
+            m::CurveRef::SurfaceCurve(i) => self.line_direction(
+                &self
+                    .model
+                    .get(m::SurfaceCurveId(i.0))
+                    .expect("validated STEP reference")
+                    .curve_3d,
+            ),
+            m::CurveRef::SeamCurve(i) => self.line_direction(
+                &self
+                    .model
+                    .get(m::SeamCurveId(i.0))
+                    .expect("validated STEP reference")
+                    .curve_3d,
+            ),
             _ => None,
         }
     }
@@ -506,17 +616,26 @@ impl Reader<'_> {
         let mm = self.to_mm;
         match r {
             m::CurveRef::Line(i) => {
-                let l = self.model.line_arena.get(i.0);
+                let l = self
+                    .model
+                    .get(m::LineId(i.0))
+                    .expect("validated STEP reference");
                 let origin = self.point(&l.pnt)?;
                 let m::VectorRef::Vector(v) = &l.dir else {
                     return None;
                 };
-                let v = self.model.vector_arena.get(v.0);
+                let v = self
+                    .model
+                    .get(m::VectorId(v.0))
+                    .expect("validated STEP reference");
                 let dir = self.direction(&v.orientation)?;
                 Some(Curve::Line { origin, dir })
             }
             m::CurveRef::Circle(i) => {
-                let c = self.model.circle_arena.get(i.0);
+                let c = self
+                    .model
+                    .get(m::CircleId(i.0))
+                    .expect("validated STEP reference");
                 let m::Axis2PlacementRef::Axis2Placement3d(p) = &c.position else {
                     return None;
                 };
@@ -526,7 +645,10 @@ impl Reader<'_> {
                 })
             }
             m::CurveRef::Ellipse(i) => {
-                let e = self.model.ellipse_arena.get(i.0);
+                let e = self
+                    .model
+                    .get(m::EllipseId(i.0))
+                    .expect("validated STEP reference");
                 let m::Axis2PlacementRef::Axis2Placement3d(p) = &e.position else {
                     return None;
                 };
@@ -536,49 +658,63 @@ impl Reader<'_> {
                     minor: e.semi_axis_2 * mm,
                 })
             }
-            m::CurveRef::Complex(c) => {
-                self.complex_bspline(&self.model.complex_unit_arena.get(c.0).parts)
-            }
-            m::CurveRef::SurfaceCurve(i) => {
-                self.curve(&self.model.surface_curve_arena.get(i.0).curve_3d)
-            }
-            m::CurveRef::SeamCurve(i) => self.curve(&self.model.seam_curve_arena.get(i.0).curve_3d),
+            m::CurveRef::Complex(c) => self.complex_bspline(
+                &self
+                    .model
+                    .get(m::ComplexEntityId(c.0))
+                    .expect("validated STEP reference")
+                    .parts,
+            ),
+            m::CurveRef::SurfaceCurve(i) => self.curve(
+                &self
+                    .model
+                    .get(m::SurfaceCurveId(i.0))
+                    .expect("validated STEP reference")
+                    .curve_3d,
+            ),
+            m::CurveRef::SeamCurve(i) => self.curve(
+                &self
+                    .model
+                    .get(m::SeamCurveId(i.0))
+                    .expect("validated STEP reference")
+                    .curve_3d,
+            ),
             _ => None,
         }
     }
 
-    /// The exact unbounded conic behind a hyperbola edge.
-    fn hyperbola(&self, r: &m::CurveRef) -> Option<geom::Hyperbola> {
-        let h = match r {
-            m::CurveRef::Hyperbola(i) => self.model.hyperbola_arena.get(i.0),
-            m::CurveRef::SurfaceCurve(i) => {
-                return self.hyperbola(&self.model.surface_curve_arena.get(i.0).curve_3d);
-            }
-            m::CurveRef::SeamCurve(i) => {
-                return self.hyperbola(&self.model.seam_curve_arena.get(i.0).curve_3d);
-            }
-            _ => return None,
-        };
-        let m::Axis2PlacementRef::Axis2Placement3d(p) = &h.position else {
-            return None;
-        };
-        let frame = self.frame3(*p)?;
-        let (major, minor) = (h.semi_axis * self.to_mm, h.semi_imag_axis * self.to_mm);
-        if major <= 0.0 || minor <= 0.0 {
-            return None;
+    /// Use step-io's typed conic, unwrapping its 3D surface-curve containers. Keep the
+    /// established hyperbola endpoint inversion/pole arithmetic for byte-identical results.
+    fn conic(&self, edge: &StepEdge<'_>) -> Option<geom::Conic> {
+        let mut curve = edge.curve();
+        while let Some(basis) = curve.curve_3d() {
+            curve = basis;
         }
-        Some(geom::Hyperbola {
-            frame,
-            major,
-            minor,
-        })
-    }
-
-    /// The arc of a hyperbola between an edge's vertices *a* and *b*, exactly, as one rational
-    /// quadratic segment (a hyperbola has no whole-curve NURBS form: it is unbounded). `None`
-    /// when the curve is no hyperbola, or a vertex is off it or both at one point (no arc).
-    fn hyperbola_arc(&self, r: &m::CurveRef, a: V3, b: V3) -> Option<Curve> {
-        self.hyperbola(r)?.arc(a, b)
+        match curve.kind() {
+            step_io::scene::CurveKind::Hyperbola(h) => {
+                let m::Axis2PlacementRef::Axis2Placement3d(p) = &h.position else {
+                    return None;
+                };
+                let frame = self.frame3(*p)?;
+                let (major, minor) = (h.semi_axis * self.to_mm, h.semi_imag_axis * self.to_mm);
+                (major > 0.0 && minor > 0.0).then_some(geom::Conic::Hyperbola(geom::Hyperbola {
+                    frame,
+                    major,
+                    minor,
+                }))
+            }
+            step_io::scene::CurveKind::Parabola(p) => {
+                let m::Axis2PlacementRef::Axis2Placement3d(at) = &p.position else {
+                    return None;
+                };
+                let focal_dist = p.focal_dist * self.to_mm;
+                (focal_dist > 0.0).then_some(geom::Conic::Parabola {
+                    frame: self.frame3(*at)?,
+                    focal_dist,
+                })
+            }
+            _ => None,
+        }
     }
 
     /// *vertex_id* numbers the vertices of the instance being read. The flag is `false` when
@@ -588,7 +724,7 @@ impl Reader<'_> {
         edge: &StepEdge<'_>,
         vertex_id: &mut impl FnMut(m::EntityKey) -> usize,
     ) -> Result<(Edge, bool), StepError> {
-        let vertex = |v: Option<step_io::scene::geometry::Vertex<'_>>| -> Option<V3> {
+        let vertex = |v: Option<step_io::scene::Vertex<'_>>| -> Option<V3> {
             let p = v?.point()?.xyz();
             Some(self.place_point(geom::scale(p, self.to_mm)))
         };
@@ -601,7 +737,7 @@ impl Reader<'_> {
             unreachable!("both vertices resolved above")
         };
         let vertices = (vertex_id(v0.key()), vertex_id(v1.key()));
-        // Exact analytic curves first; then a hyperbola's arc between the vertices, exactly;
+        // Exact analytic curves first; then an unbounded conic's arc between the vertices, exactly;
         // otherwise the whole curve in NURBS form, which the edge is cut from by inverting its
         // vertices (wrapping round a closed curve if it must). The
         // edge-bounded NURBS step-io offers is the last resort: it cuts the short span out of a
@@ -615,11 +751,23 @@ impl Reader<'_> {
             NurbsCurve::new(n.degree, points, n.weights, n.knots).map(Curve::Nurbs)
         };
         let raw = raw_edge_curve(self.model, edge);
+        let conic = self.conic(edge);
         let curve = self
             .curve(&raw)
-            .or_else(|| self.hyperbola_arc(&raw, start, end))
-            .or_else(|| edge.curve().to_nurbs().and_then(to_curve))
-            .or_else(|| edge.to_nurbs().and_then(to_curve));
+            .or_else(|| conic.as_ref()?.arc(start, end))
+            .or_else(|| {
+                // Our conic arc checks that the vertices actually lie on the curve.
+                // A failed check must not be bypassed by a conversion that projects
+                // them onto it: that would claim a displaced boundary was resolved.
+                if conic.is_some() {
+                    None
+                } else {
+                    edge.curve()
+                        .to_nurbs()
+                        .and_then(to_curve)
+                        .or_else(|| edge.to_nurbs().and_then(to_curve))
+                }
+            });
         let resolved = curve.is_some();
         // A closed edge has no chord to stand in for its curve.
         if !resolved && vertices.0 == vertices.1 {
@@ -627,8 +775,16 @@ impl Reader<'_> {
             let kind = format!(
                 "{:?}",
                 match &raw {
-                    m::CurveRef::SurfaceCurve(i) => &model.surface_curve_arena.get(i.0).curve_3d,
-                    m::CurveRef::SeamCurve(i) => &model.seam_curve_arena.get(i.0).curve_3d,
+                    m::CurveRef::SurfaceCurve(i) =>
+                        &model
+                            .get(m::SurfaceCurveId(i.0))
+                            .expect("validated STEP reference")
+                            .curve_3d,
+                    m::CurveRef::SeamCurve(i) =>
+                        &model
+                            .get(m::SeamCurveId(i.0))
+                            .expect("validated STEP reference")
+                            .curve_3d,
                     other => other,
                 }
             );
@@ -678,28 +834,6 @@ fn spans_edge(surface: &Surface, poles: &[(f64, f64)], (a, b): (V3, V3), length:
     (near(p, a) && near(q, b)) || (near(p, b) && near(q, a))
 }
 
-/// Whether each void shell of a solid is used reversed (`ORIENTED_CLOSED_SHELL` `.F.`).
-fn void_orientations(
-    model: &m::StepModel,
-    solid: &step_io::scene::geometry::Solid<'_>,
-) -> Vec<bool> {
-    let m::EntityKey::BrepWithVoids(id) = solid.key() else {
-        return Vec::new();
-    };
-    model
-        .brep_with_voids_arena
-        .get(id.0)
-        .voids
-        .iter()
-        .map(|v| match v {
-            m::OrientedClosedShellRef::OrientedClosedShell(o) => {
-                !model.oriented_closed_shell_arena.get(o.0).orientation
-            }
-            m::OrientedClosedShellRef::Complex(_) => false,
-        })
-        .collect()
-}
-
 /// The key of a representation named on one side of a `SHAPE_REPRESENTATION_RELATIONSHIP`,
 /// for the shape-carrying kinds.
 fn rep_key(r: &m::RepresentationOrRepresentationReferenceRef) -> Option<m::EntityKey> {
@@ -717,7 +851,10 @@ fn rep_key(r: &m::RepresentationOrRepresentationReferenceRef) -> Option<m::Entit
 /// Surface models OpenCascade transfers: those listed by a representation that a product shape
 /// uses, directly or through a plain `SHAPE_REPRESENTATION_RELATIONSHIP`. An unreferenced model
 /// is construction geometry the importer never reaches.
-fn reachable_surface_models(model: &m::StepModel, rg: &step_io::RefGraph) -> Vec<usize> {
+fn reachable_surface_models(
+    model: &m::StepModel,
+    rg: &step_io::RefGraph,
+) -> Vec<m::ShellBasedSurfaceModelId> {
     let used_directly = |rep: m::EntityKey| {
         rg.referrers(rep)
             .iter()
@@ -729,16 +866,20 @@ fn reachable_surface_models(model: &m::StepModel, rg: &step_io::RefGraph) -> Vec
                 let m::EntityKey::ShapeRepresentationRelationship(i) = r else {
                     return false;
                 };
-                let srr = model.shape_representation_relationship_arena.get(i.0);
+                let srr = model
+                    .get(m::ShapeRepresentationRelationshipId(i.0))
+                    .expect("validated STEP reference");
                 [&srr.rep_1, &srr.rep_2]
                     .into_iter()
                     .filter_map(rep_key)
                     .any(|k| k != rep && used_directly(k))
             })
     };
-    (0..model.shell_based_surface_model_arena.items.len())
-        .filter(|&i| {
-            let key = m::EntityKey::ShellBasedSurfaceModel(m::ShellBasedSurfaceModelId(i));
+    model
+        .all::<m::ShellBasedSurfaceModel>()
+        .map(|(id, _)| id)
+        .filter(|&id| {
+            let key = m::EntityKey::ShellBasedSurfaceModel(id);
             rg.referrers(key).iter().any(|&rep| used(rep))
         })
         .collect()
@@ -749,14 +890,16 @@ fn reachable_surface_models(model: &m::StepModel, rg: &step_io::RefGraph) -> Vec
 fn surface_model_owners(
     model: &m::StepModel,
     rg: &step_io::RefGraph,
-    index: usize,
+    index: m::ShellBasedSurfaceModelId,
 ) -> Vec<m::EntityKey> {
-    let key = m::EntityKey::ShellBasedSurfaceModel(m::ShellBasedSurfaceModelId(index));
+    let key = m::EntityKey::ShellBasedSurfaceModel(index);
     let mut reps: Vec<m::EntityKey> = rg.referrers(key).to_vec();
     for rep in reps.clone() {
         for r in rg.referrers(rep) {
             if let m::EntityKey::ShapeRepresentationRelationship(i) = r {
-                let srr = model.shape_representation_relationship_arena.get(i.0);
+                let srr = model
+                    .get(m::ShapeRepresentationRelationshipId(i.0))
+                    .expect("validated STEP reference");
                 reps.extend([&srr.rep_1, &srr.rep_2].into_iter().filter_map(rep_key));
             }
         }
@@ -767,11 +910,17 @@ fn surface_model_owners(
             let m::EntityKey::ShapeDefinitionRepresentation(i) = r else {
                 continue;
             };
-            let sdr = model.shape_definition_representation_arena.get(i.0);
+            let sdr = model
+                .get(m::ShapeDefinitionRepresentationId(i.0))
+                .expect("validated STEP reference");
             let m::RepresentedDefinitionRef::ProductDefinitionShape(pds) = &sdr.definition else {
                 continue;
             };
-            match model.product_definition_shape_arena.get(pds.0).definition {
+            match model
+                .get(m::ProductDefinitionShapeId(pds.0))
+                .expect("validated STEP reference")
+                .definition
+            {
                 m::CharacterizedDefinitionRef::ProductDefinition(d) => {
                     owners.push(m::EntityKey::ProductDefinition(d))
                 }
@@ -794,15 +943,11 @@ struct PlacementPaths {
 /// Every solid reachable from an assembly definition, with its accumulated placement and the
 /// index in *placed* of the placed definition it belongs to.
 fn collect_instances<'m>(
-    def: step_io::scene::product::ProductDef<'m>,
+    def: step_io::scene::ProductDef<'m>,
     placement: Placement,
     to_mm: f64,
-    out: &mut Vec<(
-        step_io::scene::geometry::Solid<'m>,
-        Placement,
-        Option<usize>,
-    )>,
-    placed: &mut Vec<(step_io::scene::product::ProductDef<'m>, Placement)>,
+    out: &mut Vec<(step_io::scene::Solid<'m>, Placement, Option<usize>)>,
+    placed: &mut Vec<(step_io::scene::ProductDef<'m>, Placement)>,
     depth: usize,
     paths: &mut PlacementPaths,
 ) {
@@ -842,7 +987,11 @@ fn raw_edge_curve(model: &m::StepModel, edge: &StepEdge<'_>) -> m::CurveRef {
     let m::EntityKey::EdgeCurve(id) = edge.key() else {
         unreachable!("edges are EDGE_CURVEs")
     };
-    model.edge_curve_arena.get(id.0).edge_geometry.clone()
+    model
+        .get(m::EdgeCurveId(id.0))
+        .expect("validated STEP reference")
+        .edge_geometry
+        .clone()
 }
 
 /// The file instance (`#N`) behind each face, edge and product definition step-io read.
@@ -918,7 +1067,7 @@ impl<'a> FileIds<'a> {
         };
         self.by_type
             .get(kind)
-            .and_then(|ids| ids.get(index))
+            .and_then(|ids| ids.get(index as usize))
             .copied()
             .ok_or_else(|| {
                 StepError::Unsupported(format!("{kind} {index} read has no instance in the file"))
@@ -970,7 +1119,7 @@ impl<'a> FileIds<'a> {
     /// definition it is read for.
     fn definition_shape(
         &self,
-        def: &step_io::scene::product::ProductDef<'_>,
+        def: &step_io::scene::ProductDef<'_>,
         rg: &step_io::RefGraph,
     ) -> Result<u64, String> {
         let me = def.key();
@@ -979,7 +1128,10 @@ impl<'a> FileIds<'a> {
             let m::EntityKey::ProductDefinitionShape(i) = *r else {
                 continue;
             };
-            let pds = self.model.product_definition_shape_arena.get(i.0);
+            let pds = self
+                .model
+                .get(m::ProductDefinitionShapeId(i.0))
+                .expect("validated STEP reference");
             let names_me = match pds.definition {
                 m::CharacterizedDefinitionRef::ProductDefinition(d) => {
                     m::EntityKey::ProductDefinition(d) == me
@@ -1104,10 +1256,10 @@ impl<'a> FileIds<'a> {
         };
         Some(
             self.model
-                .cartesian_point_arena
-                .get(i.0)
+                .get(m::CartesianPointId(i.0))
+                .expect("validated STEP reference")
                 .coordinates
-                .clone(),
+                .to_vec(),
         )
     }
 
@@ -1116,7 +1268,12 @@ impl<'a> FileIds<'a> {
         let model = self.model;
         let placed = |r: &m::Axis2Placement3dRef| {
             let m::Axis2Placement3dRef::Axis2Placement3d(i) = r;
-            self.typed_point(&model.axis2_placement3d_arena.get(i.0).location)
+            self.typed_point(
+                &model
+                    .get(m::Axis2Placement3dId(i.0))
+                    .expect("validated STEP reference")
+                    .location,
+            )
         };
         let first =
             |rows: &Vec<Vec<m::CartesianPointRef>>| self.typed_point(rows.first()?.first()?);
@@ -1128,24 +1285,32 @@ impl<'a> FileIds<'a> {
             SurfaceKind::Toroidal(s) => placed(&s.position),
             SurfaceKind::Revolution(s) => {
                 let m::Axis1PlacementRef::Axis1Placement(i) = &s.axis_position;
-                self.typed_point(&model.axis1_placement_arena.get(i.0).location)
+                self.typed_point(
+                    &model
+                        .get(m::Axis1PlacementId(i.0))
+                        .expect("validated STEP reference")
+                        .location,
+                )
             }
             SurfaceKind::BSpline(s) => first(&s.control_points_list),
             SurfaceKind::BSplineWithKnots(s) => first(&s.control_points_list),
             SurfaceKind::QuasiUniform(s) => first(&s.control_points_list),
             SurfaceKind::Uniform(s) => first(&s.control_points_list),
             SurfaceKind::Bezier(s) => first(&s.control_points_list),
-            SurfaceKind::LinearExtrusion(_) | SurfaceKind::Other(_) => match face.surface().key() {
-                m::EntityKey::DegenerateToroidalSurface(i) => {
-                    placed(&model.degenerate_toroidal_surface_arena.get(i.0).position)
-                }
-                m::EntityKey::ComplexUnit(i) => model
-                    .complex_unit_arena
-                    .get(i.0)
+            _ => match face.surface().key() {
+                m::EntityKey::DegenerateToroidalSurface(i) => placed(
+                    &model
+                        .get(m::DegenerateToroidalSurfaceId(i.0))
+                        .expect("validated STEP reference")
+                        .position,
+                ),
+                m::EntityKey::ComplexEntity(i) => model
+                    .get(m::ComplexEntityId(i.0))
+                    .expect("validated STEP reference")
                     .parts
                     .iter()
                     .find_map(|p| match p {
-                        m::UnitPart::BSplineSurface {
+                        m::PartialEntity::BSplineSurface {
                             control_points_list,
                             ..
                         } => first(control_points_list),
@@ -1159,11 +1324,17 @@ impl<'a> FileIds<'a> {
     fn check_face(&self, face: &StepFace<'_>, id: u64) -> Result<(), String> {
         let (bounds, surface, same_sense) = match face.key() {
             m::EntityKey::AdvancedFace(i) => {
-                let f = self.model.advanced_face_arena.get(i.0);
+                let f = self
+                    .model
+                    .get(m::AdvancedFaceId(i.0))
+                    .expect("validated STEP reference");
                 (f.bounds.len(), f.face_geometry.entity_key(), f.same_sense)
             }
             m::EntityKey::FaceSurface(i) => {
-                let f = self.model.face_surface_arena.get(i.0);
+                let f = self
+                    .model
+                    .get(m::FaceSurfaceId(i.0))
+                    .expect("validated STEP reference");
                 (f.bounds.len(), f.face_geometry.entity_key(), f.same_sense)
             }
             other => return Err(format!("a face of type {}", step_name(other))),
@@ -1244,7 +1415,10 @@ impl<'a> FileIds<'a> {
         let m::EntityKey::EdgeCurve(i) = edge.key() else {
             return Err(format!("an edge of type {}", step_name(edge.key())));
         };
-        let e = self.model.edge_curve_arena.get(i.0);
+        let e = self
+            .model
+            .get(m::EdgeCurveId(i.0))
+            .expect("validated STEP reference");
         let kind = self.kind(id).unwrap_or("nothing");
         if kind != "EDGE_CURVE" {
             return Err(format!("it is {kind}"));
@@ -1257,13 +1431,18 @@ impl<'a> FileIds<'a> {
             }
             let read = match vertex {
                 m::VertexRef::VertexPoint(v) => {
-                    match &self.model.vertex_point_arena.get(v.0).vertex_geometry {
+                    match &self
+                        .model
+                        .get(m::VertexPointId(v.0))
+                        .expect("validated STEP reference")
+                        .vertex_geometry
+                    {
                         m::PointRef::CartesianPoint(c) => Some(
                             self.model
-                                .cartesian_point_arena
-                                .get(c.0)
+                                .get(m::CartesianPointId(c.0))
+                                .expect("validated STEP reference")
                                 .coordinates
-                                .clone(),
+                                .to_vec(),
                         ),
                         _ => None,
                     }
@@ -1315,7 +1494,7 @@ fn same_point(written: Option<&[f64]>, read: Option<&[f64]>) -> bool {
 fn step_name(key: m::EntityKey) -> String {
     let debug = format!("{key:?}");
     let variant = debug.split('(').next().unwrap_or_default();
-    if variant == "ComplexUnit" {
+    if variant == "ComplexEntity" {
         return "COMPLEX".into();
     }
     let mut out = String::new();
@@ -1377,8 +1556,7 @@ struct Parsed {
 impl Parsed {
     fn new(bytes: &[u8]) -> Result<Parsed, StepError> {
         let (model, report) = step_io::read(bytes).map_err(|e| StepError::Parse(e.to_string()))?;
-        let graph =
-            step_io::parser::parse_bytes(bytes).map_err(|e| StepError::Parse(e.to_string()))?;
+        let graph = step_io::parser::parse(bytes).map_err(|e| StepError::Parse(e.to_string()))?;
         refuse_dropped_shapes(&graph, &report)?;
         Ok(Parsed {
             model,
@@ -1454,16 +1632,16 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
     for (solid, placement, def) in instances {
         // The outer shell, then each void shell (whose faces face inward, hence the flip).
         let mut faces: Vec<(StepFace<'_>, bool)> = solid.faces().map(|f| (f, false)).collect();
-        let flips = void_orientations(model, &solid);
-        for (void, flip) in solid.voids().into_iter().zip(flips) {
-            faces.extend(void.into_iter().map(|f| (f, flip)));
+        for (shell, orientation) in solid.voids() {
+            let flip = orientation == step_io::Orientation::Reversed;
+            faces.extend(shell.faces().map(|f| (f, flip)));
         }
         shells.push((true, placement, faces, instance_of.len()));
         instance_of.push(def);
     }
     let rg = model.ref_graph();
     for index in reachable_surface_models(model, &rg) {
-        let sbsm = model.shell_based_surface_model_arena.get(index);
+        let sbsm = model.get(index).expect("validated STEP reference");
         // Placed like the assembly instances of the product that owns it, once per instance.
         let owners = surface_model_owners(model, &rg, index);
         let mut placements: Vec<(Placement, Option<usize>)> = placed
@@ -1480,8 +1658,18 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
             instance_of.push(def);
             for shell in &sbsm.sbsm_boundary {
                 let faces = match shell {
-                    m::ShellRef::OpenShell(i) => &model.open_shell_arena.get(i.0).cfs_faces,
-                    m::ShellRef::ClosedShell(i) => &model.closed_shell_arena.get(i.0).cfs_faces,
+                    m::ShellRef::OpenShell(i) => {
+                        &model
+                            .get(m::OpenShellId(i.0))
+                            .expect("validated STEP reference")
+                            .cfs_faces
+                    }
+                    m::ShellRef::ClosedShell(i) => {
+                        &model
+                            .get(m::ClosedShellId(i.0))
+                            .expect("validated STEP reference")
+                            .cfs_faces
+                    }
                     _ => continue,
                 };
                 shells.push((
@@ -1522,7 +1710,7 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
     let (mut unresolved_faces, mut unresolved_edges) = (Vec::new(), Vec::new());
     let (mut face_sources, mut edge_sources) = (Vec::new(), Vec::new());
     let mut line_directions = std::collections::BTreeMap::new();
-    let mut hyperbolas = std::collections::BTreeMap::new();
+    let mut conics = std::collections::BTreeMap::new();
     let (mut native_faces, mut native_edges) = (Vec::new(), Vec::new());
     let mut vertex_count = 0;
     for (is_solid, placement, faces, instance) in shells {
@@ -1587,10 +1775,9 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
                             };
                             if resolved
                                 && matches!(&read.curve, Curve::Nurbs(_))
-                                && let Some(h) =
-                                    native_reader.hyperbola(&raw_edge_curve(reader.model, &edge))
+                                && let Some(h) = native_reader.conic(&edge)
                             {
-                                hyperbolas.insert(edges_out.len(), h);
+                                conics.insert(edges_out.len(), h);
                             }
                             native_edges.push((native, context.clone()));
                             edges_out.push(read);
@@ -1602,12 +1789,12 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
                             edges_out.len() - 1
                         }
                     };
-                    edges.push((index, forward));
+                    edges.push((index, forward == step_io::Orientation::Forward));
                 }
                 // A face of a void shell used reversed is itself used reversed, its bounds with
                 // it (ISO 10303-42 `oriented_face`; OpenCascade's reversed shell composes onto
                 // its faces' edges the same way).
-                if bound.orientation() == flipped {
+                if (bound.orientation() == step_io::Orientation::Forward) == flipped {
                     edges.reverse();
                     for e in &mut edges {
                         e.1 = !e.1;
@@ -1630,7 +1817,7 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
             let pcurves = reader.pcurves(&face, &surface, &edge_index, &edges_out);
             out_faces.push(Face {
                 surface,
-                reversed: face.same_sense() == flipped,
+                reversed: (face.orientation() == step_io::Orientation::Forward) == flipped,
                 loops,
                 solid: is_solid.then_some(solids.len()),
                 pcurves,
@@ -1689,7 +1876,7 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
         .with_unresolved(unresolved_faces, unresolved_edges)
         .with_sources(face_sources, edge_sources)
         .with_line_directions(line_directions)
-        .with_hyperbolas(hyperbolas)
+        .with_conics(conics)
         .with_native_geometry(native_faces, native_edges)
         .repair_inverted_shells();
     Ok(Read {
@@ -1861,8 +2048,8 @@ fn own_part(parsed: &Parsed, def: &PartDefinition) -> Result<Part, StepError> {
 /// A product definition's product name as OpenCascade's XCAF names its label:
 /// `PRODUCT_DEFINITION.formation` → `PRODUCT_DEFINITION_FORMATION.of_product` →
 /// `PRODUCT.name`, or `PRODUCT.id` when the name is empty (NIST FTC-08 and CTC-04 state their
-/// title as the id), escapes decoded ([`crate::p21::decode`]). A string whose escapes cannot be
-/// decoded is given as the file states it (a name is never refused for that); empty when the
+/// title as the id), with escapes decoded by step-io. Malformed escapes are retained
+/// by the parser (a name is never refused for that); empty when the
 /// chain does not resolve.
 fn product_name(graph: &std::collections::BTreeMap<u64, RawEntity>, definition: u64) -> String {
     let [id, name] = product_texts(graph, definition);
@@ -1894,7 +2081,7 @@ fn product_texts(
         return [String::new(), String::new()];
     };
     let text = |index: usize| match attribute(product, index) {
-        Some(Attribute::String(raw)) => crate::p21::decode(raw).unwrap_or_else(|_| raw.clone()),
+        Some(Attribute::String(raw)) => raw.clone(),
         _ => String::new(),
     };
     [text(0), text(1)]
@@ -2155,7 +2342,7 @@ fn refuse_dropped_shapes(
                 "#{id} {} was dropped ({:?}: {})",
                 name(&graph.entities[id]),
                 reason.kind,
-                reason.key
+                reason.detail
             )
         })
     }));
@@ -2375,6 +2562,130 @@ mod tests {
         assert!((area - 793.444301743642).abs() < 1e-6 * 793.4, "{area}");
     }
 
+    /// Open CASCADE 8.0, cone (10, 5, 10) cut by x + z/2 = 4 parallel to a
+    /// generator. Independent 60-digit integration: with r=10-z/2, c=r-6,
+    /// A(r)=r²(π/2+asin(c/r))+c*sqrt(r²-c²), V=2∫[5,10] A(r)dr.
+    /// Area sums the two caps, the remaining cone and the planar section.
+    /// OCCT's pcurve integrals give V=1178.246345909645 (1.37e-7 low) and
+    /// A=723.863727273429 (6.55e-8 low), so use the analytic reference.
+    #[test]
+    fn a_parabola_boundary_resolves_and_moves_exactly() {
+        let path = fixture("parabola_cut_cone.step");
+        let part = read_step_file(&path).unwrap();
+        assert!(part.unresolved_faces().is_empty() && part.unresolved_edges().is_empty());
+        assert_eq!(part.solids.len(), 1);
+        assert!(part.solid_is_valid(0));
+        let conics: Vec<_> = part
+            .edges
+            .iter()
+            .filter_map(|e| match &e.curve {
+                Curve::Nurbs(c) => Some(c),
+                _ => None,
+            })
+            .collect();
+        assert!(!conics.is_empty());
+        for c in conics {
+            for i in 0..=64 {
+                let p = c.value(f64::from(i) / 64.0);
+                assert!((p[0] + 0.5 * p[2] - 4.0).abs() < 1e-9);
+                assert!((p[0].hypot(p[1]) - (10.0 - 0.5 * p[2])).abs() < 1e-9);
+            }
+        }
+        let check_mass = |part: &Part| {
+            let (v, a) = part.solid_mass(0).unwrap();
+            assert!((v - 1178.246346046747).abs() < 1e-8, "{v}");
+            assert!((a - 723.8637273389423).abs() < 1e-8, "{a}");
+        };
+        check_mass(&part);
+        let (s, c) = 0.37_f64.sin_cos();
+        let at = [
+            [c, -s, 0.0, 17.0],
+            [s, c, 0.0, -23.0],
+            [0.0, 0.0, 1.0, 11.0],
+        ];
+        let moved = part.transformed(&at).unwrap();
+        let reread = read_step_file_placed(&path, &at).unwrap();
+        assert!(moved.solid_is_valid(0));
+        check_mass(&moved);
+        check_mass(&reread);
+        for (a, b) in moved.edges.iter().zip(&reread.edges) {
+            assert_eq!(a.vertices, b.vertices);
+            assert_eq!(a.samples, b.samples);
+        }
+    }
+
+    fn trimmed_parabola_endpoints(bytes: &[u8]) -> (V3, V3) {
+        let (model, report) = step_io::read(bytes).unwrap();
+        assert!(report.dropped.is_empty());
+        let scene = model.scene();
+        let n = scene
+            .all_geometric_sets()
+            .flat_map(|s| s.elements().collect::<Vec<_>>())
+            .find_map(|e| {
+                if let step_io::scene::SetElement::Curve(c) = e {
+                    c.to_nurbs()
+                } else {
+                    None
+                }
+            })
+            .unwrap();
+        let c = NurbsCurve::new(n.degree, n.control_points, n.weights, n.knots).unwrap();
+        let (a, b) = c.domain();
+        (c.value(a), c.value(b))
+    }
+
+    /// OCCT writes length-valued parameters ±4 for F=2, and points (2, ±4, 0).
+    /// ISO's parameters at those points are ±1. Even with .PARAMETER. as master,
+    /// the supplied points determine the span, matching step-io and OCCT's geometry.
+    #[test]
+    fn an_occt_trimmed_parabola_follows_its_points() {
+        let bytes = std::fs::read(fixture("occt_trimmed_parabola.step")).unwrap();
+        let (a, b) = trimmed_parabola_endpoints(&bytes);
+        assert!(geom::dist(a, [2.0, -4.0, 0.0]) < 1e-12, "{a:?}");
+        assert!(geom::dist(b, [2.0, 4.0, 0.0]) < 1e-12, "{b:?}");
+        // Put the OCCT-written trimmed curve under an edge as well, exercising
+        // haecceity's reader fallback and sampling, not only step-io's conversion.
+        let mut text = String::from_utf8(bytes).unwrap();
+        let end = text.rfind("ENDSEC;").unwrap();
+        text.insert_str(end, "#30=VERTEX_POINT('',#22);\n#31=VERTEX_POINT('',#23);\n#32=EDGE_CURVE('',#30,#31,#16,.T.);\n");
+        let (model, report) = step_io::read(text.as_bytes()).unwrap();
+        assert!(report.dropped.is_empty());
+        let scene = model.scene();
+        let edge = scene.all_edges().next().unwrap();
+        let reader = Reader {
+            model: &model,
+            to_mm: 1.0,
+            to_rad: 1.0,
+            placement: IDENTITY,
+        };
+        let (edge, resolved) = reader
+            .edge(&edge, &mut |key| match key {
+                m::EntityKey::VertexPoint(i) => i.0 as usize,
+                _ => unreachable!(),
+            })
+            .unwrap();
+        assert!(resolved);
+        assert!(edge.samples.len() > 2);
+        for p in edge.samples {
+            assert!((p[0] - p[1] * p[1] / 8.0).abs() < 1e-10, "{p:?}");
+            assert!(p[1].abs() <= 4.0 + 1e-12, "{p:?}");
+        }
+    }
+
+    /// With no trim points, assume ISO 10303-42's dimensionless u:
+    /// (F*u², 2F*u). There is no geometric evidence for an OCCT-specific rescaling.
+    #[test]
+    fn a_parameter_only_parabola_uses_the_standard_convention() {
+        let text = std::fs::read_to_string(fixture("occt_trimmed_parabola.step")).unwrap();
+        let text = text
+            .replace("(#22,PARAMETER_VALUE(-4.))", "(PARAMETER_VALUE(-4.))")
+            .replace("(#23,\n    PARAMETER_VALUE(4.))", "(PARAMETER_VALUE(4.))");
+        assert!(!text.contains("(#22,") && !text.contains("(#23,"));
+        let (a, b) = trimmed_parabola_endpoints(text.as_bytes());
+        assert!(geom::dist(a, [32.0, -16.0, 0.0]) < 1e-12, "{a:?}");
+        assert!(geom::dist(b, [32.0, 16.0, 0.0]) < 1e-12, "{b:?}");
+    }
+
     /// The unbroken cylinder records nothing, stays valid and is drawn.
     #[test]
     fn a_resolved_part_records_nothing() {
@@ -2392,8 +2703,8 @@ mod tests {
     #[test]
     fn a_permuted_instance_map_is_refused() {
         let bytes = std::fs::read(fixture("prismatic.step")).unwrap();
-        let (model, report) = step_io::read(&bytes).unwrap();
-        let graph = step_io::parser::parse_bytes(&bytes).unwrap();
+        let (model, report) = step_io::read(bytes.as_slice()).unwrap();
+        let graph = step_io::parser::parse(bytes.as_slice()).unwrap();
         let scene = model.scene();
         let faces: Vec<StepFace<'_>> = scene.all_faces().collect();
         let edges: Vec<StepEdge<'_>> = faces
@@ -2429,14 +2740,14 @@ mod tests {
             .iter()
             .filter(planar)
             .flat_map(|a| faces.iter().filter(planar).map(move |b| (a, b)))
-            .find(|(a, b)| a.same_sense() == b.same_sense() && location(a) != location(b))
+            .find(|(a, b)| a.orientation() == b.orientation() && location(a) != location(b))
             .expect("two planar one-loop faces of one sense");
         let mut permuted = FileIds::new(&graph, &model, &report);
         permuted
             .by_type
             .get_mut("ADVANCED_FACE")
             .unwrap()
-            .swap(index(a.key()), index(b.key()));
+            .swap(index(a.key()) as usize, index(b.key()) as usize);
         let (ia, ib) = (permuted.id(a.key()).unwrap(), permuted.id(b.key()).unwrap());
         assert_eq!(permuted.kind(ia), permuted.kind(ib));
         let surface = |id| permuted.kind(permuted.reference(id, 2).unwrap());
@@ -2458,7 +2769,7 @@ mod tests {
             .by_type
             .get_mut("EDGE_CURVE")
             .unwrap()
-            .swap(index(c.key()), index(d.key()));
+            .swap(index(c.key()) as usize, index(d.key()) as usize);
         let error = permuted.edge(c).unwrap_err().to_string();
         assert!(error.contains("is not where it was read"), "{error}");
     }
