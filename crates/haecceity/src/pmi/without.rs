@@ -6,7 +6,7 @@ use super::write::ItemRef;
 
 /// Which items of a part's PMI [`without_kept`] keeps, per kind, by index (`true` = kept).
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
-pub struct Kept {
+pub(crate) struct Kept {
     pub standards: Vec<bool>,
     pub decimal_places: bool,
     pub features: Vec<bool>,
@@ -34,7 +34,7 @@ pub fn without(p: &PartPmi, items: &[ItemRef]) -> PartPmi {
 /// *p* without the given items and every item that depends on them, indices renumbered, with
 /// which of *p*'s items are kept.
 #[must_use]
-pub fn without_kept(p: &PartPmi, refused: &[ItemRef]) -> (PartPmi, Kept) {
+pub(crate) fn without_kept(p: &PartPmi, refused: &[ItemRef]) -> (PartPmi, Kept) {
     let has = |r: ItemRef| refused.contains(&r);
     let mut gone_f: Vec<bool> = (0..p.features.len())
         .map(|i| has(ItemRef::Feature(i)))

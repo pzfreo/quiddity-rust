@@ -15,7 +15,8 @@ in [docs/alpha1.md](docs/alpha1.md).
   step-io 0.3's `StepBuilder`, deterministic, with its semantic PMI carried through
   `pmi::write` and every item not carried named in the report. Reading the written file gives
   the same part bit for bit and the same recognition; geometry that did not resolve is refused
-  by name. `quiddity brep <file.step> -o <out.step>` writes a file's part;
+  by name; source product names are kept. `quiddity brep <file.step> -o <out.step>` writes a
+  file's part with its PMI;
   `tools/check_brep_write_occt.py` checks written files against OpenCascade. Design, guarantee
   and refusals: [docs/brep-writer.md](docs/brep-writer.md). For files we were given, PMI edits
   stay byte-preserving (`pmi write`).

@@ -324,3 +324,61 @@ fn brep_writes_the_part_and_reports() {
     assert_eq!(report["face_order_preserved"], true);
     std::fs::remove_dir_all(&dir).ok();
 }
+
+#[test]
+fn brep_carries_the_parts_pmi_and_names_what_it_does_not() {
+    let dir = std::env::temp_dir().join(format!("quiddity-cli-brep-pmi-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let fixtures = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/ap242");
+    // One part with PMI the writer refuses some of (dimensions without a nominal value).
+    let input = fixtures.join("nist/nist_ctc_01_asme1_ap242-e1.stp.gz");
+    let out_path = dir.join("ctc01.step");
+    let out = quiddity(&[
+        "brep",
+        input.to_str().unwrap(),
+        "-o",
+        out_path.to_str().unwrap(),
+    ]);
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let report: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert!(
+        report["pmi"]["carried_items"].as_u64().unwrap() > 40,
+        "{report}"
+    );
+    let refused = report["pmi"]["refused"].as_array().unwrap();
+    assert_eq!(refused.len(), 4, "{report}");
+    assert!(
+        refused
+            .iter()
+            .all(|r| !r["why"].as_str().unwrap().is_empty())
+    );
+    let read = quiddity(&["pmi", "read", out_path.to_str().unwrap()]);
+    assert!(read.status.success());
+    // Several parts: their PMI is listed as not carried.
+    let input = fixtures.join("write/editor_assembly_pin_alone.step.gz");
+    let out_path = dir.join("assembly.step");
+    let out = quiddity(&[
+        "brep",
+        input.to_str().unwrap(),
+        "-o",
+        out_path.to_str().unwrap(),
+    ]);
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let report: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert!(
+        !report["pmi"]["parts_not_carried"]
+            .as_array()
+            .unwrap()
+            .is_empty(),
+        "{report}"
+    );
+    std::fs::remove_dir_all(&dir).ok();
+}

@@ -176,6 +176,13 @@ pub(crate) struct InstanceTransform {
     pub(crate) reference: V3,
 }
 
+/// A product as the file names it: `PRODUCT.id` and `PRODUCT.name`.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct ProductLabel {
+    pub(crate) id: String,
+    pub(crate) name: String,
+}
+
 /// Retained native instance placement, composed in the reader's original order.
 #[derive(Clone, Debug)]
 pub(super) struct GeometryPlacement {
@@ -183,6 +190,9 @@ pub(super) struct GeometryPlacement {
     path: std::sync::Arc<[super::step::Placement]>,
     /// Per level of `path`, its placement as the file states it (`None` when not standard).
     raw: std::sync::Arc<[Option<InstanceTransform>]>,
+    /// The products from the root definition down to the instance's own (one more than `path`
+    /// has levels; empty where the reader placed the shape through no product).
+    products: std::sync::Arc<[ProductLabel]>,
 }
 
 impl GeometryPlacement {
@@ -190,8 +200,14 @@ impl GeometryPlacement {
         outer: super::step::Placement,
         path: std::sync::Arc<[super::step::Placement]>,
         raw: std::sync::Arc<[Option<InstanceTransform>]>,
+        products: std::sync::Arc<[ProductLabel]>,
     ) -> Self {
-        Self { outer, path, raw }
+        Self {
+            outer,
+            path,
+            raw,
+            products,
+        }
     }
     fn placement(&self) -> super::step::Placement {
         self.path
@@ -392,6 +408,7 @@ impl Part {
         };
         let identity = std::sync::Arc::new(GeometryPlacement::new(
             super::step::IDENTITY,
+            std::sync::Arc::from([]),
             std::sync::Arc::from([]),
             std::sync::Arc::from([]),
         ));
@@ -670,6 +687,14 @@ impl Part {
             &context.raw,
             key,
         ))
+    }
+
+    /// The products face *face*'s instance was read through, from the root definition down to
+    /// its own; empty when the part holds none.
+    pub(crate) fn face_products(&self, face: usize) -> &[ProductLabel] {
+        self.native_faces
+            .get(face)
+            .map_or(&[], |(_, context)| &context.products)
     }
 
     /// Edge *edge*'s native geometry (see [`Self::face_instance`]).

@@ -47,7 +47,9 @@ use step_io::build::LengthUnit;
 use step_io::model as m;
 use step_io::{AuthorError, StepBuilder};
 
-use crate::brep::{Edge, Face, Part, Pcurve, RawCurve2d, RawFrame, RawProfile, SweptSource};
+use crate::brep::{
+    Edge, Face, Part, Pcurve, ProductLabel, RawCurve2d, RawFrame, RawProfile, SweptSource,
+};
 use crate::geom::{self, Conic, Curve, Frame, Surface, V3};
 use crate::nurbs::{NurbsCurve, NurbsSurface};
 use crate::pmi::{self, PartPmi};
@@ -59,7 +61,8 @@ pub const UNCERTAINTY_MM: f64 = 1e-7;
 /// How to write a part.
 #[derive(Clone, Copy, Debug)]
 pub struct WriteOptions<'a> {
-    /// The product's name and id.
+    /// The product's name and id when the part holds none (a part not read from a file, or
+    /// read through no product); the source products' names are kept where the part holds them.
     pub name: &'a str,
     /// The part's semantic PMI, anchored to its faces and edges by index; `None` writes none.
     pub pmi: Option<&'a PartPmi>,
@@ -97,6 +100,9 @@ pub struct WriteReport {
     /// geometry is then the part's, but reading it back normalises directions the part holds
     /// unnormalised, so it can come back an ulp away.
     pub placements_flattened: bool,
+    /// Products written under another name than the source gave them, or source products not
+    /// written, each described.
+    pub products_renamed: Vec<String>,
     /// The repairs reading made to the part ([`Part::input_repairs`]): the file holds the part
     /// repaired, so reading it back needs and records none.
     pub repairs_written: Vec<String>,
@@ -106,6 +112,7 @@ pub struct WriteReport {
 
 /// The PMI a write carried.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct PmiCarried {
     /// What was written (the input less [`Self::refused`]); reading the file back gives its
     /// standard form ([`pmi::write::standard_form`]).
@@ -116,6 +123,7 @@ pub struct PmiCarried {
 
 /// One PMI item not carried, and why.
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct PmiRefusal {
     pub item: pmi::write::ItemRef,
     pub why: String,
@@ -123,6 +131,7 @@ pub struct PmiRefusal {
 
 /// Why nothing was written.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub enum WriteError {
     /// Geometry or topology the writer cannot write faithfully, each named.
     Unsupported(Vec<String>),
@@ -666,6 +675,95 @@ fn swept_surface(b: &mut StepBuilder, s: &SweptSource) -> Result<m::SurfaceRef, 
     })
 }
 
+/// A swept surface's definition moved by a placement: points and directions alike, frames
+/// with the axes the reader would take (a missing axis or reference direction made explicit).
+fn place_swept(at: &crate::step::Placement, s: &SweptSource) -> SweptSource {
+    let point = |p: V3| {
+        let r = rotate(at, p);
+        [0, 1, 2].map(|i| r[i] + at[i][3])
+    };
+    let frame = |f: &RawFrame| {
+        let z = f.axis.unwrap_or([0.0, 0.0, 1.0]);
+        let x = f
+            .reference
+            .unwrap_or_else(|| geom::default_x_axis(geom::unit(z).unwrap_or([0.0, 0.0, 1.0])));
+        RawFrame {
+            axis: Some(rotate(at, z)),
+            reference: Some(rotate(at, x)),
+        }
+    };
+    let profile = |p: &RawProfile| match p {
+        RawProfile::Line {
+            point: o,
+            direction,
+            magnitude,
+        } => RawProfile::Line {
+            point: point(*o),
+            direction: rotate(at, *direction),
+            magnitude: *magnitude,
+        },
+        RawProfile::Circle {
+            origin,
+            frame: f,
+            radius,
+        } => RawProfile::Circle {
+            origin: point(*origin),
+            frame: frame(f),
+            radius: *radius,
+        },
+        RawProfile::Ellipse {
+            origin,
+            frame: f,
+            semi_axis_1,
+            semi_axis_2,
+        } => RawProfile::Ellipse {
+            origin: point(*origin),
+            frame: frame(f),
+            semi_axis_1: *semi_axis_1,
+            semi_axis_2: *semi_axis_2,
+        },
+        RawProfile::BSpline {
+            degree,
+            points,
+            multiplicities,
+            knots,
+            weights,
+        } => RawProfile::BSpline {
+            degree: *degree,
+            points: points.iter().map(|&p| point(p)).collect(),
+            multiplicities: multiplicities.clone(),
+            knots: knots.clone(),
+            weights: weights.clone(),
+        },
+    };
+    match s {
+        SweptSource::Revolution {
+            profile: p,
+            location,
+            axis,
+            to_mm,
+            to_rad,
+        } => SweptSource::Revolution {
+            profile: profile(p),
+            location: point(*location),
+            axis: Some(rotate(at, axis.unwrap_or([0.0, 0.0, 1.0]))),
+            to_mm: *to_mm,
+            to_rad: *to_rad,
+        },
+        SweptSource::Extrusion {
+            profile: p,
+            direction,
+            magnitude,
+            to_mm,
+        } => SweptSource::Extrusion {
+            profile: profile(p),
+            direction: rotate(at, *direction),
+            magnitude: *magnitude,
+            to_mm: *to_mm,
+        },
+    }
+}
+
 /// A point or direction moved by a placement's rotation (and translation, for a point).
 fn rotate(at: &crate::step::Placement, d: V3) -> V3 {
     at.map(|r| r[0] * d[0] + r[1] * d[1] + r[2] * d[2])
@@ -698,7 +796,11 @@ impl<'p> Writer<'p> {
         let header = b.header_mut();
         // Reproducible output: no time stamp.
         header.time_stamp = String::new();
-        header.file_name = name.to_owned();
+        // The file is named as its root product is.
+        header.file_name = (0..part.faces.len())
+            .find_map(|f| part.face_products(f).first())
+            .map_or(name, |l| l.name.as_str())
+            .to_owned();
         header.originating_system = concat!("haecceity ", env!("CARGO_PKG_VERSION")).to_owned();
         // Native when every face's instance is placed by levels the file stated in the
         // standard form (or not placed at all).
@@ -836,11 +938,20 @@ impl<'p> Writer<'p> {
             Surface::Freeform { kind, surface } => {
                 // A swept surface the file stated in millimetres is written as the file
                 // stated it, which converts back to the same NURBS.
+                // Moved, it is the file's definition moved alike (its NURBS then within
+                // round-off of the part's), so it keeps its kind and parameters.
                 let swept = self
                     .part
                     .face_swept(face)
-                    .filter(|s| at == crate::step::IDENTITY && s.to_mm() == 1.0);
-                match swept {
+                    .filter(|s| s.to_mm() == 1.0)
+                    .map(|s| {
+                        if at == crate::step::IDENTITY {
+                            s.clone()
+                        } else {
+                            place_swept(&at, s)
+                        }
+                    });
+                match &swept {
                     Some(source) => {
                         // A revolution's u is an angle in the file's unit.
                         self.file_parameters[face] = match source {
@@ -1172,7 +1283,45 @@ impl<'p> Writer<'p> {
 
         // The products: the part itself, and in native mode a chain of components per placed
         // instance, each level placed as the file placed it.
-        let root = self.b.part(&self.name.clone());
+        // The products are named as the source named them where the part holds them.
+        let label = |b: &mut StepBuilder, l: &ProductLabel| {
+            b.part_with(
+                &l.name,
+                &step_io::build::PartOptions {
+                    id: Some(l.id.clone()),
+                    ..Default::default()
+                },
+            )
+        };
+        let roots: Vec<&ProductLabel> = {
+            let mut roots: Vec<&ProductLabel> = Vec::new();
+            for f in 0..part.faces.len() {
+                if let Some(r) = part.face_products(f).first()
+                    && !roots.contains(&r)
+                {
+                    roots.push(r);
+                }
+            }
+            roots
+        };
+        let root = match roots.first() {
+            Some(r) => {
+                for other in &roots[1..] {
+                    report.products_renamed.push(format!(
+                        "root product {:?} written as part of {:?}",
+                        other.name, r.name
+                    ));
+                }
+                label(&mut self.b, r)
+            }
+            None => {
+                report.products_renamed.push(format!(
+                    "the part holds no product name: written as {:?}",
+                    self.name
+                ));
+                self.b.part(&self.name.clone())
+            }
+        };
         let mut product_of_face = Vec::with_capacity(part.faces.len());
         let mut instances: HashMap<usize, step_io::build::Part> = HashMap::new();
         for f in 0..part.faces.len() {
@@ -1181,12 +1330,23 @@ impl<'p> Writer<'p> {
                     Some(&p) => p,
                     None => {
                         let mut parent = root;
-                        for level in levels.iter().flatten() {
+                        let products = part.face_products(f);
+                        for (i, level) in levels.iter().flatten().enumerate() {
                             report.placed_components += 1;
-                            let child = self.b.part(&format!(
-                                "{} component {}",
-                                self.name, report.placed_components
-                            ));
+                            let child = match products.get(i + 1) {
+                                Some(l) => label(&mut self.b, l),
+                                None => {
+                                    let name = format!(
+                                        "{} component {}",
+                                        self.name, report.placed_components
+                                    );
+                                    report.products_renamed.push(format!(
+                                        "a component the part holds no name for: written as \
+                                         {name:?}"
+                                    ));
+                                    self.b.part(&name)
+                                }
+                            };
                             self.b.place(
                                 parent,
                                 child,
@@ -1208,6 +1368,22 @@ impl<'p> Writer<'p> {
         }
         report.placements_flattened = !self.native
             && (0..part.faces.len()).any(|f| part.face_placement(f) != crate::step::IDENTITY);
+        if !self.native {
+            let mut flattened: Vec<&str> = Vec::new();
+            for f in 0..part.faces.len() {
+                for l in part.face_products(f).iter().skip(1) {
+                    if !flattened.contains(&l.name.as_str()) {
+                        flattened.push(&l.name);
+                    }
+                }
+            }
+            for name in flattened {
+                report.products_renamed.push(format!(
+                    "component {name:?} not written: its instances are written in the root \
+                     product, where the part holds them"
+                ));
+            }
+        }
 
         // Surfaces first: pcurves name them.
         let mut surfaces = Vec::with_capacity(part.faces.len());
@@ -1254,6 +1430,25 @@ impl<'p> Writer<'p> {
                     } else {
                         self.file_parameters[f]
                     };
+                // The file's pcurves on this face that are not written (a freeform surface
+                // written without the file's parameters, an analytic one from a file in other
+                // units, where only the reduced held ones can be): reported.
+                if !raw {
+                    let file = part
+                        .file_pcurves(f)
+                        .iter()
+                        .filter(|(pe, _)| *pe == e)
+                        .count();
+                    let held = face.pcurves.iter().filter(|(pe, _)| *pe == e).count();
+                    let missing = file.saturating_sub(held) / k;
+                    if missing > 0 {
+                        report.pcurves_not_written.push(format!(
+                            "face {f} edge {e}: {missing} of the file's pcurves (the surface is \
+                             not written with the file's parameters, or the file's units are not \
+                             millimetres and radians)"
+                        ));
+                    }
+                }
                 let edges: Vec<usize> = if raw {
                     part.file_pcurves(f).iter().map(|(pe, _)| *pe).collect()
                 } else {

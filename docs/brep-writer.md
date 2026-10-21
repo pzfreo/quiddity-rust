@@ -30,13 +30,17 @@ let (step, report) = write_step(&part, &WriteOptions { name: "bracket", pmi: Non
 
 `WriteOptions::pmi` takes the part's semantic PMI (`pmi::PartPmi`, anchored to the part's faces
 and edges by index, as `pmi::read` gives it for a part read with `step::read_part`). The command
-line writes a file's part with `quiddity brep <file.step> -o <out.step>` and prints the report,
-with the kernel's volume of each solid.
+line writes a file's part with `quiddity brep <file.step> -o <out.step>` and prints the report
+as JSON, with the kernel's volume of each solid and the PMI carried and refused. A file of one
+part carrying PMI is written in that part's own frame (`step::read_part`), with its PMI; the PMI
+of a file of several parts is listed under `pmi.parts_not_carried` (a write carries one part's).
 
 ## What is written
 
-- One product, in millimetres and radians. The length uncertainty is the source file's (kept by
-  the reader, in millimetres), else 1e-7 mm.
+- The source's products, named and numbered (`PRODUCT.name`, `PRODUCT.id`) as the source gave
+  them, in millimetres and radians; `WriteOptions::name` names the product of a part that holds
+  no product name, and every substitution is listed in `WriteReport::products_renamed`. The
+  length uncertainty is the source file's (kept by the reader, in millimetres), else 1e-7 mm.
 - Every solid as a `MANIFOLD_SOLID_BREP`, or a `BREP_WITH_VOIDS` when its faces form several
   shells (the first face's shell is the outer one; the others are voids, written as authored).
   Faces in no solid go in one `OPEN_SHELL` of a `SHELL_BASED_SURFACE_MODEL` per product.
@@ -88,8 +92,20 @@ a face whose surface did not resolve, an edge whose curve did not resolve (the p
 chord), a loop with neither edges nor a vertex. The report also states what reading the file back
 cannot give again: freeform surfaces of another kind written as B-splines
 (`surface_kinds_changed`: a swept surface from a file not in millimetres, an offset surface),
-pcurves not written, whether face and edge order are preserved, and whether placed instances
-were written where the part holds them (`placements_flattened`).
+pcurves not written (held ones, and the file's own on a surface not written with the file's
+parameters or from a file not in millimetres and radians), whether face and edge order are
+preserved, whether placed instances were written where the part holds them
+(`placements_flattened`, with their component products listed as not written), and the repairs
+reading made (`repairs_written`).
+
+## A moved part
+
+A part moved after reading (`Part::transformed`) is written where it lies, its swept surfaces as
+the file's definitions moved alike. Its frames are orthonormal only to round-off, and reading
+normalises them, so it reads back within round-off, not bit for bit: the same counts, areas and
+volumes within 1e-9; under the right-angle rotations the invariance tests use, the same
+recognition within 1e-6. Under a general rotation recognition thresholds may fall either side of
+an ulp (one oriented chamfer of NIST CTC-01 does), as they may for the moved part itself.
 
 ## The round-trip guarantee and its evidence
 
@@ -97,10 +113,17 @@ For a part read from a file, writing it and reading the result gives the same pa
 faces, edges and solids in the same order, the same geometry bit for bit (so the same areas and
 volumes), the same geometry after the same rigid motion, the same recognition records and
 document (`quiddity <file.step>` output, its `source_sha256` aside), and no EXPRESS schema or
-rule violation in the written file. `tests/brep_write.rs` checks this for every fixture part and,
-with `QUIDDITY_CORPUS`, every corpus part, plus PMI over the AP242 fixtures.
+rule violation in the written file. `tests/brep_write.rs` checks this by default on a fixed
+sample (every surface and curve kind; voids, surface models, assemblies, a repaired part,
+refusals; PMI with refusals; four corpus parts with `QUIDDITY_CORPUS`), in about 5 s of CPU. The
+full sweeps over every fixture, every captured fixture, every corpus part and every AP242
+fixture's PMI (about 20 minutes of CPU) are ignored by default:
 
-2026-10-21, on step-io 0.3 (`cx/step-io-03`):
+```text
+QUIDDITY_CORPUS=../quiddity/tests/corpus cargo test --release --test brep_write -- --ignored
+```
+
+2026-10-21, on step-io 0.3 (main at `edeb8cb`), the full sweeps:
 
 | Set | Files | Same | Same, repaired | Refused | Unreadable input |
 | --- | ---: | ---: | ---: | ---: | ---: |

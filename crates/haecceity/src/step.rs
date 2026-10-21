@@ -10,8 +10,8 @@ use step_io::parser::{Attribute, RawEntity};
 use step_io::scene::{Edge as StepEdge, Face as StepFace, SurfaceKind};
 
 use super::brep::{
-    Edge, Face, GeometryPlacement, InstanceTransform, Loop, Part, Pcurve, PcurveSpline, RawCurve2d,
-    RawFrame, RawProfile, Solid, Source, SweptSource,
+    Edge, Face, GeometryPlacement, InstanceTransform, Loop, Part, Pcurve, PcurveSpline,
+    ProductLabel, RawCurve2d, RawFrame, RawProfile, Solid, Source, SweptSource,
 };
 use super::geom::{self, Curve, Frame, Surface, V3};
 use super::nurbs::{NurbsCurve, NurbsSurface};
@@ -1333,6 +1333,8 @@ struct PlacementPaths {
     definitions: Vec<std::sync::Arc<[Placement]>>,
     current_raw: Vec<Option<InstanceTransform>>,
     raw: Vec<std::sync::Arc<[Option<InstanceTransform>]>>,
+    current_products: Vec<ProductLabel>,
+    products: Vec<std::sync::Arc<[ProductLabel]>>,
 }
 
 /// Every solid reachable from an assembly definition, with its accumulated placement and the
@@ -1352,6 +1354,18 @@ fn collect_instances<'m>(
     placed.push((def, placement));
     paths.definitions.push(paths.current.clone().into());
     paths.raw.push(paths.current_raw.clone().into());
+    paths.current_products.push(
+        def.product()
+            .map(|p| ProductLabel {
+                id: p.id().to_owned(),
+                name: p.name().to_owned(),
+            })
+            .unwrap_or(ProductLabel {
+                id: String::new(),
+                name: String::new(),
+            }),
+    );
+    paths.products.push(paths.current_products.clone().into());
     for solid in def.solids() {
         out.push((solid, placement, Some(placed.len() - 1)));
     }
@@ -1400,6 +1414,7 @@ fn collect_instances<'m>(
         paths.current.pop();
         paths.current_raw.pop();
     }
+    paths.current_products.pop();
 }
 
 fn raw_edge_curve(model: &m::StepModel, edge: &StepEdge<'_>) -> m::CurveRef {
@@ -2161,6 +2176,16 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
                 instance_of[instance]
                     .map(|i| placement_paths.raw[i].clone())
                     .unwrap_or_else(|| std::sync::Arc::from([]))
+            },
+            // Read in its own frame, a definition is its own root.
+            match instance_of[instance] {
+                Some(i) if own.is_some() => placement_paths.products[i]
+                    .last()
+                    .cloned()
+                    .into_iter()
+                    .collect(),
+                Some(i) => placement_paths.products[i].clone(),
+                None => std::sync::Arc::from([]),
             },
         ));
         // Edges are shared within one placed shell only; another instance gets its own copies.
