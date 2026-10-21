@@ -46,7 +46,9 @@ in [docs/alpha1.md](docs/alpha1.md).
   decoded Unicode text. Pass plain text to `Attribute::String`; `p21::encode` escapes
   it on output. `p21::escape`/`decode` still convert encoded string bodies, and must
   not be applied to already decoded attributes. Re-exported parser spans use `u64`
-  byte offsets, as in step-io 0.3.
+  byte offsets, as in step-io 0.3. The raw graph's schema names are now the
+  `schema.raw: Vec<String>` field (formerly `schema.raw()`), and its upstream
+  `Graph` type is non-exhaustive, so callers cannot construct it with a struct literal.
 
 - One supported recognition entry point: `correspondence::recognise(&Part)` recognises in the
   inferred part frame using an in-memory rigid transform, without a reader closure or second
