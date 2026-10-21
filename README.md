@@ -59,8 +59,10 @@ let holes = &recognition.features.holes; // read local fields through recognitio
 
 Modelled screw threads are also measured natively (`analyse_modelled_threads`): axis,
 side, diameters, pitch, hand, starts, axial span and claimed faces, with explicit refusals.
-They use [recognition document 4](docs/recognition-4.md); parts without the extension retain
-version 3 and their existing bytes. The [corpus survey](docs/modelled-threads.md) records the
+Their record payloads follow [recognition document 4](docs/recognition-4.md).
+All new documents use [version 5](docs/face-accounting.md), which accounts for every
+face as feature, body (with positive geometry evidence), refused, or unexplained.
+The [corpus survey](docs/modelled-threads.md) records the
 measurements and supported profile limits. Nominal thread designations belong to consumers.
 
 From the command line (see [Running](#running)): `quiddity part.step` (records, fingerprints,
@@ -262,7 +264,7 @@ oriented-slot passages, thin walls) is ported (`src/features/reconcile.rs`) and 
 the caller-space and default recognitions, the recognition document and correspondence) drops
 every rejected candidate with its defining faces and derives hole, slot, pocket, gusset-rib and
 oriented-slot patterns from accepted members only, as Python's `_take_inventory_once` does.
-Reconciliation adds no records, so the document keeps its shape (`recognition/3`); a
+Reconciliation adds no records, so the record payloads keep their shape; a
 reconciliation refusal panics, as the passages' does. Step levels and risers, physical families in
 Python's aggregate, are carried in `Features` (`step_levels`, `risers`, with their defining
 faces): `levels::discover_step_levels` (`_discover_step_levels`: each solid's area-filtered
@@ -279,8 +281,7 @@ but for 13975's two, which Python's retry skips (and so do `inventory` and `reco
 it); 134 Python risers (124 accepted, 10 rejected),
 118 identical, 16 differing on 6 parts (two coplanar faces of one ramp Python splits by 1e-11 of
 round-off, rust-correct; cgb207's body key; 13975's skip). The recognition document carries both
-families, as Python's document does (`FaceLevel`, `RiserEvidence`; still `recognition/3`, the
-change being additive). They are read along a z axis by specification: in the default document
+families, as Python's document does (`FaceLevel`, `RiserEvidence`; an additive record change). They are read along a z axis by specification: in the default document
 the frame's, which is not the file's z on 71 of the corpus parts with either family, so there
 their z-dependent fields are listed `local` and they hold other faces than caller-space
 recognition's
@@ -429,8 +430,8 @@ the part's frame and checked under the invariance motions). `Features` serialise
 that same order, with Python's record fields and the existing file-space mapping and `local`
 labels. `tests/section_recess_publication.rs` checks Python parity on all 30 draftwright quality
 parts, including the 15 existing rust-correct NIST channel verdicts, and hashes the old caller
-and framed document bytes after removing only the new family. The additive family keeps
-`quiddity-rust/recognition/3`; readers with family allowlists must admit it. Where the projection
+and framed record bytes after removing the new family and later accounting metadata.
+The additive family retains its record payloads; readers with family allowlists must admit it. Where the projection
 refuses (no corpus part since the local-degradation retry is ported; before it, 13975 and
 14052) `recognise` keeps the other families and carries the refusal
 (`Features::section_recess_refusal`), provisionally: whether to panic or carry a refusal is an
@@ -475,7 +476,7 @@ circles and lines OpenCascade's import heals, and tangent cusps. Python signs a 
 follows the placement; the port signs it by the supports' curvatures, and its answers are
 unchanged under every motion. Not captured: test parts past four per test, and two solids sharing
 one shell, which STEP export writes as two. Open question for the maintainer: whether the
-recognition document (`quiddity-rust/recognition/3`) should carry outer profiles; Python's
+recognition document (`quiddity-rust/recognition/5`) should carry outer profiles; Python's
 document does not, and they are not in it.
 
 The recognition evidence view (`quiddity.evidence.build_recognition_evidence`) is
@@ -725,7 +726,7 @@ src/
                      bound to the file's sha256 and the reader version, enums as standard
                      terms; refusals name the JSON path; a write's report
   recognition.rs     the versioned recognition document for draftwright (`quiddity-rust/
-                     recognition/3` or the optional `/4` thread extension): the part's frame,
+                     recognition/5`): the part's frame, complete face accounting,
                      and per feature its family, Python
                      record type, faces, record and the fields left in the frame
   serve.rs           `quiddity serve`: recognise and correspond as a JSON-lines service, each
@@ -1068,7 +1069,7 @@ the faces sit about the part's centroid, transforms the loaded part in memory, r
 and carries every record back (`src/framed_records.rs`): points by the frame, directions by its
 rotation, axis letters and coordinates along them exactly where the frame's axes are the file's
 up to order and sign. Where they are not, those fields stay in the frame and the document lists
-them per record (`local`), with the frame itself (`quiddity-rust/recognition/3`). A part with no
+them per record (`local`), with the frame itself (`quiddity-rust/recognition/5`). A part with no
 frame (no plane or cylinder, no material) is recognised as placed, with a warning.
 
 Parity is still checked where Python's entry points work: `features::recognise` and every

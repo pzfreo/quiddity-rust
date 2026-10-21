@@ -18,6 +18,7 @@ macro_rules! parity_entry {
     };
 }
 
+mod body;
 pub mod correspondence;
 pub mod evidence_view;
 pub mod features;

@@ -1,5 +1,8 @@
 # Recognition document 4
 
+Historical contract. Newly produced documents use [version 5 face accounting](face-accounting.md),
+including documents with no measured threads or refusals. Record payloads below are unchanged.
+
 `quiddity-rust/recognition/4` adds measured `modelled_threads` (`ModelledThread`)
 and `modelled_thread_refusals` (`ModelledThreadRefusal`), and the diagnostic
 `InteriorVoidRefusal` variant appended after recognised `interior_voids`. Existing

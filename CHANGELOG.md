@@ -8,6 +8,15 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Added
 
+- Complete recognition face accounting: feature record IDs, named refusals and reasons,
+  positively established body faces (`stock_box_side`, `stock_box_notched`,
+  `stock_box_split`), or unexplained. The conservative
+  geometry rules and independent MFInstSeg ratchet are in [docs/face-accounting.md](docs/face-accounting.md).
+  No feature record or fingerprint changes.
+  **Upgrading:** all newly emitted recognition documents, including `quiddity serve`, use
+  `quiddity-rust/recognition/5` and include a `face_accounting` array indexed by file face.
+  Read the group on each face; do not interpret missing accounting on older documents as
+  an empty unexplained list. Versions 3/4 still deserialize with accounting `None`.
 - A B-rep STEP writer, `haecceity::brep_write::write_step`: a loaded `Part` (every solid,
   voids included, and faces in no solid; every surface and curve kind the reader holds,
   NURBS, parabolas, hyperbolas and swept surfaces included; pcurves; orientation; placed

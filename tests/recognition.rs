@@ -103,16 +103,8 @@ fn records_are_ordered_typed_and_on_the_parts_faces() {
 
 /// What is wrong with *doc*, the document of a part of *face_count* faces.
 fn check(name: &str, doc: &RecognitionDocument, face_count: usize, out: &mut Vec<String>) {
-    let version = if doc.records.iter().any(|r| {
-        matches!(
-            r.family.as_str(),
-            "modelled_threads" | "modelled_thread_refusals"
-        ) || r.record_type == "InteriorVoidRefusal"
-    }) {
-        recognition::SCHEMA_VERSION
-    } else {
-        recognition::LEGACY_SCHEMA_VERSION
-    };
+    // Schema 5 makes complete face accounting mandatory for every new document.
+    let version = recognition::SCHEMA_VERSION;
     if doc.schema_version != version || doc.face_count != face_count {
         out.push(format!("{name}: version or face count wrong"));
     }

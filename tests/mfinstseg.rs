@@ -50,6 +50,7 @@ struct Model {
     id: String,
     step_sha256: String,
     labels_sha256: String,
+    accounting: mfinstseg::Accounting,
 }
 #[derive(Deserialize)]
 struct Baseline {
@@ -57,12 +58,33 @@ struct Baseline {
     mapping_sha256: String,
     models: Vec<Model>,
     scores: Vec<mfinstseg::Score>,
+    accounting: mfinstseg::Accounting,
 }
 fn hash(path: &Path) -> String {
     Sha256::digest(std::fs::read(path).unwrap())
         .iter()
         .map(|b| format!("{b:02x}"))
         .collect()
+}
+
+#[test]
+fn accounting_baseline_is_complete_and_totals_match() {
+    let baseline: Baseline =
+        serde_json::from_str(include_str!("fixtures/mfinstseg_baseline.json")).unwrap();
+    assert_eq!(baseline.schema, 2);
+    assert_eq!(baseline.models.len(), 200);
+    let mut total = mfinstseg::Accounting::default();
+    for model in &baseline.models {
+        assert_eq!(model.accounting.feature_as_body, 0, "{}", model.id);
+        assert!(model.accounting.stock_unexplained <= model.accounting.unexplained);
+        assert_eq!(model.accounting.stock_body, model.accounting.body);
+        assert_eq!(
+            model.accounting.body_reasons.values().sum::<u64>(),
+            model.accounting.body
+        );
+        total.add(&model.accounting);
+    }
+    assert_eq!(total, baseline.accounting);
 }
 
 /// Exact rational comparison, with the scorer's zero-denominator convention.
@@ -130,7 +152,7 @@ fn independent_label_accuracy_ratchet() {
     let root = Path::new(&root);
     let baseline: Baseline =
         serde_json::from_str(include_str!("fixtures/mfinstseg_baseline.json")).unwrap();
-    assert_eq!(baseline.schema, 1);
+    assert_eq!(baseline.schema, 2);
     assert_eq!(baseline.models.len(), 200);
     assert_eq!(
         hash(&Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/mfinstseg_mapping.json")),
@@ -173,7 +195,27 @@ fn independent_label_accuracy_ratchet() {
         }
     });
     let mut scores = vec![mfinstseg::Score::default(); classes.len()];
+    let mut accounting = mfinstseg::Accounting::default();
     for model in results.into_inner().unwrap() {
+        let base = &baseline
+            .models
+            .iter()
+            .find(|m| m.id == model.id)
+            .unwrap()
+            .accounting;
+        assert_eq!(
+            model.accounting.feature_as_body, 0,
+            "{}: feature face hidden as body",
+            model.id
+        );
+        assert!(
+            model.accounting.stock_unexplained <= base.stock_unexplained,
+            "{}: stock unexplained regressed: {} -> {}",
+            model.id,
+            base.stock_unexplained,
+            model.accounting.stock_unexplained
+        );
+        accounting.add(&model.accounting);
         assert!(
             model.instances_available,
             "{}: incomplete instance labels",
@@ -196,6 +238,9 @@ fn independent_label_accuracy_ratchet() {
             total.add(s);
         }
     }
+    assert_eq!(accounting.feature_as_body, 0);
+    assert!(accounting.stock_unexplained <= baseline.accounting.stock_unexplained);
+    eprintln!("face accounting: {accounting:?}");
     for ((c, got), base) in classes.iter().zip(&scores).zip(&baseline.scores) {
         assert_eq!(got.faces.labelled, base.faces.labelled);
         assert!(
