@@ -61,13 +61,12 @@ fn corpus_matches_opencascade() {
     // the problems are listed as one file after another would list them.
     let found = common::parallel::map(&files, |entry| {
         let mut problems = Vec::new();
-        let counts = BTreeMap::<String, (usize, usize)>::new();
         let name = entry["file"].as_str().unwrap();
         let part = match read_step_file(&dir.join(name)) {
             Ok(p) => p,
             Err(e) => {
                 problems.push(Problem::new(name, "read", "read failed", e.to_string()));
-                return (problems, counts, None);
+                return (problems, None);
             }
         };
         let (aligned, found) =
@@ -79,26 +78,17 @@ fn corpus_matches_opencascade() {
         // types); edge counts and boxes may differ (seams OpenCascade's healing adds).
         check_kernel(name, &part, &entry["kernel"], aligned, &mut problems);
         let masses = entry["kernel"]["solids"].as_array().unwrap().len() == part.solids.len();
-        (problems, counts, Some((masses, aligned)))
+        (problems, Some((masses, aligned)))
     });
     let mut problems = Vec::new();
-    let mut counts = BTreeMap::<String, (usize, usize)>::new();
     let (mut kernel_runs, mut mass_runs, mut per_face_runs) = (0, 0, 0);
-    for (found, tallies, ran) in found {
+    for (found, ran) in found {
         problems.extend(found);
-        for (function, (ok, bad)) in tallies {
-            let tally = counts.entry(function).or_default();
-            tally.0 += ok;
-            tally.1 += bad;
-        }
         if let Some((masses, aligned)) = ran {
             kernel_runs += 1;
             mass_runs += usize::from(masses);
             per_face_runs += usize::from(aligned);
         }
-    }
-    for (function, (ok, bad)) in &counts {
-        eprintln!("{function}: {ok} runs match, {bad} differ");
     }
     eprintln!(
         "kernel checks ran on {kernel_runs} of {} files (masses compared on {mass_runs}, \

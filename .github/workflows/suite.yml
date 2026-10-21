@@ -29,6 +29,21 @@ jobs:
       - uses: taiki-e/install-action@7623a79cdfecb99d681017af368ca353d9f49bb5 # v2.87.19
         with:
           tool: nextest@0.9.146
+      # Replay all snapshot producers and reject orphaned expected files. --check always
+      # compares before recording temporary verification output; CI cannot regenerate.
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: pzfreo/quiddity
+          ref: 6d544e060cd0eeb4442d2196e5df757b5a15ea55
+          path: quiddity
+          sparse-checkout: tests/corpus
+      - run: echo /quiddity/ >> .git/info/exclude
+      - run: python3 tools/rust_snapshot.py --check
+        env:
+          QUIDDITY_CORPUS: ${{ github.workspace }}/quiddity/tests/corpus
+          QUIDDITY_CORPUS_REQUIRED: "1"
+          CARGO_BUILD_JOBS: "6"
+          RUST_TEST_THREADS: "6"
       - run: cargo nextest archive --workspace --release --archive-file tests-${{ inputs.os }}.tar.zst
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

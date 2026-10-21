@@ -79,13 +79,19 @@ def main() -> None:
     if any(not line[3:].startswith("tests/fixtures/rust-snapshot/") for line in changed):
         raise SystemExit("commit source/input changes before regenerating the Rust snapshot")
     source = git("rev-parse", "HEAD")
-    release = git("describe", "--tags", "--abbrev=0", "--match", "v*")
-    tagged_source = git("tag", "--points-at", source).splitlines()
     before_inputs = inputs()
     env = dict(os.environ, CARGO_BUILD_JOBS="6", RUST_TEST_THREADS="6", QUIDDITY_CORPUS_REQUIRED="1")
     with tempfile.TemporaryDirectory(prefix="quiddity-rust-snapshot-") as temporary:
         generated = Path(temporary)
-        env["QUIDDITY_SNAPSHOT_DIR"] = temporary
+        for key in ("QUIDDITY_SNAPSHOT_DIR", "QUIDDITY_SNAPSHOT_REGENERATE", "QUIDDITY_SNAPSHOT_VERIFY_DIR"):
+            env.pop(key, None)
+        if args.check:
+            env["QUIDDITY_SNAPSHOT_VERIFY_DIR"] = temporary
+        else:
+            if "CI" in env:
+                raise SystemExit("snapshot regeneration is forbidden in CI")
+            env["QUIDDITY_SNAPSHOT_DIR"] = temporary
+            env["QUIDDITY_SNAPSHOT_REGENERATE"] = "1"
         subprocess.run(["cargo", "test", "--workspace", "--release", "rust_snapshot", "--", "--nocapture"], cwd=ROOT, env=env, check=True)
         if inputs() != before_inputs or git("rev-parse", "HEAD") != source or any(not line[3:].startswith("tests/fixtures/rust-snapshot/") for line in git("status", "--porcelain", "--untracked-files=all").splitlines()):
             raise SystemExit("source/inputs changed during generation")
@@ -104,8 +110,7 @@ def main() -> None:
                 raise SystemExit("snapshot provenance/input digests differ")
             print(f"HEAD reproduces all {len(files)} snapshots byte for byte")
             return
-        provenance = {"schema": 1, "source_commit": source, "source_tags": tagged_source,
-                      "release_anchor": release, "command": "python3 tools/rust_snapshot.py",
+        provenance = {"schema": 1, "source_commit": source, "command": "python3 tools/rust_snapshot.py",
                       "inputs": before_inputs, "snapshots": files}
         (generated / "provenance.json").write_text(json.dumps(provenance, indent=2, sort_keys=True) + "\n")
         # Replace only after every Rust replay succeeded. Do not leave stale expected files.
@@ -128,7 +133,7 @@ def main() -> None:
         if backup.exists():
             shutil.rmtree(backup)
         size = sum((OUT / name).stat().st_size for name in files)
-        print(f"Recorded Rust {source} ({release}): {len(files)} compressed snapshots, {size:,} bytes")
+        print(f"Recorded Rust {source}: {len(files)} compressed snapshots, {size:,} bytes")
 
 if __name__ == "__main__":
     main()

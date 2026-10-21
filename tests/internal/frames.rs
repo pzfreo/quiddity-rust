@@ -127,7 +127,7 @@ fn rust_snapshot_frames_and_equivariance() {
     }
     let known = common::load("references/frame_equivariance.json");
     let known = known.as_array().unwrap();
-    common::check_verdicts("known_frames.json", known);
+    common::check_verdicts("references/frame_equivariance.json", known);
     let parts: Vec<&Value> = captured["parts"].as_array().unwrap().iter().collect();
     let path = |entry: &Value| -> Option<PathBuf> {
         let file = entry["file"].as_str().unwrap();

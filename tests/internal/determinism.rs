@@ -131,5 +131,24 @@ fn recognition_json_is_the_same_twice_in_one_process() {
             "parts failing in both runs {failing:?}, FAILING_IN_BOTH_RUNS {FAILING_IN_BOTH_RUNS:?}"
         ));
     }
+    let known = common::load("references/occt_corpus.json");
+    let mut read_divergences: Vec<&str> = known
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|e| e["family"] == "read")
+        .map(|e| e["file"].as_str().unwrap())
+        .collect();
+    read_divergences.sort();
+    let mut unread: Vec<&str> = FAILING_IN_BOTH_RUNS
+        .iter()
+        .filter(|(_, step)| *step == "read")
+        .map(|(file, _)| *file)
+        .collect();
+    unread.sort();
+    assert_eq!(
+        unread, read_divergences,
+        "the parts FAILING_IN_BOTH_RUNS to read and references/occt_corpus.json's read entries disagree"
+    );
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }

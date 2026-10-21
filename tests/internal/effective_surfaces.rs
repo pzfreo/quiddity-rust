@@ -99,7 +99,21 @@ type Difference = ((String, String), usize, String);
 /// Checks the differences against the known list (entries for the given fields only): every
 /// difference listed exactly once, every listed face differing.
 fn check_known(found: Vec<Difference>, fields: &dyn Fn(&str) -> bool, files: &BTreeSet<String>) {
-    let known = common::load("references/effective_surface_motion.json");
+    check_reference(
+        found,
+        fields,
+        files,
+        "references/effective_surface_motion.json",
+    );
+}
+
+fn check_reference(
+    found: Vec<Difference>,
+    fields: &dyn Fn(&str) -> bool,
+    files: &BTreeSet<String>,
+    reference: &str,
+) {
+    let known = common::load(reference);
     let entries: Vec<&Value> = known
         .as_array()
         .unwrap()
@@ -107,7 +121,7 @@ fn check_known(found: Vec<Difference>, fields: &dyn Fn(&str) -> bool, files: &BT
         .filter(|e| fields(e["field"].as_str().unwrap()))
         .collect();
     common::check_verdicts(
-        "known_effective_surfaces.json",
+        reference,
         &entries.iter().map(|e| (*e).clone()).collect::<Vec<_>>(),
     );
     let mut listed: BTreeMap<(String, String), BTreeSet<usize>> = BTreeMap::new();
@@ -401,4 +415,63 @@ fn effective_surfaces_are_placement_independent() {
     let files: BTreeSet<String> = names.into_iter().collect();
     eprintln!("effective surfaces under motion: {} differ", found.len());
     check_known(found, &|f| f.contains(':'), &files);
+}
+
+/// The controlling length from OCCT's measured area and physical boundary length, with the
+/// original 1e-6 band and exact, evidence-backed face exceptions. Adaptive area and precisely
+/// integrated perimeter stay beside the fixed-rule measurements as independent evidence.
+#[test]
+fn recovery_lengths_match_opencascade_measurements() {
+    let captured = load_gz("faces.json.gz");
+    let corpus = corpus();
+    let runs = runs(&captured);
+    let files = runs
+        .iter()
+        .filter(|r| path(r, &corpus).is_some())
+        .map(|r| r.file.to_owned())
+        .collect();
+    let found = common::parallel::map(&runs, |run| {
+        let Some(path) = path(run, &corpus) else {
+            return Vec::new();
+        };
+        let part = read_step_file(&path).unwrap();
+        run.faces
+            .iter()
+            .filter_map(|f| {
+                let face = f["face"].as_u64().unwrap() as usize;
+                let area = f["area"].as_f64().unwrap();
+                let perimeter = f["perimeter"].as_f64().unwrap();
+                let expected = if area > 0.0
+                    && area.is_finite()
+                    && perimeter >= 0.0
+                    && perimeter.is_finite()
+                {
+                    Some(if perimeter > 0.0 {
+                        area.sqrt().min(2.0 * area / perimeter)
+                    } else {
+                        area.sqrt()
+                    })
+                } else {
+                    None
+                };
+                let got = recovery_nominal(&part, face);
+                (!common::same(&json!(got), &json!(expected))).then(|| {
+                    (
+                        (run.file.to_owned(), "nominal".into()),
+                        face,
+                        format!("Rust {got:?}; OCCT measurements {f}"),
+                    )
+                })
+            })
+            .collect::<Vec<_>>()
+    })
+    .into_iter()
+    .flatten()
+    .collect();
+    check_reference(
+        found,
+        &|field| field == "nominal",
+        &files,
+        "references/effective_surface_measurements.json",
+    );
 }

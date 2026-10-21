@@ -24,6 +24,13 @@ fn rust_snapshot_coverage() {
         let supports: Vec<_> = c["supports"].as_array().unwrap().iter().map(read).collect();
         let refs: Vec<_> = supports.iter().map(|p| (p, 0)).collect();
         let got = covered((&patch, 0), &refs);
+        assert_eq!(
+            Some(got),
+            c["covered"].as_bool(),
+            "OCCT patch {}: {}",
+            actual.len(),
+            c["caller"]
+        );
         actual.push(got);
     }
     common::snapshot::check_with(

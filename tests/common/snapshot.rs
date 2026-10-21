@@ -9,7 +9,19 @@ pub fn check(root: &Path, name: &str, actual: &Value) {
 
 pub fn check_with(root: &Path, name: &str, actual: &Value, equal: &dyn Fn(&Value, &Value) -> bool) {
     assert!(!name.contains(".."));
-    if let Some(dir) = std::env::var_os("QUIDDITY_SNAPSHOT_DIR") {
+    let regenerate = std::env::var_os("QUIDDITY_SNAPSHOT_DIR");
+    if regenerate.is_some() {
+        assert_eq!(
+            std::env::var("QUIDDITY_SNAPSHOT_REGENERATE").as_deref(),
+            Ok("1"),
+            "snapshot writing requires explicit QUIDDITY_SNAPSHOT_REGENERATE=1"
+        );
+        assert!(
+            std::env::var_os("CI").is_none(),
+            "snapshot regeneration is forbidden in CI"
+        );
+    }
+    if let Some(dir) = regenerate {
         let path = PathBuf::from(dir).join(format!("{name}.json.gz"));
         std::fs::create_dir_all(path.parent().unwrap()).unwrap();
         let mut out = flate2::GzBuilder::new().mtime(0).write(
@@ -37,6 +49,18 @@ pub fn check_with(root: &Path, name: &str, actual: &Value, equal: &dyn Fn(&Value
         "Rust snapshot {name} changed. Regenerate with tools/rust_snapshot.py and review the decompressed diff.\n{}",
         first_difference(actual, &expected, "")
     );
+    // --check records only after the ordinary comparison succeeded; never an acceptance mode.
+    if let Some(dir) = std::env::var_os("QUIDDITY_SNAPSHOT_VERIFY_DIR") {
+        let path = PathBuf::from(dir).join(format!("{name}.json.gz"));
+        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+        let mut out = flate2::GzBuilder::new().mtime(0).write(
+            std::fs::File::create(path).unwrap(),
+            flate2::Compression::best(),
+        );
+        out.write_all(&serde_json::to_vec_pretty(actual).unwrap())
+            .unwrap();
+        out.finish().unwrap();
+    }
 }
 
 /// Existing record tolerance: structural equality, numeric abs/relative tolerance 1e-6.

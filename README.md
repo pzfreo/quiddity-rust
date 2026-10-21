@@ -44,9 +44,10 @@ claims remain visible through the document and diagnostics; see the
 ## Regression snapshots
 
 Commit source and input changes before generating, so provenance identifies a reproducible
-Rust commit. The initial baseline is anchored in the alpha.9 release and a local baseline
-source tag. `provenance.json` records the actual source commit, tags, input hashes, and every
-compressed snapshot hash. The tool never creates a release, pushes a tag, or posts a report.
+Rust commit. `provenance.json` records its full commit hash, input hashes, and every
+compressed snapshot hash. The maintainer tags releases; this tool creates no tags.
+CI replays `--check`, including detection of orphaned snapshots. Regeneration requires an
+explicit write flag supplied by the tool and is forbidden in CI.
 
 ```sh
 export QUIDDITY_CORPUS=/path/to/pinned/corpus
@@ -218,3 +219,11 @@ Kernel limitations and historical findings remain documented in the source and r
 ledgers. Approximate boundaries, malformed solids, unsupported surfaces and ambiguous
 geometry can yield explicit refusals or unproved claims. A successful parse is not a guarantee
 that every family is recognised. Refer to the trust contract before consuming such claims.
+
+See [Notes on matching OpenCascade](docs/opencascade.md) for reader healing and boundary rules.
+
+## Known defects
+
+The 50 historical `rust-wrong` verdicts remain **open defects**. Their presence in the Rust
+snapshot records current output and does not accept it as correct. See the
+[complete defect list and evidence](docs/known-defects.md).

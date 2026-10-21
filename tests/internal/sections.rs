@@ -186,7 +186,15 @@ fn rust_snapshot_section_patches() {
                 .map(polygon)
                 .collect();
             let refs: Vec<(&Part, usize)> = supports.iter().map(|s| (s, 0)).collect();
-            covered_patch((&patch, 0), &refs)
+            {
+                let got = covered_patch((&patch, 0), &refs);
+                assert_eq!(
+                    Some(got),
+                    record["covered"].as_bool(),
+                    "OCCT polygon coverage: {record}"
+                );
+                got
+            }
         })
         .collect();
     assert!(!actual.is_empty());

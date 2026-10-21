@@ -38,7 +38,7 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Changed
 
-- Rust owns its regression baseline, with release/source provenance and deterministic gzip
+- Rust owns its regression baseline, with source-commit provenance and deterministic gzip
   expectations. Regenerate with `python3 tools/rust_snapshot.py`, review decompressed changes
   with `--diff BASE_REF`, and verify current HEAD with `--check`. Python is no longer consulted.
 - Removed Python recognition/PMI oracle outputs, capture-only tools, parity harnesses and the

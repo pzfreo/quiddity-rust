@@ -35,7 +35,23 @@ fn snapshot_provenance_pins_every_expected_file_and_input() {
             .unwrap();
     let source = p["source_commit"].as_str().unwrap();
     assert!(source.len() == 40 && source.bytes().all(|b| b.is_ascii_hexdigit()));
-    assert!(!p["release_anchor"].as_str().unwrap().is_empty());
+    // A shallow CI checkout or source archive may not contain the source object. When it
+    // does, additionally verify ancestry; the full 40-hex id is mandatory in every checkout.
+    let git = |args: &[&str]| {
+        std::process::Command::new("git")
+            .args(args)
+            .current_dir(env!("CARGO_MANIFEST_DIR"))
+            .output()
+    };
+    if git(&["cat-file", "-e", source]).is_ok_and(|o| o.status.success()) {
+        assert!(
+            git(&["merge-base", "--is-ancestor", source, "HEAD"])
+                .unwrap()
+                .status
+                .success(),
+            "snapshot source must be an ancestor of HEAD"
+        );
+    }
     let mut actual = BTreeMap::new();
     files(&root, &root, &mut actual);
     actual.remove("provenance.json");

@@ -16,7 +16,7 @@ For an intentional output change, commit source/input changes, export `QUIDDITY_
 then run `python3 tools/rust_snapshot.py`. Review
 `python3 tools/rust_snapshot.py --diff BASE_REF` alongside the implementation and evidence;
 commit the compressed expectations and provenance. The tool records the source Rust commit
-and release anchor. `python3 tools/rust_snapshot.py --check` must reproduce HEAD exactly.
+as a full commit hash (an ancestor of HEAD). Releases are tagged by the maintainer. `python3 tools/rust_snapshot.py --check` must reproduce HEAD exactly.
 Normal tests cannot accept a changed output. Do not hand-edit snapshots or restore a Python
 oracle. Historical verdicts live in [the archive](docs/history/python-parity.md).
 
