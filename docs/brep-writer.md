@@ -35,6 +35,13 @@ as JSON, with the kernel's volume of each solid and the PMI carried and refused.
 part carrying PMI is written in that part's own frame (`step::read_part`), with its PMI; the PMI
 of a file of several parts is listed under `pmi.parts_not_carried` (a write carries one part's).
 
+`quiddity brep <file.step> -o <out.step> --pmi <pmi.json>` writes the part with the PMI in a
+`quiddity-pmi` document instead of the file's, so PMI can be edited as JSON and written with the
+B-rep to a new file: `quiddity pmi read` the file, edit the JSON, `quiddity pmi check` it, then
+`brep --pmi`. The document must be bound to the input file (its sha256 and reader version, so
+its face and edge numbers are the file's), the file must have one part, and the document must
+name it; otherwise nothing is written. What the writer cannot carry is reported as before.
+
 ## What is written
 
 - The source's products, named and numbered (`PRODUCT.name`, `PRODUCT.id`) as the source gave

@@ -47,6 +47,9 @@
 //! part carrying PMI is written in that part's own frame, where its PMI is anchored; PMI items
 //! not carried (refused by the writer, or of a file of several parts) are listed with why. This
 //! is new output, not an edit of the file (`pmi write` edits files in place).
+//! `--pmi <pmi.json>` writes the PMI document's part PMI in place of the file's: the document
+//! must be bound to this file (`pmi read`, `pmi check`), the file must have one part, and the
+//! document must name it.
 //!
 //! `quiddity serve`: recognition and correspondence as a JSON-lines service on stdin and stdout
 //! (`quiddity::serve` has the protocol); exits 0 at the end of the input.
@@ -69,7 +72,8 @@ const USAGE: &str = "usage: quiddity <file.step>
        quiddity pmi check <file.step> <pmi.json>
        quiddity pmi write <file.step> <pmi.json> -o <out.step> [--mode add|replace|remove]
                           [--presentation refuse|remove]
-       quiddity brep <file.step> -o <out.step>    (B-rep and PMI to a new AP242 file)
+       quiddity brep <file.step> -o <out.step> [--pmi <pmi.json>]
+                          (B-rep and PMI to a new AP242 file; --pmi: that PMI, not the file's)
 
 `quiddity <file.step>` prints JSON: each family's records, their `fingerprints`, and the
 versioned recognition `document`. `quiddity serve` answers JSON-lines requests on stdin
@@ -97,9 +101,13 @@ fn main() -> ExitCode {
             correspond(old, new).map_err(|failure| failure.to_string())
         }
         [command, path] if command == "parts" => parts(path),
-        [command, path, flag, out] if command == "brep" && (flag == "-o" || flag == "--output") => {
-            brep(path, out)
-        }
+        [command, rest @ ..] if command == "brep" => match BrepArgs::parse(rest) {
+            Ok(b) => brep(&b),
+            Err(e) => {
+                eprintln!("quiddity: {e}\n{USAGE}");
+                return ExitCode::from(2);
+            }
+        },
         [command, read, path] if command == "pmi" && read == "read" => pmi_read(path, None),
         [command, read, path, flag, n]
             if command == "pmi" && read == "read" && flag == "--part" =>
@@ -230,26 +238,94 @@ fn pmi_check(path: &str, json: &str) -> Result<String, String> {
     )
 }
 
+/// `brep`'s arguments.
+struct BrepArgs {
+    step: String,
+    out: String,
+    pmi: Option<String>,
+}
+
+impl BrepArgs {
+    /// From the arguments after `brep`; a usage error names what is wrong.
+    fn parse(args: &[String]) -> Result<BrepArgs, String> {
+        let (mut step, mut out, mut pmi) = (None, None, None);
+        let mut it = args.iter();
+        while let Some(a) = it.next() {
+            let slot = match a.as_str() {
+                "-o" | "--output" => &mut out,
+                "--pmi" => &mut pmi,
+                s if s.starts_with('-') => return Err(format!("unknown option {s:?}")),
+                _ => {
+                    if step.replace(a.clone()).is_some() {
+                        return Err("brep takes one STEP file".into());
+                    }
+                    continue;
+                }
+            };
+            let v = it.next().ok_or_else(|| format!("{a} takes a value"))?;
+            if slot.replace(v.clone()).is_some() {
+                return Err(format!("{a} is given twice"));
+            }
+        }
+        Ok(BrepArgs {
+            step: step.ok_or("brep takes a STEP file")?,
+            out: out.ok_or("brep needs -o <out.step>")?,
+            pmi,
+        })
+    }
+}
+
 /// Write the part's B-rep to *out* (gzipped when its name ends in `.gz`); the write's report.
-fn brep(path: &str, out: &str) -> Result<String, String> {
+fn brep(args: &BrepArgs) -> Result<String, String> {
     use quiddity::kernel::brep_write::{WriteOptions, write_step};
+    let (path, out) = (args.step.as_str(), args.out.as_str());
     let bytes = step_bytes(path)?;
-    // The file's PMI: a file of one part is written with it, in the part's own frame; the PMI
-    // of a file of several parts is listed as not carried.
-    let read = read_part_definitions(&bytes).ok().and_then(|defs| {
-        let doc = p21::Document::parse(bytes.clone()).ok()?;
-        let read = quiddity::kernel::pmi::read(&doc, &defs).ok()?;
-        Some((defs, read))
-    });
     let items = |p: &PartPmi| pmi::write::differences_as_stated(&PartPmi::default(), p).len();
+    // A PMI document given with --pmi is the written part's PMI, in place of the file's: it must
+    // be bound to this file (`pmi read`, `pmi check`) and name its only part.
+    let given = match &args.pmi {
+        None => None,
+        Some(json) => {
+            let defs = read_part_definitions(&bytes).map_err(|e| format!("{path}: {e}"))?;
+            let text = std::fs::read_to_string(json).map_err(|e| format!("{json}: {e}"))?;
+            let value = pmi_json::parse(&text).map_err(|e| format!("{json}: not JSON ({e})"))?;
+            let document =
+                pmi_json::document_from_json(&value).map_err(|e| format!("{json}: {e}"))?;
+            pmi_json::check_against(&document, &bytes, &defs)
+                .map_err(|e| format!("{json}: {e}"))?;
+            if defs.len() != 1 {
+                return Err(format!(
+                    "{json}: {path} has {} parts; a write carries one part's PMI",
+                    defs.len()
+                ));
+            }
+            let [part] = <[_; 1]>::try_from(document.parts)
+                .map_err(|_| format!("{json}: must name the file's one part (part 0)"))?;
+            let read = quiddity::kernel::step::read_part(&bytes, &defs[0])
+                .map_err(|e| format!("{path}: {e}"))?;
+            Some((read, part.pmi))
+        }
+    };
+    // Without --pmi, the file's PMI: a file of one part is written with it, in the part's own
+    // frame; the PMI of a file of several parts is listed as not carried.
+    let (given_part, given_pmi) = given.map_or((None, None), |(p, m)| (Some(p), Some(m)));
+    let read = match given_part {
+        Some(_) => None,
+        None => read_part_definitions(&bytes).ok().and_then(|defs| {
+            let doc = p21::Document::parse(bytes.clone()).ok()?;
+            let read = quiddity::kernel::pmi::read(&doc, &defs).ok()?;
+            Some((defs, read))
+        }),
+    };
     let mut not_carried = Vec::new();
-    let (part, pmi) = match &read {
-        Some((defs, read)) if defs.len() == 1 && items(&read.parts[0]) > 0 => (
+    let (part, pmi) = match (given_part, &read) {
+        (Some(part), _) => (part, given_pmi.as_ref()),
+        (None, Some((defs, read))) if defs.len() == 1 && items(&read.parts[0]) > 0 => (
             quiddity::kernel::step::read_part(&bytes, &defs[0])
                 .map_err(|e| format!("{path}: {e}"))?,
             Some(&read.parts[0]),
         ),
-        _ => {
+        (None, _) => {
             if let Some((_, read)) = &read {
                 for (k, p) in read.parts.iter().enumerate() {
                     if items(p) > 0 {

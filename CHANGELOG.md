@@ -16,7 +16,8 @@ in [docs/alpha1.md](docs/alpha1.md).
   `pmi::write` and every item not carried named in the report. Reading the written file gives
   the same part bit for bit and the same recognition; geometry that did not resolve is refused
   by name; source product names are kept. `quiddity brep <file.step> -o <out.step>` writes a
-  file's part with its PMI;
+  file's part with its PMI, or with `--pmi <pmi.json>` with the PMI of a `quiddity-pmi`
+  document bound to that file (edit PMI as JSON, write it with the B-rep to a new file);
   `tools/check_brep_write_occt.py` checks written files against OpenCascade. Design, guarantee
   and refusals: [docs/brep-writer.md](docs/brep-writer.md). For files we were given, PMI edits
   stay byte-preserving (`pmi write`).
