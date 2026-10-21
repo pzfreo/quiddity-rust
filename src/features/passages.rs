@@ -297,6 +297,7 @@ impl SectionPassage {
     }
 }
 
+parity_entry! {
 /// Recognise the legacy prismatic passages of *part* (`recognise_passages`): one per closed
 /// ring capped at neither end, by axis then centre. Through slots are reported too (a closed
 /// uncapped ring); Python's aggregate reconciles them, and neither does it here.
@@ -306,11 +307,14 @@ pub fn recognise_passages(part: &Part) -> Vec<Passage> {
         .map(|(record, _)| record)
         .collect()
 }
+}
 
+parity_entry! {
 /// Recognise the section passages of *part* (`recognise_section_passages`), or the refusal
 /// Python raises.
 pub fn recognise_section_passages(part: &Part) -> Checked<Vec<SectionPassage>> {
     Ok(super::records(discover(&Context::new(part))?))
+}
 }
 
 /// The section passages with their defining walls and consulted faces (the proposal's further

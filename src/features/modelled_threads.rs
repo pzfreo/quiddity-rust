@@ -294,9 +294,11 @@ pub fn analyse_modelled_threads(part: &Part) -> ThreadAnalysis {
     result
 }
 
+parity_entry! {
 /// Records only; [`analyse_modelled_threads`] also reports refused candidates.
 pub fn recognise_modelled_threads(part: &Part) -> Vec<ModelledThread> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<ModelledThread>> {

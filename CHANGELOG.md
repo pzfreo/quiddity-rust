@@ -32,6 +32,16 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Changed
 
+- One supported recognition entry point: `correspondence::recognise(&Part)` recognises in the
+  inferred part frame using an in-memory rigid transform, without a reader closure or second
+  STEP read. Haecceity's `Part::transformed` preserves topology and source indices and rebuilds
+  derived caches lazily; non-rigid placements and reflections are refused.
+  **Upgrading:** `recognise` now returns framed records. Some fields are `local` on parts not
+  axis-aligned in their file; consumers must read them through `frame`. `recognise_placed` is
+  gone. Caller-space `features::recognise` and `recognise_<family>` are no longer public in
+  default builds; the hidden, non-default `python-parity` feature is test-only and unsupported.
+  Feature record types such as `HolePattern` remain public.
+
 - Chamfers, fillets and circular blind steps recognise perpendicular supporting planes rolled
   about a principal run axis, using the planes’ geometry. Motion tests and tighter breakdown
   limits cover the recovered features; the default recognition route is unchanged.

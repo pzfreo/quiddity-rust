@@ -158,6 +158,7 @@ fn seats_once(
     Ok(())
 }
 
+parity_entry! {
 /// `recognise_holes`.
 pub fn recognise_holes(part: &Part, opts: &HoleOptions) -> Vec<HoleRecord> {
     let ctx = Context::new(part);
@@ -170,6 +171,7 @@ pub fn recognise_holes(part: &Part, opts: &HoleOptions) -> Vec<HoleRecord> {
         .into_iter()
         .map(|o| o.record)
         .collect()
+}
 }
 
 fn same_diameter(a: f64, b: f64) -> bool {

@@ -47,9 +47,11 @@ impl ObliqueThroughStep {
     }
 }
 
+parity_entry! {
 /// `recognise_oblique_through_steps`.
 pub fn recognise_oblique_through_steps(part: &Part) -> Vec<ObliqueThroughStep> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 /// The evidence path: each step with its principal and oblique walls.

@@ -17,9 +17,11 @@ use crate::kernel::brep::Part;
 
 pub use super::recess_records::Pocket;
 
+parity_entry! {
 /// `recognise_pockets`.
 pub fn recognise_pockets(part: &Part) -> Vec<Pocket> {
     records(discover(&Context::new(part)))
+}
 }
 
 /// The occurrence and every face it consulted (`members`: defining, floors, inner region).

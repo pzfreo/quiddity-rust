@@ -60,9 +60,11 @@ pub struct ThinWallBody {
     pub unpaired_face_classes: Vec<UnpairedWallFace>,
 }
 
+parity_entry! {
 /// `recognise_thin_wall_bodies`.
 pub fn recognise_thin_wall_bodies(part: &Part) -> Vec<ThinWallBody> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 /// The surface classes the wall heuristics distinguish (`BRepAdaptor_Surface.GetType`).

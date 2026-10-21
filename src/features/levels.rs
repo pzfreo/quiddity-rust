@@ -213,12 +213,14 @@ fn level_proposals(
     out
 }
 
+parity_entry! {
 /// `recognise_face_levels`.
 pub fn recognise_face_levels(part: &Part, opts: &FaceLevelOptions) -> Vec<FaceLevel> {
     face_levels_with_faces(part, opts)
         .into_iter()
         .map(|(level, _)| level)
         .collect()
+}
 }
 
 /// `recognise_face_levels`' levels, each with the faces it was read from (not an evidence
@@ -346,12 +348,14 @@ pub fn proved<R>(
         .collect())
 }
 
+parity_entry! {
 /// `recognise_risers`.
 pub fn recognise_risers(part: &Part, opts: &RiserOptions) -> Vec<RiserEvidence> {
     risers_with_faces(part, opts)
         .into_iter()
         .map(|(riser, _)| riser)
         .collect()
+}
 }
 
 /// `recognise_risers`' risers, each with the faces it was read from (not an evidence path: the

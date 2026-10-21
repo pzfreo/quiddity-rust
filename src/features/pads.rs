@@ -800,6 +800,7 @@ fn occurrences<'a>(
     Ok(found)
 }
 
+parity_entry! {
 /// `recognise_rectangular_pads`: bounded rectangular raised tops, each solid on its own, sorted
 /// by record.
 pub fn recognise_rectangular_pads(
@@ -811,6 +812,7 @@ pub fn recognise_rectangular_pads(
         .into_iter()
         .map(|(record, _)| record)
         .collect())
+}
 }
 
 /// `_discover_rectangular_pads` with an evidence writer: each pad defined by its top and its

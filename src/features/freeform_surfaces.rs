@@ -329,6 +329,7 @@ fn records(part: &Part, walls: &[ThinWallBody]) -> Vec<FreeformSurface> {
         .collect()
 }
 
+parity_entry! {
 /// `recognise_freeform_surfaces`: the native B-spline supports on faces of valid solids.
 pub fn recognise_freeform_surfaces(part: &Part) -> Vec<FreeformSurface> {
     if !(0..part.faces.len()).any(|f| native(part, f).is_some()) {
@@ -337,6 +338,7 @@ pub fn recognise_freeform_surfaces(part: &Part) -> Vec<FreeformSurface> {
     let ctx = Context::new(part);
     let walls = super::records(thin_walls::discover(&ctx));
     super::records(discover(&ctx, &walls))
+}
 }
 
 /// `_discover`: each record defined by its own face, offsets read from the run's thin walls.

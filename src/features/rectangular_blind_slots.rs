@@ -66,9 +66,11 @@ fn has_unambiguous_slot_roles(length: f64, width: f64, depth: f64) -> bool {
     length + tolerance >= width && length > depth + tolerance
 }
 
+parity_entry! {
 /// `recognise_rectangular_blind_slots`.
 pub fn recognise_rectangular_blind_slots(part: &Part) -> Vec<RectangularBlindSlot> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 /// The evidence path: each slot with its two sides, floor and cap.

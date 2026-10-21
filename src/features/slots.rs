@@ -11,9 +11,11 @@ use crate::kernel::brep::Part;
 
 pub use super::recess_records::Slot;
 
+parity_entry! {
 /// `recognise_slots`.
 pub fn recognise_slots(part: &Part) -> Vec<Slot> {
     records(discover(&Context::new(part)))
+}
 }
 
 fn occurrence(proposal: Proposal<Slot>) -> Occurrence<Slot> {

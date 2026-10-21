@@ -54,9 +54,11 @@ pub(super) struct Analysis {
     pub refusals: Vec<InteriorVoidRefusal>,
 }
 
+parity_entry! {
 /// `recognise_interior_voids`.
 pub fn recognise_interior_voids(part: &Part) -> Vec<InteriorVoid> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 type Cell = [i64; 3];

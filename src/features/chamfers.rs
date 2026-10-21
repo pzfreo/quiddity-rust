@@ -60,12 +60,14 @@ pub fn discover_verified(
     evidence::verified(ctx.part, discover(ctx, opts))
 }
 
+parity_entry! {
 /// `recognise_chamfers`.
 pub fn recognise_chamfers(part: &Part, opts: &ChamferOptions) -> Vec<Chamfer> {
     discover(&Context::new(part), opts)
         .into_iter()
         .map(|o| o.record)
         .collect()
+}
 }
 
 /// Whether a measured leg is materially below the evidence floor (`_below_minimum_evidence`).

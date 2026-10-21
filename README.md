@@ -53,9 +53,8 @@ crates.io):
 
 ```rust
 let part = quiddity::read_step_file(std::path::Path::new("part.step"))?;
-let features = quiddity::features::recognise(&part); // every family, caller space
-let holes = quiddity::recognise_holes(&part, &Default::default()); // one family
-let recognition = quiddity::correspondence::recognise(&part); // with fingerprints
+let recognition = quiddity::correspondence::recognise(&part); // inferred frame, with fingerprints
+let holes = &recognition.features.holes; // read local fields through recognition.frame
 ```
 
 Modelled screw threads are also measured natively (`analyse_modelled_threads`): axis,
@@ -1062,10 +1061,10 @@ Z vertical). Each listed exception pins the most occurrences it may differ by. R
 refused by the reader for now, which rebuilds frames right-handed.
 
 Recognition by default is in the part's own frame and reported in the file's coordinates (the
-maintainer's decision on review M8): `correspondence::recognise_placed`, which the CLI, `quiddity
+maintainer's decision on review M8): `correspondence::recognise(&Part)`, which the CLI, `quiddity
 serve` and the recognition document use, infers the frame (`src/frames.rs`, Python's
 `quiddity.frames`) from the part's plane normals and cylinder axes, ranked by area and by where
-the faces sit about the part's centroid, re-reads the part placed in it, recognises it there,
+the faces sit about the part's centroid, transforms the loaded part in memory, recognises it there,
 and carries every record back (`src/framed_records.rs`): points by the frame, directions by its
 rotation, axis letters and coordinates along them exactly where the frame's axes are the file's
 up to order and sign. Where they are not, those fields stay in the frame and the document lists
@@ -1073,10 +1072,13 @@ them per record (`local`), with the frame itself (`quiddity-rust/recognition/3`)
 frame (no plane or cylinder, no material) is recognised as placed, with a warning.
 
 Parity is still checked where Python's entry points work: `features::recognise` and every
-`recognise_<family>` stay caller-space, as Python's do, and the parity tests (`corpus.rs`,
-`captured.rs`, `invariance.rs`) call them. `tests/frames.rs` checks the frame against Python's on
+`recognise_<family>` stay caller-space, as Python's do, behind the non-default
+`python-parity` Cargo feature. This hidden API is test-only and unsupported; the parity tests
+(`corpus.rs`, `captured.rs`, `invariance.rs`) require that feature and call them. Production
+consumers use `correspondence::recognise`; feature record types remain public. There is no
+reader closure or second STEP read, and `recognise_placed` has been removed. `tests/frames.rs` checks the frame against Python's on
 every fixture and corpus part, as read and turned, that it moves with the part, and that the
-re-read part's faces are the caller's under the same indices; `tests/invariance.rs` checks that
+working part's faces are the caller's under the same indices; `tests/invariance.rs` checks that
 every family, face levels and risers included, finds the same faces on the corpus part turned by
 a generic rotation (37° about (1, 2, 3)) as unmoved, each in its frame (4 listed exceptions: two
 recogniser thresholds Python shares, two kernel face-box defects). Caller-space recognition does
@@ -1210,3 +1212,7 @@ B-spline faces 43 and 47, crossings 2.8 and 6.0 µm outside their trims that par
 asked about alone (visibility) keeps to the face's own band, having no face across to yield to.
 The overshoot reach (`OVERSHOOT_BANDS`, 4) is empirical: the corpus needs at least 1.8 and
 breaks at 70 (evidence at the constant).
+
+Python parity checks require `cargo test --workspace --release --features python-parity`
+(with `QUIDDITY_CORPUS` set to the corpus directory). The default build does not expose
+caller-space recognition entry points.

@@ -63,12 +63,14 @@ impl Default for OrientedChamferOptions {
     }
 }
 
+parity_entry! {
 /// `recognise_oriented_chamfers`.
 pub fn recognise_oriented_chamfers(
     part: &Part,
     opts: &OrientedChamferOptions,
 ) -> Vec<OrientedChamfer> {
     super::records(discover(&Context::new(part), opts))
+}
 }
 
 /// The evidence path: each chamfer with its bevel face.

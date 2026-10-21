@@ -685,10 +685,12 @@ fn recognise_one(
     found
 }
 
+parity_entry! {
 /// `recognise_polygonal_bosses`: regular square and hexagonal bosses, each solid on its own,
 /// sorted by record.
 pub fn recognise_polygonal_bosses(part: &Part, opts: &PolygonalOptions) -> Vec<PolygonalBoss> {
     super::records(discover(&Context::new(part), opts))
+}
 }
 
 /// `_discover_polygonal_bosses`: per solid (or over the whole part when it has none), along z,
@@ -750,9 +752,11 @@ pub fn discover_verified(
     Ok(found)
 }
 
+parity_entry! {
 /// `recognise_polygonal_stock`: one record when the whole part is a regular hexagonal prism.
 pub fn recognise_polygonal_stock(part: &Part, opts: &PolygonalOptions) -> Vec<PolygonalStock> {
     super::records(discover_stock(&Context::new(part), opts))
+}
 }
 
 /// `_discover_polygonal_stock`: only a part of one solid and eight faces, the first axis (z, x,

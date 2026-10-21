@@ -52,9 +52,11 @@ impl CircularFacePattern {
     }
 }
 
+parity_entry! {
 /// `recognise_circular_face_patterns`.
 pub fn recognise_circular_face_patterns(part: &Part) -> Vec<CircularFacePattern> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 /// The evidence path: each pattern with all its groups' faces.

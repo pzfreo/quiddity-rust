@@ -163,12 +163,14 @@ pub struct SheetMetalBody {
     pub edge_treatments: Vec<SheetEdgeTreatment>,
 }
 
+parity_entry! {
 /// `recognise_sheet_metal_bodies`.
 pub fn recognise_sheet_metal_bodies(
     part: &Part,
     opts: &SheetMetalOptions,
 ) -> Result<Vec<SheetMetalBody>, InvalidKFactor> {
     Ok(super::records(discover_with(&Context::new(part), opts)?))
+}
 }
 
 /// The evidence path: each sheet with every face it names, all on one valid solid.

@@ -43,9 +43,11 @@ pub struct Groove {
     pub profile: Option<TurnedProfileKey>,
 }
 
+parity_entry! {
 /// `recognise_grooves`: sorted by axis, then `at`.
 pub fn recognise_grooves(part: &Part) -> Vec<Groove> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 /// The evidence path: each groove with its floor band, on one valid solid, and no turned

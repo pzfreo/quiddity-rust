@@ -511,9 +511,11 @@ fn record(
     }
 }
 
+parity_entry! {
 /// `recognise_prismatic_pockets`.
 pub fn recognise_prismatic_pockets(part: &Part) -> Vec<PrismaticPocket> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 /// The evidence path: each pocket defined by its walls, its floor (or cavity region) consulted.

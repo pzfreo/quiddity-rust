@@ -34,9 +34,11 @@ pub struct Flat {
     pub axis_direction: V3,
 }
 
+parity_entry! {
 /// `recognise_flats`.
 pub fn recognise_flats(part: &Part) -> Vec<Flat> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 /// The evidence path: each flat with its planar face.

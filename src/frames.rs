@@ -1,17 +1,10 @@
 //! Part-relative recognition with an explicit caller-space frame (`quiddity.frames`).
 //!
-//! [`recognise`](crate::features::recognise) and the per-family entry points stay caller-space,
-//! as Python's entry points do (the parity tests compare them with Python). Framed recognition
-//! infers a frame from the part's own geometry ([`infer_part_frame`]), re-reads the part placed
-//! in that frame, and recognises it there: the records are in the frame's local coordinates, and
-//! the frame says how to read them back in caller space. The working part is the same STEP read
-//! with the normalisation composed onto the caller's placement, so its faces are the caller
-//! part's faces under the same indices (Python pairs them by `IsSame`; here they are one read
-//! order, which `tests/frames.rs` checks face by face on every corpus part).
-//!
-//! The default recognition ([`crate::correspondence::recognise_placed`], used by the CLI, the
-//! service and the recognition document) is framed, its records carried back to the file's
-//! coordinates by [`crate::framed_records`] (the maintainer's decision on review M8).
+//! The supported entry point ([`crate::correspondence::recognise`]) infers the frame from
+//! the loaded part, transforms its geometry in memory and maps records back to caller space.
+//! Face and edge indices are preserved. Caller-space recognition and the legacy reader-based
+//! frame preparation helpers are available only with the unsupported `python-parity` test
+//! feature, so parity checks keep exercising Python's entry-point semantics.
 //!
 //! The origin is the centroid of the part's solids ([`Part::volume_centroid`]), where Python
 //! takes `BRepGProp::VolumeProperties` of the whole imported shape at its default rule: that also
@@ -24,11 +17,15 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::features::{self, Features};
+#[cfg(feature = "python-parity")]
+use crate::features;
+use crate::features::Features;
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{Surface, V3, cross};
 use crate::kernel::py;
-use crate::kernel::step::{Placement, read_step_file_placed, read_step_placed};
+use crate::kernel::step::Placement;
+#[cfg(feature = "python-parity")]
+use crate::kernel::step::{read_step_file_placed, read_step_placed};
 
 /// `_PARALLEL_COS`: two directions closer than this are one direction line.
 const PARALLEL_COS: f64 = 0.999;
@@ -357,6 +354,7 @@ pub struct FramedPart {
 }
 
 /// `outer` then `inner`, as one placement.
+#[cfg(feature = "python-parity")]
 fn then(outer: &Placement, inner: &Placement) -> Placement {
     let mut out = [[0.0; 4]; 3];
     for (i, row) in out.iter_mut().enumerate() {
@@ -370,12 +368,15 @@ fn then(outer: &Placement, inner: &Placement) -> Placement {
 
 /// A part's source: its STEP file read under a placement ([`read_step_placed`] on the file's
 /// bytes, or [`read_step_file_placed`]).
-pub type Read<'a> = &'a dyn Fn(&Placement) -> Result<Part, Box<dyn std::error::Error>>;
+#[cfg(feature = "python-parity")]
+type Read<'a> = &'a dyn Fn(&Placement) -> Result<Part, Box<dyn std::error::Error>>;
 
 /// `prepare_framed_part` for the part *read* gives under *placement* (the caller's space):
 /// infers the frame on that part and reads it again with the frame's normalisation composed on.
 /// The kernel's parts are not moved after reading, so the normalisation is applied by reading
 /// again.
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
 pub fn prepare_framed(read: Read<'_>, placement: &Placement) -> Result<FramedPart, FramedError> {
     let caller = read(placement).map_err(FramedError::Read)?;
     let frame = infer_part_frame(&caller).map_err(FramedError::Frame)?;
@@ -385,6 +386,8 @@ pub fn prepare_framed(read: Read<'_>, placement: &Placement) -> Result<FramedPar
 
 /// The working part of *caller*, the part *read* gives under *placement*, for *frame* (inferred
 /// on *caller*): read again with the frame's normalisation composed on.
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
 pub fn working_part(
     read: Read<'_>,
     placement: &Placement,
@@ -410,17 +413,20 @@ pub enum RecordFrame {
     /// No frame could be inferred, so the part was recognised as placed in the file: records
     /// depend on that placement (review M8), as caller-space recognition's do.
     Refused { reason: FrameRefusal },
-    /// Recognised as placed by the caller, no frame inferred
-    /// ([`crate::correspondence::recognise`] on a part in memory).
+    /// Test-only caller-space recognition, with no frame inferred.
     CallerSpace,
 }
 
 /// [`prepare_framed`] for a STEP file's bytes.
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
 pub fn prepare_framed_step(bytes: &[u8], placement: &Placement) -> Result<FramedPart, FramedError> {
     prepare_framed(&|p| Ok(read_step_placed(bytes, p)?), placement)
 }
 
 /// [`prepare_framed`] for a STEP file on disk (gzipped when its name ends in `.gz`).
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
 pub fn prepare_framed_file(
     path: &std::path::Path,
     placement: &Placement,
@@ -430,6 +436,8 @@ pub fn prepare_framed_file(
 
 impl FramedPart {
     /// `PreparedFramedPart.recognise`: the working part recognised, with its frame.
+    #[cfg(feature = "python-parity")]
+    #[doc(hidden)]
     pub fn recognise(self) -> FramedRecognition {
         let features = features::recognise(&self.part);
         FramedRecognition {

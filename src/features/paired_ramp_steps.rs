@@ -26,9 +26,11 @@ pub struct PairedRampStep {
     pub half_widths: Option<(f64, f64)>,
 }
 
+parity_entry! {
 /// `recognise_paired_ramp_steps`.
 pub fn recognise_paired_ramp_steps(part: &Part) -> Vec<PairedRampStep> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 /// The evidence path: both ramps and the internal terminal define each step.

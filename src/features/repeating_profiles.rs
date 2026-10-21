@@ -100,12 +100,14 @@ struct BoundaryEvidence {
     orbits: Vec<Vec<usize>>,
 }
 
+parity_entry! {
 /// `recognise_repeating_radial_profiles`.
 pub fn recognise_repeating_radial_profiles(
     part: &Part,
     opts: &RepeatingRadialProfileOptions,
 ) -> Vec<RepeatingRadialProfile> {
     super::records(discover_with(part, opts.tol))
+}
 }
 
 /// Every profile of every solid with its two opposed source faces, in record order.

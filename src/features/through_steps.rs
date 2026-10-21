@@ -54,9 +54,11 @@ impl ThroughStep {
     }
 }
 
+parity_entry! {
 /// `recognise_through_steps`.
 pub fn recognise_through_steps(part: &Part) -> Vec<ThroughStep> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 /// The evidence path: each step with both wall regions defining it.

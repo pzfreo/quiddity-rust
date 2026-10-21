@@ -186,9 +186,11 @@ fn cap_matches_profile(part: &Part, cap: &Region, radius: f64, flat_width: f64) 
         && (longest - expected_width).abs() <= length_tolerance(&[expected_width])
 }
 
+parity_entry! {
 /// `recognise_round_bottom_blind_slots`.
 pub fn recognise_round_bottom_blind_slots(part: &Part) -> Vec<RoundBottomBlindSlot> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 /// The evidence path: each slot with its two curved sides, floor and cap.

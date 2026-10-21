@@ -54,7 +54,7 @@ fn revision_pairs_have_their_expected_classes() {
         let read = |which: &str| {
             let part =
                 quiddity::read_step_file(&root.join(format!("{name}.{which}.step.gz"))).unwrap();
-            correspondence::recognise(&part).fingerprints
+            correspondence::python_parity_recognise(&part).fingerprints
         };
         let (old, new) = (read("old"), read("new"));
         let c = correspondence::correspond(&old, &new).unwrap();

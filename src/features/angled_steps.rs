@@ -22,9 +22,11 @@ pub struct AngledStep {
     pub corner: Option<V3>,
 }
 
+parity_entry! {
 /// `recognise_angled_steps`.
 pub fn recognise_angled_steps(part: &Part) -> Vec<AngledStep> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 /// The evidence path: each step with its slant face and the triangular flats closing it.

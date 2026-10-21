@@ -220,6 +220,7 @@ fn by_record(a: &OrientedSlot, b: &OrientedSlot) -> Ordering {
     py::tuple_order(&a.sort_key(), &b.sort_key())
 }
 
+parity_entry! {
 /// Recognise the oriented slots of *part* (`recognise_oriented_slots`): one per rectangular
 /// section-ring proposal with a non-principal direction, sorted. A proposal whose serialization
 /// Python refuses is refused here too.
@@ -234,6 +235,7 @@ pub fn recognise_oriented_slots(part: &Part) -> Checked<Vec<OrientedSlot>> {
     }
     found.sort_by(by_record);
     Ok(found)
+}
 }
 
 /// The oriented slots among the run's completed section *passages* (`_discover`), each claiming
@@ -285,6 +287,7 @@ fn pattern_key(slot: &OrientedSlot) -> Option<PatternKey> {
     Some((key, body))
 }
 
+parity_entry! {
 /// Recognise the coplanar, same-body arrays and grids of identical oriented slots
 /// (`recognise_oriented_slot_patterns`): per group of three or more, the grid of the whole
 /// group and every linear array, kept largest first while their members are free.
@@ -351,6 +354,7 @@ pub fn recognise_oriented_slot_patterns(slots: &[OrientedSlot]) -> Vec<OrientedS
         ));
     }
     out
+}
 }
 
 #[cfg(test)]

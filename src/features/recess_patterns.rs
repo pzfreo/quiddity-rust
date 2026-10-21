@@ -184,6 +184,7 @@ where
     out
 }
 
+parity_entry! {
 /// `recognise_slot_patterns`.
 pub fn recognise_slot_patterns(slots: &[Slot]) -> Vec<SlotPattern> {
     patterns(
@@ -205,7 +206,9 @@ pub fn recognise_slot_patterns(slots: &[Slot]) -> Vec<SlotPattern> {
         },
     )
 }
+}
 
+parity_entry! {
 /// `recognise_pocket_patterns`.
 pub fn recognise_pocket_patterns(pockets: &[Pocket]) -> Vec<PocketPattern> {
     patterns(
@@ -226,6 +229,7 @@ pub fn recognise_pocket_patterns(pockets: &[Pocket]) -> Vec<PocketPattern> {
             direction,
         },
     )
+}
 }
 
 #[cfg(test)]

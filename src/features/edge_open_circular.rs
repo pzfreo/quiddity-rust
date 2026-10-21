@@ -274,9 +274,11 @@ fn valid_section(segments: &[OpenCircularSectionSegment]) -> bool {
         && segments.windows(2).all(|w| w[0].end == w[1].start)
 }
 
+parity_entry! {
 /// `recognise_edge_open_circular_pockets`.
 pub fn recognise_edge_open_circular_pockets(part: &Part) -> Vec<EdgeOpenCircularPocket> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 /// The evidence path: each pocket defined by its four walls, its floor consulted.

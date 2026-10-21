@@ -94,11 +94,13 @@ pub struct SectionRecessProjection {
     pub patterns: Vec<SectionRecessPattern>,
 }
 
+parity_entry! {
 /// Every accepted unified constant-section recess in *part* (`recognise_section_recesses`).
 pub fn recognise_section_recesses(
     part: &Part,
 ) -> Result<Vec<SectionRecess>, SectionRecessFamilyError> {
     Ok(section_recess_projection(part)?.section_recesses)
+}
 }
 
 /// The accepted recesses as one deterministic document (`build_section_recess_document`):

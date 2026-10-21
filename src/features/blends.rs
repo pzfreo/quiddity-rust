@@ -456,9 +456,11 @@ fn straight_proposal(graph: &BlendGraph<'_>, chain: &BlendChain) -> Option<Occur
     })
 }
 
+parity_entry! {
 /// `recognise_blends`.
 pub fn recognise_blends(part: &Part) -> Vec<Blend> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 /// `_discover_blends`: straight then circular proposals, sorted by path, radius and side.

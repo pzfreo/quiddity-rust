@@ -68,10 +68,12 @@ impl Default for PlateOptions {
     }
 }
 
+parity_entry! {
 /// `recognise_plates`: deduplicated by (axis, lo, hi) within each body, sorted by axis, `lo`,
 /// `hi`, `u` and `v`.
 pub fn recognise_plates(part: &Part, opts: &PlateOptions) -> Vec<Plate> {
     super::records(discover(&Context::new(part), opts))
+}
 }
 
 /// The evidence path: each plate's low and high face groups, all on one valid solid, with no

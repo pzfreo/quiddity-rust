@@ -14,9 +14,11 @@ use crate::kernel::py;
 
 pub use super::recess_records::Channel;
 
+parity_entry! {
 /// `recognise_channels`.
 pub fn recognise_channels(part: &Part) -> Vec<Channel> {
     records(discover(&Context::new(part)))
+}
 }
 
 /// Geometry-only order (`_channel_sort_key`).

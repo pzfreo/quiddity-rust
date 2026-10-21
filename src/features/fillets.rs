@@ -56,12 +56,14 @@ impl Default for FilletOptions {
     }
 }
 
+parity_entry! {
 /// `recognise_fillets`: the records only.
 pub fn recognise_fillets(part: &Part, opts: &FilletOptions) -> Vec<Fillet> {
     discover(&Context::new(part), opts)
         .into_iter()
         .map(|o| o.record)
         .collect()
+}
 }
 
 /// The evidence path: each fillet with its defining face, published only if every one is

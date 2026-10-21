@@ -51,9 +51,11 @@ impl TurnedStep {
     }
 }
 
+parity_entry! {
 /// `recognise_turned_steps`: sorted by profile, then axis, `lo`, `hi` and diameter.
 pub fn recognise_turned_steps(part: &Part) -> Vec<TurnedStep> {
     sorted(super::records(discover(&Context::new(part))))
+}
 }
 
 /// Steps in the order `recognise_turned_steps` returns them (`discover` keeps proposal order,

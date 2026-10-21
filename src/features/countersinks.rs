@@ -49,12 +49,14 @@ pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<CounterSink
     evidence::verified(ctx.part, discover(ctx))
 }
 
+parity_entry! {
 /// `recognise_countersinks`.
 pub fn recognise_countersinks(part: &Part) -> Vec<CounterSink> {
     discover(&Context::new(part))
         .into_iter()
         .map(|o| o.record)
         .collect()
+}
 }
 
 /// Whether the countersink is seated at this bore's mouth: its minor circle sits at a bore end

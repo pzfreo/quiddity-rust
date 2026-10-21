@@ -23,9 +23,11 @@ pub struct BossRecord {
     pub height: f64,
 }
 
+parity_entry! {
 /// `recognise_bosses`.
 pub fn recognise_bosses(part: &Part) -> Vec<BossRecord> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 /// The evidence path: each boss with its cylinder faces and the face at its free end.

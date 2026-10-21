@@ -76,9 +76,11 @@ struct Opening {
     wire: Vec<(usize, bool)>,
 }
 
+parity_entry! {
 /// `recognise_double_d_bores`.
 pub fn recognise_double_d_bores(part: &Part, opts: &DoubleDBoreOptions) -> Vec<DoubleDBore> {
     super::records(discover_with(&Context::new(part), opts))
+}
 }
 
 /// Every bore of every solid with its complete lateral wall (empty when the wall could not be

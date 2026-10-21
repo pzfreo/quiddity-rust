@@ -258,9 +258,11 @@ fn section_from_walls(
     })
 }
 
+parity_entry! {
 /// `recognise_edge_open_prismatic_recesses`.
 pub fn recognise_edge_open_prismatic_recesses(part: &Part) -> Vec<EdgeOpenPrismaticRecess> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 /// The evidence path: each recess defined by its walls, its floor consulted.

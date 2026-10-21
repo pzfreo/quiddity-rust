@@ -1,8 +1,8 @@
 //! The feature recognisers, ported family by family from the Python implementation, and the
 //! per-run machinery they share.
 //!
-//! Each family module exposes a public `recognise_*` (records only, the Python public
-//! entry point) and a `discover` that takes the run's [`Context`] and returns
+//! Each family module has a crate-private `recognise_*` (records only, exposed solely by
+//! the unsupported `python-parity` test feature) and a `discover` taking the run's [`Context`], returning
 //! [`Occurrence`]s carrying the faces that define each record. Shared analysis — the cylinder
 //! inventory, the point classifier, the part's box — lives in the context so a run computes it
 //! once however many families ask.
@@ -202,6 +202,7 @@ pub struct Features {
 /// Defining faces by family field name, then record.
 pub type Defining = BTreeMap<&'static str, Vec<Vec<usize>>>;
 
+parity_entry! {
 /// Recognise every ported family on *part* with default options, as Python's aggregate does:
 /// holes carry their countersinks, every candidate the reconciliation rejects is dropped (with
 /// its defining faces), and patterns are found among the accepted holes, gusset ribs, slots,
@@ -217,6 +218,7 @@ pub type Defining = BTreeMap<&'static str, Vec<Vec<usize>>>;
 /// refusal is an open maintainer question).
 pub fn recognise(part: &Part) -> Features {
     take_inventory(part, recognise_in).unwrap_or_else(|e| panic!("reconciliation refused: {e}"))
+}
 }
 
 /// [`recognise`] over one completed run.
