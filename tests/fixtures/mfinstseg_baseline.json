@@ -1,6 +1,6 @@
 {
   "schema": 2,
-  "reason": "Initial Rust-first baseline from independent MFInstSeg labels; no recognition changes. Coarse family correspondence follows AAGNet generator geometry: analytic OpenCascade U-channel and aligned/rotated enclosed rectangular cuts establish classes 6 and 3. Only defining faces; identical face sets deduplicated, empty claims count as unmatched predictions; maximum one-to-one instance IoU >= 0.5; zero denominators score zero.",
+  "reason": "Initial Rust-first baseline from independent MFInstSeg labels; no recognition changes. Coarse family correspondence follows AAGNet generator geometry: analytic OpenCascade U-channel and aligned/rotated enclosed rectangular cuts establish classes 6 and 3. Only defining faces; identical face sets deduplicated, empty claims count as unmatched predictions; maximum one-to-one instance IoU >= 0.5; zero denominators score zero. Lowered 2026-10-21 with maintainer approval: #57's ambiguous-role refusal (ADR 0011) withdraws one legacy Pocket record on 20221121_154648_9433 (faces [1,3,4,5], zero-based); the section-recess pocket on [1..5] remains. Shared-family classes rectangular_pocket, circular_end_pocket and rectangular_blind_step lose that one prediction; rectangular_pocket loses 4 face and 1 instance true positives (143->139, 9->8).",
   "selection": "200 evenly spaced indices i*62495//200 in lexical STEP-stem order, i=0..199; IDs and input hashes fixed below.",
   "mapping_sha256": "752cba940682be01a0e882ab38c34607bf00e1f99b36fe2e398c716b5ffca465",
   "models": [
@@ -2777,13 +2777,13 @@
     {
       "faces": {
         "labelled": 331,
-        "predicted": 1006,
-        "true_positive": 143
+        "predicted": 1002,
+        "true_positive": 139
       },
       "instances": {
         "labelled": 62,
-        "predicted": 300,
-        "true_positive": 9
+        "predicted": 299,
+        "true_positive": 8
       }
     },
     {
@@ -2801,12 +2801,12 @@
     {
       "faces": {
         "labelled": 337,
-        "predicted": 488,
+        "predicted": 484,
         "true_positive": 155
       },
       "instances": {
         "labelled": 66,
-        "predicted": 192,
+        "predicted": 191,
         "true_positive": 21
       }
     },
@@ -2873,12 +2873,12 @@
     {
       "faces": {
         "labelled": 203,
-        "predicted": 488,
+        "predicted": 484,
         "true_positive": 168
       },
       "instances": {
         "labelled": 66,
-        "predicted": 192,
+        "predicted": 191,
         "true_positive": 56
       }
     },
@@ -2907,7 +2907,7 @@
       }
     }
   ],
-  "accounting_reason": "Initial complete face-accounting baseline on the unchanged fixed 200 IDs and hashes. Strict stock_box_side geometry; labels 0\u201323 may never be body, and label-24 unexplained faces are ratcheted per model. Existing feature scores retained unchanged pending the separately approved PR #63 baseline correction.",
+  "accounting_reason": "Initial complete face-accounting baseline on the unchanged fixed 200 IDs and hashes. Strict stock_box_side geometry; labels 0\u201323 may never be body, and label-24 unexplained faces are ratcheted per model. Existing feature scores retained unchanged; the separately approved PR #63 correction is merged without changing recognition.",
   "accounting": {
     "body": 222,
     "feature": 3175,
