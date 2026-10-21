@@ -41,6 +41,11 @@
 //! 2 with the usage on stderr for bad arguments. `-h`/`--help` prints the usage on stdout and
 //! exits 0.
 //!
+//! `quiddity brep <file.step> -o <out.step>`: writes the part's B-rep as read (an inverted
+//! shell repaired) to a new AP242 file (`haecceity::brep_write`), and prints what the write
+//! reports as JSON, with the kernel's volume of each solid. The file's PMI and everything else it held are not carried: this is new
+//! output, not an edit of the file (`pmi write` edits files in place).
+//!
 //! `quiddity serve`: recognition and correspondence as a JSON-lines service on stdin and stdout
 //! (`quiddity::serve` has the protocol); exits 0 at the end of the input.
 
@@ -62,12 +67,13 @@ const USAGE: &str = "usage: quiddity <file.step>
        quiddity pmi check <file.step> <pmi.json>
        quiddity pmi write <file.step> <pmi.json> -o <out.step> [--mode add|replace|remove]
                           [--presentation refuse|remove]
+       quiddity brep <file.step> -o <out.step>
 
 `quiddity <file.step>` prints JSON: each family's records, their `fingerprints`, and the
 versioned recognition `document`. `quiddity serve` answers JSON-lines requests on stdin
 (`recognise`, `correspond`), one response line each on stdout.";
 
-const COMMANDS: [&str; 4] = ["correspond", "serve", "parts", "pmi"];
+const COMMANDS: [&str; 5] = ["correspond", "serve", "parts", "pmi", "brep"];
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -89,6 +95,9 @@ fn main() -> ExitCode {
             correspond(old, new).map_err(|failure| failure.to_string())
         }
         [command, path] if command == "parts" => parts(path),
+        [command, path, flag, out] if command == "brep" && (flag == "-o" || flag == "--output") => {
+            brep(path, out)
+        }
         [command, read, path] if command == "pmi" && read == "read" => pmi_read(path, None),
         [command, read, path, flag, n]
             if command == "pmi" && read == "read" && flag == "--part" =>
@@ -217,6 +226,56 @@ fn pmi_check(path: &str, json: &str) -> Result<String, String> {
         serde_json::to_string_pretty(&pmi_json::document_to_json(&document))
             .expect("JSON serialises"),
     )
+}
+
+/// Write the part's B-rep to *out* (gzipped when its name ends in `.gz`); the write's report.
+fn brep(path: &str, out: &str) -> Result<String, String> {
+    use quiddity::kernel::brep_write::{WriteOptions, write_step};
+    let bytes = step_bytes(path)?;
+    let part = quiddity::kernel::read_step(&bytes).map_err(|e| format!("{path}: {e}"))?;
+    let name = Path::new(path)
+        .file_name()
+        .map_or_else(|| "part".to_owned(), |n| n.to_string_lossy().into_owned());
+    let (written, report) = write_step(
+        &part,
+        &WriteOptions {
+            name: &name,
+            pmi: None,
+        },
+    )
+    .map_err(|e| format!("{path}: {e}"))?;
+    let file_bytes = if gzipped(out) {
+        let mut enc = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::default());
+        std::io::Write::write_all(&mut enc, &written).map_err(|e| e.to_string())?;
+        enc.finish().map_err(|e| e.to_string())?
+    } else {
+        written
+    };
+    std::fs::write(out, file_bytes).map_err(|e| format!("{out}: {e}"))?;
+    let json = serde_json::json!({
+        "solids": report.solids,
+        "void_shells": report.void_shells,
+        "faces": report.faces,
+        "surface_model_faces": report.surface_model_faces,
+        "edges": report.edges,
+        "vertices": report.vertices,
+        "pcurves_written": report.pcurves_written,
+        "pcurves_not_written": report.pcurves_not_written,
+        "surface_kinds_changed": report
+            .surface_kinds_changed
+            .iter()
+            .map(|(face, kind)| serde_json::json!({"face": face, "kind": kind}))
+            .collect::<Vec<_>>(),
+        "face_order_preserved": report.face_order_preserved,
+        "edge_order_preserved": report.edge_order_preserved,
+        "placed_components": report.placed_components,
+        "placements_flattened": report.placements_flattened,
+        // The kernel's volume of each solid, for checking the file against other readers.
+        "solid_volumes": (0..part.solids.len())
+            .map(|s| part.solid_mass(s).map(|(v, _)| v))
+            .collect::<Vec<_>>(),
+    });
+    Ok(serde_json::to_string_pretty(&json).expect("JSON serialises"))
 }
 
 /// `pmi write`'s arguments.

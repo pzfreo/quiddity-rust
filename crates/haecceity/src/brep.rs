@@ -96,6 +96,8 @@ pub(crate) enum SweptSource {
         axis: Option<V3>,
         /// The file's length unit in millimetres.
         to_mm: f64,
+        /// The file's plane angle unit in radians.
+        to_rad: f64,
     },
     Extrusion {
         profile: RawProfile,
@@ -111,6 +113,23 @@ impl SweptSource {
             SweptSource::Revolution { to_mm, .. } | SweptSource::Extrusion { to_mm, .. } => *to_mm,
         }
     }
+}
+
+/// A pcurve's 2D curve as the file states it (parameter values unscaled).
+#[derive(Clone, Debug, PartialEq)]
+pub(crate) enum RawCurve2d {
+    Line {
+        point: [f64; 2],
+        direction: [f64; 2],
+        magnitude: f64,
+    },
+    BSpline {
+        degree: i64,
+        points: Vec<[f64; 2]>,
+        multiplicities: Vec<i64>,
+        knots: Vec<f64>,
+        weights: Option<Vec<f64>>,
+    },
 }
 
 /// A swept surface's profile curve as the file states it.
@@ -305,6 +324,13 @@ pub struct Part {
     face_frames: std::collections::BTreeMap<usize, RawFrame>,
     edge_frames: std::collections::BTreeMap<usize, RawFrame>,
     swept: std::collections::BTreeMap<usize, SweptSource>,
+    // Every face's pcurves as the file states them, by edge (unscaled; the reader holds a
+    // reduced form of an analytic face's, and none of a freeform face's).
+    file_pcurves: std::collections::BTreeMap<usize, Vec<(usize, RawCurve2d)>>,
+    // The file's length and plane angle units in millimetres and radians.
+    file_units: Option<(f64, f64)>,
+    // The file's length uncertainty, in millimetres.
+    file_uncertainty: Option<f64>,
     native_faces: Vec<Native<Face>>,
     native_edges: Vec<Native<Edge>>,
 }
@@ -331,6 +357,9 @@ impl Part {
             face_frames: Default::default(),
             edge_frames: Default::default(),
             swept: Default::default(),
+            file_pcurves: Default::default(),
+            file_units: None,
+            file_uncertainty: None,
             native_faces: Vec::new(),
             native_edges: Vec::new(),
         }
@@ -526,6 +555,9 @@ impl Part {
         part.face_frames = self.face_frames.clone();
         part.edge_frames = self.edge_frames.clone();
         part.swept = self.swept.clone();
+        part.file_pcurves = self.file_pcurves.clone();
+        part.file_units = self.file_units;
+        part.file_uncertainty = self.file_uncertainty;
         part.native_faces = native_faces;
         part.native_edges = native_edges;
         Ok(part)
@@ -572,6 +604,35 @@ impl Part {
     ) -> Self {
         self.swept = swept;
         self
+    }
+
+    pub(super) fn with_file_pcurves(
+        mut self,
+        pcurves: std::collections::BTreeMap<usize, Vec<(usize, RawCurve2d)>>,
+        units: (f64, f64),
+        uncertainty: Option<f64>,
+    ) -> Self {
+        self.file_pcurves = pcurves;
+        self.file_units = Some(units);
+        self.file_uncertainty = uncertainty;
+        self
+    }
+
+    /// The length uncertainty (modelling precision) of the file the part was read from, in
+    /// millimetres.
+    pub fn file_uncertainty(&self) -> Option<f64> {
+        self.file_uncertainty
+    }
+
+    /// The pcurves the file gives on face *face*'s surface, by edge, as it states them.
+    pub(crate) fn file_pcurves(&self, face: usize) -> &[(usize, RawCurve2d)] {
+        self.file_pcurves.get(&face).map_or(&[], Vec::as_slice)
+    }
+
+    /// The length and plane angle units (millimetres, radians) of the file the part was read
+    /// from.
+    pub(crate) fn file_units(&self) -> Option<(f64, f64)> {
+        self.file_units
     }
 
     /// Face *face*'s swept surface as the file states it, before [`Self::face_placement`].

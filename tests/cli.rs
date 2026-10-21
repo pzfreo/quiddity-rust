@@ -291,3 +291,36 @@ fn an_unresolved_open_edge_curve_is_reported() {
         "{err}"
     );
 }
+
+#[test]
+fn brep_writes_the_part_and_reports() {
+    let usage = String::from_utf8_lossy(&quiddity(&["--help"]).stdout).into_owned();
+    assert!(
+        usage.contains("quiddity brep <file.step> -o <out.step>"),
+        "{usage}"
+    );
+    let dir = std::env::temp_dir().join(format!("quiddity-cli-brep-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let input = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/golden_simple_through_hole.step");
+    let out_path = dir.join("hole.step");
+    let out = quiddity(&[
+        "brep",
+        input.to_str().unwrap(),
+        "-o",
+        out_path.to_str().unwrap(),
+    ]);
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let report: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+    let before = quiddity::read_step_file(&input).unwrap();
+    let after = quiddity::read_step_file(&out_path).unwrap();
+    assert_eq!(report["faces"], before.faces.len());
+    assert_eq!(after.faces.len(), before.faces.len());
+    assert_eq!(after.edges.len(), before.edges.len());
+    assert_eq!(report["face_order_preserved"], true);
+    std::fs::remove_dir_all(&dir).ok();
+}

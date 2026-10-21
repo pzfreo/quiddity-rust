@@ -10,8 +10,8 @@ use step_io::parser::{Attribute, RawEntity};
 use step_io::scene::{Edge as StepEdge, Face as StepFace, SurfaceKind};
 
 use super::brep::{
-    Edge, Face, GeometryPlacement, InstanceTransform, Loop, Part, Pcurve, PcurveSpline, RawFrame,
-    RawProfile, Solid, Source, SweptSource,
+    Edge, Face, GeometryPlacement, InstanceTransform, Loop, Part, Pcurve, PcurveSpline, RawCurve2d,
+    RawFrame, RawProfile, Solid, Source, SweptSource,
 };
 use super::geom::{self, Curve, Frame, Surface, V3};
 use super::nurbs::{NurbsCurve, NurbsSurface};
@@ -334,6 +334,7 @@ impl Reader<'_> {
                         None => None,
                     },
                     to_mm: self.to_mm,
+                    to_rad: self.to_rad,
                 })
             }
             SurfaceKind::LinearExtrusion(s) => {
@@ -347,6 +348,123 @@ impl Reader<'_> {
             }
             _ => None,
         }
+    }
+
+    /// A 2D line or B-spline as the file states it.
+    fn raw_curve_2d(&self, item: &m::RepresentationItemRef) -> Option<RawCurve2d> {
+        let model = self.model;
+        let point = |r: &m::CartesianPointRef| {
+            let c = self.raw_point(r)?;
+            Some([c[0], c[1]])
+        };
+        Some(match item {
+            m::RepresentationItemRef::Line(i) => {
+                let l = model.get(m::LineId(i.0))?;
+                let (d, magnitude) = self.raw_vector(&l.dir)?;
+                RawCurve2d::Line {
+                    point: point(&l.pnt)?,
+                    direction: [d[0], d[1]],
+                    magnitude,
+                }
+            }
+            m::RepresentationItemRef::BSplineCurveWithKnots(i) => {
+                let b = model.get(m::BSplineCurveWithKnotsId(i.0))?;
+                RawCurve2d::BSpline {
+                    degree: b.degree,
+                    points: b
+                        .control_points_list
+                        .iter()
+                        .map(point)
+                        .collect::<Option<_>>()?,
+                    multiplicities: b.knot_multiplicities.clone(),
+                    knots: b.knots.clone(),
+                    weights: None,
+                }
+            }
+            m::RepresentationItemRef::Complex(c) => {
+                let RawProfile::BSpline {
+                    degree,
+                    points,
+                    multiplicities,
+                    knots,
+                    weights,
+                } = self.raw_profile(&m::CurveRef::Complex(*c))?
+                else {
+                    return None;
+                };
+                RawCurve2d::BSpline {
+                    degree,
+                    points: points.into_iter().map(|p| [p[0], p[1]]).collect(),
+                    multiplicities,
+                    knots,
+                    weights,
+                }
+            }
+            _ => return None,
+        })
+    }
+
+    /// The pcurves the file gives on a face's surface, by edge index, as it states them (kept to
+    /// be written again).
+    fn file_pcurves(
+        &self,
+        face: &StepFace<'_>,
+        edge_index: &HashMap<m::EntityKey, usize>,
+    ) -> Vec<(usize, RawCurve2d)> {
+        let basis = face.surface().key();
+        let mut out = Vec::new();
+        for bound in face.bounds() {
+            for edge in bound.edges() {
+                let Some(&index) = edge_index.get(&edge.key()) else {
+                    continue;
+                };
+                let associated = match &raw_edge_curve(self.model, &edge) {
+                    m::CurveRef::SurfaceCurve(i) => {
+                        &self
+                            .model
+                            .get(m::SurfaceCurveId(i.0))
+                            .expect("validated STEP reference")
+                            .associated_geometry
+                    }
+                    m::CurveRef::SeamCurve(i) => {
+                        &self
+                            .model
+                            .get(m::SeamCurveId(i.0))
+                            .expect("validated STEP reference")
+                            .associated_geometry
+                    }
+                    _ => continue,
+                };
+                for g in associated {
+                    let m::PcurveOrSurfaceRef::Pcurve(p) = g else {
+                        continue;
+                    };
+                    let pcurve = self
+                        .model
+                        .get(m::PcurveId(p.0))
+                        .expect("validated STEP reference");
+                    if pcurve.basis_surface.entity_key() != basis {
+                        continue;
+                    }
+                    let m::DefinitionalRepresentationRef::DefinitionalRepresentation(d) =
+                        &pcurve.reference_to_curve
+                    else {
+                        continue;
+                    };
+                    for item in &self
+                        .model
+                        .get(m::DefinitionalRepresentationId(d.0))
+                        .expect("validated STEP reference")
+                        .items
+                    {
+                        if let Some(curve) = self.raw_curve_2d(item) {
+                            out.push((index, curve));
+                        }
+                    }
+                }
+            }
+        }
+        out
     }
 
     /// The file's frame ratios of an analytic surface.
@@ -2019,6 +2137,7 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
         std::collections::BTreeMap::new(),
     );
     let mut swept = std::collections::BTreeMap::new();
+    let mut file_pcurves = std::collections::BTreeMap::new();
     let (mut native_faces, mut native_edges) = (Vec::new(), Vec::new());
     let mut vertex_count = 0;
     for (is_solid, placement, faces, instance) in shells {
@@ -2144,6 +2263,10 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
             {
                 swept.insert(out_faces.len(), source);
             }
+            let raw = reader.file_pcurves(&face, &edge_index);
+            if !raw.is_empty() {
+                file_pcurves.insert(out_faces.len(), raw);
+            }
             out_faces.push(Face {
                 surface,
                 reversed: (face.orientation() == step_io::Orientation::Forward) == flipped,
@@ -2209,6 +2332,11 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
         .with_pcurve_splines(pcurve_splines)
         .with_raw_frames(face_frames, edge_frames)
         .with_swept(swept)
+        .with_file_pcurves(
+            file_pcurves,
+            (reader.to_mm, reader.to_rad),
+            units.precision.map(|p| p * reader.to_mm),
+        )
         .with_native_geometry(native_faces, native_edges)
         .repair_inverted_shells();
     Ok(Read {

@@ -43,12 +43,13 @@ use step_io::build::LengthUnit;
 use step_io::model as m;
 use step_io::{AuthorError, StepBuilder};
 
-use crate::brep::{Edge, Face, Part, Pcurve, RawFrame, RawProfile, SweptSource};
+use crate::brep::{Edge, Face, Part, Pcurve, RawCurve2d, RawFrame, RawProfile, SweptSource};
 use crate::geom::{self, Conic, Curve, Frame, Surface, V3};
 use crate::nurbs::{NurbsCurve, NurbsSurface};
 use crate::pmi::{self, PartPmi};
 
-/// The length uncertainty written (millimetres), OpenCascade's own export value.
+/// The length uncertainty written (millimetres) for a part read from no file, or from one that
+/// states none: OpenCascade's own export value.
 pub const UNCERTAINTY_MM: f64 = 1e-7;
 
 /// How to write a part.
@@ -265,6 +266,11 @@ struct Writer<'p> {
     /// Whether the geometry is written as read (each instance's native geometry in a component
     /// placed as the file placed it) rather than where the part holds it.
     native: bool,
+    /// Per freeform face, whether its surface is written with the file's own parameterisation,
+    /// so the file's pcurves on it apply.
+    file_parameters: Vec<bool>,
+    /// The length uncertainty written, in millimetres.
+    uncertainty: f64,
 }
 
 /// *x* moved by *k* units in the last place (towards +∞ for positive *k*).
@@ -668,9 +674,15 @@ fn place_frame(at: &crate::step::Placement, f: &Frame) -> Frame {
 
 impl<'p> Writer<'p> {
     fn new(part: &'p Part, name: &str) -> Self {
+        // The file's own uncertainty where the part keeps one: readers that heal to it
+        // (OpenCascade) then build the same shape.
+        let uncertainty = part
+            .file_uncertainty()
+            .filter(|u| u.is_finite() && *u > 0.0)
+            .unwrap_or(UNCERTAINTY_MM);
         let mut b = StepBuilder::new_with(&step_io::build::UnitsInput {
             length: LengthUnit::Millimetre,
-            uncertainty: UNCERTAINTY_MM,
+            uncertainty,
         })
         .expect("millimetre units with a positive uncertainty");
         let header = b.header_mut();
@@ -690,6 +702,8 @@ impl<'p> Writer<'p> {
             name: name.to_owned(),
             ctx2d: None,
             native,
+            file_parameters: vec![false; part.faces.len()],
+            uncertainty,
         }
     }
 
@@ -817,11 +831,21 @@ impl<'p> Writer<'p> {
                     .face_swept(face)
                     .filter(|s| at == crate::step::IDENTITY && s.to_mm() == 1.0);
                 match swept {
-                    Some(source) => swept_surface(b, source)?,
+                    Some(source) => {
+                        // A revolution's u is an angle in the file's unit.
+                        self.file_parameters[face] = match source {
+                            SweptSource::Revolution { to_rad, .. } => *to_rad == 1.0,
+                            SweptSource::Extrusion { .. } => true,
+                        };
+                        swept_surface(b, source)?
+                    }
                     None => {
                         if *kind != "BSPLINE" {
                             report.surface_kinds_changed.push((face, kind));
                         }
+                        // The B-spline as read keeps the file's knots, so its parameters; a
+                        // Bézier patch's are its standard ones.
+                        self.file_parameters[face] = matches!(*kind, "BSPLINE" | "BEZIER");
                         nurbs_surface(b, surface)?
                     }
                 }
@@ -918,15 +942,67 @@ impl<'p> Writer<'p> {
         })
     }
 
-    /// A pcurve of *face* (entry *slot* of its `pcurves`) on the face's written surface, in the
-    /// file's parameter units; `None` with the reason when the part does not hold it in full.
+    /// A pcurve of *face* (entry *slot* of its `pcurves`, or of the file's pcurves on it when
+    /// *raw*) on the face's written surface, in the file's parameter units; `None`
+    /// with the reason when the part does not hold it in full.
     fn pcurve(
         &mut self,
         face: usize,
         slot: usize,
+        raw: bool,
         surface: &m::SurfaceRef,
     ) -> Result<Result<m::PcurveId, String>, AuthorError> {
         let part = self.part;
+        if raw {
+            let item = match &part.file_pcurves(face)[slot].1 {
+                RawCurve2d::Line {
+                    point,
+                    direction,
+                    magnitude,
+                } => {
+                    let a = self.b.author();
+                    let p = a.add_cartesian_point("", (*point).into())?;
+                    let d = a.add_direction("", (*direction).into())?;
+                    let v = a.add_vector("", m::DirectionRef::Direction(d), *magnitude)?;
+                    m::RepresentationItemRef::Line(a.add_line(
+                        "",
+                        m::CartesianPointRef::CartesianPoint(p),
+                        m::VectorRef::Vector(v),
+                    )?)
+                }
+                RawCurve2d::BSpline {
+                    degree,
+                    points,
+                    multiplicities,
+                    knots,
+                    weights,
+                } => {
+                    let a = self.b.author();
+                    let cps = points
+                        .iter()
+                        .map(|&p| {
+                            a.add_cartesian_point("", p.into())
+                                .map(m::CartesianPointRef::CartesianPoint)
+                        })
+                        .collect::<Result<Vec<_>, _>>()?;
+                    match bspline_curve(
+                        &mut self.b,
+                        usize::try_from(*degree).unwrap_or(usize::MAX),
+                        cps,
+                        knots.clone(),
+                        multiplicities.clone(),
+                        weights.as_deref(),
+                    )? {
+                        m::CurveRef::BSplineCurveWithKnots(i) => {
+                            m::RepresentationItemRef::BSplineCurveWithKnots(i)
+                        }
+                        m::CurveRef::Complex(i) => m::RepresentationItemRef::Complex(i),
+                        _ => unreachable!("bspline_curve makes a B-spline"),
+                    }
+                }
+            };
+            return self.pcurve_on(item, surface).map(Ok);
+        }
         let f = &part.faces[face];
         // The reader scales STEP's parameters to the held ones; this file's are millimetres
         // and radians, so only a cone's v (STEP's axial height, held along the slant) differs.
@@ -980,6 +1056,15 @@ impl<'p> Writer<'p> {
                 }
             }
         };
+        self.pcurve_on(item, surface).map(Ok)
+    }
+
+    /// A `PCURVE` of a 2D curve on a written surface.
+    fn pcurve_on(
+        &mut self,
+        item: m::RepresentationItemRef,
+        surface: &m::SurfaceRef,
+    ) -> Result<m::PcurveId, AuthorError> {
         let ctx = self.ctx2d()?;
         let a = self.b.author();
         let rep = a.add_definitional_representation(
@@ -987,11 +1072,11 @@ impl<'p> Writer<'p> {
             vec![item],
             m::RepresentationContextRef::Complex(ctx),
         )?;
-        Ok(Ok(a.add_pcurve(
+        a.add_pcurve(
             "",
             surface.clone(),
             m::DefinitionalRepresentationRef::DefinitionalRepresentation(rep),
-        )?))
+        )
     }
 
     fn write(mut self, report: &mut WriteReport) -> Result<Vec<u8>, WriteError> {
@@ -1135,7 +1220,8 @@ impl<'p> Writer<'p> {
 
         // Each edge's pcurves: per face using it, its distinct entries (an edge a face uses
         // twice, a seam, has its pcurves listed once per use).
-        let mut uses: Vec<Vec<(usize, usize)>> = vec![Vec::new(); part.edges.len()];
+        // (face, slot, whether the slot is of the file's pcurves on a freeform face)
+        let mut uses: Vec<Vec<(usize, usize, bool)>> = vec![Vec::new(); part.edges.len()];
         let mut seam: Vec<bool> = vec![false; part.edges.len()];
         for (f, face) in part.faces.iter().enumerate() {
             let mut count: BTreeMap<usize, usize> = BTreeMap::new();
@@ -1148,19 +1234,28 @@ impl<'p> Writer<'p> {
                 if k > 1 {
                     seam[e] = true;
                 }
-                let slots: Vec<usize> = face
-                    .pcurves
-                    .iter()
-                    .enumerate()
-                    .filter(|(_, (pe, _))| *pe == e)
-                    .map(|(i, _)| i)
-                    .collect();
+                // The file's own pcurves where its parameters are this file's: on a freeform
+                // surface written with them, on an analytic one when the file was in
+                // millimetres and radians (the held ones are those, reduced).
+                let analytic = !matches!(face.surface, Surface::Freeform { .. });
+                let raw = !part.file_pcurves(f).is_empty()
+                    && if analytic {
+                        part.file_units() == Some((1.0, 1.0))
+                    } else {
+                        self.file_parameters[f]
+                    };
+                let edges: Vec<usize> = if raw {
+                    part.file_pcurves(f).iter().map(|(pe, _)| *pe).collect()
+                } else {
+                    face.pcurves.iter().map(|(pe, _)| *pe).collect()
+                };
+                let slots: Vec<usize> = (0..edges.len()).filter(|&i| edges[i] == e).collect();
                 let distinct = if slots.len().is_multiple_of(k) {
                     &slots[..slots.len() / k]
                 } else {
                     &slots[..]
                 };
-                uses[e].extend(distinct.iter().map(|&s| (f, s)));
+                uses[e].extend(distinct.iter().map(|&s| (f, s, raw)));
             }
         }
 
@@ -1171,14 +1266,14 @@ impl<'p> Writer<'p> {
             let end = vertex(&mut self.b, e.vertices.1, e.end)?;
             let curve = self.curve(i)?;
             let mut pcurves = Vec::new();
-            for &(f, slot) in &uses[i] {
+            for &(f, slot, raw) in &uses[i] {
                 if pcurves.len() == 2 {
                     report.pcurves_not_written.push(format!(
                         "face {f} edge {i}: an edge carries at most two pcurves"
                     ));
                     continue;
                 }
-                match self.pcurve(f, slot, &surfaces[f])? {
+                match self.pcurve(f, slot, raw, &surfaces[f])? {
                     Ok(p) => pcurves.push(m::PcurveOrSurfaceRef::Pcurve(p)),
                     Err(why) => report
                         .pcurves_not_written
@@ -1321,7 +1416,7 @@ impl<'p> Writer<'p> {
                 .collect(),
         )?;
         let model = a.add_shell_based_surface_model("", vec![m::ShellRef::OpenShell(shell)])?;
-        let ctx = geometric_context(a)?;
+        let ctx = geometric_context(a, self.uncertainty)?;
         let rep = a.add_manifold_surface_shape_representation(
             "",
             vec![m::RepresentationItemRef::ShellBasedSurfaceModel(model)],
@@ -1336,7 +1431,10 @@ impl<'p> Writer<'p> {
 }
 
 /// A 3D context with the builder's units (millimetre, radian, steradian) and uncertainty.
-fn geometric_context(a: &mut step_io::Ap242Author) -> Result<m::ComplexEntityId, AuthorError> {
+fn geometric_context(
+    a: &mut step_io::Ap242Author,
+    uncertainty: f64,
+) -> Result<m::ComplexEntityId, AuthorError> {
     let mm = a.add_complex(vec![
         m::PartialEntity::LengthUnit,
         m::PartialEntity::NamedUnit { dimensions: None },
@@ -1365,7 +1463,7 @@ fn geometric_context(a: &mut step_io::Ap242Author) -> Result<m::ComplexEntityId,
     let uncertainty = a.add_uncertainty_measure_with_unit(
         m::MeasureValue {
             type_name: Some(length_measure),
-            value: m::MeasureScalar::Real(UNCERTAINTY_MM),
+            value: m::MeasureScalar::Real(uncertainty),
         },
         m::UnitRef::Complex(mm),
         "distance_accuracy_value",
@@ -1395,37 +1493,130 @@ fn geometric_context(a: &mut step_io::Ap242Author) -> Result<m::ComplexEntityId,
     ])
 }
 
-/// Every item of *p* by its [`pmi::write::ItemRef`] (holes aside).
-fn items(p: &PartPmi) -> Vec<pmi::write::ItemRef> {
-    use pmi::write::ItemRef as I;
-    let each = |n: usize, f: fn(usize) -> I| (0..n).map(f).collect::<Vec<_>>();
-    let mut out = each(p.standards.len(), I::Standard);
-    if p.decimal_places.is_some() {
-        out.push(I::DecimalPlaces);
+/// Per kind, the index in the caller's PMI of each item still carried.
+#[derive(Clone, Debug, Default)]
+struct Origins {
+    standards: Vec<usize>,
+    decimal_places: bool,
+    features: Vec<usize>,
+    datum_targets: Vec<usize>,
+    datums: Vec<usize>,
+    dimensions: Vec<usize>,
+    tolerances: Vec<usize>,
+    tolerance_relations: Vec<usize>,
+    general: Vec<usize>,
+    threads: Vec<usize>,
+    knurls: Vec<usize>,
+    material: bool,
+    notes: Vec<usize>,
+    surface_textures: Vec<usize>,
+    attributes: Vec<usize>,
+}
+
+impl Origins {
+    fn of(p: &PartPmi) -> Self {
+        let all = |n: usize| (0..n).collect();
+        Origins {
+            standards: all(p.standards.len()),
+            decimal_places: p.decimal_places.is_some(),
+            features: all(p.features.len()),
+            datum_targets: all(p.datum_targets.len()),
+            datums: all(p.datums.len()),
+            dimensions: all(p.dimensions.len()),
+            tolerances: all(p.tolerances.len()),
+            tolerance_relations: all(p.tolerance_relations.len()),
+            general: all(p.general.len()),
+            threads: all(p.threads.len()),
+            knurls: all(p.knurls.len()),
+            material: p.material.is_some(),
+            notes: all(p.notes.len()),
+            surface_textures: all(p.surface_textures.len()),
+            attributes: all(p.attributes.len()),
+        }
     }
-    out.extend(each(p.features.len(), I::Feature));
-    out.extend(each(p.datum_targets.len(), I::DatumTarget));
-    out.extend(each(p.datums.len(), I::Datum));
-    out.extend(each(p.dimensions.len(), I::Dimension));
-    out.extend(each(p.tolerances.len(), I::Tolerance));
-    out.extend(each(p.tolerance_relations.len(), I::ToleranceRelation));
-    out.extend(each(p.general.len(), I::General));
-    out.extend(each(p.threads.len(), I::Thread));
-    out.extend(each(p.knurls.len(), I::Knurl));
-    if p.material.is_some() {
-        out.push(I::Material);
+
+    /// Every carried item, by its index in the caller's PMI.
+    fn items(&self) -> Vec<pmi::write::ItemRef> {
+        use pmi::write::ItemRef as I;
+        let each = |v: &[usize], f: fn(usize) -> I| v.iter().map(|&i| f(i)).collect::<Vec<_>>();
+        let mut out = each(&self.standards, I::Standard);
+        if self.decimal_places {
+            out.push(I::DecimalPlaces);
+        }
+        out.extend(each(&self.features, I::Feature));
+        out.extend(each(&self.datum_targets, I::DatumTarget));
+        out.extend(each(&self.datums, I::Datum));
+        out.extend(each(&self.dimensions, I::Dimension));
+        out.extend(each(&self.tolerances, I::Tolerance));
+        out.extend(each(&self.tolerance_relations, I::ToleranceRelation));
+        out.extend(each(&self.general, I::General));
+        out.extend(each(&self.threads, I::Thread));
+        out.extend(each(&self.knurls, I::Knurl));
+        if self.material {
+            out.push(I::Material);
+        }
+        out.extend(each(&self.notes, I::Note));
+        out.extend(each(&self.surface_textures, I::SurfaceTexture));
+        out.extend(each(&self.attributes, I::Attribute));
+        out
     }
-    out.extend(each(p.notes.len(), I::Note));
-    out.extend(each(p.surface_textures.len(), I::SurfaceTexture));
-    out.extend(each(p.attributes.len(), I::Attribute));
-    out
+
+    /// The caller's index of an item of the PMI these origins describe.
+    fn original(&self, item: pmi::write::ItemRef) -> pmi::write::ItemRef {
+        use pmi::write::ItemRef as I;
+        match item {
+            I::Standard(i) => I::Standard(self.standards[i]),
+            I::Feature(i) => I::Feature(self.features[i]),
+            I::DatumTarget(i) => I::DatumTarget(self.datum_targets[i]),
+            I::Datum(i) => I::Datum(self.datums[i]),
+            I::Dimension(i) => I::Dimension(self.dimensions[i]),
+            I::Tolerance(i) => I::Tolerance(self.tolerances[i]),
+            I::ToleranceRelation(i) => I::ToleranceRelation(self.tolerance_relations[i]),
+            I::General(i) => I::General(self.general[i]),
+            I::Thread(i) => I::Thread(self.threads[i]),
+            I::Knurl(i) => I::Knurl(self.knurls[i]),
+            I::Note(i) => I::Note(self.notes[i]),
+            I::SurfaceTexture(i) => I::SurfaceTexture(self.surface_textures[i]),
+            I::Attribute(i) => I::Attribute(self.attributes[i]),
+            other => other,
+        }
+    }
+
+    /// These origins after [`pmi::without_kept`] kept *kept* of the items they describe.
+    fn keep(&self, kept: &pmi::Kept) -> Self {
+        let keep = |v: &[usize], k: &[bool]| {
+            v.iter()
+                .zip(k)
+                .filter(|(_, k)| **k)
+                .map(|(i, _)| *i)
+                .collect()
+        };
+        Origins {
+            standards: keep(&self.standards, &kept.standards),
+            decimal_places: self.decimal_places && kept.decimal_places,
+            features: keep(&self.features, &kept.features),
+            datum_targets: keep(&self.datum_targets, &kept.datum_targets),
+            datums: keep(&self.datums, &kept.datums),
+            dimensions: keep(&self.dimensions, &kept.dimensions),
+            tolerances: keep(&self.tolerances, &kept.tolerances),
+            tolerance_relations: keep(&self.tolerance_relations, &kept.tolerance_relations),
+            general: keep(&self.general, &kept.general),
+            threads: keep(&self.threads, &kept.threads),
+            knurls: keep(&self.knurls, &kept.knurls),
+            material: self.material && kept.material,
+            notes: keep(&self.notes, &kept.notes),
+            surface_textures: keep(&self.surface_textures, &kept.surface_textures),
+            attributes: keep(&self.attributes, &kept.attributes),
+        }
+    }
 }
 
 /// Write *pmi* into the new file's one part with [`pmi::write()`] (which validates what it
 /// adds against the schema and its rules). Hole definitions are not carried (that writer
-/// neither writes nor refuses them). That writer writes all of a part's items or none: when it
-/// refuses any, none are carried, each refusal named with its reason and every other item
-/// named as not carried with it.
+/// neither writes nor refuses them). Items that writer refuses are taken out, with every item
+/// that refers to one of them, and the rest written; each is named with its reason. When it
+/// fails otherwise (its schema or rule check of what it would add), no item is carried and
+/// each is named with that failure.
 fn carry_pmi(bytes: Vec<u8>, pmi: &PartPmi) -> Result<(Vec<u8>, PmiCarried), WriteError> {
     use pmi::write::ItemRef;
     let defs = crate::step::read_part_definitions(&bytes)
@@ -1446,47 +1637,68 @@ fn carry_pmi(bytes: Vec<u8>, pmi: &PartPmi) -> Result<(Vec<u8>, PmiCarried), Wri
         .collect();
     let mut written = pmi.clone();
     written.holes.clear();
-    if written == PartPmi::default() {
-        return Ok((doc.bytes().to_vec(), PmiCarried { written, refused }));
-    }
-    match pmi::write(
-        &doc,
-        &defs,
-        &[(pmi::PartId(0), written.clone())],
-        pmi::Mode::Add,
-        pmi::write::PresentationPolicy::Refuse,
-    ) {
-        Ok((edit, _)) => {
-            let out = doc
-                .apply(&edit)
-                .map_err(|e| WriteError::Pmi(format!("applying the PMI: {e}")))?;
-            Ok((out.bytes, PmiCarried { written, refused }))
+    let mut origins = Origins::of(&written);
+    loop {
+        if written == PartPmi::default() {
+            return Ok((doc.bytes().to_vec(), PmiCarried { written, refused }));
         }
-        Err(pmi::write::WriteError::Refused(refusals)) => {
-            let named: Vec<ItemRef> = refusals.iter().map(|r| r.item).collect();
-            refused.extend(refusals.into_iter().map(|r| PmiRefusal {
-                item: r.item,
-                why: r.why,
-            }));
-            refused.extend(
-                items(&written)
-                    .into_iter()
-                    .filter(|i| !named.contains(i))
-                    .map(|item| PmiRefusal {
-                        item,
-                        why: "not carried: the PMI writer refused other items of the part, and \
-                          writes all of them or none"
-                            .to_owned(),
-                    }),
-            );
-            Ok((
-                doc.bytes().to_vec(),
-                PmiCarried {
-                    written: PartPmi::default(),
-                    refused,
-                },
-            ))
+        match pmi::write(
+            &doc,
+            &defs,
+            &[(pmi::PartId(0), written.clone())],
+            pmi::Mode::Add,
+            pmi::write::PresentationPolicy::Refuse,
+        ) {
+            Ok((edit, _)) => {
+                let out = doc
+                    .apply(&edit)
+                    .map_err(|e| WriteError::Pmi(format!("applying the PMI: {e}")))?;
+                refused.sort_by(|a, b| a.item.cmp(&b.item));
+                return Ok((out.bytes, PmiCarried { written, refused }));
+            }
+            Err(pmi::write::WriteError::Refused(list)) => {
+                let items: Vec<ItemRef> = list.iter().map(|r| r.item).collect();
+                let before: Vec<ItemRef> = origins.items();
+                refused.extend(list.into_iter().map(|r| PmiRefusal {
+                    item: origins.original(r.item),
+                    why: r.why,
+                }));
+                let (next, kept) = pmi::without_kept(&written, &items);
+                origins = origins.keep(&kept);
+                let after = origins.items();
+                let named: Vec<ItemRef> = refused.iter().map(|r| r.item).collect();
+                refused.extend(
+                    before
+                        .into_iter()
+                        .filter(|i| !after.contains(i) && !named.contains(i))
+                        .map(|item| PmiRefusal {
+                            item,
+                            why: "not carried: it refers to a refused item".to_owned(),
+                        }),
+                );
+                if next == written {
+                    return Err(WriteError::Pmi(
+                        "the PMI writer refused items it was not given".to_owned(),
+                    ));
+                }
+                written = next;
+            }
+            Err(e) => {
+                // Nothing of the part's PMI can be written: every item is named with why.
+                let why = format!("not carried: the PMI writer cannot write the part's PMI ({e})");
+                refused.extend(origins.items().into_iter().map(|item| PmiRefusal {
+                    item,
+                    why: why.clone(),
+                }));
+                refused.sort_by(|a, b| a.item.cmp(&b.item));
+                return Ok((
+                    doc.bytes().to_vec(),
+                    PmiCarried {
+                        written: PartPmi::default(),
+                        refused,
+                    },
+                ));
+            }
         }
-        Err(e) => Err(WriteError::Pmi(e.to_string())),
     }
 }
