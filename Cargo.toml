@@ -176,3 +176,11 @@ required-features = ["python-parity"]
 [[example]]
 name = "holes"
 required-features = ["python-parity"]
+
+[[example]]
+name = "modelled_threads"
+required-features = ["python-parity"]
+
+[[example]]
+name = "trim_lengths"
+required-features = ["python-parity"]
