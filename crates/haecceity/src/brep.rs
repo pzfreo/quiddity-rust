@@ -67,9 +67,38 @@ pub enum Pcurve {
     Line { point: (f64, f64), dir: (f64, f64) },
 }
 
+/// The B-spline form of a pcurve held as [`Pcurve::Poles`] (degree, distinct knots with their
+/// multiplicities, and weights when rational), as the file gave it: what writing it back needs.
+#[derive(Clone, Debug, PartialEq)]
+pub(crate) struct PcurveSpline {
+    pub(crate) degree: usize,
+    pub(crate) knots: Vec<f64>,
+    pub(crate) multiplicities: Vec<usize>,
+    pub(crate) weights: Option<Vec<f64>>,
+}
+
+/// An `AXIS2_PLACEMENT_3D`'s axis and reference direction ratios as the file gives them,
+/// before the reader normalises them (`None` where the file leaves one out).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub(crate) struct RawFrame {
+    pub(crate) axis: Option<V3>,
+    pub(crate) reference: Option<V3>,
+}
+
 #[derive(Clone, Debug)]
 pub struct Solid {
     pub faces: Vec<usize>,
+}
+
+/// One assembly level's placement as the file states it, when its `from` frame is the
+/// standard one (origin, z and x axes): the `to` frame's origin (in millimetres) and its axis
+/// and reference direction ratios with defaults filled. Writing it again as the placement of a
+/// component reproduces the reader's transform bit for bit.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub(crate) struct InstanceTransform {
+    pub(crate) origin: V3,
+    pub(crate) axis: V3,
+    pub(crate) reference: V3,
 }
 
 /// Retained native instance placement, composed in the reader's original order.
@@ -77,14 +106,17 @@ pub struct Solid {
 pub(super) struct GeometryPlacement {
     outer: super::step::Placement,
     path: std::sync::Arc<[super::step::Placement]>,
+    /// Per level of `path`, its placement as the file states it (`None` when not standard).
+    raw: std::sync::Arc<[Option<InstanceTransform>]>,
 }
 
 impl GeometryPlacement {
     pub(super) fn new(
         outer: super::step::Placement,
         path: std::sync::Arc<[super::step::Placement]>,
+        raw: std::sync::Arc<[Option<InstanceTransform>]>,
     ) -> Self {
-        Self { outer, path }
+        Self { outer, path, raw }
     }
     fn placement(&self) -> super::step::Placement {
         self.path
@@ -211,6 +243,11 @@ pub struct Part {
     // STEP LINE direction ratios before normalisation, for reader-equivalent rotations.
     line_directions: std::collections::BTreeMap<usize, V3>,
     conics: std::collections::BTreeMap<usize, geom::Conic>,
+    // Per face, per entry of its `pcurves`, the B-spline form of a `Pcurve::Poles`.
+    pcurve_splines: Vec<Vec<Option<PcurveSpline>>>,
+    // The file's frame ratios of analytic surfaces and of circle, ellipse and conic edges.
+    face_frames: std::collections::BTreeMap<usize, RawFrame>,
+    edge_frames: std::collections::BTreeMap<usize, RawFrame>,
     native_faces: Vec<Native<Face>>,
     native_edges: Vec<Native<Edge>>,
 }
@@ -233,6 +270,9 @@ impl Part {
             input_repairs: Vec::new(),
             line_directions: Default::default(),
             conics: Default::default(),
+            pcurve_splines: Vec::new(),
+            face_frames: Default::default(),
+            edge_frames: Default::default(),
             native_faces: Vec::new(),
             native_edges: Vec::new(),
         }
@@ -265,6 +305,7 @@ impl Part {
         };
         let identity = std::sync::Arc::new(GeometryPlacement::new(
             super::step::IDENTITY,
+            std::sync::Arc::from([]),
             std::sync::Arc::from([]),
         ));
         // Share both the imported context and its composed replacement across all primitives
@@ -423,6 +464,9 @@ impl Part {
         part.input_repairs = self.input_repairs.clone();
         part.line_directions = self.line_directions.clone();
         part.conics = self.conics.clone();
+        part.pcurve_splines = self.pcurve_splines.clone();
+        part.face_frames = self.face_frames.clone();
+        part.edge_frames = self.edge_frames.clone();
         part.native_faces = native_faces;
         part.native_edges = native_edges;
         Ok(part)
@@ -446,6 +490,93 @@ impl Part {
     ) -> Self {
         self.conics = conics;
         self
+    }
+
+    pub(super) fn with_pcurve_splines(mut self, splines: Vec<Vec<Option<PcurveSpline>>>) -> Self {
+        self.pcurve_splines = splines;
+        self
+    }
+
+    pub(super) fn with_raw_frames(
+        mut self,
+        faces: std::collections::BTreeMap<usize, RawFrame>,
+        edges: std::collections::BTreeMap<usize, RawFrame>,
+    ) -> Self {
+        self.face_frames = faces;
+        self.edge_frames = edges;
+        self
+    }
+
+    /// The file's frame ratios of face *face*'s analytic surface, before
+    /// [`Self::face_placement`].
+    pub(crate) fn face_frame(&self, face: usize) -> Option<&RawFrame> {
+        self.face_frames.get(&face)
+    }
+
+    /// The file's frame ratios of edge *edge*'s circle, ellipse or conic, before
+    /// [`Self::edge_placement`].
+    pub(crate) fn edge_frame(&self, edge: usize) -> Option<&RawFrame> {
+        self.edge_frames.get(&edge)
+    }
+
+    /// Face *face*'s native geometry (in the frame of the file definition it was read from)
+    /// with that definition's placement levels as the file states them, when the part holds
+    /// them all: `None` for a part moved after reading, or placed by a level the file states
+    /// another way. An empty list for a face read where it lies.
+    pub(crate) fn face_instance(
+        &self,
+        face: usize,
+    ) -> Option<(&Face, &[Option<InstanceTransform>], usize)> {
+        let (native, context) = self.native_faces.get(face)?;
+        if context.outer != super::step::IDENTITY {
+            return None;
+        }
+        let key = std::sync::Arc::as_ptr(context) as usize;
+        Some((
+            native.as_deref().unwrap_or(&self.faces[face]),
+            &context.raw,
+            key,
+        ))
+    }
+
+    /// Edge *edge*'s native geometry (see [`Self::face_instance`]).
+    pub(crate) fn native_edge(&self, edge: usize) -> &Edge {
+        self.native_edges
+            .get(edge)
+            .and_then(|(native, _)| native.as_deref())
+            .unwrap_or(&self.edges[edge])
+    }
+
+    /// The placement from the frame face *face* was read in to the part's coordinates.
+    pub(crate) fn face_placement(&self, face: usize) -> super::step::Placement {
+        self.native_faces
+            .get(face)
+            .map_or(super::step::IDENTITY, |(_, context)| context.placement())
+    }
+
+    /// The B-spline form of entry *slot* of face *face*'s `pcurves`, when the file gave one.
+    pub(crate) fn pcurve_spline(&self, face: usize, slot: usize) -> Option<&PcurveSpline> {
+        self.pcurve_splines.get(face)?.get(slot)?.as_ref()
+    }
+
+    /// Edge *edge*'s exact parabola or hyperbola where it lies on one (its curve is then the
+    /// arc in NURBS form), in the frame of the file it was read from, before
+    /// [`Self::edge_placement`].
+    pub(crate) fn edge_conic(&self, edge: usize) -> Option<&geom::Conic> {
+        self.conics.get(&edge)
+    }
+
+    /// A straight edge's `LINE` direction ratios as the file gave them, before
+    /// [`Self::edge_placement`] and normalisation.
+    pub(crate) fn edge_line_ratios(&self, edge: usize) -> Option<V3> {
+        self.line_directions.get(&edge).copied()
+    }
+
+    /// The placement from the frame edge *edge* was read in to the part's coordinates.
+    pub(crate) fn edge_placement(&self, edge: usize) -> super::step::Placement {
+        self.native_edges
+            .get(edge)
+            .map_or(super::step::IDENTITY, |(_, context)| context.placement())
     }
 
     pub(super) fn with_line_directions(
