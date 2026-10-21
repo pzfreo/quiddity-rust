@@ -102,20 +102,25 @@ with `QUIDDITY_CORPUS`, every corpus part, plus PMI over the AP242 fixtures.
 
 2026-10-21, on step-io 0.3 (`cx/step-io-03`):
 
-| Set | Files | Same | Refused | Unreadable input |
-| --- | ---: | ---: | ---: | ---: |
-| Corpus | 106 | 106 | 0 | 0 |
-| Fixtures (top level and subdirectories) | 254 | 241 | 2 | 11 |
-| Captured fixtures | 2585 | 2585 | 0 | 0 |
+| Set | Files | Same | Same, repaired | Refused | Unreadable input |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Corpus (`QUIDDITY_CORPUS`) | 100 | 100 | 0 | 0 | 0 |
+| Fixtures (outside `captured/`) | 174 | 160 | 1 | 2 | 11 |
+| Captured fixtures | 2671 | 2671 | 0 | 0 | 0 |
 
-The two refusals are the broken fixtures whose geometry did not resolve
-(`unresolved_open_curve.step`: edge 1; `unresolved_surface.step`: face 1). PMI: 45 parts of the
-AP242 fixtures and corpus NIST files read back identical; 6 read back as written less items
-named as refused (the three kinds above).
+*Same, repaired*: `truck_master_shaft_only.step.gz`, whose inverted shell reading repairs. The
+file holds the repaired part (`WriteReport::repairs_written`), so reading it back repairs
+nothing: the recognition is the same but for the document's `input_repairs` (and the CLI's
+repair warning). The two refusals are the broken fixtures whose geometry did not resolve
+(`unresolved_open_curve.step`: edge 1; `unresolved_surface.step`: face 1); the unreadable inputs
+are the other broken fixtures and files with no shape. PMI (AP242 fixtures, every part of each
+file): 35 parts carried whole, 6 with items named as refused (the kinds above); the corpus NIST
+files are AP203 and carry no semantic PMI.
 
-OpenCascade (`tools/check_brep_write_occt.py`, the read-only OCP environment): every written
-file reads with the input's face and solid counts; volumes agree to 1e-6 except
-`revolution_cone.step.gz`, where OpenCascade's volume of the written file equals the kernel's
+OpenCascade (`tools/check_brep_write_occt.py`, the read-only OCP environment, over the corpus and
+every fixture: 2932 written files): every written file reads with the input's face and solid
+counts; the solids' volumes agree to 1e-6 in 2931, and in the other,
+`revolution_cone.step.gz`, OpenCascade's volume of the written file equals the kernel's
 (37.699111843) and its volume of the input does not (37.697639).
 
 [`Part`]: ../crates/haecceity/src/brep.rs
