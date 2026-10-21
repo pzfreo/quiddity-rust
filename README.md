@@ -30,7 +30,7 @@ retain face metrics for incomplete instance annotations and explicitly count the
 models whose instance metrics are available. Renamed duplicates are accepted only
 when STEP DATA records and label bytes match their declared originals.
 The fixed 200-model ratchet runs with
-`QUIDDITY_MFINSTSEG=/path/to/MFInstSeg cargo test --release --test mfinstseg`.
+`QUIDDITY_MFINSTSEG=/path/to/MFInstSeg cargo test --release --features python-parity --test mfinstseg`.
 Dataset files stay external because redistribution permission has not been
 established. Its baseline pins input and mapping hashes; record non-regressing
 improvements with `tools/update_mfinstseg_baseline.py`.
@@ -911,10 +911,10 @@ cargo build --release
 ./target/release/quiddity pmi check part.step pmi.json      # a PMI document checked against the file
 ./target/release/quiddity pmi write part.step pmi.json -o out.step [--mode add|replace|remove] \
   [--presentation refuse|remove]                            # AP242 PMI written, verified, reported
-QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release
+QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release --features python-parity
 # corpus tests read ../quiddity/tests/corpus or $QUIDDITY_CORPUS; without
 # QUIDDITY_CORPUS_REQUIRED=1 they pass by skipping when the corpus is missing
-QUIDDITY_CORPUS=off cargo test --workspace --release
+QUIDDITY_CORPUS=off cargo test --workspace --release --features python-parity
 # a quick local run: the corpus tests skip (most of the suite's time); run the
 # whole suite before pushing, as CI does
 HAECCEITY_NIST_PMI=<NIST-PMI-STEP-Files> HAECCEITY_NIST_PMI_REQUIRED=1 \
@@ -1076,7 +1076,8 @@ Parity is still checked where Python's entry points work: `features::recognise` 
 `python-parity` Cargo feature. This hidden API is test-only and unsupported; the parity tests
 (`corpus.rs`, `captured.rs`, `invariance.rs`) require that feature and call them. Production
 consumers use `correspondence::recognise`; feature record types remain public. There is no
-reader closure or second STEP read, and `recognise_placed` has been removed. `tests/frames.rs` checks the frame against Python's on
+reader closure or second STEP read, and `recognise_placed` has been removed.
+`tests/frames.rs` checks the frame against Python's on
 every fixture and corpus part, as read and turned, that it moves with the part, and that the
 working part's faces are the caller's under the same indices; `tests/invariance.rs` checks that
 every family, face levels and risers included, finds the same faces on the corpus part turned by
@@ -1213,6 +1214,3 @@ asked about alone (visibility) keeps to the face's own band, having no face acro
 The overshoot reach (`OVERSHOOT_BANDS`, 4) is empirical: the corpus needs at least 1.8 and
 breaks at 70 (evidence at the constant).
 
-Python parity checks require `cargo test --workspace --release --features python-parity`
-(with `QUIDDITY_CORPUS` set to the corpus directory). The default build does not expose
-caller-space recognition entry points.

@@ -577,6 +577,44 @@ impl Surface {
     }
 }
 
+/// The unbounded conic retained behind a reader's trimmed rational-quadratic edge.
+/// Re-derive its poles after placement, using the reader's endpoint inversion arithmetic.
+#[derive(Clone, Debug)]
+pub(super) struct Hyperbola {
+    pub(super) frame: Frame,
+    pub(super) major: f64,
+    pub(super) minor: f64,
+}
+
+impl Hyperbola {
+    pub(super) fn arc(&self, a: V3, b: V3) -> Option<Curve> {
+        let (frame, major, minor) = (&self.frame, self.major, self.minor);
+        // ISO 10303-42: C + major·cosh(t)·x + minor·sinh(t)·y, the branch on +x only.
+        let on = |t: f64, w: f64| {
+            add(
+                frame.origin,
+                frame.dir_to_world([major * t.cosh() / w, minor * t.sinh() / w, 0.0]),
+            )
+        };
+        let param = |p: V3| {
+            let t = (frame.to_local(p)[1] / minor).asinh();
+            (dist(on(t, 1.0), p) <= 1e-4).then_some(t)
+        };
+        let (ta, tb) = (param(a)?, param(b)?);
+        let (t0, t1) = (ta.min(tb), ta.max(tb));
+        if t1 - t0 < 1e-9 {
+            return None;
+        }
+        // The conic arc's middle pole is where the end tangents meet, weighted cosh of the
+        // half-span (the hyperbolic counterpart of a circular arc's cos of half its angle).
+        let half = 0.5 * (t1 - t0);
+        let w = half.cosh();
+        let points = vec![on(t0, 1.0), on(0.5 * (t0 + t1), w), on(t1, 1.0)];
+        let knots = vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0];
+        NurbsCurve::new(2, points, vec![1.0, w, 1.0], knots).map(Curve::Nurbs)
+    }
+}
+
 /// The curve under an edge.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Curve {

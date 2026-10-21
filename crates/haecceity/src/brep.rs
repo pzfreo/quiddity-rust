@@ -72,6 +72,30 @@ pub struct Solid {
     pub faces: Vec<usize>,
 }
 
+/// Retained native instance placement, composed in the reader's original order.
+#[derive(Clone, Debug)]
+pub(super) struct GeometryPlacement {
+    outer: super::step::Placement,
+    path: std::sync::Arc<[super::step::Placement]>,
+}
+
+impl GeometryPlacement {
+    pub(super) fn new(
+        outer: super::step::Placement,
+        path: std::sync::Arc<[super::step::Placement]>,
+    ) -> Self {
+        Self { outer, path }
+    }
+    fn prepend(&mut self, placement: &super::step::Placement) -> super::step::Placement {
+        self.outer = super::step::compose(placement, &self.outer);
+        self.path
+            .iter()
+            .fold(self.outer, |at, child| super::step::compose(&at, child))
+    }
+}
+
+type Native<T> = Option<(std::sync::Arc<T>, GeometryPlacement)>;
+
 /// Per-face values derived from the geometry, computed on first use.
 #[derive(Debug, Default)]
 pub(super) struct FaceCache {
@@ -183,6 +207,11 @@ pub struct Part {
     face_sources: Vec<Source>,
     edge_sources: Vec<Source>,
     input_repairs: Vec<String>,
+    // STEP LINE direction ratios before normalisation, for reader-equivalent rotations.
+    line_directions: Vec<Option<(GeometryPlacement, V3)>>,
+    hyperbolas: Vec<Option<(geom::Hyperbola, GeometryPlacement)>>,
+    native_faces: Vec<Native<Face>>,
+    native_edges: Vec<Native<Edge>>,
 }
 
 impl Part {
@@ -201,6 +230,10 @@ impl Part {
             face_sources: Vec::new(),
             edge_sources: Vec::new(),
             input_repairs: Vec::new(),
+            line_directions: Vec::new(),
+            hyperbolas: Vec::new(),
+            native_faces: Vec::new(),
+            native_edges: Vec::new(),
         }
     }
 
@@ -208,30 +241,64 @@ impl Part {
     /// Face, edge, solid, vertex and source indices and parameter-space curves are preserved.
     /// Derived boxes, quadratures, inversion grids and classification caches are invalidated
     /// and rebuilt lazily from the transformed geometry; no cached caller-space data survives.
+    /// Imported native primitives and their placement chains are retained so composition
+    /// precedes coordinate rounding, including on a part transformed more than once.
     pub fn transformed(
         &self,
         placement: &super::step::Placement,
     ) -> Result<Self, super::step::StepError> {
         super::step::validate_placement(placement)?;
-        let direction = |p: V3| placement.map(|r| r[0] * p[0] + r[1] * p[1] + r[2] * p[2]);
-        let point = |p: V3| {
-            let d = direction(p);
-            [0, 1, 2].map(|i| d[i] + placement[i][3])
+        let direction = |at: &super::step::Placement, p: V3| {
+            at.map(|r| r[0] * p[0] + r[1] * p[1] + r[2] * p[2])
         };
-        let frame = |f: &mut geom::Frame| {
-            f.origin = point(f.origin);
-            f.x = direction(f.x);
-            f.z = direction(f.z);
-            f.y = geom::cross(f.z, f.x);
+        let point = |at: &super::step::Placement, p: V3| {
+            let d = direction(at, p);
+            [0, 1, 2].map(|i| d[i] + at[i][3])
         };
-        let mut faces = self.faces.clone();
-        for face in &mut faces {
+        let frame = |at: &super::step::Placement, f: &mut geom::Frame| {
+            let direct = f.direct();
+            f.origin = point(at, f.origin);
+            f.x = direction(at, f.x);
+            f.z = direction(at, f.z);
+            f.y = geom::scale(geom::cross(f.z, f.x), if direct { 1.0 } else { -1.0 });
+        };
+        let mut faces: Vec<_> = self
+            .faces
+            .iter()
+            .enumerate()
+            .map(|(i, face)| {
+                let source = self
+                    .native_faces
+                    .get(i)
+                    .and_then(Option::as_ref)
+                    .map_or(face, |(native, _)| native);
+                Face {
+                    surface: source.surface.clone(),
+                    reversed: face.reversed,
+                    loops: face.loops.clone(),
+                    solid: face.solid,
+                    pcurves: face.pcurves.clone(),
+                }
+            })
+            .collect();
+        let mut native_faces = self.native_faces.clone();
+        for (index, face) in faces.iter_mut().enumerate() {
+            let at = if let Some(Some((native, at))) = native_faces.get_mut(index) {
+                let moved = at.prepend(placement);
+                for (bound, source) in face.loops.iter_mut().zip(&native.loops) {
+                    bound.vertex = source.vertex;
+                }
+                moved
+            } else {
+                *placement
+            };
+            let point = |p| point(&at, p);
             match &mut face.surface {
                 Surface::Plane { frame: f }
                 | Surface::Cylinder { frame: f, .. }
                 | Surface::Cone { frame: f, .. }
                 | Surface::Sphere { frame: f, .. }
-                | Surface::Torus { frame: f, .. } => frame(f),
+                | Surface::Torus { frame: f, .. } => frame(&at, f),
                 Surface::Freeform { surface, .. } => surface.transform_points(point),
                 Surface::Other { .. } => {}
             }
@@ -239,17 +306,60 @@ impl Part {
                 bound.vertex = bound.vertex.map(point);
             }
         }
-        let mut edges = self.edges.clone();
-        for edge in &mut edges {
+        let mut edges: Vec<_> = self
+            .edges
+            .iter()
+            .enumerate()
+            .map(|(i, edge)| {
+                let source = self
+                    .native_edges
+                    .get(i)
+                    .and_then(Option::as_ref)
+                    .map_or(edge, |(native, _)| native);
+                Edge {
+                    curve: source.curve.clone(),
+                    start: source.start,
+                    end: source.end,
+                    vertices: edge.vertices,
+                    same_sense: edge.same_sense,
+                    samples: Vec::new(),
+                }
+            })
+            .collect();
+        let mut line_directions = self.line_directions.clone();
+        let mut hyperbolas = self.hyperbolas.clone();
+        let mut native_edges = self.native_edges.clone();
+        for (index, edge) in edges.iter_mut().enumerate() {
+            let at = if let Some(Some((_, at))) = native_edges.get_mut(index) {
+                at.prepend(placement)
+            } else {
+                *placement
+            };
+            let point = |p| point(&at, p);
             edge.start = point(edge.start);
             edge.end = point(edge.end);
             match &mut edge.curve {
                 Curve::Line { origin, dir } => {
                     *origin = point(*origin);
-                    *dir = geom::unit(direction(*dir)).unwrap_or([f64::NAN; 3]);
+                    *dir = if let Some(Some((at, ratios))) = line_directions.get_mut(index) {
+                        let moved_at = at.prepend(placement);
+                        let moved = moved_at
+                            .map(|r| r[0] * ratios[0] + r[1] * ratios[1] + r[2] * ratios[2]);
+                        geom::unit(moved).unwrap_or(moved)
+                    } else {
+                        direction(&at, *dir)
+                    };
                 }
-                Curve::Circle { frame: f, .. } | Curve::Ellipse { frame: f, .. } => frame(f),
+                Curve::Circle { frame: f, .. } | Curve::Ellipse { frame: f, .. } => frame(&at, f),
                 Curve::Nurbs(curve) => curve.transform_points(point),
+            }
+            if let Some(Some((native, context))) = hyperbolas.get_mut(index) {
+                let at = context.prepend(placement);
+                let mut conic = native.clone();
+                frame(&at, &mut conic.frame);
+                if let Some(curve) = conic.arc(edge.start, edge.end) {
+                    edge.curve = curve;
+                }
             }
             edge.samples = super::sampling::sample_edge(
                 &edge.curve,
@@ -265,7 +375,39 @@ impl Part {
         part.face_sources = self.face_sources.clone();
         part.edge_sources = self.edge_sources.clone();
         part.input_repairs = self.input_repairs.clone();
+        part.line_directions = line_directions;
+        part.hyperbolas = hyperbolas;
+        part.native_faces = native_faces;
+        part.native_edges = native_edges;
         Ok(part)
+    }
+
+    // Keep native geometry for placed instances so later rigid motions compose their
+    // placements before touching coordinates, just as STEP import does (one rounding).
+    pub(super) fn with_native_geometry(
+        mut self,
+        faces: Vec<Native<Face>>,
+        edges: Vec<Native<Edge>>,
+    ) -> Self {
+        self.native_faces = faces;
+        self.native_edges = edges;
+        self
+    }
+
+    pub(super) fn with_hyperbolas(
+        mut self,
+        hyperbolas: Vec<Option<(geom::Hyperbola, GeometryPlacement)>>,
+    ) -> Self {
+        self.hyperbolas = hyperbolas;
+        self
+    }
+
+    pub(super) fn with_line_directions(
+        mut self,
+        directions: Vec<Option<(GeometryPlacement, V3)>>,
+    ) -> Self {
+        self.line_directions = directions;
+        self
     }
 
     /// Records, for every face and every edge in index order, the instance it was read from.

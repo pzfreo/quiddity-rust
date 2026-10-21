@@ -9,7 +9,7 @@ use step_io::generated::model as m;
 use step_io::parser::{Attribute, RawEntity};
 use step_io::scene::geometry::{Edge as StepEdge, Face as StepFace, SurfaceKind};
 
-use super::brep::{Edge, Face, Loop, Part, Pcurve, Solid, Source};
+use super::brep::{Edge, Face, GeometryPlacement, Loop, Part, Pcurve, Solid, Source};
 use super::geom::{self, Curve, Frame, Surface, V3};
 use super::nurbs::{NurbsCurve, NurbsSurface};
 use super::sampling::sample_edge;
@@ -64,7 +64,7 @@ pub(crate) fn validate_placement(outer: &Placement) -> Result<(), StepError> {
     Ok(())
 }
 
-fn compose(outer: &Placement, inner: &Placement) -> Placement {
+pub(crate) fn compose(outer: &Placement, inner: &Placement) -> Placement {
     let mut out = [[0.0; 4]; 3];
     for i in 0..3 {
         for j in 0..4 {
@@ -476,6 +476,31 @@ impl Reader<'_> {
         })
     }
 
+    // Retain a LINE's original direction ratios and placement: normalising before rotating
+    // loses bits compared with normalising the rotated ratios (the STEP reader's convention).
+    fn line_direction(&self, curve: &m::CurveRef) -> Option<V3> {
+        match curve {
+            m::CurveRef::Line(i) => {
+                let m::VectorRef::Vector(v) = &self.model.line_arena.get(i.0).dir else {
+                    return None;
+                };
+                let m::DirectionRef::Direction(d) = &self.model.vector_arena.get(v.0).orientation
+                else {
+                    return None;
+                };
+                let ratios = &self.model.direction_arena.get(d.0).direction_ratios;
+                Some([0, 1, 2].map(|i| ratios.get(i).copied().unwrap_or(0.0)))
+            }
+            m::CurveRef::SurfaceCurve(i) => {
+                self.line_direction(&self.model.surface_curve_arena.get(i.0).curve_3d)
+            }
+            m::CurveRef::SeamCurve(i) => {
+                self.line_direction(&self.model.seam_curve_arena.get(i.0).curve_3d)
+            }
+            _ => None,
+        }
+    }
+
     /// The exact 3D curve under a curve reference, looking through surface/seam curves.
     fn curve(&self, r: &m::CurveRef) -> Option<Curve> {
         let mm = self.to_mm;
@@ -522,17 +547,15 @@ impl Reader<'_> {
         }
     }
 
-    /// The arc of a hyperbola between an edge's vertices *a* and *b*, exactly, as one rational
-    /// quadratic segment (a hyperbola has no whole-curve NURBS form: it is unbounded). `None`
-    /// when the curve is no hyperbola, or a vertex is off it or both at one point (no arc).
-    fn hyperbola_arc(&self, r: &m::CurveRef, a: V3, b: V3) -> Option<Curve> {
+    /// The exact unbounded conic behind a hyperbola edge.
+    fn hyperbola(&self, r: &m::CurveRef) -> Option<geom::Hyperbola> {
         let h = match r {
             m::CurveRef::Hyperbola(i) => self.model.hyperbola_arena.get(i.0),
             m::CurveRef::SurfaceCurve(i) => {
-                return self.hyperbola_arc(&self.model.surface_curve_arena.get(i.0).curve_3d, a, b);
+                return self.hyperbola(&self.model.surface_curve_arena.get(i.0).curve_3d);
             }
             m::CurveRef::SeamCurve(i) => {
-                return self.hyperbola_arc(&self.model.seam_curve_arena.get(i.0).curve_3d, a, b);
+                return self.hyperbola(&self.model.seam_curve_arena.get(i.0).curve_3d);
             }
             _ => return None,
         };
@@ -544,29 +567,18 @@ impl Reader<'_> {
         if major <= 0.0 || minor <= 0.0 {
             return None;
         }
-        // ISO 10303-42: C + major·cosh(t)·x + minor·sinh(t)·y, the branch on +x only.
-        let on = |t: f64, w: f64| {
-            geom::add(
-                frame.origin,
-                frame.dir_to_world([major * t.cosh() / w, minor * t.sinh() / w, 0.0]),
-            )
-        };
-        let param = |p: V3| {
-            let t = (frame.to_local(p)[1] / minor).asinh();
-            (geom::dist(on(t, 1.0), p) <= 1e-4).then_some(t)
-        };
-        let (ta, tb) = (param(a)?, param(b)?);
-        let (t0, t1) = (ta.min(tb), ta.max(tb));
-        if t1 - t0 < 1e-9 {
-            return None;
-        }
-        // The conic arc's middle pole is where the end tangents meet, weighted cosh of the
-        // half-span (the hyperbolic counterpart of a circular arc's cos of half its angle).
-        let half = 0.5 * (t1 - t0);
-        let w = half.cosh();
-        let points = vec![on(t0, 1.0), on(0.5 * (t0 + t1), w), on(t1, 1.0)];
-        let knots = vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0];
-        NurbsCurve::new(2, points, vec![1.0, w, 1.0], knots).map(Curve::Nurbs)
+        Some(geom::Hyperbola {
+            frame,
+            major,
+            minor,
+        })
+    }
+
+    /// The arc of a hyperbola between an edge's vertices *a* and *b*, exactly, as one rational
+    /// quadratic segment (a hyperbola has no whole-curve NURBS form: it is unbounded). `None`
+    /// when the curve is no hyperbola, or a vertex is off it or both at one point (no arc).
+    fn hyperbola_arc(&self, r: &m::CurveRef, a: V3, b: V3) -> Option<Curve> {
+        self.hyperbola(r)?.arc(a, b)
     }
 
     /// *vertex_id* numbers the vertices of the instance being read. The flag is `false` when
@@ -773,6 +785,12 @@ fn surface_model_owners(
     owners
 }
 
+#[derive(Default)]
+struct PlacementPaths {
+    current: Vec<Placement>,
+    definitions: Vec<std::sync::Arc<[Placement]>>,
+}
+
 /// Every solid reachable from an assembly definition, with its accumulated placement and the
 /// index in *placed* of the placed definition it belongs to.
 fn collect_instances<'m>(
@@ -786,11 +804,13 @@ fn collect_instances<'m>(
     )>,
     placed: &mut Vec<(step_io::scene::product::ProductDef<'m>, Placement)>,
     depth: usize,
+    paths: &mut PlacementPaths,
 ) {
     if depth > 64 {
         return;
     }
     placed.push((def, placement));
+    paths.definitions.push(paths.current.clone().into());
     for solid in def.solids() {
         out.push((solid, placement, Some(placed.len() - 1)));
     }
@@ -804,6 +824,7 @@ fn collect_instances<'m>(
             .map_or(IDENTITY, |mtx| {
                 [0, 1, 2].map(|i| [mtx[i][0], mtx[i][1], mtx[i][2], mtx[i][3] * to_mm])
             });
+        paths.current.push(local);
         collect_instances(
             child,
             compose(&placement, &local),
@@ -811,7 +832,9 @@ fn collect_instances<'m>(
             out,
             placed,
             depth + 1,
+            paths,
         );
+        paths.current.pop();
     }
 }
 
@@ -1413,8 +1436,17 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
     let mut shells = Vec::new();
     let mut instance_of: Vec<Option<usize>> = Vec::new();
     let (mut instances, mut placed) = (Vec::new(), Vec::new());
+    let mut placement_paths = PlacementPaths::default();
     for root in scene.root_definitions() {
-        collect_instances(root, *outer, reader.to_mm, &mut instances, &mut placed, 0);
+        collect_instances(
+            root,
+            *outer,
+            reader.to_mm,
+            &mut instances,
+            &mut placed,
+            0,
+            &mut placement_paths,
+        );
     }
     if instances.is_empty() {
         instances = scene.all_solids().map(|s| (s, *outer, None)).collect();
@@ -1489,6 +1521,9 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
     let (mut out_faces, mut edges_out, mut solids) = (Vec::new(), Vec::new(), Vec::new());
     let (mut unresolved_faces, mut unresolved_edges) = (Vec::new(), Vec::new());
     let (mut face_sources, mut edge_sources) = (Vec::new(), Vec::new());
+    let mut line_directions = Vec::new();
+    let mut hyperbolas = Vec::new();
+    let (mut native_faces, mut native_edges) = (Vec::new(), Vec::new());
     let mut vertex_count = 0;
     for (is_solid, placement, faces, instance) in shells {
         reader.placement = match own {
@@ -1496,6 +1531,16 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
             Some(own) if instance_of[instance] == Some(own) => IDENTITY,
             Some(_) => continue,
         };
+        let context = GeometryPlacement::new(
+            if own.is_some() { IDENTITY } else { *outer },
+            if own.is_some() {
+                std::sync::Arc::from([])
+            } else {
+                instance_of[instance]
+                    .map(|i| placement_paths.definitions[i].clone())
+                    .unwrap_or_else(|| std::sync::Arc::from([]))
+            },
+        );
         // Edges are shared within one placed shell only; another instance gets its own copies.
         let mut edge_index: HashMap<m::EntityKey, usize> = HashMap::new();
         let mut vertex_index: HashMap<m::EntityKey, usize> = HashMap::new();
@@ -1516,6 +1561,32 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
                             if !resolved {
                                 unresolved_edges.push(edges_out.len());
                             }
+                            line_directions.push(
+                                reader
+                                    .line_direction(&raw_edge_curve(reader.model, &edge))
+                                    .map(|d| (context.clone(), d)),
+                            );
+                            let mut native = if reader.placement != IDENTITY {
+                                let native_reader = Reader {
+                                    placement: IDENTITY,
+                                    ..reader
+                                };
+                                native_reader.edge(&edge, &mut vertex_id)?.0
+                            } else {
+                                read.clone()
+                            };
+                            let native_reader = Reader {
+                                placement: IDENTITY,
+                                ..reader
+                            };
+                            hyperbolas.push(
+                                native_reader
+                                    .hyperbola(&raw_edge_curve(reader.model, &edge))
+                                    .map(|h| (h, context.clone())),
+                            );
+                            native.samples.clear();
+                            let native = Some((std::sync::Arc::new(native), context.clone()));
+                            native_edges.push(native);
                             edges_out.push(read);
                             edge_sources.push(Source {
                                 entity: ids.edge(&edge)?,
@@ -1558,6 +1629,30 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
                 solid: is_solid.then_some(solids.len()),
                 pcurves,
             });
+            let native = if reader.placement != IDENTITY {
+                let native_reader = Reader {
+                    placement: IDENTITY,
+                    ..reader
+                };
+                let mut native = out_faces.last().unwrap().clone();
+                native.surface = native_reader
+                    .surface(&face)
+                    .unwrap_or(Surface::Other { kind: "UNRESOLVED" });
+                let bounds: Vec<_> = face.bounds().collect();
+                for (i, lp) in native.loops.iter_mut().enumerate() {
+                    if lp.edges.is_empty() {
+                        lp.vertex = match bounds.get(i) {
+                            Some(bound) => native_reader.vertex_loop(bound),
+                            None => native.surface.cone_apex(),
+                        };
+                    }
+                }
+                native
+            } else {
+                out_faces.last().unwrap().clone()
+            };
+            let native = Some((std::sync::Arc::new(native), context.clone()));
+            native_faces.push(native);
             face_sources.push(Source {
                 entity: ids.face(&face)?,
                 instance,
@@ -1588,6 +1683,9 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
     let part = Part::new(out_faces, edges_out, solids)
         .with_unresolved(unresolved_faces, unresolved_edges)
         .with_sources(face_sources, edge_sources)
+        .with_line_directions(line_directions)
+        .with_hyperbolas(hyperbolas)
+        .with_native_geometry(native_faces, native_edges)
         .repair_inverted_shells();
     Ok(Read {
         part,
