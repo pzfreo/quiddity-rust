@@ -1232,3 +1232,10 @@ and 77 engine unit tests. `.config/test-times.json` records observed macOS secon
 Linux estimates at twice those measurements. The serial run took 1,936 seconds; its sole
 transient failure was the intentionally stale input-hash manifest, regenerated before final
 validation. These per-test entries let `.github/shards.py` distribute the private tests.
+
+Five public-only modules (six cases) were restored to integration binaries after sharing
+input/reference helpers separately from private recognition adapters. Their timings were
+refreshed locally; the remaining 305 lib tests (228 regression, 77 engine) retain their
+individual measured timings. The four public rigid-transform cases were also timed: the
+exhaustive fixture/corpus case took 521.249 seconds on macOS, replacing the sharder's
+one-second fallback. Linux entries use twice the measured macOS duration throughout.

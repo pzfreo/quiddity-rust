@@ -101,7 +101,7 @@
     "corpus/nist/nist_ftc_09_asme1_rd.stp": "e29c09bd2d454601ff1a0d77c4c4ffaf2ed78eee71031ce49f7b7bb5a6d1d4e8",
     "corpus/nist/nist_ftc_10_asme1_rb.stp": "2bd726f9fe86aeb96ab517ce876e5696e7951310df5c4fbca36276d65879067b",
     "corpus/ttt_inputs/sm-hanger.step": "8247dc2eb7ed6f423fba35b177cc1abeb6358922dab54a486050bfa0ba857f6b",
-    "tests/fixtures/ap242/README.md": "83d959bb91563cd6b225e31724a6ff89b5346173abc338a0afbb67c75e3e3b6b",
+    "tests/fixtures/ap242/README.md": "83e9c3800bf811b2fdeda15c528bb03217e9795b9ca846ab338d703277aafe1d",
     "tests/fixtures/ap242/assembly/README.md": "24fc352662f1ccb4b021f42453fd9611de2318528b35bf9cc74c5fa3c69b6ca2",
     "tests/fixtures/ap242/assembly/assembly.step": "ca5711668102f0e8bb9920469a46008e8a51d60e0bea7eb89a03089b0e464291",
     "tests/fixtures/ap242/assembly/editor_assembly.step": "8bcf7a6500f889884b09edecaa73a95953a41fe77d5c85785382eff8589cd716",
@@ -5799,5 +5799,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "0fdbc702b339cf03885c7aa22812636f8cb46420"
+  "source_commit": "5be2dd91c4cf17b9947ed2c21e5cafffef1336dd"
 }

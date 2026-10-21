@@ -146,11 +146,12 @@ No new independent references are claimed for legacy value-only helpers.
 | face levels (legacy `recognise_face_levels`) | **snapshot only** |
 | passages (legacy roster) | **snapshot only** |
 | planar outer profiles | analytic directed supports, source-edge correspondence, motion (`tests/internal/outer_profiles.rs`) |
-| effective surfaces | material orientation, dependency consistency, motion (`tests/internal/effective_surfaces.rs`) |
-| sections / cylindrical / end-surface geometry | motion (`tests/internal/section_geometry.rs`, `tests/internal/section_recess_geometry.rs`, `tests/internal/section_recess_helpers.rs`); value-only helpers: **snapshot only** |
+| effective surfaces | OCCT areas/perimeters and recovery lengths; material orientation, dependency consistency, motion (`tests/internal/effective_surfaces.rs`) |
+| sections / cylindrical / end-surface geometry | OCCT clipped-cell/envelope volumes and face coverage; motion (`tests/internal/section_geometry.rs`, `tests/internal/section_recess_geometry.rs`, `tests/internal/section_recess_helpers.rs`); value-only helpers: **snapshot only** |
 | frames | motion equivariance, inverse point transforms, caller/working-face identity (`tests/internal/frames.rs`) |
 | correspondence | handwritten analytic revision intent (`tests/fixtures/revisions/expected.json`), motion (`tests/internal/correspondence.rs`, `tests/internal/invariance.rs`) |
-| mass / face integrals | OpenCascade-measured corpus, area and moment ledgers; analytic surfaces; live OCCT (`tests/internal/corpus.rs`, `crates/haecceity/tests/face_{areas,moments,integrals}.rs`, `tools/check_face_integrals.py`) |
+| mass / face integrals | OpenCascade-measured corpus, body bounds/volume/area (`tests/occt_body_measurements.rs`), area and moment ledgers; analytic surfaces; live OCCT (`tests/internal/corpus.rs`, `crates/haecceity/tests/face_{areas,moments,integrals}.rs`, `tools/check_face_integrals.py`) |
+| volume probes / face patches | OCCT common/probe volumes and exact face booleans (`crates/haecceity/tests/probes.rs`, `crates/haecceity/tests/patches.rs`, `tests/internal/sections.rs`), existing evidence verdicts |
 | PMI read/write | NIST expectations, stated design intent, OCCT XCAF, analytic writer fixtures, semantic round trips (`crates/haecceity/tests/pmi_{read,write,roundtrip}.rs`, `tests/pmi_cli.rs`) |
 
 OpenCascade and analytic ledgers now live in `tests/fixtures/references/`; their executable
