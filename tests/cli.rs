@@ -161,7 +161,7 @@ fn a_sound_file_is_recognised() {
     let document = &json["document"];
     assert_eq!(
         document["schema_version"],
-        quiddity::recognition::LEGACY_SCHEMA_VERSION
+        quiddity::recognition::SCHEMA_VERSION
     );
     assert!(document["records"].is_array());
     // Recognised in its own frame, reported in the file's coordinates.
