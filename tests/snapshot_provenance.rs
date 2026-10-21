@@ -1,6 +1,7 @@
 //! The snapshot manifest pins complete expected and input inventories, not just outputs that
 //! happen to be reached by one developer's optional-corpus run.
-use super::common;
+#[path = "common/references.rs"]
+mod common;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};

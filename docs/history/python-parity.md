@@ -1214,9 +1214,10 @@ inferences; their outputs are owned by Rust snapshots. STEP/PMI files, fingerpri
 proofs used as inputs remain inputs. No independent measurement is retired because a
 Python wrapper recorded it.
 
-Private recognition/reference tests remain lib unit modules: their caller-space hooks are
-crate-private after the feature's removal. Integration binaries would require publishing
-those hooks again. Diagnostic examples likewise share the private engine source to keep
+Tests exercising private recognition hooks remain lib unit modules: integration binaries
+would require publishing those hooks again. Corpus-file validation, snapshot provenance,
+OCCT body measurements, determinism and PMI snapshots use public APIs and remain integration binaries,
+sharing only input/reference helpers. Diagnostic examples likewise share the private engine source to keep
 MFInstSeg's caller-space metric unchanged; avoiding that compilation requires a separate
 internal crate or a new public API, deferred here.
 

@@ -8,12 +8,8 @@ mod slices;
 mod captured;
 #[path = "corpus.rs"]
 mod corpus;
-#[path = "corpus_files.rs"]
-mod corpus_files;
 #[path = "correspondence.rs"]
 mod correspondence;
-#[path = "determinism.rs"]
-mod determinism;
 #[path = "effective_surfaces.rs"]
 mod effective_surfaces;
 #[path = "evidence.rs"]
@@ -30,16 +26,12 @@ mod local_degradation;
 mod mfinstseg;
 #[path = "modelled_threads.rs"]
 mod modelled_threads;
-#[path = "occt_body_measurements.rs"]
-mod occt_body_measurements;
 #[path = "outer_profiles.rs"]
 mod outer_profiles;
 #[path = "pads.rs"]
 mod pads;
 #[path = "passages.rs"]
 mod passages;
-#[path = "pmi_snapshot.rs"]
-mod pmi_snapshot;
 #[path = "prismatic_pockets.rs"]
 mod prismatic_pockets;
 #[path = "recognition.rs"]
@@ -62,8 +54,6 @@ mod section_recess_publication;
 mod section_recesses;
 #[path = "sections.rs"]
 mod sections;
-#[path = "snapshot_provenance.rs"]
-mod snapshot_provenance;
 #[path = "step_levels.rs"]
 mod step_levels;
 #[path = "tie_breaks.rs"]

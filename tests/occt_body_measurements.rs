@@ -1,6 +1,7 @@
 //! Solid bounds, volume and area embedded in the old body-key records were measured by OCCT.
 //! Keep the measurements independently of Python's recognition choices and record structure.
-use super::common;
+#[path = "common/references.rs"]
+mod common;
 use serde_json::{Value, json};
 use std::io::Read;
 

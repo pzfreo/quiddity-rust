@@ -1,9 +1,10 @@
-//! The corpus on disk is the one Python's answers were recorded over: `corpus.json` names the
+//! The corpus on disk is the pinned regression input corpus: `corpus.json` names the
 //! quiddity revision it was exported at (CI checks that revision out), and every corpus file with
 //! its sha256. A file added upstream would never be checked, and a changed one would fail other
 //! tests for no reason of this repository's, so both fail here instead.
 
-use super::common;
+#[path = "common/references.rs"]
+mod common;
 
 use std::path::Path;
 

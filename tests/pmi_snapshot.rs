@@ -1,6 +1,7 @@
 //! Rust semantic PMI baseline on every former draftwright-oracle input. NIST, intent,
 //! OpenCascade, analytic writer and round-trip tests remain in haecceity.
-use super::common;
+#[path = "common/references.rs"]
+mod common;
 use quiddity::{
     kernel::{p21::Document, pmi, step::read_part_definitions},
     pmi_json,

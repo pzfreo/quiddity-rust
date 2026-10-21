@@ -8,7 +8,8 @@
 //! families (or correspondence fields) that differ; a part that fails the same way twice is
 //! reported with its failure and must be pinned in `FAILING_IN_BOTH_RUNS`.
 
-use super::common;
+#[path = "common/references.rs"]
+mod common;
 
 use quiddity::correspondence;
 use serde_json::Value;
