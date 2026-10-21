@@ -44,6 +44,18 @@ def main():
             assert got[metric]['labelled'] == old[metric]['labelled'], (i, metric, 'support changed')
             for denominator in ['predicted', 'labelled']:
                 assert ratio(got[metric], denominator) >= ratio(old[metric], denominator), (i, metric, 'regressed')
+    assert report['models'] == 200 and len(report['model_accounting']) == 200
+    measured = {m['id']: m['accounting'] for m in report['model_accounting']}
+    assert len(measured) == 200 and set(measured) == {m['id'] for m in baseline['models']}
+    for model in baseline['models']:
+        got = measured[model['id']]
+        assert got['feature_as_body'] == 0, (model['id'], 'feature hidden as body')
+        if 'accounting' in model:
+            assert got['stock_unexplained'] <= model['accounting']['stock_unexplained'], (model['id'], 'stock unexplained regressed')
+        model['accounting'] = got
+    assert report['accounting']['feature_as_body'] == 0
+    baseline['schema'] = 2
+    baseline['accounting'] = report['accounting']
     baseline['scores'] = scores
     path.write_text(json.dumps(baseline, indent=2) + '\n')
     print('Recorded non-regressing Rust scores; review and commit the baseline diff.')

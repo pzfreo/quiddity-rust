@@ -1239,3 +1239,8 @@ refreshed locally; the remaining 305 lib tests (228 regression, 77 engine) retai
 individual measured timings. The four public rigid-transform cases were also timed: the
 exhaustive fixture/corpus case took 521.249 seconds on macOS, replacing the sharder's
 one-second fallback. Linux entries use twice the measured macOS duration throughout.
+
+The final origin/main merge included PR #66 (recognition schema 5 and face accounting),
+after PR #65 (B-rep PMI writing). Merge resolution keeps the private engine and feature-free
+MFInstSeg scorer, incorporates all new accounting tests and ratchets, and retains identical
+class scores and the 200 model/input identities. The snapshot is regenerated for schema 5.

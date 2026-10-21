@@ -42,6 +42,9 @@ claims remain visible through the document and diagnostics; see the
 [trust contract](docs/recognition-trust.md), [thread geometry](docs/modelled-threads.md),
 [correspondence](docs/correspondence.md), and intrinsic tie policy (ADR 0011, documented in source).
 
+All newly written recognition documents use [schema 5](docs/face-accounting.md), which
+accounts for every face as feature, body (with positive geometry evidence), refused, or unexplained.
+
 ## Regression snapshots
 
 Commit source and input changes before generating, so provenance identifies a reproducible

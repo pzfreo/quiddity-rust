@@ -135,6 +135,8 @@ fn without_section_recess_publication(
 fn existing_document_bytes(document: &RecognitionDocument) -> Vec<u8> {
     let mut value = serde_json::to_value(document).unwrap();
     let object = value.as_object_mut().unwrap();
+    // Accounting depends on the published records, so omit it in this legacy projection.
+    object.remove("face_accounting");
     object.remove("source_sha256");
     object.remove("run_mode");
     let records = object["records"].as_array_mut().unwrap();
@@ -197,6 +199,7 @@ fn rust_snapshot_pattern_publication() {
         let part = quiddity::read_step_file(&path).unwrap();
         let rec = correspondence::caller_space_recognise(&part);
         let doc = recognition::document(&rec, part.faces.len());
+        assert_eq!(doc.schema_version, "quiddity-rust/recognition/5");
         let patterns: Vec<Value> = doc
             .records
             .iter()

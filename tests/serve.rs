@@ -80,7 +80,7 @@ fn recognise_returns_what_the_cli_writes() {
         assert_eq!(response["result"], cli(&[&path]), "{name}");
         assert_eq!(
             response["result"]["document"]["schema_version"],
-            quiddity::recognition::LEGACY_SCHEMA_VERSION
+            quiddity::recognition::SCHEMA_VERSION
         );
     }
 }

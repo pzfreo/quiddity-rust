@@ -9,6 +9,8 @@ macro_rules! internal_entry {
     };
 }
 
+#[path = "body.rs"]
+pub(crate) mod body;
 #[path = "correspondence/mod.rs"]
 pub mod correspondence;
 #[path = "evidence_view.rs"]
