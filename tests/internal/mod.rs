@@ -30,6 +30,8 @@ mod local_degradation;
 mod mfinstseg;
 #[path = "modelled_threads.rs"]
 mod modelled_threads;
+#[path = "occt_body_measurements.rs"]
+mod occt_body_measurements;
 #[path = "outer_profiles.rs"]
 mod outer_profiles;
 #[path = "pads.rs"]

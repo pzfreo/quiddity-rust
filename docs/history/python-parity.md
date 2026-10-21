@@ -1186,3 +1186,35 @@ Python ceased to be an authority on 2026-10-20. These are the original verdicts 
 | tests/fixtures/known_probes.json:5 — `{"caller": "_open_channel_section", "file": "nist/nist_ftc_06_asme1_rd.stp", "probes": [19, 31, 36]}` | rust-correct | Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree. | `f7f8114bee3704a9f373f30f0a3b7838b95f56c7` |
 | tests/fixtures/known_probes.json:6 — `{"caller": "_open_channel_section", "file": "nist/nist_ftc_08_asme1_rc.stp", "probes": [28, 40, 47]}` | rust-correct | Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree. | `f7f8114bee3704a9f373f30f0a3b7838b95f56c7` |
 | tests/fixtures/known_probes.json:7 — `{"caller": "_open_channel_section", "file": "nist/nist_ftc_09_asme1_rd.stp", "probes": [57]}` | rust-correct | Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree. | `f7f8114bee3704a9f373f30f0a3b7838b95f56c7` |
+
+## Independent-measurement audit after oracle retirement
+
+The Python wrapper was not the source of geometric authority. Restored OCCT outputs are
+`probes.json.gz`'s `volume` and `probe_volume`, `patches.json.gz` and
+`captured/sections/patches.json.gz`'s `covered`, and all four raw effective-surface
+measurements (`area`, `adaptive_area`, `perimeter`, `precise_perimeter`). Recovery lengths
+are checked from those measured areas/perimeters at the original 1e-6 band; the adaptive
+and precise measurements remain diagnostic evidence, as in the original test.
+
+Clipped-cell `volume` measurements and channel `bounds` are retained under explicit `occt_*`
+keys in the cylindrical and envelope query inputs. Solid `body_key` bounds, volume and area
+are re-homed in `references/body_measurements.json.gz`, independent of recogniser records.
+The removed `other_unproved` diagnostic face boxes are retained as `occt_unproved_faces`;
+the corpus inventory already checks every one of those faces. Probe discrepancies still
+require the exact existing `references/probe_evidence.json` verdicts, including stale-entry
+and duplicate checks. These restorations add to the Rust snapshots.
+
+Audited every other edited JSON fixture against `edeb8cb`: corpus/manifest OCCT inventory,
+solid mass, UV bounds and arcs were preserved; standalone face areas, inertia/moments,
+classification, sections, HLR and PMI OCCT ledgers were unchanged. Section record area,
+centroid and height bounds are analytic Python computations, proof/recognition booleans
+are Python decisions, estimated removal volumes are sampling estimates, and frames are
+inferences; their outputs are owned by Rust snapshots. STEP/PMI files, fingerprints and
+proofs used as inputs remain inputs. No independent measurement is retired because a
+Python wrapper recorded it.
+
+Private recognition/reference tests remain lib unit modules: their caller-space hooks are
+crate-private after the feature's removal. Integration binaries would require publishing
+those hooks again. Diagnostic examples likewise share the private engine source to keep
+MFInstSeg's caller-space metric unchanged; avoiding that compilation requires a separate
+internal crate or a new public API, deferred here.

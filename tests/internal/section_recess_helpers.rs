@@ -290,6 +290,22 @@ fn rust_snapshot_seat_and_envelope_proofs() {
                 .map(envelope_json)
                 .collect::<Vec<_>>()
         ));
+        if run["occt_volumes"]
+            .as_array()
+            .is_some_and(|a| !a.is_empty())
+        {
+            let mut got: Vec<f64> = envelopes
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|p| p["volume"].as_f64().unwrap())
+                .collect();
+            got.sort_by(f64::total_cmp);
+            assert!(
+                common::same(&json!(got), &run["occt_volumes"]),
+                "{file}: OCCT envelope cell volumes"
+            );
+        }
         let seat_calls: Vec<Value> = run["seat_calls"]
             .as_array()
             .unwrap()
@@ -325,6 +341,12 @@ fn rust_snapshot_seat_and_envelope_proofs() {
                     &base,
                 )
                 .map_or(Value::Null, |p| envelope_json(&p));
+                if let Some(want) = call.get("occt_volume") {
+                    assert!(
+                        common::same(&got["volume"], want),
+                        "{file}: OCCT envelope call volume"
+                    );
+                }
                 tied_terms(&got)
             })
             .collect();

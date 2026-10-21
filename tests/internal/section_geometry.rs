@@ -124,9 +124,18 @@ fn sorted(proofs: &Value) -> Value {
 /// fails on an unlisted difference or a listed entry that no longer differs (of the files *ran*:
 /// without the corpus its entries are not checked).
 fn check_known(case: &str, found: Vec<(Value, String)>, ran: &BTreeSet<String>) {
-    let known = common::load(KNOWN);
+    check_reference(case, found, ran, KNOWN);
+}
+
+fn check_reference(
+    case: &str,
+    found: Vec<(Value, String)>,
+    ran: &BTreeSet<String>,
+    reference: &str,
+) {
+    let known = common::load(reference);
     let known = known.as_array().unwrap();
-    common::check_verdicts("known_section_geometry.json", known);
+    common::check_verdicts(reference, known);
     let listed: Vec<&Value> = known
         .iter()
         .filter(|k| k["case"] == case)
@@ -429,4 +438,134 @@ fn proofs_do_not_depend_on_placement() {
         .map(|r| r["file"].as_str().unwrap().to_string())
         .collect();
     check_known("invariance", found, &ran);
+}
+
+/// OCCT measured the constructed clipped cells; only those volumes and channel bounds are
+/// expected here. Python's recognition/proof decisions are not expected results.
+#[test]
+fn clipped_cell_volumes_match_opencascade() {
+    let captured = load_gz("proofs.json.gz");
+    assert!(
+        common::corpus_dir().is_some() || std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none()
+    );
+    let runs = captured["runs"].as_array().unwrap();
+    let ran = runs
+        .iter()
+        .filter(|r| common::corpus_dir().is_some() || r["source"] != "corpus")
+        .map(|r| r["file"].as_str().unwrap().to_owned())
+        .collect();
+    let found: Vec<_> = common::parallel::map(runs, |run| {
+        let file = run["file"].as_str().unwrap();
+        let Some(part) = read(run["source"].as_str().unwrap(), file) else {
+            return Vec::new();
+        };
+        let ctx = Context::new(&part);
+        let surfaces = EffectiveFaces::new(&ctx);
+        let mut found = Vec::new();
+        let mut compare = |case: &str, identity: Value, got: Vec<f64>, want: &Value| {
+            if want.as_array().is_some_and(|a| !a.is_empty()) {
+                let mut got = got;
+                got.sort_by(f64::total_cmp);
+                if !common::same(&json!(got), want) {
+                    found.push((
+                        json!({"case":case,"file":file,"floor":identity}),
+                        format!("{file} {case}: Rust {got:?}, OCCT {want}"),
+                    ));
+                }
+            }
+        };
+        compare(
+            "pockets",
+            Value::Null,
+            cylindrical_pocket_proofs(&ctx, &surfaces)
+                .iter()
+                .map(|p| p.volume)
+                .collect(),
+            &run["occt_volumes"]["pockets"],
+        );
+        compare(
+            "passages",
+            Value::Null,
+            cylindrical_passage_proofs(&ctx, &surfaces)
+                .iter()
+                .map(|p| p.volume)
+                .collect(),
+            &run["occt_volumes"]["passages"],
+        );
+        for call in run["pocket_calls"].as_array().unwrap() {
+            compare(
+                "pocket_call",
+                call["floor"].clone(),
+                pocket_proofs(&ctx, &surfaces, call["floor"].as_u64().unwrap() as usize)
+                    .iter()
+                    .map(|p| p.volume)
+                    .collect(),
+                &call["occt_volumes"],
+            );
+        }
+        for call in run["passage_calls"].as_array().unwrap() {
+            let b = &call["base"];
+            let base = LocalFrame::new(
+                floats(&b["origin"]),
+                floats(&b["run"]),
+                floats(&b["u"]),
+                floats(&b["v"]),
+            )
+            .unwrap();
+            let got = prove_passage(
+                &ctx,
+                &surfaces,
+                call["planar"].as_u64().unwrap() as usize,
+                call["cylinder"].as_u64().unwrap() as usize,
+                &indices(&call["walls"]),
+                &base,
+            );
+            compare(
+                "passage_call",
+                Value::Null,
+                got.iter().map(|p| p.volume).collect(),
+                &call["occt_volumes"],
+            );
+        }
+        for call in run["channel_calls"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter(|c| c.get("occt_bounds").is_some())
+        {
+            let got = channel_answer(&ctx, &surfaces, call);
+            compare(
+                "channel_call",
+                Value::Null,
+                got["volume"].as_f64().into_iter().collect(),
+                &call["occt_volumes"],
+            );
+            assert!(
+                common::same(&got["bounds"], &call["occt_bounds"]),
+                "{file}: OCCT channel bounds"
+            );
+        }
+        found
+    })
+    .into_iter()
+    .flatten()
+    .collect();
+    for case in [
+        "pockets",
+        "passages",
+        "pocket_call",
+        "passage_call",
+        "channel_call",
+    ] {
+        check_reference(
+            case,
+            found
+                .iter()
+                .filter(|(id, _)| id["case"] == case)
+                .cloned()
+                .collect(),
+            &ran,
+            "references/cylindrical_volume_evidence.json",
+        );
+    }
 }
