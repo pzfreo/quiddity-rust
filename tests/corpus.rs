@@ -326,6 +326,12 @@ fn rust_snapshot_corpus() {
             }).collect();
             results.insert(function.clone(), Value::Array(runs));
         }
+        common::snapshot::check_with(
+            &common::fixtures(),
+            &format!("kernel/{file}"),
+            &common::rust_kernel(&part),
+            &common::same_kernel_snapshot,
+        );
         let recognised = quiddity::correspondence::recognise(&part);
         serde_json::json!({"file":file,"results":results,"document":quiddity::recognition::document(&recognised,part.faces.len()),"fingerprints":recognised.fingerprints})
     });

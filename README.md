@@ -67,7 +67,7 @@ requires byte-identical compressed output on HEAD. Normal tests only read expect
 
 Every recorded recognition call is replayed with its original options and record arguments.
 The corpus retains every family/option/evidence run and now also snapshots the public
-recognition document and fingerprints. Other replays cover fillet manifests, frames,
+recognition document and fingerprints, plus Rust kernel inventory, masses, UV bounds and arcs. Other replays cover fillet manifests, frames,
 effective surfaces, outer profiles, sections, patches, passages, geometry proofs,
 section-recess records/documents/publication, face levels/risers, reconciliation,
 recognition evidence, degradation, volume probes and semantic PMI. Inputs that a former capture
@@ -75,7 +75,7 @@ could not export remain documented as unavailable, rather than being invented.
 
 Comparison bands are unchanged: record numbers use 1e-6 absolute/relative; manifest fillet
 records compare exactly; frames use 1e-9 for axes and 1e-9 of part size for origins; PMI uses
-1e-9; probes retain exact empty, 1e-9 full, and 1e-6 fraction comparisons. Section proposal
+1e-9; kernel mass uses 1e-9 relative and analytic face boxes keep their 5e-3 + 1e-6 band and existing exemptions; probes retain exact empty, 1e-9 full, and 1e-6 fraction comparisons. Section proposal
 ordering still allows only the existing round-off ties. Strings, refusal outcomes, structure,
 and array lengths must agree. Compressed files have a fixed gzip timestamp.
 

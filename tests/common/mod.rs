@@ -489,3 +489,73 @@ pub fn quiddity_binary() -> PathBuf {
         .unwrap()
         .join(format!("quiddity{}", std::env::consts::EXE_SUFFIX))
 }
+
+/// Current Rust kernel outputs in the same fields the corpus's OCCT ledger measures.
+pub fn rust_kernel(part: &Part) -> Value {
+    let inventory: Vec<Value> = (0..part.faces.len()).map(|face| {
+        let bounds = part.face_bounds(face);
+        serde_json::json!({"type":type_name(part.faces[face].surface.kind()),"edges":part.face_edges(face).len(),"min":bounds.min,"max":bounds.max})
+    }).collect();
+    let solids: Vec<_> = (0..part.solids.len()).map(|s| part.solid_mass(s)).collect();
+    let uv: Vec<_> = (0..part.faces.len())
+        .map(|face| part.uv_bounds(face).map(|(a, b, c, d)| [a, b, c, d]))
+        .collect();
+    let arcs: Vec<Value> = (0..part.faces.len())
+        .flat_map(|a| {
+            let mut neighbours = part.neighbours(a);
+            neighbours.sort_unstable();
+            neighbours.into_iter().map(move |b| {
+                serde_json::json!([
+                    a,
+                    b,
+                    part.arc(a, b).map(|v| format!("{v:?}").to_lowercase())
+                ])
+            })
+        })
+        .collect();
+    serde_json::json!({"inventory":inventory,"solids":solids,"uv_bounds":uv,"arcs":arcs})
+}
+
+/// Preserve the corpus comparison bands: mass 1e-9 relative, UV 1e-6, analytic face boxes
+/// 5e-3 + 1e-6*abs(got), with the existing OTHER/SPHERE bounding-box exemptions.
+pub fn same_kernel_snapshot(a: &Value, b: &Value) -> bool {
+    let (Some(ai), Some(bi), Some(am), Some(bm)) = (
+        a["inventory"].as_array(),
+        b["inventory"].as_array(),
+        a["solids"].as_array(),
+        b["solids"].as_array(),
+    ) else {
+        return false;
+    };
+    ai.len() == bi.len()
+        && am.len() == bm.len()
+        && same(&a["uv_bounds"], &b["uv_bounds"])
+        && a["arcs"] == b["arcs"]
+        && ai.iter().zip(bi).all(|(a, b)| {
+            a["type"] == b["type"]
+                && a["edges"] == b["edges"]
+                && (["OTHER", "SPHERE"].contains(&a["type"].as_str().unwrap())
+                    || ["min", "max"].iter().all(|k| {
+                        (0..3).all(|i| {
+                            let (g, w) = (a[k][i].as_f64().unwrap(), b[k][i].as_f64().unwrap());
+                            (g - w).abs() <= 5e-3 + 1e-6 * g.abs()
+                        })
+                    }))
+        })
+        && am
+            .iter()
+            .zip(bm)
+            .all(|(a, b)| match (a.as_array(), b.as_array()) {
+                (Some(a), Some(b)) if a.len() == 2 && b.len() == 2 => {
+                    a.iter().zip(b).all(|(a, b)| {
+                        let (g, w) = (a.as_f64().unwrap(), b.as_f64().unwrap());
+                        if w == 0.0 {
+                            g == 0.0
+                        } else {
+                            (g - w).abs() <= 1e-9 * w.abs()
+                        }
+                    })
+                }
+                _ => a == b,
+            })
+}
