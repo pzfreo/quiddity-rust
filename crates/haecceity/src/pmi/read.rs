@@ -25,7 +25,7 @@ use super::model::*;
 use super::standards::Iso2768;
 use super::{Accounting, Finding, FindingKind, PartProvenance, PmiRead, Provenance, ReadError};
 use crate::express::{self, Edition, Family};
-use crate::p21::{Attribute, Document, RawEntity, decode, visit_attributes};
+use crate::p21::{Attribute, Document, RawEntity, visit_attributes};
 use crate::step::PartDefinition;
 
 /// Reads the semantic PMI of every part of `doc`. `parts` are `read_part_definitions` of the
@@ -415,7 +415,7 @@ impl<'a> Reader<'a> {
     /// A string attribute, decoded; `None` when unset.
     fn get_str(&mut self, id: u64, entity: &str, attr: &str) -> Option<String> {
         match self.get(id, entity, attr)? {
-            Attribute::String(s) => Some(decode(s).unwrap_or_else(|_| s.clone())),
+            Attribute::String(s) => Some(s.clone()),
             _ => None,
         }
     }
@@ -1981,7 +1981,7 @@ impl<'a> Reader<'a> {
                     .ok_or_else(|| format!("#{owner}: a real's text could not be read"))?;
                 GeometryValue::Real(Decimal::parse(&t).map_err(|e| e.0)?)
             }
-            Attribute::String(s) => GeometryValue::Text(decode(s).unwrap_or_else(|_| s.clone())),
+            Attribute::String(s) => GeometryValue::Text(s.clone()),
             Attribute::Enum(s) => GeometryValue::Enum(s.clone()),
             Attribute::Binary(s) => GeometryValue::Binary(s.clone()),
             Attribute::EntityRef(n) => {

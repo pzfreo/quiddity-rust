@@ -132,7 +132,7 @@ fn check_file(path: &Path) -> Result<(String, f64), String> {
         Ok(d) => d,
         Err(e) => {
             // Refusing is right only where step-io refuses too.
-            return match step_io::parser::parse_bytes(&bytes) {
+            return match step_io::parser::parse(bytes.as_slice()) {
                 Err(_) => Ok((format!("{name}: refused with step-io ({e})"), 0.0)),
                 Ok(_) => Err(format!("{name}: refused but step-io reads it: {e}")),
             };
@@ -144,7 +144,7 @@ fn check_file(path: &Path) -> Result<(String, f64), String> {
     if out.bytes != bytes {
         problems.push("empty edit changed the bytes".to_string());
     }
-    let graph = step_io::parser::parse_bytes(&bytes).unwrap();
+    let graph = step_io::parser::parse(bytes.as_slice()).unwrap();
     let ids: Vec<u64> = doc.ids().collect();
     if ids != graph.entities.keys().copied().collect::<Vec<_>>() {
         problems.push("ids differ from step-io's".into());
@@ -175,7 +175,7 @@ fn check_file(path: &Path) -> Result<(String, f64), String> {
     let mut rebuilt = HEAD.as_bytes().to_vec();
     rebuilt.extend_from_slice(&data);
     rebuilt.extend_from_slice(TAIL.as_bytes());
-    match step_io::parser::parse_bytes(&rebuilt) {
+    match step_io::parser::parse(rebuilt.as_slice()) {
         Ok(g) => {
             for (id, e) in &graph.entities {
                 if g.entities.get(id).map(unspanned) != Some(unspanned(e)) {
@@ -202,7 +202,7 @@ fn check_file(path: &Path) -> Result<(String, f64), String> {
         }
     }
     encoded.push_str(TAIL);
-    match step_io::parser::parse(&encoded) {
+    match step_io::parser::parse(encoded.as_bytes()) {
         Ok(g) => {
             if let Some(id) = graph
                 .entities
@@ -674,11 +674,26 @@ fn edits_on_a_nist_file_keep_every_other_byte() {
 
 /// `text` as the only attribute of a record, read back by step-io.
 fn read_back(text: &str) -> Attribute {
-    let g = step_io::parser::parse_bytes(&file(&format!("#1=X({text});\n"))).unwrap();
+    let g = step_io::parser::parse(file(&format!("#1=X({text});\n")).as_slice()).unwrap();
     match &g.entities[&1] {
         RawEntity::Simple { attributes, .. } => attributes[0].clone(),
         RawEntity::Complex { .. } => unreachable!(),
     }
+}
+
+#[test]
+fn duplicate_id_columns_ignore_quoted_instance_text() {
+    let prefix = "#1=X('#1=literal');   ";
+    let bytes = file(&format!("{prefix}#1=Y();\n"));
+    let line = HEAD.lines().count() + 1;
+    let column = prefix.len() + 1;
+    let error = Document::parse(bytes).unwrap_err().to_string();
+    assert!(
+        error.ends_with(&format!(
+            "parse error at line {line}, column {column}: duplicate entity #1"
+        )),
+        "{error}"
+    );
 }
 
 #[test]
@@ -759,12 +774,11 @@ fn strings_escape_and_decode() {
         "it's a \\\\ backslash: \\X2\\00D8\\X0\\20 \\X2\\2300\\X0\\5 caf\\X2\\00E9\\X0\\ \\X4\\0001F600\\X0\\!"
     );
     assert_eq!(decode(&body).unwrap(), text);
-    let written = encode(&simple("X", vec![Attribute::String(body.clone())])).unwrap();
+    let written = encode(&simple("X", vec![Attribute::String(text.into())])).unwrap();
     assert!(written.contains("it''s"), "{written}");
     match read_back(&written[2..written.len() - 1]) {
         Attribute::String(s) => {
-            assert_eq!(s, body);
-            assert_eq!(decode(&s).unwrap(), text);
+            assert_eq!(s, text);
         }
         other => panic!("{other:?}"),
     }
@@ -790,11 +804,16 @@ fn strings_escape_and_decode() {
         "abc \u{00D8}"
     );
     assert!(encode(&simple("X", vec![Attribute::String("ab\r\nc".into())])).is_ok());
-    // Raw non-ASCII, other control characters and malformed escapes are not written.
-    assert!(encode(&simple("X", vec![Attribute::String("a\tb".into())])).is_err());
-    assert!(encode(&simple("X", vec![Attribute::String("Ø".into())])).is_err());
-    assert!(encode(&simple("X", vec![Attribute::String("\\Q".into())])).is_err());
-    assert!(encode(&simple("X", vec![Attribute::String("\\PB\\x".into())])).is_ok());
+    // Since step-io 0.3, attributes are decoded Unicode. Controls and strings that
+    // resemble malformed escapes are data: encode must escape them and preserve them.
+    for text in ["a\tb", "Ø", "\\Q", "\\PB\\x", "literal \\X2\\0041\\X0\\"] {
+        let written = encode(&simple("X", vec![Attribute::String(text.into())])).unwrap();
+        assert_eq!(
+            read_back(&written[2..written.len() - 1]),
+            Attribute::String(text.into())
+        );
+        assert!(written.is_ascii(), "{written}");
+    }
 }
 
 #[test]
@@ -825,7 +844,7 @@ fn records_encode_and_read_back() {
     }
     assert!(Complex::new([]).is_err());
     assert!(Complex::new([leaf("A", vec![]), leaf("A", vec![])]).is_err());
-    let g = step_io::parser::parse_bytes(&file(&format!("#1={want};\n"))).unwrap();
+    let g = step_io::parser::parse(file(&format!("#1={want};\n")).as_slice()).unwrap();
     let RawEntity::Complex { parts, .. } = &g.entities[&1] else {
         panic!()
     };
@@ -873,7 +892,7 @@ fn records_encode_and_read_back() {
         "B_SPLINE_THING(-3,((0.,1.5),(),((#7))),LENGTH_MEASURE(2.5),\
          DESCRIPTIVE_MEASURE('x'),$,*,.T.,\"0FF\",'')"
     );
-    let g = step_io::parser::parse_bytes(&file(&format!("#1={text};\n#7=Y();\n"))).unwrap();
+    let g = step_io::parser::parse(file(&format!("#1={text};\n#7=Y();\n")).as_slice()).unwrap();
     assert_eq!(unspanned(&g.entities[&1]), with_id(&record, 1));
     // Names that are not Part 21 keywords, bad enumerations and binaries are refused.
     for bad in [

@@ -140,6 +140,7 @@ fn curve_cuts(surface: &Surface, curve: &Curve, t0: f64, t1: f64) -> Vec<f64> {
             cuts(t0, t1, ((t1 - t0).abs() / 0.5).ceil() as usize, &breaks)
         }
         Curve::Nurbs(n) => {
+            // Includes the reader's exact quadratic parabola and hyperbola spans.
             // A closed curve's edge may run past its domain's end.
             let period = curve.period().unwrap_or(0.0);
             breaks.extend(

@@ -889,7 +889,7 @@ fn attr_refs(doc: &Document, id: u64, entity: &str, a: &str) -> Vec<u64> {
 
 fn attr_str(doc: &Document, id: u64, entity: &str, a: &str) -> Option<String> {
     match attr(doc, id, entity, a)? {
-        Attribute::String(s) => Some(p21::decode(s).unwrap_or_else(|_| s.clone())),
+        Attribute::String(s) => Some(s.clone()),
         _ => None,
     }
 }
@@ -1120,7 +1120,7 @@ pub struct LengthUnitRef(R);
 pub struct AngleUnitRef(R);
 
 fn s(text: &str) -> A {
-    A::String(p21::escape(text))
+    A::String(text.to_owned())
 }
 
 fn en(v: &str) -> A {

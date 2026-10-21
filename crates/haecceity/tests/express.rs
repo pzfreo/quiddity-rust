@@ -13,7 +13,7 @@ use haecceity::express::{
     Violation,
 };
 use serde_json::{Value, json};
-use step_io::parser::{Graph, parse_bytes};
+use step_io::parser::{Graph, parse};
 
 const HEADER: &str = "ISO-10303-21;\nHEADER;\nFILE_DESCRIPTION((''),'2;1');\n\
     FILE_NAME('t','2026-10-08T00:00:00',(''),(''),'','','');\n\
@@ -44,7 +44,7 @@ const CONTEXT: &str = "\
 
 fn graph(data: &str) -> Graph {
     let text = format!("{HEADER}{CONTEXT}{data}\nENDSEC;\nEND-ISO-10303-21;\n");
-    parse_bytes(text.as_bytes()).unwrap()
+    parse(text.as_bytes()).unwrap()
 }
 
 fn fixtures() -> PathBuf {
@@ -574,10 +574,7 @@ fn write_actual(name: &str, value: &Value) {
 }
 
 fn file_schema(g: &Graph) -> String {
-    g.schema
-        .raw()
-        .map(|l| l.as_slice().join(","))
-        .unwrap_or_default()
+    g.schema.raw.join(",")
 }
 
 /// The NIST AP242 test files (`HAECCEITY_NIST_PMI`: the `NIST-PMI-STEP-Files` directory),
@@ -601,7 +598,7 @@ fn nist_files() -> Option<Vec<(String, Graph)>> {
     Some(common::parallel::map(&names, |n| {
         (
             n.clone(),
-            parse_bytes(&std::fs::read(dir.join(n)).unwrap()).unwrap(),
+            parse(std::fs::read(dir.join(n)).unwrap().as_slice()).unwrap(),
         )
     }))
 }
@@ -805,7 +802,7 @@ fn every_edition_validates_its_own_hand_instances() {
 /// The kinds of the violations of the one DATA record of `data`, its references' types given.
 fn record_kinds(data: &str, targets: &[(u64, &str)]) -> Vec<(Kind, Option<String>)> {
     let text = format!("{HEADER}{data}\nENDSEC;\nEND-ISO-10303-21;\n");
-    let g = parse_bytes(text.as_bytes()).unwrap();
+    let g = parse(text.as_bytes()).unwrap();
     let record = g.entities.values().next().unwrap();
     let types = |id: u64| {
         targets
