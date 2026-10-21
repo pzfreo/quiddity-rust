@@ -76,15 +76,19 @@ struct Opening {
     wire: Vec<(usize, bool)>,
 }
 
+parity_entry! {
 /// `recognise_double_d_bores`.
 pub fn recognise_double_d_bores(part: &Part, opts: &DoubleDBoreOptions) -> Vec<DoubleDBore> {
     super::records(discover_with(&Context::new(part), opts))
 }
+}
 
+parity_entry! {
 /// Every bore of every solid with its complete lateral wall (empty when the wall could not be
 /// proved), in record order.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<DoubleDBore>> {
     discover_with(ctx, &DoubleDBoreOptions::default())
+}
 }
 
 fn discover_with(ctx: &Context<'_>, opts: &DoubleDBoreOptions) -> Vec<Occurrence<DoubleDBore>> {
@@ -110,6 +114,7 @@ fn discover_with(ctx: &Context<'_>, opts: &DoubleDBoreOptions) -> Vec<Occurrence
     found
 }
 
+parity_entry! {
 /// The evidence path: each bore claims its complete original lateral wall. Refused, as Python
 /// refuses, when a wall is incomplete, has no one valid owner, or is claimed twice.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<DoubleDBore>>, EvidenceError> {
@@ -124,6 +129,7 @@ pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<DoubleDBore
         }
     }
     Ok(found)
+}
 }
 
 /// `_recognise_double_d_bores_one`: the bores within one solid's own boundary.

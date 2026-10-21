@@ -51,6 +51,7 @@ impl Default for ChamferOptions {
     }
 }
 
+parity_entry! {
 /// The evidence path: each chamfer with its defining face, published only if every one is
 /// owned by a valid solid.
 pub fn discover_verified(
@@ -59,13 +60,16 @@ pub fn discover_verified(
 ) -> Result<Vec<Occurrence<Chamfer>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx, opts))
 }
+}
 
+parity_entry! {
 /// `recognise_chamfers`.
 pub fn recognise_chamfers(part: &Part, opts: &ChamferOptions) -> Vec<Chamfer> {
     discover(&Context::new(part), opts)
         .into_iter()
         .map(|o| o.record)
         .collect()
+}
 }
 
 /// Whether a measured leg is materially below the evidence floor (`_below_minimum_evidence`).
@@ -92,6 +96,7 @@ fn chamfer(
     }
 }
 
+parity_entry! {
 pub fn discover(ctx: &Context<'_>, opts: &ChamferOptions) -> Vec<Occurrence<Chamfer>> {
     let part = ctx.part;
     let tol = opts.tol.unwrap_or(0.0);
@@ -111,6 +116,7 @@ pub fn discover(ctx: &Context<'_>, opts: &ChamferOptions) -> Vec<Occurrence<Cham
             .then_with(|| py::tuple_order(&a.record.at, &b.record.at))
     });
     out
+}
 }
 
 /// An oblique planar bevel on a convex edge between two axis-aligned walls.

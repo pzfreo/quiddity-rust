@@ -132,6 +132,19 @@ before plus a top-level `fingerprints` (and, since then, the recognition `docume
 two STEP files) and writes the `Correspondence`. In the library: `correspondence::recognise`,
 `fingerprint`, `correspond` and `correspond_with` (explicit `Thresholds`).
 
+`correspondence::recognise(&Part) -> Recognition` is the supported recognition entry point.
+It infers the part's frame, transforms the loaded geometry in memory, recognises there and
+maps records back. It does not re-read STEP. `frame` reports `Inferred` or `Refused { reason }`;
+fields without corresponding file axes remain `local` and must be interpreted through `frame`.
+The CLI, service and recognition document use this same route. `recognise_placed` is removed.
+Caller-space recognition, discovery, inventory, context construction and evidence builders
+are crate-private by default. Record types remain public at their existing paths. The legacy
+`frames::prepare_framed*`, `working_part`, `FramedPart` and `FramedError` helpers and the
+`RecordFrame::CallerSpace` variant are feature-only. The hidden `python-parity`
+feature exposes them only for unchanged Python parity tests, outside the supported API.
+Feature record types remain public.
+
+
 ### Fingerprints (`fingerprint.rs`, version `quiddity-rust/fingerprint/3`)
 
 - **Features** are read from each family's serialised records through an explicit table,

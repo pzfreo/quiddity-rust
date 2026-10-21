@@ -18,6 +18,7 @@ use super::section_recess::{
 };
 use super::section_recess_geometry::{Candidate, candidates};
 
+parity_entry! {
 /// The part's native section recesses (`discover_section_recesses`), in candidate order.
 pub fn discover_section_recesses(
     ctx: &Context<'_>,
@@ -25,8 +26,10 @@ pub fn discover_section_recesses(
 ) -> Result<Vec<Occurrence<SectionRecess>>, SectionRecessError> {
     section_recesses_of(candidates(ctx, surfaces)?)
 }
+}
 
-/// The section recesses [`discover_section_recesses`] numbers from the part's candidates, for a
+parity_entry! {
+/// The section recesses `discover_section_recesses` numbers from the part's candidates, for a
 /// caller that already has them.
 pub fn section_recesses_of(
     candidates: Vec<Candidate>,
@@ -58,4 +61,5 @@ pub fn section_recesses_of(
             })
         })
         .collect()
+}
 }

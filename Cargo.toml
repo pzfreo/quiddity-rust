@@ -19,3 +19,168 @@ haecceity = { path = "crates/haecceity", version = "=0.1.0-alpha.9" }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = { version = "1.0.151", features = ["float_roundtrip"] }
 sha2 = "0.11.0"
+
+[features]
+# Test-only Python caller-space parity API; not part of the supported library API.
+default = []
+python-parity = []
+
+[[test]]
+name = "captured"
+required-features = ["python-parity"]
+
+[[test]]
+name = "corpus"
+required-features = ["python-parity"]
+
+[[test]]
+name = "corpus_files"
+required-features = ["python-parity"]
+
+[[test]]
+name = "correspondence"
+required-features = ["python-parity"]
+
+[[test]]
+name = "determinism"
+required-features = ["python-parity"]
+
+[[test]]
+name = "effective_surfaces"
+required-features = ["python-parity"]
+
+[[test]]
+name = "evidence"
+required-features = ["python-parity"]
+
+[[test]]
+name = "frames"
+required-features = ["python-parity"]
+
+[[test]]
+name = "invariance"
+required-features = ["python-parity"]
+
+[[test]]
+name = "inventory_floor"
+required-features = ["python-parity"]
+
+[[test]]
+name = "local_degradation"
+required-features = ["python-parity"]
+
+[[test]]
+name = "modelled_threads"
+required-features = ["python-parity"]
+
+[[test]]
+name = "outer_profiles"
+required-features = ["python-parity"]
+
+[[test]]
+name = "pads"
+required-features = ["python-parity"]
+
+[[test]]
+name = "passages"
+required-features = ["python-parity"]
+
+[[test]]
+name = "pmi_cli"
+required-features = ["python-parity"]
+
+[[test]]
+name = "prismatic_pockets"
+required-features = ["python-parity"]
+
+[[test]]
+name = "recognition"
+required-features = ["python-parity"]
+
+[[test]]
+name = "recognition_evidence"
+required-features = ["python-parity"]
+
+[[test]]
+name = "reconcile"
+required-features = ["python-parity"]
+
+[[test]]
+name = "section_geometry"
+required-features = ["python-parity"]
+
+[[test]]
+name = "section_recess"
+required-features = ["python-parity"]
+
+[[test]]
+name = "section_recess_geometry"
+required-features = ["python-parity"]
+
+[[test]]
+name = "section_recess_helpers"
+required-features = ["python-parity"]
+
+[[test]]
+name = "section_recess_publication"
+required-features = ["python-parity"]
+
+[[test]]
+name = "section_recesses"
+required-features = ["python-parity"]
+
+[[test]]
+name = "sections"
+required-features = ["python-parity"]
+
+[[test]]
+name = "step_levels"
+required-features = ["python-parity"]
+
+[[test]]
+name = "tie_breaks"
+required-features = ["python-parity"]
+
+[[test]]
+name = "trust_contract"
+required-features = ["python-parity"]
+
+[[test]]
+name = "volume_probe"
+required-features = ["python-parity"]
+
+[[test]]
+name = "wiring"
+required-features = ["python-parity"]
+
+[[example]]
+name = "coverage_sweep"
+required-features = ["python-parity"]
+
+[[test]]
+name = "mfinstseg"
+required-features = ["python-parity"]
+
+[[example]]
+name = "motion_sweep"
+required-features = ["python-parity"]
+
+[[example]]
+name = "mfinstseg_score"
+required-features = ["python-parity"]
+
+[[example]]
+name = "cylinders"
+required-features = ["python-parity"]
+
+[[example]]
+name = "holes"
+required-features = ["python-parity"]
+
+[[example]]
+name = "modelled_threads"
+required-features = ["python-parity"]
+
+[[example]]
+name = "trim_lengths"
+required-features = ["python-parity"]

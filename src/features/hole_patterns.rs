@@ -295,6 +295,7 @@ fn rectangular_hole_set(holes: &[&HoleRecord], pts: &[(f64, f64)]) -> Option<Hol
     })
 }
 
+parity_entry! {
 /// `recognise_hole_patterns`.
 pub fn recognise_hole_patterns(holes: &[HoleRecord]) -> Vec<HolePattern> {
     let mut groups: Vec<(HoleSpec, Vec<&HoleRecord>)> = Vec::new();
@@ -351,6 +352,7 @@ pub fn recognise_hole_patterns(holes: &[HoleRecord]) -> Vec<HolePattern> {
         ));
     }
     patterns
+}
 }
 
 #[cfg(test)]

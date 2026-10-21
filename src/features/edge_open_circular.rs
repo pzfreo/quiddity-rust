@@ -274,18 +274,23 @@ fn valid_section(segments: &[OpenCircularSectionSegment]) -> bool {
         && segments.windows(2).all(|w| w[0].end == w[1].start)
 }
 
+parity_entry! {
 /// `recognise_edge_open_circular_pockets`.
 pub fn recognise_edge_open_circular_pockets(part: &Part) -> Vec<EdgeOpenCircularPocket> {
     super::records(discover(&Context::new(part)))
 }
+}
 
+parity_entry! {
 /// The evidence path: each pocket defined by its four walls, its floor consulted.
 pub fn discover_verified(
     ctx: &Context<'_>,
 ) -> Result<Vec<Occurrence<EdgeOpenCircularPocket>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
 }
+}
 
+parity_entry! {
 /// Every pocket, in record order.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<EdgeOpenCircularPocket>> {
     let part = ctx.part;
@@ -294,6 +299,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<EdgeOpenCircularPocket>> {
         .collect();
     found.sort_by(|a, b| a.record.order(&b.record));
     found
+}
 }
 
 fn one_floor(ctx: &Context<'_>, floor: usize) -> Option<Occurrence<EdgeOpenCircularPocket>> {

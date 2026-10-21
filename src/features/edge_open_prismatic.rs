@@ -258,18 +258,23 @@ fn section_from_walls(
     })
 }
 
+parity_entry! {
 /// `recognise_edge_open_prismatic_recesses`.
 pub fn recognise_edge_open_prismatic_recesses(part: &Part) -> Vec<EdgeOpenPrismaticRecess> {
     super::records(discover(&Context::new(part)))
 }
+}
 
+parity_entry! {
 /// The evidence path: each recess defined by its walls, its floor consulted.
 pub fn discover_verified(
     ctx: &Context<'_>,
 ) -> Result<Vec<Occurrence<EdgeOpenPrismaticRecess>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
 }
+}
 
+parity_entry! {
 /// Every recess, in record order.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<EdgeOpenPrismaticRecess>> {
     let mut found: Vec<Occurrence<EdgeOpenPrismaticRecess>> = (0..ctx.part.faces.len())
@@ -277,6 +282,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<EdgeOpenPrismaticRecess>> {
         .collect();
     found.sort_by(|a, b| a.record.order(&b.record));
     found
+}
 }
 
 fn one_floor(ctx: &Context<'_>, floor: usize) -> Option<Occurrence<EdgeOpenPrismaticRecess>> {

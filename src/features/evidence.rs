@@ -26,6 +26,7 @@ pub enum EvidenceStatus {
     Unproved,
 }
 
+parity_entry! {
 /// Check the same defining-and-consulted-face ownership as [`verified`], always strictly.
 /// Local degradation may admit candidates, but cannot upgrade invalid geometry's status.
 pub fn strict_status(part: &Part, defining: &[usize], context: &[usize]) -> EvidenceStatus {
@@ -36,6 +37,7 @@ pub fn strict_status(part: &Part, defining: &[usize], context: &[usize]) -> Evid
     } else {
         EvidenceStatus::Unproved
     }
+}
 }
 
 /// The strict branch shared by the public evidence path and document statuses.
@@ -98,14 +100,16 @@ impl std::error::Error for EvidenceError {}
 thread_local! {
     /// Whether this thread is inside a locally degraded run (Python's
     /// `FaceGraph.local_degradation`, a property of the whole run's graph): set only by
-    /// [`locally_degraded`], which the aggregate's retry ([`super::recognise`] and the other
+    /// [`locally_degraded`], which the aggregate's retry (`super::recognise` and the other
     /// whole-inventory entry points) runs its second inventory under.
     static LOCAL_DEGRADATION: Cell<bool> = const { Cell::new(false) };
 }
 
+parity_entry! {
 /// Whether the current run is locally degraded (`locally_degraded`, the aggregate's retry).
 pub fn local_degradation() -> bool {
     LOCAL_DEGRADATION.with(Cell::get)
+}
 }
 
 /// Run *f* as a locally degraded run: every [`common_valid_solid`] query inside it answers as
@@ -123,6 +127,7 @@ pub(crate) fn locally_degraded<T>(f: impl FnOnce() -> T) -> T {
     f()
 }
 
+parity_entry! {
 /// The one valid solid every face belongs to (`FaceGraph.common_valid_solid`). Valid as
 /// Python's `solid.is_valid` (`BRepCheck_Analyzer`) reads it: sound topology and no faulted face
 /// (`Part::solid_is_geometrically_valid`). Inside a locally degraded run ([`local_degradation`])
@@ -133,10 +138,12 @@ pub fn common_valid_solid(part: &Part, faces: &[usize]) -> Option<usize> {
     }
     strict_valid_solid(part, faces.iter().copied())
 }
+}
 
 /// Most faulted faces a locally degraded run admits a solid with.
 const MAX_BAD_FACES: usize = 3;
 
+parity_entry! {
 /// [`common_valid_solid`] as Python's locally degraded run proves it (`local_degradation`): a
 /// solid with faulted faces is also admitted when its topology is sound, it has one shell and a
 /// positive volume and at most three faulted faces, but then no face may be a faulted one or
@@ -159,7 +166,9 @@ pub fn locally_valid_solid(part: &Part, faces: &[usize]) -> Option<usize> {
         |f: usize| bad.contains(&f) || part.neighbours(f).iter().any(|n| bad.contains(n));
     (admitted && !faces.iter().any(|&f| unsafe_face(f))).then_some(owner)
 }
+}
 
+parity_entry! {
 /// Whether a locally degraded run proves *o*: it has defining faces, and its defining and
 /// consulted faces together prove one solid as [`locally_valid_solid`] does. The holes', pockets'
 /// and fillets' check on a degraded graph (`_discover_holes`, `_discover_pockets`,
@@ -168,7 +177,9 @@ pub fn locally_proved<R>(part: &Part, o: &Occurrence<R>) -> bool {
     let faces: Vec<usize> = o.defining.iter().chain(&o.context).copied().collect();
     !o.defining.is_empty() && locally_valid_solid(part, &faces).is_some()
 }
+}
 
+parity_entry! {
 /// All occurrences, or none: each one's faces must share one valid solid.
 pub fn verified<R>(
     part: &Part,
@@ -181,6 +192,7 @@ pub fn verified<R>(
         }
     }
     Ok(found)
+}
 }
 
 #[cfg(test)]

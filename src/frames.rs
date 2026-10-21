@@ -1,17 +1,10 @@
 //! Part-relative recognition with an explicit caller-space frame (`quiddity.frames`).
 //!
-//! [`recognise`](crate::features::recognise) and the per-family entry points stay caller-space,
-//! as Python's entry points do (the parity tests compare them with Python). Framed recognition
-//! infers a frame from the part's own geometry ([`infer_part_frame`]), re-reads the part placed
-//! in that frame, and recognises it there: the records are in the frame's local coordinates, and
-//! the frame says how to read them back in caller space. The working part is the same STEP read
-//! with the normalisation composed onto the caller's placement, so its faces are the caller
-//! part's faces under the same indices (Python pairs them by `IsSame`; here they are one read
-//! order, which `tests/frames.rs` checks face by face on every corpus part).
-//!
-//! The default recognition ([`crate::correspondence::recognise_placed`], used by the CLI, the
-//! service and the recognition document) is framed, its records carried back to the file's
-//! coordinates by [`crate::framed_records`] (the maintainer's decision on review M8).
+//! The supported entry point ([`crate::correspondence::recognise`]) infers the frame from
+//! the loaded part, transforms its geometry in memory and maps records back to caller space.
+//! Face and edge indices are preserved. Caller-space recognition and the legacy reader-based
+//! frame preparation helpers are available only with the unsupported `python-parity` test
+//! feature, so parity checks keep exercising Python's entry-point semantics.
 //!
 //! The origin is the centroid of the part's solids ([`Part::volume_centroid`]), where Python
 //! takes `BRepGProp::VolumeProperties` of the whole imported shape at its default rule: that also
@@ -24,11 +17,16 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::features::{self, Features};
+#[cfg(feature = "python-parity")]
+use crate::features;
+#[cfg(feature = "python-parity")]
+use crate::features::Features;
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{Surface, V3, cross};
+use crate::kernel::geom::{self, Surface, V3, cross};
 use crate::kernel::py;
-use crate::kernel::step::{Placement, read_step_file_placed, read_step_placed};
+use crate::kernel::step::Placement;
+#[cfg(feature = "python-parity")]
+use crate::kernel::step::{read_step_file_placed, read_step_placed};
 
 /// `_PARALLEL_COS`: two directions closer than this are one direction line.
 const PARALLEL_COS: f64 = 0.999;
@@ -60,6 +58,8 @@ pub enum FrameRefusal {
     NoAnalyticDirection,
     NonfiniteGeometry,
     UnmeasuredFace,
+    /// The inferred normalisation could not be applied as a finite proper rigid motion.
+    NonrigidFrame,
 }
 
 impl FrameRefusal {
@@ -70,6 +70,7 @@ impl FrameRefusal {
             FrameRefusal::NoAnalyticDirection => "no-analytic-direction",
             FrameRefusal::NonfiniteGeometry => "nonfinite-geometry",
             FrameRefusal::UnmeasuredFace => "unmeasured-face",
+            FrameRefusal::NonrigidFrame => "nonrigid-frame",
         }
     }
 }
@@ -193,6 +194,34 @@ fn clean(v: V3) -> V3 {
     })
 }
 
+// Snapping each component independently can break orthogonality by more than the
+// kernel's rigid-placement tolerance. Preserve already rigid bases byte for byte; repair
+// only the exceptional basis, without snapping it a second time.
+fn clean_basis(x: V3, y: V3) -> Result<(V3, V3, V3), FrameRefusal> {
+    let (x, y) = (clean(x), clean(y));
+    let z = clean(unit(cross(x, y))?);
+    let axes = [x, y, z];
+    // Use precisely the kernel's acceptance test: changing a basis already accepted by
+    // the reader would unnecessarily change serialized coordinates on captured parts.
+    let det = x[0] * (y[1] * z[2] - y[2] * z[1]) - x[1] * (y[0] * z[2] - y[2] * z[0])
+        + x[2] * (y[0] * z[1] - y[1] * z[0]);
+    if (det - 1.0).abs() <= 1e-12
+        && (0..3).all(|i| {
+            (0..3).all(|j| {
+                (geom::dot(axes[i], axes[j]) - if i == j { 1.0 } else { 0.0 }).abs() <= 1e-12
+            })
+        })
+    {
+        return Ok((x, y, z));
+    }
+    let x = unit(x)?;
+    let along = py::dot(&x, &y);
+    let y = unit([0, 1, 2].map(|i| y[i] - along * x[i]))?;
+    let z = unit(cross(x, y))?;
+    let y = unit(cross(z, x))?;
+    Ok((x, y, z))
+}
+
 fn unit(v: V3) -> Result<V3, FrameRefusal> {
     py::unit(v).ok_or(FrameRefusal::NonfiniteGeometry)
 }
@@ -273,8 +302,7 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
                 continue;
             }
             let y = unit([0, 1, 2].map(|i| second[i] - along * first[i]))?;
-            let (x, y) = (clean(first), clean(y));
-            let z = clean(unit(cross(x, y))?);
+            let (x, y, z) = clean_basis(first, y)?;
             let gauge = if first_signed && second_signed && distinct {
                 FrameGauge::Full
             } else {
@@ -307,8 +335,7 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
     let seed = seeds[py::first_min(&seeds, |s| py::dot(&x, s).abs())];
     let along = py::dot(&x, &seed);
     let y = unit([0, 1, 2].map(|i| seed[i] - along * x[i]))?;
-    let (x, y) = (clean(x), clean(y));
-    let z = clean(unit(cross(x, y))?);
+    let (x, y, z) = clean_basis(x, y)?;
     Ok(PartFrame {
         origin,
         x,
@@ -332,12 +359,16 @@ fn axial_line(classes: &[DirectionClass], tied: &[usize]) -> Result<V3, FrameRef
 }
 
 /// Why framed recognition gave no result: the part could not be read, or the frame was refused.
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
 #[derive(Debug)]
 pub enum FramedError {
     Read(Box<dyn std::error::Error>),
     Frame(FrameRefusal),
 }
 
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
 impl std::fmt::Display for FramedError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -347,16 +378,21 @@ impl std::fmt::Display for FramedError {
     }
 }
 
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
 impl std::error::Error for FramedError {}
 
 /// `PreparedFramedPart`: the frame inferred on the caller's part, and the working part (the
 /// caller's part in the frame's local coordinates, its faces under the caller's indices).
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
 pub struct FramedPart {
     pub frame: PartFrame,
     pub part: Part,
 }
 
 /// `outer` then `inner`, as one placement.
+#[cfg(feature = "python-parity")]
 fn then(outer: &Placement, inner: &Placement) -> Placement {
     let mut out = [[0.0; 4]; 3];
     for (i, row) in out.iter_mut().enumerate() {
@@ -370,12 +406,15 @@ fn then(outer: &Placement, inner: &Placement) -> Placement {
 
 /// A part's source: its STEP file read under a placement ([`read_step_placed`] on the file's
 /// bytes, or [`read_step_file_placed`]).
-pub type Read<'a> = &'a dyn Fn(&Placement) -> Result<Part, Box<dyn std::error::Error>>;
+#[cfg(feature = "python-parity")]
+type Read<'a> = &'a dyn Fn(&Placement) -> Result<Part, Box<dyn std::error::Error>>;
 
 /// `prepare_framed_part` for the part *read* gives under *placement* (the caller's space):
 /// infers the frame on that part and reads it again with the frame's normalisation composed on.
-/// The kernel's parts are not moved after reading, so the normalisation is applied by reading
-/// again.
+/// This legacy reread route is retained only for unchanged Python-parity tests; supported
+/// recognition transforms the loaded part in memory.
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
 pub fn prepare_framed(read: Read<'_>, placement: &Placement) -> Result<FramedPart, FramedError> {
     let caller = read(placement).map_err(FramedError::Read)?;
     let frame = infer_part_frame(&caller).map_err(FramedError::Frame)?;
@@ -385,6 +424,8 @@ pub fn prepare_framed(read: Read<'_>, placement: &Placement) -> Result<FramedPar
 
 /// The working part of *caller*, the part *read* gives under *placement*, for *frame* (inferred
 /// on *caller*): read again with the frame's normalisation composed on.
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
 pub fn working_part(
     read: Read<'_>,
     placement: &Placement,
@@ -410,17 +451,22 @@ pub enum RecordFrame {
     /// No frame could be inferred, so the part was recognised as placed in the file: records
     /// depend on that placement (review M8), as caller-space recognition's do.
     Refused { reason: FrameRefusal },
-    /// Recognised as placed by the caller, no frame inferred
-    /// ([`crate::correspondence::recognise`] on a part in memory).
+    /// Test-only caller-space recognition, with no frame inferred.
+    #[cfg(feature = "python-parity")]
+    #[doc(hidden)]
     CallerSpace,
 }
 
 /// [`prepare_framed`] for a STEP file's bytes.
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
 pub fn prepare_framed_step(bytes: &[u8], placement: &Placement) -> Result<FramedPart, FramedError> {
     prepare_framed(&|p| Ok(read_step_placed(bytes, p)?), placement)
 }
 
 /// [`prepare_framed`] for a STEP file on disk (gzipped when its name ends in `.gz`).
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
 pub fn prepare_framed_file(
     path: &std::path::Path,
     placement: &Placement,
@@ -428,8 +474,12 @@ pub fn prepare_framed_file(
     prepare_framed(&|p| read_step_file_placed(path, p), placement)
 }
 
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
 impl FramedPart {
     /// `PreparedFramedPart.recognise`: the working part recognised, with its frame.
+    #[cfg(feature = "python-parity")]
+    #[doc(hidden)]
     pub fn recognise(self) -> FramedRecognition {
         let features = features::recognise(&self.part);
         FramedRecognition {
@@ -442,6 +492,8 @@ impl FramedPart {
 
 /// `FramedRecognitionResult`: the records found in the part's own frame, the frame, and the
 /// working part they were found on.
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
 pub struct FramedRecognition {
     pub frame: PartFrame,
     pub part: Part,
@@ -480,6 +532,71 @@ mod axial_tie_tests {
                     let actual = axial_line(&classes, &order).unwrap();
                     assert!((py::dot(&actual, &expected).abs() - 1.).abs() < 1e-12);
                 }
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod rigid_basis_tests {
+    use super::*;
+
+    #[test]
+    fn accepted_snapped_basis_is_preserved_byte_for_byte() {
+        let x = unit([0.6, 0.8, 3e-13]).unwrap();
+        let seed = [0.1, 0.2, 1.];
+        let along = py::dot(&x, &seed);
+        let y = unit([0, 1, 2].map(|i| seed[i] - along * x[i])).unwrap();
+        let expected = (
+            clean(x),
+            clean(y),
+            clean(unit(cross(clean(x), clean(y))).unwrap()),
+        );
+        assert!(geom::dot(expected.0, expected.1).abs() > 1e-13);
+        let frame = PartFrame {
+            origin: [1., 2., 3.],
+            x: expected.0,
+            y: expected.1,
+            z: expected.2,
+            gauge: FrameGauge::Full,
+        };
+        assert!(
+            Part::new(vec![], vec![], vec![])
+                .transformed(&frame.normalisation())
+                .is_ok()
+        );
+        assert_eq!(clean_basis(x, y).unwrap(), expected);
+    }
+
+    #[test]
+    fn near_orthonormal_basis_is_repaired_after_component_snapping() {
+        let x = unit([1., 9e-13, 9e-13]).unwrap();
+        let seed = [0., 1., 1.];
+        let along = py::dot(&x, &seed);
+        let y = unit([0, 1, 2].map(|i| seed[i] - along * x[i])).unwrap();
+        assert!(py::dot(&x, &y).abs() < 1e-15);
+        let snapped = PartFrame {
+            origin: [1., 2., 3.],
+            x: clean(x),
+            y: clean(y),
+            z: clean(unit(cross(x, y)).unwrap()),
+            gauge: FrameGauge::Full,
+        };
+        let part = Part::new(vec![], vec![], vec![]);
+        assert!(part.transformed(&snapped.normalisation()).is_err());
+        let (x, y, z) = clean_basis(x, y).unwrap();
+        let frame = PartFrame {
+            origin: [1., 2., 3.],
+            x,
+            y,
+            z,
+            gauge: FrameGauge::Full,
+        };
+        let part = Part::new(vec![], vec![], vec![]);
+        assert!(part.transformed(&frame.normalisation()).is_ok());
+        for (i, a) in [x, y, z].iter().enumerate() {
+            for (j, b) in [x, y, z].iter().enumerate() {
+                assert!((py::dot(a, b) - if i == j { 1.0 } else { 0.0 }).abs() < 1e-14);
             }
         }
     }

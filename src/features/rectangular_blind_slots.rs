@@ -66,18 +66,23 @@ fn has_unambiguous_slot_roles(length: f64, width: f64, depth: f64) -> bool {
     length + tolerance >= width && length > depth + tolerance
 }
 
+parity_entry! {
 /// `recognise_rectangular_blind_slots`.
 pub fn recognise_rectangular_blind_slots(part: &Part) -> Vec<RectangularBlindSlot> {
     super::records(discover(&Context::new(part)))
 }
+}
 
+parity_entry! {
 /// The evidence path: each slot with its two sides, floor and cap.
 pub fn discover_verified(
     ctx: &Context<'_>,
 ) -> Result<Vec<Occurrence<RectangularBlindSlot>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
 }
+}
 
+parity_entry! {
 /// Every slot of every valid solid, in record order.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<RectangularBlindSlot>> {
     let mut found: Vec<Occurrence<RectangularBlindSlot>> = (0..ctx.part.solids.len())
@@ -86,6 +91,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<RectangularBlindSlot>> {
         .collect();
     found.sort_by(|a, b| a.record.order(&b.record));
     found
+}
 }
 
 /// A region within the solid, from its coplanar seed.

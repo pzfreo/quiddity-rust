@@ -1057,8 +1057,8 @@ fn principal_fillets_follow_rolled_supports() {
         }
     }
 }
-/// Exercise the existing public file route directly, including record mapping and fingerprint
-/// construction. These checks deliberately leave the caller-space route unchanged.
+/// Exercise the supported loaded-part route directly, including record mapping and fingerprint
+/// construction. The caller-space parity checks above retain their original semantics.
 #[test]
 fn golden_public_framed_route_survives_oblique_poses() {
     let z = rotation([0., 0., 1.], 17., [0.; 3]);
@@ -1073,7 +1073,7 @@ fn golden_public_framed_route_survives_oblique_poses() {
     let results = common::parallel::map(&paths, |path| {
         let read = |at: &Placement| read_step_file_placed(path, at);
         let census = |at: &Placement| {
-            let (_, recognition) = correspondence::recognise_placed(&read, at).unwrap();
+            let recognition = correspondence::recognise(&read(at).unwrap());
             assert!(matches!(
                 recognition.frame,
                 frames::RecordFrame::Inferred(_)

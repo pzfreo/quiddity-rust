@@ -63,9 +63,11 @@ fn unit(v: V3) -> Checked<V3> {
     py::unit(v).map_or_else(|| refuse("direction is nonfinite or degenerate"), Ok)
 }
 
+parity_entry! {
 /// `_round_clean`: Python's `round`, without a negative zero.
 pub fn round_clean(value: f64, digits: usize) -> f64 {
     py::without_negative_zero(py::round_to(value, digits))
+}
 }
 
 /// A right-handed placement frame (`LocalFrame`): a section's `u`, `v` across the `run`.
@@ -612,6 +614,7 @@ pub(crate) fn validate_simple(vertices: &[SectionVertex], closed: bool) -> Check
     Ok(())
 }
 
+parity_entry! {
 /// Prove the span between two termination planes (`span + gradient · p`) positive at every
 /// vertex and every arc's extreme along the gradient (`validate_section_end_separation`); an
 /// open chain has no closing edge.
@@ -646,6 +649,7 @@ pub fn validate_section_end_separation(
         return refuse("section termination planes must not cross or touch the profile");
     }
     Ok(())
+}
 }
 
 /// A canonical closed line/arc loop (`PlanarSection`): simple, counter-clockwise, started at its
@@ -869,10 +873,12 @@ fn validate_occurrence_value(o: &SectionOccurrence) -> Checked<()> {
     Ok(())
 }
 
+parity_entry! {
 /// Revalidate an occurrence and its run-owned body (`validate_occurrence`).
 pub fn validate_occurrence(o: &SectionOccurrence, body_refs: &BodyRefIssuer) -> Checked<()> {
     body_refs.validate(&o.body)?;
     validate_occurrence_value(o)
+}
 }
 
 /// A published vertex (`section_vertex_dict`).
@@ -897,6 +903,7 @@ pub struct SectionValue {
     pub boundary: Vec<VertexValue>,
 }
 
+parity_entry! {
 pub fn section_vertex_value(vertex: &SectionVertex) -> Checked<VertexValue> {
     let [x, y, bulge] = serialized(vertex)?;
     Ok(VertexValue {
@@ -904,7 +911,9 @@ pub fn section_vertex_value(vertex: &SectionVertex) -> Checked<VertexValue> {
         bulge,
     })
 }
+}
 
+parity_entry! {
 /// The occurrence as published (`occurrence_geometry_dict`): origin and interval to 3
 /// decimals, directions to 6, refused unless the rounded values still describe the geometry
 /// within 2e-3.
@@ -993,4 +1002,5 @@ pub fn occurrence_geometry(
         },
         ends: o.ends,
     })
+}
 }

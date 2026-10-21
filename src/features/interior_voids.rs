@@ -54,9 +54,11 @@ pub(super) struct Analysis {
     pub refusals: Vec<InteriorVoidRefusal>,
 }
 
+parity_entry! {
 /// `recognise_interior_voids`.
 pub fn recognise_interior_voids(part: &Part) -> Vec<InteriorVoid> {
     super::records(discover(&Context::new(part)))
+}
 }
 
 type Cell = [i64; 3];
@@ -472,16 +474,20 @@ fn region_faces(
     Some((skin.into_iter().collect(), openings))
 }
 
+parity_entry! {
 /// The evidence path: each interior void with its faces, published only from one valid solid.
 pub fn discover_verified(
     ctx: &Context<'_>,
 ) -> Result<Vec<Occurrence<InteriorVoid>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
 }
+}
 
+parity_entry! {
 /// Every interior void, its skin faces defining it and its opening faces consulted.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<InteriorVoid>> {
     analyse(ctx).accepted
+}
 }
 
 pub(super) fn analyse(ctx: &Context<'_>) -> Analysis {

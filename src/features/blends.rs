@@ -456,11 +456,14 @@ fn straight_proposal(graph: &BlendGraph<'_>, chain: &BlendChain) -> Option<Occur
     })
 }
 
+parity_entry! {
 /// `recognise_blends`.
 pub fn recognise_blends(part: &Part) -> Vec<Blend> {
     super::records(discover(&Context::new(part)))
 }
+}
 
+parity_entry! {
 /// `_discover_blends`: straight then circular proposals, sorted by path, radius and side.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Blend>> {
     let graph = BlendGraph::new(ctx.part);
@@ -477,9 +480,12 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Blend>> {
     found.sort_by(|a, b| blend_order(&a.record, &b.record));
     found
 }
+}
 
+parity_entry! {
 /// The evidence path (`_discover_blends` with a writer): every blend's faces on one valid
 /// solid, or the run refused.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<Blend>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
+}
 }

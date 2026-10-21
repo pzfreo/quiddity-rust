@@ -26,7 +26,6 @@ use crate::framed_records::{self, LocalFields, Mapped};
 use crate::frames::{self, PartFrame, RecordFrame};
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, V3};
-use crate::kernel::step::Placement;
 
 pub use align::Motion;
 pub use fingerprint::{
@@ -54,10 +53,64 @@ pub struct Recognition {
     pub input_repairs: Vec<String>,
 }
 
-/// Recognise every ported family on *part* as it is placed (caller-space, as Python's entry
-/// points) and fingerprint the result. The default, [`recognise_placed`], recognises in the
-/// part's own frame.
+/// Recognise a loaded part in its inferred frame and map records back to caller space.
+/// Fields that cannot be mapped to caller axes remain `local`; read them through `frame`.
+/// If frame inference is refused, records are caller-space and `frame` carries the reason.
+/// This performs no STEP reads and preserves face and edge indices.
 pub fn recognise(part: &Part) -> Recognition {
+    let frame = match frames::infer_part_frame(part) {
+        Ok(frame) => frame,
+        Err(reason) => {
+            let features = features::recognise(part);
+            let fingerprints = fingerprint(part, &features);
+            return Recognition {
+                features,
+                fingerprints,
+                frame: RecordFrame::Refused { reason },
+                local: LocalFields::new(),
+                source_sha256: None,
+                input_repairs: part.input_repairs().to_vec(),
+            };
+        }
+    };
+    recognise_in_frame(part, frame)
+}
+
+fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
+    let working = match part.transformed(&frame.normalisation()) {
+        Ok(working) => working,
+        Err(_) => {
+            // A failed normalisation must never silently publish caller-space features.
+            let features = Features::default();
+            return Recognition {
+                fingerprints: fingerprint(part, &features),
+                features,
+                frame: RecordFrame::Refused {
+                    reason: frames::FrameRefusal::NonrigidFrame,
+                },
+                local: LocalFields::new(),
+                source_sha256: None,
+                input_repairs: part.input_repairs().to_vec(),
+            };
+        }
+    };
+    let Mapped { features, local } = framed_records::to_file(features::recognise(&working), &frame);
+    let mut fingerprints = fingerprint(part, &features);
+    frame_axes(&mut fingerprints, &features, &local, &frame);
+    Recognition {
+        features,
+        fingerprints,
+        frame: RecordFrame::Inferred(frame),
+        local,
+        source_sha256: None,
+        input_repairs: part.input_repairs().to_vec(),
+    }
+}
+
+/// Test-only caller-space recognition, retained solely for unchanged Python parity checks.
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub fn python_parity_recognise(part: &Part) -> Recognition {
     let features = features::recognise(part);
     let fingerprints = fingerprint(part, &features);
     Recognition {
@@ -68,41 +121,6 @@ pub fn recognise(part: &Part) -> Recognition {
         source_sha256: None,
         input_repairs: part.input_repairs().to_vec(),
     }
-}
-
-/// The default recognition (the maintainer's decision on review M8): the part *read* gives
-/// under *placement* is recognised in its own frame ([`frames::infer_part_frame`]) and the
-/// records reported in the placement's coordinates ([`framed_records`]), so they do not depend
-/// on how the part was placed. Fingerprints are taken on that part, the axis of a record whose
-/// axis letter names the frame's axis read as that axis. Where no frame can be inferred the part
-/// is recognised as placed, and `frame` says why. Returns the part as placed, with its
-/// recognition.
-pub fn recognise_placed(
-    read: frames::Read<'_>,
-    placement: &Placement,
-) -> Result<(Part, Recognition), Box<dyn std::error::Error>> {
-    let part = read(placement)?;
-    let frame = match frames::infer_part_frame(&part) {
-        Ok(frame) => frame,
-        Err(reason) => {
-            let mut recognition = recognise(&part);
-            recognition.frame = RecordFrame::Refused { reason };
-            return Ok((part, recognition));
-        }
-    };
-    let working = frames::working_part(read, placement, &part, &frame)?;
-    let Mapped { features, local } = framed_records::to_file(features::recognise(&working), &frame);
-    let mut fingerprints = fingerprint(&part, &features);
-    frame_axes(&mut fingerprints, &features, &local, &frame);
-    let recognition = Recognition {
-        features,
-        fingerprints,
-        frame: RecordFrame::Inferred(frame),
-        local,
-        source_sha256: None,
-        input_repairs: part.input_repairs().to_vec(),
-    };
-    Ok((part, recognition))
 }
 
 /// A feature fingerprint's axis read from an axis letter that names the frame's axis (a field
@@ -877,5 +895,36 @@ mod tests {
                 assert!(error.contains(expected), "{expected}: {error}");
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod normalisation_tests {
+    use super::*;
+    #[test]
+    fn invalid_normalisation_refuses_without_caller_space_records() {
+        let part = crate::read_step(include_bytes!(
+            "../../tests/fixtures/large_block_small_fillets.step"
+        ))
+        .unwrap();
+        let frame = PartFrame {
+            origin: [0.; 3],
+            x: [1., 0., 0.],
+            y: [2e-12, 1., 0.],
+            z: [0., 0., 1.],
+            gauge: frames::FrameGauge::Full,
+        };
+        let result = recognise_in_frame(&part, frame);
+        assert_eq!(
+            result.frame,
+            RecordFrame::Refused {
+                reason: frames::FrameRefusal::NonrigidFrame
+            }
+        );
+        assert_eq!(
+            serde_json::to_value(&result.features).unwrap(),
+            serde_json::to_value(Features::default()).unwrap()
+        );
+        assert!(result.fingerprints.features.is_empty());
     }
 }

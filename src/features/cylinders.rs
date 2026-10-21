@@ -97,6 +97,7 @@ fn recovered_external(part: &Part, face: usize, frame: &Frame) -> Option<bool> {
     (sides.len() >= 2 && sides.iter().all(|&x| x == sides[0])).then(|| sides[0])
 }
 
+parity_entry! {
 pub fn analyse_cylinders(part: &Part) -> Vec<CylinderEvidence> {
     let faces: Vec<(usize, usize)> = if part.solids.is_empty() {
         (0..part.faces.len()).map(|f| (0, f)).collect()
@@ -160,7 +161,9 @@ pub fn analyse_cylinders(part: &Part) -> Vec<CylinderEvidence> {
     }
     out
 }
+}
 
+parity_entry! {
 /// Whether two unit-direction axis lines are parallel and within *tol* (`_coaxial_axis_lines`).
 pub fn coaxial_axis_lines(pa: V3, da: V3, pb: V3, db: V3, tol: f64) -> bool {
     if py::sum((0..3).map(|i| da[i] * db[i])).abs() < 1.0 - 1e-6 {
@@ -170,6 +173,7 @@ pub fn coaxial_axis_lines(pa: V3, da: V3, pb: V3, db: V3, tol: f64) -> bool {
     let along = py::sum((0..3).map(|i| offset[i] * db[i]));
     let d2 = py::sum((0..3).map(|i| (offset[i] - along * db[i]).powi(2)));
     d2 <= tol * tol
+}
 }
 
 /// Coaxial patches whose axial ranges meet within this fraction of the band's diameter belong
@@ -245,6 +249,7 @@ impl Coaxial for Segment {
     }
 }
 
+parity_entry! {
 /// `_line_key`: solid, axis letter, full direction and the axis point projected onto the plane
 /// through the origin perpendicular to the axis, rounded to 3 decimals. Compared with `==`, so
 /// -0.0 and 0.0 are one key, as in a Python dict.
@@ -262,14 +267,18 @@ pub fn line_key(c: &impl Coaxial) -> Vec<f64> {
         py::round_to(p[2] - t * d[2], 3),
     ]
 }
+}
 
+parity_entry! {
 /// `_cyl_group_key`: the line key plus the diameter to four significant figures.
 pub fn group_key(c: &impl Coaxial) -> Vec<f64> {
     let mut key = line_key(c);
     key.push(py::quantise(c.diameter(), 4));
     key
 }
+}
 
+parity_entry! {
 /// `_merge_runs`: group by *key* in first-seen order, sort each group by `s_lo` (stably), and
 /// split it wherever the next item starts beyond the run's reach plus its own gap tolerance.
 pub fn merge_runs<T: Coaxial + Clone>(items: &[T], key: impl Fn(&T) -> Vec<f64>) -> Vec<Vec<T>> {
@@ -299,7 +308,9 @@ pub fn merge_runs<T: Coaxial + Clone>(items: &[T], key: impl Fn(&T) -> Vec<f64>)
     }
     runs
 }
+}
 
+parity_entry! {
 /// `full_cylinders`: the patches belonging to a hole or boss — runs round one axis totalling
 /// more than half a turn — in run order.
 pub fn full_cylinders(cyls: &[CylinderEvidence]) -> Vec<CylinderEvidence> {
@@ -309,7 +320,9 @@ pub fn full_cylinders(cyls: &[CylinderEvidence]) -> Vec<CylinderEvidence> {
         .flatten()
         .collect()
 }
+}
 
+parity_entry! {
 /// `_segments`: one segment per run of same-line, same-diameter patches.
 pub fn segments(cyls: &[CylinderEvidence]) -> Vec<Segment> {
     merge_runs(cyls, group_key)
@@ -330,19 +343,25 @@ pub fn segments(cyls: &[CylinderEvidence]) -> Vec<Segment> {
         })
         .collect()
 }
+}
 
+parity_entry! {
 /// The point on a segment's axis at axial coordinate *s* (`_axis_point`).
 pub fn axis_point_at(c: &impl Coaxial, s: f64) -> V3 {
     let (p, d) = (c.axis_point(), c.direction());
     geom::add(p, geom::scale(d, s - geom::dot(p, d)))
 }
+}
 
+parity_entry! {
 /// The inventory as Python's `(z_cyls, cross_cyls)` pair concatenated: z-axis cylinders first,
 /// each group in solid and face order — the order families that scan it rely on.
 pub fn z_then_cross(cyls: &[CylinderEvidence]) -> (Vec<CylinderEvidence>, Vec<CylinderEvidence>) {
     cyls.iter().cloned().partition(|c| c.axis == 2)
 }
+}
 
+parity_entry! {
 /// `_canonical_axis_direction`: dominant component positive, components rounded to 6 decimals
 /// with sub-half-micro values zeroed.
 pub fn canonical_axis_direction(axis: usize, d: V3) -> V3 {
@@ -361,7 +380,9 @@ pub fn canonical_axis_direction(axis: usize, d: V3) -> V3 {
         }
     })
 }
+}
 
+parity_entry! {
 /// `_axis_line_coordinates`: where the axis line crosses the plane through the origin, as the
 /// two coordinates other than the axis's own, rounded to 3 decimals.
 pub fn axis_line_coordinates(axis: usize, point: V3, d: V3) -> (f64, f64) {
@@ -375,4 +396,5 @@ pub fn axis_line_coordinates(axis: usize, point: V3, d: V3) -> (f64, f64) {
         py::without_negative_zero(py::round_to(foot[keep[0]], 3)),
         py::without_negative_zero(py::round_to(foot[keep[1]], 3)),
     )
+}
 }

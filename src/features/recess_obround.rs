@@ -92,6 +92,7 @@ fn obround_end(
     })
 }
 
+parity_entry! {
 /// The solid's obround ends (`_obround_ends`): concave cylinders clustered by axis, radius,
 /// depth (to 0.1 mm) and axis line, each cluster's union box classified as a half-cylinder.
 pub fn obround_ends(cylinders: &[Cylinder]) -> Vec<End> {
@@ -143,6 +144,7 @@ pub fn obround_ends(cylinders: &[Cylinder]) -> Vec<End> {
         .filter_map(|cl| obround_end(cl.radius, cl.axis, cl.location, &cl.bb, cl.nodes))
         .collect()
 }
+}
 
 /// Every distinct cap cluster matching one end of a record (`_matching_end_groups`).
 fn matching_end_groups<R: Recess>(ends: &[End], record: &R, coord: f64) -> Vec<BTreeSet<usize>> {
@@ -168,6 +170,7 @@ fn matching_end_groups<R: Recess>(ends: &[End], record: &R, coord: f64) -> Vec<B
 #[derive(Debug, PartialEq, Eq)]
 pub struct CompetingCaps;
 
+parity_entry! {
 /// Each record with a cap at both ends extended by its half-width at each end, keeping both
 /// cap clusters (`_extend_obround_proposals`). With *strict*, two clusters at one end refuse.
 pub fn extend_obround_proposals<R: Recess>(
@@ -214,6 +217,7 @@ pub fn extend_obround_proposals<R: Recess>(
         }
     }
     Ok(out)
+}
 }
 
 /// The legacy key ends are grouped by: axes, and radius, centreline and depth to 0.01 mm.
@@ -394,6 +398,7 @@ enum Recovered {
     Pocket(Proposal<Pocket>),
 }
 
+parity_entry! {
 /// The through obround slots recovered from their end caps.
 pub fn slots_from_ends(faces: &[Face], cylinders: &[Cylinder]) -> Vec<Proposal<Slot>> {
     obround_from_ends(faces, cylinders, false)
@@ -404,7 +409,9 @@ pub fn slots_from_ends(faces: &[Face], cylinders: &[Cylinder]) -> Vec<Proposal<S
         })
         .collect()
 }
+}
 
+parity_entry! {
 /// The blind obround pockets recovered from their end caps.
 pub fn pockets_from_ends(faces: &[Face], cylinders: &[Cylinder]) -> Vec<Proposal<Pocket>> {
     obround_from_ends(faces, cylinders, true)
@@ -414,6 +421,7 @@ pub fn pockets_from_ends(faces: &[Face], cylinders: &[Cylinder]) -> Vec<Proposal
             Recovered::Slot(_) => None,
         })
         .collect()
+}
 }
 
 #[cfg(test)]

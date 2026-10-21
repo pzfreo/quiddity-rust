@@ -4,6 +4,20 @@
 //! [`kernel`]. [`pmi_json`] is the versioned JSON form of the kernel's semantic PMI model, the
 //! `quiddity parts` / `quiddity pmi` process boundary.
 
+// Unsupported caller-space entry points exist publicly only for Python parity tests.
+macro_rules! parity_entry {
+    ($(#[$meta:meta])* pub $($rest:tt)*) => {
+        #[cfg(feature = "python-parity")]
+        #[doc(hidden)]
+        $(#[$meta])*
+        pub $($rest)*
+        #[cfg(not(feature = "python-parity"))]
+        $(#[$meta])*
+        #[allow(dead_code, unused_imports)] // Unsupported parity helpers may have no internal callers.
+        pub(crate) $($rest)*
+    };
+}
+
 pub mod correspondence;
 pub mod evidence_view;
 pub mod features;
@@ -16,86 +30,198 @@ pub mod serve;
 pub use haecceity as kernel;
 
 pub use correspondence::{Correspondence, Fingerprints, correspond};
-pub use evidence_view::{RecognitionEvidence, build_recognition_evidence};
-pub use features::angled_steps::{AngledStep, recognise_angled_steps};
-pub use features::blends::{
-    Blend, BlendPath, CircularBlendPath, StraightBlendPath, recognise_blends,
-};
-pub use features::bosses::{BossRecord, recognise_bosses};
-pub use features::chamfers::{Chamfer, ChamferOptions, recognise_chamfers};
-pub use features::channels::{Channel, recognise_channels};
-pub use features::circular_blind_steps::{CircularBlindStep, recognise_circular_blind_steps};
-pub use features::circular_face_patterns::{CircularFacePattern, recognise_circular_face_patterns};
-pub use features::countersinks::{CounterSink, recognise_countersinks};
-pub use features::edge_open_circular::{
-    EdgeOpenCircularPocket, recognise_edge_open_circular_pockets,
-};
-pub use features::edge_open_prismatic::{
-    EdgeOpenPrismaticRecess, recognise_edge_open_prismatic_recesses,
-};
-pub use features::fillets::{Fillet, FilletOptions, recognise_fillets};
-pub use features::flats::{Flat, recognise_flats};
+pub use evidence_view::RecognitionEvidence;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use evidence_view::build_recognition_evidence;
+pub use features::angled_steps::AngledStep;
+pub use features::blends::{Blend, BlendPath, CircularBlendPath, StraightBlendPath};
+pub use features::bosses::BossRecord;
+pub use features::chamfers::{Chamfer, ChamferOptions};
+pub use features::channels::Channel;
+pub use features::circular_blind_steps::CircularBlindStep;
+pub use features::circular_face_patterns::CircularFacePattern;
+pub use features::countersinks::CounterSink;
+pub use features::edge_open_circular::EdgeOpenCircularPocket;
+pub use features::edge_open_prismatic::EdgeOpenPrismaticRecess;
+pub use features::fillets::{Fillet, FilletOptions};
+pub use features::flats::Flat;
 pub use features::freeform_surfaces::{
-    BSplineSurfaceSupport, FreeformSurface, SurfaceContinuityLink, recognise_freeform_surfaces,
+    BSplineSurfaceSupport, FreeformSurface, SurfaceContinuityLink,
 };
-pub use features::grooves::{Groove, recognise_grooves};
-pub use features::gussets::{
-    GussetRib, GussetRibPattern, recognise_gusset_rib_patterns, recognise_gusset_ribs,
-};
-pub use features::hole_patterns::{HolePattern, recognise_hole_patterns};
-pub use features::holes::{HoleOptions, HoleRecord, recognise_holes};
-pub use features::interior_voids::{InteriorVoid, recognise_interior_voids};
-pub use features::levels::{
-    FaceLevel, FaceLevelOptions, RiserEvidence, RiserOptions, recognise_face_levels,
-    recognise_risers,
-};
-pub use features::oblique_through_steps::{ObliqueThroughStep, recognise_oblique_through_steps};
-pub use features::oriented_chamfers::{
-    OrientedChamfer, OrientedChamferOptions, recognise_oriented_chamfers,
-};
-pub use features::oriented_slots::{
-    OrientedSlot, OrientedSlotPattern, recognise_oriented_slot_patterns, recognise_oriented_slots,
-};
+pub use features::grooves::Groove;
+pub use features::gussets::{GussetRib, GussetRibPattern};
+pub use features::hole_patterns::HolePattern;
+pub use features::holes::{HoleOptions, HoleRecord};
+pub use features::interior_voids::InteriorVoid;
+pub use features::levels::{FaceLevel, FaceLevelOptions, RiserEvidence, RiserOptions};
+pub use features::oblique_through_steps::ObliqueThroughStep;
+pub use features::oriented_chamfers::{OrientedChamfer, OrientedChamferOptions};
+pub use features::oriented_slots::{OrientedSlot, OrientedSlotPattern};
 pub use features::outer_profile::{
     OuterProfileRefusalReason, PlanarOuterProfile, PlanarOuterProfileEvidence, ProfileArc,
-    ProfileLine, ProfileSupport, RefusedPlanarOuterProfile, planar_outer_profile,
+    ProfileLine, ProfileSupport, RefusedPlanarOuterProfile,
 };
-pub use features::pads::{PadError, PadOptions, RaisedPad, recognise_rectangular_pads};
-pub use features::paired_ramp_steps::{PairedRampStep, recognise_paired_ramp_steps};
-pub use features::passages::{
-    Passage, PassageError, SectionPassage, recognise_passages, recognise_section_passages,
-};
-pub use features::plates::{Plate, PlateOptions, recognise_plates};
-pub use features::pockets::{Pocket, recognise_pockets};
+pub use features::pads::{PadError, PadOptions, RaisedPad};
+pub use features::paired_ramp_steps::PairedRampStep;
+pub use features::passages::{Passage, PassageError, SectionPassage};
+pub use features::plates::{Plate, PlateOptions};
+pub use features::pockets::Pocket;
 pub use features::polygonal_bosses::{
-    PolygonalBoss, PolygonalOptions, PolygonalPrism, PolygonalStock, recognise_polygonal_bosses,
-    recognise_polygonal_stock,
+    PolygonalBoss, PolygonalOptions, PolygonalPrism, PolygonalStock,
 };
-pub use features::prismatic_pockets::{PrismaticPocket, recognise_prismatic_pockets};
-pub use features::profiled_bores::{DoubleDBore, DoubleDBoreOptions, recognise_double_d_bores};
-pub use features::recess_patterns::{
-    PocketPattern, SlotPattern, recognise_pocket_patterns, recognise_slot_patterns,
-};
-pub use features::rectangular_blind_slots::{
-    RectangularBlindSlot, recognise_rectangular_blind_slots,
-};
-pub use features::repeating_profiles::{
-    RepeatingRadialProfile, RepeatingRadialProfileOptions, recognise_repeating_radial_profiles,
-};
-pub use features::round_bottom_slots::{RoundBottomBlindSlot, recognise_round_bottom_blind_slots};
-pub use features::section_recess_family::{
-    SectionRecessFamilyError, build_section_recess_document, recognise_section_recesses,
-};
-pub use features::sheet_metal::{SheetMetalBody, SheetMetalOptions, recognise_sheet_metal_bodies};
-pub use features::slots::{Slot, recognise_slots};
-pub use features::thin_walls::{ThinWallBody, recognise_thin_wall_bodies};
-pub use features::through_steps::{ThroughStep, recognise_through_steps};
+pub use features::prismatic_pockets::PrismaticPocket;
+pub use features::profiled_bores::{DoubleDBore, DoubleDBoreOptions};
+pub use features::recess_patterns::{PocketPattern, SlotPattern};
+pub use features::rectangular_blind_slots::RectangularBlindSlot;
+pub use features::repeating_profiles::{RepeatingRadialProfile, RepeatingRadialProfileOptions};
+pub use features::round_bottom_slots::RoundBottomBlindSlot;
+pub use features::section_recess_family::SectionRecessFamilyError;
+pub use features::sheet_metal::{SheetMetalBody, SheetMetalOptions};
+pub use features::slots::Slot;
+pub use features::thin_walls::ThinWallBody;
+pub use features::through_steps::ThroughStep;
 pub use features::turned::TurnedProfileKey;
-pub use features::turned_steps::{TurnedStep, recognise_turned_steps};
+pub use features::turned_steps::TurnedStep;
 pub use kernel::brep::Part;
 pub use kernel::step::{read_step, read_step_file};
 
 pub use features::modelled_threads::{
     ModelledThread, ModelledThreadRefusal, ThreadAnalysis, ThreadAxis, ThreadTolerances,
-    analyse_modelled_threads, recognise_modelled_threads,
 };
+
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::angled_steps::recognise_angled_steps;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::blends::recognise_blends;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::bosses::recognise_bosses;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::chamfers::recognise_chamfers;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::channels::recognise_channels;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::circular_blind_steps::recognise_circular_blind_steps;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::circular_face_patterns::recognise_circular_face_patterns;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::countersinks::recognise_countersinks;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::edge_open_circular::recognise_edge_open_circular_pockets;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::edge_open_prismatic::recognise_edge_open_prismatic_recesses;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::fillets::recognise_fillets;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::flats::recognise_flats;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::freeform_surfaces::recognise_freeform_surfaces;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::grooves::recognise_grooves;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::gussets::{recognise_gusset_rib_patterns, recognise_gusset_ribs};
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::hole_patterns::recognise_hole_patterns;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::holes::recognise_holes;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::interior_voids::recognise_interior_voids;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::levels::{recognise_face_levels, recognise_risers};
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::modelled_threads::recognise_modelled_threads;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::oblique_through_steps::recognise_oblique_through_steps;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::oriented_chamfers::recognise_oriented_chamfers;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::oriented_slots::{recognise_oriented_slot_patterns, recognise_oriented_slots};
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::pads::recognise_rectangular_pads;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::paired_ramp_steps::recognise_paired_ramp_steps;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::passages::{recognise_passages, recognise_section_passages};
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::plates::recognise_plates;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::pockets::recognise_pockets;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::polygonal_bosses::{recognise_polygonal_bosses, recognise_polygonal_stock};
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::prismatic_pockets::recognise_prismatic_pockets;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::profiled_bores::recognise_double_d_bores;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::recess_patterns::{recognise_pocket_patterns, recognise_slot_patterns};
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::rectangular_blind_slots::recognise_rectangular_blind_slots;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::repeating_profiles::recognise_repeating_radial_profiles;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::round_bottom_slots::recognise_round_bottom_blind_slots;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::section_recess_family::recognise_section_recesses;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::sheet_metal::recognise_sheet_metal_bodies;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::slots::recognise_slots;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::thin_walls::recognise_thin_wall_bodies;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::through_steps::recognise_through_steps;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::turned_steps::recognise_turned_steps;
+
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::outer_profile::planar_outer_profile;
+
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::section_recess_family::build_section_recess_document;
+
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::modelled_threads::analyse_modelled_threads;

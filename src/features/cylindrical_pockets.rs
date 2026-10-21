@@ -9,7 +9,7 @@
 //! Python builds the cell as the floor's extrusion intersected with the cylinder
 //! (`Shape.intersect`). With the floor's every corner strictly inside the cylinder's outer
 //! branch, that is exactly the floor swept up to the branch, built here by
-//! [`capped_prism`](super::cylindrical_channels::capped_prism): its floor face is the source
+//! `capped_prism`: its floor face is the source
 //! floor by construction (two of Python's checks), and the probe past the cylinder (the cell
 //! with the cylinder moved out, less the cell) is the branch swept by the probe thickness.
 
@@ -84,6 +84,7 @@ fn floor_corners(part: &Part, floor: usize) -> Option<Vec<V3>> {
         .collect()
 }
 
+parity_entry! {
 /// Every proof ending the pocket on *floor* (`_proofs`), one per stock cylinder that proves.
 pub fn proofs(
     ctx: &Context<'_>,
@@ -91,6 +92,7 @@ pub fn proofs(
     floor: usize,
 ) -> Vec<CylindricalPocketProof> {
     proofs_or_none(ctx, surfaces, floor).unwrap_or_default()
+}
 }
 
 fn proofs_or_none(
@@ -254,6 +256,7 @@ fn proofs_or_none(
     Some(results)
 }
 
+parity_entry! {
 /// Every proof on every floor (`cylindrical_pocket_proofs`), floors in face order.
 pub fn cylindrical_pocket_proofs(
     ctx: &Context<'_>,
@@ -262,4 +265,5 @@ pub fn cylindrical_pocket_proofs(
     (0..ctx.part.faces.len())
         .flat_map(|floor| proofs(ctx, surfaces, floor))
         .collect()
+}
 }

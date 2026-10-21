@@ -186,18 +186,23 @@ fn cap_matches_profile(part: &Part, cap: &Region, radius: f64, flat_width: f64) 
         && (longest - expected_width).abs() <= length_tolerance(&[expected_width])
 }
 
+parity_entry! {
 /// `recognise_round_bottom_blind_slots`.
 pub fn recognise_round_bottom_blind_slots(part: &Part) -> Vec<RoundBottomBlindSlot> {
     super::records(discover(&Context::new(part)))
 }
+}
 
+parity_entry! {
 /// The evidence path: each slot with its two curved sides, floor and cap.
 pub fn discover_verified(
     ctx: &Context<'_>,
 ) -> Result<Vec<Occurrence<RoundBottomBlindSlot>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
 }
+}
 
+parity_entry! {
 /// Every slot of every valid solid, in record order.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<RoundBottomBlindSlot>> {
     let mut found: Vec<Occurrence<RoundBottomBlindSlot>> = (0..ctx.part.solids.len())
@@ -206,6 +211,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<RoundBottomBlindSlot>> {
         .collect();
     found.sort_by(|a, b| a.record.order(&b.record));
     found
+}
 }
 
 fn recognise_one(ctx: &Context<'_>, solid: usize) -> Vec<Occurrence<RoundBottomBlindSlot>> {

@@ -7,7 +7,7 @@
 //!
 //! Python builds the cell as a box less the bore cylinder (`Shape.cut`). Over a footprint that
 //! lies strictly inside the bore's single-valued branch the cut is exactly the footprint swept
-//! from the far plane up to that branch, so it is built so here ([`capped_prism`], shared with
+//! from the far plane up to that branch, so it is built so here (`capped_prism`, shared with
 //! the pocket and passage proofs): its far face is the expected far rectangle and its planar
 //! faces lie on the far, floor, mouth and wall planes by construction, which are two of Python's
 //! checks. A probe beyond an end is the cell's cap swept by the probe thickness, which is what
@@ -57,7 +57,7 @@ pub struct CylindricalChannelProof {
     pub volume: f64,
 }
 
-/// One end of a [`capped_prism`]: the plane across the run at a height, or one branch of a
+/// One end of a `capped_prism`: the plane across the run at a height, or one branch of a
 /// cylinder whose axis lies across the run (the larger root of the height along the run for
 /// `sign` 1, the smaller for -1).
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -378,7 +378,7 @@ pub(crate) fn capped_prism(run: V3, footprint: &[V3], low: Cap, high: Cap) -> Op
     part.solid_is_valid(0).then_some(part)
 }
 
-/// The side faces of a [`capped_prism`] (every face after its two caps).
+/// The side faces of a `capped_prism` (every face after its two caps).
 pub(crate) fn sides(cell: &Part) -> Vec<(&Part, usize)> {
     (2..cell.faces.len()).map(|f| (cell, f)).collect()
 }
@@ -388,7 +388,7 @@ pub(crate) fn sides(cell: &Part) -> Vec<(&Part, usize)> {
 /// parameter and widens supports across them by the chord tolerance, so the answer depends on
 /// how the plane is parametrised: scanned at constant height, a nearly level arc's sampled
 /// chords stray across the line by far more than that tolerance near its crest. The patch is
-/// asked as a copy of the face whose plane is parametrised height first ([`capped_prism`]'s
+/// asked as a copy of the face whose plane is parametrised height first (`capped_prism`'s
 /// sides are too), across which every cap curve is single-valued; the face is the same.
 pub(crate) fn covered_along(run: V3, patch: (&Part, usize), supports: &[(&Part, usize)]) -> bool {
     let (part, face) = patch;
@@ -639,6 +639,7 @@ pub(crate) fn branch_extent(cap: &Cap, run: V3, footprint: &[V3]) -> Option<(f64
     Some((lo, hi))
 }
 
+parity_entry! {
 /// The channel proof (`prove_cylindrical_channel`): `None` for anything outside the contract,
 /// including an axis name outside `x`, `y`, `z` (where Python raises and swallows).
 pub fn prove(
@@ -886,6 +887,7 @@ pub fn prove(
         }
     }
     None
+}
 }
 
 #[cfg(test)]

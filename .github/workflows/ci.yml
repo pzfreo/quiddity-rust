@@ -35,8 +35,10 @@ jobs:
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       - run: cargo fmt --all --check
       - run: cargo clippy --workspace --all-targets --release -- -D warnings
+      - run: cargo clippy --workspace --all-targets --release --features python-parity -- -D warnings
       # nextest does not run doc-tests.
       - run: cargo test --doc --workspace --release
+      - run: cargo test --doc --workspace --release --features python-parity
 
   # Shards per platform: 15 each, about five minutes of tests per shard (run 38007924732, at
   # c2ce06a: 77 runner-minutes of tests on Linux, 72 on macOS, plus 20-30 s of setup per job; a

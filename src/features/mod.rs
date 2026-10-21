@@ -1,8 +1,8 @@
 //! The feature recognisers, ported family by family from the Python implementation, and the
 //! per-run machinery they share.
 //!
-//! Each family module exposes a public `recognise_*` (records only, the Python public
-//! entry point) and a `discover` that takes the run's [`Context`] and returns
+//! Each family module has a crate-private `recognise_*` (records only, exposed solely by
+//! the unsupported `python-parity` test feature) and a `discover` taking the run's `Context`, returning
 //! [`Occurrence`]s carrying the faces that define each record. Shared analysis — the cylinder
 //! inventory, the point classifier, the part's box — lives in the context so a run computes it
 //! once however many families ask.
@@ -18,7 +18,7 @@ pub mod chamfers;
 pub mod channels;
 pub mod circular_blind_steps;
 pub mod circular_face_patterns;
-pub mod context;
+parity_entry! { pub mod context; }
 pub mod countersinks;
 pub mod cylinders;
 pub mod cylindrical_channels;
@@ -94,7 +94,7 @@ pub mod turned_steps;
 pub mod volume_probe;
 pub mod wire_seed;
 
-pub use context::Context;
+parity_entry! { pub use context::Context; }
 pub use evidence::{EvidenceError, Occurrence};
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -104,10 +104,10 @@ use serde::Serialize;
 use crate::kernel::brep::Part;
 
 /// Every ported family's records for one part, computed in one run that shares its analysis.
-/// [`recognise`] gives the records the Python aggregate's cross-family reconciliation
-/// (`_reconcile_existing`, [`reconcile`]) accepts, with patterns derived from accepted members
-/// only; [`inventory`] keeps every candidate and the decisions.
-#[derive(Clone, Debug, Serialize)]
+/// `recognise` gives the records the Python aggregate's cross-family reconciliation
+/// (`_reconcile_existing`, `reconcile`) accepts, with patterns derived from accepted members
+/// only; `inventory` keeps every candidate and the decisions.
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct Features {
     /// The completed run, independent of the thread-local retry flag after recognition.
     #[serde(skip)]
@@ -170,14 +170,14 @@ pub struct Features {
     pub oriented_slot_patterns: Vec<oriented_slots::OrientedSlotPattern>,
     pub pads: Vec<pads::RaisedPad>,
     /// The aggregate's step levels (`RecognitionResult.step_levels`, `_discover_step_levels`),
-    /// unproved like every family here (Python's proof: [`levels::proved`]).
+    /// unproved like every family here (Python's proof: `levels::proved`).
     pub step_levels: Vec<levels::FaceLevel>,
     /// The aggregate's risers (`RecognitionResult.risers`, `_discover_risers`), less those
     /// reconciliation rejects for a thin-wall body.
     pub risers: Vec<levels::RiserEvidence>,
     /// The aggregate's section recesses (`RecognitionResult.section_recesses`, projected by
     /// `_project_result` from the same run: [`section_recess_family`]), in Python's order, each
-    /// defined by its record's own defining faces. [`recognise`] fills them; the inventory's
+    /// defined by its record's own defining faces. `recognise` fills them; the inventory's
     /// candidates have none. Published alongside the source families in the recognition
     /// document (maintainer decision, 2026-10-11).
     pub section_recesses: Vec<section_recess::SectionRecess>,
@@ -188,7 +188,7 @@ pub struct Features {
     /// The recognition document appends these to the section-recess family.
     #[serde(skip)]
     pub section_recess_refusals: Vec<section_recess::SectionRecessRefusal>,
-    /// The section-recess projection's refusal, where [`recognise`] carries one (and so has no
+    /// The section-recess projection's refusal, where `recognise` carries one (and so has no
     /// section recesses).
     #[serde(skip)]
     pub section_recess_refusal: Option<section_recess_family::SectionRecessFamilyError>,
@@ -202,6 +202,7 @@ pub struct Features {
 /// Defining faces by family field name, then record.
 pub type Defining = BTreeMap<&'static str, Vec<Vec<usize>>>;
 
+parity_entry! {
 /// Recognise every ported family on *part* with default options, as Python's aggregate does:
 /// holes carry their countersinks, every candidate the reconciliation rejects is dropped (with
 /// its defining faces), and patterns are found among the accepted holes, gusset ribs, slots,
@@ -218,8 +219,9 @@ pub type Defining = BTreeMap<&'static str, Vec<Vec<usize>>>;
 pub fn recognise(part: &Part) -> Features {
     take_inventory(part, recognise_in).unwrap_or_else(|e| panic!("reconciliation refused: {e}"))
 }
+}
 
-/// [`recognise`] over one completed run.
+/// `recognise` over one completed run.
 fn recognise_in(ctx: &Context<'_>, inventory: Inventory) -> Features {
     let projection = section_recess_family::section_recess_projection_in(ctx, &inventory);
     let mut features = inventory.accepted();
@@ -271,73 +273,75 @@ pub struct Inventory {
 }
 
 impl Inventory {
-    /// The accepted inventory (`accepted_set` on every family) with its patterns derived
-    /// (`_derive_patterns`): each rejected candidate's record and defining faces dropped, in
-    /// order. Section recesses are not projected here ([`recognise`] does, from the run).
-    pub fn accepted(self) -> Features {
-        let mut f = self.physical;
-        let mut rejected: BTreeMap<reconcile::Family, BTreeSet<usize>> = BTreeMap::new();
-        for d in &self.dispositions {
-            if d.outcome == reconcile::Outcome::Rejected {
-                rejected
-                    .entry(d.candidate.family)
-                    .or_default()
-                    .insert(d.candidate.index);
-            }
-        }
-        for (family, indices) in &rejected {
-            // Risers have no Family::field; use the same slot as their special arm below.
-            let field = family.field().unwrap_or("risers");
-            let statuses = f
-                .evidence_status
-                .get_mut(field)
-                .expect("every candidate has a status");
-            drop_rejected(statuses, indices);
-            use reconcile::Family as F;
-            match family {
-                F::AngledSteps => drop_rejected(&mut f.angled_steps, indices),
-                F::Blends => drop_rejected(&mut f.blends, indices),
-                F::Bosses => drop_rejected(&mut f.bosses, indices),
-                F::Chamfers => drop_rejected(&mut f.chamfers, indices),
-                F::CircularBlindSteps => drop_rejected(&mut f.circular_blind_steps, indices),
-                F::DoubleDBores => drop_rejected(&mut f.double_d_bores, indices),
-                F::EdgeOpenCircularPockets => {
-                    drop_rejected(&mut f.edge_open_circular_pockets, indices)
+    parity_entry! {
+        /// The accepted inventory (`accepted_set` on every family) with its patterns derived
+        /// (`_derive_patterns`): each rejected candidate's record and defining faces dropped, in
+        /// order. Section recesses are not projected here (`recognise` does, from the run).
+        pub fn accepted(self) -> Features {
+            let mut f = self.physical;
+            let mut rejected: BTreeMap<reconcile::Family, BTreeSet<usize>> = BTreeMap::new();
+            for d in &self.dispositions {
+                if d.outcome == reconcile::Outcome::Rejected {
+                    rejected
+                        .entry(d.candidate.family)
+                        .or_default()
+                        .insert(d.candidate.index);
                 }
-                F::Fillets => drop_rejected(&mut f.fillets, indices),
-                F::Grooves => drop_rejected(&mut f.grooves, indices),
-                F::Holes => drop_rejected(&mut f.holes, indices),
-                F::OrientedSlots => drop_rejected(&mut f.oriented_slots, indices),
-                F::Passages => drop_rejected(&mut f.section_passages, indices),
-                F::Plates => drop_rejected(&mut f.plates, indices),
-                F::Pockets => drop_rejected(&mut f.pockets, indices),
-                F::PrismaticPockets => drop_rejected(&mut f.prismatic_pockets, indices),
-                F::RectangularBlindSlots => drop_rejected(&mut f.rectangular_blind_slots, indices),
-                F::Risers => {
-                    // Not a reconciliation field (`Family::field`), so dropped here.
-                    drop_rejected(&mut f.risers, indices);
-                    let defining = f.defining.get_mut("risers").expect("risers are carried");
-                    drop_rejected(defining, indices);
-                    continue;
-                }
-                F::Slots => drop_rejected(&mut f.slots, indices),
-                F::ThinWallBodies => drop_rejected(&mut f.thin_wall_bodies, indices),
-                F::TurnedSteps => drop_rejected(&mut f.turned_steps, indices),
             }
-            let field = family.field().expect("a carried family has a field");
-            let defining = f
-                .defining
-                .get_mut(field)
-                .expect("every family has defining faces");
-            drop_rejected(defining, indices);
+            for (family, indices) in &rejected {
+                // Risers have no Family::field; use the same slot as their special arm below.
+                let field = family.field().unwrap_or("risers");
+                let statuses = f
+                    .evidence_status
+                    .get_mut(field)
+                    .expect("every candidate has a status");
+                drop_rejected(statuses, indices);
+                use reconcile::Family as F;
+                match family {
+                    F::AngledSteps => drop_rejected(&mut f.angled_steps, indices),
+                    F::Blends => drop_rejected(&mut f.blends, indices),
+                    F::Bosses => drop_rejected(&mut f.bosses, indices),
+                    F::Chamfers => drop_rejected(&mut f.chamfers, indices),
+                    F::CircularBlindSteps => drop_rejected(&mut f.circular_blind_steps, indices),
+                    F::DoubleDBores => drop_rejected(&mut f.double_d_bores, indices),
+                    F::EdgeOpenCircularPockets => {
+                        drop_rejected(&mut f.edge_open_circular_pockets, indices)
+                    }
+                    F::Fillets => drop_rejected(&mut f.fillets, indices),
+                    F::Grooves => drop_rejected(&mut f.grooves, indices),
+                    F::Holes => drop_rejected(&mut f.holes, indices),
+                    F::OrientedSlots => drop_rejected(&mut f.oriented_slots, indices),
+                    F::Passages => drop_rejected(&mut f.section_passages, indices),
+                    F::Plates => drop_rejected(&mut f.plates, indices),
+                    F::Pockets => drop_rejected(&mut f.pockets, indices),
+                    F::PrismaticPockets => drop_rejected(&mut f.prismatic_pockets, indices),
+                    F::RectangularBlindSlots => drop_rejected(&mut f.rectangular_blind_slots, indices),
+                    F::Risers => {
+                        // Not a reconciliation field (`Family::field`), so dropped here.
+                        drop_rejected(&mut f.risers, indices);
+                        let defining = f.defining.get_mut("risers").expect("risers are carried");
+                        drop_rejected(defining, indices);
+                        continue;
+                    }
+                    F::Slots => drop_rejected(&mut f.slots, indices),
+                    F::ThinWallBodies => drop_rejected(&mut f.thin_wall_bodies, indices),
+                    F::TurnedSteps => drop_rejected(&mut f.turned_steps, indices),
+                }
+                let field = family.field().expect("a carried family has a field");
+                let defining = f
+                    .defining
+                    .get_mut(field)
+                    .expect("every family has defining faces");
+                drop_rejected(defining, indices);
+            }
+            f.hole_patterns = hole_patterns::recognise_hole_patterns(&f.holes);
+            f.gusset_rib_patterns = gussets::recognise_gusset_rib_patterns(&f.gusset_ribs);
+            f.slot_patterns = recess_patterns::recognise_slot_patterns(&f.slots);
+            f.pocket_patterns = recess_patterns::recognise_pocket_patterns(&f.pockets);
+            f.oriented_slot_patterns =
+                oriented_slots::recognise_oriented_slot_patterns(&f.oriented_slots);
+            f
         }
-        f.hole_patterns = hole_patterns::recognise_hole_patterns(&f.holes);
-        f.gusset_rib_patterns = gussets::recognise_gusset_rib_patterns(&f.gusset_ribs);
-        f.slot_patterns = recess_patterns::recognise_slot_patterns(&f.slots);
-        f.pocket_patterns = recess_patterns::recognise_pocket_patterns(&f.pockets);
-        f.oriented_slot_patterns =
-            oriented_slots::recognise_oriented_slot_patterns(&f.oriented_slots);
-        f
     }
 }
 
@@ -351,11 +355,13 @@ fn drop_rejected<T>(items: &mut Vec<T>, indices: &BTreeSet<usize>) {
     });
 }
 
+parity_entry! {
 /// Every ported family's candidates on *part* with default options and the reconciliation's
 /// decisions on them, or the reconciliation's refusal; locally degraded where Python's
 /// aggregate retries so (`take_inventory`).
 pub fn inventory(part: &Part) -> Result<Inventory, reconcile::ReconcileError> {
     take_inventory(part, |_, inventory| inventory)
+}
 }
 
 /// Python's `_take_inventory` with its bounded fallback: one strict run, or, where that run's
@@ -401,13 +407,13 @@ fn skip_unproved<R>(part: &Part, found: Vec<Occurrence<R>>) -> Vec<Occurrence<R>
     degraded_skip(found, |o| evidence::locally_proved(part, o))
 }
 
-/// One run of [`inventory`] on a context the caller keeps, so a projection of it reads the same
+/// One run of `inventory` on a context the caller keeps, so a projection of it reads the same
 /// analysis, in the current mode ([`evidence::local_degradation`]). `None` where a strict run
 /// would retry ([`take_inventory`]): as Python's raises, the run stops at its holes. A locally
 /// degraded run skips the records Python's families skip in that mode where the port has the
 /// family's check: holes, pockets, slots, channels, fillets, prismatic pockets and edge-open
 /// prismatic and circular recesses (on defining and consulted faces, [`skip_unproved`]), step
-/// levels and risers (on their defining faces, as [`levels::proved`]), plates (in
+/// levels and risers (on their defining faces, as `levels::proved`), plates (in
 /// [`plates::discover`]) and rectangular pads (in [`pads::discover`]).
 pub(crate) fn inventory_in(
     ctx: &Context<'_>,
@@ -673,7 +679,9 @@ fn kept<R>(kept: &mut Kept<'_>, family: &'static str, found: Vec<Occurrence<R>>)
     records(found)
 }
 
+parity_entry! {
 /// The records of a family's occurrences, in order.
 pub fn records<R>(found: Vec<Occurrence<R>>) -> Vec<R> {
     found.into_iter().map(|o| o.record).collect()
+}
 }

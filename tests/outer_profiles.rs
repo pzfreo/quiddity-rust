@@ -464,7 +464,7 @@ fn outer_profiles_are_placement_independent() {
 /// parts each test built (captured as STEP) rather than against Python's answers. Not ported:
 /// the evidence view's laziness, caching, authority and serialisation guards (the port's
 /// evidence is a plain value of the part, not an issued run-local binding), the framed view
-/// (recognition in the part's own frame is `correspondence::recognise_placed`'s, not this
+/// (recognition in the part's own frame is `correspondence::recognise`'s, not this
 /// query's), and two solids sharing one shell, which STEP export writes as two shells.
 #[test]
 fn python_outer_profile_cases() {

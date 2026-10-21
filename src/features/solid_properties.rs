@@ -9,23 +9,31 @@
 use crate::kernel::brep::Part;
 use crate::kernel::geom::Bounds;
 
+parity_entry! {
 /// The solid's box (`SolidProperties.bounding_box`).
 pub fn bounding_box(part: &Part, solid: usize) -> Bounds {
     part.solid_bounds(solid)
 }
+}
 
+parity_entry! {
 /// Whether the kernel calls the solid valid (`SolidProperties.is_valid`).
 pub fn is_valid(part: &Part, solid: usize) -> bool {
     part.solid_is_valid(solid)
 }
+}
 
+parity_entry! {
 /// The solid's volume (`SolidProperties.volume`), or `None` when a face's mass cannot be
 /// computed: an unknown volume is never reported as a number.
 pub fn volume(part: &Part, solid: usize) -> Option<f64> {
     part.solid_mass(solid).map(|(v, _)| v)
 }
+}
 
+parity_entry! {
 /// The solid's area (`SolidProperties.area`), or `None` as for [`volume`].
 pub fn area(part: &Part, solid: usize) -> Option<f64> {
     part.solid_mass(solid).map(|(_, a)| a)
+}
 }

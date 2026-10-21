@@ -3,7 +3,7 @@
 //! (`_project_result`) over one completed, reconciled run.
 //!
 //! Recognition and reconciliation run once (`super::take_inventory`); the native section
-//! recesses ([`discover_section_recesses`]) are discovered in the same run, as Python's registry
+//! recesses (`discover_section_recesses`) are discovered in the same run, as Python's registry
 //! runs them among the physical families. The accepted records of the legacy recess families
 //! are then projected into the unified view, in Python's order: native records, prismatic
 //! pockets a native record does not already cover (by body and constituent faces), passages,
@@ -94,13 +94,16 @@ pub struct SectionRecessProjection {
     pub patterns: Vec<SectionRecessPattern>,
 }
 
+parity_entry! {
 /// Every accepted unified constant-section recess in *part* (`recognise_section_recesses`).
 pub fn recognise_section_recesses(
     part: &Part,
 ) -> Result<Vec<SectionRecess>, SectionRecessFamilyError> {
     Ok(section_recess_projection(part)?.section_recesses)
 }
+}
 
+parity_entry! {
 /// The accepted recesses as one deterministic document (`build_section_recess_document`):
 /// occurrence indices dense within it, body and face references into the part's complete
 /// rosters.
@@ -128,7 +131,9 @@ pub fn build_section_recess_document(
         result.patterns,
     )?)
 }
+}
 
+parity_entry! {
 /// One recognition and reconciliation of *part* and its section-recess projection, locally
 /// degraded where Python's aggregate retries so (`features::take_inventory`).
 pub fn section_recess_projection(
@@ -138,10 +143,11 @@ pub fn section_recess_projection(
         section_recess_projection_in(ctx, &inventory)
     })?
 }
+}
 
 /// The section-recess projection of a run the caller keeps: the native records discovered on
 /// *ctx* and the projection of *inventory*, that run's recognition and reconciliation
-/// ([`super::recognise`] reads its section recesses so, from its one inventory run).
+/// (`super::recognise` reads its section recesses so, from its one inventory run).
 pub(crate) fn section_recess_projection_in(
     ctx: &Context<'_>,
     inventory: &Inventory,

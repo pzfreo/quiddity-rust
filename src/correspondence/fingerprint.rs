@@ -50,7 +50,7 @@ pub struct FeatureFingerprint {
     /// Neighbourhood: for each of its faces and each face that one meets,
     /// `type>in|out:type:convex|concave|smooth|unknown` (`in` when the neighbour is its own),
     /// sorted: its subgraph of the attributed adjacency graph, in draftwright's bridge format (with
-    /// the arc labels of [`arc_label`], which differ from the bridge's on nearly tangent edges).
+    /// the arc labels of `arc_label`, which differ from the bridge's on nearly tangent edges).
     pub neighbourhood: Vec<String>,
 }
 
@@ -99,7 +99,7 @@ pub enum Role {
     /// Moves with the part: positions, frame-aligned bounds, spans and points, directions, axis
     /// letters and signs. The feature's placement is its axis and its faces' centroid.
     Placement,
-    /// Read through the family's derived sizes only ([`derived_sizes`]): bounds whose difference
+    /// Read through the family's derived sizes only (`derived_sizes`): bounds whose difference
     /// is a size (a plate's `lo` and `hi`), a section's points.
     Derived,
     /// Not a property of the design: face and body indices, sampling diagnostics, heuristic
@@ -670,7 +670,7 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("support.v_degree", Trait),
             ("support.u_periodic", Trait),
             ("support.v_periodic", Trait),
-            // Read for the distances between the net's corners ([`derived_sizes`]).
+            // Read for the distances between the net's corners (`derived_sizes`).
             ("support.poles", Derived),
             // The parameterisation: one surface has many.
             ("support.weights", Ignored),

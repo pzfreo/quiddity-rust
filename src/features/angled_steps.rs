@@ -22,14 +22,18 @@ pub struct AngledStep {
     pub corner: Option<V3>,
 }
 
+parity_entry! {
 /// `recognise_angled_steps`.
 pub fn recognise_angled_steps(part: &Part) -> Vec<AngledStep> {
     super::records(discover(&Context::new(part)))
 }
+}
 
+parity_entry! {
 /// The evidence path: each step with its slant face and the triangular flats closing it.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<AngledStep>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
+}
 }
 
 /// Corners of an outer loop made only of lines: direction changes between consecutive sides,
@@ -72,6 +76,7 @@ fn terminals(part: &Part, face: usize) -> Vec<usize> {
         .collect()
 }
 
+parity_entry! {
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<AngledStep>> {
     let part = ctx.part;
     let mut out = Vec::new();
@@ -116,4 +121,5 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<AngledStep>> {
             .then_with(|| py::tuple_order(&a.record.at, &b.record.at))
     });
     out
+}
 }

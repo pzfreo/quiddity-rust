@@ -165,6 +165,13 @@ fn well_formed(degree: usize, n: usize, weights: usize, knots: &[f64]) -> bool {
 }
 
 impl NurbsCurve {
+    pub(crate) fn transform_points(&mut self, point: impl Fn(V3) -> V3) {
+        for p in self.control_points.iter_mut() {
+            *p = point(*p);
+        }
+        self.table = std::sync::OnceLock::new();
+    }
+
     /// `None` for malformed arrays, so a bad file degrades to an unresolved curve rather than
     /// panicking in evaluation.
     pub fn new(
@@ -457,6 +464,13 @@ fn grid_params(knots: &[f64], degree: usize, per_span: usize) -> Vec<f64> {
 }
 
 impl NurbsSurface {
+    pub(crate) fn transform_points(&mut self, point: impl Fn(V3) -> V3) {
+        for p in self.control_points.iter_mut().flatten() {
+            *p = point(*p);
+        }
+        self.grid = std::sync::OnceLock::new();
+    }
+
     /// `None` for malformed arrays (see [`NurbsCurve::new`]).
     pub fn new(
         degree_u: usize,

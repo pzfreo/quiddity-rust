@@ -213,6 +213,7 @@ fn level_proposals(
     out
 }
 
+parity_entry! {
 /// `recognise_face_levels`.
 pub fn recognise_face_levels(part: &Part, opts: &FaceLevelOptions) -> Vec<FaceLevel> {
     face_levels_with_faces(part, opts)
@@ -220,7 +221,9 @@ pub fn recognise_face_levels(part: &Part, opts: &FaceLevelOptions) -> Vec<FaceLe
         .map(|(level, _)| level)
         .collect()
 }
+}
 
+parity_entry! {
 /// `recognise_face_levels`' levels, each with the faces it was read from (not an evidence
 /// path: the invariance test compares them).
 pub fn face_levels_with_faces(
@@ -235,6 +238,7 @@ pub fn face_levels_with_faces(
         .collect();
     out.sort_by(|a, b| a.0.order(&b.0));
     out
+}
 }
 
 /// The scope's interior step levels with their faces: area-filtered, strictly inside its height
@@ -255,10 +259,12 @@ fn body_levels(part: &Part, scope: &Scope, tol: f64) -> Vec<FaceLevel> {
         .collect()
 }
 
+parity_entry! {
 /// The end exclusion for a span (`bounded_end_margin`): absolute, but never more than a quarter
 /// of it.
 pub fn bounded_end_margin(span: f64) -> f64 {
     STEP_LADDER_BOUNDARY_MARGIN.min(span.max(0.0) * END_MARGIN_MAX_FRAC)
+}
 }
 
 /// The scope's end exclusion: *tol*, or by default [`bounded_end_margin`] of its height.
@@ -266,6 +272,7 @@ fn end_margin(scope: &Scope, tol: Option<f64>) -> f64 {
     tol.unwrap_or_else(|| bounded_end_margin(scope.bounds.max[2] - scope.bounds.min[2]))
 }
 
+parity_entry! {
 /// `step_level_records`: the area-filtered interior face levels of each body, strictly inside
 /// its height by *tol* (by default [`bounded_end_margin`] of that height).
 pub fn step_level_records(part: &Part, tol: Option<f64>) -> Vec<FaceLevel> {
@@ -278,7 +285,9 @@ pub fn step_level_records(part: &Part, tol: Option<f64>) -> Vec<FaceLevel> {
     out.sort_by(|a, b| a.order(b));
     out
 }
+}
 
+parity_entry! {
 /// The aggregate's step levels (`_discover_step_levels`), each defined by its body's horizontal
 /// faces at that level, as [`step_level_records`] gives them by default. Not proved: see
 /// [`proved`].
@@ -295,7 +304,9 @@ pub fn discover_step_levels(ctx: &Context<'_>) -> Vec<Occurrence<FaceLevel>> {
     out.sort_by(|a, b| a.record.order(&b.record));
     out
 }
+}
 
+parity_entry! {
 /// The aggregate's risers (`_discover_risers`: `min_area_frac` 0.15, the default tolerance),
 /// each defined by the faces it was read from and carrying, as its `body_levels`, the run's
 /// *levels* on its own body ([`discover_step_levels`], after any proof). Not proved: see
@@ -327,7 +338,9 @@ pub fn discover_risers(
     out.sort_by(|a, b| a.record.order(&b.record));
     out
 }
+}
 
+parity_entry! {
 /// The aggregate's proof of step levels or risers: strictly (`local_degradation` false) every
 /// occurrence's faces on one valid solid, or Python's refusal; under local degradation, those a
 /// locally degraded run proves ([`evidence::locally_valid_solid`]), the rest skipped as Python
@@ -345,7 +358,9 @@ pub fn proved<R>(
         .filter(|o| evidence::locally_valid_solid(part, &o.defining).is_some())
         .collect())
 }
+}
 
+parity_entry! {
 /// `recognise_risers`.
 pub fn recognise_risers(part: &Part, opts: &RiserOptions) -> Vec<RiserEvidence> {
     risers_with_faces(part, opts)
@@ -353,7 +368,9 @@ pub fn recognise_risers(part: &Part, opts: &RiserOptions) -> Vec<RiserEvidence> 
         .map(|(riser, _)| riser)
         .collect()
 }
+}
 
+parity_entry! {
 /// `recognise_risers`' risers, each with the faces it was read from (not an evidence path: the
 /// invariance test compares them).
 pub fn risers_with_faces(part: &Part, opts: &RiserOptions) -> Vec<(RiserEvidence, Vec<usize>)> {
@@ -368,6 +385,7 @@ pub fn risers_with_faces(part: &Part, opts: &RiserOptions) -> Vec<(RiserEvidence
         .collect();
     out.sort_by(|a, b| a.0.order(&b.0));
     out
+}
 }
 
 /// A riser's facing: `(vertical, axis)` when the normal lies along exactly one in-plane axis

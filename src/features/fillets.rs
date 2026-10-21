@@ -56,6 +56,7 @@ impl Default for FilletOptions {
     }
 }
 
+parity_entry! {
 /// `recognise_fillets`: the records only.
 pub fn recognise_fillets(part: &Part, opts: &FilletOptions) -> Vec<Fillet> {
     discover(&Context::new(part), opts)
@@ -63,7 +64,9 @@ pub fn recognise_fillets(part: &Part, opts: &FilletOptions) -> Vec<Fillet> {
         .map(|o| o.record)
         .collect()
 }
+}
 
+parity_entry! {
 /// The evidence path: each fillet with its defining face, published only if every one is
 /// owned by a valid solid.
 pub fn discover_verified(
@@ -72,7 +75,9 @@ pub fn discover_verified(
 ) -> Result<Vec<Occurrence<Fillet>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx, opts))
 }
+}
 
+parity_entry! {
 /// The leader-tip anchor: the surface point at the middle of the face's trimmed UV range.
 pub fn fillet_anchor(part: &Part, face: usize) -> Option<V3> {
     let (u0, u1, v0, v1) = part.uv_bounds(face)?;
@@ -81,6 +86,7 @@ pub fn fillet_anchor(part: &Part, face: usize) -> Option<V3> {
             .surface
             .value(0.5 * (u0 + u1), 0.5 * (v0 + v1)),
     )
+}
 }
 
 fn occurrence(
@@ -110,6 +116,7 @@ fn principal_axis(direction: V3) -> Option<usize> {
     (comp[0].max(comp[1]).max(comp[2]) > AXIS_ALIGNED_COS).then(|| dominant_axis(comp))
 }
 
+parity_entry! {
 pub fn discover(ctx: &Context<'_>, opts: &FilletOptions) -> Vec<Occurrence<Fillet>> {
     let part = ctx.part;
     let min_radius = opts.min_radius.unwrap_or(MIN_RADIUS);
@@ -134,6 +141,7 @@ pub fn discover(ctx: &Context<'_>, opts: &FilletOptions) -> Vec<Occurrence<Fille
         ka.0.cmp(&kb.0).then_with(|| py::tuple_order(&ka.1, &kb.1))
     });
     out
+}
 }
 
 /// A partial cylinder rounding a convex edge between two axis-aligned walls.
@@ -209,6 +217,7 @@ fn turned(
     Some(occurrence(edge_axis, minor, at, true, face, context))
 }
 
+parity_entry! {
 /// The material-side proof for a toroidal blend: the coaxial external cylinders it meets, plus
 /// the transverse planes or spherical caps that make it a rounded edge rather than a bead.
 /// `None` when the torus is not a turned edge fillet.
@@ -247,4 +256,5 @@ pub fn turned_context(
         }
     }
     Some(context)
+}
 }

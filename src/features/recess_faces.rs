@@ -16,9 +16,11 @@ pub const FLOOR_TOL: f64 = 0.3;
 const FLOOR_COVER_FRAC: f64 = 0.5;
 const AXIS_ALIGNED_TOL: f64 = 1e-3;
 
+parity_entry! {
 /// The axis a unit vector lies along, if any (`_dominant_axis`).
 pub fn dominant_axis(n: V3) -> Option<usize> {
     (0..3).find(|&k| (n[k].abs() - 1.0).abs() <= AXIS_ALIGNED_TOL)
+}
 }
 
 /// A planar face reduced to what the recognisers decide by (`_Face`). `axis` is `None` for an
@@ -48,6 +50,7 @@ fn is_wall(part: &Part, face: usize) -> bool {
     !edges.is_empty() && lines >= 1 && circles <= 1
 }
 
+parity_entry! {
 /// Every planar face of the solid with a readable normal, in face order (`_planar_faces`).
 pub fn planar_faces(part: &Part, solid: usize) -> Vec<Face> {
     part.solids[solid]
@@ -66,16 +69,22 @@ pub fn planar_faces(part: &Part, solid: usize) -> Vec<Face> {
         })
         .collect()
 }
+}
 
+parity_entry! {
 pub fn center(bb: &Bounds, k: usize) -> f64 {
     (bb.min[k] + bb.max[k]) / 2.0
 }
+}
 
+parity_entry! {
 /// The length of two boxes' overlap along an axis, negative when they are apart.
 pub fn overlap_len(a: &Bounds, b: &Bounds, axis: usize) -> f64 {
     a.max[axis].min(b.max[axis]) - a.min[axis].max(b.min[axis])
 }
+}
 
+parity_entry! {
 /// The inward faces at one depth end that together cover at least half of the footprint, or
 /// none (`_end_cap_faces`). *foot* is the footprint's (axis, span) pairs, width first; *want*
 /// the sign the covering normal must have along the depth axis (+ at the low end, − at the
@@ -114,7 +123,9 @@ pub fn end_cap_faces(
         Vec::new()
     }
 }
+}
 
+parity_entry! {
 /// The faces capping each depth end of a record's footprint, low end first
 /// (`_floor_end_faces`); an end left open has none.
 pub fn floor_end_faces<R: Recess>(faces: &[Face], s: &R) -> (Vec<usize>, Vec<usize>) {
@@ -134,12 +145,15 @@ pub fn floor_end_faces<R: Recess>(faces: &[Face], s: &R) -> (Vec<usize>, Vec<usi
         end_cap_faces(faces, &foot, foot_area, s.depth_axis(), s.d_hi(), -1.0),
     )
 }
+}
 
+parity_entry! {
 /// Whether a planar floor caps either depth end: the record is not a through recess
 /// (`_has_floor`).
 pub fn has_floor<R: Recess>(faces: &[Face], s: &R) -> bool {
     let (low, high) = floor_end_faces(faces, s);
     !low.is_empty() || !high.is_empty()
+}
 }
 
 /// A native cylindrical face along a principal axis (`_cylinder_faces`): a possible obround end
@@ -155,6 +169,7 @@ pub struct Cylinder {
     pub node: usize,
 }
 
+parity_entry! {
 /// Every native cylinder of the solid along a principal axis, in face order.
 pub fn cylinder_faces(part: &Part, solid: usize) -> Vec<Cylinder> {
     part.solids[solid]
@@ -176,7 +191,9 @@ pub fn cylinder_faces(part: &Part, solid: usize) -> Vec<Cylinder> {
         })
         .collect()
 }
+}
 
+parity_entry! {
 /// Whether both flat side walls of an obround record are present (`_has_side_walls`):
 /// inward-facing walls on the width axis at each side of the centreline, each overlapping the
 /// straight run. The normal test keeps the stock's outward sides, at the same place when the
@@ -202,10 +219,13 @@ pub fn has_side_walls<R: Recess>(faces: &[Face], s: &R) -> bool {
     }
     lo_wall && hi_wall
 }
+}
 
+parity_entry! {
 /// The box around two boxes (`_union_bb`).
 pub fn union_bb(a: &Bounds, b: &Bounds) -> Bounds {
     let mut out = *a;
     out.merge(b);
     out
+}
 }

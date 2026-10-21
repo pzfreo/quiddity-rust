@@ -69,6 +69,7 @@ fn combine<R: Clone>(record: R, members: &[&Proposal<R>]) -> Proposal<R> {
     out
 }
 
+parity_entry! {
 /// The order recess records are reduced and published in: width, then region centre.
 pub fn width_then_centre<R: Recess>(a: &R, b: &R) -> Ordering {
     // Raw positions must survive reduction, but sub-coordinate-floor noise must not decide
@@ -77,12 +78,15 @@ pub fn width_then_centre<R: Recess>(a: &R, b: &R) -> Ordering {
     let centre_key = |r: &R| r.region_center().map(|c| py::round_to(c, 6));
     py::order(a.width(), b.width()).then_with(|| py::tuple_order(&centre_key(a), &centre_key(b)))
 }
+}
 
+parity_entry! {
 /// Co-located readings share one occurrence only when the minimum-width interpretation is
 /// unique. A directional square record needs a unique body-relative run, too (ADR 0011).
 /// Evidence is combined only after this decision; a face number cannot choose the record.
 pub fn merge_proposals<R: Recess>(proposals: Vec<Proposal<R>>) -> Vec<Proposal<R>> {
     merge_proposals_in(proposals, None)
+}
 }
 
 pub(crate) fn merge_proposals_in<R: Recess>(
@@ -247,6 +251,7 @@ fn gap_is_void(ctx: &Context<'_>, solid: usize, gap: (f64, f64), arm: &Slot) -> 
     prism_material_fraction(ctx, solid, &spans, VOID_INSET).is_some_and(|f| f <= VOID_VOL_FRAC)
 }
 
+parity_entry! {
 /// Slot arms split by a crossing channel, rejoined into whole channels where the gap between
 /// them is void; arms parted by material stay separate (`_collapse_collinear_proposals`).
 pub fn collapse_collinear_proposals(
@@ -318,7 +323,9 @@ pub fn collapse_collinear_proposals(
     out.sort_by(|a, b| width_then_centre(&a.record, &b.record));
     out
 }
+}
 
+parity_entry! {
 /// Every solid's proposals, each record given its solid's body key (ambiguous keys `None`),
 /// in (width, centre) order (`_body_scoped_proposals` and the sort its callers apply). A
 /// compound is scanned per solid, so faces of separate bodies never combine into one recess.
@@ -336,6 +343,7 @@ pub fn body_scoped<R: Recess, E>(
     }
     out.sort_by(|a, b| width_then_centre(&a.record, &b.record));
     Ok(out)
+}
 }
 
 #[cfg(test)]

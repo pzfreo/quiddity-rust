@@ -456,6 +456,7 @@ fn read_profile(
     Ok((profile, edges))
 }
 
+parity_entry! {
 /// `RecognitionEvidence.planar_outer_profile`: inspect one face's line/arc outer wire. Inner
 /// loops are counted and excluded; non-native curves and unproved body ownership refuse (the
 /// body check first, as Python's source reads it).
@@ -483,6 +484,7 @@ pub fn planar_outer_profile(
         body_faces,
         edges,
     })
+}
 }
 
 impl PlanarOuterProfileEvidence {

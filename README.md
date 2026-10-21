@@ -30,7 +30,7 @@ retain face metrics for incomplete instance annotations and explicitly count the
 models whose instance metrics are available. Renamed duplicates are accepted only
 when STEP DATA records and label bytes match their declared originals.
 The fixed 200-model ratchet runs with
-`QUIDDITY_MFINSTSEG=/path/to/MFInstSeg cargo test --release --test mfinstseg`.
+`QUIDDITY_MFINSTSEG=/path/to/MFInstSeg cargo test --release --features python-parity --test mfinstseg`.
 Dataset files stay external because redistribution permission has not been
 established. Its baseline pins input and mapping hashes; record non-regressing
 improvements with `tools/update_mfinstseg_baseline.py`.
@@ -53,9 +53,8 @@ crates.io):
 
 ```rust
 let part = quiddity::read_step_file(std::path::Path::new("part.step"))?;
-let features = quiddity::features::recognise(&part); // every family, caller space
-let holes = quiddity::recognise_holes(&part, &Default::default()); // one family
-let recognition = quiddity::correspondence::recognise(&part); // with fingerprints
+let recognition = quiddity::correspondence::recognise(&part); // inferred frame, with fingerprints
+let holes = &recognition.features.holes; // read local fields through recognition.frame
 ```
 
 Modelled screw threads are also measured natively (`analyse_modelled_threads`): axis,
@@ -912,10 +911,10 @@ cargo build --release
 ./target/release/quiddity pmi check part.step pmi.json      # a PMI document checked against the file
 ./target/release/quiddity pmi write part.step pmi.json -o out.step [--mode add|replace|remove] \
   [--presentation refuse|remove]                            # AP242 PMI written, verified, reported
-QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release
+QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release --features python-parity
 # corpus tests read ../quiddity/tests/corpus or $QUIDDITY_CORPUS; without
 # QUIDDITY_CORPUS_REQUIRED=1 they pass by skipping when the corpus is missing
-QUIDDITY_CORPUS=off cargo test --workspace --release
+QUIDDITY_CORPUS=off cargo test --workspace --release --features python-parity
 # a quick local run: the corpus tests skip (most of the suite's time); run the
 # whole suite before pushing, as CI does
 HAECCEITY_NIST_PMI=<NIST-PMI-STEP-Files> HAECCEITY_NIST_PMI_REQUIRED=1 \
@@ -1062,10 +1061,10 @@ Z vertical). Each listed exception pins the most occurrences it may differ by. R
 refused by the reader for now, which rebuilds frames right-handed.
 
 Recognition by default is in the part's own frame and reported in the file's coordinates (the
-maintainer's decision on review M8): `correspondence::recognise_placed`, which the CLI, `quiddity
+maintainer's decision on review M8): `correspondence::recognise(&Part)`, which the CLI, `quiddity
 serve` and the recognition document use, infers the frame (`src/frames.rs`, Python's
 `quiddity.frames`) from the part's plane normals and cylinder axes, ranked by area and by where
-the faces sit about the part's centroid, re-reads the part placed in it, recognises it there,
+the faces sit about the part's centroid, transforms the loaded part in memory, recognises it there,
 and carries every record back (`src/framed_records.rs`): points by the frame, directions by its
 rotation, axis letters and coordinates along them exactly where the frame's axes are the file's
 up to order and sign. Where they are not, those fields stay in the frame and the document lists
@@ -1073,10 +1072,16 @@ them per record (`local`), with the frame itself (`quiddity-rust/recognition/3`)
 frame (no plane or cylinder, no material) is recognised as placed, with a warning.
 
 Parity is still checked where Python's entry points work: `features::recognise` and every
-`recognise_<family>` stay caller-space, as Python's do, and the parity tests (`corpus.rs`,
-`captured.rs`, `invariance.rs`) call them. `tests/frames.rs` checks the frame against Python's on
+`recognise_<family>` stay caller-space, as Python's do, behind the non-default
+`python-parity` Cargo feature. Discovery, inventory, context construction, evidence builders
+and lower-level feature algorithms are behind the same feature; record types keep their public
+paths. This hidden API is test-only and unsupported; the parity tests
+(`corpus.rs`, `captured.rs`, `invariance.rs`) require that feature and call them. Production
+consumers use `correspondence::recognise`; feature record types remain public. There is no
+reader closure or second STEP read, and `recognise_placed` has been removed.
+`tests/frames.rs` checks the frame against Python's on
 every fixture and corpus part, as read and turned, that it moves with the part, and that the
-re-read part's faces are the caller's under the same indices; `tests/invariance.rs` checks that
+working part's faces are the caller's under the same indices; `tests/invariance.rs` checks that
 every family, face levels and risers included, finds the same faces on the corpus part turned by
 a generic rotation (37° about (1, 2, 3)) as unmoved, each in its frame (4 listed exceptions: two
 recogniser thresholds Python shares, two kernel face-box defects). Caller-space recognition does

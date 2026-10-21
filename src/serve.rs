@@ -7,7 +7,7 @@
 //!   `quiddity <file.step>` writes ([`RecognitionOutput`]): each family's records, their
 //!   `fingerprints` and the versioned recognition `document`. The part is recognised in its own
 //!   frame and the records reported in the file's coordinates
-//!   ([`correspondence::recognise_placed`]); the document says which frame, and which record
+//!   ([`correspondence::recognise`]); the document says which frame, and which record
 //!   fields are left in it.
 //! - `{"id": ID, "op": "correspond", "old": REV, "new": REV}` → `{"id": ID, "result": C}`, `C`
 //!   the correspondence `quiddity correspond` writes. A revision is a path, to a STEP file
@@ -135,7 +135,7 @@ fn trust_warning(path: &str, part: &Part, document: &RecognitionDocument) -> Opt
 
 /// The default recognition of the STEP file at *path* read under *placement* (the file's own
 /// coordinates for [`IDENTITY`]): recognised in the part's own frame
-/// ([`correspondence::recognise_placed`]). With the part, and its warnings: geometry that did not
+/// ([`correspondence::recognise`]). With the part, and its warnings: geometry that did not
 /// resolve, and a frame that could not be inferred.
 pub fn recognise_step(
     path: &str,
@@ -158,11 +158,8 @@ fn recognise_step_document(path: &str, placement: &Placement) -> Result<StepReco
         .collect::<String>();
     let step_bytes = decode_step_file_bytes(std::path::Path::new(path), bytes)
         .map_err(|e| read_failure(path, &e))?;
-    let read = |p: &Placement| -> Result<Part, Box<dyn std::error::Error>> {
-        Ok(read_step_placed(&step_bytes, p)?)
-    };
-    let (part, mut recognition) = correspondence::recognise_placed(&read, placement)
-        .map_err(|e| read_failure(path, e.as_ref()))?;
+    let part = read_step_placed(&step_bytes, placement).map_err(|e| read_failure(path, &e))?;
+    let mut recognition = correspondence::recognise(&part);
     recognition.source_sha256 = Some(source_sha256);
     let document = recognition::document(&recognition, part.faces.len());
     let warnings = recognition_warnings(path, &part, &recognition, &document);

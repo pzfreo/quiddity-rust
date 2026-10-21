@@ -40,7 +40,7 @@ fn runs() -> &'static [Run] {
             let file = baseline["file"].as_str().unwrap();
             let path = corpus.join(file);
             let part = quiddity::read_step_file(&path).unwrap();
-            let caller = correspondence::recognise(&part);
+            let caller = correspondence::python_parity_recognise(&part);
             assert!(caller.features.section_recess_refusal.is_none(), "{file}");
             let caller_doc = recognition::document(&caller, part.faces.len());
             let (_, framed, _) = serve::recognise_step(path.to_str().unwrap(), &IDENTITY).unwrap();
@@ -287,7 +287,7 @@ fn pattern_publication_matches_python() {
             .join("captured/section_recesses")
             .join(run["file"].as_str().unwrap());
         let part = quiddity::read_step_file(&path).unwrap();
-        let rec = correspondence::recognise(&part);
+        let rec = correspondence::python_parity_recognise(&part);
         let doc = recognition::document(&rec, part.faces.len());
         assert_eq!(doc.schema_version, "quiddity-rust/recognition/3");
         let patterns: Vec<_> = doc
@@ -338,7 +338,7 @@ fn k3_degraded_records_remain_pythons_in_the_published_document() {
         let part =
             quiddity::read_step_file(&corpus.join(format!("inventory_refusal/{name}.step.gz")))
                 .unwrap();
-        let rec = correspondence::recognise(&part);
+        let rec = correspondence::python_parity_recognise(&part);
         assert!(rec.features.section_recess_refusal.is_none());
         let doc = recognition::document(&rec, part.faces.len());
         let records: Vec<_> = doc

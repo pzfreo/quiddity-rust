@@ -54,14 +54,18 @@ impl ThroughStep {
     }
 }
 
+parity_entry! {
 /// `recognise_through_steps`.
 pub fn recognise_through_steps(part: &Part) -> Vec<ThroughStep> {
     super::records(discover(&Context::new(part)))
 }
+}
 
+parity_entry! {
 /// The evidence path: each step with both wall regions defining it.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<ThroughStep>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
+}
 }
 
 /// A connected set of coplanar principal-plane faces.
@@ -475,6 +479,7 @@ fn recognise_one(
     out
 }
 
+parity_entry! {
 /// Every through step, ordered as Python sorts the records. Python raises when a step's faces
 /// share no valid solid; the port leaves such a step out on both paths (as thin walls and
 /// interior voids do), so the evidence path does not refuse either.
@@ -491,4 +496,5 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<ThroughStep>> {
         .collect();
     out.sort_by(|a, b| a.record.order(&b.record));
     out
+}
 }

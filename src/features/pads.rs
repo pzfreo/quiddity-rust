@@ -800,6 +800,7 @@ fn occurrences<'a>(
     Ok(found)
 }
 
+parity_entry! {
 /// `recognise_rectangular_pads`: bounded rectangular raised tops, each solid on its own, sorted
 /// by record.
 pub fn recognise_rectangular_pads(
@@ -812,7 +813,9 @@ pub fn recognise_rectangular_pads(
         .map(|(record, _)| record)
         .collect())
 }
+}
 
+parity_entry! {
 /// `_discover_rectangular_pads` with an evidence writer: each pad defined by its top and its
 /// four perimeter walls (one face per role), five distinct faces of one valid solid, no top
 /// defining two pads, and equal records only where they read the same faces. In a locally
@@ -874,4 +877,5 @@ pub fn discover(
         });
     }
     Ok(found)
+}
 }

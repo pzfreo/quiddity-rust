@@ -72,6 +72,7 @@ pub enum SmoothSide {
     Unproven,
 }
 
+parity_entry! {
 /// `FaceGraph.edge_occurrences`: every edge use of the face, loop by loop.
 pub fn edge_occurrences(part: &Part, face: usize) -> Vec<Half> {
     let mut out = Vec::new();
@@ -88,7 +89,9 @@ pub fn edge_occurrences(part: &Part, face: usize) -> Vec<Half> {
     }
     out
 }
+}
 
+parity_entry! {
 /// `FaceGraph.shared_occurrences`: each edge the two faces use equally often, its uses paired
 /// one to one with an opposite use of the other face; an edge without such a unique pairing
 /// gives none.
@@ -154,6 +157,7 @@ pub fn shared_occurrences(part: &Part, a: usize, b: usize) -> Vec<Shared> {
     }
     out
 }
+}
 
 /// The one valid solid both faces belong to, when the edge has exactly those two faces
 /// (`FaceGraph.ownership` and `_eligible_side_edge`).
@@ -166,11 +170,14 @@ fn edge_owner(part: &Part, a: usize, b: usize, edge: usize) -> Option<usize> {
     (incident.len() == 2 && incident.contains(&a) && incident.contains(&b)).then_some(solid)
 }
 
+parity_entry! {
 /// `FaceGraph.ownership`: the solid of a shared occurrence, when proved.
 pub fn ownership(part: &Part, shared: &Shared) -> Option<usize> {
     edge_owner(part, shared.endpoints.0, shared.endpoints.1, shared.edge)
 }
+}
 
+parity_entry! {
 /// `BRep_Tool.IsClosed(edge, face)`: the edge is a seam of the face, used twice by it.
 /// (Degenerate edges, the other kind Python lets pass, are vertex loops here.)
 pub fn closed_in_face(part: &Part, edge: usize, face: usize) -> bool {
@@ -182,10 +189,13 @@ pub fn closed_in_face(part: &Part, edge: usize, face: usize) -> bool {
         .count()
         > 1
 }
+}
 
+parity_entry! {
 /// The face's area (`face.area`), where the quadrature integrates it.
 pub fn face_area(part: &Part, face: usize) -> f64 {
     part.face_mass(face).map_or(f64::NAN, |m| m[0])
+}
 }
 
 /// Python's `min` over floats (first of ties; a NaN compares false and is kept only first).
@@ -362,17 +372,19 @@ pub struct BlendGraph<'a> {
 }
 
 impl<'a> BlendGraph<'a> {
-    pub fn new(part: &'a Part) -> Self {
-        BlendGraph {
-            part,
-            native: (0..part.faces.len())
-                .map(|f| native_fact(part, f))
-                .collect(),
-            effective: (0..part.faces.len())
-                .map(|_| std::sync::OnceLock::new())
-                .collect(),
-            arcs: RefCell::new(BTreeMap::new()),
-            sides: RefCell::new(BTreeMap::new()),
+    parity_entry! {
+        pub fn new(part: &'a Part) -> Self {
+            BlendGraph {
+                part,
+                native: (0..part.faces.len())
+                    .map(|f| native_fact(part, f))
+                    .collect(),
+                effective: (0..part.faces.len())
+                    .map(|_| std::sync::OnceLock::new())
+                    .collect(),
+                arcs: RefCell::new(BTreeMap::new()),
+                sides: RefCell::new(BTreeMap::new()),
+            }
         }
     }
 

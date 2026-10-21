@@ -163,6 +163,7 @@ pub struct SheetMetalBody {
     pub edge_treatments: Vec<SheetEdgeTreatment>,
 }
 
+parity_entry! {
 /// `recognise_sheet_metal_bodies`.
 pub fn recognise_sheet_metal_bodies(
     part: &Part,
@@ -170,19 +171,25 @@ pub fn recognise_sheet_metal_bodies(
 ) -> Result<Vec<SheetMetalBody>, InvalidKFactor> {
     Ok(super::records(discover_with(&Context::new(part), opts)?))
 }
+}
 
+parity_entry! {
 /// The evidence path: each sheet with every face it names, all on one valid solid.
 pub fn discover_verified(
     ctx: &Context<'_>,
 ) -> Result<Vec<Occurrence<SheetMetalBody>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
 }
+}
 
+parity_entry! {
 /// Every sheet-metal body at the default k-factor (`_discover`).
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<SheetMetalBody>> {
     discover_with(ctx, &SheetMetalOptions::default()).expect("the default k-factor is valid")
 }
+}
 
+parity_entry! {
 /// Every sheet-metal body among the thin-wall bodies, defined by every face its record names:
 /// skins, cut edges, treatments, formed features, flanges and bends.
 pub fn discover_with(
@@ -221,6 +228,7 @@ pub fn discover_with(
             }
         })
         .collect())
+}
 }
 
 /// The surface classes the sheet reading distinguishes (`BRepAdaptor_Surface.GetType`).

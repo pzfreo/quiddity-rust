@@ -63,6 +63,7 @@ impl Default for OrientedChamferOptions {
     }
 }
 
+parity_entry! {
 /// `recognise_oriented_chamfers`.
 pub fn recognise_oriented_chamfers(
     part: &Part,
@@ -70,13 +71,16 @@ pub fn recognise_oriented_chamfers(
 ) -> Vec<OrientedChamfer> {
     super::records(discover(&Context::new(part), opts))
 }
+}
 
+parity_entry! {
 /// The evidence path: each chamfer with its bevel face.
 pub fn discover_verified(
     ctx: &Context<'_>,
     opts: &OrientedChamferOptions,
 ) -> Result<Vec<Occurrence<OrientedChamfer>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx, opts))
+}
 }
 
 /// The one straight edge a convex planar neighbour shares with the bevel, and the neighbour's
@@ -251,6 +255,7 @@ fn leg_order(a: &(f64, V3, [f64; 2]), b: &(f64, V3, [f64; 2])) -> std::cmp::Orde
     py::tuple_order(&coordinates(a.1, 6), &coordinates(b.1, 6))
 }
 
+parity_entry! {
 /// Panics unless `0 < max_leg_frac < 1`, where Python raises `ValueError`.
 pub fn discover(
     ctx: &Context<'_>,
@@ -325,6 +330,7 @@ pub fn discover(
         .collect();
     out.sort_by(|a, b| py::tuple_order(&a.record.sort_key(), &b.record.sort_key()));
     out
+}
 }
 
 #[cfg(test)]

@@ -116,6 +116,7 @@ impl From<&CylindricalPassageProof> for CylinderEnd {
     }
 }
 
+parity_entry! {
 /// Whether an observed plane caps the original wall support (`has_physical_planar_floor`): a
 /// planar constituent face facing out along *axis* on the open side, of no thickness along it,
 /// level with every wall's capped end and within 0.002 of the published floor.
@@ -162,6 +163,7 @@ pub fn has_physical_planar_floor(
         }
     }
     false
+}
 }
 
 fn dot(a: V3, b: V3) -> f64 {
@@ -397,6 +399,7 @@ fn public_geometry(
     project_section_recess_geometry(&occurrence, &issuer)
 }
 
+parity_entry! {
 /// A closed private section occurrence as the public geometry
 /// (`project_section_recess_geometry`): its published frame, interval and boundary, each end
 /// capped or open under a flat plane.
@@ -423,6 +426,7 @@ pub fn project_section_recess_geometry(
             end(condition(projected.ends.high_capped))?,
         )?,
     )
+}
 }
 
 /// The exact line/semicircle prism between *low* and *high* along *depth* (`_obround_prism`):
@@ -692,6 +696,7 @@ fn one_obround_candidate(ctx: &Context<'_>, floor: usize) -> Option<Candidate> {
     })
 }
 
+parity_entry! {
 /// The section shape a polygon's corners name (`_polygonal_shape`).
 pub fn polygonal_shape(points: &[V2]) -> &'static str {
     match points.len() {
@@ -714,6 +719,7 @@ pub fn polygonal_shape(points: &[V2]) -> &'static str {
         6 => "hexagonal",
         _ => "polygonal",
     }
+}
 }
 
 /// The probes' common answer: the section between the ends holds no material, past the mouth
@@ -1049,6 +1055,7 @@ fn one_mixed_candidate(ctx: &Context<'_>, floor: usize) -> Option<Candidate> {
     })
 }
 
+parity_entry! {
 /// A proved cylindrical-ended pocket as a candidate (`_cylindrical_candidate`): its floor
 /// polygon in the run's canonical frame, capped at the floor, the cylinder at the mouth.
 pub fn cylindrical_candidate(part: &Part, proof: &CylindricalPocketProof) -> Checked<Candidate> {
@@ -1097,7 +1104,9 @@ pub fn cylindrical_candidate(part: &Part, proof: &CylindricalPocketProof) -> Che
         feature_kind: "pocket",
     })
 }
+}
 
+parity_entry! {
 /// A proved U-channel ending on a cylinder as its public geometry, without its temporary probe
 /// closure (`cylindrical_channel_geometry`): the rectangular probe domain from the original
 /// bounds, its one edge on the mouth published as the opening.
@@ -1158,7 +1167,9 @@ pub fn cylindrical_channel_geometry(
         false,
     )
 }
+}
 
+parity_entry! {
 /// A proved plane-envelope passage as its public geometry (`_plane_envelope_geometry`): both
 /// observed planes published under one complete 0.002 displacement bound.
 pub fn plane_envelope_geometry(
@@ -1256,6 +1267,7 @@ pub fn plane_envelope_geometry(
     }
     Ok(geometry)
 }
+}
 
 /// Python's `math.sqrt`, which refuses a negative argument.
 fn sqrt(value: f64) -> Checked<f64> {
@@ -1283,6 +1295,7 @@ fn open_profile(chain: Vec<PassageSectionVertex>) -> Checked<OpenSectionProfile>
     OpenSectionProfile::new("open", chain, opening, Some(side))
 }
 
+parity_entry! {
 /// One whole-occurrence error bound for an observed cylindrical termination
 /// (`_cylindrical_geometry`).
 ///
@@ -1511,7 +1524,9 @@ pub fn cylindrical_geometry(
         SectionRecessEnds::new(ends.0, ends.1)?,
     )
 }
+}
 
+parity_entry! {
 /// A proved open seat as its public geometry (`_seat_geometry`): the actual open arc under a
 /// complete 0.002 displacement bound.
 pub fn seat_geometry(seat: &CylindricalSeatProof) -> Checked<SectionRecessGeometry> {
@@ -1584,14 +1599,16 @@ pub fn seat_geometry(seat: &CylindricalSeatProof) -> Checked<SectionRecessGeomet
         SectionRecessEnds::new(end("open")?, end("open")?)?,
     )
 }
+}
 
 /// What one floor reader makes of one planar face: `None`, a candidate, or (only the polygonal
 /// reader, from a value Python computes outside its guards) a refusal.
 pub type FloorReading = Checked<Option<Candidate>>;
 
-/// Each planar face with its three [`floor_readings`], in face order.
+/// Each planar face with its three `floor_readings`, in face order.
 pub type PlanarFloorReadings = Vec<(usize, [FloorReading; 3])>;
 
+parity_entry! {
 /// The three floor readers on one face, each asked on its own: obround, polygonal, mixed.
 pub fn floor_readings(ctx: &Context<'_>, floor: usize) -> [FloorReading; 3] {
     [
@@ -1600,7 +1617,9 @@ pub fn floor_readings(ctx: &Context<'_>, floor: usize) -> [FloorReading; 3] {
         Ok(one_mixed_candidate(ctx, floor)),
     ]
 }
+}
 
+parity_entry! {
 /// The passage geometry `_candidates` gives a cylindrical passage proof.
 pub fn cylindrical_passage_geometry(
     passage: &CylindricalPassageProof,
@@ -1621,6 +1640,7 @@ pub fn cylindrical_passage_geometry(
         None,
         true,
     )
+}
 }
 
 fn section_points(section: &PlanarSection) -> Vec<V2> {
@@ -1644,6 +1664,7 @@ fn preferred(
     })
 }
 
+parity_entry! {
 /// Every candidate on the part (`_candidates`), each once, ordered by constituent faces, shape
 /// and mouth: seats, then each planar face's specific reading before the general one, then
 /// cylindrical pockets and passages and plane-envelope passages. A proof whose projection
@@ -1657,8 +1678,10 @@ pub fn candidates(ctx: &Context<'_>, surfaces: &EffectiveFaces<'_, '_>) -> Check
         )
     })
 }
+}
 
-/// [`candidates`] together with every planar face's three [`floor_readings`], in face order,
+parity_entry! {
+/// [`candidates`] together with every planar face's three `floor_readings`, in face order,
 /// each reader asked once: the candidates take their floor readings from these (the readers
 /// answer the same whenever they are asked), so a caller that wants both does not read every
 /// floor twice.
@@ -1683,6 +1706,7 @@ pub fn candidates_and_floor_readings(
         )
     });
     (found, readings)
+}
 }
 
 /// The candidates, each planar face's reading taken from *floor*.
