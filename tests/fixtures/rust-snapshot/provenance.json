@@ -1454,7 +1454,7 @@
     "tests/fixtures/captured/ef40dcc3018920ca.step.gz": "bdc247b57386b3e5eeb8f075f5aa9fbefb537402a81d8b97bf5de29a9062f8e7",
     "tests/fixtures/captured/ef5fba9a2b73897b.step.gz": "6b2067f8e99faad65d6023c22a06269b05edb71272f265ff43627edab3ec03ea",
     "tests/fixtures/captured/ef892d1a5bf4e67d.step.gz": "f031834f73d11420e0e89835bcb0a8d820dd7e2064bbe7a0441f2c15d3e7de17",
-    "tests/fixtures/captured/effective_surfaces/faces.json.gz": "0830a4127026330297e8898508d0996948f11bd9432b66f67839f714a6a965d8",
+    "tests/fixtures/captured/effective_surfaces/faces.json.gz": "bb1ad0d9969b05cef4c9e5f2b8e08a70daec2b1fa38be8d4d669e93c367fb064",
     "tests/fixtures/captured/effective_surfaces/parts/005554dc919c1d8c.step.gz": "999abef95e333c07894234f28d97044819ed06e4554f49b14237fbb975bb2db7",
     "tests/fixtures/captured/effective_surfaces/parts/037ca92508266406.step.gz": "542ef4865265b28ad4387f99b0ab456f06c3207e3a2d04ddec76966b39ffd4e5",
     "tests/fixtures/captured/effective_surfaces/parts/03ace82e16030064.step.gz": "d95f47a52fe76aede86d13e14f0bc9f8eabbbfbbebc14a84fedb45d4f8979f9f",
@@ -1822,7 +1822,7 @@
     "tests/fixtures/captured/frames/box_rot_x30.step": "dab4f5ab07c9c72f7cc5ca8ab5635f73fd85742ff2826efea196f196f29bab7b",
     "tests/fixtures/captured/frames/cylinder_rot_x37.step": "6ae9078fe570ea0380b0111ed66d6ed5096dcb765690242b77b76c32c8c9f92b",
     "tests/fixtures/captured/frames/sphere.step": "4b74e04029a3af382b93778242ac2719170f4afd282c4013dcc9ff4f0044a698",
-    "tests/fixtures/captured/local_degradation/capture.json": "6873cba85e4b50c5856d512d1c164796919e4067ae8d88a5616c1d81e2e3a293",
+    "tests/fixtures/captured/local_degradation/capture.json": "51c0948b91b9eafb423adb877b8d3f4d207344a7308f0c29a939ce3dd93c06f4",
     "tests/fixtures/captured/outer_profiles/faces.json.gz": "43499e0e80ca9acd34ba2d8aeb74cd723d65b2c2e0c0022448b77ace0d72fdef",
     "tests/fixtures/captured/outer_profiles/parts/0505d15b879359bc.step.gz": "8157c3d4fb0e23a95030e96983fe07c5eb26faced984f73ff0d0bb629510936b",
     "tests/fixtures/captured/outer_profiles/parts/0de9c3e9948d114c.step.gz": "95c38c08ff2f9ec0791a7745ca1fdd6f48ba52149c1e3086ab5244e1edb2325d",
@@ -2121,7 +2121,7 @@
     "tests/fixtures/captured/section_geometry/parts/fa4022fe920531e3.step.gz": "be9ce89cc332c317b9c426b6288e9140569f5899295172fd4ffe08003f59731a",
     "tests/fixtures/captured/section_geometry/parts/fc3633c2fe9910da.step.gz": "40c8eff3b0d542804fc8c64a0c4b0f8fa90890ef1d5f152843ad52ce43b0eef4",
     "tests/fixtures/captured/section_geometry/parts/fc9df6ddac71ebfb.step.gz": "aaf72f743085b5f6b679f2f3fe4d1341f257c99deee4c25950196c533a96b70e",
-    "tests/fixtures/captured/section_geometry/proofs.json.gz": "f020befbc6ce1c59f33b8644c1253d50eadc75ee92030e6296ef0a4be7c1f666",
+    "tests/fixtures/captured/section_geometry/proofs.json.gz": "d29f668da562f6589af7e52ebde2a700c17ef31db1b6a97cb6fc968561c0f1e6",
     "tests/fixtures/captured/section_recess/values.json.gz": "78b59145ceb1d05c960e80ddd8e34c3117f3dbe85220d95fa03db6dda4a06dde",
     "tests/fixtures/captured/section_recess_geometry/calls.json.gz": "7d6899807709963a57faf2dfdcf088064ada63baa51d0770b86330c18d061669",
     "tests/fixtures/captured/section_recess_geometry/channels.json.gz": "74e260056a8fab86c6d5781b26ac66ec8fa97a56b72e1fc69fc93c1019fbe486",
@@ -2467,7 +2467,7 @@
     "tests/fixtures/captured/section_recess_helpers/parts/fc66a4cc3b2c84ca.step.gz": "30c68482ad2cca3cf42b700738fea7037f26b28f686a376e90b8cf8102f70f91",
     "tests/fixtures/captured/section_recess_helpers/parts/fee0c85ce98eff7c.step.gz": "8fb10fc801e3657b14ad88f4a924ef5a88576cf05a7a73fb52e57e6032d9b5b3",
     "tests/fixtures/captured/section_recess_helpers/parts/ff7ee3f35961071a.step.gz": "74f8687244b1d32990203d45f2820d706f66cf276762149378fa143a63e04940",
-    "tests/fixtures/captured/section_recess_helpers/proofs.json.gz": "302bbc2b5f337929cb1d924d65c6f489e4a5e26ec8a3d6f5d2b9ee276dfd8a2d",
+    "tests/fixtures/captured/section_recess_helpers/proofs.json.gz": "9be19c4dbf74772c80854bc394972fa9e1e15b4244292c81d4114a9b381c7748",
     "tests/fixtures/captured/section_recess_helpers/values.json.gz": "d2f71e2f3b8417f5853e1843762b7d50166892693ecc2d01f7e8614ec8d23a50",
     "tests/fixtures/captured/section_recesses/documents.json.gz": "d2e6a34055a825323bc1e497b99282573f6aea6ab44c1eef8c01107e73413668",
     "tests/fixtures/captured/section_recesses/parts/00b0026a353bfcdc.step.gz": "ff514f1e8cbe92e70772ffd67b046f6dc0175243256429b38a05ffcd25ca7feb",
@@ -2921,7 +2921,7 @@
     "tests/fixtures/captured/sections/parts/f98a04ceb4cf86c7.step.gz": "9ca424bb48882d611f3191b1485b41ebf548bbc7260884029aab7381ae4284a0",
     "tests/fixtures/captured/sections/parts/fa49b36bce6eef83.step.gz": "baa2b3864387866fd53971951d47884e8c0e7e661797b32bbe2adb590194a61c",
     "tests/fixtures/captured/sections/parts/fc9cb0ef3d518aa4.step.gz": "b8d966ff7c7db2dd0e06f1d99f89022bdb80ea447fa8dcaafa2c79bf281be884",
-    "tests/fixtures/captured/sections/patches.json.gz": "3b1f871bda2811babab16f18fb2929fa5cc798dd6add46d5138d430c7d5840e5",
+    "tests/fixtures/captured/sections/patches.json.gz": "e778b4ef23f24d141cf32c14fa231d51e1798d05f16d59e8730f275cae072b57",
     "tests/fixtures/captured/sections/proposals.json.gz": "20db4f4b0696c0c39a73cc65c10c90f24a95e00169e8f343fe2db696b80d42ee",
     "tests/fixtures/captured/sections/values.json.gz": "bb40d7827ecada4e558e90537aff32c7f42918f3485fecbc04d9d70d94a1ff07",
     "tests/fixtures/captured/step_levels/capture.json.gz": "d77dc0c3bb70e64330fb808f1ab756a53f2f0fb6d5c2a8057941176e061dbd88",
@@ -2999,7 +2999,7 @@
     "tests/fixtures/occt_trimmed_parabola.step": "365cf578d61c3f64a1848d1b9c1de1cbf461403ab1a2ef643a1322295d5af2d8",
     "tests/fixtures/open_shell.step": "22624c1bea883c0e10bdb04e8377df61daa5df39b8e65b93d7ad52996d9ad6fa",
     "tests/fixtures/parabola_cut_cone.step": "71c199877c2fc038b2908837d0564c3478add931d5ee7cc0e87eb93773b06788",
-    "tests/fixtures/patches.json.gz": "466636a510637294eeadc79b26668b5ea4bd4390c13ec95c33fa5c723d2fe5f7",
+    "tests/fixtures/patches.json.gz": "a80daaf504b138dc2e43fc9f04818d841880e7083e6f3f13ac12cd269f866cb3",
     "tests/fixtures/pmi_inputs.json": "f08343e6770f81ae4a1bbff748e6650c9ad27795b9a86a62f3088e1f572df6c3",
     "tests/fixtures/prismatic.step": "5356158c5cf7b57a7cbadd351826378523f39b54007df2372bff9d80a03a03c9",
     "tests/fixtures/prismatic_axis_x.step": "8cce2861d7e21fc164557bb9f53c3f54b4e60fa11139d31de3364f2ff8e4beb0",
@@ -3010,11 +3010,15 @@
     "tests/fixtures/prismatic_rot_y90.step": "3ee97e5dcc6fc4259604ecff7643ff8a49a583945c06cd2be25aa5c43eac5916",
     "tests/fixtures/prismatic_scale3.step": "9072823826149d16330612e34a111cf1815a0540a64a942e40b696ba9c98988c",
     "tests/fixtures/prismatic_translated.step": "1fa8ab721215b637d51a95d67ca8e1ad1d909cb4158ef38760047ebb3117bde6",
-    "tests/fixtures/probes.json.gz": "4a1b636c0047df6b720515b6f49f8be4feb64ea35d978fb8a3e111391112d1f6",
+    "tests/fixtures/probes.json.gz": "5d90e0512277d3ef76182eac6d4897c8eec0bce67b76f520232be2f8d7791ae1",
+    "tests/fixtures/references/body_measurement_evidence.json": "b4b8f510341936fe140cd17695c423d31cece690c246093173d03604a9789584",
+    "tests/fixtures/references/body_measurements.json.gz": "2084c8a9ff41dc9fda90df0c888d68c41f2bb1bfd03ae38eb16b8959a840cbca",
     "tests/fixtures/references/classify.json": "c18f99bdc2838c953f7b4468a75749b733a742f36509e669319efc7414416309",
     "tests/fixtures/references/correspondence.json": "d9b0fa19648ca077a55c6f87b78b1f15eb7d893ccfdfe70f9ca5fd9c8534dea4",
     "tests/fixtures/references/cylindrical_proof_motion.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "tests/fixtures/references/cylindrical_volume_evidence.json": "7c66b1a8bc77cc058931258ece5502c96935d51dd5dd611fad14b8b1f43523fa",
     "tests/fixtures/references/drawings.json": "581800f3df8f4aad584909eb324d65bb6a6cbd78f2632d0b69fbb6c2ab6f7485",
+    "tests/fixtures/references/effective_surface_measurements.json": "040162fcdfc9fbf6f6140e25e6f3ff2a444771eaad7363b0242396bc921b20bb",
     "tests/fixtures/references/effective_surface_motion.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
     "tests/fixtures/references/face_areas.json": "2f825fef11c6c80b1968cd3030530b680af3870e180d74da1f822261086927c0",
     "tests/fixtures/references/face_integrals.json": "4677da5c8fc5b39fae0c88ebcc5432f72b6957a8a1473555fbf91013a242bde6",
@@ -3092,7 +3096,6 @@
     "tests/fixtures/two_solids.step": "6517033d96780ae13db686352fc4f5e505737dc837f0411970e5cd935ef7ae29",
     "tests/fixtures/unequal_radii.step": "b12f071210e9bf5d7e7d573071eb1ef4aee2c615cfe5e655bd43ffd74ceb3cf8"
   },
-  "release_anchor": "v0.1.0-alpha.9-rust-baseline.5",
   "schema": 1,
   "snapshots": {
     "built.json.gz": "51a246576f85f33c0e417cc21a3a168a4708c039c418d626a648ee80315dfc55",
@@ -5796,8 +5799,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "562a5ba1524966d8439ee0ed27a6b52243d1f61a",
-  "source_tags": [
-    "v0.1.0-alpha.9-rust-baseline.5"
-  ]
+  "source_commit": "44b538611c09e6461a87a19e4c040f21bb595c0e"
 }
