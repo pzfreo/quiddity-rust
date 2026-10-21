@@ -542,6 +542,33 @@ mod rigid_basis_tests {
     use super::*;
 
     #[test]
+    fn accepted_snapped_basis_is_preserved_byte_for_byte() {
+        let x = unit([0.6, 0.8, 3e-13]).unwrap();
+        let seed = [0.1, 0.2, 1.];
+        let along = py::dot(&x, &seed);
+        let y = unit([0, 1, 2].map(|i| seed[i] - along * x[i])).unwrap();
+        let expected = (
+            clean(x),
+            clean(y),
+            clean(unit(cross(clean(x), clean(y))).unwrap()),
+        );
+        assert!(geom::dot(expected.0, expected.1).abs() > 1e-13);
+        let frame = PartFrame {
+            origin: [1., 2., 3.],
+            x: expected.0,
+            y: expected.1,
+            z: expected.2,
+            gauge: FrameGauge::Full,
+        };
+        assert!(
+            Part::new(vec![], vec![], vec![])
+                .transformed(&frame.normalisation())
+                .is_ok()
+        );
+        assert_eq!(clean_basis(x, y).unwrap(), expected);
+    }
+
+    #[test]
     fn near_orthonormal_basis_is_repaired_after_component_snapping() {
         let x = unit([1., 9e-13, 9e-13]).unwrap();
         let seed = [0., 1., 1.];
