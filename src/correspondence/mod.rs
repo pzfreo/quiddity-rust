@@ -51,6 +51,9 @@ pub struct Recognition {
     /// Reported kernel input repairs, carried into the recognition document.
     #[serde(skip)]
     pub input_repairs: Vec<String>,
+    /// Positive body evidence in the inferred frame; never a feature claim.
+    #[serde(skip)]
+    pub(crate) body_evidence: BTreeMap<usize, crate::recognition::BodyReason>,
 }
 
 /// Recognise a loaded part in its inferred frame and map records back to caller space.
@@ -70,6 +73,7 @@ pub fn recognise(part: &Part) -> Recognition {
                 local: LocalFields::new(),
                 source_sha256: None,
                 input_repairs: part.input_repairs().to_vec(),
+                body_evidence: BTreeMap::new(),
             };
         }
     };
@@ -91,10 +95,13 @@ fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
                 local: LocalFields::new(),
                 source_sha256: None,
                 input_repairs: part.input_repairs().to_vec(),
+                body_evidence: BTreeMap::new(),
             };
         }
     };
-    let Mapped { features, local } = framed_records::to_file(features::recognise(&working), &frame);
+    let features = features::recognise(&working);
+    let body_evidence = crate::body::evidence(&working);
+    let Mapped { features, local } = framed_records::to_file(features, &frame);
     let mut fingerprints = fingerprint(part, &features);
     frame_axes(&mut fingerprints, &features, &local, &frame);
     Recognition {
@@ -104,6 +111,7 @@ fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
         local,
         source_sha256: None,
         input_repairs: part.input_repairs().to_vec(),
+        body_evidence,
     }
 }
 
@@ -120,6 +128,7 @@ pub fn python_parity_recognise(part: &Part) -> Recognition {
         local: LocalFields::new(),
         source_sha256: None,
         input_repairs: part.input_repairs().to_vec(),
+        body_evidence: BTreeMap::new(),
     }
 }
 

@@ -38,22 +38,38 @@ use crate::features::recess_patterns::{PocketPattern, SlotPattern};
 use crate::features::section_recess::SectionRecessPattern;
 use crate::frames::RecordFrame;
 
-/// Latest contract: version 4 adds measured modelled threads and explicit refusals.
-/// Documents using only version 3 record types retain the legacy tag and record payloads.
-pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/4";
-/// Documents without native measured-thread or bounded-air refusal records retain version 3.
+/// Version 5 accounts for every face, without changing any record payload.
+pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/5";
+/// Historical pre-thread contract, accepted on input but no longer emitted.
 pub const LEGACY_SCHEMA_VERSION: &str = "quiddity-rust/recognition/3";
 
-/// The minimum document contract required by these records.
-pub fn schema_version(features: &Features) -> &'static str {
-    if features.modelled_threads.is_empty()
-        && features.modelled_thread_refusals.is_empty()
-        && features.interior_void_refusals.is_empty()
-    {
-        LEGACY_SCHEMA_VERSION
-    } else {
-        SCHEMA_VERSION
-    }
+/// The contract emitted for complete recognition documents (all now carry accounting).
+pub fn schema_version(_features: &Features) -> &'static str {
+    SCHEMA_VERSION
+}
+
+/// Stable positive evidence codes; see docs/face-accounting.md.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BodyReason {
+    StockBoxSide,
+}
+
+/// A named refusal record and its original reason code.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct FaceRefusal {
+    pub record_id: String,
+    pub reason: String,
+}
+
+/// Exactly one group per face. Feature claims take precedence over refusals, then body.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "group", rename_all = "snake_case")]
+pub enum FaceAccounting {
+    Feature { record_ids: Vec<String> },
+    Body { reason: BodyReason },
+    Refused { refusals: Vec<FaceRefusal> },
+    Unexplained,
 }
 
 /// One part's recognition, as draftwright reads it.
@@ -72,6 +88,10 @@ pub struct RecognitionDocument {
     pub face_count: usize,
     /// In `Features`' family order, then each family's own.
     pub records: Vec<Record>,
+    /// Array index is the file face index. None means an older, unaccounted document;
+    /// every newly produced document contains exactly `face_count` entries.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub face_accounting: Option<Vec<FaceAccounting>>,
     /// Lowercase SHA256 of input file bytes (compressed bytes for .gz), or null in memory.
     #[serde(default)]
     pub source_sha256: Option<String>,
@@ -399,6 +419,7 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
             });
         }
     }
+    let face_accounting = account_faces(&records, &recognition.body_evidence, face_count);
     RecognitionDocument {
         schema_version: schema_version(&recognition.features).into(),
         package: Package {
@@ -408,6 +429,7 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
         coordinate_space: "file".into(),
         frame: recognition.frame.clone(),
         face_count,
+        face_accounting: Some(face_accounting),
         records,
         source_sha256: recognition.source_sha256.clone(),
         run_mode: recognition.features.run_mode,
@@ -468,4 +490,107 @@ fn record_status(
         };
     }
     status(family, n)
+}
+
+/// Partition the complete inventory, independently of record serialization.
+fn account_faces(
+    records: &[Record],
+    body_evidence: &BTreeMap<usize, BodyReason>,
+    face_count: usize,
+) -> Vec<FaceAccounting> {
+    (0..face_count)
+        .map(|face| {
+            let owners: Vec<_> = records.iter().filter(|r| r.faces.contains(&face)).collect();
+            let record_ids: Vec<_> = owners
+                .iter()
+                .filter(|r| !r.is_refusal())
+                .map(|r| r.id.clone())
+                .collect();
+            if !record_ids.is_empty() {
+                return FaceAccounting::Feature { record_ids };
+            }
+            let refusals: Vec<_> = owners
+                .iter()
+                .filter(|r| r.is_refusal())
+                .map(|r| FaceRefusal {
+                    record_id: r.id.clone(),
+                    reason: r.parameters["reason"]
+                        .as_str()
+                        .expect("named refusal has a reason")
+                        .into(),
+                })
+                .collect();
+            if !refusals.is_empty() {
+                return FaceAccounting::Refused { refusals };
+            }
+            body_evidence
+                .get(&face)
+                .map_or(FaceAccounting::Unexplained, |&reason| {
+                    FaceAccounting::Body { reason }
+                })
+        })
+        .collect()
+}
+
+#[cfg(test)]
+mod accounting_tests {
+    use super::*;
+
+    #[test]
+    fn overlapping_claims_refusals_and_body_have_explicit_precedence() {
+        let record = |id: &str, refusal: bool, faces: Vec<usize>| Record {
+            id: id.into(),
+            family: "test".into(),
+            record_type: if refusal {
+                "SectionRecessRefusal"
+            } else {
+                "HoleRecord"
+            }
+            .into(),
+            faces,
+            parameters: serde_json::from_value(
+                serde_json::json!({"reason":"unsupported_support_geometry"}),
+            )
+            .unwrap(),
+            local: vec![],
+            evidence_status: EvidenceStatus::Unproved,
+        };
+        let records = vec![
+            record("feature/0", false, vec![0]),
+            record("feature/1", false, vec![0]),
+            record("refusal/0", true, vec![0, 1]),
+            record("refusal/1", true, vec![1]),
+        ];
+        let body = (0..3).map(|f| (f, BodyReason::StockBoxSide)).collect();
+        let groups = account_faces(&records, &body, 4);
+        assert_eq!(
+            groups[0],
+            FaceAccounting::Feature {
+                record_ids: vec!["feature/0".into(), "feature/1".into()]
+            }
+        );
+        let FaceAccounting::Refused { refusals } = &groups[1] else {
+            panic!("refusal lost")
+        };
+        assert_eq!(
+            refusals
+                .iter()
+                .map(|r| r.record_id.as_str())
+                .collect::<Vec<_>>(),
+            ["refusal/0", "refusal/1"]
+        );
+        assert!(
+            refusals
+                .iter()
+                .all(|r| r.reason == "unsupported_support_geometry")
+        );
+        assert_eq!(
+            groups[2],
+            FaceAccounting::Body {
+                reason: BodyReason::StockBoxSide
+            }
+        );
+        assert_eq!(groups[3], FaceAccounting::Unexplained);
+        assert!(account_faces(&[], &BTreeMap::new(), 0).is_empty());
+    }
 }
