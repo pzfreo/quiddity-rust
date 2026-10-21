@@ -82,11 +82,11 @@ and array lengths must agree. Compressed files have a fixed gzip timestamp.
 ## Independent references by family
 
 **F** is the separately maintained historical Rust inventory floor, with positive coverage
-for every listed family (`tests/inventory_floor.rs`, `tests/fixtures/inventory_floor.json`).
+for every listed family (`tests/internal/inventory_floor.rs`, `tests/fixtures/inventory_floor.json`).
 Its loss allowances retain their analytic/OpenCascade evidence. **L** is the independent
-MFInstSeg/MFCAD++ class mapping and MFInstSeg ratchet (`tests/mfinstseg.rs`,
+MFInstSeg/MFCAD++ class mapping and MFInstSeg ratchet (`tests/internal/mfinstseg.rs`,
 `tests/fixtures/mfinstseg_mapping.json`). Label mappings are coarse and do not validate every
-subtype. The corpus motion suite (`tests/invariance.rs`) additionally checks the recognition
+subtype. The corpus motion suite (`tests/internal/invariance.rs`) additionally checks the recognition
 and correspondence families it exercises; motion alone cannot detect a missing feature.
 No new independent references are claimed for legacy value-only helpers.
 
@@ -100,38 +100,38 @@ No new independent references are claimed for legacy value-only helpers.
 | `circular_blind_steps` | F; L; analytic supporting planes (`src/features/circular_blind_steps.rs`) |
 | `circular_face_patterns` | F |
 | `countersinks` | F |
-| `double_d_bores` | F; analytic wall claims + motion (`tests/evidence.rs`) |
-| `edge_open_circular_pockets` | F; analytic floor/hole claims (`tests/evidence.rs`) |
-| `edge_open_prismatic_recesses` | F; analytic wall/floor claims (`tests/evidence.rs`) |
+| `double_d_bores` | F; analytic wall claims + motion (`tests/internal/evidence.rs`) |
+| `edge_open_circular_pockets` | F; analytic floor/hole claims (`tests/internal/evidence.rs`) |
+| `edge_open_prismatic_recesses` | F; analytic wall/floor claims (`tests/internal/evidence.rs`) |
 | `fillets` | F; L; analytic rolled supports (`src/features/fillets.rs`) |
 | `flats` | F |
 | `freeform_surfaces` | F |
 | `grooves` | F |
 | `gusset_rib_patterns` | F |
-| `gusset_ribs` | F; analytic cap/slant claims (`tests/evidence.rs`) |
+| `gusset_ribs` | F; analytic cap/slant claims (`tests/internal/evidence.rs`) |
 | `hole_patterns` | F |
-| `holes` | F; L; analytic counterbores + motion (`tests/tie_breaks.rs`) |
+| `holes` | F; L; analytic counterbores + motion (`tests/internal/tie_breaks.rs`) |
 | `interior_voids` | F; analytic bounded-air fixtures (`src/features/interior_voids.rs`) |
-| `modelled_threads` | F; analytic thread fixtures (`tests/modelled_threads.rs`) |
+| `modelled_threads` | F; analytic thread fixtures (`tests/internal/modelled_threads.rs`) |
 | `oblique_through_steps` | F; L |
 | `oriented_chamfers` | F |
 | `oriented_slot_patterns` | F |
 | `oriented_slots` | F; L |
-| `pads` | F; analytic pad fixtures (`tests/pads.rs`) |
+| `pads` | F; analytic pad fixtures (`tests/internal/pads.rs`) |
 | `paired_ramp_steps` | F; L |
 | `plates` | F |
 | `pocket_patterns` | F |
 | `pockets` | F; L |
 | `polygonal_bosses` | F |
 | `polygonal_stock` | F |
-| `prismatic_pockets` | F; L; analytic prism fixtures (`tests/prismatic_pockets.rs`) |
+| `prismatic_pockets` | F; L; analytic prism fixtures (`tests/internal/prismatic_pockets.rs`) |
 | `rectangular_blind_slots` | F; L |
 | `repeating_radial_profiles` | F |
 | `risers` | F |
 | `round_bottom_blind_slots` | F; L |
 | `section_passages` | F; L |
-| `section_recess_patterns` | F; member-face unions + motion (`tests/section_recess_publication.rs`, `tests/section_recess.rs`) |
-| `section_recesses` | F; geometry publication and motion (`tests/section_recess_publication.rs`, `tests/section_recesses.rs`) |
+| `section_recess_patterns` | F; member-face unions + motion (`tests/internal/section_recess_publication.rs`, `tests/internal/section_recess.rs`) |
+| `section_recesses` | F; geometry publication and motion (`tests/internal/section_recess_publication.rs`, `tests/internal/section_recesses.rs`) |
 | `sheet_metal_bodies` | F |
 | `slot_patterns` | F |
 | `slots` | F |
@@ -141,12 +141,12 @@ No new independent references are claimed for legacy value-only helpers.
 | `turned_steps` | F |
 | face levels (legacy `recognise_face_levels`) | **snapshot only** |
 | passages (legacy roster) | **snapshot only** |
-| planar outer profiles | analytic directed supports, source-edge correspondence, motion (`tests/outer_profiles.rs`) |
-| effective surfaces | material orientation, dependency consistency, motion (`tests/effective_surfaces.rs`) |
-| sections / cylindrical / end-surface geometry | motion (`tests/section_geometry.rs`, `tests/section_recess_geometry.rs`, `tests/section_recess_helpers.rs`); value-only helpers: **snapshot only** |
-| frames | motion equivariance, inverse point transforms, caller/working-face identity (`tests/frames.rs`) |
-| correspondence | handwritten analytic revision intent (`tests/fixtures/revisions/expected.json`), motion (`tests/correspondence.rs`, `tests/invariance.rs`) |
-| mass / face integrals | OpenCascade-measured corpus, area and moment ledgers; analytic surfaces; live OCCT (`tests/corpus.rs`, `crates/haecceity/tests/face_{areas,moments,integrals}.rs`, `tools/check_face_integrals.py`) |
+| planar outer profiles | analytic directed supports, source-edge correspondence, motion (`tests/internal/outer_profiles.rs`) |
+| effective surfaces | material orientation, dependency consistency, motion (`tests/internal/effective_surfaces.rs`) |
+| sections / cylindrical / end-surface geometry | motion (`tests/internal/section_geometry.rs`, `tests/internal/section_recess_geometry.rs`, `tests/internal/section_recess_helpers.rs`); value-only helpers: **snapshot only** |
+| frames | motion equivariance, inverse point transforms, caller/working-face identity (`tests/internal/frames.rs`) |
+| correspondence | handwritten analytic revision intent (`tests/fixtures/revisions/expected.json`), motion (`tests/internal/correspondence.rs`, `tests/internal/invariance.rs`) |
+| mass / face integrals | OpenCascade-measured corpus, area and moment ledgers; analytic surfaces; live OCCT (`tests/internal/corpus.rs`, `crates/haecceity/tests/face_{areas,moments,integrals}.rs`, `tools/check_face_integrals.py`) |
 | PMI read/write | NIST expectations, stated design intent, OCCT XCAF, analytic writer fixtures, semantic round trips (`crates/haecceity/tests/pmi_{read,write,roundtrip}.rs`, `tests/pmi_cli.rs`) |
 
 OpenCascade and analytic ledgers now live in `tests/fixtures/references/`; their executable
@@ -206,7 +206,8 @@ NIST AP242 files can be checked by exporting `HAECCEITY_NIST_PMI` and
 
 - `src/`: recognition, frames, feature records, fingerprints, correspondence and CLI.
 - `crates/haecceity/`: STEP/Part 21, geometry, validity, integrals, drawings and semantic PMI.
-- `tests/`: internal geometry/reference and snapshot replays, plus public CLI tests.
+- `tests/`: automatically discovered public integration tests.
+- `tests/internal/`: private geometry/reference and snapshot unit tests, registered in `mod.rs`.
 - `tests/fixtures/captured/`: preserved legacy test inputs and query arguments.
 - `tests/fixtures/references/`: independent measured ledgers and motion exceptions.
 - `tests/fixtures/rust-snapshot/`: Rust-owned expectations and provenance.

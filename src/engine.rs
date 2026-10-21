@@ -9,13 +9,21 @@ macro_rules! internal_entry {
     };
 }
 
+#[path = "correspondence/mod.rs"]
 pub mod correspondence;
+#[path = "evidence_view.rs"]
 pub mod evidence_view;
+#[path = "features/mod.rs"]
 pub mod features;
+#[path = "framed_records.rs"]
 pub mod framed_records;
+#[path = "frames.rs"]
 pub mod frames;
+#[path = "pmi_json.rs"]
 pub mod pmi_json;
+#[path = "recognition.rs"]
 pub mod recognition;
+#[path = "serve.rs"]
 pub mod serve;
 /// The geometry kernel, [`haecceity`], under the name the recognisers use.
 pub use haecceity as kernel;

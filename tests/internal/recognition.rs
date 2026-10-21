@@ -11,7 +11,7 @@
 
 use super::common;
 use super::slices;
-#[path = "support/recess_samples.rs"]
+#[path = "../support/recess_samples.rs"]
 mod recess_samples;
 
 use std::collections::BTreeMap;

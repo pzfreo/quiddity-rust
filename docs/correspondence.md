@@ -174,7 +174,7 @@ snapshots own the regression record; see the README for regeneration and review.
     counts), a fit's residual, a thin wall's heuristic history hint.
 
   `fingerprint` panics on a family missing from the table, or one with neither defining faces
-  (`Features::defining`) nor members: a wiring defect. `tests/wiring.rs` recognises every STEP
+  (`Features::defining`) nor members: a wiring defect. `tests/internal/wiring.rs` recognises every STEP
   fixture and corpus part and fails on a family not wired that way (defining-face lists one per
   record), on a record field with no role, on a table path no record has, and on a feature whose
   fingerprint has no size.
@@ -272,14 +272,14 @@ remain mandatory. Python-written fingerprints remain readable test inputs.
 
 ### Validation
 
-`tests/invariance.rs` reads every corpus part under translation and principal rotations,
+`tests/internal/invariance.rs` reads every corpus part under translation and principal rotations,
 checks the same feature faces, then checks correspondence on the same readings. It also
 checks recognition under a generic rotation in the part's inferred frame. The ledgers pin
 all remaining differences; a stale entry or an unlisted difference fails. Analytic tests
 cover tolerance boundaries, measured half-way sizes, reflected sample lattices, and plate
 thickness under a translation smaller than its former position-publication grid.
 
-`tests/correspondence.rs` checks the frozen revision pairs: dimensions, added and removed
+`tests/internal/correspondence.rs` checks the frozen revision pairs: dimensions, added and removed
 features, changed patterns, rigid whole-part placements, and unchanged source face claims.
 
 The ten revision pairs exercise these results: moving a hole adapts its position; resizing

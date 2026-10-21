@@ -6,7 +6,9 @@
 //! Ground-truth or configuration errors fail the run. Read/panic failures with available
 //! labels are explicitly reported and count as misses; zero denominators score zero.
 // Internal diagnostic: use the exact engine implementation without exporting caller-space APIs.
-include!("../src/engine.rs");
+#[path = "../src/engine.rs"]
+mod engine;
+pub use engine::*;
 extern crate self as quiddity;
 #[path = "support/mfinstseg.rs"]
 mod mfinstseg;

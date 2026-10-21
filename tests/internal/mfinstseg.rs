@@ -1,7 +1,7 @@
 //! External-data accuracy ratchet. Run with QUIDDITY_MFINSTSEG=/path/to/MFInstSeg.
 //! No dataset files are redistributed: permission to redistribute was not established.
 //! `tools/update_mfinstseg_baseline.py` records improvements without allowing regressions.
-#[path = "../examples/support/mfinstseg.rs"]
+#[path = "../../examples/support/mfinstseg.rs"]
 mod scoring;
 
 /// All seven PARABOLA-bearing files in the 62,495-model dataset. Open CASCADE 8.0
@@ -129,7 +129,7 @@ fn independent_label_accuracy_ratchet() {
     };
     let root = Path::new(&root);
     let baseline: Baseline =
-        serde_json::from_str(include_str!("fixtures/mfinstseg_baseline.json")).unwrap();
+        serde_json::from_str(include_str!("../fixtures/mfinstseg_baseline.json")).unwrap();
     assert_eq!(baseline.schema, 1);
     assert_eq!(baseline.models.len(), 200);
     assert_eq!(

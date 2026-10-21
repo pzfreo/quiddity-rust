@@ -2,7 +2,7 @@
 
 `features::take_inventory` ports `_take_inventory`'s bounded fallback: a strict run, or, where
 its hole evidence refuses for want of one valid solid on a part whose solids are not all valid
-(`holes::strict_refusal_retries`, the condition `tests/local_degradation.rs` already used), a
+(`holes::strict_refusal_retries`, the condition `tests/internal/local_degradation.rs` already used), a
 second run from scratch in which `evidence::common_valid_solid` answers as Python's degraded graph
 (`locally_valid_solid`) and holes, pockets, fillets, plates, step levels, risers, rectangular
 pads, slots, channels, prismatic pockets and edge-open prismatic and circular recesses skip what
@@ -141,7 +141,7 @@ The three new tests each failed on unchanged production code (0 passed, 3 failed
 every published record's fields, defining faces and frame labels on all 100 corpus parts.
 
 Publication exposed 69 previously untested caller-space versus inferred-frame section-recess
-comparisons in `tests/recognition.rs`. No tolerances or comparisons were relaxed. The added
+comparisons in `tests/internal/recognition.rs`. No tolerances or comparisons were relaxed. The added
 `references/framed_document.json` verdicts are 66 equivalent section-basis/order representations and
 3 undetermined placement-dependent proofs. An independent reconstruction compared the section
 boundary vertices, arc midpoints and low/high end-surface samples of all 222 matched records on
@@ -172,8 +172,8 @@ command at a time):
   passed. `git diff --check` is clean.
 
 Files changed: `src/features/mod.rs`, `src/recognition.rs`,
-`src/correspondence/fingerprint.rs`, `tests/recognition.rs`,
-`tests/section_recess_publication.rs`, `tests/fixtures/section_recess_publication_baseline.json`,
+`src/correspondence/fingerprint.rs`, `tests/internal/recognition.rs`,
+`tests/internal/section_recess_publication.rs`, `tests/fixtures/section_recess_publication_baseline.json`,
 `tests/fixtures/references/framed_document.json`, `README.md`, `CHANGELOG.md`, `docs/alpha1.md` and
 this file. No commits or pushes. No Python or draftwright repository changes.
 

@@ -115,7 +115,7 @@ def main() -> None:
         part = _load(CORPUS / entry["file"])
         faces = list(part.faces())
         # The traversal must be the inventory's, which the Rust reader is checked against face by
-        # face (tests/corpus.rs): the same kinds, edge counts and bounds in the same order.
+        # face (tests/internal/corpus.rs): the same kinds, edge counts and bounds in the same order.
         assert _inventory(part) == entry["inventory"], entry["file"]
         files.append(
             {

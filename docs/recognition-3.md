@@ -20,8 +20,8 @@ pattern vectors and centres with the occurrences. Readers must reject local
 spatial fields they cannot interpret. Other record shapes, IDs and order stay as
 in version 2. All source recess families remain published for other consumers.
 
-The Python oracle comparisons in `tests/section_recesses.rs` cover occurrences,
-refusals and patterns; `tests/section_recess_publication.rs` checks the records
+The Python oracle comparisons in `tests/internal/section_recesses.rs` cover occurrences,
+refusals and patterns; `tests/internal/section_recess_publication.rs` checks the records
 actually handed to consumers, including the 13975/14052 local-degradation retry.
 
 Measured helical threads use the optional [version 4 extension](recognition-4.md).

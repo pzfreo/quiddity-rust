@@ -6,10 +6,10 @@
 //! (`max_differing`), so a listed difference that grows still fails.
 
 use super::common;
-#[path = "support/motion_breakdown.rs"]
+#[path = "../support/motion_breakdown.rs"]
 mod motion_breakdown;
 use motion_breakdown::Breakdown;
-#[path = "support/motion_sweep.rs"]
+#[path = "../support/motion_sweep.rs"]
 mod motion_sweep;
 use super::slices;
 use motion_sweep::{SWEEP_FAMILIES, compose, occurrences as sweep_occurrences, rotation};

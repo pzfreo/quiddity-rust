@@ -1,7 +1,8 @@
 //! Internal regression and independent reference tests; caller-space algorithms stay private.
+#[path = "../common/mod.rs"]
 mod common;
 #[macro_use]
-#[path = "support/slices.rs"]
+#[path = "../support/slices.rs"]
 mod slices;
 #[path = "captured.rs"]
 mod captured;

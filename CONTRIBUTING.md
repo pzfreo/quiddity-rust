@@ -20,6 +20,10 @@ and release anchor. `python3 tools/rust_snapshot.py --check` must reproduce HEAD
 Normal tests cannot accept a changed output. Do not hand-edit snapshots or restore a Python
 oracle. Historical verdicts live in [the archive](docs/history/python-parity.md).
 
+Public integration tests under `tests/` are discovered automatically. Register private-engine
+unit tests in `tests/internal/mod.rs`; they can exercise caller-space algorithms without
+exposing a public feature. The engine uses ordinary Rust modules, so `cargo fmt --all` covers it.
+
 Before review, export `CARGO_BUILD_JOBS=6 RUST_TEST_THREADS=6` and run:
 
 ```sh

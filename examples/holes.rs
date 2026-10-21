@@ -1,6 +1,8 @@
 //! Print holes with their defining faces: `cargo run --example holes -- file.step`.
 // Internal diagnostic: use the exact engine implementation without exporting caller-space APIs.
-include!("../src/engine.rs");
+#[path = "../src/engine.rs"]
+mod engine;
+pub use engine::*;
 extern crate self as quiddity;
 fn main() {
     let path = std::env::args().nth(1).unwrap();

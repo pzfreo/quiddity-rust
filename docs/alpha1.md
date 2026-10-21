@@ -74,12 +74,12 @@ passages: `channels`, `edge_open_circular_pockets`, `edge_open_prismatic_recesse
 `pocket_patterns`, `pockets`, `prismatic_pockets`, `rectangular_blind_slots`,
 `round_bottom_blind_slots`, `section_passages`). All 46 have a `pub fn recognise_*` of the same
 name in `src/features` (compared by name), each checked against captured Python calls
-(README's family table; section recesses in `tests/section_recesses.rs`, 400 of 414 documents
+(README's family table; section recesses in `tests/internal/section_recesses.rs`, 400 of 414 documents
 agree at `c2ce06a`; 19 known differences at `a2e9721`, 24 before `0324cc4`).
 
 Status round 37 (`3ecccc1`): `features::recognise` and `correspondence::recognise` also carry
 section recesses (defining faces, fingerprints, framed mapping, rigid-motion invariance), checked
-against `recognise_section_recesses` on all 100 corpus parts by `tests/recognition.rs`
+against `recognise_section_recesses` on all 100 corpus parts by `tests/internal/recognition.rs`
 `recognition_carries_section_recesses`; 13975 and 14052 carry the projection's refusal
 (question 6). G7a (2026-10-11) also publishes them as `SectionRecess` document records and in
 the CLI's records, preserving the source families. The text below is as at `a2e9721`.
@@ -149,7 +149,7 @@ Each against its "met when" in `upstream-needs.md`.
 - **U12** missing families: *met* (status round 37): `step_levels` and `risers` are in
   `Features` and so `correspondence::recognise` (`204b29f`, merged `36483c1`), and so is
   `section_recesses` (`3ecccc1`), checked against `recognise_section_recesses` on all 100 corpus
-  parts by `tests/recognition.rs` `recognition_carries_section_recesses`. On 13975 and 14052 the
+  parts by `tests/internal/recognition.rs` `recognition_carries_section_recesses`. On 13975 and 14052 the
   projection refuses (Python recognises both through its local-degradation retry, which the port
   lacks), so they carry `Features::section_recess_refusal` and no section recesses (question 6).
   G7a (2026-10-11) also publishes them in the recognition document (question 5 resolved).

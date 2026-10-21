@@ -1,7 +1,9 @@
 //! Read-only occurrence census for raw and inferred-frame routes under seeded motions.
 //! Usage: motion_sweep STEPS_DIR [COUNT=0] [SEED=17] [raw|both=both]
 // Internal diagnostic: use the exact engine implementation without exporting caller-space APIs.
-include!("../src/engine.rs");
+#[path = "../src/engine.rs"]
+mod engine;
+pub use engine::*;
 extern crate self as quiddity;
 #[allow(dead_code)]
 #[path = "../tests/support/motion_breakdown.rs"]

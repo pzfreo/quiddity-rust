@@ -2,7 +2,6 @@
 members = ["crates/haecceity"]
 
 [package]
-autotests = false
 name = "quiddity"
 version = "0.1.0-alpha.9"
 edition = "2024"
@@ -20,15 +19,3 @@ haecceity = { path = "crates/haecceity", version = "=0.1.0-alpha.9" }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = { version = "1.0.151", features = ["float_roundtrip"] }
 sha2 = "0.11.0"
-
-[[test]]
-name = "cli"
-
-[[test]]
-name = "serve"
-
-[[test]]
-name = "rigid_transform"
-
-[[test]]
-name = "pmi_cli"

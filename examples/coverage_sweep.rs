@@ -3,7 +3,9 @@
 //! `cargo run --release --example coverage_sweep -- STEPS_DIR IDS_FILE OUT.jsonl [WORKERS]`.
 //! `tools/coverage_sweep_report.py` turns the lines into the MFInstSeg coverage-sweep report.
 // Internal diagnostic: use the exact engine implementation without exporting caller-space APIs.
-include!("../src/engine.rs");
+#[path = "../src/engine.rs"]
+mod engine;
+pub use engine::*;
 extern crate self as quiddity;
 use std::io::Write;
 use std::panic::{AssertUnwindSafe, catch_unwind};

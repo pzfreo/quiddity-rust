@@ -1,5 +1,5 @@
 """Where a fixture's Python answers came from: the quiddity revision, and each corpus file's
-sha256 (checked by ``tests/corpus_files.rs``)."""
+sha256 (checked by ``tests/internal/corpus_files.rs``)."""
 
 from __future__ import annotations
 
