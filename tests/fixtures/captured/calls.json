@@ -119618,5 +119618,24 @@
    "test": "tests/test_pad_attribution.py::test_blended_pad_survives_step_roundtrip",
    "reason": "capture failed: RuntimeError: Failed to write STEP file"
   }
- ]
+ ],
+ "motion_inputs": {
+  "repeating_radial_profiles": [
+   "0ab132122e777dd6.step.gz",
+   "0f49c16a78922c3a.step.gz",
+   "25a921a789e2f3c4.step.gz",
+   "262e21956d42c8dd.step.gz",
+   "2e976b10b66eb8dc.step.gz",
+   "30c17a17d0a72260.step.gz",
+   "3ea60d8ad441cbbe.step.gz",
+   "7d429af1ca045a58.step.gz",
+   "929d80de4a488f54.step.gz",
+   "93bb4b9e34f2a7ef.step.gz",
+   "a002c0adc2b690f1.step.gz",
+   "aee28d61f66a2033.step.gz",
+   "b4955f88525ea716.step.gz",
+   "ef892d1a5bf4e67d.step.gz",
+   "fac899fa3b5ad260.step.gz"
+  ]
+ }
 }

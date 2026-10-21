@@ -458,19 +458,17 @@ fn symmetric_difference(a: &[Vec<usize>], b: &[Vec<usize>]) -> Vec<String> {
 #[test]
 fn repeating_radial_profiles_are_invariant_on_captured_parts() {
     let calls = common::load("captured/calls.json");
-    let mut files: Vec<&str> = calls["calls"]
+    let files: Vec<&str> = calls["motion_inputs"]["repeating_radial_profiles"]
         .as_array()
         .unwrap()
         .iter()
-        .filter(|c| {
-            c["function"] == "recognise_repeating_radial_profiles"
-                && c["result"].as_array().is_some_and(|r| !r.is_empty())
-        })
-        .map(|c| c["file"].as_str().unwrap())
+        .map(|f| f.as_str().unwrap())
         .collect();
-    files.sort_unstable();
-    files.dedup();
-    assert!(!files.is_empty());
+    assert_eq!(
+        files.len(),
+        15,
+        "the original radial motion input set must stay complete"
+    );
     let read = |part: &Part| {
         let found = features::recognise(part);
         let counts = found
