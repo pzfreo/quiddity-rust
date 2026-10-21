@@ -1,39 +1,43 @@
 //! B-rep STEP export: a loaded [`Part`] written out as a new AP242 file (step-io's
-//! [`StepBuilder`] for the file's skeleton, its authoring layer for the topology).
+//! [`StepBuilder`] for the skeleton, products, solids and placements; its authoring layer for the
+//! topology and geometry the builder does not take). Design, guarantee and refusals:
+//! `docs/brep-writer.md`.
 //!
 //! This is for output that is ours — a transformed, repaired or otherwise produced part. A file
 //! we were given keeps its own bytes: PMI edits to it go through [`crate::pmi::write()`], which
 //! changes nothing else.
 //!
-//! **What is written.** One product (named by [`WriteOptions::name`]) in millimetres and
-//! radians with a length uncertainty of 1e-7 mm, holding every solid of the part as a
-//! `MANIFOLD_SOLID_BREP` (a `BREP_WITH_VOIDS` when a solid's faces form several shells: the
-//! first is the outer shell, the rest its voids, written as authored) and every face that
-//! belongs to no solid in one `OPEN_SHELL` of a `SHELL_BASED_SURFACE_MODEL`. Faces, edges and
-//! vertices are written in the part's order, so the file reads back with the same indices.
-//! Coordinates are the part's own: a part read from an assembly is written flattened, each
-//! instance where the part holds it. Surfaces: planes, cylinders, cones, spheres and tori as
-//! themselves; every freeform surface as its exact (rational) B-spline form. Edge curves: lines
-//! (with the file's direction ratios where the part keeps them), circles, ellipses, parabolas
-//! and hyperbolas as themselves, every other curve as its exact (rational) B-spline form. Face
-//! orientation (`same_sense`), each loop's edges with their use direction, `VERTEX_LOOP`
-//! bounds, and edge `same_sense`. Pcurves the part holds in full (2D lines, and B-splines read
-//! with their knots) are written as the `PCURVE`s of a `SURFACE_CURVE` (a `SEAM_CURVE` for an
-//! edge used twice by one face).
+//! **What is written.** One product in millimetres and radians, with the source file's length
+//! uncertainty (else 1e-7 mm), holding every solid of the part as a `MANIFOLD_SOLID_BREP` (a
+//! `BREP_WITH_VOIDS` when a solid's faces form several shells: the first is the outer shell, the
+//! rest its voids, written as authored) and the faces in no solid in an `OPEN_SHELL` of a
+//! `SHELL_BASED_SURFACE_MODEL`. Faces, edges and vertices are written so that the file reads
+//! back with the part's numbering. Surfaces: planes, cylinders, cones, spheres and tori as
+//! themselves, B-splines exactly, surfaces of revolution and extrusion as the file stated them;
+//! curves: lines, circles, ellipses, parabolas and hyperbolas as themselves, every other curve as
+//! its exact B-spline; pcurves as the file stated them where its parameters are the written
+//! surface's, else those the part holds in full. A placed instance is written in its own frame
+//! in a component placed by the file's placement levels; a part moved after reading is written
+//! where it lies.
+//!
+//! **Exactly.** The reader keeps what writing back needs beside what it evaluates (the file's
+//! frame and direction ratios, which it normalises; pcurve knots; swept surfaces; placement
+//! levels), so reading the written file gives the part bit for bit. Where it keeps nothing (a
+//! part moved after reading) directions are written as the nearest ratios that normalise back to
+//! the held ones.
 //!
 //! **What it reports** ([`WriteReport`]): what reading the file back cannot give again —
-//! freeform surfaces whose kind was other than a B-spline (a surface of revolution comes back
-//! as the B-spline it was held as), pcurves not written, and whether face and edge order are
-//! preserved — and the PMI carried and refused.
+//! freeform surfaces written as B-splines of another kind, pcurves not written, face and edge
+//! order, placements flattened — and the PMI carried and refused.
 //!
 //! **What it refuses** ([`WriteError::Unsupported`], naming every face and edge): a face whose
 //! surface did not resolve, an edge whose curve did not resolve (the part holds its chord), a
-//! loop with neither edges nor a vertex, and geometry the authoring layer rejects.
+//! loop with neither edges nor a vertex.
 //!
-//! **PMI** ([`WriteOptions::pmi`]): the part's semantic PMI is written by [`crate::pmi::write()`]
-//! into the new file, anchored to the written faces and edges by index. Items the PMI writer
-//! refuses, hole definitions (which it neither writes nor refuses) and items that depend on
-//! either are not carried, each named with its reason in [`PmiCarried::refused`].
+//! **PMI** ([`WriteOptions::pmi`]): written by [`crate::pmi::write()`] into the new file,
+//! anchored to the written faces and edges by index. Items that writer refuses, hole definitions
+//! (which it neither writes nor refuses) and items that depend on either are not carried, each
+//! named with its reason in [`PmiCarried::refused`].
 //!
 //! The output is deterministic: the same part and options give the same bytes.
 
@@ -93,6 +97,9 @@ pub struct WriteReport {
     /// geometry is then the part's, but reading it back normalises directions the part holds
     /// unnormalised, so it can come back an ulp away.
     pub placements_flattened: bool,
+    /// The repairs reading made to the part ([`Part::input_repairs`]): the file holds the part
+    /// repaired, so reading it back needs and records none.
+    pub repairs_written: Vec<String>,
     /// The PMI carried, when [`WriteOptions::pmi`] was given.
     pub pmi: Option<PmiCarried>,
 }
@@ -153,7 +160,10 @@ pub fn write_step(
     options: &WriteOptions<'_>,
 ) -> Result<(Vec<u8>, WriteReport), WriteError> {
     refuse_unwritable(part)?;
-    let mut report = WriteReport::default();
+    let mut report = WriteReport {
+        repairs_written: part.input_repairs().to_vec(),
+        ..WriteReport::default()
+    };
     let bytes = Writer::new(part, options.name).write(&mut report)?;
     let bytes = match options.pmi {
         Some(p) => {
@@ -866,7 +876,7 @@ impl<'p> Writer<'p> {
         let raw = part.edge_frame(edge).map(|r| (r, at));
         let placed = |f: &Frame| {
             if at == crate::step::IDENTITY {
-                f.clone()
+                *f
             } else {
                 place_frame(&at, f)
             }
@@ -1653,7 +1663,7 @@ fn carry_pmi(bytes: Vec<u8>, pmi: &PartPmi) -> Result<(Vec<u8>, PmiCarried), Wri
                 let out = doc
                     .apply(&edit)
                     .map_err(|e| WriteError::Pmi(format!("applying the PMI: {e}")))?;
-                refused.sort_by(|a, b| a.item.cmp(&b.item));
+                refused.sort_by_key(|r| r.item);
                 return Ok((out.bytes, PmiCarried { written, refused }));
             }
             Err(pmi::write::WriteError::Refused(list)) => {
@@ -1690,7 +1700,7 @@ fn carry_pmi(bytes: Vec<u8>, pmi: &PartPmi) -> Result<(Vec<u8>, PmiCarried), Wri
                     item,
                     why: why.clone(),
                 }));
-                refused.sort_by(|a, b| a.item.cmp(&b.item));
+                refused.sort_by_key(|r| r.item);
                 return Ok((
                     doc.bytes().to_vec(),
                     PmiCarried {

@@ -270,6 +270,7 @@ fn brep(path: &str, out: &str) -> Result<String, String> {
         "edge_order_preserved": report.edge_order_preserved,
         "placed_components": report.placed_components,
         "placements_flattened": report.placements_flattened,
+        "repairs_written": report.repairs_written,
         // The kernel's volume of each solid, for checking the file against other readers.
         "solid_volumes": (0..part.solids.len())
             .map(|s| part.solid_mass(s).map(|(v, _)| v))

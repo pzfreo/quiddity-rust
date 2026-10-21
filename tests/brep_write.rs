@@ -71,8 +71,11 @@ fn file_bytes(path: &Path) -> Vec<u8> {
 
 /// The recognition `quiddity <file.step>` prints (its `source_sha256` aside, which names the
 /// file's bytes): the records and the document.
-fn recognition(part: &kernel::Part) -> String {
-    let recognition = quiddity::correspondence::recognise(part);
+fn recognition(part: &kernel::Part, without_repairs: bool) -> String {
+    let mut recognition = quiddity::correspondence::recognise(part);
+    if without_repairs {
+        recognition.input_repairs.clear();
+    }
     let document = quiddity::recognition::document(&recognition, part.faces.len());
     let output = quiddity::serve::RecognitionOutput {
         recognition,
@@ -85,6 +88,9 @@ fn recognition(part: &kernel::Part) -> String {
 enum Outcome {
     /// Read back as the same part, recognised the same.
     Same,
+    /// Read back as the part reading repaired, recognised the same but for the repair's record:
+    /// the file holds the repaired part, so reading it back repairs nothing.
+    SameRepaired,
     /// Refused by the writer, naming what it cannot write.
     Refused,
     /// The input is not a readable part (the broken fixtures).
@@ -199,11 +205,23 @@ fn round_trip(path: &Path) -> Result<Outcome, Vec<String>> {
             v.rule, v.id, v.entity, v.message
         ));
     }
-    if problems.is_empty() && recognition(&part) != recognition(&back) {
+    let repaired = !part.input_repairs().is_empty();
+    if repaired
+        && (report.repairs_written != part.input_repairs() || !back.input_repairs().is_empty())
+    {
+        problems.push(format!(
+            "{name}: the repair is not reported, or is made again"
+        ));
+    }
+    if problems.is_empty() && recognition(&part, repaired) != recognition(&back, false) {
         problems.push(format!("{name}: recognises otherwise"));
     }
     if problems.is_empty() {
-        Ok(Outcome::Same)
+        Ok(if repaired {
+            Outcome::SameRepaired
+        } else {
+            Outcome::Same
+        })
     } else {
         Err(problems)
     }
@@ -231,9 +249,11 @@ fn check(files: &[PathBuf]) -> std::collections::BTreeMap<String, usize> {
 #[test]
 fn fixture_parts_round_trip() {
     let counts = check(&step_files(&fixtures(), &["captured"]));
-    // The two broken fixtures with geometry that did not resolve are refused, by name.
+    // The two broken fixtures with geometry that did not resolve are refused, by name; one
+    // fixture's inverted shell is repaired on reading and written repaired.
     assert_eq!(counts.get("Refused"), Some(&2), "{counts:?}");
-    assert!(counts.get("Same").is_some_and(|&n| n > 200), "{counts:?}");
+    assert_eq!(counts.get("SameRepaired"), Some(&1), "{counts:?}");
+    assert!(counts.get("Same").is_some_and(|&n| n >= 160), "{counts:?}");
 }
 
 #[test]
