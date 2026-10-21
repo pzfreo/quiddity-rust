@@ -1213,4 +1213,3 @@ B-spline faces 43 and 47, crossings 2.8 and 6.0 µm outside their trims that par
 asked about alone (visibility) keeps to the face's own band, having no face across to yield to.
 The overshoot reach (`OVERSHOOT_BANDS`, 4) is empirical: the corpus needs at least 1.8 and
 breaks at 70 (evidence at the constant).
-
