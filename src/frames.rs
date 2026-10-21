@@ -22,7 +22,7 @@ use crate::features;
 #[cfg(feature = "python-parity")]
 use crate::features::Features;
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{Surface, V3, cross};
+use crate::kernel::geom::{self, Surface, V3, cross};
 use crate::kernel::py;
 use crate::kernel::step::Placement;
 #[cfg(feature = "python-parity")]
@@ -201,10 +201,17 @@ fn clean_basis(x: V3, y: V3) -> Result<(V3, V3, V3), FrameRefusal> {
     let (x, y) = (clean(x), clean(y));
     let z = clean(unit(cross(x, y))?);
     let axes = [x, y, z];
-    if (0..3).all(|i| {
-        (0..3)
-            .all(|j| (py::dot(&axes[i], &axes[j]) - if i == j { 1.0 } else { 0.0 }).abs() <= 1e-13)
-    }) {
+    // Use precisely the kernel's acceptance test: changing a basis already accepted by
+    // the reader would unnecessarily change serialized coordinates on captured parts.
+    let det = x[0] * (y[1] * z[2] - y[2] * z[1]) - x[1] * (y[0] * z[2] - y[2] * z[0])
+        + x[2] * (y[0] * z[1] - y[1] * z[0]);
+    if (det - 1.0).abs() <= 1e-12
+        && (0..3).all(|i| {
+            (0..3).all(|j| {
+                (geom::dot(axes[i], axes[j]) - if i == j { 1.0 } else { 0.0 }).abs() <= 1e-12
+            })
+        })
+    {
         return Ok((x, y, z));
     }
     let x = unit(x)?;
