@@ -682,6 +682,21 @@ fn read_back(text: &str) -> Attribute {
 }
 
 #[test]
+fn duplicate_id_columns_ignore_quoted_instance_text() {
+    let prefix = "#1=X('#1=literal');   ";
+    let bytes = file(&format!("{prefix}#1=Y();\n"));
+    let line = HEAD.lines().count() + 1;
+    let column = prefix.len() + 1;
+    let error = Document::parse(bytes).unwrap_err().to_string();
+    assert!(
+        error.ends_with(&format!(
+            "parse error at line {line}, column {column}: duplicate entity #1"
+        )),
+        "{error}"
+    );
+}
+
+#[test]
 fn reals_are_the_shortest_part_21_text_that_reads_back() {
     for (v, text) in [
         (0.1, "0.1"),

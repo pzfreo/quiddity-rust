@@ -33,22 +33,15 @@ use step_io::parser::{Graph, Span};
 /// its line and the first definition's line. Recover the declaration from that line.
 pub(super) fn parse_message(bytes: &[u8], error: &step_io::Error) -> String {
     if let step_io::Error::DuplicateEntityId { id, line, .. } = error {
-        let declaration = format!("#{id}");
-        let column = bytes
-            .split(|&b| b == b'\n')
-            .nth(line.saturating_sub(1) as usize)
-            .and_then(|text| {
-                text.windows(declaration.len())
-                    .enumerate()
-                    .find_map(|(i, word)| {
-                        (word == declaration.as_bytes()
-                            && text[i + word.len()..]
-                                .iter()
-                                .copied()
-                                .find(|b| !b.is_ascii_whitespace())
-                                == Some(b'='))
-                        .then_some(i + 1)
-                    })
+        let column = scan(bytes)
+            .ok()
+            .and_then(|s| s.instances.into_iter().filter(|(n, _)| n == id).nth(1))
+            .map(|(_, span)| {
+                let line_start = bytes[..span.start]
+                    .iter()
+                    .rposition(|&b| b == b'\n')
+                    .map_or(0, |i| i + 1);
+                span.start - line_start + 1
             })
             .unwrap_or(1);
         return format!("parse error at line {line}, column {column}: duplicate entity #{id}");
