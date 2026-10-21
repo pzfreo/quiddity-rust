@@ -1197,8 +1197,9 @@ are checked from those measured areas/perimeters at the original 1e-6 band; the 
 and precise measurements remain diagnostic evidence, as in the original test.
 
 Clipped-cell `volume` measurements and channel `bounds` are retained under explicit `occt_*`
-keys in the cylindrical and envelope query inputs. Solid `body_key` bounds, volume and area
-are re-homed in `references/body_measurements.json.gz`, independent of recogniser records.
+keys in the cylindrical and envelope query inputs. Solid `body_key` bounds, volume and area (including the face-level captures)
+are re-homed in `references/body_measurements.json.gz`, independent of recogniser records. Measurements from before STEP export are preserved
+separately as diagnostic evidence, rather than compared to a different STEP representation.
 The removed `other_unproved` diagnostic face boxes are retained as `occt_unproved_faces`;
 the corpus inventory already checks every one of those faces. Probe discrepancies still
 require the exact existing `references/probe_evidence.json` verdicts, including stale-entry
@@ -1218,3 +1219,8 @@ crate-private after the feature's removal. Integration binaries would require pu
 those hooks again. Diagnostic examples likewise share the private engine source to keep
 MFInstSeg's caller-space metric unchanged; avoiding that compilation requires a separate
 internal crate or a new public API, deferred here.
+
+CI replays every snapshot producer with the existing numeric bands and compares the produced
+file inventory exactly (`--check --coverage-only`); local `--check` additionally requires
+byte-identical compressed outputs. This detects orphaned expectations without imposing a new
+cross-platform floating-point tolerance.

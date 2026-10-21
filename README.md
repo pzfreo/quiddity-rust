@@ -17,7 +17,8 @@ inputs. Historical verdicts and their evidence are preserved in
 [the parity archive](docs/history/python-parity.md).
 
 Independent geometry, label, invariance, inventory-floor and NIST checks remain separate
-requirements. A snapshot records behavior; it does not establish geometric correctness.
+requirements. OCCT measurements recorded through Python wrappers remain independent
+references (including booleans, volumes, areas and bounds). A snapshot records behavior; it does not establish geometric correctness.
 Do not remove output to improve metrics, lower a label/inventory floor, loosen a tolerance,
 or regenerate expectations merely to make a failure pass. Investigate against the independent
 references, then review an intentional behavior change and its decompressed snapshot diff.
@@ -64,7 +65,9 @@ QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release
 Review record counts, defining/constituent faces, refusals, dimensions, order, frame and PMI
 changes, together with the source change and independent tests. Commit regenerated gzip files
 and provenance in the same change. `--check` regenerates into a temporary directory and
-requires byte-identical compressed output on HEAD. Normal tests only read expectations.
+requires byte-identical compressed output on HEAD. CI adds `--coverage-only`: the Rust
+comparisons retain their original numeric bands across platforms, and the produced-file
+inventory must match exactly, so orphaned snapshots fail. Normal tests only read expectations.
 
 Every recorded recognition call is replayed with its original options and record arguments.
 The corpus retains every family/option/evidence run and now also snapshots the public

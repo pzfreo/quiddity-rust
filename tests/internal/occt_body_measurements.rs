@@ -80,21 +80,21 @@ fn solid_measurements_match_opencascade() {
             .iter()
             .all(|f| id[*f] == k[*f])
     };
+    let mut failures = Vec::new();
     for (id, report) in &problems {
-        assert_eq!(
-            known.iter().filter(|k| matches(id, k)).count(),
-            1,
-            "unlisted or duplicate OCCT difference: {report}"
-        );
+        let count = known.iter().filter(|k| matches(id, k)).count();
+        if count != 1 {
+            failures.push(format!("{count} entries for {report}"));
+        }
     }
     for k in known
         .iter()
         .filter(|k| corpus.is_some() || k["source"] != "corpus")
     {
-        assert_eq!(
-            problems.iter().filter(|(id, _)| matches(id, k)).count(),
-            1,
-            "stale OCCT verdict: {k}"
-        );
+        let count = problems.iter().filter(|(id, _)| matches(id, k)).count();
+        if count != 1 {
+            failures.push(format!("stale OCCT verdict: {k}"));
+        }
     }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
 }

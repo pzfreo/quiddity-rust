@@ -65,8 +65,11 @@ def main() -> None:
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--check", action="store_true", help="replay into a temporary directory and require byte-identical snapshots")
     group.add_argument("--diff", metavar="REF", help="print a decompressed unified diff against a Git revision")
+    parser.add_argument("--coverage-only", action="store_true", help="with --check, enforce the original Rust comparison bands and exact producer/file coverage (for cross-platform CI)")
     parser.add_argument("--file", help="limit --diff to a snapshot suffix")
     args = parser.parse_args()
+    if args.coverage_only and not args.check:
+        parser.error("--coverage-only requires --check")
     if args.diff:
         diff(args.diff, args.file)
         return
@@ -100,15 +103,19 @@ def main() -> None:
             raise SystemExit("snapshot replay did not cover corpus and PMI")
         if args.check:
             committed = {str(p.relative_to(OUT)): digest(p) for p in sorted(OUT.rglob("*.json.gz"))}
-            if files != committed:
+            differs = files.keys() != committed.keys() if args.coverage_only else files != committed
+            if differs:
                 missing = sorted(committed.keys() - files.keys())
                 added = sorted(files.keys() - committed.keys())
                 changed = sorted(k for k in files.keys() & committed.keys() if files[k] != committed[k])
                 raise SystemExit(f"Rust snapshot differs: missing={missing}, added={added}, changed={changed}")
             provenance = json.loads((OUT / "provenance.json").read_text())
-            if provenance["inputs"] != before_inputs or provenance["snapshots"] != files:
+            if provenance["inputs"] != before_inputs or provenance["snapshots"] != committed:
                 raise SystemExit("snapshot provenance/input digests differ")
-            print(f"HEAD reproduces all {len(files)} snapshots byte for byte")
+            if args.coverage_only:
+                print(f"HEAD checked all {len(files)} snapshots under their original comparison bands; no orphaned files")
+            else:
+                print(f"HEAD reproduces all {len(files)} snapshots byte for byte")
             return
         provenance = {"schema": 1, "source_commit": source, "command": "python3 tools/rust_snapshot.py",
                       "inputs": before_inputs, "snapshots": files}

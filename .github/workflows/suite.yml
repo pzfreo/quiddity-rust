@@ -38,7 +38,9 @@ jobs:
           path: quiddity
           sparse-checkout: tests/corpus
       - run: echo /quiddity/ >> .git/info/exclude
-      - run: python3 tools/rust_snapshot.py --check
+      # Keep each test's existing numeric bands across platforms; compare producer/file
+      # inventories exactly rather than requiring libm round-off to be byte-identical.
+      - run: python3 tools/rust_snapshot.py --check --coverage-only
         env:
           QUIDDITY_CORPUS: ${{ github.workspace }}/quiddity/tests/corpus
           QUIDDITY_CORPUS_REQUIRED: "1"

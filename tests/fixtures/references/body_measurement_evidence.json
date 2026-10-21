@@ -202,5 +202,39 @@
     "verdict": "rust-correct",
     "reason": "The port gives volume 47100306.90179 and area 2481839.936727; tools/kernel_evidence.py solids gives 47100306.90185 and 2481839.936726 (1.2e-12, 1.4e-13; its 8-to-16-panel change 6.4e-5 mm\u00b3, 6.6e-7 mm\u00b2). OpenCascade's adaptive integration (Eps 1e-10 and 1e-12) gives 47100608.41708 and 2481842.353512 (6.4e-6, 9.7e-7 off: it integrates the faces' pcurves, which on this file's B-spline faces stray from the 3D edges), and the captured 47100535.49281 and 2481842.142083 are its fixed Gauss rule (4.9e-6, 8.9e-7). No face of this file has a known area defect. By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the port's.",
     "evidence": "docs/history/python-parity.md: tests/fixtures/known_divergences.json:88"
+  },
+  {
+    "source": "corpus",
+    "file": "cadgenbench_inputs/cgb203.step",
+    "measurement": [
+      -180.0,
+      -180.0,
+      -59.135173,
+      180.0,
+      180.0,
+      74.874191,
+      3142322.55096,
+      418944.644866
+    ],
+    "verdict": "rust-correct",
+    "reason": "The port gives volume 3150295.645875 and area 419862.494726; tools/kernel_evidence.py solids gives 3150295.639413 and 419862.494750 (2.1e-9, 5.6e-11) after integrating again with 32 and 64 panels the 78 faces whose 8-to-16-panel change exceeded 1e-7; what it leaves, 2.0e-2 mm\u00b3 and 1.8e-4 mm\u00b2, is chiefly the twelve B-spline faces of 11857.7 mm\u00b2 (2.6e-3 mm\u00b3 each), and the volume gap is inside it and closing: face 108 with 64 and 128 panels moves from 9.2e-4 to -1.8e-4 mm\u00b3 from the port's term. Spherical face 117, a lune whose area is the port's to 1e-15 (tests/fixtures/known_face_areas.json, now rust-correct), was this file's one unconfirmed face. OpenCascade's adaptive integration (Eps 1e-10 and 1e-12) gives 3150323.436 and 419873.500 (8.8e-6, 2.6e-5 off, over its pcurves), and the captured 3142322.551 and 418944.645 are its fixed Gauss rule (2.5e-3, 2.2e-3). By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the port's.",
+    "evidence": "docs/history/python-parity.md: tests/fixtures/known_divergences.json:23"
+  },
+  {
+    "source": "corpus",
+    "file": "cadgenbench_inputs/cgb242.step.gz",
+    "measurement": [
+      -100.672404,
+      -54.765786,
+      -31.427843,
+      103.561525,
+      60.234215,
+      32.693087,
+      410927.634572,
+      99420.4783893
+    ],
+    "verdict": "rust-correct",
+    "reason": "The port gives volume 410951.883851 and area 99421.196853; tools/kernel_evidence.py solids gives 410951.884248 and 99421.196834 (9.7e-10, 1.9e-10) after integrating again with 32 and 64 panels the 65 faces whose 8-to-16-panel change exceeded 1e-7, within what remains of it (1.0e-3 mm\u00b3, 5.9e-5 mm\u00b2; chiefly B-spline faces 9, 35, 47, 69 and 104, whose edges stray from the surface). The one face in doubt, sliver 483 (5.5e-8 mm\u00b2, undetermined in tests/fixtures/known_face_areas.json), is 5.5e-13 of the area, below the twelfth figure, and faces 69, 790 and 822, unconfirmed before, are now rust-correct there. OpenCascade's adaptive integration (Eps 1e-10 and 1e-12) gives 410956.260 and 99421.785 (1.1e-5, 5.9e-6 off, over its pcurves, which stray from the 3D edges within their tolerance and leave gaps the port closes); the captured 410927.635 and 99420.478 are its fixed Gauss rule. By the body-key policy (rust-correct where the port matches independent references to about 1e-9 with no known face defect; rust-wrong where a known face defect shifts it), the port's.",
+    "evidence": "docs/history/python-parity.md: tests/fixtures/known_divergences.json:49"
   }
 ]
