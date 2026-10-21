@@ -23,7 +23,7 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 - Write every model datum-target shape and the datums it establishes (PMI practice §6.6),
   and decimal-only Figure 3 tolerance cells/defaults. `practice_schema_conflicts` reports the
-  exact added instance/rule exemptions authorized by the maintainer (target WR4/WR5, decimal
+  exact added instance/rule exemptions authorized by the maintainer (target WR5 only, decimal
   cell WR3/WR4). Structural validation and every other rule remain mandatory; raw rules and
   NIST file-wrong pins are unchanged. Reader binding `/11` projects anonymous decimal-only
   carriers to part defaults and keeps semantic text on targets separate from parameters.
@@ -31,6 +31,10 @@ in [docs/alpha1.md](docs/alpha1.md).
   and OCCT cross-checks including shared target supports; no target-refusal stripping.
 
 ### Fixed
+
+- Restore regression coverage for original-input note indices in refusals, reporting
+  semantic-text and surface-texture requirements on unwritable features by their own items. Narrow datum-target exemptions to WR5;
+  WR4 remains mandatory because every emitted target name is empty.
 
 - Isolate relationship tolerance endpoints so OCCT composition traversal leaves other
   tolerances on their original faces. Correct the earlier projection-origin diagnosis.

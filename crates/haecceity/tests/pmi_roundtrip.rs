@@ -954,7 +954,7 @@ fn practice_targets_and_precision_roundtrip_into_a_clean_copy() {
 }
 
 #[test]
-fn thirteen_nist_targets_and_their_datums_roundtrip_into_clean_copies() {
+fn thirteen_nist_target_subsets_with_datums_and_required_features_roundtrip_into_clean_copies() {
     let mut total = 0;
     for (name, count) in [
         ("nist_ctc_02_asme1_ap242-e2", 9),
@@ -994,7 +994,7 @@ fn thirteen_nist_targets_and_their_datums_roundtrip_into_clean_copies() {
                 .ids
                 .values()
                 .any(|&id| id == v.id)
-                && matches!(v.rule, "datum_target.WR4" | "datum_target.WR5"))
+                && v.rule == "datum_target.WR5")
         );
         assert_eq!(
             report

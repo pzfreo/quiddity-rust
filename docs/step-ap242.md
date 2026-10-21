@@ -181,11 +181,12 @@ stepcode); section numbers (§) are the PMI practice's unless stated.
    'Datum Target.…'); FTC-10 encodes four area targets (#18373, #18405, #18437, #18469,
    names K/L). Those original WR4/WR5 violations remain pinned **file-wrong** in
    `tests/fixtures/ap242/rules/known_nist_rule_violations.json`; the rule engine is unchanged.
-   The writer uses empty names, avoiding WR4 when no name is needed by the model.
+   The writer always uses empty names and satisfies WR4. Re-review narrows the target
+   exemption to WR5 only; WR4 remains mandatory.
 2. **Decimal-only cells: same policy.** Figure 3's 'number of decimal places' count is
    written alone, without inventing a range or tolerance. Cell WR3/WR4 (entity lines
    13622–13623; functions 41271–41319) still report its missing range/digits and tolerance.
-3. **Exemption boundary.** Only `datum_target.WR4`, `datum_target.WR5` on target additions
+3. **Exemption boundary.** Only `datum_target.WR5` on target additions
    registered by the emitter, and `default_tolerance_table_cell.WR3/WR4` on its exact
    decimal-only cell additions, can pass the writer backstop. `practice_schema_conflicts`
    lists every actual violation with its final instance id and rule (also entity/message).
@@ -266,9 +267,11 @@ toleranced relationships are no longer misread as feature composition; document 
 The two practice/schema conflicts now use the maintainer's reported exemptions above.
 `datum_targets` covers all seven model shapes; `decimal_default` covers a bare precision
 setting. Tests compare raw violations to the report, pin WR5 alone (and WR4 after adding a
-name), and prove that another rule or unregistered instance is never covered. NIST CTC-02
-and FTC-10's 13 targets and their datums round-trip through PMI-free copies without stripping
-any target. Their old target/datums/tolerance refusal entries are retired on that evidence;
+name), and prove that WR4, every other rule and unregistered instances are never covered.
+NIST CTC-02 and FTC-10's target subsets (13 targets, their datums and required features)
+round-trip through PMI-free copies without stripping any target. Full-reading
+read → replace → read remains covered separately by `known_pmi_write.json` pins. Their old target/datums/tolerance refusal entries are retired
+on that evidence;
 FTC-10's unrelated ambiguous attribute-unit refusals stay unchanged.
 
 Target support aspects used by other PMI get a private composition endpoint for the
@@ -711,7 +714,7 @@ be read, e.g. the pre-4.0.6 datum forms of §6.5.2):
 | Group | `composite_group_shape_aspect` named 'multiple elements' / 'pattern of features', `shape_aspect_relationship` per member (§6.4); all around / between: `all_around_shape_aspect` / `between_shape_aspect` (§6.4.2–3) |
 | Derived feature | `derived_shape_aspect` (or the Table 3 subtype) with `shape_aspect_deriving_relationship`s (§5.1.4) — written only when the model states a derived feature |
 | Datum | one `datum` per label per part, established by `shape_aspect_relationship` from its `datum_feature` (the feature itself) and/or its `datum_target`s (§6.5, §6.6). A hole or boss datum is a datum feature on the cylindrical faces (§6.5.1, Figure 35); the axis is implied, so specify-core's "hole or boss axis" is written in that form, not as a derived axis |
-| Datum target | `placed_datum_target_feature` (point, line, rectangle, circle, circular curve with `shape_representation_with_parameters`) or `datum_target` on an area feature; `feature_for_datum_target_relationship`; named parameters and 'movable direction' (§6.6); WR4/WR5 conflicts on additions reported per decision 2026-10-20; non-exempt placed-target WR3 still enforced |
+| Datum target | `placed_datum_target_feature` (point, line, rectangle, circle, circular curve with `shape_representation_with_parameters`) or `datum_target` on an area feature; `feature_for_datum_target_relationship`; named parameters and 'movable direction' (§6.6); WR5 conflicts on additions reported per decision 2026-10-20; non-exempt placed-target WR3 still enforced |
 | Datum system | one `datum_system` per distinct system, `datum_reference_compartment` per position, never shared (§6.9.7); common datums as `datum_reference_element`s (§6.9.8) |
 | Size / location | `dimensional_size` / `dimensional_location` (+ angular, with path, directed) + `dimensional_characteristic_representation` + `shape_dimension_representation` with 'nominal value' (§5.1–§5.2.1); a datum feature with a size is the complex `dimensional_size_with_datum_feature` (§6.5.3) |
 | Decimal places | `value_format_type_qualifier` on the value (§5.4); the part default by the §4.1 Figure 3 decimal-only cell (WR3/WR4 conflicts reported only on registered additions), or within a complete table cell |
@@ -1305,8 +1308,6 @@ What was done meanwhile is in each.
 - **Graphic presentation** other than datum feature symbols (callouts, polylines, tessellated
   presentation, saved views) derived from the semantics. Existing presentation is kept byte for
   byte, or removed and reported under the `RemovePresentation` policy; it is never updated.
-- **Writing datum targets**: blocked by `datum_target.WR5` versus §6.6 and
-  `placed_datum_target_feature.WR1`; see the schema conflicts below. Tolerance relations are written.
 - **PMI on assembly occurrences** (`assembly_component_usage` paths); reported as findings.
 - **Density units whose scale is not stated**: refused; known SI mass/length units and inch/foot lengths are written in their own units.
 - **A general EXPRESS rule engine**; named checks cover what the writer emits.

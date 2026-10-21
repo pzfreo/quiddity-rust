@@ -4535,6 +4535,56 @@ fn tolerance_table_counts_are_numbers_and_values_keep_qualifiers() {
 }
 
 #[test]
+fn a_refused_migrated_note_names_the_original_input_item() {
+    let note = |kind: &str, text: &str, feature| Note {
+        kind: kind.into(),
+        text: text.into(),
+        on: Some(NoteOwner::Feature(FeatureId(feature))),
+        callouts: Vec::new(),
+    };
+    let mut p = PartPmi {
+        features: vec![
+            faces(&[0]),
+            Feature::Group {
+                members: vec![FeatureId(0)],
+                kind: GroupKind::Unstated,
+            },
+        ],
+        attributes: vec![AttributeSet {
+            name: "existing attribute".into(),
+            on: Some(NoteOwner::Feature(FeatureId(0))),
+            items: vec![(
+                "instruction".into(),
+                AttributeValue::Text("Keep clean.".into()),
+            )],
+            description: None,
+            general_property: None,
+        }],
+        notes: vec![
+            note("surface finish", "Ra 1.6 µm", 0),
+            note("instruction", "Keep clean.", 0),
+            note("instruction", "Protect this group.", 1),
+            note("surface finish", "Ra 3.2 µm", 1),
+        ],
+        ..PartPmi::default()
+    };
+    // Offset both destination lists, and interleave migrations to exercise both filters.
+    p.surface_textures
+        .push(pmi::write::standard_form(&p).surface_textures[0].clone());
+    let Err(WriteError::Refused(r)) = write(&gap_spool(), &[(PartId(0), p)], Mode::Replace) else {
+        panic!("an unstated group and the notes on it must be refused");
+    };
+    assert_eq!(
+        r.iter().map(|r| r.item).collect::<BTreeSet<_>>(),
+        BTreeSet::from([ItemRef::Feature(1), ItemRef::Note(2), ItemRef::Note(3)])
+    );
+    for refusal in r.iter().filter(|r| matches!(r.item, ItemRef::Note(_))) {
+        assert!(refusal.why.contains("owner feature 1 is refused"));
+        assert!(refusal.why.contains("unstated kind"));
+    }
+}
+
+#[test]
 fn a_legacy_target_note_migrates_to_semantic_text() {
     let p = PartPmi {
         features: vec![faces(&[0])],
@@ -4774,6 +4824,7 @@ fn practice_targets_and_decimal_cells_have_only_reported_conflicts() {
         rules,
         BTreeSet::from(["datum_target.WR4", "datum_target.WR5"])
     );
+    // WR4 is not exempted: only the shape-description conflict WR5 is authorized.
     // The exemption cannot swallow another rule on the very same target.
     let mut raw = changed.get(target).unwrap().clone();
     let RawEntity::Simple {

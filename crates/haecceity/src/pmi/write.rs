@@ -23,7 +23,7 @@
 //!
 //! **Practice/schema conflicts** (maintainer decision 2026-10-20): §6.6 target shapes are
 //! written in their descriptions, and Figure 3 decimal-only cells are written without
-//! invented ranges/tolerances. Only `datum_target.WR4/WR5` on targets this writer adds and
+//! invented ranges/tolerances. Only `datum_target.WR5` on targets this writer adds and
 //! `default_tolerance_table_cell.WR3/WR4` on its decimal-only cells may be exempted. Actual
 //! violations (rule and final instance id) are in [`WriteReport::practice_schema_conflicts`].
 //! `express_rules` still reports every violation; no kept instance or other rule is exempt.
@@ -2604,8 +2604,25 @@ impl<'a> PartPlan<'a> {
             }
         }
 
+        // Requirements on an unwritable feature must name their own refusal as well.
+        let refused_features: BTreeMap<_, _> = self
+            .refusals
+            .iter()
+            .filter_map(|r| match r.item {
+                ItemRef::Feature(f) => Some((f, r.why.clone())),
+                _ => None,
+            })
+            .collect();
         // Attributes.
         for (i, a) in p.attributes.iter().enumerate() {
+            if let Some(NoteOwner::Feature(f)) = a.on
+                && let Some(why) = refused_features.get(&f.0)
+            {
+                self.refuse(
+                    ItemRef::Attribute(i),
+                    format!("owner feature {} is refused: {why}", f.0),
+                );
+            }
             for (key, v) in &a.items {
                 let why = match v {
                     AttributeValue::Measure(m) if m.decimal_places.is_some() => Some(
@@ -2636,6 +2653,14 @@ impl<'a> PartPlan<'a> {
 
         // Surface textures.
         for (i, s) in p.surface_textures.iter().enumerate() {
+            if let Some(f) = s.on
+                && let Some(why) = refused_features.get(&f.0)
+            {
+                self.refuse(
+                    ItemRef::SurfaceTexture(i),
+                    format!("owner feature {} is refused: {why}", f.0),
+                );
+            }
             let vals: Vec<&Decimal> = s.parameters.iter().map(|x| &x.value.value).collect();
             if let Some(why) = bad_value(&vals) {
                 self.refuse(ItemRef::SurfaceTexture(i), why);
@@ -2778,7 +2803,7 @@ impl<'a> PartPlan<'a> {
                     ("target_id", s(&t.number().to_string())),
                 ],
             )?;
-            em.practice_conflict(target, &["datum_target.WR4", "datum_target.WR5"]);
+            em.practice_conflict(target, &["datum_target.WR5"]);
             st.targets.insert(i, target);
             if let TargetShape::Area(f) | TargetShape::Curve(f) = t.shape() {
                 let c = self.canonical[f.0];
@@ -6231,6 +6256,7 @@ mod tests {
         let violations = [
             (1, "datum_target.WR5"),
             (1, "datum_target.WR3"),
+            (1, "datum_target.WR4"),
             (2, "datum_target.WR5"),
             (3, "default_tolerance_table_cell.WR3"),
             (3, "default_tolerance_table_cell.WR5"),
@@ -6246,7 +6272,6 @@ mod tests {
         .collect();
         let allowed = BTreeSet::from([
             (1, "datum_target.WR5"),
-            (1, "datum_target.WR4"),
             (3, "default_tolerance_table_cell.WR3"),
             (3, "default_tolerance_table_cell.WR4"),
         ]);
@@ -6262,6 +6287,7 @@ mod tests {
             bad.iter().map(|v| (v.id, v.rule)).collect::<Vec<_>>(),
             [
                 (1, "datum_target.WR3"),
+                (1, "datum_target.WR4"),
                 (2, "datum_target.WR5"),
                 (3, "default_tolerance_table_cell.WR5"),
                 (4, "default_tolerance_table_cell.WR3")
