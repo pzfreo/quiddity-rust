@@ -44,6 +44,26 @@ pub const IDENTITY: Placement = [
     [0.0, 0.0, 1.0, 0.0],
 ];
 
+/// Validate a finite, right-handed rigid motion (no scale, shear or reflection).
+pub(crate) fn validate_placement(outer: &Placement) -> Result<(), StepError> {
+    let r = outer.map(|row| [row[0], row[1], row[2]]);
+    let det = r[0][0] * (r[1][1] * r[2][2] - r[1][2] * r[2][1])
+        - r[0][1] * (r[1][0] * r[2][2] - r[1][2] * r[2][0])
+        + r[0][2] * (r[1][0] * r[2][1] - r[1][1] * r[2][0]);
+    if !outer.iter().flatten().all(|v| v.is_finite())
+        || (det - 1.0).abs() > 1e-12
+        || (0..3).any(|i| {
+            (0..3).any(|j| (geom::dot(r[i], r[j]) - if i == j { 1.0 } else { 0.0 }).abs() > 1e-12)
+        })
+    {
+        // Frames are rebuilt right-handed (y = z × x), so a reflection would not be honoured.
+        return Err(StepError::Unsupported(
+            "outer placement must be a proper rotation".into(),
+        ));
+    }
+    Ok(())
+}
+
 fn compose(outer: &Placement, inner: &Placement) -> Placement {
     let mut out = [[0.0; 4]; 3];
     for i in 0..3 {
@@ -1320,16 +1340,7 @@ struct Read {
 }
 
 fn read_placed(bytes: &[u8], outer: &Placement) -> Result<Read, StepError> {
-    let r = outer.map(|row| [row[0], row[1], row[2]]);
-    let det = r[0][0] * (r[1][1] * r[2][2] - r[1][2] * r[2][1])
-        - r[0][1] * (r[1][0] * r[2][2] - r[1][2] * r[2][0])
-        + r[0][2] * (r[1][0] * r[2][1] - r[1][1] * r[2][0]);
-    if (det - 1.0).abs() > 1e-12 {
-        // Frames are rebuilt right-handed (y = z × x), so a reflection would not be honoured.
-        return Err(StepError::Unsupported(
-            "outer placement must be a proper rotation".into(),
-        ));
-    }
+    validate_placement(outer)?;
     build(&Parsed::new(bytes)?, Scope::Placed(*outer))
 }
 

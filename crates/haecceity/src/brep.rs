@@ -204,6 +204,70 @@ impl Part {
         }
     }
 
+    /// Copy this loaded part through a finite proper rigid motion, without reading STEP.
+    /// Face, edge, solid, vertex and source indices and parameter-space curves are preserved.
+    /// Derived boxes, quadratures, inversion grids and classification caches are invalidated
+    /// and rebuilt lazily from the transformed geometry; no cached caller-space data survives.
+    pub fn transformed(
+        &self,
+        placement: &super::step::Placement,
+    ) -> Result<Self, super::step::StepError> {
+        super::step::validate_placement(placement)?;
+        let direction = |p: V3| placement.map(|r| r[0] * p[0] + r[1] * p[1] + r[2] * p[2]);
+        let point = |p: V3| {
+            let d = direction(p);
+            [0, 1, 2].map(|i| d[i] + placement[i][3])
+        };
+        let frame = |f: &mut geom::Frame| {
+            f.origin = point(f.origin);
+            f.x = direction(f.x);
+            f.z = direction(f.z);
+            f.y = geom::cross(f.z, f.x);
+        };
+        let mut faces = self.faces.clone();
+        for face in &mut faces {
+            match &mut face.surface {
+                Surface::Plane { frame: f }
+                | Surface::Cylinder { frame: f, .. }
+                | Surface::Cone { frame: f, .. }
+                | Surface::Sphere { frame: f, .. }
+                | Surface::Torus { frame: f, .. } => frame(f),
+                Surface::Freeform { surface, .. } => surface.transform_points(point),
+                Surface::Other { .. } => {}
+            }
+            for bound in &mut face.loops {
+                bound.vertex = bound.vertex.map(point);
+            }
+        }
+        let mut edges = self.edges.clone();
+        for edge in &mut edges {
+            edge.start = point(edge.start);
+            edge.end = point(edge.end);
+            match &mut edge.curve {
+                Curve::Line { origin, dir } => {
+                    *origin = point(*origin);
+                    *dir = geom::unit(direction(*dir)).unwrap_or([f64::NAN; 3]);
+                }
+                Curve::Circle { frame: f, .. } | Curve::Ellipse { frame: f, .. } => frame(f),
+                Curve::Nurbs(curve) => curve.transform_points(point),
+            }
+            edge.samples = super::sampling::sample_edge(
+                &edge.curve,
+                edge.start,
+                edge.end,
+                edge.same_sense,
+                edge.is_closed(),
+            );
+        }
+        let mut part = Self::new(faces, edges, self.solids.clone());
+        part.unresolved_faces = self.unresolved_faces.clone();
+        part.unresolved_edges = self.unresolved_edges.clone();
+        part.face_sources = self.face_sources.clone();
+        part.edge_sources = self.edge_sources.clone();
+        part.input_repairs = self.input_repairs.clone();
+        Ok(part)
+    }
+
     /// Records, for every face and every edge in index order, the instance it was read from.
     pub(super) fn with_sources(mut self, faces: Vec<Source>, edges: Vec<Source>) -> Self {
         assert_eq!(faces.len(), self.faces.len());
