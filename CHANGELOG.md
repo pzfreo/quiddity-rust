@@ -17,6 +17,20 @@ in [docs/alpha1.md](docs/alpha1.md).
   `quiddity-rust/recognition/5` and include a `face_accounting` array indexed by file face.
   Read the group on each face; do not interpret missing accounting on older documents as
   an empty unexplained list. Versions 3/4 still deserialize with accounting `None`.
+- A B-rep STEP writer, `haecceity::brep_write::write_step`: a loaded `Part` (every solid,
+  voids included, and faces in no solid; every surface and curve kind the reader holds,
+  NURBS, parabolas, hyperbolas and swept surfaces included; pcurves; orientation; placed
+  instances in components placed as the file placed them) written as a new AP242 file through
+  step-io 0.3's `StepBuilder`, deterministic, with its semantic PMI carried through
+  `pmi::write` and every item not carried named in the report. Reading the written file gives
+  the same part bit for bit and the same recognition; geometry that did not resolve is refused
+  by name; source product names are kept. `quiddity brep <file.step> -o <out.step>` writes a
+  file's part with its PMI;
+  `tools/check_brep_write_occt.py` checks written files against OpenCascade. Design, guarantee
+  and refusals: [docs/brep-writer.md](docs/brep-writer.md). For files we were given, PMI edits
+  stay byte-preserving (`pmi write`).
+- `pmi::without`: a part's PMI less some items and everything that refers to them (moved from
+  the PMI round-trip test). `Part::file_uncertainty`: the source file's length uncertainty.
 
 - Read parabola edges and faces bounded by them. Like hyperbolas, finite parabola spans
   use exact quadratic B-splines for evaluation, sampling, bounds and mass/area integration;

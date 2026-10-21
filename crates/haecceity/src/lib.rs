@@ -8,6 +8,7 @@
 
 pub mod anchor;
 pub mod brep;
+pub mod brep_write;
 pub mod classify;
 pub mod cloud;
 pub mod cover;
