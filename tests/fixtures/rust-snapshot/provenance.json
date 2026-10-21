@@ -1261,7 +1261,7 @@
     "tests/fixtures/captured/ca690ea4d4850863.step.gz": "d96880dd9ae16953732c6e048ee5f330bd898daf7e350ec28912f433bcfcf292",
     "tests/fixtures/captured/cab1441eeee094f5.step.gz": "11580ea55e01ab86e5d0f0b060aaae25e21f1dbc501ff841ebbadc6f94c531a9",
     "tests/fixtures/captured/cabd73fa138dde77.step.gz": "c01e4a90bd2531b55a5bbee9c1b09fd61782970ba801b8c09c8cd28b970903b3",
-    "tests/fixtures/captured/calls.json": "6f26366fbac53adfd4295a616cebcd322174f88cdbf5bbe5306c7daa8ea14eef",
+    "tests/fixtures/captured/calls.json": "c5beb25bcb1aa9911d66d23efb2f078dc59222d21324c4ac54b72cfa34fe7544",
     "tests/fixtures/captured/cb3f470b2d2fa0ec.step.gz": "53863027b2eb7362b01c9fc25cd37960c0381133cf1178ce48d8e4a3e19f7776",
     "tests/fixtures/captured/cb44b3c7a74e6889.step.gz": "9c2b174e2a4a711a1f818f8cafb50515829aa7319f5cf5120e82a697e25dd1a8",
     "tests/fixtures/captured/cb44bc0eb171f1a3.step.gz": "35dd57068bac6d27403a9fb0927cb1d731a0ef8b7d3d183bfe09cdf3cd29541f",
@@ -3092,7 +3092,7 @@
     "tests/fixtures/two_solids.step": "6517033d96780ae13db686352fc4f5e505737dc837f0411970e5cd935ef7ae29",
     "tests/fixtures/unequal_radii.step": "b12f071210e9bf5d7e7d573071eb1ef4aee2c615cfe5e655bd43ffd74ceb3cf8"
   },
-  "release_anchor": "v0.1.0-alpha.9-rust-baseline.3",
+  "release_anchor": "v0.1.0-alpha.9-rust-baseline.4",
   "schema": 1,
   "snapshots": {
     "built.json.gz": "51a246576f85f33c0e417cc21a3a168a4708c039c418d626a648ee80315dfc55",
@@ -5796,8 +5796,8 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "d2b5c22f0a335adedfb95c89380e3f96bef34bc8",
+  "source_commit": "60abfc53fa7425c29efc82dd98a957fed7a5c10f",
   "source_tags": [
-    "v0.1.0-alpha.9-rust-baseline.3"
+    "v0.1.0-alpha.9-rust-baseline.4"
   ]
 }
