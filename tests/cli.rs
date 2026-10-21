@@ -296,7 +296,7 @@ fn an_unresolved_open_edge_curve_is_reported() {
 fn brep_writes_the_part_and_reports() {
     let usage = String::from_utf8_lossy(&quiddity(&["--help"]).stdout).into_owned();
     assert!(
-        usage.contains("quiddity brep <file.step> -o <out.step>"),
+        usage.contains("quiddity brep <file.step> -o <out.step> [--pmi <pmi.json>]"),
         "{usage}"
     );
     let dir = std::env::temp_dir().join(format!("quiddity-cli-brep-{}", std::process::id()));
@@ -379,6 +379,85 @@ fn brep_carries_the_parts_pmi_and_names_what_it_does_not() {
             .unwrap()
             .is_empty(),
         "{report}"
+    );
+    std::fs::remove_dir_all(&dir).ok();
+}
+
+#[test]
+fn brep_writes_the_pmi_document_given_in_place_of_the_files() {
+    let dir = std::env::temp_dir().join(format!("quiddity-cli-brep-doc-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let fixtures = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/ap242");
+    let input = fixtures.join("nist/nist_ctc_01_asme1_ap242-e1.stp.gz");
+    let input = input.to_str().unwrap();
+    let tolerances = |path: &str| -> usize {
+        let read = quiddity(&["pmi", "read", path]);
+        assert!(
+            read.status.success(),
+            "{}",
+            String::from_utf8_lossy(&read.stderr)
+        );
+        let doc: serde_json::Value = serde_json::from_slice(&read.stdout).unwrap();
+        doc["parts"][0]["pmi"]["tolerances"]
+            .as_array()
+            .map_or(0, Vec::len)
+    };
+    // Edit the file's PMI as JSON: keep two of its six tolerances.
+    let read = quiddity(&["pmi", "read", input]);
+    let mut doc: serde_json::Value = serde_json::from_slice(&read.stdout).unwrap();
+    assert_eq!(tolerances(input), 6);
+    doc["parts"][0]["pmi"]["tolerances"]
+        .as_array_mut()
+        .unwrap()
+        .truncate(2);
+    let edited = dir.join("edited.json");
+    std::fs::write(&edited, doc.to_string()).unwrap();
+    let out_path = dir.join("ctc01.step");
+    let out = quiddity(&[
+        "brep",
+        input,
+        "-o",
+        out_path.to_str().unwrap(),
+        "--pmi",
+        edited.to_str().unwrap(),
+    ]);
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let report: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert!(
+        report["pmi"]["carried_items"].as_u64().unwrap() > 0,
+        "{report}"
+    );
+    assert_eq!(tolerances(out_path.to_str().unwrap()), 2);
+    // A document bound to another file is refused, and nothing is written.
+    let other = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/golden_simple_through_hole.step");
+    let refused_path = dir.join("refused.step");
+    let out = quiddity(&[
+        "brep",
+        other.to_str().unwrap(),
+        "-o",
+        refused_path.to_str().unwrap(),
+        "--pmi",
+        edited.to_str().unwrap(),
+    ]);
+    assert_eq!(out.status.code(), Some(1));
+    assert!(
+        String::from_utf8_lossy(&out.stderr).contains("not the file's sha256"),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert!(!refused_path.exists());
+    // Usage errors.
+    assert_eq!(quiddity(&["brep", input]).status.code(), Some(2));
+    assert_eq!(
+        quiddity(&["brep", input, "-o", "x.step", "--pmi"])
+            .status
+            .code(),
+        Some(2)
     );
     std::fs::remove_dir_all(&dir).ok();
 }
