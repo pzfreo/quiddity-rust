@@ -76,6 +76,48 @@ pub struct ModelScore {
     pub section_recess_refusal: Option<String>,
     pub label_warnings: Vec<String>,
     pub instances_available: bool,
+    pub accounting: Accounting,
+}
+
+/// Measured on the supported inferred-frame recognition document. Labels never select rules.
+#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq, Eq)]
+pub struct Accounting {
+    pub feature_as_body: u64,
+    pub stock_unexplained: u64,
+    pub feature: u64,
+    pub body: u64,
+    pub refused: u64,
+    pub unexplained: u64,
+}
+impl Accounting {
+    pub fn add(&mut self, other: &Self) {
+        self.feature_as_body += other.feature_as_body;
+        self.stock_unexplained += other.stock_unexplained;
+        self.feature += other.feature;
+        self.body += other.body;
+        self.refused += other.refused;
+        self.unexplained += other.unexplained;
+    }
+    fn measure(groups: &[quiddity::recognition::FaceAccounting], seg: &[usize]) -> Self {
+        use quiddity::recognition::FaceAccounting;
+        assert_eq!(groups.len(), seg.len());
+        let mut out = Self::default();
+        for (group, &label) in groups.iter().zip(seg) {
+            match group {
+                FaceAccounting::Feature { .. } => out.feature += 1,
+                FaceAccounting::Body { .. } => {
+                    out.body += 1;
+                    out.feature_as_body += u64::from(label != 24);
+                }
+                FaceAccounting::Refused { .. } => out.refused += 1,
+                FaceAccounting::Unexplained => {
+                    out.unexplained += 1;
+                    out.stock_unexplained += u64::from(label == 24);
+                }
+            }
+        }
+        out
+    }
 }
 
 #[derive(Deserialize)]
@@ -359,12 +401,22 @@ pub fn evaluate(
         if part.faces.len() != truth.as_ref().unwrap().seg.len() {
             return Err("STEP/label face count mismatch".into());
         }
-        Ok(quiddity::features::recognise(&part))
+        // Keep the historical caller-space feature scorer unchanged. Accounting uses
+        // the supported default route, including frame refusal and document precedence.
+        let features = quiddity::features::recognise(&part);
+        let recognition = quiddity::correspondence::recognise(&part);
+        let doc = quiddity::recognition::document(&recognition, part.faces.len());
+        let accounting = Accounting::measure(
+            doc.face_accounting.as_ref().unwrap(),
+            &truth.as_ref().unwrap().seg,
+        );
+        Ok((features, accounting))
     }));
-    let (features, error) = match result {
-        Ok(Ok(f)) => (Some(f), None),
-        Ok(Err(e)) => (None, Some(e)),
+    let (features, accounting, error) = match result {
+        Ok(Ok((f, a))) => (Some(f), Some(a), None),
+        Ok(Err(e)) => (None, None, Some(e)),
         Err(e) => (
+            None,
             None,
             Some(
                 e.downcast_ref::<String>()
@@ -380,6 +432,12 @@ pub fn evaluate(
     let empty = BTreeMap::new();
     Ok(ModelScore {
         id: id.into(),
+        // Failed recognition is fully unexplained, never silently absent from totals.
+        accounting: accounting.unwrap_or_else(|| Accounting {
+            unexplained: truth.seg.len() as u64,
+            stock_unexplained: truth.seg.iter().filter(|&&c| c == 24).count() as u64,
+            ..Accounting::default()
+        }),
         scores: score(
             &truth,
             features.as_ref().map_or(&empty, |f| &f.defining),
@@ -396,6 +454,25 @@ pub fn evaluate(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn accounting_measures_all_feature_labels_and_only_explicit_stock() {
+        use quiddity::recognition::{BodyReason, FaceAccounting};
+        let groups = vec![
+            FaceAccounting::Body {
+                reason: BodyReason::StockBoxSide,
+            },
+            FaceAccounting::Body {
+                reason: BodyReason::StockBoxSide,
+            },
+            FaceAccounting::Unexplained,
+            FaceAccounting::Unexplained,
+        ];
+        let counts = Accounting::measure(&groups, &[23, 24, 24, 0]);
+        assert_eq!(counts.feature_as_body, 1);
+        assert_eq!(counts.stock_unexplained, 1);
+        assert_eq!(counts.body, 2);
+        assert_eq!(counts.unexplained, 2);
+    }
     fn faces(fs: &[usize]) -> Faces {
         fs.iter().copied().collect()
     }
