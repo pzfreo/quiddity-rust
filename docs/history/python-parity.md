@@ -1224,3 +1224,10 @@ CI replays every snapshot producer with the existing numeric bands and compares 
 file inventory exactly (`--check --coverage-only`); local `--check` additionally requires
 byte-identical compressed outputs. This detects orphaned expectations without imposing a new
 cross-platform floating-point tolerance.
+
+The 2026-10-21 timing refresh measured all 311 lib tests separately with nextest's CI
+profile (one test process at a time, six internal workers): 234 `regression_tests::` cases
+and 77 engine unit tests. `.config/test-times.json` records observed macOS seconds and
+Linux estimates at twice those measurements. The serial run took 1,936 seconds; its sole
+transient failure was the intentionally stale input-hash manifest, regenerated before final
+validation. These per-test entries let `.github/shards.py` distribute the private tests.
