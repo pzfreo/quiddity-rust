@@ -151,6 +151,7 @@ No new independent references are claimed for legacy value-only helpers.
 | planar outer profiles | analytic directed supports, source-edge correspondence, motion (`tests/internal/outer_profiles.rs`) |
 | effective surfaces | OCCT areas/perimeters and recovery lengths; material orientation, dependency consistency, motion (`tests/internal/effective_surfaces.rs`) |
 | sections / cylindrical / end-surface geometry | OCCT clipped-cell/envelope volumes and face coverage; motion (`tests/internal/section_geometry.rs`, `tests/internal/section_recess_geometry.rs`, `tests/internal/section_recess_helpers.rs`); value-only helpers: **snapshot only** |
+| face accounting | analytic stock/feature controls, motion (`src/body.rs`), complete golden/corpus partition (`tests/face_accounting.rs`), MFInstSeg stock/feature labels |
 | frames | motion equivariance, inverse point transforms, caller/working-face identity (`tests/internal/frames.rs`) |
 | correspondence | handwritten analytic revision intent (`tests/fixtures/revisions/expected.json`), motion (`tests/internal/correspondence.rs`, `tests/internal/invariance.rs`) |
 | mass / face integrals | OpenCascade-measured corpus, body bounds/volume/area (`tests/occt_body_measurements.rs`), area and moment ledgers; analytic surfaces; live OCCT (`tests/internal/corpus.rs`, `crates/haecceity/tests/face_{areas,moments,integrals}.rs`, `tools/check_face_integrals.py`) |

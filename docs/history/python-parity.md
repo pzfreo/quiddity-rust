@@ -1244,3 +1244,13 @@ The final origin/main merge included PR #66 (recognition schema 5 and face accou
 after PR #65 (B-rep PMI writing). Merge resolution keeps the private engine and feature-free
 MFInstSeg scorer, incorporates all new accounting tests and ratchets, and retains identical
 class scores and the 200 model/input identities. The snapshot is regenerated for schema 5.
+
+All eight schema-5 tests and the changed MFInstSeg 200-model ratchet were measured and
+passed locally. The final lib has 311 individually timed cases (230 regression, 81 engine);
+new public face-accounting cases remain integration tests. Existing class-score floors are
+unchanged; the new accounting floors are retained. Linux estimates remain twice macOS.
+
+Schema-5 regeneration changed only `rust-snapshot/corpus.json.gz`: all 100 public documents
+gained `face_accounting` and changed their schema version, with no record or geometry changes.
+The inventory remains 2,700 payloads over 3,094 pinned inputs (8,709,099 compressed bytes).
+The source is commit `a099b4f07f0fbdb6108397694dff0adec3f8e697`, an ancestor of the final HEAD.
