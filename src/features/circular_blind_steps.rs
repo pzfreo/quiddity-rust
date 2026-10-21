@@ -51,11 +51,13 @@ pub fn recognise_circular_blind_steps(part: &Part) -> Vec<CircularBlindStep> {
 }
 }
 
+parity_entry! {
 /// The evidence path: each step with its cylindrical wall and terminal.
 pub fn discover_verified(
     ctx: &Context<'_>,
 ) -> Result<Vec<Occurrence<CircularBlindStep>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
+}
 }
 
 /// `math.isclose(a, b, abs_tol=COORD_FLOOR)`.
@@ -199,6 +201,7 @@ fn candidate(
     })
 }
 
+parity_entry! {
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<CircularBlindStep>> {
     let part = ctx.part;
     let mut cylinders: Vec<&CylinderEvidence> = ctx.cylinders().iter().collect();
@@ -223,4 +226,5 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<CircularBlindStep>> {
             .then_with(|| py::tuple_order(&a.record.sort_key(), &b.record.sort_key()))
     });
     out
+}
 }

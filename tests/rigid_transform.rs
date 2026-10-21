@@ -6,6 +6,7 @@ mod parallel;
 use std::path::{Path, PathBuf};
 
 use quiddity::Part;
+use quiddity::kernel::brep::Pcurve;
 use quiddity::kernel::geom::{Curve, Frame, Surface, V3};
 use quiddity::kernel::step::{IDENTITY, Placement, read_step_file_placed};
 
@@ -155,6 +156,22 @@ fn compare(a: &Part, b: &Part) {
             (b_face.reversed, b_face.solid)
         );
         surface(&a_face.surface, &b_face.surface, scale);
+        assert_eq!(a_face.pcurves.len(), b_face.pcurves.len());
+        for ((edge_a, a), (edge_b, b)) in a_face.pcurves.iter().zip(&b_face.pcurves) {
+            assert_eq!(edge_a, edge_b);
+            match (a, b) {
+                (Pcurve::Poles(a), Pcurve::Poles(b)) => {
+                    assert_eq!(a.len(), b.len());
+                    for (a, b) in a.iter().zip(b) {
+                        scalars(&[a.0, a.1], &[b.0, b.1]);
+                    }
+                }
+                (Pcurve::Line { point: a, dir: c }, Pcurve::Line { point: b, dir: d }) => {
+                    scalars(&[a.0, a.1, c.0, c.1], &[b.0, b.1, d.0, d.1]);
+                }
+                _ => panic!("face {i}: pcurve type differs"),
+            }
+        }
         assert_eq!(a_face.loops.len(), b_face.loops.len());
         for (a, b) in a_face.loops.iter().zip(&b_face.loops) {
             assert_eq!(a.edges, b.edges);
@@ -183,6 +200,14 @@ fn compare(a: &Part, b: &Part) {
         assert_eq!((a.vertices, a.same_sense), (b.vertices, b.same_sense));
         vector(a.start, b.start, scale);
         vector(a.end, b.end, scale);
+        assert_eq!(
+            a.samples.len(),
+            b.samples.len(),
+            "edge {i}: sampling density differs"
+        );
+        for (a, b) in a.samples.iter().zip(&b.samples) {
+            vector(*a, *b, scale);
+        }
         match (&a.curve, &b.curve) {
             (Curve::Line { origin: a, dir: c }, Curve::Line { origin: b, dir: d }) => {
                 vector(*a, *b, scale);
@@ -464,4 +489,44 @@ fn constructed_geometry_keeps_line_parameters_and_indirect_frames() {
     assert!(!frame.direct());
     assert_eq!(frame.y, [1.0, 0.0, 0.0]);
     assert_eq!(moved.faces[0].loops[0].vertex, Some([9.0, 24.0, -34.0]));
+}
+
+#[test]
+fn composed_and_preplaced_transforms_match_one_composed_read() {
+    let (s, c) = 0.37_f64.sin_cos();
+    let (t, d) = 0.61_f64.sin_cos();
+    let first = [[c, -s, 0., 17.], [s, c, 0., -29.], [0., 0., 1., 41.]];
+    let second = [[1., 0., 0., -11.], [0., d, -t, 23.], [0., t, d, -37.]];
+    let mut composed = [[0.; 4]; 3];
+    for (i, row) in composed.iter_mut().enumerate() {
+        for (j, value) in row.iter_mut().enumerate() {
+            *value = (0..3).map(|k| second[i][k] * first[k][j]).sum::<f64>();
+        }
+        row[3] += second[i][3];
+    }
+    for name in [
+        "large_block_small_fillets.step",
+        "hyperbola_cut_cone.step",
+        "ap242/assembly/nested.step",
+        "revolution_cone.step.gz",
+    ] {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures")
+            .join(name);
+        let read = read_step_file_placed(&path, &composed).unwrap();
+        let original = read_step_file_placed(&path, &IDENTITY).unwrap();
+        let twice = original
+            .transformed(&first)
+            .unwrap()
+            .transformed(&second)
+            .unwrap();
+        let placed = read_step_file_placed(&path, &first)
+            .unwrap()
+            .transformed(&second)
+            .unwrap();
+        for part in [twice, placed] {
+            compare(&part, &read);
+            assert_eq!(recognition_bytes(&part), recognition_bytes(&read), "{name}");
+        }
+    }
 }

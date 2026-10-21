@@ -110,11 +110,14 @@ pub fn recognise_repeating_radial_profiles(
 }
 }
 
+parity_entry! {
 /// Every profile of every solid with its two opposed source faces, in record order.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<RepeatingRadialProfile>> {
     discover_with(ctx.part, RepeatingRadialProfileOptions::default().tol)
 }
+}
 
+parity_entry! {
 /// The evidence path (`_discover_repeating_radial_profiles` with a writer): refused when a
 /// profile's two faces are one face, when a face is claimed by two profiles, or when the faces
 /// do not share one valid solid.
@@ -133,6 +136,7 @@ pub fn discover_verified(
         used.extend(o.defining.iter().copied());
     }
     Ok(found)
+}
 }
 
 fn discover_with(part: &Part, tol: f64) -> Vec<Occurrence<RepeatingRadialProfile>> {

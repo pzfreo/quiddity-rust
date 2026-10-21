@@ -480,6 +480,7 @@ enum Floored {
     Channel(Channel),
 }
 
+parity_entry! {
 /// Every through-slot of one solid with the faces it was built from (`_slot_proposals_one`):
 /// unfloored wall pairs and obround ends, merged, arms rejoined, obround ends extended and
 /// corner radii proved. With *strict*, competing cap clusters refuse.
@@ -519,7 +520,9 @@ pub fn slot_proposals(
         })
         .collect())
 }
+}
 
+parity_entry! {
 /// Every bounded pocket of one solid with its faces (`_pocket_proposals_one`): floored wall
 /// pairs (walls defining, floor consulted), corner notches (floor and both walls defining) and
 /// obround ends (caps defining, floor consulted), reduced as slots are, then each given its
@@ -565,6 +568,7 @@ pub fn pocket_proposals(
         .collect();
     Ok(attach_complete_pocket_regions(&scan, proposals))
 }
+}
 
 /// One channel with its two side walls (low then high along the width axis) and its floor
 /// (`_ChannelProposal`).
@@ -576,6 +580,7 @@ pub struct ChannelProposal {
     pub floor: BTreeSet<usize>,
 }
 
+parity_entry! {
 /// Every channel candidate of one solid (`_channel_proposals_one`), one per wall pair.
 pub fn channel_proposals(ctx: &Context<'_>, solid: usize) -> Vec<ChannelProposal> {
     let scan = Scan::new(ctx, solid);
@@ -604,6 +609,7 @@ pub fn channel_proposals(ctx: &Context<'_>, solid: usize) -> Vec<ChannelProposal
         }
     }
     out
+}
 }
 
 /// The region an opening's inner wire bounds: from the faces on the wire, across concave and

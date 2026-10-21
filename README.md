@@ -1073,7 +1073,9 @@ frame (no plane or cylinder, no material) is recognised as placed, with a warnin
 
 Parity is still checked where Python's entry points work: `features::recognise` and every
 `recognise_<family>` stay caller-space, as Python's do, behind the non-default
-`python-parity` Cargo feature. This hidden API is test-only and unsupported; the parity tests
+`python-parity` Cargo feature. Discovery, inventory, context construction, evidence builders
+and lower-level feature algorithms are behind the same feature; record types keep their public
+paths. This hidden API is test-only and unsupported; the parity tests
 (`corpus.rs`, `captured.rs`, `invariance.rs`) require that feature and call them. Production
 consumers use `correspondence::recognise`; feature record types remain public. There is no
 reader closure or second STEP read, and `recognise_placed` has been removed.

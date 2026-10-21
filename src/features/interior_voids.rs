@@ -474,16 +474,20 @@ fn region_faces(
     Some((skin.into_iter().collect(), openings))
 }
 
+parity_entry! {
 /// The evidence path: each interior void with its faces, published only from one valid solid.
 pub fn discover_verified(
     ctx: &Context<'_>,
 ) -> Result<Vec<Occurrence<InteriorVoid>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
 }
+}
 
+parity_entry! {
 /// Every interior void, its skin faces defining it and its opening faces consulted.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<InteriorVoid>> {
     analyse(ctx).accepted
+}
 }
 
 pub(super) fn analyse(ctx: &Context<'_>) -> Analysis {

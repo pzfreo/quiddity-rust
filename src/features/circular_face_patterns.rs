@@ -59,11 +59,13 @@ pub fn recognise_circular_face_patterns(part: &Part) -> Vec<CircularFacePattern>
 }
 }
 
+parity_entry! {
 /// The evidence path: each pattern with all its groups' faces.
 pub fn discover_verified(
     ctx: &Context<'_>,
 ) -> Result<Vec<Occurrence<CircularFacePattern>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
+}
 }
 
 #[derive(Clone, Copy)]
@@ -483,14 +485,17 @@ fn kind_name(surface: &Surface) -> &'static str {
     }
 }
 
+parity_entry! {
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<CircularFacePattern>> {
     discover_with_groups(ctx)
         .into_iter()
         .map(|(o, _)| o)
         .collect()
 }
+}
 
-/// [`discover`], each pattern with its repeated face groups in order (Python's
+parity_entry! {
+/// `discover`, each pattern with its repeated face groups in order (Python's
 /// `Evidence.groups`; the occurrence's defining faces are their union).
 pub fn discover_with_groups(
     ctx: &Context<'_>,
@@ -521,6 +526,7 @@ pub fn discover_with_groups(
         .collect();
     out.sort_by(|a, b| py::tuple_order(&a.0.record.sort_key(), &b.0.record.sort_key()));
     out
+}
 }
 
 #[cfg(test)]

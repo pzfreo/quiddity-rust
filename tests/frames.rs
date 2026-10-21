@@ -345,8 +345,8 @@ fn framed_recognition_follows_the_part() {
 }
 
 /// The default recognition reports the working part's faces under the caller's indices
-/// (`correspondence::recognise`), which holds only if the second read numbers faces as
-/// the first: on every corpus part with a frame, each working face has the caller face's surface
+/// (`correspondence::recognise`): the in-memory transform must preserve face numbering.
+/// On every corpus part with a frame, each working face has the caller face's surface
 /// kind and edges, and each of those edges' ends is the caller's carried into the frame (to 1e-6
 /// of the part's size).
 #[test]

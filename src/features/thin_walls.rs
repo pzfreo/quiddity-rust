@@ -587,13 +587,16 @@ fn classify_unpaired(
         .collect()
 }
 
+parity_entry! {
 /// The evidence path: each thin-wall body with its faces, published only from one valid solid.
 pub fn discover_verified(
     ctx: &Context<'_>,
 ) -> Result<Vec<Occurrence<ThinWallBody>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
 }
+}
 
+parity_entry! {
 /// Every thin-wall body, its paired faces defining it and its rim faces consulted.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<ThinWallBody>> {
     let part = ctx.part;
@@ -662,6 +665,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<ThinWallBody>> {
         });
     }
     out
+}
 }
 
 #[cfg(test)]

@@ -30,9 +30,11 @@ pub fn recognise_bosses(part: &Part) -> Vec<BossRecord> {
 }
 }
 
+parity_entry! {
 /// The evidence path: each boss with its cylinder faces and the face at its free end.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<BossRecord>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
+}
 }
 
 /// An intrinsic body-relative origin, using the boundary-area distribution already cached by
@@ -73,6 +75,7 @@ fn free_end(lo: End, hi: End, relative_body_origin: Option<f64>) -> (bool, bool)
     }
 }
 
+parity_entry! {
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<BossRecord>> {
     let part = ctx.part;
     let (z, cross) = z_then_cross(ctx.cylinders());
@@ -130,4 +133,5 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<BossRecord>> {
         });
     }
     out
+}
 }

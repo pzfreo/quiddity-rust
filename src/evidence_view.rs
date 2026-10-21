@@ -23,9 +23,9 @@
 //! Features come family by family in Python's registry order (`PHYSICAL_DEFINITIONS`), leaving
 //! out the recess source families and the section recesses as Python does, then the section
 //! recesses and their refusals (the aggregate's projection of the recess source families,
-//! [`section_recess_projection`]: family `section_recesses`, indexed recesses first), then the
+//! `section_recess_projection`: family `section_recesses`, indexed recesses first), then the
 //! hole patterns; candidates in that family order, then by index. The planar outer-profile
-//! evidence is read per face on demand ([`RecognitionEvidence::planar_outer_profile`]), as
+//! evidence is read per face on demand (`RecognitionEvidence::planar_outer_profile`), as
 //! Python's view reads it.
 //!
 //! Not ported: the view's association coverage, its bounded report (`RecognitionReport`) and the
@@ -37,6 +37,7 @@ use std::fmt;
 use serde::Serialize;
 use serde_json::Value;
 
+use crate::features::outer_profile::planar_outer_profile;
 use crate::features::reconcile::{Disposition, Family, Outcome, ReasonCode, ReconcileError};
 use crate::features::section_recess_family::{
     SectionRecessFamilyError, SectionRecessProjection, section_recess_projection,
@@ -47,7 +48,7 @@ use crate::features::{
 };
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, Surface};
-use crate::{PlanarOuterProfileEvidence, RefusedPlanarOuterProfile, planar_outer_profile};
+use crate::{PlanarOuterProfileEvidence, RefusedPlanarOuterProfile};
 
 /// Physical families in Python's registry order (`PHYSICAL_DEFINITIONS`), followed by the
 /// native measured-thread extension.
@@ -175,7 +176,7 @@ impl From<SectionRecessFamilyError> for EvidenceViewError {
 #[derive(Clone, Debug)]
 pub struct RecognitionEvidence<'a> {
     part: &'a Part,
-    /// The accepted inventory ([`features::recognise`]'s answer for the same run).
+    /// The accepted inventory (`features::recognise`'s answer for the same run).
     pub result: Features,
     /// The aggregate's section recesses and refusals (`RecognitionResult.section_recesses`,
     /// `section_recess_refusals`).
@@ -205,12 +206,14 @@ impl RecognitionEvidence<'_> {
         record.expect("records serialise")
     }
 
-    /// One face's planar outer profile (`RecognitionEvidence.planar_outer_profile`).
-    pub fn planar_outer_profile(
-        &self,
-        face: usize,
-    ) -> Result<PlanarOuterProfileEvidence, RefusedPlanarOuterProfile> {
-        planar_outer_profile(self.part, face)
+    parity_entry! {
+        /// One face's planar outer profile (`RecognitionEvidence.planar_outer_profile`).
+        pub fn planar_outer_profile(
+            &self,
+            face: usize,
+        ) -> Result<PlanarOuterProfileEvidence, RefusedPlanarOuterProfile> {
+            planar_outer_profile(self.part, face)
+        }
     }
 }
 
@@ -227,9 +230,10 @@ fn sorted(faces: &[usize]) -> Vec<usize> {
     set.into_iter().collect()
 }
 
+parity_entry! {
 /// Recognise *part* and project the outcome onto its faces (`build_recognition_evidence`), or
 /// the reconciliation's or the section-recess projection's refusal. The projection
-/// ([`section_recess_projection`]) recognises the part again, on its own run context: the same
+/// (`section_recess_projection`) recognises the part again, on its own run context: the same
 /// deterministic run Python's single one is. Where Python's aggregate retries locally degraded,
 /// all of it runs in that mode (`features::take_inventory`).
 pub fn build_recognition_evidence(
@@ -238,6 +242,7 @@ pub fn build_recognition_evidence(
     features::take_inventory(part, |_, inventory| {
         project(part, inventory, section_recess_projection(part)?)
     })?
+}
 }
 
 /// Each physical family's candidates' defining and constituent faces (sorted), by Python family.

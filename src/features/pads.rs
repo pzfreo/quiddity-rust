@@ -815,6 +815,7 @@ pub fn recognise_rectangular_pads(
 }
 }
 
+parity_entry! {
 /// `_discover_rectangular_pads` with an evidence writer: each pad defined by its top and its
 /// four perimeter walls (one face per role), five distinct faces of one valid solid, no top
 /// defining two pads, and equal records only where they read the same faces. In a locally
@@ -876,4 +877,5 @@ pub fn discover(
         });
     }
     Ok(found)
+}
 }

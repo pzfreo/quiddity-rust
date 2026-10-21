@@ -2,7 +2,7 @@
 //! planar walls with a floor filling one end and the other end open, the capped sibling of a
 //! passage.
 //!
-//! Three sources, in order. Every principal-axis ring ([`rings`]) capped at exactly one end. Then
+//! Three sources, in order. Every principal-axis ring (`rings`) capped at exactly one end. Then
 //! two recoveries for a ring a partial treatment broke: from one exterior mouth (an inner wire
 //! of a principal plane meeting the cavity convexly), the cavity region reached by concave or
 //! smooth turns, with one floor level and a wall cycle behind the treatment; and from an intact
@@ -518,13 +518,16 @@ pub fn recognise_prismatic_pockets(part: &Part) -> Vec<PrismaticPocket> {
 }
 }
 
+parity_entry! {
 /// The evidence path: each pocket defined by its walls, its floor (or cavity region) consulted.
 pub fn discover_verified(
     ctx: &Context<'_>,
 ) -> Result<Vec<Occurrence<PrismaticPocket>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
 }
+}
 
+parity_entry! {
 /// Every pocket, in record order (`_discover_prismatic_pockets`).
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<PrismaticPocket>> {
     let occurrence = |record, walls: &[usize], constituent: &BTreeSet<usize>| Occurrence {
@@ -584,6 +587,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<PrismaticPocket>> {
     }
     found.sort_by(|a, b| a.record.order(&b.record));
     found
+}
 }
 
 #[cfg(test)]

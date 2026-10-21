@@ -10,11 +10,11 @@
 //! | `SurfaceProvenance`, `OrientationCapability` | [`SurfaceProvenance`], [`SurfaceFact::oriented`] | channels, pockets, passages |
 //! | `RecoveryCertificate` | partly: [`SurfaceFact::requested_tolerance`] is the bound; no OCCT version | none |
 //! | `EffectiveSurfaceIndex.fact` / `oriented_fact` | [`EffectiveFaces::fact`] / [`EffectiveFaces::oriented_fact`] (`analytic_surfaces::effective_fact`, unchanged, agrees) | all five |
-//! | `effective_faces_for_graph` / `_for_part`, the query protocols | [`EffectiveFaces::new`] over a [`Context`] | pads (section recesses pass it on) |
+//! | `effective_faces_for_graph` / `_for_part`, the query protocols | `EffectiveFaces::new` over a `Context` | pads (section recesses pass it on) |
 //! | `use`, `SurfaceUse`, `SurfaceUseRefusal` | [`EffectiveFaces::surface_use`], [`SurfaceUse`], [`SurfaceUseRefusal`] | pads |
 //! | `MaterialSideCertificate`, `MaterialSideRefusalReason` | [`MaterialSideCertificate`], [`MaterialSideRefusalReason`] | pads (`outward`) |
-//! | `cylinder_surface_dependency` | [`cylinder_surface_dependency`] | holes, bosses, circular blind steps (ported without it) |
-//! | `recovery_nominal`, `recovery_tolerance` | [`recovery_nominal`], [`recovery_tolerance`] (`recover.rs` fits against its own, from the edge samples' chords) | `_cylinder_substrate` |
+//! | `cylinder_surface_dependency` | `cylinder_surface_dependency` | holes, bosses, circular blind steps (ported without it) |
+//! | `recovery_nominal`, `recovery_tolerance` | `recovery_nominal`, `recovery_tolerance` (`recover.rs` fits against its own, from the edge samples' chords) | `_cylinder_substrate` |
 //! | `SURFACE_READER_ROSTER`, `_SITES`, `SurfaceReaderDisposition` | not ported: Python source governance its architecture test reads | none |
 //! | use snapshots, forgery and run checks | not applicable: these values are immutable and borrow their run | none |
 //!
@@ -210,12 +210,14 @@ pub struct EffectiveFaces<'c, 'a> {
 }
 
 impl<'c, 'a> EffectiveFaces<'c, 'a> {
-    pub fn new(ctx: &'c Context<'a>) -> Self {
-        let n = ctx.part.faces.len();
-        EffectiveFaces {
-            ctx,
-            facts: (0..n).map(|_| OnceLock::new()).collect(),
-            uses: (0..n).map(|_| [OnceLock::new(), OnceLock::new()]).collect(),
+    parity_entry! {
+        pub fn new(ctx: &'c Context<'a>) -> Self {
+            let n = ctx.part.faces.len();
+            EffectiveFaces {
+                ctx,
+                facts: (0..n).map(|_| OnceLock::new()).collect(),
+                uses: (0..n).map(|_| [OnceLock::new(), OnceLock::new()]).collect(),
+            }
         }
     }
 
@@ -333,6 +335,7 @@ impl<'c, 'a> EffectiveFaces<'c, 'a> {
     }
 }
 
+parity_entry! {
 /// `cylinder_surface_dependency`: a native cylinder's use as it is; a recovered one's with its
 /// material side certified, since the fit carries no orientation.
 pub fn cylinder_surface_dependency<'q>(
@@ -345,7 +348,9 @@ pub fn cylinder_surface_dependency<'q>(
         .is_ok_and(|f| f.provenance() == SurfaceProvenance::Recovered);
     effective.surface_use(face, recovered)
 }
+}
 
+parity_entry! {
 /// `recovery_nominal`: the face's controlling length, min(√area, 2·area / perimeter), the
 /// perimeter being its physical trim (seams, used twice by the face, left out); `None` where
 /// Python raises (no finite positive area).
@@ -365,7 +370,9 @@ pub fn recovery_nominal(part: &Part, face: usize) -> Option<f64> {
         scale
     })
 }
+}
 
+parity_entry! {
 /// `_physical_boundary_length`: the face's trim perimeter, without its seams (edges its loops use
 /// twice). A degenerate edge (a pole) has no length.
 pub fn physical_boundary_length(part: &Part, face: usize) -> f64 {
@@ -381,7 +388,9 @@ pub fn physical_boundary_length(part: &Part, face: usize) -> f64 {
             .map(|(&e, _)| arc_length(part, e)),
     )
 }
+}
 
+parity_entry! {
 /// An edge's length (`Edge.length`, `GCPnts_AbscissaPoint`): exact for lines and circular arcs,
 /// otherwise by chords on the exact curve, each span halved until its Richardson-corrected length
 /// (the chords' error falls as the square of the span) agrees with its halves' to 1e-12 of the
@@ -415,6 +424,7 @@ pub fn arc_length(part: &Part, edge: usize) -> f64 {
         )
     }))
 }
+}
 
 /// One span's length: its halves' chords, Richardson-corrected against the span's own chord,
 /// compared with the same for each half; split further until they agree within *tolerance*.
@@ -444,9 +454,11 @@ fn span(
         + span(curve, (m, pm), (b, pb), right, tolerance, depth + 1)
 }
 
+parity_entry! {
 /// `recovery_tolerance`: `1e-6 × nominal + COORD_FLOOR`.
 pub fn recovery_tolerance(part: &Part, face: usize) -> Option<f64> {
     Some(RECOVERY_REL * recovery_nominal(part, face)? + COORD_FLOOR)
+}
 }
 
 /// `EffectiveSurfaceIndex._derive`.

@@ -19,6 +19,7 @@ pub struct Sample {
     pub uv: (f64, f64),
 }
 
+parity_entry! {
 /// The probes that land inside the face (`_face_samples`; the first half of `_samples`).
 pub fn probe_samples(part: &Part, face: usize) -> Vec<Sample> {
     let Some(domain) = part.domain(face) else {
@@ -30,4 +31,5 @@ pub fn probe_samples(part: &Part, face: usize) -> Vec<Sample> {
         .filter(|(_, (u, v))| domain.contains(*u, *v))
         .map(|(point, uv)| Sample { point, uv })
         .collect()
+}
 }

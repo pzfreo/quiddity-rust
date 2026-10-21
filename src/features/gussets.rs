@@ -196,10 +196,12 @@ pub fn recognise_gusset_ribs(part: &Part) -> Vec<GussetRib> {
 }
 }
 
+parity_entry! {
 /// The evidence path: each rib with its end caps, slant and edge blends; the supports are
 /// consulted.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<GussetRib>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
+}
 }
 
 /// Python's ordering of `GussetRib` (a frozen, ordered dataclass): field by field.
@@ -224,6 +226,7 @@ fn rib_order(a: &GussetRib, b: &GussetRib) -> Ordering {
         })
 }
 
+parity_entry! {
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<GussetRib>> {
     let part = ctx.part;
     let caps: Vec<Cap> = (0..part.faces.len())
@@ -371,6 +374,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<GussetRib>> {
     let mut out: Vec<Occurrence<GussetRib>> = found.into_iter().map(|(o, _)| o).collect();
     out.sort_by(|a, b| rib_order(&a.record, &b.record));
     out
+}
 }
 
 parity_entry! {

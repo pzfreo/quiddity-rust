@@ -1521,8 +1521,8 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
     let (mut out_faces, mut edges_out, mut solids) = (Vec::new(), Vec::new(), Vec::new());
     let (mut unresolved_faces, mut unresolved_edges) = (Vec::new(), Vec::new());
     let (mut face_sources, mut edge_sources) = (Vec::new(), Vec::new());
-    let mut line_directions = Vec::new();
-    let mut hyperbolas = Vec::new();
+    let mut line_directions = std::collections::BTreeMap::new();
+    let mut hyperbolas = std::collections::BTreeMap::new();
     let (mut native_faces, mut native_edges) = (Vec::new(), Vec::new());
     let mut vertex_count = 0;
     for (is_solid, placement, faces, instance) in shells {
@@ -1531,7 +1531,7 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
             Some(own) if instance_of[instance] == Some(own) => IDENTITY,
             Some(_) => continue,
         };
-        let context = GeometryPlacement::new(
+        let context = std::sync::Arc::new(GeometryPlacement::new(
             if own.is_some() { IDENTITY } else { *outer },
             if own.is_some() {
                 std::sync::Arc::from([])
@@ -1540,7 +1540,7 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
                     .map(|i| placement_paths.definitions[i].clone())
                     .unwrap_or_else(|| std::sync::Arc::from([]))
             },
-        );
+        ));
         // Edges are shared within one placed shell only; another instance gets its own copies.
         let mut edge_index: HashMap<m::EntityKey, usize> = HashMap::new();
         let mut vertex_index: HashMap<m::EntityKey, usize> = HashMap::new();
@@ -1563,40 +1563,36 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
                             }
                             // A substituted chord keeps its own parameterisation, even if
                             // the unresolved STEP entity names an analytic curve.
-                            line_directions.push(
-                                if resolved && matches!(&read.curve, Curve::Line { .. }) {
-                                    reader
-                                        .line_direction(&raw_edge_curve(reader.model, &edge))
-                                        .map(|d| (context.clone(), d))
-                                } else {
-                                    None
-                                },
-                            );
-                            let mut native = if reader.placement != IDENTITY {
+                            if resolved
+                                && matches!(&read.curve, Curve::Line { .. })
+                                && let Some(d) =
+                                    reader.line_direction(&raw_edge_curve(reader.model, &edge))
+                            {
+                                line_directions.insert(edges_out.len(), d);
+                            }
+                            let native = if reader.placement != IDENTITY {
                                 let native_reader = Reader {
                                     placement: IDENTITY,
                                     ..reader
                                 };
-                                native_reader.edge(&edge, &mut vertex_id)?.0
+                                let mut native = native_reader.edge(&edge, &mut vertex_id)?.0;
+                                native.samples = Vec::new();
+                                Some(std::sync::Arc::new(native))
                             } else {
-                                read.clone()
+                                None
                             };
                             let native_reader = Reader {
                                 placement: IDENTITY,
                                 ..reader
                             };
-                            hyperbolas.push(
-                                if resolved && matches!(&read.curve, Curve::Nurbs(_)) {
-                                    native_reader
-                                        .hyperbola(&raw_edge_curve(reader.model, &edge))
-                                        .map(|h| (h, context.clone()))
-                                } else {
-                                    None
-                                },
-                            );
-                            native.samples.clear();
-                            let native = Some((std::sync::Arc::new(native), context.clone()));
-                            native_edges.push(native);
+                            if resolved
+                                && matches!(&read.curve, Curve::Nurbs(_))
+                                && let Some(h) =
+                                    native_reader.hyperbola(&raw_edge_curve(reader.model, &edge))
+                            {
+                                hyperbolas.insert(edges_out.len(), h);
+                            }
+                            native_edges.push((native, context.clone()));
                             edges_out.push(read);
                             edge_sources.push(Source {
                                 entity: ids.edge(&edge)?,
@@ -1657,12 +1653,11 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
                         };
                     }
                 }
-                native
+                Some(std::sync::Arc::new(native))
             } else {
-                out_faces.last().unwrap().clone()
+                None
             };
-            let native = Some((std::sync::Arc::new(native), context.clone()));
-            native_faces.push(native);
+            native_faces.push((native, context.clone()));
             face_sources.push(Source {
                 entity: ids.face(&face)?,
                 instance,

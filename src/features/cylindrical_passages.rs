@@ -7,7 +7,7 @@
 //! Python builds the cell as the mouth's extrusion to the bore's axis less the bore
 //! (`Shape.cut`). With the branch strictly separated from the mouth over the whole section, that
 //! is exactly the mouth polygon swept from the mouth to the near branch, built here by
-//! [`capped_prism`](super::cylindrical_channels::capped_prism): its end face is the mouth
+//! `capped_prism`: its end face is the mouth
 //! polygon and every face is planar or cylindrical by construction (Python's face census and
 //! mouth coverage checks), and each probe beyond an end is that end swept by the probe
 //! thickness.
@@ -47,6 +47,7 @@ pub struct CylindricalPassageProof {
     pub volume: f64,
 }
 
+parity_entry! {
 /// The passage proof for one mouth, one bore and one concave component of the walls they share
 /// (`_cell_proof`), the walls in the order given; `None` for anything outside the contract.
 pub fn prove(
@@ -233,14 +234,18 @@ pub fn prove(
         volume: cell_volume,
     })
 }
+}
 
+parity_entry! {
 /// The native concave cylinders, in face order (`_native_bores`).
 pub fn native_bores(ctx: &Context<'_>, surfaces: &EffectiveFaces<'_, '_>) -> Vec<usize> {
     (0..ctx.part.faces.len())
         .filter(|&f| native_bore(ctx, surfaces, f).is_some())
         .collect()
 }
+}
 
+parity_entry! {
 /// Every proved passage end (`cylindrical_passage_proofs`): from each planar mouth and each
 /// bore across its normal, the planar walls convex to both along the run, grouped by concave
 /// adjacency, each group proved. Discovers original closed wall cycles; expected side counts
@@ -298,4 +303,5 @@ pub fn cylindrical_passage_proofs(
         }
     }
     found
+}
 }

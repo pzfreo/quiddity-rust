@@ -7,6 +7,7 @@ use crate::kernel::py;
 /// Box corners to six decimals, then volume and area to twelve significant figures.
 pub type BodyKey = Vec<f64>;
 
+parity_entry! {
 /// `body_signature`: `None` when the solid's volume or area cannot be computed.
 pub fn body_signature(part: &Part, solid: usize) -> Option<BodyKey> {
     let b = part.solid_bounds(solid);
@@ -21,7 +22,9 @@ pub fn body_signature(part: &Part, solid: usize) -> Option<BodyKey> {
     key.push(py::quantise(area, 12));
     Some(key)
 }
+}
 
+parity_entry! {
 /// `unambiguous_body_keys`: per solid, its signature unless another solid shares it (or, with
 /// `require_valid_solid`, unless the solid is invalid).
 pub fn unambiguous_body_keys(
@@ -44,4 +47,5 @@ pub fn unambiguous_body_keys(
             (count == 1).then(|| sig.clone())
         })
         .collect()
+}
 }

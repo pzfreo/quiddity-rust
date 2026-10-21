@@ -341,6 +341,7 @@ pub fn recognise_freeform_surfaces(part: &Part) -> Vec<FreeformSurface> {
 }
 }
 
+parity_entry! {
 /// `_discover`: each record defined by its own face, offsets read from the run's thin walls.
 pub fn discover(ctx: &Context<'_>, walls: &[ThinWallBody]) -> Vec<Occurrence<FreeformSurface>> {
     records(ctx.part, walls)
@@ -352,13 +353,16 @@ pub fn discover(ctx: &Context<'_>, walls: &[ThinWallBody]) -> Vec<Occurrence<Fre
         })
         .collect()
 }
+}
 
+parity_entry! {
 /// The evidence path: every record's face on one valid solid, or the run refused.
 pub fn discover_verified(
     ctx: &Context<'_>,
     walls: &[ThinWallBody],
 ) -> Result<Vec<Occurrence<FreeformSurface>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx, walls))
+}
 }
 
 #[cfg(test)]

@@ -6,11 +6,11 @@
 //! antiparallel, adjacent ones perpendicular, to within the serialization error) that is not a
 //! square, and at least one of its in-plane directions must be off the principal axes (a
 //! principal rectangle belongs to the axis-letter [`super::slots`] family). The public
-//! [`recognise_oriented_slots`] reads the section-ring proposals directly, as Python's does; the
-//! evidence path ([`discover`]) reads the completed passages and claims exactly the walls each
+//! `recognise_oriented_slots` reads the section-ring proposals directly, as Python's does; the
+//! evidence path (`discover`) reads the completed passages and claims exactly the walls each
 //! one proved.
 //!
-//! Patterns ([`recognise_oriented_slot_patterns`]) are derived from the slots as slot patterns
+//! Patterns (`recognise_oriented_slot_patterns`) are derived from the slots as slot patterns
 //! are from slots ([`super::recess_patterns`]): grouped by directions, size, run, depth plane and
 //! body; a slot whose body is ambiguous joins none. Python's `local_degradation` graph mode is
 //! not ported, as for passages: the default inventory retries in it on three corpus parts, and
@@ -238,6 +238,7 @@ pub fn recognise_oriented_slots(part: &Part) -> Checked<Vec<OrientedSlot>> {
 }
 }
 
+parity_entry! {
 /// The oriented slots among the run's completed section *passages* (`_discover`), each claiming
 /// its passage's walls, sorted by record.
 pub fn discover(
@@ -263,13 +264,16 @@ pub fn discover(
     found.sort_by(|a, b| by_record(&a.record, &b.record));
     Ok(found)
 }
+}
 
-/// Like [`discover`] over the run's own passages, every occurrence's faces checked to share one
+parity_entry! {
+/// Like `discover` over the run's own passages, every occurrence's faces checked to share one
 /// valid solid; for the evidence comparison.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<OrientedSlot>>, String> {
     let passages = super::passages::discover(ctx).map_err(|e| e.to_string())?;
     let found = discover(ctx, &passages).map_err(|e| e.to_string())?;
     super::evidence::verified(ctx.part, found).map_err(|e| e.to_string())
+}
 }
 
 type PatternKey = (Vec<f64>, BodyKey);

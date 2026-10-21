@@ -226,6 +226,7 @@ impl OpenSectionProfile {
     }
 }
 
+parity_entry! {
 /// The solid side of a canonical recess wall chain (`_open_profile_material_side`).
 ///
 /// Closing the absent opening only for this orientation calculation gives the removed
@@ -233,6 +234,7 @@ impl OpenSectionProfile {
 pub fn open_profile_material_side(boundary: &[PassageSectionVertex]) -> Checked<&'static str> {
     let (area, _) = moments(&section_vertices(boundary)?)?;
     Ok(if area > 0.0 { "right" } else { "left" })
+}
 }
 
 /// A section recess's profile: closed (pocket, passage) or open (edge-open recess, channel).

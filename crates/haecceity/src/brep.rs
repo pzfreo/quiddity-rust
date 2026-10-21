@@ -86,15 +86,16 @@ impl GeometryPlacement {
     ) -> Self {
         Self { outer, path }
     }
-    fn prepend(&mut self, placement: &super::step::Placement) -> super::step::Placement {
-        self.outer = super::step::compose(placement, &self.outer);
+    fn placement(&self) -> super::step::Placement {
         self.path
             .iter()
             .fold(self.outer, |at, child| super::step::compose(&at, child))
     }
 }
 
-type Native<T> = Option<(std::sync::Arc<T>, GeometryPlacement)>;
+// Identity reads already own their native primitives: retain only a shared context until
+// the first transform. Each instance has one context, not one matrix per primitive.
+type Native<T> = (Option<std::sync::Arc<T>>, std::sync::Arc<GeometryPlacement>);
 
 /// Per-face values derived from the geometry, computed on first use.
 #[derive(Debug, Default)]
@@ -208,8 +209,8 @@ pub struct Part {
     edge_sources: Vec<Source>,
     input_repairs: Vec<String>,
     // STEP LINE direction ratios before normalisation, for reader-equivalent rotations.
-    line_directions: Vec<Option<(GeometryPlacement, V3)>>,
-    hyperbolas: Vec<Option<(geom::Hyperbola, GeometryPlacement)>>,
+    line_directions: std::collections::BTreeMap<usize, V3>,
+    hyperbolas: std::collections::BTreeMap<usize, geom::Hyperbola>,
     native_faces: Vec<Native<Face>>,
     native_edges: Vec<Native<Edge>>,
 }
@@ -230,8 +231,8 @@ impl Part {
             face_sources: Vec::new(),
             edge_sources: Vec::new(),
             input_repairs: Vec::new(),
-            line_directions: Vec::new(),
-            hyperbolas: Vec::new(),
+            line_directions: Default::default(),
+            hyperbolas: Default::default(),
             native_faces: Vec::new(),
             native_edges: Vec::new(),
         }
@@ -262,6 +263,65 @@ impl Part {
             f.z = direction(at, f.z);
             f.y = geom::scale(geom::cross(f.z, f.x), if direct { 1.0 } else { -1.0 });
         };
+        let identity = std::sync::Arc::new(GeometryPlacement::new(
+            super::step::IDENTITY,
+            std::sync::Arc::from([]),
+        ));
+        // Share both the imported context and its composed replacement across all primitives
+        // of an instance. Native geometry is copied only when a part is actually transformed.
+        let mut contexts = std::collections::HashMap::new();
+        let mut moved_context = |at: &std::sync::Arc<GeometryPlacement>| {
+            contexts
+                .entry(std::sync::Arc::as_ptr(at) as usize)
+                .or_insert_with(|| {
+                    let mut moved = (**at).clone();
+                    moved.outer = super::step::compose(placement, &moved.outer);
+                    std::sync::Arc::new(moved)
+                })
+                .clone()
+        };
+        let native_faces: Vec<_> = self
+            .faces
+            .iter()
+            .enumerate()
+            .map(|(i, face)| {
+                let (native, context) = self
+                    .native_faces
+                    .get(i)
+                    .map_or((None, &identity), |(native, context)| {
+                        (native.as_ref(), context)
+                    });
+                (
+                    Some(
+                        native
+                            .cloned()
+                            .unwrap_or_else(|| std::sync::Arc::new(face.clone())),
+                    ),
+                    moved_context(context),
+                )
+            })
+            .collect();
+        let native_edges: Vec<_> = self
+            .edges
+            .iter()
+            .enumerate()
+            .map(|(i, edge)| {
+                let (native, context) = self
+                    .native_edges
+                    .get(i)
+                    .map_or((None, &identity), |(native, context)| {
+                        (native.as_ref(), context)
+                    });
+                (
+                    Some(native.cloned().unwrap_or_else(|| {
+                        let mut native = edge.clone();
+                        native.samples = Vec::new();
+                        std::sync::Arc::new(native)
+                    })),
+                    moved_context(context),
+                )
+            })
+            .collect();
         let mut faces: Vec<_> = self
             .faces
             .iter()
@@ -270,8 +330,8 @@ impl Part {
                 let source = self
                     .native_faces
                     .get(i)
-                    .and_then(Option::as_ref)
-                    .map_or(face, |(native, _)| native);
+                    .and_then(|(native, _)| native.as_deref())
+                    .unwrap_or(face);
                 Face {
                     surface: source.surface.clone(),
                     reversed: face.reversed,
@@ -281,17 +341,12 @@ impl Part {
                 }
             })
             .collect();
-        let mut native_faces = self.native_faces.clone();
         for (index, face) in faces.iter_mut().enumerate() {
-            let at = if let Some(Some((native, at))) = native_faces.get_mut(index) {
-                let moved = at.prepend(placement);
-                for (bound, source) in face.loops.iter_mut().zip(&native.loops) {
-                    bound.vertex = source.vertex;
-                }
-                moved
-            } else {
-                *placement
-            };
+            let (native, context) = &native_faces[index];
+            let at = context.placement();
+            for (bound, source) in face.loops.iter_mut().zip(&native.as_ref().unwrap().loops) {
+                bound.vertex = source.vertex;
+            }
             let point = |p| point(&at, p);
             match &mut face.surface {
                 Surface::Plane { frame: f }
@@ -314,8 +369,8 @@ impl Part {
                 let source = self
                     .native_edges
                     .get(i)
-                    .and_then(Option::as_ref)
-                    .map_or(edge, |(native, _)| native);
+                    .and_then(|(native, _)| native.as_deref())
+                    .unwrap_or(edge);
                 Edge {
                     curve: source.curve.clone(),
                     start: source.start,
@@ -326,25 +381,17 @@ impl Part {
                 }
             })
             .collect();
-        let mut line_directions = self.line_directions.clone();
-        let mut hyperbolas = self.hyperbolas.clone();
-        let mut native_edges = self.native_edges.clone();
         for (index, edge) in edges.iter_mut().enumerate() {
-            let at = if let Some(Some((_, at))) = native_edges.get_mut(index) {
-                at.prepend(placement)
-            } else {
-                *placement
-            };
+            let at = native_edges[index].1.placement();
             let point = |p| point(&at, p);
             edge.start = point(edge.start);
             edge.end = point(edge.end);
             match &mut edge.curve {
                 Curve::Line { origin, dir } => {
                     *origin = point(*origin);
-                    *dir = if let Some(Some((at, ratios))) = line_directions.get_mut(index) {
-                        let moved_at = at.prepend(placement);
-                        let moved = moved_at
-                            .map(|r| r[0] * ratios[0] + r[1] * ratios[1] + r[2] * ratios[2]);
+                    *dir = if let Some(ratios) = self.line_directions.get(&index) {
+                        let moved =
+                            at.map(|r| r[0] * ratios[0] + r[1] * ratios[1] + r[2] * ratios[2]);
                         geom::unit(moved).unwrap_or(moved)
                     } else {
                         direction(&at, *dir)
@@ -353,8 +400,7 @@ impl Part {
                 Curve::Circle { frame: f, .. } | Curve::Ellipse { frame: f, .. } => frame(&at, f),
                 Curve::Nurbs(curve) => curve.transform_points(point),
             }
-            if let Some(Some((native, context))) = hyperbolas.get_mut(index) {
-                let at = context.prepend(placement);
+            if let Some(native) = self.hyperbolas.get(&index) {
                 let mut conic = native.clone();
                 frame(&at, &mut conic.frame);
                 if let Some(curve) = conic.arc(edge.start, edge.end) {
@@ -375,8 +421,8 @@ impl Part {
         part.face_sources = self.face_sources.clone();
         part.edge_sources = self.edge_sources.clone();
         part.input_repairs = self.input_repairs.clone();
-        part.line_directions = line_directions;
-        part.hyperbolas = hyperbolas;
+        part.line_directions = self.line_directions.clone();
+        part.hyperbolas = self.hyperbolas.clone();
         part.native_faces = native_faces;
         part.native_edges = native_edges;
         Ok(part)
@@ -396,7 +442,7 @@ impl Part {
 
     pub(super) fn with_hyperbolas(
         mut self,
-        hyperbolas: Vec<Option<(geom::Hyperbola, GeometryPlacement)>>,
+        hyperbolas: std::collections::BTreeMap<usize, geom::Hyperbola>,
     ) -> Self {
         self.hyperbolas = hyperbolas;
         self
@@ -404,7 +450,7 @@ impl Part {
 
     pub(super) fn with_line_directions(
         mut self,
-        directions: Vec<Option<(GeometryPlacement, V3)>>,
+        directions: std::collections::BTreeMap<usize, V3>,
     ) -> Self {
         self.line_directions = directions;
         self

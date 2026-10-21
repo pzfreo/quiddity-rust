@@ -26,6 +26,7 @@ fn occurrence(proposal: Proposal<Slot>) -> Occurrence<Slot> {
     }
 }
 
+parity_entry! {
 /// Every slot with its faces, in (width, centre) order. Competing cap clusters skip the
 /// ambiguous occurrence on this record path; the evidence path returns `CompetingCaps`.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Slot>> {
@@ -35,7 +36,9 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Slot>> {
         .map(occurrence)
         .collect()
 }
+}
 
+parity_entry! {
 /// The evidence path (`_discover_slots` with a writer): competing cap clusters refuse, as do
 /// faces without one valid solid and one record given two face sets on one solid; a record
 /// found twice from the same faces is published once.
@@ -68,4 +71,5 @@ pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<Slot>>, Evi
         }
     }
     Ok(pending.into_iter().map(|(o, _)| o).collect())
+}
 }

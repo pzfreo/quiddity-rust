@@ -95,6 +95,7 @@ fn retained(ctx: &Context<'_>, strict: bool) -> Result<Vec<ChannelProposal>, Evi
     Ok(out)
 }
 
+parity_entry! {
 /// Every channel with its two side walls and floor, in record order.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Channel>> {
     retained(ctx, false)
@@ -103,7 +104,9 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Channel>> {
         .map(occurrence)
         .collect()
 }
+}
 
+parity_entry! {
 /// The evidence path (`_discover_channels` with a writer): one record on two wall pairs, side
 /// walls that are one face, a floor missing or among the walls, or faces without one valid
 /// solid refuse.
@@ -128,6 +131,7 @@ pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<Channel>>, 
         out.push(found);
     }
     Ok(out)
+}
 }
 
 #[cfg(test)]

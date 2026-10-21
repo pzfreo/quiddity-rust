@@ -73,9 +73,27 @@ pub fn recognise(part: &Part) -> Recognition {
             };
         }
     };
-    let working = part
-        .transformed(&frame.normalisation())
-        .expect("an inferred frame is rigid");
+    recognise_in_frame(part, frame)
+}
+
+fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
+    let working = match part.transformed(&frame.normalisation()) {
+        Ok(working) => working,
+        Err(_) => {
+            // A failed normalisation must never silently publish caller-space features.
+            let features = Features::default();
+            return Recognition {
+                fingerprints: fingerprint(part, &features),
+                features,
+                frame: RecordFrame::Refused {
+                    reason: frames::FrameRefusal::NonrigidFrame,
+                },
+                local: LocalFields::new(),
+                source_sha256: None,
+                input_repairs: part.input_repairs().to_vec(),
+            };
+        }
+    };
     let Mapped { features, local } = framed_records::to_file(features::recognise(&working), &frame);
     let mut fingerprints = fingerprint(part, &features);
     frame_axes(&mut fingerprints, &features, &local, &frame);
@@ -877,5 +895,36 @@ mod tests {
                 assert!(error.contains(expected), "{expected}: {error}");
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod normalisation_tests {
+    use super::*;
+    #[test]
+    fn invalid_normalisation_refuses_without_caller_space_records() {
+        let part = crate::read_step(include_bytes!(
+            "../../tests/fixtures/large_block_small_fillets.step"
+        ))
+        .unwrap();
+        let frame = PartFrame {
+            origin: [0.; 3],
+            x: [1., 0., 0.],
+            y: [2e-12, 1., 0.],
+            z: [0., 0., 1.],
+            gauge: frames::FrameGauge::Full,
+        };
+        let result = recognise_in_frame(&part, frame);
+        assert_eq!(
+            result.frame,
+            RecordFrame::Refused {
+                reason: frames::FrameRefusal::NonrigidFrame
+            }
+        );
+        assert_eq!(
+            serde_json::to_value(&result.features).unwrap(),
+            serde_json::to_value(Features::default()).unwrap()
+        );
+        assert!(result.fingerprints.features.is_empty());
     }
 }

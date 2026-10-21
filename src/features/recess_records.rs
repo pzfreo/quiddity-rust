@@ -9,16 +9,20 @@ use crate::kernel::py;
 
 pub const AXES: [char; 3] = ['x', 'y', 'z'];
 
+parity_entry! {
 /// The index of an axis letter.
 pub fn axis_index(axis: char) -> usize {
     AXES.iter()
         .position(|&a| a == axis)
         .expect("an axis letter")
 }
+}
 
+parity_entry! {
 /// The axis that is neither of two others.
 pub fn third_axis(a: usize, b: usize) -> usize {
     3 - a - b
+}
 }
 
 /// A milled through-slot: two opposed parallel walls facing each other. `width` is the wall

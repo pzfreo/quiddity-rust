@@ -40,7 +40,14 @@ in [docs/alpha1.md](docs/alpha1.md).
   axis-aligned in their file; consumers must read them through `frame`. `recognise_placed` is
   gone. Caller-space `features::recognise` and `recognise_<family>` are no longer public in
   default builds; the hidden, non-default `python-parity` feature is test-only and unsupported.
-  Feature record types such as `HolePattern` remain public.
+  Discovery and inventory functions, `Context`, evidence builders and lower-level feature
+  algorithms are likewise available only with `python-parity`. Feature record types such as
+  `HolePattern` remain public at their existing paths. Parity integration test targets require
+  `--features python-parity`; `frames::prepare_framed*`, `working_part`, `FramedPart`,
+  `FramedError` and `FramedPart::recognise` are feature-only, as is `RecordFrame::CallerSpace`.
+  `Part::transformed` is new public haecceity API. Both `read_step_placed` and
+  `read_step_file_placed` now also reject non-orthonormal and non-finite placements, in
+  addition to reflections.
 
 - Chamfers, fillets and circular blind steps recognise perpendicular supporting planes rolled
   about a principal run axis, using the planes’ geometry. Motion tests and tighter breakdown

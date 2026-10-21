@@ -137,7 +137,10 @@ It infers the part's frame, transforms the loaded geometry in memory, recognises
 maps records back. It does not re-read STEP. `frame` reports `Inferred` or `Refused { reason }`;
 fields without corresponding file axes remain `local` and must be interpreted through `frame`.
 The CLI, service and recognition document use this same route. `recognise_placed` is removed.
-Caller-space recognition functions are crate-private by default; the hidden `python-parity`
+Caller-space recognition, discovery, inventory, context construction and evidence builders
+are crate-private by default. Record types remain public at their existing paths. The legacy
+`frames::prepare_framed*`, `working_part`, `FramedPart` and `FramedError` helpers and the
+`RecordFrame::CallerSpace` variant are feature-only. The hidden `python-parity`
 feature exposes them only for unchanged Python parity tests, outside the supported API.
 Feature record types remain public.
 

@@ -54,11 +54,13 @@ pub fn recognise_oblique_through_steps(part: &Part) -> Vec<ObliqueThroughStep> {
 }
 }
 
+parity_entry! {
 /// The evidence path: each step with its principal and oblique walls.
 pub fn discover_verified(
     ctx: &Context<'_>,
 ) -> Result<Vec<Occurrence<ObliqueThroughStep>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
+}
 }
 
 /// The outer loop's vertices in boundary order (`outer_wire().vertices()`).
@@ -318,6 +320,7 @@ fn one_pair(
     })
 }
 
+parity_entry! {
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<ObliqueThroughStep>> {
     let part = ctx.part;
     let mut found = Vec::new();
@@ -363,4 +366,5 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<ObliqueThroughStep>> {
         .collect();
     out.sort_by(|a, b| py::tuple_order(&a.record.sort_key(), &b.record.sort_key()));
     out
+}
 }

@@ -1,10 +1,10 @@
 //! Prismatic passages (`quiddity.passages`): a void running through the material, its walls a
 //! closed ring of planar faces capped at neither end.
 //!
-//! Two entry points, as in Python. [`recognise_section_passages`] publishes `SectionPassage`
+//! Two entry points, as in Python. `recognise_section_passages` publishes `SectionPassage`
 //! records from the section-ring proposals ([`super::section_passages`]): the section in a
 //! canonical run-local frame, on any run direction, with the termination planes' gradients.
-//! [`recognise_passages`] is the frozen pre-0.4 finder over principal-axis rings
+//! `recognise_passages` is the frozen pre-0.4 finder over principal-axis rings
 //! ([`super::rings`]), kept for its legacy `Passage` value; each section passage that it also
 //! found must reproduce that value, and a disagreement is refused, not resolved.
 //!
@@ -317,6 +317,7 @@ pub fn recognise_section_passages(part: &Part) -> Checked<Vec<SectionPassage>> {
 }
 }
 
+parity_entry! {
 /// The section passages with their defining walls and consulted faces (the proposal's further
 /// constituent faces: entry treatments or region), or a refusal.
 pub fn discover(ctx: &Context<'_>) -> Checked<Vec<Occurrence<SectionPassage>>> {
@@ -333,23 +334,29 @@ pub fn discover(ctx: &Context<'_>) -> Checked<Vec<Occurrence<SectionPassage>>> {
         })
         .collect())
 }
+}
 
+parity_entry! {
 /// Each section passage's frozen compatibility view (Python's `passage_compatibility`), in
-/// [`discover`]'s order: the slot grouping reconciliation reads ([`super::reconcile`]).
+/// `discover`'s order: the slot grouping reconciliation reads ([`super::reconcile`]).
 pub fn compatibility_views(ctx: &Context<'_>) -> Checked<Vec<PassageCompatibilityView>> {
     Ok(discover_section_passages(ctx)?
         .into_iter()
         .map(|found| found.compatibility)
         .collect())
 }
+}
 
-/// Like [`discover`], every occurrence's faces checked to share one valid solid; for the
+parity_entry! {
+/// Like `discover`, every occurrence's faces checked to share one valid solid; for the
 /// evidence comparison.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<SectionPassage>>, String> {
     let found = discover(ctx).map_err(|e| e.to_string())?;
     super::evidence::verified(ctx.part, found).map_err(|e| e.to_string())
 }
+}
 
+parity_entry! {
 /// Two legacy passages describe one closed section (`_same_legacy_passage_geometry`): the same
 /// axis, sides, length and canonical section, and the same centre, or a centre whose differing
 /// coordinates are opposite 3-decimal roundings of one half-quantum *exact_at* coordinate.
@@ -389,6 +396,7 @@ pub fn same_legacy_passage_geometry(
             && (first_grid - second_grid).abs() == 1.0
             && py::isclose(source, (first_grid + second_grid) / 2000.0, 0.0, 1e-9)
     })
+}
 }
 
 /// The proposal's section rounded, then canonicalised in the serialized domain
@@ -502,6 +510,7 @@ fn proposal_legacy_projection(
     principal_projection(f.origin, f.run, f.u, f.v, o.run_interval(), &points)
 }
 
+parity_entry! {
 /// The frozen pre-0.4 finder and its discovery order (`_legacy_roster`): every ring capped at
 /// neither end as a legacy passage with its walls, by axis then centre.
 pub fn legacy_roster(ctx: &Context<'_>) -> Vec<(Passage, Vec<usize>)> {
@@ -532,6 +541,7 @@ pub fn legacy_roster(ctx: &Context<'_>) -> Vec<(Passage, Vec<usize>)> {
     found.sort_by(|(a, _), (b, _)| a.axis.cmp(&b.axis).then(py::tuple_order(&a.at, &b.at)));
     found
 }
+}
 
 /// A section passage before publication: its record, walls, solid and compatibility view.
 #[derive(Clone)]
@@ -548,7 +558,7 @@ fn same_nodes(a: &[usize], b: &[usize]) -> bool {
     a.len() == b.len() && a.iter().all(|n| b.contains(n))
 }
 
-/// The run's section passages before publication, found once per run ([`Context`]).
+/// The run's section passages before publication, found once per run (`Context`).
 fn discover_section_passages(ctx: &Context<'_>) -> Checked<Vec<Found>> {
     ctx.section_passages().clone()
 }

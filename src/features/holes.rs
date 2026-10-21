@@ -7,7 +7,7 @@
 //!
 //! Python's default inventory retries with `local_degradation` set when this family's strict
 //! evidence refuses on a part whose solids are not all valid; three corpus parts take it
-//! (`tests/local_degradation.rs`). [`discover_locally_degraded`] is that run's evidence path: a
+//! (`tests/local_degradation.rs`). `discover_locally_degraded` is that run's evidence path: a
 //! hole proving no one valid solid is skipped, not refused. The aggregate's inventory takes the
 //! retry where `strict_refusal_retries` says Python's would (`super::inventory_in`).
 
@@ -94,6 +94,7 @@ fn auto_flag<'de, D: serde::Deserializer<'de>>(d: D) -> Result<bool, D::Error> {
     }
 }
 
+parity_entry! {
 /// The evidence path: holes with their defining cylinder faces and the faces that close them,
 /// published only if each lies in one valid solid and no countersink seats two holes.
 pub fn discover_verified(
@@ -104,7 +105,9 @@ pub fn discover_verified(
     seats_once(csinks, &found)?;
     evidence::verified(ctx.part, found)
 }
+}
 
+parity_entry! {
 /// The evidence path as Python's locally degraded run takes it (`_discover_holes` on a graph
 /// with `local_degradation` set): a hole whose cylinder and closing faces prove no one valid
 /// solid is skipped instead of refusing every hole, and the countersink check is made over the
@@ -120,6 +123,7 @@ pub fn discover_locally_degraded(
     found.retain(|h| evidence::locally_proved(ctx.part, h));
     seats_once(csinks, &found)?;
     Ok(found)
+}
 }
 
 /// Whether the aggregate retries locally degraded on these holes (`_take_inventory`): Python's
@@ -521,6 +525,7 @@ fn bore_depth(
     )
 }
 
+parity_entry! {
 /// Holes in stack order, each with its defining cylinder faces; *csinks* are composed onto the
 /// holes they flare.
 pub fn discover(
@@ -635,4 +640,5 @@ pub fn discover(
         });
     }
     out
+}
 }

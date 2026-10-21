@@ -41,9 +41,11 @@ pub fn recognise_flats(part: &Part) -> Vec<Flat> {
 }
 }
 
+parity_entry! {
 /// The evidence path: each flat with its planar face.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<Flat>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
+}
 }
 
 /// Both ends of the flat's chord reach the stock's outside diameter: a flat, not a recess wall
@@ -97,6 +99,7 @@ struct Candidate<'c> {
     face: usize,
 }
 
+parity_entry! {
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Flat>> {
     let part = ctx.part;
     let (z, cross) = z_then_cross(ctx.cylinders());
@@ -189,6 +192,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Flat>> {
             .then_with(|| py::tuple_order(&a.record.at, &b.record.at))
     });
     out
+}
 }
 
 /// Two cylinders share one axis line (`_same_axis_line`).

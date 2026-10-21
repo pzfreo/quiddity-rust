@@ -15,8 +15,8 @@
 //! own occurrence published. Python's module docstring explains why: pairing records with
 //! claims by position survived a permutation that handed every record another's faces.
 //!
-//! [`reconcile`] makes the decisions; [`super::inventory`] makes them on one run's candidates and
-//! [`super::recognise`] applies them, dropping every rejected record (Python's `accepted_set`).
+//! `reconcile` makes the decisions; `super::inventory` makes them on one run's candidates and
+//! `super::recognise` applies them, dropping every rejected record (Python's `accepted_set`).
 //! Python's `ReconciliationResult.complete` gives every undecided candidate a default
 //! acceptance; that is left out here, as is any decision on a family no rule reads.
 
@@ -222,7 +222,7 @@ impl From<PassageError> for ReconcileError {
 /// What the rules read beyond [`Features`]' records and defining faces: each pocket's
 /// constituent faces (its walls, floors and inner region), each section passage's compatibility
 /// view, and the risers' defining faces. Python's aggregate runs risers as a physical family;
-/// the port's [`super::recognise`] calls them on their own, so they are found here with the
+/// the port's `super::recognise` calls them on their own, so they are found here with the
 /// aggregate's options (`_discover_risers`: `min_area_frac` 0.15, the default tolerance; the
 /// body levels it attaches change no record's faces).
 #[derive(Clone, Debug)]
@@ -233,33 +233,37 @@ pub struct Evidence {
 }
 
 impl Evidence {
-    /// The run's evidence on *ctx*'s part, or Python's refusal of its passages.
-    pub fn discover(ctx: &Context<'_>) -> Result<Evidence, ReconcileError> {
-        Self::with_pockets(ctx, &pockets::discover(ctx))
+    parity_entry! {
+        /// The run's evidence on *ctx*'s part, or Python's refusal of its passages.
+        pub fn discover(ctx: &Context<'_>) -> Result<Evidence, ReconcileError> {
+            Self::with_pockets(ctx, &pockets::discover(ctx))
+        }
     }
 
-    /// [`Evidence::discover`], given the run's pocket occurrences.
-    pub fn with_pockets(
-        ctx: &Context<'_>,
-        pockets: &[Occurrence<pockets::Pocket>],
-    ) -> Result<Evidence, ReconcileError> {
-        Ok(Evidence {
-            pocket_constituent: pockets
-                .iter()
-                .map(|o| {
-                    let mut faces: Vec<usize> =
-                        o.defining.iter().chain(&o.context).copied().collect();
-                    faces.sort_unstable();
-                    faces.dedup();
-                    faces
-                })
-                .collect(),
-            passage_compatibility: super::passages::compatibility_views(ctx)?,
-            risers: levels::risers_with_faces(ctx.part, &levels::RiserOptions::default())
-                .into_iter()
-                .map(|(_, faces)| faces)
-                .collect(),
-        })
+    parity_entry! {
+        /// [`Evidence::discover`], given the run's pocket occurrences.
+        pub fn with_pockets(
+            ctx: &Context<'_>,
+            pockets: &[Occurrence<pockets::Pocket>],
+        ) -> Result<Evidence, ReconcileError> {
+            Ok(Evidence {
+                pocket_constituent: pockets
+                    .iter()
+                    .map(|o| {
+                        let mut faces: Vec<usize> =
+                            o.defining.iter().chain(&o.context).copied().collect();
+                        faces.sort_unstable();
+                        faces.dedup();
+                        faces
+                    })
+                    .collect(),
+                passage_compatibility: super::passages::compatibility_views(ctx)?,
+                risers: levels::risers_with_faces(ctx.part, &levels::RiserOptions::default())
+                    .into_iter()
+                    .map(|(_, faces)| faces)
+                    .collect(),
+            })
+        }
     }
 }
 
@@ -314,6 +318,7 @@ impl Decisions {
     }
 }
 
+parity_entry! {
 /// Every decision Python's aggregate makes on *features*' records, in `_reconcile_existing`'s
 /// rule order, or Python's refusal.
 pub fn reconcile(
@@ -323,8 +328,10 @@ pub fn reconcile(
     let sides: Vec<usize> = features.prismatic_pockets.iter().map(|p| p.sides).collect();
     reconcile_faces(&features.defining, &sides, evidence)
 }
+}
 
-/// [`reconcile`] on its inputs alone: each family's defining faces under its [`Features`] field
+parity_entry! {
+/// `reconcile` on its inputs alone: each family's defining faces under its [`Features`] field
 /// name, and each prismatic pocket's side count (the one record value a rule reads).
 pub fn reconcile_faces(
     defining: &Defining,
@@ -535,6 +542,7 @@ pub fn reconcile_faces(
     }
     decisions.0.extend(thin.0);
     completed(decisions.0)
+}
 }
 
 /// The indices of *group*'s candidates whose faces satisfy *wins*, in order.

@@ -33,11 +33,13 @@ pub fn recognise_paired_ramp_steps(part: &Part) -> Vec<PairedRampStep> {
 }
 }
 
+parity_entry! {
 /// The evidence path: both ramps and the internal terminal define each step.
 pub fn discover_verified(
     ctx: &Context<'_>,
 ) -> Result<Vec<Occurrence<PairedRampStep>>, EvidenceError> {
     evidence::verified(ctx.part, discover(ctx))
+}
 }
 
 /// A planar face running along exactly one axis: (axis, normal, per-axis spans).
@@ -68,6 +70,7 @@ fn mid(span: (f64, f64)) -> f64 {
     0.5 * (span.0 + span.1)
 }
 
+parity_entry! {
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<PairedRampStep>> {
     let part = ctx.part;
     let ramps: Vec<Option<Ramp>> = (0..part.faces.len()).map(|f| read_ramp(part, f)).collect();
@@ -90,6 +93,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<PairedRampStep>> {
     }
     found.sort_by(|a, b| order(&a.record, &b.record));
     found
+}
 }
 
 /// The dataclass's field order (`order=True`).

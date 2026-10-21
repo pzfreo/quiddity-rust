@@ -8,6 +8,7 @@ use crate::kernel::brep::Part;
 use crate::kernel::geom::{Curve, Surface, V3, dominant_axis, norm};
 use crate::kernel::py;
 
+parity_entry! {
 /// A planar face's plane as `validated_parameters(PLANE, …)` gives it: the unit normal with its
 /// dominant component (ties to the later axis) made non-negative, and the plane's offset along
 /// it. A B-spline or Bezier face counts when it is certified a plane (`_effective_surfaces`).
@@ -35,7 +36,9 @@ pub fn effective_plane(part: &Part, face: usize) -> Option<(V3, f64)> {
     let norm = py::sum(normal.iter().map(|c| c * c)).sqrt();
     ((norm - 1.0).abs() <= 1e-9 && offset.is_finite()).then_some((normal, offset))
 }
+}
 
+parity_entry! {
 /// The axis a planar face's normal aligns with and the plane's coordinate along it.
 pub fn axis_aligned_axis(part: &Part, face: usize) -> Option<(usize, f64)> {
     let Surface::Plane { frame } = &part.faces[face].surface else {
@@ -48,7 +51,9 @@ pub fn axis_aligned_axis(part: &Part, face: usize) -> Option<(usize, f64)> {
     let ax = dominant_axis(comp);
     Some((ax, frame.origin[ax]))
 }
+}
 
+parity_entry! {
 /// Per axis, the coordinate of *face*'s nearest axis-aligned neighbour plane
 /// (`nearest_axis_aligned_planes`). Distinct equidistant supports refuse: coordinate sign is
 /// not evidence of which corner a feature replaces. The legacy flag is accepted for source
@@ -80,6 +85,7 @@ pub fn nearest_axis_aligned_planes(
         selected.insert(axis, 0.5 * (lo + hi));
     }
     selected
+}
 }
 
 /// All equally nearest supports, for a caller with further intrinsic evidence to test.
@@ -119,18 +125,23 @@ pub(crate) fn nearest_axis_aligned_plane_candidates(
         .collect()
 }
 
+parity_entry! {
 /// `gp_Vec::Normalized` divides each component (multiplying by the reciprocal can differ in
 /// the last bit). `None` for a zero vector, where `gp_Vec::Normalized` raises.
 pub fn normalized(a: V3) -> Option<V3> {
     let l = norm(a);
     (l > 0.0).then(|| a.map(|c| c / l))
 }
+}
 
+parity_entry! {
 /// `_coordinates`: each component rounded, without a negative zero.
 pub fn coordinates(p: V3, digits: usize) -> V3 {
     p.map(|c| py::without_negative_zero(py::round_to(c, digits)))
 }
+}
 
+parity_entry! {
 /// A plane bounded by one loop of four straight edges (`_linear_quad`).
 pub fn linear_quad(part: &Part, face: usize) -> bool {
     let f = &part.faces[face];
@@ -150,10 +161,13 @@ pub fn linear_quad(part: &Part, face: usize) -> bool {
             .all(|&e| matches!(part.edges[e].curve, Curve::Line { .. }))
         && vertices.len() == 4
 }
+}
 
+parity_entry! {
 /// A plane's unit outward normal (`face.normal_at()`, which `gp_Vec::Normalized` returns): read
 /// at parameter `(0, 0)` and divided by its length. The surface type is not checked: the caller
 /// passes a plane (on any other face this is the normal at that one parameter point).
 pub fn unit_plane_normal(part: &Part, face: usize) -> Option<V3> {
     part.face_normal(face, 0.0, 0.0).and_then(normalized)
+}
 }

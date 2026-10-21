@@ -34,6 +34,7 @@ pub struct Bevel {
     pub leg_lo: f64,
 }
 
+parity_entry! {
 pub fn classify_bevel(part: &Part, face: usize) -> Result<Bevel, BevelReject> {
     let Surface::Plane { .. } = part.faces[face].surface else {
         return Err(BevelReject::Nonplanar);
@@ -60,7 +61,9 @@ pub fn classify_bevel(part: &Part, face: usize) -> Result<Bevel, BevelReject> {
         leg_lo: legs[0].min(legs[1]),
     })
 }
+}
 
+parity_entry! {
 /// The point just off the virtual sharp corner a bevel replaces: the corner sits where the two
 /// neighbour planes cross, at the bevel's own position along its edge; *toward* 1 nudges it to
 /// the bevel's side, -1 to the far side (`_near_corner`).
@@ -73,7 +76,9 @@ pub fn near_corner(centre: V3, edge_axis: usize, planes: &BTreeMap<usize, f64>, 
     let step = toward * INTERIOR_PROBE_FRAC;
     [0, 1, 2].map(|i| corner[i] + step * (centre[i] - corner[i]))
 }
+}
 
+parity_entry! {
 /// Is there material just beyond the virtual corner, away from the bevel
 /// (`material_beyond_corner`)? A bevel on a recess wall replaces the corner where two of its
 /// walls meet, with the stock behind it; a bevel on an edge of the part has free space there.
@@ -88,7 +93,9 @@ pub fn material_beyond_corner(
         near_corner(centre, edge_axis, planes, -1.0),
     )
 }
+}
 
+parity_entry! {
 /// Does the virtual sharp corner the bevel replaces lie outside the solid (`convex_bevel`)?
 /// Only a clean `IN` counts as material, as with `BRepClass3d`.
 pub fn convex_bevel(
@@ -101,6 +108,7 @@ pub fn convex_bevel(
         ctx.classifier(),
         near_corner(centre, edge_axis, planes, 1.0),
     )
+}
 }
 
 /// A bevel's virtual corner must stand off its own cutting plane, into free space. A nearest

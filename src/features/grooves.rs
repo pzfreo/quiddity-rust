@@ -50,6 +50,7 @@ pub fn recognise_grooves(part: &Part) -> Vec<Groove> {
 }
 }
 
+parity_entry! {
 /// The evidence path: each groove with its floor band, on one valid solid, and no turned
 /// profile key shared by two solids.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<Groove>>, EvidenceError> {
@@ -68,6 +69,7 @@ pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<Groove>>, E
         }
     }
     Ok(found)
+}
 }
 
 /// A conical face as its axis direction and its circular rims (centre, radius).
@@ -220,6 +222,7 @@ fn shaft_key(c: &CylinderEvidence) -> ShaftKey {
     )
 }
 
+parity_entry! {
 /// Each groove with its floor band as the defining face, sorted by axis then `at`.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Groove>> {
     let part = ctx.part;
@@ -319,4 +322,5 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Groove>> {
             .then_with(|| py::tuple_order(&a.record.at, &b.record.at))
     });
     out
+}
 }

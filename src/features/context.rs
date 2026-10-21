@@ -30,6 +30,7 @@ pub struct Context<'a> {
 }
 
 impl<'a> Context<'a> {
+parity_entry! {
     pub fn new(part: &'a Part) -> Self {
         Context {
             part,
@@ -42,6 +43,7 @@ impl<'a> Context<'a> {
             section_passages: OnceLock::new(),
         }
     }
+}
 
     /// The whole part's box.
     pub fn bounds(&self) -> &Bounds {

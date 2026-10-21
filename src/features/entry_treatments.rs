@@ -47,18 +47,22 @@ fn arc_is(part: &Part, a: usize, b: usize, kinds: &[Arc]) -> bool {
     part.arc(a, b).is_some_and(|k| kinds.contains(&k))
 }
 
+parity_entry! {
 /// The fraction of *probe*'s volume that *owner*'s material fills (`material_fraction`).
 pub fn material_fraction(ctx: &Context<'_>, owner: usize, probe: &Part) -> Option<f64> {
     let probe = Probe::Solid(RayCaster::for_solid(probe, 0));
     let whole = probe_volume(&probe).filter(|&v| v > 0.0)?;
     Some(common_volume(ctx.solid_classifier(owner), &probe)? / whole)
 }
+}
 
+parity_entry! {
 /// Whether [`material_fraction`] is at most *limit* (an unanswered fraction is not), measured
 /// only as far as the answer needs ([`fills_at_most`]).
 pub fn material_at_most(ctx: &Context<'_>, owner: usize, probe: &Part, limit: f64) -> bool {
     let probe = Probe::Solid(RayCaster::for_solid(probe, 0));
     fills_at_most(ctx.solid_classifier(owner), &probe, limit)
+}
 }
 
 /// The removed cell under one bevel (`_cell_supports`): outside the base wall, inside the stock
@@ -162,6 +166,7 @@ fn cell_supports(
         .then_some(cell)
 }
 
+parity_entry! {
 /// Explain every missing base-wall patch of the ring *seed* by finite observed planar
 /// treatments (`prove_entry_treatments`): *wire* is the mouth (an inner loop of the opening
 /// face, as `(edge, forward)` uses), the walls run along *run* from the mouth at *at* to the
@@ -277,4 +282,5 @@ pub fn prove_entry_treatments(
         }
     }
     Some(EntryTreatmentProof { treatments, stock })
+}
 }

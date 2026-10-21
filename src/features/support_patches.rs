@@ -13,9 +13,11 @@ use crate::kernel::brep::{Edge, Face, Loop, Part, Solid};
 use crate::kernel::cover::{FaceRef, covered};
 use crate::kernel::geom::{self, Curve, Frame, Surface, V3};
 
+parity_entry! {
 /// `covered_patch`: whether the supports leave at most 1e-9 of the patch's area uncovered.
 pub fn covered_patch(patch: FaceRef<'_>, supports: &[FaceRef<'_>]) -> bool {
     covered(patch, supports)
+}
 }
 
 /// The unit normal of a planar loop by Newell's method, its walk counter-clockwise about it.
@@ -30,6 +32,7 @@ fn loop_normal(points: &[V3], corners: &[usize]) -> Option<V3> {
     geom::unit(n)
 }
 
+parity_entry! {
 /// A part of planar faces bounded by straight edges: *faces* lists each face's corners as
 /// indices into *points*, walked counter-clockwise seen from the side the face's normal points
 /// to. With `closed`, the faces are one solid's shell and must point outward; otherwise they
@@ -99,13 +102,17 @@ pub fn polygon_part(points: &[V3], faces: &[Vec<usize>], closed: bool) -> Option
     };
     Some(Part::new(built, edges, solids))
 }
+}
 
+parity_entry! {
 /// One polygon face through *corners* in order (`Face(Wire.make_polygon(corners))`), its normal
 /// by the walk.
 pub fn polygon_face(corners: &[V3]) -> Option<Part> {
     polygon_part(corners, &[(0..corners.len()).collect()], false)
 }
+}
 
+parity_entry! {
 /// The closed solid between two copies of one polygon, *low* and *high* corner for corner, each
 /// side a planar quad (a ruled loft of two polygons whose corners are joined by parallel lines,
 /// `Solid.make_loft(..., ruled=True)`, or an extrusion). `None` unless the result is a valid
@@ -133,4 +140,5 @@ pub fn ruled_prism(low: &[V3], high: &[V3]) -> Option<Part> {
     }
     let part = polygon_part(&points, &faces, true)?;
     part.solid_is_valid(0).then_some(part)
+}
 }

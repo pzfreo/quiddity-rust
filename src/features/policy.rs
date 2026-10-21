@@ -9,12 +9,15 @@ pub const AXIS_ALIGNED_COS: f64 = 0.99;
 pub const AXIS_ZERO_COS: f64 = 0.01;
 pub const INTERIOR_PROBE_FRAC: f64 = 0.05;
 
+parity_entry! {
 /// `quiddity._geometry.clears_threshold`: above the threshold, an exact tie (to 1e-9) counting
 /// as below, so the decision is the same at every scale.
 pub fn clears_threshold(magnitude: f64, threshold: f64) -> bool {
     magnitude >= threshold * (1.0 + 1e-9)
 }
+}
 
+parity_entry! {
 /// Bounded coordinate clusters. A unique minimum-cardinality partition is intrinsic to the
 /// distances; opening each cluster at the lowest coordinate would choose a side of a tolerance
 /// chain. Connected components with multiple minimum partitions refuse rather than claim one.
@@ -63,12 +66,16 @@ pub fn cluster_coordinates(coordinates: &[f64], tol: f64) -> Vec<Vec<usize>> {
     }
     out
 }
+}
 
+parity_entry! {
 /// `quiddity._geometry.length_tol`.
 pub fn length_tol(nominal: f64, rel: f64) -> f64 {
     rel * nominal + COORD_FLOOR
 }
+}
 
+parity_entry! {
 /// Round a measured size on its publication grid. Decimal half-way points within the
 /// kernel's coordinate floor use ties-to-even, so placement round-off cannot choose a side.
 /// Absolute positions keep their existing publication rule; round lengths before positions.
@@ -87,6 +94,7 @@ pub fn round_measurement(value: f64, digits: usize) -> f64 {
         scaled
     };
     py::without_negative_zero(stable.round_ties_even() / factor)
+}
 }
 
 #[cfg(test)]

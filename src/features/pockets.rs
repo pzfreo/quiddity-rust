@@ -41,6 +41,7 @@ fn occurrence(proposal: Proposal<Pocket>) -> (Occurrence<Pocket>, Vec<usize>) {
     (found, members.into_iter().collect())
 }
 
+parity_entry! {
 /// Every pocket with its faces, in (width, centre) order. Competing cap clusters skip the
 /// ambiguous occurrence on this record path; the evidence path returns `CompetingCaps`.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Pocket>> {
@@ -50,7 +51,9 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Pocket>> {
         .map(|p| occurrence(p).0)
         .collect()
 }
+}
 
+parity_entry! {
 /// The evidence path (`_discover_pockets` with a writer): competing cap clusters refuse, as do
 /// a wall- or cap-found pocket without floor faces, faces without one valid solid, and one
 /// record given two face sets on one solid; a record found twice from the same faces is
@@ -58,7 +61,9 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Pocket>> {
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<Pocket>>, EvidenceError> {
     verified(ctx, false)
 }
+}
 
+parity_entry! {
 /// The evidence path as Python's locally degraded run takes it (`_discover_pockets` on a graph
 /// with `local_degradation` set): a pocket whose faces (defining, floors, inner region) prove no
 /// one valid solid is skipped instead of refusing every pocket, and the duplicate check is made
@@ -69,6 +74,7 @@ pub fn discover_locally_degraded(
     ctx: &Context<'_>,
 ) -> Result<Vec<Occurrence<Pocket>>, EvidenceError> {
     verified(ctx, true)
+}
 }
 
 /// The evidence path, skipping (when *degraded*) rather than refusing a pocket proving no one

@@ -13,7 +13,7 @@ macro_rules! parity_entry {
         pub $($rest)*
         #[cfg(not(feature = "python-parity"))]
         $(#[$meta])*
-        #[allow(dead_code)] // Some family wrappers are used only by parity tests.
+        #[allow(dead_code, unused_imports)] // Unsupported parity helpers may have no internal callers.
         pub(crate) $($rest)*
     };
 }
@@ -30,7 +30,10 @@ pub mod serve;
 pub use haecceity as kernel;
 
 pub use correspondence::{Correspondence, Fingerprints, correspond};
-pub use evidence_view::{RecognitionEvidence, build_recognition_evidence};
+pub use evidence_view::RecognitionEvidence;
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use evidence_view::build_recognition_evidence;
 pub use features::angled_steps::AngledStep;
 pub use features::blends::{Blend, BlendPath, CircularBlendPath, StraightBlendPath};
 pub use features::bosses::BossRecord;
@@ -57,7 +60,7 @@ pub use features::oriented_chamfers::{OrientedChamfer, OrientedChamferOptions};
 pub use features::oriented_slots::{OrientedSlot, OrientedSlotPattern};
 pub use features::outer_profile::{
     OuterProfileRefusalReason, PlanarOuterProfile, PlanarOuterProfileEvidence, ProfileArc,
-    ProfileLine, ProfileSupport, RefusedPlanarOuterProfile, planar_outer_profile,
+    ProfileLine, ProfileSupport, RefusedPlanarOuterProfile,
 };
 pub use features::pads::{PadError, PadOptions, RaisedPad};
 pub use features::paired_ramp_steps::PairedRampStep;
@@ -73,9 +76,7 @@ pub use features::recess_patterns::{PocketPattern, SlotPattern};
 pub use features::rectangular_blind_slots::RectangularBlindSlot;
 pub use features::repeating_profiles::{RepeatingRadialProfile, RepeatingRadialProfileOptions};
 pub use features::round_bottom_slots::RoundBottomBlindSlot;
-pub use features::section_recess_family::{
-    SectionRecessFamilyError, build_section_recess_document,
-};
+pub use features::section_recess_family::SectionRecessFamilyError;
 pub use features::sheet_metal::{SheetMetalBody, SheetMetalOptions};
 pub use features::slots::Slot;
 pub use features::thin_walls::ThinWallBody;
@@ -87,7 +88,6 @@ pub use kernel::step::{read_step, read_step_file};
 
 pub use features::modelled_threads::{
     ModelledThread, ModelledThreadRefusal, ThreadAnalysis, ThreadAxis, ThreadTolerances,
-    analyse_modelled_threads,
 };
 
 #[cfg(feature = "python-parity")]
@@ -213,3 +213,15 @@ pub use features::through_steps::recognise_through_steps;
 #[cfg(feature = "python-parity")]
 #[doc(hidden)]
 pub use features::turned_steps::recognise_turned_steps;
+
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::outer_profile::planar_outer_profile;
+
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::section_recess_family::build_section_recess_document;
+
+#[cfg(feature = "python-parity")]
+#[doc(hidden)]
+pub use features::modelled_threads::analyse_modelled_threads;

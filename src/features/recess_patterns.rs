@@ -4,7 +4,7 @@
 //! Pure arithmetic over [`Slot`] and [`Pocket`] records, derived from them as hole patterns are
 //! from holes. Records are grouped by orientation, size, plane and body; each group's centres
 //! are projected into the plane across its depth axis, and the grid and linear-array candidates
-//! ([`super::pattern_geometry`]) are allocated greedily, largest first, so each record joins at
+//! (`super::pattern_geometry`) are allocated greedily, largest first, so each record joins at
 //! most one pattern. A record whose body is ambiguous (`body_key` `None`) joins none.
 
 use serde::Serialize;

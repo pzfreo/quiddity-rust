@@ -2,7 +2,7 @@
 //! per-run machinery they share.
 //!
 //! Each family module has a crate-private `recognise_*` (records only, exposed solely by
-//! the unsupported `python-parity` test feature) and a `discover` taking the run's [`Context`], returning
+//! the unsupported `python-parity` test feature) and a `discover` taking the run's `Context`, returning
 //! [`Occurrence`]s carrying the faces that define each record. Shared analysis — the cylinder
 //! inventory, the point classifier, the part's box — lives in the context so a run computes it
 //! once however many families ask.
@@ -18,7 +18,7 @@ pub mod chamfers;
 pub mod channels;
 pub mod circular_blind_steps;
 pub mod circular_face_patterns;
-pub mod context;
+parity_entry! { pub mod context; }
 pub mod countersinks;
 pub mod cylinders;
 pub mod cylindrical_channels;
@@ -94,7 +94,7 @@ pub mod turned_steps;
 pub mod volume_probe;
 pub mod wire_seed;
 
-pub use context::Context;
+parity_entry! { pub use context::Context; }
 pub use evidence::{EvidenceError, Occurrence};
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -104,10 +104,10 @@ use serde::Serialize;
 use crate::kernel::brep::Part;
 
 /// Every ported family's records for one part, computed in one run that shares its analysis.
-/// [`recognise`] gives the records the Python aggregate's cross-family reconciliation
-/// (`_reconcile_existing`, [`reconcile`]) accepts, with patterns derived from accepted members
-/// only; [`inventory`] keeps every candidate and the decisions.
-#[derive(Clone, Debug, Serialize)]
+/// `recognise` gives the records the Python aggregate's cross-family reconciliation
+/// (`_reconcile_existing`, `reconcile`) accepts, with patterns derived from accepted members
+/// only; `inventory` keeps every candidate and the decisions.
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct Features {
     /// The completed run, independent of the thread-local retry flag after recognition.
     #[serde(skip)]
@@ -170,14 +170,14 @@ pub struct Features {
     pub oriented_slot_patterns: Vec<oriented_slots::OrientedSlotPattern>,
     pub pads: Vec<pads::RaisedPad>,
     /// The aggregate's step levels (`RecognitionResult.step_levels`, `_discover_step_levels`),
-    /// unproved like every family here (Python's proof: [`levels::proved`]).
+    /// unproved like every family here (Python's proof: `levels::proved`).
     pub step_levels: Vec<levels::FaceLevel>,
     /// The aggregate's risers (`RecognitionResult.risers`, `_discover_risers`), less those
     /// reconciliation rejects for a thin-wall body.
     pub risers: Vec<levels::RiserEvidence>,
     /// The aggregate's section recesses (`RecognitionResult.section_recesses`, projected by
     /// `_project_result` from the same run: [`section_recess_family`]), in Python's order, each
-    /// defined by its record's own defining faces. [`recognise`] fills them; the inventory's
+    /// defined by its record's own defining faces. `recognise` fills them; the inventory's
     /// candidates have none. Published alongside the source families in the recognition
     /// document (maintainer decision, 2026-10-11).
     pub section_recesses: Vec<section_recess::SectionRecess>,
@@ -188,7 +188,7 @@ pub struct Features {
     /// The recognition document appends these to the section-recess family.
     #[serde(skip)]
     pub section_recess_refusals: Vec<section_recess::SectionRecessRefusal>,
-    /// The section-recess projection's refusal, where [`recognise`] carries one (and so has no
+    /// The section-recess projection's refusal, where `recognise` carries one (and so has no
     /// section recesses).
     #[serde(skip)]
     pub section_recess_refusal: Option<section_recess_family::SectionRecessFamilyError>,
@@ -221,7 +221,7 @@ pub fn recognise(part: &Part) -> Features {
 }
 }
 
-/// [`recognise`] over one completed run.
+/// `recognise` over one completed run.
 fn recognise_in(ctx: &Context<'_>, inventory: Inventory) -> Features {
     let projection = section_recess_family::section_recess_projection_in(ctx, &inventory);
     let mut features = inventory.accepted();
@@ -275,7 +275,7 @@ pub struct Inventory {
 impl Inventory {
     /// The accepted inventory (`accepted_set` on every family) with its patterns derived
     /// (`_derive_patterns`): each rejected candidate's record and defining faces dropped, in
-    /// order. Section recesses are not projected here ([`recognise`] does, from the run).
+    /// order. Section recesses are not projected here (`recognise` does, from the run).
     pub fn accepted(self) -> Features {
         let mut f = self.physical;
         let mut rejected: BTreeMap<reconcile::Family, BTreeSet<usize>> = BTreeMap::new();
@@ -353,11 +353,13 @@ fn drop_rejected<T>(items: &mut Vec<T>, indices: &BTreeSet<usize>) {
     });
 }
 
+parity_entry! {
 /// Every ported family's candidates on *part* with default options and the reconciliation's
 /// decisions on them, or the reconciliation's refusal; locally degraded where Python's
 /// aggregate retries so (`take_inventory`).
 pub fn inventory(part: &Part) -> Result<Inventory, reconcile::ReconcileError> {
     take_inventory(part, |_, inventory| inventory)
+}
 }
 
 /// Python's `_take_inventory` with its bounded fallback: one strict run, or, where that run's
@@ -403,13 +405,13 @@ fn skip_unproved<R>(part: &Part, found: Vec<Occurrence<R>>) -> Vec<Occurrence<R>
     degraded_skip(found, |o| evidence::locally_proved(part, o))
 }
 
-/// One run of [`inventory`] on a context the caller keeps, so a projection of it reads the same
+/// One run of `inventory` on a context the caller keeps, so a projection of it reads the same
 /// analysis, in the current mode ([`evidence::local_degradation`]). `None` where a strict run
 /// would retry ([`take_inventory`]): as Python's raises, the run stops at its holes. A locally
 /// degraded run skips the records Python's families skip in that mode where the port has the
 /// family's check: holes, pockets, slots, channels, fillets, prismatic pockets and edge-open
 /// prismatic and circular recesses (on defining and consulted faces, [`skip_unproved`]), step
-/// levels and risers (on their defining faces, as [`levels::proved`]), plates (in
+/// levels and risers (on their defining faces, as `levels::proved`), plates (in
 /// [`plates::discover`]) and rectangular pads (in [`pads::discover`]).
 pub(crate) fn inventory_in(
     ctx: &Context<'_>,
@@ -675,7 +677,9 @@ fn kept<R>(kept: &mut Kept<'_>, family: &'static str, found: Vec<Occurrence<R>>)
     records(found)
 }
 
+parity_entry! {
 /// The records of a family's occurrences, in order.
 pub fn records<R>(found: Vec<Occurrence<R>>) -> Vec<R> {
     found.into_iter().map(|o| o.record).collect()
+}
 }

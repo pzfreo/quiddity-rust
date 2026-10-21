@@ -168,3 +168,11 @@ required-features = ["python-parity"]
 [[example]]
 name = "mfinstseg_score"
 required-features = ["python-parity"]
+
+[[example]]
+name = "cylinders"
+required-features = ["python-parity"]
+
+[[example]]
+name = "holes"
+required-features = ["python-parity"]
