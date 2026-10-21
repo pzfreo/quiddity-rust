@@ -85,6 +85,62 @@ pub(crate) struct RawFrame {
     pub(crate) reference: Option<V3>,
 }
 
+/// A swept surface as the file states it (file units, before the reader's conversion to
+/// NURBS): writing it again in a file of the same length unit converts back to the same
+/// NURBS, so the face keeps its kind.
+#[derive(Clone, Debug, PartialEq)]
+pub(crate) enum SweptSource {
+    Revolution {
+        profile: RawProfile,
+        location: V3,
+        axis: Option<V3>,
+        /// The file's length unit in millimetres.
+        to_mm: f64,
+    },
+    Extrusion {
+        profile: RawProfile,
+        direction: V3,
+        magnitude: f64,
+        to_mm: f64,
+    },
+}
+
+impl SweptSource {
+    pub(crate) fn to_mm(&self) -> f64 {
+        match self {
+            SweptSource::Revolution { to_mm, .. } | SweptSource::Extrusion { to_mm, .. } => *to_mm,
+        }
+    }
+}
+
+/// A swept surface's profile curve as the file states it.
+#[derive(Clone, Debug, PartialEq)]
+pub(crate) enum RawProfile {
+    Line {
+        point: V3,
+        direction: V3,
+        magnitude: f64,
+    },
+    Circle {
+        origin: V3,
+        frame: RawFrame,
+        radius: f64,
+    },
+    Ellipse {
+        origin: V3,
+        frame: RawFrame,
+        semi_axis_1: f64,
+        semi_axis_2: f64,
+    },
+    BSpline {
+        degree: i64,
+        points: Vec<V3>,
+        multiplicities: Vec<i64>,
+        knots: Vec<f64>,
+        weights: Option<Vec<f64>>,
+    },
+}
+
 #[derive(Clone, Debug)]
 pub struct Solid {
     pub faces: Vec<usize>,
@@ -248,6 +304,7 @@ pub struct Part {
     // The file's frame ratios of analytic surfaces and of circle, ellipse and conic edges.
     face_frames: std::collections::BTreeMap<usize, RawFrame>,
     edge_frames: std::collections::BTreeMap<usize, RawFrame>,
+    swept: std::collections::BTreeMap<usize, SweptSource>,
     native_faces: Vec<Native<Face>>,
     native_edges: Vec<Native<Edge>>,
 }
@@ -273,6 +330,7 @@ impl Part {
             pcurve_splines: Vec::new(),
             face_frames: Default::default(),
             edge_frames: Default::default(),
+            swept: Default::default(),
             native_faces: Vec::new(),
             native_edges: Vec::new(),
         }
@@ -467,6 +525,7 @@ impl Part {
         part.pcurve_splines = self.pcurve_splines.clone();
         part.face_frames = self.face_frames.clone();
         part.edge_frames = self.edge_frames.clone();
+        part.swept = self.swept.clone();
         part.native_faces = native_faces;
         part.native_edges = native_edges;
         Ok(part)
@@ -505,6 +564,19 @@ impl Part {
         self.face_frames = faces;
         self.edge_frames = edges;
         self
+    }
+
+    pub(super) fn with_swept(
+        mut self,
+        swept: std::collections::BTreeMap<usize, SweptSource>,
+    ) -> Self {
+        self.swept = swept;
+        self
+    }
+
+    /// Face *face*'s swept surface as the file states it, before [`Self::face_placement`].
+    pub(crate) fn face_swept(&self, face: usize) -> Option<&SweptSource> {
+        self.swept.get(&face)
     }
 
     /// The file's frame ratios of face *face*'s analytic surface, before

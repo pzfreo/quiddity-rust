@@ -43,7 +43,7 @@ use step_io::build::LengthUnit;
 use step_io::model as m;
 use step_io::{AuthorError, StepBuilder};
 
-use crate::brep::{Edge, Face, Part, Pcurve, RawFrame};
+use crate::brep::{Edge, Face, Part, Pcurve, RawFrame, RawProfile, SweptSource};
 use crate::geom::{self, Conic, Curve, Frame, Surface, V3};
 use crate::nurbs::{NurbsCurve, NurbsSurface};
 use crate::pmi::{self, PartPmi};
@@ -515,6 +515,141 @@ fn nurbs_surface(b: &mut StepBuilder, s: &NurbsSurface) -> Result<m::SurfaceRef,
     ])?))
 }
 
+fn raw_axis2(
+    b: &mut StepBuilder,
+    origin: V3,
+    frame: &RawFrame,
+) -> Result<m::Axis2Placement3dId, AuthorError> {
+    let a = b.author();
+    let location = a.add_cartesian_point("", origin.into())?;
+    let axis = match frame.axis {
+        Some(d) => Some(m::DirectionRef::Direction(a.add_direction("", d.into())?)),
+        None => None,
+    };
+    let reference = match frame.reference {
+        Some(d) => Some(m::DirectionRef::Direction(a.add_direction("", d.into())?)),
+        None => None,
+    };
+    a.add_axis2_placement3d(
+        "",
+        m::CartesianPointRef::CartesianPoint(location),
+        axis,
+        reference,
+    )
+}
+
+fn raw_vector(b: &mut StepBuilder, d: V3, magnitude: f64) -> Result<m::VectorId, AuthorError> {
+    let a = b.author();
+    let d = a.add_direction("", d.into())?;
+    a.add_vector("", m::DirectionRef::Direction(d), magnitude)
+}
+
+/// A swept surface's profile, as the file stated it.
+fn raw_profile(b: &mut StepBuilder, p: &RawProfile) -> Result<m::CurveRef, AuthorError> {
+    Ok(match p {
+        RawProfile::Line {
+            point,
+            direction,
+            magnitude,
+        } => {
+            let v = raw_vector(b, *direction, *magnitude)?;
+            let a = b.author();
+            let pnt = a.add_cartesian_point("", (*point).into())?;
+            m::CurveRef::Line(a.add_line(
+                "",
+                m::CartesianPointRef::CartesianPoint(pnt),
+                m::VectorRef::Vector(v),
+            )?)
+        }
+        RawProfile::Circle {
+            origin,
+            frame,
+            radius,
+        } => {
+            let p = raw_axis2(b, *origin, frame)?;
+            m::CurveRef::Circle(b.author().add_circle(
+                "",
+                m::Axis2PlacementRef::Axis2Placement3d(p),
+                *radius,
+            )?)
+        }
+        RawProfile::Ellipse {
+            origin,
+            frame,
+            semi_axis_1,
+            semi_axis_2,
+        } => {
+            let p = raw_axis2(b, *origin, frame)?;
+            m::CurveRef::Ellipse(b.author().add_ellipse(
+                "",
+                m::Axis2PlacementRef::Axis2Placement3d(p),
+                *semi_axis_1,
+                *semi_axis_2,
+            )?)
+        }
+        RawProfile::BSpline {
+            degree,
+            points: ps,
+            multiplicities,
+            knots,
+            weights,
+        } => {
+            let cps = points(b, ps)?;
+            bspline_curve(
+                b,
+                usize::try_from(*degree).unwrap_or(usize::MAX),
+                cps,
+                knots.clone(),
+                multiplicities.clone(),
+                weights.as_deref(),
+            )?
+        }
+    })
+}
+
+/// A surface of revolution or linear extrusion, as the file stated it.
+fn swept_surface(b: &mut StepBuilder, s: &SweptSource) -> Result<m::SurfaceRef, AuthorError> {
+    Ok(match s {
+        SweptSource::Revolution {
+            profile,
+            location,
+            axis,
+            ..
+        } => {
+            let curve = raw_profile(b, profile)?;
+            let a = b.author();
+            let location = a.add_cartesian_point("", (*location).into())?;
+            let axis = match axis {
+                Some(d) => Some(m::DirectionRef::Direction(
+                    a.add_direction("", (*d).into())?,
+                )),
+                None => None,
+            };
+            let position =
+                a.add_axis1_placement("", m::CartesianPointRef::CartesianPoint(location), axis)?;
+            m::SurfaceRef::SurfaceOfRevolution(a.add_surface_of_revolution(
+                "",
+                curve,
+                m::Axis1PlacementRef::Axis1Placement(position),
+            )?)
+        }
+        SweptSource::Extrusion {
+            profile,
+            direction,
+            magnitude,
+            ..
+        } => {
+            let curve = raw_profile(b, profile)?;
+            let v = raw_vector(b, *direction, *magnitude)?;
+            m::SurfaceRef::SurfaceOfLinearExtrusion(b.author().add_surface_of_linear_extrusion(
+                "",
+                curve,
+                m::VectorRef::Vector(v),
+            )?)
+        }
+    })
+}
+
 /// A point or direction moved by a placement's rotation (and translation, for a point).
 fn rotate(at: &crate::step::Placement, d: V3) -> V3 {
     at.map(|r| r[0] * d[0] + r[1] * d[1] + r[2] * d[2])
@@ -620,7 +755,8 @@ impl<'p> Writer<'p> {
         face: usize,
         report: &mut WriteReport,
     ) -> Result<m::SurfaceRef, WriteError> {
-        let raw = self.part.face_frame(face).map(|r| (r, self.face_at(face)));
+        let at = self.face_at(face);
+        let raw = self.part.face_frame(face).map(|r| (r, at));
         let held = self.face(face);
         let b = &mut self.b;
         Ok(match &held.surface {
@@ -674,10 +810,21 @@ impl<'p> Writer<'p> {
                 )?)
             }
             Surface::Freeform { kind, surface } => {
-                if *kind != "BSPLINE" {
-                    report.surface_kinds_changed.push((face, kind));
+                // A swept surface the file stated in millimetres is written as the file
+                // stated it, which converts back to the same NURBS.
+                let swept = self
+                    .part
+                    .face_swept(face)
+                    .filter(|s| at == crate::step::IDENTITY && s.to_mm() == 1.0);
+                match swept {
+                    Some(source) => swept_surface(b, source)?,
+                    None => {
+                        if *kind != "BSPLINE" {
+                            report.surface_kinds_changed.push((face, kind));
+                        }
+                        nurbs_surface(b, surface)?
+                    }
                 }
-                nurbs_surface(b, surface)?
             }
             Surface::Other { kind } => {
                 return Err(WriteError::Unsupported(vec![format!(

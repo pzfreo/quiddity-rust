@@ -11,7 +11,7 @@ use step_io::scene::{Edge as StepEdge, Face as StepFace, SurfaceKind};
 
 use super::brep::{
     Edge, Face, GeometryPlacement, InstanceTransform, Loop, Part, Pcurve, PcurveSpline, RawFrame,
-    Solid, Source,
+    RawProfile, Solid, Source, SweptSource,
 };
 use super::geom::{self, Curve, Frame, Surface, V3};
 use super::nurbs::{NurbsCurve, NurbsSurface};
@@ -183,6 +183,169 @@ impl Reader<'_> {
         RawFrame {
             axis: a.axis.as_ref().and_then(ratios),
             reference: a.ref_direction.as_ref().and_then(ratios),
+        }
+    }
+
+    /// A cartesian point's coordinates as the file gives them.
+    fn raw_point(&self, r: &m::CartesianPointRef) -> Option<V3> {
+        let m::CartesianPointRef::CartesianPoint(i) = r else {
+            return None;
+        };
+        let c = &self
+            .model
+            .get(m::CartesianPointId(i.0))
+            .expect("validated STEP reference")
+            .coordinates;
+        Some([0, 1, 2].map(|k| c.get(k).copied().unwrap_or(0.0)))
+    }
+
+    /// A direction's ratios as the file gives them.
+    fn raw_ratios(&self, r: &m::DirectionRef) -> Option<V3> {
+        let m::DirectionRef::Direction(i) = r else {
+            return None;
+        };
+        let c = &self
+            .model
+            .get(m::DirectionId(i.0))
+            .expect("validated STEP reference")
+            .direction_ratios;
+        Some([0, 1, 2].map(|k| c.get(k).copied().unwrap_or(0.0)))
+    }
+
+    /// A vector's direction ratios and magnitude as the file gives them.
+    fn raw_vector(&self, r: &m::VectorRef) -> Option<(V3, f64)> {
+        let m::VectorRef::Vector(i) = r else {
+            return None;
+        };
+        let v = self
+            .model
+            .get(m::VectorId(i.0))
+            .expect("validated STEP reference");
+        Some((self.raw_ratios(&v.orientation)?, v.magnitude))
+    }
+
+    /// A swept surface's profile as the file states it (lines, circles, ellipses and
+    /// B-splines; `None` for other profiles).
+    fn raw_profile(&self, r: &m::CurveRef) -> Option<RawProfile> {
+        let model = self.model;
+        let placed = |p: &m::Axis2PlacementRef| {
+            let m::Axis2PlacementRef::Axis2Placement3d(id) = p else {
+                return None;
+            };
+            let a = model.get(*id)?;
+            Some((self.raw_point(&a.location)?, self.raw_frame(*id)))
+        };
+        Some(match r {
+            m::CurveRef::Line(i) => {
+                let l = model.get(m::LineId(i.0))?;
+                let (direction, magnitude) = self.raw_vector(&l.dir)?;
+                RawProfile::Line {
+                    point: self.raw_point(&l.pnt)?,
+                    direction,
+                    magnitude,
+                }
+            }
+            m::CurveRef::Circle(i) => {
+                let c = model.get(m::CircleId(i.0))?;
+                let (origin, frame) = placed(&c.position)?;
+                RawProfile::Circle {
+                    origin,
+                    frame,
+                    radius: c.radius,
+                }
+            }
+            m::CurveRef::Ellipse(i) => {
+                let e = model.get(m::EllipseId(i.0))?;
+                let (origin, frame) = placed(&e.position)?;
+                RawProfile::Ellipse {
+                    origin,
+                    frame,
+                    semi_axis_1: e.semi_axis_1,
+                    semi_axis_2: e.semi_axis_2,
+                }
+            }
+            m::CurveRef::BSplineCurveWithKnots(i) => {
+                let b = model.get(m::BSplineCurveWithKnotsId(i.0))?;
+                RawProfile::BSpline {
+                    degree: b.degree,
+                    points: b
+                        .control_points_list
+                        .iter()
+                        .map(|p| self.raw_point(p))
+                        .collect::<Option<_>>()?,
+                    multiplicities: b.knot_multiplicities.clone(),
+                    knots: b.knots.clone(),
+                    weights: None,
+                }
+            }
+            m::CurveRef::Complex(c) => {
+                let parts = &model.get(m::ComplexEntityId(c.0))?.parts;
+                let (degree, refs) = parts.iter().find_map(|p| match p {
+                    m::PartialEntity::BSplineCurve {
+                        degree,
+                        control_points_list,
+                        ..
+                    } => Some((*degree, control_points_list)),
+                    _ => None,
+                })?;
+                let (multiplicities, knots) = parts.iter().find_map(|p| match p {
+                    m::PartialEntity::BSplineCurveWithKnots {
+                        knot_multiplicities,
+                        knots,
+                        ..
+                    } => Some((knot_multiplicities.clone(), knots.clone())),
+                    _ => None,
+                })?;
+                let weights = parts.iter().find_map(|p| match p {
+                    m::PartialEntity::RationalBSplineCurve { weights_data } => {
+                        Some(weights_data.clone())
+                    }
+                    _ => None,
+                });
+                RawProfile::BSpline {
+                    degree,
+                    points: refs
+                        .iter()
+                        .map(|p| self.raw_point(p))
+                        .collect::<Option<_>>()?,
+                    multiplicities,
+                    knots,
+                    weights,
+                }
+            }
+            _ => return None,
+        })
+    }
+
+    /// A surface of revolution or linear extrusion as the file states it.
+    fn swept_source(&self, face: &StepFace<'_>) -> Option<SweptSource> {
+        match face.surface().kind() {
+            SurfaceKind::Revolution(s) => {
+                let m::Axis1PlacementRef::Axis1Placement(i) = &s.axis_position;
+                let axis = self
+                    .model
+                    .get(m::Axis1PlacementId(i.0))
+                    .expect("validated STEP reference");
+                Some(SweptSource::Revolution {
+                    profile: self.raw_profile(&s.swept_curve)?,
+                    location: self.raw_point(&axis.location)?,
+                    axis: match &axis.axis {
+                        Some(d) => Some(self.raw_ratios(d)?),
+                        None => None,
+                    },
+                    to_mm: self.to_mm,
+                })
+            }
+            SurfaceKind::LinearExtrusion(s) => {
+                let (direction, magnitude) = self.raw_vector(&s.extrusion_axis)?;
+                Some(SweptSource::Extrusion {
+                    profile: self.raw_profile(&s.swept_curve)?,
+                    direction,
+                    magnitude,
+                    to_mm: self.to_mm,
+                })
+            }
+            _ => None,
         }
     }
 
@@ -1855,6 +2018,7 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
         std::collections::BTreeMap::new(),
         std::collections::BTreeMap::new(),
     );
+    let mut swept = std::collections::BTreeMap::new();
     let (mut native_faces, mut native_edges) = (Vec::new(), Vec::new());
     let mut vertex_count = 0;
     for (is_solid, placement, faces, instance) in shells {
@@ -1975,6 +2139,11 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
             if let Some(frame) = reader.surface_raw_frame(&face) {
                 face_frames.insert(out_faces.len(), frame);
             }
+            if matches!(surface, Surface::Freeform { .. })
+                && let Some(source) = reader.swept_source(&face)
+            {
+                swept.insert(out_faces.len(), source);
+            }
             out_faces.push(Face {
                 surface,
                 reversed: (face.orientation() == step_io::Orientation::Forward) == flipped,
@@ -2039,6 +2208,7 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
         .with_conics(conics)
         .with_pcurve_splines(pcurve_splines)
         .with_raw_frames(face_frames, edge_frames)
+        .with_swept(swept)
         .with_native_geometry(native_faces, native_edges)
         .repair_inverted_shells();
     Ok(Read {
