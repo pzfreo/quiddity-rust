@@ -365,3 +365,37 @@ fn segment_distance(p: [f64; 2], a: [f64; 2], b: [f64; 2]) -> f64 {
     };
     (p[0] - a[0] - t * dx).hypot(p[1] - a[1] - t * dy)
 }
+
+/// CTC-05's shaft, seen from the front, has both its outlines visible (#75). The right one is
+/// the line joining the shaft cylinder's two halves, standing 1.5e-8 inside the surface: a ray
+/// from it along the view grazes the cylinder and would meet the other half just past its start.
+#[test]
+fn ctc05_shaft_outlines_are_visible() {
+    use haecceity::hlr::{Class, View, project};
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let part = read_step_file(&dir.join("nist/nist_ctc_05_asme1_rd.stp")).unwrap();
+    let view = View::new([0.0, -1.0, 0.0], [0.0, 0.0, 1.0]).unwrap();
+    let pieces = project(&part, &view).unwrap();
+    for x in [-31.75, 31.75] {
+        let on: Vec<_> = pieces
+            .iter()
+            .filter(|p| p.class == Class::Outline)
+            .filter(|p| p.points.iter().all(|q| (q[0] - x).abs() < 1e-6))
+            .filter(|p| {
+                p.points
+                    .iter()
+                    .all(|q| (285.75 - 1e-6..=476.25 + 1e-6).contains(&q[1]))
+            })
+            .collect();
+        let length: f64 = on
+            .iter()
+            .map(|p| p.points.last().unwrap()[1] - p.points[0][1])
+            .map(f64::abs)
+            .sum();
+        assert!((length - 190.5).abs() < 1e-6, "x = {x}: {length} drawn");
+        assert!(on.iter().all(|p| p.visible), "x = {x}: hidden stretches");
+    }
+}

@@ -6,6 +6,15 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **A join within one surface on the outline is judged as the silhouette it is (for #75).**
+  Hidden-line projection judged a seam or same-surface join lying on the view's outline from
+  the edge's curve, which a file may leave a hair inside the surface: NIST CTC-05's shaft
+  outline (edge 375, 1.5e-8 inside its cylinder) sent the ray along the surface into the
+  cylinder's other half, and the front view drew it hidden. Such an outline edge is now judged
+  from 1e-5 of the part's size outside its first drawn face, as traced silhouettes are. Across
+  the corpus only outline stretches change, in 11 parts: of 594 mm now drawn visible, 392 mm
+  already lay under a visible line, 190.5 mm is CTC-05's shaft, 8.9 mm is in cgb203's side view
+  (closer to OpenCascade) and under 1 mm is in each of six other parts.
 - **Faster STEP reading (for #72).** The inverted-shell repair (#59) no longer integrates
   every face of every solid on each read. It first looks for one face with an outward witness,
   by ray parity against boxes that certainly hold each face (no face interior sampled), which
