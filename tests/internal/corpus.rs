@@ -323,7 +323,20 @@ fn rust_snapshot_corpus() {
             &common::same_kernel_snapshot,
         );
         let recognised = quiddity::correspondence::recognise(&part);
-        serde_json::json!({"file":file,"results":results,"document":quiddity::recognition::document(&recognised,part.faces.len()),"fingerprints":recognised.fingerprints})
+        let mut document = serde_json::to_value(quiddity::recognition::document(
+            &recognised,
+            part.faces.len(),
+        ))
+        .unwrap();
+        // The package version names the build, not the recognition: checked here, and kept out
+        // of the snapshot so a release does not change it.
+        assert_eq!(
+            document["package"]["version"],
+            env!("CARGO_PKG_VERSION"),
+            "{file}"
+        );
+        document["package"]["version"] = Value::from("(package version)");
+        serde_json::json!({"file":file,"results":results,"document":document,"fingerprints":recognised.fingerprints})
     });
     common::snapshot::check(&common::fixtures(), "corpus", &serde_json::json!(actual));
 }
