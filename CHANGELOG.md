@@ -7,13 +7,8 @@ in [docs/alpha1.md](docs/alpha1.md).
 ## Unreleased
 
 - **A compound's child order does not change recognition; a test now pins it (for #73).** The
-  1 channel against 2 reported for draftwright-rust's `two-channels.step` and
-  `two-channels-reversed.step` comes from the files, not from recognition: the forward-order file
-  holds only one occurrence of the channelled block (one assembly usage, the z 54..84 copy;
-  OpenCascade's reader also finds one solid), while the reversed file holds both. With the
-  reversed file's two occurrences swapped, every family gives the same records in either order
-  (one channel per body, and the same plates and section recesses), apart from face and record
-  ids, which follow body order. The three files are fixtures; no recognition code changed.
+  1 channel against 2 in #73 is the file: draftwright-rust's forward-order `two-channels.step`
+  holds one occurrence of the block, the reversed file both.
 - **Faster STEP reading (for #72).** The inverted-shell repair (#59) no longer integrates
   every face of every solid on each read. It first looks for one face with an outward witness,
   by ray parity against boxes that certainly hold each face (no face interior sampled), which

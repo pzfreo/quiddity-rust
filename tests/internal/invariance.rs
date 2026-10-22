@@ -1218,8 +1218,10 @@ fn circular_steps_follow_rolled_supports() {
 /// and `two_channels_reversed` hold the same two channelled blocks (z −6..24 and z 54..84) as two
 /// occurrences of one solid, in opposite orders: `_reversed` is draftwright-rust's fixture, and
 /// `_ordered` is it with the two occurrences' placements swapped. Both give one channel per body,
-/// and every record is the same apart from body order: face ids swap halves (each body has ten
-/// faces), so record ids, indices and bodies follow, and plate offsets may differ by round-off.
+/// and every record is the same apart from body order: face ids swap halves (both bodies have the
+/// same face count), so record ids, indices and bodies follow, and plate offsets may differ by
+/// round-off. `two_solids_reversed` is `two_solids` with its two distinct solids listed in the
+/// opposite order, and gives the same records in the same way.
 /// `two_channels` is draftwright-rust's forward-order file. Its writer kept only the z 54..84
 /// occurrence (one NAUO, one solid; OpenCascade's reader also finds one solid), so it has one
 /// body and one channel: the 1 against 2 reported in #73 is the file, not recognition.
@@ -1233,6 +1235,7 @@ fn compound_child_order_does_not_change_recognition() {
             .unwrap_or_else(|e| panic!("{name}: {}", e.message));
         serde_json::to_value(&output).unwrap()
     };
+    // `body_key` is `body_signature`'s bounds min (x, y, z), max (x, y, z), volume, area.
     let z_extent = |record: &Value| {
         let key = &record["parameters"]["body_key"];
         (key[2].as_f64().unwrap(), key[5].as_f64().unwrap())
@@ -1281,6 +1284,29 @@ fn compound_child_order_does_not_change_recognition() {
         }
     }
 
+    // Every record is the same in both orders apart from body order. Each pair holds two bodies
+    // of equal face count, so the face ids of one order are the other's with halves swapped.
+    let same_records = |forward: &Value, reversed: &Value| {
+        let n = forward["document"]["face_count"].as_u64().unwrap();
+        assert_eq!(reversed["document"]["face_count"].as_u64(), Some(n));
+        assert_eq!(n % 2, 0, "two bodies of equal face count");
+        let (a, b) = (
+            records(&forward["document"], |f| (f + n / 2) % n),
+            records(&reversed["document"], |f| f),
+        );
+        assert_eq!(
+            a.keys().collect::<Vec<_>>(),
+            b.keys().collect::<Vec<_>>(),
+            "families"
+        );
+        for (family, list) in &a {
+            assert_eq!(list.len(), b[family].len(), "{family}");
+            for (x, y) in list.iter().zip(&b[family]) {
+                assert!(same(x, y), "{family}:\n{x}\n{y}");
+            }
+        }
+    };
+
     let ordered = fixture("two_channels_ordered.step");
     let reversed = fixture("two_channels_reversed.step");
     for output in [&ordered, &reversed] {
@@ -1298,22 +1324,12 @@ fn compound_child_order_does_not_change_recognition() {
             "one channel per body"
         );
     }
-    let swap = |f: u64| (f + 10) % 20;
-    let (a, b) = (
-        records(&ordered["document"], swap),
-        records(&reversed["document"], |f| f),
+    same_records(&ordered, &reversed);
+    // Two distinct solids rather than two occurrences of one product.
+    same_records(
+        &fixture("two_solids.step"),
+        &fixture("two_solids_reversed.step"),
     );
-    assert_eq!(
-        a.keys().collect::<Vec<_>>(),
-        b.keys().collect::<Vec<_>>(),
-        "families"
-    );
-    for (family, list) in &a {
-        assert_eq!(list.len(), b[family].len(), "{family}");
-        for (x, y) in list.iter().zip(&b[family]) {
-            assert!(same(x, y), "{family}:\n{x}\n{y}");
-        }
-    }
     // The channels' records name the body they lie on, in either order.
     for output in [&ordered, &reversed] {
         for record in output["document"]["records"].as_array().unwrap() {
