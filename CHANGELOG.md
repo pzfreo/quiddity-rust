@@ -15,15 +15,11 @@ in [docs/alpha1.md](docs/alpha1.md).
   the corpus only outline stretches change, in 11 parts: of 594 mm now drawn visible, 392 mm
   already lay under a visible line, 190.5 mm is CTC-05's shaft, 8.9 mm is in cgb203's side view
   (closer to OpenCascade) and under 1 mm is in each of six other parts.
-- **CTC-05 is in the OpenCascade hidden-line comparison, and an exact curve reaches its stretch's
-  ends (for #75).** `tools/capture_hlr.py` keeps CTC-05 although its record exceeds the size
-  limit; its four views agree with OpenCascade. Adding it showed a projected stretch's exact
-  curve missing the stretch's end by 0.018 mm (edge 226's vertex lies off its circle's plane),
-  so an exact curve that misses either end by more than 3e-4 in view coordinates (absolute) is
-  now left out and the stretch drawn by its points. In the four test views across the corpus's
-  94 parts, 333 of 51,902 exact stretches change so, in four parts: cgb203 (277, missing by
-  3.4e-4 to 4.4e-3), cgb207 (38), cgb241 (14) and CTC-05 (4); only CTC-05 is in the
-  OpenCascade fixture. No visibility changes.
+- **CTC-05 is in the OpenCascade hidden-line comparison (for #75).** `tools/capture_hlr.py`
+  keeps CTC-05 although its record exceeds the size limit; its four views agree with
+  OpenCascade. Its edge 226 ends on a vertex 0.018 mm off its circle's plane, so the edge's
+  exact circle strays up to that far from the stretch's points; the comparison allows that gap
+  for CTC-05 only (`references/drawings.json`), and the circle is still drawn exactly.
 - **Faster STEP reading (for #72).** The inverted-shell repair (#59) no longer integrates
   every face of every solid on each read. It first looks for one face with an outward witness,
   by ray parity against boxes that certainly hold each face (no face interior sampled), which

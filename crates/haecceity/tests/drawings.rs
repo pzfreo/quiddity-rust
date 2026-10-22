@@ -29,10 +29,10 @@ const AGREE: f64 = 0.99;
 const AREA: f64 = 1e-3;
 /// Drawn with exact curves, of every `exact_curves_follow_their_points` edge stretch: the share
 /// measured when the floor was set (30,228 of 33,272 over every part at c06efb6, 0.90851), so
-/// fewer exact curves fail. CTC-05 joined the fixture later (#75) with 1,353 of 1,685 (its
+/// fewer exact curves fail. CTC-05 joined the fixture later (#75) with 1,357 of 1,685 (its
 /// circles seen edge-on are straight stretches drawn by their points): the floor is the same
-/// count for the other parts with CTC-05's added, 0.9085 × 33,268 + 1,353 of 34,953.
-const EXACT_SHARE: f64 = 0.903413;
+/// count for the other parts with CTC-05's added, 0.9085 × 33,268 + 1,357 of 34,953.
+const EXACT_SHARE: f64 = 0.903526;
 
 /// A view or cut that does not agree: its lowest score, its cut area's relative error, and a
 /// description.
@@ -245,6 +245,13 @@ fn exact_curves_follow_their_points() {
         let (mut curved, mut curved_exact) = (0, 0);
         let file = record["file"].as_str().unwrap();
         let part = read_step_file(&dir.join(file)).unwrap();
+        let floor = floors.iter().find(|k| k["file"] == file);
+        // How far an exact curve may stray from its stretch's points: 3e-4, or a part's listed
+        // gap where the file leaves a vertex off its curve (the curve is right; the points are
+        // pinned to the vertex).
+        let end_gap = floor
+            .and_then(|k| k["max_end_gap"].as_f64())
+            .unwrap_or(3e-4);
         for (toward, up) in [
             ([0.0, -1.0, 0.0], [0.0, 0.0, 1.0]),
             ([0.0, 0.0, 1.0], [0.0, 1.0, 0.0]),
@@ -288,26 +295,28 @@ fn exact_curves_follow_their_points() {
                             .fold(f64::INFINITY, f64::min)
                     })
                     .fold(0.0, f64::max);
-                // `hlr::exact` drops a curve that misses an end by more than its EXACT_TOL (the
-                // same 3e-4), so `ends` checks that filter; `along` checks the curve itself.
-                if ends > 3e-4 || along > 3e-4 {
+                if ends > end_gap || along > end_gap {
                     problems.push(format!(
                         "{file} {toward:?}: {curve:?} ends {ends:.1e} along {along:.1e}"
                     ));
                 }
             }
         }
-        let floor = floors.iter().find(|k| k["file"] == file);
         let line = format!("{file}: {curved_exact} of {curved} curved edge stretches exact");
-        match floor.map(|k| k["min_exact_share"].as_f64()) {
+        if let Some(k) = floor
+            && k.get("min_exact_share").is_none()
+            && k.get("max_end_gap").is_none()
+        {
+            panic!("references/drawings.json: no min_exact_share or max_end_gap in {k}");
+        }
+        match floor.and_then(|k| k["min_exact_share"].as_f64()) {
             None if curved_exact < curved => problems.push(line),
             None => {}
-            Some(None) => panic!("references/drawings.json: no min_exact_share in {floor:?}"),
-            Some(Some(_)) if curved_exact == curved => problems.push(format!("stale: {line}")),
-            Some(Some(min)) if (curved_exact as f64) < min * curved as f64 => {
+            Some(_) if curved_exact == curved => problems.push(format!("stale: {line}")),
+            Some(min) if (curved_exact as f64) < min * curved as f64 => {
                 problems.push(format!("{line}, below the floor of {min}"))
             }
-            Some(Some(_)) => {}
+            Some(_) => {}
         }
         (exact, edges, problems)
     });
