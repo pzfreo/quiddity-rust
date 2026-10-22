@@ -3143,7 +3143,7 @@
     "calls/recognise_through_steps.json.gz": "ab6a0b5b06756fa3435099be76e5ab432b867be4d4a1b42c49047ff83b086cca",
     "calls/recognise_turned_steps.json.gz": "37d10e8c5e2ce5dcf6c5bd2fdc7444e86494bb44768e9d32d9a1abfd3f2fbd90",
     "channel_geometry.json.gz": "bd25ff87def7f73b4f119d26614600b141ee4350f45c77cef55aae7ea787e85f",
-    "corpus.json.gz": "91da900db229c9c685021019f6f63a984fdab4ef29694c2cc420c8d8c9989e4c",
+    "corpus.json.gz": "804a92afda12976dbe2eb9e46dd1a82c63b9972b0800673e0f2a4d5266c808a5",
     "coverage.json.gz": "c835b80d39757ae5ef556953e11a2d7e8bbde3148a233f2af51ae92e1d23a971",
     "cylindrical_proofs/corpus/cadgenbench/flanged_spool_132.step.json.gz": "b93acca566253df99ab62bb5ac97424226850b3ee3963c8d1025939a7339d823",
     "cylindrical_proofs/corpus/cadgenbench/threaded_connector_109.step.json.gz": "eea12e52bf91a9c762e7cadc1b12994398bf8f3836ab11ab8b58a2bf4c5d9a4e",
@@ -3895,7 +3895,7 @@
     "frames/corpus/nist/nist_ftc_08_asme1_rc.stp.json.gz": "87f2ec0bcff5b684710d5047e8158122d2a0fe82b72e2074912e48c8acdcc147",
     "frames/corpus/nist/nist_ftc_09_asme1_rd.stp.json.gz": "6dfc1db322ef15ca459880761e0214a6a6321646bdb9ee25919e7b21705cbe3f",
     "frames/corpus/nist/nist_ftc_10_asme1_rb.stp.json.gz": "302a81c1531932306c7fa1d80972fc90f93e3f2284d1bfc15a906ee3065426d0",
-    "frames/corpus/ttt_inputs/sm-hanger.step.json.gz": "50bac3598742c78ef2b98c4c0658bf15f4b780a2c3e6d28e28c3a32e925668c5",
+    "frames/corpus/ttt_inputs/sm-hanger.step.json.gz": "b9da3ef5111d470488b5b8942159058e78c752ade276a64a480daa1c95457a84",
     "frames/fixture/blend_r5.step.json.gz": "a34a830fef85acc54488811d00707636767c91da0433610a912c7703a115d801",
     "frames/fixture/blend_r5_enlarged.step.json.gz": "0e4e8d5753d82a220a36f5a1975ed6562cea8f4a98efddb0fdc6a9a5db914aac",
     "frames/fixture/edge_open_pocket_floor_hole.step.json.gz": "439d04e1ac79e41fdb1010a655a45aace9986d43ce5a1245a59c3f0d04522290",
@@ -5799,5 +5799,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "9448b45026ebc18ed8a64f6bded30cad86acb46a"
+  "source_commit": "35c27fb30d81b533776a8103fcc0b9002b7dffca"
 }
