@@ -64,6 +64,12 @@ const PROOF_FACES: usize = 8;
 /// box prunes the full classifier's rays; the certain boxes here prune none of the crossings the
 /// kernel's own contact test admits, and need no face's interior sampled to be built. A face
 /// found inward, or no witness either way, leaves the solid to the full test.
+///
+/// The proof is that the full test would say the same, not only that the parity is right: this
+/// classifier differs from [`Classifier::for_solid`] only in its pruning boxes, and each certain
+/// box contains the face's sampled box ([`Part::face_bounds`]) padded by at least 0.1 mm, so a
+/// witness found outward here is found outward by the full classifier too, and the full test
+/// would have refused the repair. `outward_proved_implies_full_test_refuses` checks this.
 fn outward_proved(part: &Part, solid: usize) -> bool {
     let faces = &part.solids[solid].faces;
     let mut boxes = vec![crate::geom::Bounds::empty(); part.faces.len()];
@@ -245,4 +251,98 @@ fn face_side(part: &Part, classifier: &Classifier<'_>, face: usize) -> Side {
         }
     }
     Side::Unproved
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::brep::Part;
+
+    /// Whether the full test finds every face of the solid inward.
+    fn all_inward(part: &Part, solid: usize) -> bool {
+        let classifier = Classifier::for_solid(part, solid);
+        part.solids[solid]
+            .faces
+            .iter()
+            .all(|&f| face_side(part, &classifier, f) == Side::Inward)
+    }
+
+    /// The part with its face senses flipped (all but face `keep`), and the wires too when
+    /// `wires`.
+    fn flipped(part: &Part, wires: bool, keep: Option<usize>) -> Part {
+        let mut faces = part.faces.clone();
+        for (i, face) in faces.iter_mut().enumerate() {
+            if Some(i) == keep {
+                continue;
+            }
+            face.reversed = !face.reversed;
+            if wires {
+                for lp in &mut face.loops {
+                    lp.edges.reverse();
+                    for (_, forward) in &mut lp.edges {
+                        *forward = !*forward;
+                    }
+                }
+            }
+        }
+        Part::new(faces, part.edges.clone(), part.solids.clone())
+    }
+
+    /// The cheap proof skips the full test only where the full test would refuse the repair,
+    /// on the #53/#59 fixtures read outward, inverted (normals only, and with the wires) and
+    /// mixed. It must also prove the outward readings and never the inverted ones.
+    #[test]
+    fn outward_proved_implies_full_test_refuses() {
+        let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures");
+        let (mut proved, mut checked) = (0, 0);
+        for name in [
+            "revolution_shaft.step.gz",
+            "revolution_line_shaft.step.gz",
+            "revolution_cone.step.gz",
+            "truck_master_shaft_only.step.gz",
+            "truck_master_shaft_hole.step.gz",
+            "captured/frames/box_moved.step",
+            "full_torus.step",
+            "filleted_box_one_edge.step",
+            "blend_r5.step",
+        ] {
+            let part = crate::read_step_file(&dir.join(name)).unwrap();
+            for (reading, p, inverted) in [
+                (
+                    "outward",
+                    Part::new(part.faces.clone(), part.edges.clone(), part.solids.clone()),
+                    false,
+                ),
+                ("normals inverted", flipped(&part, false, None), true),
+                ("wires inverted", flipped(&part, true, None), true),
+                ("mixed", flipped(&part, false, Some(0)), false),
+            ] {
+                for solid in 0..p.solids.len() {
+                    if !p.solid_is_valid(solid) {
+                        continue;
+                    }
+                    checked += 1;
+                    let cheap = outward_proved(&p, solid);
+                    let full = all_inward(&p, solid);
+                    assert!(
+                        !(cheap && full),
+                        "{name} {reading} solid {solid}: proved outward, but the full test finds every face inward"
+                    );
+                    // truck_master_shaft_hole has mixed senses as read (#59), so none of its
+                    // readings is coherently outward or inverted.
+                    let coherent = name != "truck_master_shaft_hole.step.gz";
+                    if coherent && inverted {
+                        assert!(
+                            !cheap,
+                            "{name} {reading} solid {solid}: inverted shell proved outward"
+                        );
+                    } else if coherent && reading == "outward" {
+                        assert!(cheap, "{name} solid {solid}: outward shell not proved");
+                    }
+                    proved += usize::from(cheap);
+                }
+            }
+        }
+        assert!(checked >= 36 && proved > 0, "{proved} proved of {checked}");
+    }
 }
