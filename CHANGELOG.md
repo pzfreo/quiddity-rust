@@ -25,6 +25,12 @@ in [docs/alpha1.md](docs/alpha1.md).
   rounded in the file on its own, so `hi - lo` can differ from the published size by one grid
   step where it did not before (and agree where it did not): read sizes from the size
   fields, not from interval ends.
+- **No noise near zero in significant-figure positions (for #69).** A hole's `location` (11
+  significant figures) and a circular blind step's points (6) kept round-off near zero, such
+  as NIST CTC 01's holes at z = 4.3e-11. A coordinate within the kernel's coordinate floor
+  (`COORD_FLOOR`, 1e-6 mm) of zero now publishes as 0. Other values keep their significant
+  figures: hole patterns are found from the published locations, and rounding those to
+  0.001 mm loses patterns.
 - **Near-aligned frames are published in the file's axes (for #70).** Recognition still runs
   in the frame as inferred. Its records are published through the signed permutation of the
   file's axes nearest the frame when that moves no point of the part by more than the

@@ -16,6 +16,7 @@ use std::ops::Deref;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use super::policy::round_measurement;
+use crate::kernel::geom::COORD_FLOOR;
 use crate::kernel::py;
 
 /// How a position is published.
@@ -25,7 +26,8 @@ pub enum Grid {
     Decimals(u8),
     /// `round(x, digits)` with a negative zero cleared.
     CleanDecimals(u8),
-    /// `quantise(x, figures)`: significant figures.
+    /// `quantise(x, figures)`: significant figures, with a value within the kernel's coordinate
+    /// floor of zero published as zero (significant figures alone keep that noise, #69).
     Figures(u8),
     /// A body key ([`super::body::BodyKey`]): its box on six decimals (negative zero cleared),
     /// its volume and area (not positions) on twelve significant figures.
@@ -40,6 +42,7 @@ impl Grid {
         match self {
             Grid::Decimals(d) => py::round_to(value, d.into()),
             Grid::CleanDecimals(d) => py::without_negative_zero(py::round_to(value, d.into())),
+            Grid::Figures(_) if value.abs() < COORD_FLOOR => 0.0,
             Grid::Figures(n) => py::quantise(value, n.into()),
             Grid::BodyKey if index < 6 => Grid::CleanDecimals(6).found(index, value),
             Grid::BodyKey => py::quantise(value, 12),
