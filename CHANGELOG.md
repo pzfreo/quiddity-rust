@@ -4,7 +4,39 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
-## Unreleased
+## 0.1.0 (2026-10-22)
+
+Upgrading from alpha.9:
+
+- **Recognition API (#61).** `correspondence::recognise(&Part)` is the one entry point and
+  returns framed records: on a part that is not axis-aligned in its file, read `local`
+  fields through `frame`. `recognise_placed` is gone, and caller-space
+  algorithms are private: `features::recognise`, `recognise_<family>`, discovery and
+  helper functions, `features::context::Context`, `recess_reduce::merge_proposals`, the
+  reader-based `frames` helpers (`prepare_framed*`, `working_part`, `FramedPart`,
+  `FramedRecognition`, `FramedError`) and `evidence_view::build_recognition_evidence`.
+  Feature record types stay public. `RecordFrame::CallerSpace` exists only in crate tests,
+  so drop it from exhaustive matches. The `python-parity` feature is removed (#67). `read_step_placed` and `read_step_file_placed` refuse
+  non-orthonormal and non-finite placements.
+- **Recognition documents are `quiddity-rust/recognition/5` (#66)** with a `face_accounting`
+  array: every face is feature, refused, body or unexplained. Versions 3 and 4 still read,
+  with accounting `None`. `Recognition` gains `input_repairs` and a private field, so it
+  can no longer be built as a literal. `RecognitionDocument` gains `face_accounting` and
+  `input_repairs` (#59, #66).
+- **Records may differ from alpha.9's (#57, #58).** Placement- and order-dependent choices
+  were corrected, and a few readings are now refused (ADR 0011).
+  Fingerprints stay `quiddity-rust/fingerprint/3`, but re-recognise rather than reuse
+  stored IDs, faces or dimensions.
+- **haecceity uses step-io 0.3 (#62).** Part 21 strings are decoded text, spans are `u64`,
+  and schema names are `schema.raw`.
+- **PMI (#60).** Reader binding `/11`. `Zone` has a new `affected_plane_kind` field, and
+  `WriteReport` is `#[non_exhaustive]`, and `PartProvenance` gains `note_callouts`. JSON
+  documents stay version 2.
+- **License.** Both crates are Apache-2.0 (#55).
+
+New in 0.1.0: the B-rep STEP writer and `quiddity brep [--pmi]` (#64, #65), PARABOLA geometry
+(#62), the inverted-shell repair (#59), revolution volumes (#56), and a regression record that
+Rust owns, with Python no longer consulted (#67).
 
 ### Added
 
@@ -44,8 +76,8 @@ in [docs/alpha1.md](docs/alpha1.md).
   dimensionally correct derived unit; edition 4 relationship targets and affected-plane links.
 - Legacy manufacturing-requirement notes migrate to semantic text or unambiguous surface
   texture. `standard_form` exposes the expected requirements and the CLI write report adds
-  `note_migrations`. Replace removes legacy properties and their owned presentation. Reader
-  binding `/9` holds affected planes and table qualifiers and separates relation targets from
+  `note_migrations`. Replace removes legacy properties and their owned presentation. The reader
+  binding holds affected planes and table qualifiers and separates relation targets from
   feature composition; JSON document version 2 stays compatible.
 - Regression fixtures for the new forms, five ordered numbered part notes across replace and
   resumed add, and Python specify-note migration. Literal target and standalone-decimal
@@ -113,11 +145,11 @@ in [docs/alpha1.md](docs/alpha1.md).
   hole keep their dimensions and claim both mouths. A per-file, per-family inventory floor over
   1,453 parts guards against losing features; the few changed counts each carry OpenCascade or
   analytic evidence.
-- **Public `recess_reduce::merge_proposals` now refuses equal-width role ties with
-  different run axes when no body extents are available.** Previously input order selected
-  an interpretation. Part-aware recognition uses intrinsic body extents to accept a unique
-  reading; symmetric competing claims remain refused (ADR 0011). This changes the public
-  reducer's behaviour, without changing the document schema.
+- **Recess proposal merging (`recess_reduce::merge_proposals`, now private) refuses
+  equal-width role ties with different run axes when no body extents are available.**
+  Previously input order selected an interpretation. Part-aware recognition uses intrinsic
+  body extents to accept a unique reading; symmetric competing claims remain refused
+  (ADR 0011). The document schema is unchanged.
 - quiddity-rust and haecceity are relicensed from AGPL-3.0-only to Apache-2.0 by the copyright
   owner, matching Python quiddity. `LICENSE`, `NOTICE`, the CLA and CONTRIBUTING say so.
 - Both crates are ready for crates.io: descriptions, repository, keywords and categories, an
@@ -138,8 +170,8 @@ in [docs/alpha1.md](docs/alpha1.md).
 - Isolate relationship tolerance endpoints so OCCT composition traversal leaves other
   tolerances on their original faces. Correct the earlier projection-origin diagnosis.
 - Distinguish affected intersection line/plane and orientation plane descriptions (§6.9.2.1)
-  with optional `Zone.affected_plane_kind`; ambiguous variants are refused. Reader binding
-  becomes `/10`; the JSON addition is optional. Rust literals of `Zone` require the new field.
+  with optional `Zone.affected_plane_kind`; ambiguous variants are refused. The JSON
+  addition is optional. Rust literals of `Zone` require the new field.
 - Keep unitless legacy roughness as semantic text rather than invent micrometres. Report
   every supplied note callout and link removed callout ids/types to their original note in
   `note_presentation_removed`. `WriteReport` is now `#[non_exhaustive]`.
