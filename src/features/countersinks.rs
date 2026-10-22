@@ -110,8 +110,18 @@ fn opens_into_void(part: &Part, face: usize) -> bool {
     geom::dot(radial, normal) < 0.0
 }
 
+/// Which side of the apex, along *z*, the face lies: its parameter-mid point's axial offset.
+fn nappe_side(part: &Part, face: usize, apex: V3, z: V3) -> Option<f64> {
+    let (u0, u1, v0, v1) = part.uv_bounds(face)?;
+    let mid = part.faces[face]
+        .surface
+        .value(0.5 * (u0 + u1), 0.5 * (v0 + v1));
+    Some(geom::dot(geom::sub(mid, apex), z))
+}
+
 /// How far, in degrees, the faces lying on *face*'s cone run round its axis together: their
-/// parameter (angular) spans summed, so a cone split at seams counts as one.
+/// parameter (angular) spans summed, so a cone split at seams counts as one. Only faces on the
+/// same nappe count: a cone mirrored through the shared apex is another surface.
 fn sweep_deg(part: &Part, face: usize, cones: &[usize], tol: f64) -> f64 {
     let surface = &part.faces[face].surface;
     let (
@@ -121,6 +131,9 @@ fn sweep_deg(part: &Part, face: usize, cones: &[usize], tol: f64) -> f64 {
         Some(apex),
     ) = (surface, surface.cone_apex())
     else {
+        return 0.0;
+    };
+    let Some(side) = nappe_side(part, face, apex, frame.z) else {
         return 0.0;
     };
     let spans = cones.iter().filter_map(|&other| {
@@ -136,7 +149,8 @@ fn sweep_deg(part: &Part, face: usize, cones: &[usize], tol: f64) -> f64 {
         let same = (a.abs() - semi_angle.abs()).abs() <= SAME_CONE_ANGLE
             && geom::dot(f.z, frame.z).abs() > 1.0 - 1e-3
             && s.cone_apex()
-                .is_some_and(|p| geom::norm(geom::sub(p, apex)) <= tol);
+                .is_some_and(|p| geom::norm(geom::sub(p, apex)) <= tol)
+            && nappe_side(part, other, apex, frame.z).is_some_and(|o| o * side > 0.0);
         same.then(|| part.uv_bounds(other).map_or(0.0, |(u0, u1, _, _)| u1 - u0))
     });
     py::fsum(spans).to_degrees()

@@ -1312,3 +1312,30 @@ fn pocket_rim_chamfer_corners_are_not_countersinks() {
         3
     );
 }
+
+/// Issue #76's sweep rule keeps a seat that a neighbouring cut has trimmed. Fixture (build123d):
+/// a 40x30x10 plate with a countersunk through hole (drill r 3, seat r 6, 90°) at its centre,
+/// crossed by a 3 wide, 5 deep slot that splits the seat into two faces of about 151° each.
+/// Together they run about 302° round the axis, over the 270° the rule asks.
+#[test]
+fn a_seat_split_by_a_slot_stays_a_countersink() {
+    use quiddity::kernel::geom::Surface;
+    use quiddity::recognition::FaceAccounting;
+    let path = fixture("countersink_split_by_slot.step");
+    let part = quiddity::read_step_file(&path).unwrap();
+    let cones: Vec<usize> = (0..part.faces.len())
+        .filter(|&f| matches!(part.faces[f].surface, Surface::Cone { .. }))
+        .collect();
+    assert_eq!(cones.len(), 2, "{cones:?}");
+    let doc = document(&path);
+    let accounting = doc.face_accounting.as_ref().unwrap();
+    for &f in &cones {
+        let FaceAccounting::Feature { record_ids } = &accounting[f] else {
+            panic!("face {f}: {:?}", accounting[f]);
+        };
+        assert!(
+            record_ids.iter().all(|id| id.starts_with("countersinks/")),
+            "face {f}: {record_ids:?}"
+        );
+    }
+}
