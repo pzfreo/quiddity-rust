@@ -275,10 +275,11 @@ fn rust_snapshot_effective_surfaces() {
             assert_ne!(port["orientation"], false, "{} face {face}", run.file);
             snapshots.push(json!({"face":face,"surface":port}));
         }
-        common::snapshot::check(
+        common::snapshot::check_with(
             &common::fixtures(),
             &format!("effective_surfaces/{}/{}", run.source, run.file),
             &json!(snapshots),
+            &|a, b| common::snapshot::same(&without_curved_outward(a), &without_curved_outward(b)),
         );
         (run.faces.len(), out)
     });
@@ -290,6 +291,23 @@ fn rust_snapshot_effective_surfaces() {
         found.len()
     );
     check_known(found, &|f| FIELDS.contains(&f), &files);
+}
+
+/// A snapshot without the `outward` of a curved surface's side: a cylinder's is the radial
+/// direction at its first sample, which is presentation (which sample comes first differs
+/// between platforms), so only a plane's normal is compared, as the parity test did. The
+/// side itself stays compared through `sign` and `probe_distance`.
+fn without_curved_outward(snapshot: &Value) -> Value {
+    let mut snapshot = snapshot.clone();
+    for face in snapshot.as_array_mut().into_iter().flatten() {
+        let surface_use = &mut face["surface"]["use"];
+        if surface_use["kind"] != "plane"
+            && let Some(u) = surface_use.as_object_mut()
+        {
+            u.remove("outward");
+        }
+    }
+    snapshot
 }
 
 const IDENTITY: [[f64; 3]; 3] = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
