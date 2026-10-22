@@ -2927,6 +2927,7 @@
     "tests/fixtures/captured/step_levels/capture.json.gz": "d77dc0c3bb70e64330fb808f1ab756a53f2f0fb6d5c2a8057941176e061dbd88",
     "tests/fixtures/classify.json.gz": "57d25162c3277873781b6f0401f537623b5d6b4ff44cd08a197b30d093b98bc7",
     "tests/fixtures/corpus.json": "76bc5be9b689d9049dee9a3c4d9922293a441002b9293491b134b0752265fa67",
+    "tests/fixtures/countersink_split_by_slot.step": "7e29906d0a4c9ec3089790a3fe11f062ce3b75aa564a6d341258c2eb48056b12",
     "tests/fixtures/edge_open_pocket_floor_hole.step": "91ed4b52d481870cb527ee359a62e1ec3790562e67c1f2651723faa09951cfcd",
     "tests/fixtures/edge_sewn_boxes.step": "23f6ec36286720920d87282631d22ecb46f5f85ed7caabb98089172266384cf4",
     "tests/fixtures/face_area_evidence.json.gz": "bbb442c19a799be48c19085ae5a8bb3b42bad254af13dc265b54dcbea797d2c0",
@@ -5799,5 +5800,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "5c330169c49eae00816c40417d820658f064c526"
+  "source_commit": "1b513197cb48372b683db6a529a81aaf0e565533"
 }
