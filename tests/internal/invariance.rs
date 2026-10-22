@@ -1213,3 +1213,124 @@ fn circular_steps_follow_rolled_supports() {
         }
     }
 }
+
+/// Recognition does not depend on the order of a compound's children (#73). `two_channels_ordered`
+/// and `two_channels_reversed` hold the same two channelled blocks (z −6..24 and z 54..84) as two
+/// occurrences of one solid, in opposite orders: `_reversed` is draftwright-rust's fixture, and
+/// `_ordered` is it with the two occurrences' placements swapped. Both give one channel per body,
+/// and every record is the same apart from body order: face ids swap halves (each body has ten
+/// faces), so record ids, indices and bodies follow, and plate offsets may differ by round-off.
+/// `two_channels` is draftwright-rust's forward-order file. Its writer kept only the z 54..84
+/// occurrence (one NAUO, one solid; OpenCascade's reader also finds one solid), so it has one
+/// body and one channel: the 1 against 2 reported in #73 is the file, not recognition.
+#[test]
+fn compound_child_order_does_not_change_recognition() {
+    let fixture = |name: &str| {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures")
+            .join(name);
+        let (output, _) = quiddity::serve::recognise_file(&path.to_string_lossy())
+            .unwrap_or_else(|e| panic!("{name}: {}", e.message));
+        serde_json::to_value(&output).unwrap()
+    };
+    let z_extent = |record: &Value| {
+        let key = &record["parameters"]["body_key"];
+        (key[2].as_f64().unwrap(), key[5].as_f64().unwrap())
+    };
+    // Records by family, without what follows body order, with faces mapped by `face`.
+    fn records(document: &Value, face: impl Fn(u64) -> u64) -> BTreeMap<String, Vec<Value>> {
+        let mut out: BTreeMap<String, Vec<Value>> = BTreeMap::new();
+        for record in document["records"].as_array().unwrap() {
+            let mut record = record.clone();
+            let fields = record.as_object_mut().unwrap();
+            fields.remove("id");
+            let faces = fields["faces"].as_array().unwrap();
+            fields["faces"] = faces.iter().map(|f| face(f.as_u64().unwrap())).collect();
+            let parameters = fields["parameters"].as_object_mut().unwrap();
+            parameters.remove("index");
+            parameters.remove("body");
+            if let Some(evidence) = parameters
+                .get_mut("evidence")
+                .and_then(Value::as_object_mut)
+            {
+                for faces in evidence.values_mut() {
+                    let mapped = faces.as_array().unwrap().iter();
+                    *faces = mapped.map(|f| face(f.as_u64().unwrap())).collect();
+                }
+            }
+            let family = record["family"].as_str().unwrap().to_owned();
+            out.entry(family).or_default().push(record);
+        }
+        for list in out.values_mut() {
+            list.sort_by_key(|r| r["faces"].to_string());
+        }
+        out
+    }
+    fn same(a: &Value, b: &Value) -> bool {
+        match (a, b) {
+            (Value::Number(x), Value::Number(y)) => {
+                (x.as_f64().unwrap() - y.as_f64().unwrap()).abs() < 1e-9
+            }
+            (Value::Array(x), Value::Array(y)) => {
+                x.len() == y.len() && x.iter().zip(y).all(|(p, q)| same(p, q))
+            }
+            (Value::Object(x), Value::Object(y)) => {
+                x.len() == y.len() && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| same(v, w)))
+            }
+            _ => a == b,
+        }
+    }
+
+    let ordered = fixture("two_channels_ordered.step");
+    let reversed = fixture("two_channels_reversed.step");
+    for output in [&ordered, &reversed] {
+        assert_eq!(output["document"]["face_count"], 20);
+        let mut channels: Vec<_> = output["channels"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|c| (c["d_lo"].as_f64().unwrap(), c["d_hi"].as_f64().unwrap()))
+            .collect();
+        channels.sort_by(|p, q| p.partial_cmp(q).unwrap());
+        assert_eq!(
+            channels,
+            [(6.0, 24.0), (66.0, 84.0)],
+            "one channel per body"
+        );
+    }
+    let swap = |f: u64| (f + 10) % 20;
+    let (a, b) = (
+        records(&ordered["document"], swap),
+        records(&reversed["document"], |f| f),
+    );
+    assert_eq!(
+        a.keys().collect::<Vec<_>>(),
+        b.keys().collect::<Vec<_>>(),
+        "families"
+    );
+    for (family, list) in &a {
+        assert_eq!(list.len(), b[family].len(), "{family}");
+        for (x, y) in list.iter().zip(&b[family]) {
+            assert!(same(x, y), "{family}:\n{x}\n{y}");
+        }
+    }
+    // The channels' records name the body they lie on, in either order.
+    for output in [&ordered, &reversed] {
+        for record in output["document"]["records"].as_array().unwrap() {
+            if record["family"] == "channels" {
+                let (lo, hi) = z_extent(record);
+                let depth = record["parameters"]["d_lo"].as_f64().unwrap();
+                assert!(lo < depth && depth < hi, "{record}");
+            }
+        }
+    }
+
+    let single = fixture("two_channels.step");
+    assert_eq!(single["document"]["face_count"], 10);
+    let channels = single["channels"].as_array().unwrap();
+    assert_eq!(channels.len(), 1);
+    assert_eq!(
+        (channels[0]["d_lo"].as_f64(), channels[0]["d_hi"].as_f64()),
+        (Some(66.0), Some(84.0))
+    );
+}
