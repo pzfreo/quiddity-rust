@@ -5,7 +5,7 @@ revision correspondence, and semantic AP242 PMI read/write. STEP is read through
 `step-io`; the geometry kernel is `crates/haecceity`, re-exported as `quiddity::kernel`.
 Recognition does not require Python or OpenCascade at runtime.
 
-Status: **0.1.0-alpha.9**. See [CHANGELOG.md](CHANGELOG.md) and the
+Status: **0.1.0** (2026-10-22). See [CHANGELOG.md](CHANGELOG.md) and the
 [alpha gates](docs/alpha1.md).
 
 ## Rust-first
