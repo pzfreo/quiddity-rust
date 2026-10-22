@@ -6,6 +6,26 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Faster STEP reading (for #72).** The inverted-shell repair (#59) no longer integrates
+  every face of every solid on each read. It first looks for one face with an outward witness,
+  by ray parity against boxes that certainly hold each face (no face interior sampled), which
+  proves the shell is not inverted. The full test (sampled boxes, signed volume, every face
+  inward, wire senses) runs only when that proof is not found. The same shells are repaired,
+  with the same reports, part definitions and masses. Instructions retired, v0.1.0 → now
+  (alpha.8 for reference), for `read_step` and `read_part_definitions`: nist_ctc_02 10.3G →
+  0.9G (0.88G); nist_ctc_01 0.55G → 0.21G (0.20G); gramel string_post 0.90G → 0.27G (0.13G).
+  string_post is still about twice alpha.8: the remaining cost is in the proof's rays, which
+  build the B-spline surfaces' grids and edge deviations that recognition needs anyway, so a
+  read that never recognises (such as a PMI-only read) still pays it.
+  `read_part_definitions` still builds the B-rep and runs the repair: the PMI edge numbering
+  depends on the repaired face senses, so skipping it would renumber edges on inverted inputs.
+- **A plate's `lo` and `hi` are again faces of the part (for #71).** Since #50 a side whose faces
+  lie on several nearby planes published the midpoint of their face band, a plane no face lies
+  on (GRM-03's thumbwheel screw: thickness 2.25 between faces 2.5 apart). The midpoint still
+  chooses the band; `lo` is now the lowest of the −axis side's planes and `hi` the highest of the
+  +axis side's, unrounded, which exchange correctly when the part is reversed. Six of the
+  corpus's 48 plates change, with their fingerprint `thickness`; the fingerprint version stays
+  `quiddity-rust/fingerprint/3`, whose meaning (thickness is `hi − lo`) is unchanged.
 - **Framed records are on their published grids (for #69).** A position a recogniser rounds
   (a fillet's `at` to 0.001 mm, a hole's location to 11 significant figures, a recess's
   `w_center` to 0.01 mm, a body key's box to 1e-6 mm) now keeps the value it was rounded

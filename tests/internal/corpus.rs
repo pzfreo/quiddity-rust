@@ -340,3 +340,64 @@ fn rust_snapshot_corpus() {
     });
     common::snapshot::check(&common::fixtures(), "corpus", &serde_json::json!(actual));
 }
+
+/// A plate's `lo` and `hi` are real supporting planes (#71): `lo` the outermost (lowest) of its
+/// outward −axis faces' planes and `hi` the outermost (highest) of its +axis faces' planes, so
+/// its thickness is a distance between faces of the part, whatever coordinate chose the band.
+#[test]
+fn plate_bounds_are_outermost_supporting_face_planes() {
+    use quiddity::features::{Context, plates};
+    use quiddity::kernel::geom::Surface;
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let corpus = common::load("corpus.json");
+    let found =
+        common::parallel::map(corpus["files"].as_array().unwrap(), |entry| {
+            let file = entry["file"].as_str().unwrap();
+            let part = read_step_file(&dir.join(file)).unwrap();
+            let mut problems = Vec::new();
+            let mut count = 0;
+            for o in plates::discover(&Context::new(&part), &Default::default()) {
+                count += 1;
+                let p = &o.record;
+                let i = match p.axis {
+                    'x' => 0,
+                    'y' => 1,
+                    _ => 2,
+                };
+                let mut sides = [Vec::new(), Vec::new()];
+                for &f in &o.defining {
+                    let Surface::Plane { frame } = part.faces[f].surface else {
+                        panic!("{file}: plate face {f} is not planar");
+                    };
+                    let n = quiddity::features::planes::unit_plane_normal(&part, f).unwrap();
+                    sides[usize::from(n[i] > 0.0)].push(frame.origin[i]);
+                }
+                let lo = sides[0].iter().copied().fold(f64::INFINITY, f64::min);
+                let hi = sides[1].iter().copied().fold(f64::NEG_INFINITY, f64::max);
+                if p.lo != lo || p.hi != hi {
+                    let on = sides[0].contains(&p.lo) && sides[1].contains(&p.hi);
+                    problems.push(format!(
+                    "{file}: {} plate {} lo {} hi {} (faces {:?}), supporting planes −{:?} +{:?}",
+                    if on { "inner-plane" } else { "off-plane" },
+                    p.axis,
+                    p.lo,
+                    p.hi,
+                    o.defining, sides[0], sides[1]
+                ));
+                }
+            }
+            (count, problems)
+        });
+    let plates: usize = found.iter().map(|f| f.0).sum();
+    let problems: Vec<String> = found.into_iter().flat_map(|f| f.1).collect();
+    let off = problems.iter().filter(|p| p.contains("off-plane")).count();
+    eprintln!(
+        "{plates} corpus plates: {off} off a face plane, {} not outermost",
+        problems.len()
+    );
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+    assert!(plates > 0);
+}
