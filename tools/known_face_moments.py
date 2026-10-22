@@ -1,4 +1,4 @@
-"""Write ``tests/fixtures/known_face_moments.json``: a verdict for every face whose
+"""Write ``tests/fixtures/references/face_moments.json``: a verdict for every face whose
 ``Part::face_moments`` area or centroid differs from OpenCascade's adaptive integration, with
 the evidence (upstream need U11 of specify-core-rust).
 
@@ -42,7 +42,7 @@ import sys
 from pathlib import Path
 
 FIXTURES = Path(__file__).resolve().parent.parent / "tests" / "fixtures"
-OUT = FIXTURES / "known_face_moments.json"
+OUT = FIXTURES / "references/face_moments.json"
 TOLERANCE = 1e-6
 
 

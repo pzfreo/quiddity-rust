@@ -1,4 +1,4 @@
-"""Write ``tests/fixtures/known_face_areas.json``: a verdict for every face area the port gives
+"""Write ``tests/fixtures/references/face_areas.json``: a verdict for every face area the port gives
 that differs from OpenCascade's, with the evidence.
 
     FACE_AREAS_DUMP=/tmp/found.json QUIDDITY_CORPUS=../quiddity/tests/corpus \\
@@ -35,7 +35,7 @@ import sys
 from pathlib import Path
 
 FIXTURES = Path(__file__).resolve().parent.parent / "tests" / "fixtures"
-OUT = FIXTURES / "known_face_areas.json"
+OUT = FIXTURES / "references/face_areas.json"
 
 PLACEMENT = (
     "Under the test's motion (a translation and 37 degrees about (1, 2, 3)) this B-spline face's "
@@ -327,7 +327,7 @@ def order_entry(row: dict, captured: dict, evidence: dict) -> tuple[str, str]:
             )
     head = row["report"].split("; areas ")[0]
     return "not-applicable", (
-        f"OpenCascade's import healing reorders this malformed part's faces (tests/corpus.rs's "
+        f"OpenCascade's import healing reorders this malformed part's faces (tests/internal/corpus.rs's "
         f"'is OTHER' divergence; here {head}), so its faces are not compared by index. Matched by "
         f"area ({', '.join(pairs)}), each agrees to 1e-6"
         + (" but these: " + "; ".join(odd) if odd else "")

@@ -3,7 +3,7 @@
 //! each side's visible lines, and of its hidden lines as inked, lie within `drawing::TOL` of the
 //! other's; a section's cut agrees when its outline does alike and the areas the two outlines
 //! bound (by the even-odd rule, as draftwright hatches) agree within `AREA`. Every view or cut
-//! that does not is listed in `known_drawings.json`, with its verdict and how far it may be off:
+//! that does not is listed in `references/drawings.json`, with its verdict and how far it may be off:
 //! its lowest score (`min_score`) and, for a cut, its area's relative error (`max_area_error`),
 //! so a listed difference that gets worse still fails. A part some of whose curved edge
 //! stretches are not drawn with exact curves would be listed there too (its view `exact`), with
@@ -48,8 +48,9 @@ fn drawings_match_opencascade() {
         assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
         return;
     };
-    let known: Vec<Value> = serde_json::from_value(common::load("known_drawings.json")).unwrap();
-    common::check_verdicts("known_drawings.json", &known);
+    let known: Vec<Value> =
+        serde_json::from_value(common::load("references/drawings.json")).unwrap();
+    common::check_verdicts("references/drawings.json", &known);
     let fixtures = ["hlr.json.gz", "section.json.gz"].map(|f| load_gz(&common::fixtures().join(f)));
     let records: Vec<&Value> = fixtures
         .iter()
@@ -135,13 +136,13 @@ fn drawings_match_opencascade() {
         };
         let min_score = k["min_score"]
             .as_f64()
-            .unwrap_or_else(|| panic!("known_drawings.json: no min_score in {k}"));
+            .unwrap_or_else(|| panic!("references/drawings.json: no min_score in {k}"));
         // A cut's area error is relative to OpenCascade's area: `null` where its boolean drew
         // none (the error is then infinite).
         let max_area_error = match (p.view.as_str(), k.get("max_area_error")) {
             ("cut", Some(Value::Null)) => f64::INFINITY,
             ("cut", Some(v)) if v.is_f64() => v.as_f64().unwrap(),
-            ("cut", _) => panic!("known_drawings.json: no max_area_error in {k}"),
+            ("cut", _) => panic!("references/drawings.json: no max_area_error in {k}"),
             _ => 0.0,
         };
         if p.score < min_score || p.area_error > max_area_error {
@@ -176,7 +177,8 @@ fn failed_cuts_match_their_reference() {
         assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
         return;
     };
-    let known: Vec<Value> = serde_json::from_value(common::load("known_drawings.json")).unwrap();
+    let known: Vec<Value> =
+        serde_json::from_value(common::load("references/drawings.json")).unwrap();
     let failed: Vec<&Value> = known
         .iter()
         .filter(|k| k["view"] == "cut" && k.get("max_area_error") == Some(&Value::Null))
@@ -192,10 +194,10 @@ fn failed_cuts_match_their_reference() {
             .unwrap_or_else(|| panic!("no section record for {k}"));
         let reference = k["reference_area"]
             .as_f64()
-            .unwrap_or_else(|| panic!("known_drawings.json: no reference_area in {k}"));
+            .unwrap_or_else(|| panic!("references/drawings.json: no reference_area in {k}"));
         let allowed = k["max_reference_error"]
             .as_f64()
-            .unwrap_or_else(|| panic!("known_drawings.json: no max_reference_error in {k}"));
+            .unwrap_or_else(|| panic!("references/drawings.json: no max_reference_error in {k}"));
         let part = read_step_file(&dir.join(k["file"].as_str().unwrap())).unwrap();
         let (_, mine) = compare_cut(record, &part).unwrap();
         let area = even_odd_area(&mine);
@@ -220,7 +222,7 @@ fn failed_cuts_match_their_reference() {
 /// chord), and the curve between them lies along the stretch's points (within their chords'
 /// 0.2 µm tolerance). At least `EXACT_SHARE` of the edge stretches are drawn with exact curves,
 /// and of each part's, every one that is not straight (a circle or an ellipse seen edge-on is a
-/// segment, drawn by its points) but where `known_drawings.json` lists a lower share for the part
+/// segment, drawn by its points) but where `references/drawings.json` lists a lower share for the part
 /// (as its view `exact`, the share in `min_exact_share`).
 #[test]
 fn exact_curves_follow_their_points() {
@@ -229,7 +231,8 @@ fn exact_curves_follow_their_points() {
         assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
         return;
     };
-    let known: Vec<Value> = serde_json::from_value(common::load("known_drawings.json")).unwrap();
+    let known: Vec<Value> =
+        serde_json::from_value(common::load("references/drawings.json")).unwrap();
     let floors: Vec<&Value> = known.iter().filter(|k| k["view"] == "exact").collect();
     let all = load_gz(&common::fixtures().join("hlr.json.gz"));
     let records: Vec<&Value> = all["parts"].as_array().unwrap().iter().collect();
@@ -295,7 +298,7 @@ fn exact_curves_follow_their_points() {
         match floor.map(|k| k["min_exact_share"].as_f64()) {
             None if curved_exact < curved => problems.push(line),
             None => {}
-            Some(None) => panic!("known_drawings.json: no min_exact_share in {floor:?}"),
+            Some(None) => panic!("references/drawings.json: no min_exact_share in {floor:?}"),
             Some(Some(_)) if curved_exact == curved => problems.push(format!("stale: {line}")),
             Some(Some(min)) if (curved_exact as f64) < min * curved as f64 => {
                 problems.push(format!("{line}, below the floor of {min}"))

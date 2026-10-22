@@ -245,9 +245,9 @@ fn second_moments_match_independently_verified_boundaries() {
         assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
         return;
     };
-    let known = common::load("known_face_integrals.json");
+    let known = common::load("references/face_integrals.json");
     let rows = known.as_array().unwrap();
-    common::check_verdicts("known_face_integrals.json", rows);
+    common::check_verdicts("references/face_integrals.json", rows);
     let mut groups = std::collections::BTreeMap::<String, Vec<_>>::new();
     for row in rows {
         groups

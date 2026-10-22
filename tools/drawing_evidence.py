@@ -1,4 +1,4 @@
-"""Evidence for the verdicts in ``tests/fixtures/known_drawings.json`` that OpenCascade can give
+"""Evidence for the verdicts in ``tests/fixtures/references/drawings.json`` that OpenCascade can give
 independently of the boolean draftwright's section view relies on, and of its hidden-line output.
 
     QUIDDITY=../quiddity ../quiddity/.venv/bin/python tools/drawing_evidence.py cut <corpus file>...

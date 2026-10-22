@@ -115,10 +115,9 @@ fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
     }
 }
 
-/// Test-only caller-space recognition, retained solely for unchanged Python parity checks.
-#[cfg(feature = "python-parity")]
-#[doc(hidden)]
-pub fn python_parity_recognise(part: &Part) -> Recognition {
+/// Caller-space recognition for internal regression and geometry tests.
+#[cfg(test)]
+pub(crate) fn caller_space_recognise(part: &Part) -> Recognition {
     let features = features::recognise(part);
     let fingerprints = fingerprint(part, &features);
     Recognition {
@@ -184,10 +183,10 @@ fn frame_axes(
 ///   and so do a build123d revision's unchanged faces. The exception is a kernel defect, not
 ///   round-off: a sphere face whose boundary runs through the sphere's pole (cgb202's corner
 ///   patches) gets an area from the kernel that changes several-fold with the placement, listed
-///   in `known_correspondence.json`; no tolerance would absorb it. They sit three or four orders above that
+///   in `references/correspondence.json`; no tolerance would absorb it. They sit three or four orders above that
 ///   and well below any design change (a micron on a 100 mm part). `freeform_rel` is looser
 ///   because the kernel's B-spline quadrature moves with the placement (up to 2e-4 on most
-///   faces, more on a few listed in `known_correspondence.json`).
+///   faces, more on a few listed in `references/correspondence.json`).
 /// - `anchor_candidates`, `anchor_pairs` and `hypotheses` bound the work. Four candidates keep
 ///   the faces of two-fold and four-fold symmetric parts as anchors; RANSAC needs only one clean
 ///   hypothesis among them.
@@ -207,7 +206,7 @@ pub struct Thresholds {
     /// A freeform face's area agrees within this relative difference, and its mean normal within
     /// this angle (radians): the kernel's quadrature on B-spline faces changes with the part's
     /// placement by up to about 2e-4 relative (more on a few faces, listed in
-    /// `known_correspondence.json`).
+    /// `references/correspondence.json`).
     pub freeform_rel: f64,
     /// Points agree after alignment within this fraction of the scale.
     pub position_tol: f64,

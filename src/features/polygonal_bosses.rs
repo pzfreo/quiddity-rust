@@ -685,7 +685,7 @@ fn recognise_one(
     found
 }
 
-parity_entry! {
+internal_entry! {
 /// `recognise_polygonal_bosses`: regular square and hexagonal bosses, each solid on its own,
 /// sorted by record.
 pub fn recognise_polygonal_bosses(part: &Part, opts: &PolygonalOptions) -> Vec<PolygonalBoss> {
@@ -693,7 +693,7 @@ pub fn recognise_polygonal_bosses(part: &Part, opts: &PolygonalOptions) -> Vec<P
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// `_discover_polygonal_bosses`: per solid (or over the whole part when it has none), along z,
 /// x then y, sorted by record. Each boss is defined by its side ring; its claim covers its free
 /// end's cap as well.
@@ -732,7 +732,7 @@ pub fn discover(ctx: &Context<'_>, opts: &PolygonalOptions) -> Vec<Occurrence<Po
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path: every boss's side ring, and the ring with its free end's cap, on one
 /// valid solid; no side face defining two bosses.
 pub fn discover_verified(
@@ -756,14 +756,14 @@ pub fn discover_verified(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// `recognise_polygonal_stock`: one record when the whole part is a regular hexagonal prism.
 pub fn recognise_polygonal_stock(part: &Part, opts: &PolygonalOptions) -> Vec<PolygonalStock> {
     super::records(discover_stock(&Context::new(part), opts))
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// `_discover_polygonal_stock`: only a part of one solid and eight faces, the first axis (z, x,
 /// y) that proves the prism. The stock is defined by all eight faces.
 pub fn discover_stock(
@@ -797,7 +797,7 @@ pub fn discover_stock(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path: the stock's complete eight-face boundary, on one valid solid.
 pub fn discover_stock_verified(
     ctx: &Context<'_>,

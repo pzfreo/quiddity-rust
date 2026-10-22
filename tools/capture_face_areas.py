@@ -43,7 +43,7 @@ from OCP.TopoDS import TopoDS  # noqa: E402
 from quiddity import import_step_geometry  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from export_fixtures import _inventory  # noqa: E402
+from _occt_inventory import _inventory  # noqa: E402
 
 CORPUS = QUIDDITY / "tests" / "corpus"
 FIXTURES = Path(__file__).resolve().parent.parent / "tests" / "fixtures"
@@ -115,7 +115,7 @@ def main() -> None:
         part = _load(CORPUS / entry["file"])
         faces = list(part.faces())
         # The traversal must be the inventory's, which the Rust reader is checked against face by
-        # face (tests/corpus.rs): the same kinds, edge counts and bounds in the same order.
+        # face (tests/internal/corpus.rs): the same kinds, edge counts and bounds in the same order.
         assert _inventory(part) == entry["inventory"], entry["file"]
         files.append(
             {

@@ -63,6 +63,17 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Changed
 
+- Rust owns its regression baseline, with source-commit provenance and deterministic gzip
+  expectations. Regenerate with `python3 tools/rust_snapshot.py`, review decompressed changes
+  with `--diff BASE_REF`, and verify current HEAD with `--check`. Python is no longer consulted.
+- Removed Python recognition/PMI oracle outputs, capture-only tools, parity harnesses and the
+  `python-parity` Cargo feature. Caller-space algorithms are private; their internal tests
+  retain independent reference checks. The MFInstSeg scorer compiles the shared private engine
+  without a feature flag, preserving its scoring semantics and label floors. Python-written inputs, live OCCT checks, NIST/design-intent,
+  analytic, label, motion and inventory-floor tests stay. Independent ledgers live under
+  `tests/fixtures/references/`; retired verdicts are archived with evidence and commits in
+  `docs/history/python-parity.md`.
+
 - Haecceity now uses step-io 0.3, including its read-only model API, streaming readers,
   typed conics and shell/face/bound/edge-use `Orientation`. Haecceity's B-rep orientation
   flags and public geometry API remain unchanged. Hyperbola spans retain the existing
@@ -82,12 +93,10 @@ in [docs/alpha1.md](docs/alpha1.md).
   **Upgrading:** `recognise` now returns framed records. Some fields are `local` on parts not
   axis-aligned in their file; consumers must read them through `frame`. `recognise_placed` is
   gone. Caller-space `features::recognise` and `recognise_<family>` are no longer public in
-  default builds; the hidden, non-default `python-parity` feature is test-only and unsupported.
-  Discovery and inventory functions, `Context`, evidence builders and lower-level feature
-  algorithms are likewise available only with `python-parity`. Feature record types such as
-  `HolePattern` remain public at their existing paths. Parity integration test targets require
-  `--features python-parity`; `frames::prepare_framed*`, `working_part`, `FramedPart`,
-  `FramedError` and `FramedPart::recognise` are feature-only, as is `RecordFrame::CallerSpace`.
+  builds. Discovery, inventories, context construction and caller-space helpers are private;
+  feature record types remain public. Internal unit tests exercise these algorithms without
+  a feature flag. The old reader-based frame helpers and `RecordFrame::CallerSpace` exist
+  only in crate tests.
   `Part::transformed` is new public haecceity API. Both `read_step_placed` and
   `read_step_file_placed` now also reject non-orthonormal and non-finite placements, in
   addition to reflections.

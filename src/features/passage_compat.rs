@@ -93,7 +93,7 @@ impl PassageCompatibilityView {
     }
 }
 
-parity_entry! {
+internal_entry! {
 /// The principal legacy view of an occurrence's primitives (`principal_projection`): `None`
 /// unless the run is a principal axis (to 1e-12, positive) and the rounded section is a
 /// polygon.
@@ -138,7 +138,7 @@ pub fn principal_projection(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Freeze one eligible legacy value or ineligible grouping fact (`compatibility_view`).
 pub fn compatibility_view(
     projection: Option<&PrincipalProjection>,
@@ -165,7 +165,7 @@ pub fn compatibility_view(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The public legacy value of an eligible view (`passage_from_view`).
 pub fn passage_from_view(view: &PassageCompatibilityView) -> Result<Passage, PassageError> {
     let (true, Some(axis), Some(section), Some(sides), Some(length), Some(at)) = (
@@ -190,7 +190,7 @@ pub fn passage_from_view(view: &PassageCompatibilityView) -> Result<Passage, Pas
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The slot-reconciliation grouping of a view (`grouping_from_view`): axis, section and side
 /// count, where it has them.
 pub fn grouping_from_view(view: &PassageCompatibilityView) -> Option<(&'static str, &[V2], usize)> {
@@ -198,7 +198,7 @@ pub fn grouping_from_view(view: &PassageCompatibilityView) -> Option<(&'static s
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// A section anticlockwise from its least corner (`_canonical_section`); `None` under three
 /// corners, for a repeated corner, or for an area within 1e-12 of zero.
 pub fn canonical_section(section: &[V2]) -> Option<Vec<V2>> {

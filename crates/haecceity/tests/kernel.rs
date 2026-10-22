@@ -112,7 +112,7 @@ fn arcs_at_closed_edges_ignore_their_recorded_direction() {
 /// into the face, leaving the side 1.2e-5 before it crosses the knot line u = 0.25. The walk
 /// must split at that corner, not only at the knot line, or it misses the foot point's step
 /// off the side. tools/face_area_evidence.py gives 28.16983104 by Green's theorem and by
-/// direct slices (tests/fixtures/known_face_areas.json).
+/// direct slices (tests/fixtures/references/face_areas.json).
 #[test]
 fn boundary_walk_splits_at_a_corner_beside_a_knot_line() {
     let Some(dir) = common::corpus_dir() else {

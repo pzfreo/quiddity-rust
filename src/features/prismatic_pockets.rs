@@ -511,14 +511,14 @@ fn record(
     }
 }
 
-parity_entry! {
+internal_entry! {
 /// `recognise_prismatic_pockets`.
 pub fn recognise_prismatic_pockets(part: &Part) -> Vec<PrismaticPocket> {
     super::records(discover(&Context::new(part)))
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path: each pocket defined by its walls, its floor (or cavity region) consulted.
 pub fn discover_verified(
     ctx: &Context<'_>,
@@ -527,7 +527,7 @@ pub fn discover_verified(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Every pocket, in record order (`_discover_prismatic_pockets`).
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<PrismaticPocket>> {
     let occurrence = |record, walls: &[usize], constituent: &BTreeSet<usize>| Occurrence {

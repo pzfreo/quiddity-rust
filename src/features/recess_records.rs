@@ -9,7 +9,7 @@ use crate::kernel::py;
 
 pub const AXES: [char; 3] = ['x', 'y', 'z'];
 
-parity_entry! {
+internal_entry! {
 /// The index of an axis letter.
 pub fn axis_index(axis: char) -> usize {
     AXES.iter()
@@ -18,7 +18,7 @@ pub fn axis_index(axis: char) -> usize {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The axis that is neither of two others.
 pub fn third_axis(a: usize, b: usize) -> usize {
     3 - a - b

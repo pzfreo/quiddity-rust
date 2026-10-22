@@ -85,7 +85,7 @@ fn primitive_parameters(surface: &Surface) -> Option<(SurfaceKind, Vec<f64>)> {
     })
 }
 
-parity_entry! {
+internal_entry! {
 /// `validated_parameters`: finite, a unit axis, a positive radius, a cone angle strictly
 /// between zero and π/2; negative zeros made positive.
 pub fn validated_parameters(surface: &Surface) -> Option<(SurfaceKind, Vec<f64>)> {
@@ -121,7 +121,7 @@ pub fn validated_parameters(surface: &Surface) -> Option<(SurfaceKind, Vec<f64>)
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The native analytic fact of a face's own surface (`EffectiveSurfaceIndex._derive`, native
 /// branch); `None` for a torus, a freeform or an unresolved surface, or invalid parameters.
 pub fn native_fact(part: &Part, face: usize) -> Option<AnalyticFact> {
@@ -134,7 +134,7 @@ pub fn native_fact(part: &Part, face: usize) -> Option<AnalyticFact> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// `EffectiveSurfaceIndex.fact` when it is an `AnalyticSurfaceFact`: the native fact, or for a
 /// B-spline or Bezier face the one primitive it is recovered as.
 pub fn effective_fact(part: &Part, face: usize) -> Option<AnalyticFact> {
@@ -163,7 +163,7 @@ fn axis_equal(a: &[f64], b: &[f64]) -> bool {
     1.0 - py::sum(a.iter().zip(b).map(|(x, y)| x * y)).abs() <= AXIS_GAP
 }
 
-parity_entry! {
+internal_entry! {
 /// `equivalent_parameters`: whether two validated facts of one kind prove one placed analytic
 /// continuation at the local length *local* (finite and positive, else `None`: Python raises).
 pub fn equivalent_parameters(

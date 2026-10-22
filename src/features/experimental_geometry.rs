@@ -60,14 +60,14 @@ pub struct GeometryGraph<'a> {
 }
 
 impl<'a> GeometryGraph<'a> {
-    parity_entry! {
+    internal_entry! {
         /// The graph over every face of the part (`GeometryGraph(part)`).
         pub fn new(part: &'a Part) -> Self {
             Self::over(part, (0..part.faces.len()).collect())
         }
     }
 
-    parity_entry! {
+    internal_entry! {
         /// The graph over one solid's faces (`GeometryGraph(solid)`).
         pub fn for_solid(part: &'a Part, solid: usize) -> Self {
             Self::over(part, part.solids[solid].faces.clone())

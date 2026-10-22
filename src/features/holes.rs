@@ -94,7 +94,7 @@ fn auto_flag<'de, D: serde::Deserializer<'de>>(d: D) -> Result<bool, D::Error> {
     }
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path: holes with their defining cylinder faces and the faces that close them,
 /// published only if each lies in one valid solid and no countersink seats two holes.
 pub fn discover_verified(
@@ -107,7 +107,7 @@ pub fn discover_verified(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path as Python's locally degraded run takes it (`_discover_holes` on a graph
 /// with `local_degradation` set): a hole whose cylinder and closing faces prove no one valid
 /// solid is skipped instead of refusing every hole, and the countersink check is made over the
@@ -162,7 +162,7 @@ fn seats_once(
     Ok(())
 }
 
-parity_entry! {
+internal_entry! {
 /// `recognise_holes`.
 pub fn recognise_holes(part: &Part, opts: &HoleOptions) -> Vec<HoleRecord> {
     let ctx = Context::new(part);
@@ -525,7 +525,7 @@ fn bore_depth(
     )
 }
 
-parity_entry! {
+internal_entry! {
 /// Holes in stack order, each with its defining cylinder faces; *csinks* are composed onto the
 /// holes they flare.
 pub fn discover(

@@ -202,7 +202,7 @@ fn sustained_winding(axis: ThreadAxis, points: &[V3]) -> bool {
     (angle - first).abs() >= TAU * 1.99
 }
 
-parity_entry! {
+internal_entry! {
 /// Measured threads and unsupported helical candidates, in source face order.
 pub fn analyse_modelled_threads(part: &Part) -> ThreadAnalysis {
     let mut result = ThreadAnalysis::default();
@@ -296,20 +296,20 @@ pub fn analyse_modelled_threads(part: &Part) -> ThreadAnalysis {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Records only; [`analyse_modelled_threads`] also reports refused candidates.
 pub fn recognise_modelled_threads(part: &Part) -> Vec<ModelledThread> {
     super::records(discover(&Context::new(part)))
 }
 }
 
-parity_entry! {
+internal_entry! {
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<ModelledThread>> {
     ctx.modelled_threads().threads.clone()
 }
 }
 
-parity_entry! {
+internal_entry! {
 pub fn discover_verified(
     ctx: &Context<'_>,
 ) -> Result<Vec<Occurrence<ModelledThread>>, EvidenceError> {

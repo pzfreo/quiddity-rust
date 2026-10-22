@@ -68,7 +68,7 @@ impl Default for PlateOptions {
     }
 }
 
-parity_entry! {
+internal_entry! {
 /// `recognise_plates`: deduplicated by (axis, lo, hi) within each body, sorted by axis, `lo`,
 /// `hi`, `u` and `v`.
 pub fn recognise_plates(part: &Part, opts: &PlateOptions) -> Vec<Plate> {
@@ -76,7 +76,7 @@ pub fn recognise_plates(part: &Part, opts: &PlateOptions) -> Vec<Plate> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path: each plate's low and high face groups, all on one valid solid, with no
 /// face defining two plates and no plate key bound to two different face groups.
 pub fn discover_verified(
@@ -95,7 +95,7 @@ pub fn discover_verified(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path as Python's locally degraded run takes it (`_discover_plates` on a graph
 /// with `local_degradation` set): a plate any of whose low or high faces proves no one valid
 /// solid ([`evidence::locally_valid_solid`]) is skipped instead of refusing every plate, before
@@ -128,7 +128,7 @@ struct Scope {
     key: Option<BodyKey>,
 }
 
-parity_entry! {
+internal_entry! {
 /// Every plate with its low and high face groups as defining faces, in the order
 /// `recognise_plates` returns them.
 pub fn discover(ctx: &Context<'_>, opts: &PlateOptions) -> Vec<Occurrence<Plate>> {

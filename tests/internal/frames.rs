@@ -1,0 +1,356 @@
+//! Rust frame snapshots (axes 1e-9, origin 1e-9 of part size) and unchanged motion-equivariance references.
+
+use super::common;
+
+use std::path::PathBuf;
+
+use quiddity::frames::{
+    FrameGauge, FrameRefusal, FramedError, PartFrame, infer_part_frame, prepare_framed_step,
+};
+use quiddity::kernel::step::{IDENTITY, Placement, read_step_file_placed, read_step_placed};
+use serde_json::Value;
+
+/// The rotation by *degrees* about *axis* (Rodrigues), then *translation*.
+fn motion(axis: [f64; 3], degrees: f64, translation: [f64; 3]) -> Placement {
+    let n = (axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]).sqrt();
+    let [x, y, z] = axis.map(|c| c / n);
+    let (s, c) = degrees.to_radians().sin_cos();
+    let t = 1.0 - c;
+    [
+        [
+            t * x * x + c,
+            t * x * y - s * z,
+            t * x * z + s * y,
+            translation[0],
+        ],
+        [
+            t * x * y + s * z,
+            t * y * y + c,
+            t * y * z - s * x,
+            translation[1],
+        ],
+        [
+            t * x * z - s * y,
+            t * y * z + s * x,
+            t * z * z + c,
+            translation[2],
+        ],
+    ]
+}
+
+fn captured() -> Value {
+    common::load("captured/frames.json")
+}
+
+fn captured_motion(captured: &Value) -> Placement {
+    let m = &captured["motion"];
+    let v = |k: &str| -> [f64; 3] {
+        let a = m[k].as_array().unwrap();
+        [0, 1, 2].map(|i| a[i].as_f64().unwrap())
+    };
+    motion(
+        v("axis"),
+        m["angle_degrees"].as_f64().unwrap(),
+        v("translation"),
+    )
+}
+
+fn vector(v: &Value) -> [f64; 3] {
+    [0, 1, 2].map(|i| v[i].as_f64().unwrap())
+}
+
+fn largest_difference(a: [f64; 3], b: [f64; 3]) -> f64 {
+    (0..3).map(|i| (a[i] - b[i]).abs()).fold(0.0, f64::max)
+}
+
+fn apply(m: &Placement, p: [f64; 3], point: bool) -> [f64; 3] {
+    let t = |i: usize| if point { m[i][3] } else { 0.0 };
+    [0, 1, 2].map(|i| m[i][0] * p[0] + m[i][1] * p[1] + m[i][2] * p[2] + t(i))
+}
+
+/// How the frame of the part under *motion* differs from the unmoved frame carried by it: the
+/// same refusal or gauge, the origin to 1e-9 of *size*, and for a full gauge the axes to 1e-9
+/// (in the other gauges the axes are representatives, which may turn differently).
+fn equivariance(
+    motion: &Placement,
+    unmoved: &Result<PartFrame, FrameRefusal>,
+    moved: &Result<PartFrame, FrameRefusal>,
+    size: f64,
+) -> (Vec<&'static str>, f64, String) {
+    match (unmoved, moved) {
+        (Err(a), Err(b)) if a == b => (vec![], 0.0, String::new()),
+        (Ok(a), Ok(b)) => {
+            let (mut fields, mut text) = (Vec::new(), Vec::new());
+            if a.gauge != b.gauge {
+                fields.push("gauge");
+                text.push(format!("gauge {:?} unmoved, {:?} moved", a.gauge, b.gauge));
+            }
+            if a.gauge == FrameGauge::Full {
+                for (name, p, q) in [("x", a.x, b.x), ("y", a.y, b.y), ("z", a.z, b.z)] {
+                    let off = largest_difference(apply(motion, p, false), q);
+                    if off > 1e-9 {
+                        fields.push(name);
+                        text.push(format!("{name} off {off:.1e}"));
+                    }
+                }
+            }
+            let off = largest_difference(apply(motion, a.origin, true), b.origin);
+            if off > 1e-9 * size.max(1.0) {
+                fields.push("origin");
+                text.push(format!("origin off {off:.1e}"));
+            }
+            (fields, off, text.join("; "))
+        }
+        _ => (
+            vec!["refusal"],
+            0.0,
+            format!(
+                "unmoved {:?}, moved {:?}",
+                unmoved.as_ref().map(|f| f.gauge),
+                moved.as_ref().map(|f| f.gauge)
+            ),
+        ),
+    }
+}
+
+/// Also checks that the port's frame moves with the part: listed as case `equivariance`.
+#[test]
+fn rust_snapshot_frames_and_equivariance() {
+    let captured = captured();
+    let generic = captured_motion(&captured);
+    let corpus = common::corpus_dir();
+    if corpus.is_none() {
+        assert!(
+            std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
+            "QUIDDITY_CORPUS_REQUIRED is set but the corpus was not found"
+        );
+    }
+    let known = common::load("references/frame_equivariance.json");
+    let known = known.as_array().unwrap();
+    common::check_verdicts("references/frame_equivariance.json", known);
+    let parts: Vec<&Value> = captured["parts"].as_array().unwrap().iter().collect();
+    let path = |entry: &Value| -> Option<PathBuf> {
+        let file = entry["file"].as_str().unwrap();
+        match entry["source"].as_str().unwrap() {
+            "built" => Some(common::fixtures().join("captured/frames").join(file)),
+            "fixture" => Some(common::fixtures().join(file)),
+            _ => corpus.as_ref().map(|d| d.join(file)),
+        }
+    };
+    let found = common::parallel::map(&parts, |entry| {
+        let file = entry["file"].as_str().unwrap();
+        let Some(path) = path(entry) else {
+            return Vec::new();
+        };
+        let mut out = Vec::new();
+        let mut frames = Vec::new();
+        let mut snapshot = serde_json::Map::new();
+        for (case, placement) in [("frame", IDENTITY), ("moved", generic)] {
+            let part = read_step_file_placed(&path, &placement).unwrap();
+            let size = part.bounds().diagonal();
+            let frame = infer_part_frame(&part);
+            let value = frame.as_ref().map_or_else(
+                |r| serde_json::json!({"refused":r.as_str()}),
+                |f| serde_json::to_value(f).unwrap(),
+            );
+            snapshot.insert(case.into(), value);
+            frames.push((frame, size));
+        }
+        let equal = |a: &Value, b: &Value| {
+            ["frame", "moved"].iter().enumerate().all(|(i, case)| {
+                let (a, b) = (&a[case], &b[case]);
+                if a.get("refused").is_some() || b.get("refused").is_some() {
+                    return a == b;
+                }
+                a["gauge"] == b["gauge"]
+                    && ["x", "y", "z"]
+                        .iter()
+                        .all(|k| largest_difference(vector(&a[k]), vector(&b[k])) <= 1e-9)
+                    && largest_difference(vector(&a["origin"]), vector(&b["origin"]))
+                        <= 1e-9 * frames[i].1.max(1.0)
+            })
+        };
+        common::snapshot::check_with(
+            &common::fixtures(),
+            &format!("frames/{}/{}", entry["source"].as_str().unwrap(), file),
+            &Value::Object(snapshot),
+            &equal,
+        );
+        let (fields, off, text) = equivariance(&generic, &frames[0].0, &frames[1].0, frames[0].1);
+        if !fields.is_empty() {
+            out.push((file.to_string(), "equivariance", fields, off, text));
+        }
+        out
+    });
+    let mut problems = Vec::new();
+    let mut seen = Vec::new();
+    for (file, case, fields, off, text) in found.into_iter().flatten() {
+        let entry = || {
+            let mut e = serde_json::json!({"file": file, "case": case, "fields": fields});
+            if fields.contains(&"origin") {
+                e["origin_within"] =
+                    serde_json::json!(format!("{:.0e}", off * 1.5).parse::<f64>().unwrap());
+            }
+            e
+        };
+        match known
+            .iter()
+            .position(|k| k["file"] == file.as_str() && k["case"] == case)
+        {
+            Some(i) => {
+                seen.push(i);
+                let k = &known[i];
+                let listed: Vec<&str> = k["fields"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .map(|f| f.as_str().unwrap())
+                    .collect();
+                let within = k["origin_within"].as_f64().unwrap_or(0.0);
+                if listed != fields || (fields.contains(&"origin") && off > within) {
+                    problems.push(format!("{file} {case} changed: {text}\n  now: {}", entry()));
+                }
+            }
+            None => problems.push(format!("{file} {case}: {text}\n  needs: {}", entry())),
+        }
+    }
+    for (i, k) in known.iter().enumerate() {
+        let corpus_entry = parts
+            .iter()
+            .any(|p| p["file"] == k["file"] && p["source"] == "corpus");
+        if !seen.contains(&i) && !(corpus_entry && corpus.is_none()) {
+            problems.push(format!("{k} is listed but now agrees: remove it"));
+        }
+    }
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
+
+/// Python's `test_frame_point_transforms_are_inverse`.
+#[test]
+fn frame_point_transforms_are_inverse() {
+    let frame = PartFrame {
+        origin: [10.0, 20.0, 30.0],
+        x: [0.0, 1.0, 0.0],
+        y: [0.0, 0.0, 1.0],
+        z: [1.0, 0.0, 0.0],
+        gauge: FrameGauge::Full,
+    };
+    assert_eq!(frame.to_local([14.0, 25.0, 36.0]), [5.0, 6.0, 4.0]);
+    assert_eq!(frame.to_world([5.0, 6.0, 4.0]), [14.0, 25.0, 36.0]);
+}
+
+/// The working part is the caller's part in the frame's local coordinates, face for face and
+/// edge for edge (Python's `test_framed_working_shape_uses_the_published_local_coordinates`),
+/// for one part of each gauge, as read and under the generic motion.
+#[test]
+fn working_part_is_the_caller_part_in_local_coordinates() {
+    let generic = captured_motion(&captured());
+    let dir = common::fixtures().join("captured/frames");
+    for (file, gauge) in [
+        ("asymmetric_bored_moved.step", FrameGauge::Full),
+        ("box_moved.step", FrameGauge::Orthogonal),
+        ("cylinder_rot_x37.step", FrameGauge::Axial),
+    ] {
+        let bytes = std::fs::read(dir.join(file)).unwrap();
+        for placement in [IDENTITY, generic] {
+            let caller = read_step_placed(&bytes, &placement).unwrap();
+            let framed = prepare_framed_step(&bytes, &placement).unwrap();
+            assert_eq!(framed.frame.gauge, gauge, "{file}");
+            assert_eq!(framed.frame, infer_part_frame(&caller).unwrap(), "{file}");
+            assert_eq!(framed.part.edges.len(), caller.edges.len(), "{file}");
+            for (local, edge) in framed.part.edges.iter().zip(&caller.edges) {
+                for (p, q) in [(local.start, edge.start), (local.end, edge.end)] {
+                    let want = framed.frame.to_local(q);
+                    assert!(
+                        (0..3).all(|i| (p[i] - want[i]).abs() < 1e-8),
+                        "{file}: {p:?} against {want:?}"
+                    );
+                }
+            }
+        }
+    }
+}
+
+/// Framed recognition finds the bore of the full-gauge part, in local coordinates, wherever
+/// the caller placed it; the sphere is refused for want of a direction, as Python refuses it.
+#[test]
+fn framed_recognition_follows_the_part() {
+    let generic = captured_motion(&captured());
+    let dir = common::fixtures().join("captured/frames");
+    let bytes = std::fs::read(dir.join("asymmetric_bored_moved.step")).unwrap();
+    let records: Vec<String> = [IDENTITY, generic]
+        .iter()
+        .map(|placement| {
+            let framed = prepare_framed_step(&bytes, placement).unwrap().recognise();
+            assert_eq!(framed.features.holes.len(), 1);
+            let hole = serde_json::to_value(&framed.features.holes).unwrap();
+            format!("{:?}", framed.features.defining["holes"]) + &hole["axis"].to_string()
+        })
+        .collect();
+    assert_eq!(records[0], records[1]);
+    let sphere = std::fs::read(dir.join("sphere.step")).unwrap();
+    match prepare_framed_step(&sphere, &IDENTITY) {
+        Err(FramedError::Frame(r)) => assert_eq!(r, FrameRefusal::NoAnalyticDirection),
+        other => panic!("sphere: {:?}", other.map(|f| f.frame)),
+    }
+}
+
+/// The default recognition reports the working part's faces under the caller's indices
+/// (`correspondence::recognise`): the in-memory transform must preserve face numbering.
+/// On every corpus part with a frame, each working face has the caller face's surface
+/// kind and edges, and each of those edges' ends is the caller's carried into the frame (to 1e-6
+/// of the part's size).
+#[test]
+fn working_faces_are_the_caller_faces_on_every_corpus_part() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(
+            std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
+            "QUIDDITY_CORPUS_REQUIRED is set but the corpus was not found"
+        );
+        return;
+    };
+    let files: Vec<String> = common::load("corpus.json")["files"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|e| e["file"].as_str().unwrap().to_string())
+        .collect();
+    let (mut checked, mut problems) = (0, Vec::new());
+    let found = common::parallel::map(&files, |name| {
+        let path = dir.join(name);
+        let Ok(caller) = read_step_file_placed(&path, &IDENTITY) else {
+            return None;
+        };
+        let Ok(framed) = quiddity::frames::prepare_framed_file(&path, &IDENTITY) else {
+            return None;
+        };
+        let size = caller
+            .edges
+            .iter()
+            .flat_map(|e| e.start.iter().chain(&e.end))
+            .fold(1.0f64, |m, c| m.max(c.abs()));
+        let mut out = Vec::new();
+        for (i, (local, face)) in framed.part.faces.iter().zip(&caller.faces).enumerate() {
+            let edges = caller.face_edges(i);
+            if local.surface.kind() != face.surface.kind() || framed.part.face_edges(i) != edges {
+                out.push(format!("{name}: face {i} is another face"));
+                continue;
+            }
+            for e in edges {
+                let (l, c) = (&framed.part.edges[e], &caller.edges[e]);
+                for (p, q) in [(l.start, c.start), (l.end, c.end)] {
+                    if largest_difference(p, framed.frame.to_local(q)) > 1e-6 * size {
+                        out.push(format!("{name}: face {i} edge {e} at {p:?}, not {q:?}"));
+                    }
+                }
+            }
+        }
+        Some(out)
+    });
+    for out in found.into_iter().flatten() {
+        checked += 1;
+        problems.extend(out);
+    }
+    assert!(checked > 90, "only {checked} corpus parts had a frame");
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+}

@@ -1,4 +1,9 @@
 //! Print the cylinder inventory: `cargo run --example cylinders -- file.step`.
+// Internal diagnostic: use the exact engine implementation without exporting caller-space APIs.
+#[path = "../src/engine.rs"]
+mod engine;
+pub use engine::*;
+extern crate self as quiddity;
 fn main() {
     let path = std::env::args().nth(1).unwrap();
     let part = quiddity::read_step_file(std::path::Path::new(&path)).expect("read");

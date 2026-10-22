@@ -20,7 +20,7 @@ use crate::kernel::py;
 /// Coaxial analytic axes may differ by modelling noise only (a fraction of the diameter).
 const COAXIAL_FRAC: f64 = 1e-4;
 
-parity_entry! {
+internal_entry! {
 /// The run's external cylinders by face.
 pub fn external_cylinders<'c>(ctx: &'c Context<'_>) -> BTreeMap<usize, &'c CylinderEvidence> {
     ctx.cylinders()
@@ -31,7 +31,7 @@ pub fn external_cylinders<'c>(ctx: &'c Context<'_>) -> BTreeMap<usize, &'c Cylin
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The external cylinders among *neighbours* that revolve about the line (*origin*, *axis*).
 pub fn coaxial_cylinders<'c>(
     neighbours: &[usize],
@@ -55,14 +55,14 @@ pub fn coaxial_cylinders<'c>(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Whether the coaxial cylinders include two different bands (a shoulder between diameters).
 pub fn bridges_two_bands(coaxial: &[&CylinderEvidence]) -> bool {
     coaxial.iter().any(|c| c.diameter != coaxial[0].diameter)
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The planar faces among *neighbours* square to *axis* (a shoulder or end face).
 pub fn transverse_planes(part: &Part, neighbours: &[usize], axis: V3) -> Vec<usize> {
     neighbours
@@ -87,7 +87,7 @@ fn circle(part: &Part, edge: usize) -> Option<(f64, V3)> {
 /// A circular rim: its radius and centre.
 pub type Rim = (f64, V3);
 
-parity_entry! {
+internal_entry! {
 /// `(minor, major, included angle°)` of a cone face: its smallest and largest circular rims and
 /// the full cone angle to 2 dp (`cone_rims`).
 pub fn cone_rims(part: &Part, face: usize) -> Option<(Rim, Rim, f64)> {
@@ -135,14 +135,14 @@ impl TurnedProfileKey {
     }
 }
 
-parity_entry! {
+internal_entry! {
 /// The axis letter of an axis index.
 pub fn axis_letter(axis: usize) -> char {
     ['x', 'y', 'z'][axis]
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// `profile_key_from_bands`: the profile one body's coaxial bands prove. *bounds* is the body's
 /// box (the solid's, or the part's when it has none).
 pub fn profile_key_from_bands(

@@ -1,5 +1,4 @@
-//! Volume probes against Python's booleans: every probe the Python recognisers ask over the
-//! corpus (`tools/capture_probes.py`), answered by `kernel::volume`.
+//! Rust volume-probe snapshots, independent ray geometry and OpenCascade fuzzy-boolean measurements.
 
 mod common;
 
@@ -11,7 +10,7 @@ use haecceity::geom::Bounds;
 use haecceity::rays::RayCaster;
 use haecceity::volume::{Probe, common_volume, probe_volume};
 use haecceity::{Part, read_step, read_step_file};
-use serde_json::Value;
+use serde_json::{Value, json};
 
 fn probes() -> Vec<Value> {
     let path = common::fixtures().join("probes.json.gz");
@@ -24,7 +23,62 @@ fn probes() -> Vec<Value> {
 }
 
 #[test]
-fn probes_match_python() {
+fn rust_snapshot_probes() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let mut by_file: BTreeMap<String, Vec<Value>> = BTreeMap::new();
+    for p in probes() {
+        by_file
+            .entry(p["file"].as_str().unwrap().into())
+            .or_default()
+            .push(p);
+    }
+    let by_file: Vec<_> = by_file.into_iter().collect();
+    let actual = common::parallel::map(&by_file, |(file, asked)| {
+        let part = read_step_file(&dir.join(file)).unwrap();
+        let solids: Vec<Classifier<'_>> = (0..part.solids.len())
+            .map(|s| Classifier::for_solid(&part, s))
+            .collect();
+        json!({"file":file,"probes":asked.iter().map(|p|measure(p,&solids)).collect::<Vec<_>>()})
+    });
+    let equal = |a: &Value, b: &Value| {
+        let (a, b) = (a.as_array().unwrap(), b.as_array().unwrap());
+        a.len() == b.len()
+            && a.iter().zip(b).all(|(a, b)| {
+                a["file"] == b["file"]
+                    && a["probes"].as_array().unwrap().len()
+                        == b["probes"].as_array().unwrap().len()
+                    && a["probes"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .zip(b["probes"].as_array().unwrap())
+                        .all(|(a, b)| {
+                            let (Some(g), Some(gv), Some(w), Some(wv)) = (
+                                a["volume"].as_f64(),
+                                a["probe_volume"].as_f64(),
+                                b["volume"].as_f64(),
+                                b["probe_volume"].as_f64(),
+                            ) else {
+                                return a == b;
+                            };
+                            if w == 0.0 {
+                                g == 0.0
+                            } else if (w - wv).abs() <= 1e-9 * wv {
+                                (g - gv).abs() <= 1e-9 * gv
+                            } else {
+                                (g / gv - w / wv).abs() <= 1e-6
+                            }
+                        })
+            })
+    };
+    common::snapshot::check_with(&common::fixtures(), "probes", &json!(actual), &equal);
+}
+
+#[test]
+fn probes_match_opencascade() {
     let Some(dir) = common::corpus_dir() else {
         assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
         return;
@@ -36,8 +90,9 @@ fn probes_match_python() {
             .or_default()
             .push(p);
     }
-    let known: Vec<Value> = serde_json::from_value(common::load("known_probes.json")).unwrap();
-    common::check_verdicts("known_probes.json", &known);
+    let known: Vec<Value> =
+        serde_json::from_value(common::load("references/probe_evidence.json")).unwrap();
+    common::check_verdicts("references/probe_evidence.json", &known);
     // A problem is keyed exactly: its file, its caller, and its index among that file's probes
     // in `probes.json.gz` order. Files are checked in parallel, the problems kept in file order.
     let by_file: Vec<(String, Vec<Value>)> = by_file.into_iter().collect();
@@ -117,10 +172,54 @@ fn a_crossing_a_straying_edge_overshoots_yields_to_the_bore_across_it() {
     assert_eq!(faces, [172, 175]);
 }
 
+/// Measure a Rust probe for the independent references and Rust snapshot.
+fn measure(p: &Value, solids: &[Classifier<'_>]) -> Value {
+    let probe_part: Part;
+    let probe = if let Some(b) = p.get("box") {
+        let c: Vec<f64> = serde_json::from_value(b.clone()).unwrap();
+        Probe::Box(Bounds {
+            min: [c[0], c[1], c[2]],
+            max: [c[3], c[4], c[5]],
+        })
+    } else {
+        probe_part = read_step(p["step"].as_str().unwrap().as_bytes()).unwrap();
+        Probe::Solid(RayCaster::for_solid(&probe_part, 0))
+    };
+    let volume: Option<f64> = p["solids"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|s| common_volume(&solids[s.as_u64().unwrap() as usize], &probe))
+        .sum();
+    json!({"volume":volume,"probe_volume":probe_volume(&probe)})
+}
+
+/// OpenCascade fuzzy booleans independently measured these two probes (1e-5 relative band).
+#[test]
+fn fuzzy_opencascade_probe_measurements() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let file = "nist/nist_ctc_02_asme1_rc.stp";
+    let part = read_step_file(&dir.join(file)).unwrap();
+    let solids: Vec<_> = (0..part.solids.len())
+        .map(|s| Classifier::for_solid(&part, s))
+        .collect();
+    let inputs: Vec<_> = probes().into_iter().filter(|p| p["file"] == file).collect();
+    for (index, expected) in [(4, 7.056070), (7, 7.799776)] {
+        let measured = measure(&inputs[index], &solids)["volume"].as_f64().unwrap();
+        assert!(
+            (measured - expected).abs() < 1e-5 * expected,
+            "probe {index}: {measured} vs {expected}"
+        );
+    }
+}
+
 /// A probe the port answers differently: file, caller, index in the file, report.
 type Problem = (String, String, usize, String);
 
-/// Whether the port agrees with Python's answer (empty, full or the fraction), and a report.
+/// Whether the port agrees with OpenCascade's answer (empty, full or the fraction), and a report.
 fn check(p: &Value, solids: &[Classifier<'_>]) -> (bool, String) {
     let probe_part: Part;
     let (probe, shape) = if let Some(b) = p.get("box") {
@@ -140,7 +239,7 @@ fn check(p: &Value, solids: &[Classifier<'_>]) -> (bool, String) {
         p["volume"].as_f64().unwrap(),
         p["probe_volume"].as_f64().unwrap(),
     );
-    // A refusal is always a difference: Python answered every probe here.
+    // A refusal is always a difference: OpenCascade answered every probe here.
     let got: Option<f64> = p["solids"]
         .as_array()
         .unwrap()
@@ -150,7 +249,7 @@ fn check(p: &Value, solids: &[Classifier<'_>]) -> (bool, String) {
     let (Some(got), Some(rpv)) = (got, probe_volume(&probe)) else {
         return (
             false,
-            format!("{shape}: python {want} of {pv}, rust refused"),
+            format!("{shape}: OpenCascade {want} of {pv}, rust refused"),
         );
     };
     let kind = if want == 0.0 {
@@ -165,6 +264,7 @@ fn check(p: &Value, solids: &[Classifier<'_>]) -> (bool, String) {
         "full" => (got - rpv).abs() <= 1e-9 * rpv,
         _ => (got / rpv - want / pv).abs() <= 1e-6,
     };
-    let report = format!("{shape}: python {want} rust {got} of {pv} (rust probe volume {rpv})");
+    let report =
+        format!("{shape}: OpenCascade {want} rust {got} of {pv} (rust probe volume {rpv})");
     (ok, report)
 }

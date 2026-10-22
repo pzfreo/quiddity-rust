@@ -4,7 +4,7 @@
 //! specify-core's loader gives through OpenCascade XCAF (`specify_core.load.load_all`): as many,
 //! in the same order, with the same names, the same placements (to 1e-9), and the same
 //! `ADVANCED_FACE` / `EDGE_CURVE` instances (`#N`) in the same order, except for the differences
-//! listed in `tests/fixtures/known_face_sources.json`.
+//! listed in `tests/fixtures/references/face_sources.json`.
 //!
 //! Every difference is a problem with an exact identity, a file and a key, and a list entry names
 //! that identity with the number of problems it explains and a verdict, in the style of
@@ -441,11 +441,11 @@ fn part_definitions_match_specify_core() {
         .map(|(e, _)| e["file"].as_str().unwrap())
         .collect();
 
-    let known: Vec<Value> = common::load("known_face_sources.json")
+    let known: Vec<Value> = common::load("references/face_sources.json")
         .as_array()
         .unwrap()
         .clone();
-    common::check_verdicts("known_face_sources.json", &known);
+    common::check_verdicts("references/face_sources.json", &known);
     let mut listed: BTreeMap<(String, String), u64> = BTreeMap::new();
     let mut failures = Vec::new();
     for e in &known {

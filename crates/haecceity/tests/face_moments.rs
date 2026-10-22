@@ -5,7 +5,7 @@
 //!
 //! Agreement is specify-core's: the area within 1e-6 relative, each centroid coordinate within
 //! 1e-6 of the larger of its magnitude and 1 mm. Every face outside it must be listed in
-//! `tests/fixtures/known_face_moments.json` with a verdict, pinned to the port's numbers
+//! `tests/fixtures/references/face_moments.json` with a verdict, pinned to the port's numbers
 //! (`tools/known_face_moments.py` writes it from the differences, the capture's rebuilt-pcurve
 //! references, `tools/face_area_evidence.py`'s areas and the independent integration
 //! [`face_moment_evidence`] runs on request).
@@ -56,7 +56,7 @@ fn moments(part: &Part, face: usize) -> Option<[f64; 4]> {
 /// approximations of the edges (the three readings differ by up to 0.17 mm², within the 1.15 mm²
 /// strip the edges' tolerances allow the boundary); the port integrates the region the 3D edges
 /// bound, which `tools/face_area_evidence.py`'s independent Green's-theorem and slice
-/// integrations both put at 49.92958114 (`known_face_areas.json`: rust-correct).
+/// integrations both put at 49.92958114 (`references/face_areas.json`: rust-correct).
 #[test]
 fn cgb217_face_29_has_moments() {
     let Some(dir) = common::corpus_dir() else {
@@ -523,9 +523,9 @@ fn face_moments_match_opencascade_adaptive() {
     };
     let captured = captured();
     let entries = captured["files"].as_array().unwrap();
-    let known = common::load("known_face_moments.json");
+    let known = common::load("references/face_moments.json");
     let known = known.as_array().unwrap();
-    common::check_verdicts("known_face_moments.json", known);
+    common::check_verdicts("references/face_moments.json", known);
     // The parts read in parallel, then their faces integrated in parallel.
     let parts: Vec<Part> = common::parallel::map(entries, |entry| {
         let file = entry["file"].as_str().unwrap();

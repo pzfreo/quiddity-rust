@@ -84,7 +84,7 @@ fn floor_corners(part: &Part, floor: usize) -> Option<Vec<V3>> {
         .collect()
 }
 
-parity_entry! {
+internal_entry! {
 /// Every proof ending the pocket on *floor* (`_proofs`), one per stock cylinder that proves.
 pub fn proofs(
     ctx: &Context<'_>,
@@ -256,7 +256,7 @@ fn proofs_or_none(
     Some(results)
 }
 
-parity_entry! {
+internal_entry! {
 /// Every proof on every floor (`cylindrical_pocket_proofs`), floors in face order.
 pub fn cylindrical_pocket_proofs(
     ctx: &Context<'_>,

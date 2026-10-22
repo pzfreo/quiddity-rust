@@ -9,7 +9,7 @@
 //! fault the kernel finds), and `cadgenbench_inputs/cgb202.step.gz`, whose face 1654 is
 //! `BRepCheck_UnorientableShape` with a `BRepCheck_SelfIntersectingWire`, made by the import's
 //! healing (ShapeFix) re-orienting wires: the file's own loops are closed and consistently
-//! oriented (`known_divergences.json`, this file's evidence entries, rust-correct). Every other
+//! oriented (`references/occt_corpus.json`, this file's evidence entries, rust-correct). Every other
 //! face, wire, edge, shell and solid status is `BRepCheck_NoError`. So the kernel must fault
 //! 14052's face 1 and nothing else, however the part is placed.
 

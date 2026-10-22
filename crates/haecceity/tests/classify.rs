@@ -1,7 +1,7 @@
 //! Point classification against OpenCascade: every point `tools/capture_classify.py` asked
 //! `BRepClass3d_SolidClassifier` about over the corpus, answered by `classify::Classifier`, and
 //! each point's probe rays checked for agreeing parity. Differences are listed, with verdicts
-//! and evidence, in `tests/fixtures/known_classify.json`; an unlisted, stale or changed entry
+//! and evidence, in `tests/fixtures/references/classify.json`; an unlisted, stale or changed entry
 //! fails.
 
 mod common;
@@ -104,13 +104,14 @@ fn classification_matches_opencascade() {
         }
     }
     eprintln!("{points} points; clean rays disagree on parity at {disagreeing}");
-    let known: Vec<Value> = serde_json::from_value(common::load("known_classify.json")).unwrap();
-    common::check_verdicts("known_classify.json", &known);
+    let known: Vec<Value> =
+        serde_json::from_value(common::load("references/classify.json")).unwrap();
+    common::check_verdicts("references/classify.json", &known);
     let mut listed: BTreeMap<Key, String> = BTreeMap::new();
     for k in &known {
         assert!(
             k["evidence"].is_string(),
-            "known_classify.json: entry without evidence: {k}"
+            "references/classify.json: entry without evidence: {k}"
         );
         let key = (
             k["file"].as_str().unwrap().to_string(),
@@ -120,7 +121,7 @@ fn classification_matches_opencascade() {
         let observed = k["observed"].as_str().unwrap().to_string();
         assert!(
             listed.insert(key, observed).is_none(),
-            "known_classify.json: duplicate entry {k}"
+            "references/classify.json: duplicate entry {k}"
         );
     }
     let show = |m: Vec<(&Key, &String)>| {

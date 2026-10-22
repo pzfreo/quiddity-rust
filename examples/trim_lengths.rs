@@ -1,4 +1,9 @@
 //! Physical trim lengths and source identities for independent raw-STEP checks.
+// Internal diagnostic: use the exact engine implementation without exporting caller-space APIs.
+#[path = "../src/engine.rs"]
+mod engine;
+pub use engine::*;
+extern crate self as quiddity;
 use quiddity::features::effective_surfaces::{arc_length, physical_boundary_length};
 
 fn main() {

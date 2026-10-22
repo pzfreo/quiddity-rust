@@ -16,7 +16,7 @@ use crate::kernel::geom::V3;
 /// Spans agree to this to count as one (`_rings.SPAN_EPS`): a coordinate comparison, not a size.
 pub const SPAN_EPS: f64 = 1e-6;
 
-parity_entry! {
+internal_entry! {
 /// The principal axis a flat face lies across and its coordinate there (`_principal_plane`):
 /// its normal has exactly one component of at least `1 - AXIS_ZERO_COS`, and its box is no
 /// thicker than [`SPAN_EPS`] along it. Asked of any face, as Python asks it of mouth candidates.
@@ -34,7 +34,7 @@ pub fn principal_plane(part: &Part, face: usize) -> Option<(usize, f64)> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The faces capping a wall chain's far end: among the faces every wall meets, those lying
 /// across *axis* at *at* that turn convex or smooth to every wall.
 pub fn mouths(part: &Part, walls: &[usize], axis: usize, at: f64) -> Vec<usize> {
@@ -51,7 +51,7 @@ pub fn mouths(part: &Part, walls: &[usize], axis: usize, at: f64) -> Vec<usize> 
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Whether the floor is a real floor (`_floor_proof` / `_exact_floor_proof`): the floor face
 /// swept to the mouth holds no material of *solid*, and a thin slab behind it is all material.
 ///
@@ -78,7 +78,7 @@ pub fn floor_proof(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// `pairwise` distance in the section plane (`math.dist`).
 pub fn dist2(a: [f64; 2], b: [f64; 2]) -> f64 {
     crate::kernel::py::dist(&a, &b)

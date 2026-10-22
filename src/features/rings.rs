@@ -49,7 +49,7 @@ fn others(axis: usize) -> [usize; 2] {
     }
 }
 
-parity_entry! {
+internal_entry! {
 /// Every closed prismatic ring bounding a void, on any principal axis (`rings`), whatever caps
 /// it: axis by axis, each axis's rings by their least wall. Rings bounding material (a prism
 /// seen from outside) are not returned.
@@ -209,7 +209,7 @@ pub(crate) fn canonical(mut corners: Vec<V2>) -> Option<Vec<V2>> {
     Some(corners)
 }
 
-parity_entry! {
+internal_entry! {
 /// The polygon's area centroid (`_centroid`).
 pub fn centroid(section: &[V2]) -> V2 {
     let count = section.len();
@@ -226,7 +226,7 @@ pub fn centroid(section: &[V2]) -> V2 {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// A point proved inside the cross-section (`_interior_point`): the centroid of the ear at the
 /// lowest corner when no other corner intrudes into it, else the midpoint of the diagonal to
 /// the intruder farthest from the ear's chord. The centroid will not do: a concave section's

@@ -8,6 +8,8 @@ pub mod drawing;
 pub mod parallel;
 pub mod pmi_gaps;
 pub mod pmi_targets;
+#[path = "../../../../tests/common/snapshot.rs"]
+pub mod snapshot;
 
 use std::path::{Path, PathBuf};
 

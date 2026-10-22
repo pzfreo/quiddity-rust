@@ -179,7 +179,7 @@ fn error_key(e: &WriteError) -> String {
 
 fn load_pins() -> serde_json::Value {
     serde_json::from_str(
-        &std::fs::read_to_string(common::fixtures().join("known_pmi_write.json")).unwrap(),
+        &std::fs::read_to_string(common::fixtures().join("references/pmi_write.json")).unwrap(),
     )
     .unwrap()
 }
@@ -189,7 +189,7 @@ fn load_pins() -> serde_json::Value {
 /// compares every value's text and unit, so inch values keep their stated digits); no finding
 /// about what was written; every other finding as before; no instance the reader consumed for
 /// a replaced part survives (supplemental geometry is the part's and is kept). Refusals and
-/// other failures are pinned per file with a reason (`known_pmi_write.json` "roundtrip").
+/// other failures are pinned per file with a reason (`references/pmi_write.json` "roundtrip").
 fn roundtrip(
     files: &[PathBuf],
     problems: &mut Vec<String>,

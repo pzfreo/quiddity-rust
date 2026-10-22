@@ -1,11 +1,11 @@
-//! Shared by the parity tests: calling a ported recogniser by its Python name, and comparing
-//! answers with Python's semantics.
+//! Internal Rust regression adapters for legacy input call names and private recognition hooks.
 
 #![allow(dead_code)]
 
-pub mod parallel;
+mod references;
+pub use references::*;
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use quiddity::Part;
 use quiddity::features::chamfers::recognise_chamfers;
@@ -15,29 +15,6 @@ use quiddity::features::hole_patterns::recognise_hole_patterns;
 use quiddity::features::holes::{HoleRecord, recognise_holes};
 use quiddity::kernel::geom::SurfaceType;
 use serde_json::Value;
-
-/// Structural equality with -0.0 == 0.0, measured values agreeing to
-/// one part in a million: below that, the two kernels' parameter-range arithmetic differs in its
-/// last digits (sub-micron at part scale). Rounded fields still compare exactly at their grid.
-pub fn same(a: &Value, b: &Value) -> bool {
-    match (a, b) {
-        (Value::Number(x), Value::Number(y)) => {
-            let (x, y) = (x.as_f64().unwrap(), y.as_f64().unwrap());
-            // Zero's sign is not compared: a record coordinate of ±0.0 is ~1e-17 of kernel
-            // round-off rounded away, and OpenCascade's sign of it is not reproducible. Where a
-            // sign could decide something (atan2 in patterns), the port uses Python's exact
-            // arithmetic, and the pattern replay agrees even sign-strictly.
-            (x - y).abs() <= 1e-6 * x.abs().max(y.abs()).max(1.0)
-        }
-        (Value::Array(x), Value::Array(y)) => {
-            x.len() == y.len() && x.iter().zip(y).all(|(p, q)| same(p, q))
-        }
-        (Value::Object(x), Value::Object(y)) => {
-            x.len() == y.len() && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| same(v, w)))
-        }
-        _ => a == b,
-    }
-}
 
 /// Inventory hints a Python call may pass (precomputed from the same part); the port computes
 /// its own, so they are not options.
@@ -432,48 +409,83 @@ pub fn diff_summary(got: &Value, want: &Value) -> String {
     format!("{} vs {} records, fields {fields:?}", g.len(), w.len())
 }
 
-pub fn fixtures() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures")
+/// Integration tests ensure Cargo builds this binary; unit tests locate it beside deps/.
+pub fn quiddity_binary() -> PathBuf {
+    std::env::current_exe()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .join(format!("quiddity{}", std::env::consts::EXE_SUFFIX))
 }
 
-pub fn load(name: &str) -> Value {
-    serde_json::from_str(&std::fs::read_to_string(fixtures().join(name)).unwrap()).unwrap()
+/// Current Rust kernel outputs in the same fields the corpus's OCCT ledger measures.
+pub fn rust_kernel(part: &Part) -> Value {
+    let inventory: Vec<Value> = (0..part.faces.len()).map(|face| {
+        let bounds = part.face_bounds(face);
+        serde_json::json!({"type":type_name(part.faces[face].surface.kind()),"edges":part.face_edges(face).len(),"min":bounds.min,"max":bounds.max})
+    }).collect();
+    let solids: Vec<_> = (0..part.solids.len()).map(|s| part.solid_mass(s)).collect();
+    let uv: Vec<_> = (0..part.faces.len())
+        .map(|face| part.uv_bounds(face).map(|(a, b, c, d)| [a, b, c, d]))
+        .collect();
+    let arcs: Vec<Value> = (0..part.faces.len())
+        .flat_map(|a| {
+            let mut neighbours = part.neighbours(a);
+            neighbours.sort_unstable();
+            neighbours.into_iter().map(move |b| {
+                serde_json::json!([
+                    a,
+                    b,
+                    part.arc(a, b).map(|v| format!("{v:?}").to_lowercase())
+                ])
+            })
+        })
+        .collect();
+    serde_json::json!({"inventory":inventory,"solids":solids,"uv_bounds":uv,"arcs":arcs})
 }
 
-/// The shared corpus: `QUIDDITY_CORPUS`, else the sibling Python checkout's; none where
-/// `QUIDDITY_CORPUS` is `off` (a quick local run: the corpus tests skip, as when it is missing).
-pub fn corpus_dir() -> Option<PathBuf> {
-    if std::env::var("QUIDDITY_CORPUS").is_ok_and(|v| v == "off") {
-        return None;
-    }
-    let dir = std::env::var("QUIDDITY_CORPUS")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| Path::new(env!("CARGO_MANIFEST_DIR")).join("../quiddity/tests/corpus"));
-    dir.is_dir().then_some(dir)
-}
-
-/// What a listed difference says about the port: `rust-correct` (the port has the true geometry;
-/// the reason gives the evidence), `rust-wrong` (a port limitation), `equivalent` (one geometry,
-/// two representations), `undetermined` (neither shown right) or `not-applicable` (the case
-/// does not test the part).
-pub const VERDICTS: [&str; 5] = [
-    "rust-correct",
-    "rust-wrong",
-    "equivalent",
-    "undetermined",
-    "not-applicable",
-];
-
-/// Every listed difference must carry a verdict and a reason.
-pub fn check_verdicts(list: &str, entries: &[Value]) {
-    for e in entries {
-        assert!(
-            e["verdict"].as_str().is_some_and(|v| VERDICTS.contains(&v)),
-            "{list}: entry without a verdict ({VERDICTS:?}): {e}"
-        );
-        assert!(
-            e["reason"].is_string(),
-            "{list}: entry without a reason: {e}"
-        );
-    }
+/// Preserve the corpus comparison bands: mass 1e-9 relative, UV 1e-6, analytic face boxes
+/// 5e-3 + 1e-6*abs(got), with the existing OTHER/SPHERE bounding-box exemptions.
+pub fn same_kernel_snapshot(a: &Value, b: &Value) -> bool {
+    let (Some(ai), Some(bi), Some(am), Some(bm)) = (
+        a["inventory"].as_array(),
+        b["inventory"].as_array(),
+        a["solids"].as_array(),
+        b["solids"].as_array(),
+    ) else {
+        return false;
+    };
+    ai.len() == bi.len()
+        && am.len() == bm.len()
+        && same(&a["uv_bounds"], &b["uv_bounds"])
+        && a["arcs"] == b["arcs"]
+        && ai.iter().zip(bi).all(|(a, b)| {
+            a["type"] == b["type"]
+                && a["edges"] == b["edges"]
+                && (["OTHER", "SPHERE"].contains(&a["type"].as_str().unwrap())
+                    || ["min", "max"].iter().all(|k| {
+                        (0..3).all(|i| {
+                            let (g, w) = (a[k][i].as_f64().unwrap(), b[k][i].as_f64().unwrap());
+                            (g - w).abs() <= 5e-3 + 1e-6 * g.abs()
+                        })
+                    }))
+        })
+        && am
+            .iter()
+            .zip(bm)
+            .all(|(a, b)| match (a.as_array(), b.as_array()) {
+                (Some(a), Some(b)) if a.len() == 2 && b.len() == 2 => {
+                    a.iter().zip(b).all(|(a, b)| {
+                        let (g, w) = (a.as_f64().unwrap(), b.as_f64().unwrap());
+                        if w == 0.0 {
+                            g == 0.0
+                        } else {
+                            (g - w).abs() <= 1e-9 * w.abs()
+                        }
+                    })
+                }
+                _ => a == b,
+            })
 }

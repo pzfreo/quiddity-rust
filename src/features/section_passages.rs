@@ -497,7 +497,7 @@ fn extruded(frame: &LocalFrame, low: f64, high: f64, section: &PlanarSection) ->
     )
 }
 
-parity_entry! {
+internal_entry! {
 /// The run's prism drawn in by the coordinate floor at both ends (`_probe_prism`).
 pub fn probe_prism(
     frame: &LocalFrame,
@@ -518,7 +518,7 @@ pub fn probe_prism(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The section slab strictly outside one end (`_end_slab`).
 pub fn end_slab(
     frame: &LocalFrame,
@@ -867,7 +867,7 @@ pub(crate) fn components(
     out
 }
 
-parity_entry! {
+internal_entry! {
 /// Every supported line-walled, constant-section void open at both ends
 /// (`section_ring_proposals`), sorted by run, interval and origin. `Err` where Python raises: a
 /// proposal whose occurrence fails its own validation.

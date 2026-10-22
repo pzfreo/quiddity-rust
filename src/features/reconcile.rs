@@ -233,14 +233,14 @@ pub struct Evidence {
 }
 
 impl Evidence {
-    parity_entry! {
+    internal_entry! {
         /// The run's evidence on *ctx*'s part, or Python's refusal of its passages.
         pub fn discover(ctx: &Context<'_>) -> Result<Evidence, ReconcileError> {
             Self::with_pockets(ctx, &pockets::discover(ctx))
         }
     }
 
-    parity_entry! {
+    internal_entry! {
         /// [`Evidence::discover`], given the run's pocket occurrences.
         pub fn with_pockets(
             ctx: &Context<'_>,
@@ -318,7 +318,7 @@ impl Decisions {
     }
 }
 
-parity_entry! {
+internal_entry! {
 /// Every decision Python's aggregate makes on *features*' records, in `_reconcile_existing`'s
 /// rule order, or Python's refusal.
 pub fn reconcile(
@@ -330,7 +330,7 @@ pub fn reconcile(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// `reconcile` on its inputs alone: each family's defining faces under its [`Features`] field
 /// name, and each prismatic pocket's side count (the one record value a rule reads).
 pub fn reconcile_faces(

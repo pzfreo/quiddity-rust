@@ -1,6 +1,6 @@
 """Independent face areas and fluxes, and solid masses built from them: the evidence behind the
-kernel verdicts in ``tests/fixtures/known_divergences.json`` (solid masses) and the B-spline
-faces of ``tests/fixtures/known_face_areas.json`` that ``tools/face_area_evidence.py`` left
+kernel verdicts in ``tests/fixtures/references/occt_corpus.json`` (solid masses) and the B-spline
+faces of ``tests/fixtures/references/face_areas.json`` that ``tools/face_area_evidence.py`` left
 undetermined.
 
     QUIDDITY=../quiddity ../quiddity/.venv/bin/python tools/kernel_evidence.py faces FILE FACE...
@@ -49,7 +49,7 @@ edge's and face's tolerances (``edge_boxes``): where an edge strays, which one b
 Verdicts on solid masses and body keys built from these follow the policy the divergence
 verdicts set (whose threshold is an open maintainer question, docs/status-2026-10-08.md):
 rust-correct where the port matches the independent sums to about 1e-9 relative with no known
-face defect in ``tests/fixtures/known_face_areas.json``; rust-wrong where a known face defect
+face defect in ``tests/fixtures/references/face_areas.json``; rust-wrong where a known face defect
 shifts the masses.
 """
 

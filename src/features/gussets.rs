@@ -189,14 +189,14 @@ fn cap(part: &Part, face: usize) -> Option<Cap> {
     })
 }
 
-parity_entry! {
+internal_entry! {
 /// `recognise_gusset_ribs`.
 pub fn recognise_gusset_ribs(part: &Part) -> Vec<GussetRib> {
     super::records(discover(&Context::new(part)))
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path: each rib with its end caps, slant and edge blends; the supports are
 /// consulted.
 pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<GussetRib>>, EvidenceError> {
@@ -226,7 +226,7 @@ fn rib_order(a: &GussetRib, b: &GussetRib) -> Ordering {
         })
 }
 
-parity_entry! {
+internal_entry! {
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<GussetRib>> {
     let part = ctx.part;
     let caps: Vec<Cap> = (0..part.faces.len())
@@ -377,7 +377,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<GussetRib>> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// `recognise_gusset_rib_patterns`: same-body ribs grouped into constant-pitch arrays or
 /// centred mirror pairs.
 pub fn recognise_gusset_rib_patterns(ribs: &[GussetRib]) -> Vec<GussetRibPattern> {

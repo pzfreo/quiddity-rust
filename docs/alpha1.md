@@ -38,7 +38,7 @@ specify-core's notes on faces (`thumbwheel_notes_add`; U10). All eight captures 
 `written_files_are_the_writers_current_output` holds the committed files to the writer's
 current bytes, so the captures are of today's output; `opencascade_reads_the_written_files`
 requires each capture to load and read, every datum to have its symbol as presentation, and
-every difference to be pinned (`known_pmi_write.json` "occt": 6, 4 rust-correct and 2
+every difference to be pinned (`references/pmi_write.json` "occt": 6, 4 rust-correct and 2
 not-applicable).
 
 - **No `mechanical_design_and_draughting_relationship` for datum feature symbols**: met.
@@ -74,12 +74,12 @@ passages: `channels`, `edge_open_circular_pockets`, `edge_open_prismatic_recesse
 `pocket_patterns`, `pockets`, `prismatic_pockets`, `rectangular_blind_slots`,
 `round_bottom_blind_slots`, `section_passages`). All 46 have a `pub fn recognise_*` of the same
 name in `src/features` (compared by name), each checked against captured Python calls
-(README's family table; section recesses in `tests/section_recesses.rs`, 400 of 414 documents
+(README's family table; section recesses in `tests/internal/section_recesses.rs`, 400 of 414 documents
 agree at `c2ce06a`; 19 known differences at `a2e9721`, 24 before `0324cc4`).
 
 Status round 37 (`3ecccc1`): `features::recognise` and `correspondence::recognise` also carry
 section recesses (defining faces, fingerprints, framed mapping, rigid-motion invariance), checked
-against `recognise_section_recesses` on all 100 corpus parts by `tests/recognition.rs`
+against `recognise_section_recesses` on all 100 corpus parts by `tests/internal/recognition.rs`
 `recognition_carries_section_recesses`; 13975 and 14052 carry the projection's refusal
 (question 6). G7a (2026-10-11) also publishes them as `SectionRecess` document records and in
 the CLI's records, preserving the source families. The text below is as at `a2e9721`.
@@ -142,14 +142,14 @@ Each against its "met when" in `upstream-needs.md`.
   decision: `face_moments_match_opencascade_adaptive` pins 1358 faces where haecceity and
   OpenCascade's adaptive integral differ by more than 1e-6, 1345 rust-correct (an independent
   Green's-theorem integration agrees with haecceity) and 13 undetermined
-  (`known_face_moments.json`). The "met when" reads "within 1e-6 relative of an adaptive
+  (`references/face_moments.json`). The "met when" reads "within 1e-6 relative of an adaptive
   reference"; taking that reference to be OpenCascade's `BRepGProp` integral (eps 1e-9, the one
   its "Missing" paragraph uses), a correct kernel cannot meet it. Which reference is meant is
   question 2; on any reading the 13 undetermined faces are open.
 - **U12** missing families: *met* (status round 37): `step_levels` and `risers` are in
   `Features` and so `correspondence::recognise` (`204b29f`, merged `36483c1`), and so is
   `section_recesses` (`3ecccc1`), checked against `recognise_section_recesses` on all 100 corpus
-  parts by `tests/recognition.rs` `recognition_carries_section_recesses`. On 13975 and 14052 the
+  parts by `tests/internal/recognition.rs` `recognition_carries_section_recesses`. On 13975 and 14052 the
   projection refuses (Python recognises both through its local-degradation retry, which the port
   lacks), so they carry `Features::section_recess_refusal` and no section recesses (question 6).
   G7a (2026-10-11) also publishes them in the recognition document (question 5 resolved).

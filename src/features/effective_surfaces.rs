@@ -210,7 +210,7 @@ pub struct EffectiveFaces<'c, 'a> {
 }
 
 impl<'c, 'a> EffectiveFaces<'c, 'a> {
-    parity_entry! {
+    internal_entry! {
         pub fn new(ctx: &'c Context<'a>) -> Self {
             let n = ctx.part.faces.len();
             EffectiveFaces {
@@ -335,7 +335,7 @@ impl<'c, 'a> EffectiveFaces<'c, 'a> {
     }
 }
 
-parity_entry! {
+internal_entry! {
 /// `cylinder_surface_dependency`: a native cylinder's use as it is; a recovered one's with its
 /// material side certified, since the fit carries no orientation.
 pub fn cylinder_surface_dependency<'q>(
@@ -350,7 +350,7 @@ pub fn cylinder_surface_dependency<'q>(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// `recovery_nominal`: the face's controlling length, min(√area, 2·area / perimeter), the
 /// perimeter being its physical trim (seams, used twice by the face, left out); `None` where
 /// Python raises (no finite positive area).
@@ -372,10 +372,9 @@ pub fn recovery_nominal(part: &Part, face: usize) -> Option<f64> {
 }
 }
 
-parity_entry! {
 /// `_physical_boundary_length`: the face's trim perimeter, without its seams (edges its loops use
 /// twice). A degenerate edge (a pole) has no length.
-pub fn physical_boundary_length(part: &Part, face: usize) -> f64 {
+pub(crate) fn physical_boundary_length(part: &Part, face: usize) -> f64 {
     let mut uses = std::collections::BTreeMap::<usize, usize>::new();
     for lp in &part.faces[face].loops {
         for &(e, _) in &lp.edges {
@@ -388,9 +387,7 @@ pub fn physical_boundary_length(part: &Part, face: usize) -> f64 {
             .map(|(&e, _)| arc_length(part, e)),
     )
 }
-}
 
-parity_entry! {
 /// An edge's length (`Edge.length`, `GCPnts_AbscissaPoint`): exact for lines and circular arcs,
 /// otherwise by chords on the exact curve, each span halved until its Richardson-corrected length
 /// (the chords' error falls as the square of the span) agrees with its halves' to 1e-12 of the
@@ -398,7 +395,7 @@ parity_entry! {
 /// relative). Chords, not the integrated
 /// speed: a B-spline's short knot span can carry a fast stretch that fixed integration panels
 /// step over (nist_ftc_10 face 178's edge, 3e-6 short at 64 Gauss panels).
-pub fn arc_length(part: &Part, edge: usize) -> f64 {
+pub(crate) fn arc_length(part: &Part, edge: usize) -> f64 {
     let e = &part.edges[edge];
     let curve = &e.curve;
     if matches!(curve, Curve::Line { .. } | Curve::Circle { .. }) {
@@ -423,7 +420,6 @@ pub fn arc_length(part: &Part, edge: usize) -> f64 {
             0,
         )
     }))
-}
 }
 
 /// One span's length: its halves' chords, Richardson-corrected against the span's own chord,
@@ -454,7 +450,7 @@ fn span(
         + span(curve, (m, pm), (b, pb), right, tolerance, depth + 1)
 }
 
-parity_entry! {
+internal_entry! {
 /// `recovery_tolerance`: `1e-6 × nominal + COORD_FLOOR`.
 pub fn recovery_tolerance(part: &Part, face: usize) -> Option<f64> {
     Some(RECOVERY_REL * recovery_nominal(part, face)? + COORD_FLOOR)

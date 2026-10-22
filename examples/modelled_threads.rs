@@ -1,4 +1,9 @@
 //! Inspect measured threads and refusals without running the other feature families.
+// Internal diagnostic: use the exact engine implementation without exporting caller-space APIs.
+#[path = "../src/engine.rs"]
+mod engine;
+pub use engine::*;
+extern crate self as quiddity;
 fn main() {
     for path in std::env::args().skip(1) {
         let part = quiddity::read_step_file(std::path::Path::new(&path)).expect("read STEP");

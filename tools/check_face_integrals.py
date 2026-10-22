@@ -132,11 +132,11 @@ def main():
     if args.file and set(args.file) - available:
         parser.error(f'files absent from the frozen inventory: {sorted(set(args.file)-available)}')
     ledger = {}
-    for name in ['known_face_areas.json', 'known_face_moments.json']:
+    for name in ['references/face_areas.json', 'references/face_moments.json']:
         for row in json.loads((ROOT/'tests/fixtures'/name).read_text()):
             if row.get('check', 'occ') == 'occ':
                 ledger[(row['file'], row['face'])] = row
-    tensor_path = ROOT/'tests/fixtures/known_face_integrals.json'
+    tensor_path = ROOT/'tests/fixtures/references/face_integrals.json'
     tensor_rows = json.loads(tensor_path.read_text()) if tensor_path.exists() else []
     tensor_known = {(r['file'], r['face']): r for r in tensor_rows
                     if (not args.file or r['file'] in args.file)
@@ -188,7 +188,7 @@ def main():
             elif independent_diff and not independent_diff['failed'] and not row['independent_convergence']['failed']:
                 row.update(verdict='rust-correct', reason='Area, centroid and central second moments agree with independent OCCT surface integration over the 3D edge boundary, converged at 16 and 32 Lobatto panels per curve span.')
             elif order:
-                row.update(verdict='not-applicable', reason='Known OpenCascade healing reorders this inventory; known_face_areas.json order entry.')
+                row.update(verdict='not-applicable', reason='Known OpenCascade healing reorders this inventory; references/face_areas.json order entry.')
             elif convergence['failed']:
                 nonconverged += 1
                 row.update(verdict='undetermined', reason='OpenCascade eps 1e-9 and 1e-11 disagree at the comparison tolerance.')

@@ -329,7 +329,7 @@ fn records(part: &Part, walls: &[ThinWallBody]) -> Vec<FreeformSurface> {
         .collect()
 }
 
-parity_entry! {
+internal_entry! {
 /// `recognise_freeform_surfaces`: the native B-spline supports on faces of valid solids.
 pub fn recognise_freeform_surfaces(part: &Part) -> Vec<FreeformSurface> {
     if !(0..part.faces.len()).any(|f| native(part, f).is_some()) {
@@ -341,7 +341,7 @@ pub fn recognise_freeform_surfaces(part: &Part) -> Vec<FreeformSurface> {
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// `_discover`: each record defined by its own face, offsets read from the run's thin walls.
 pub fn discover(ctx: &Context<'_>, walls: &[ThinWallBody]) -> Vec<Occurrence<FreeformSurface>> {
     records(ctx.part, walls)
@@ -355,7 +355,7 @@ pub fn discover(ctx: &Context<'_>, walls: &[ThinWallBody]) -> Vec<Occurrence<Fre
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The evidence path: every record's face on one valid solid, or the run refused.
 pub fn discover_verified(
     ctx: &Context<'_>,

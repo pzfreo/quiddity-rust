@@ -1,5 +1,5 @@
 {
-  "tool": "tools/capture_revisions.py",
+  "tool": "tools/make_revision_fixtures.py",
   "cases": [
     {
       "name": "hole_moved",

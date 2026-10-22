@@ -47,7 +47,7 @@ pub struct CylindricalPassageProof {
     pub volume: f64,
 }
 
-parity_entry! {
+internal_entry! {
 /// The passage proof for one mouth, one bore and one concave component of the walls they share
 /// (`_cell_proof`), the walls in the order given; `None` for anything outside the contract.
 pub fn prove(
@@ -236,7 +236,7 @@ pub fn prove(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The native concave cylinders, in face order (`_native_bores`).
 pub fn native_bores(ctx: &Context<'_>, surfaces: &EffectiveFaces<'_, '_>) -> Vec<usize> {
     (0..ctx.part.faces.len())
@@ -245,7 +245,7 @@ pub fn native_bores(ctx: &Context<'_>, surfaces: &EffectiveFaces<'_, '_>) -> Vec
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// Every proved passage end (`cylindrical_passage_proofs`): from each planar mouth and each
 /// bore across its normal, the planar walls convex to both along the run, grouped by concave
 /// adjacency, each group proved. Discovers original closed wall cycles; expected side counts

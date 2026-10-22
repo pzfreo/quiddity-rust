@@ -18,7 +18,7 @@ pub enum End {
     Unknown,
 }
 
-parity_entry! {
+internal_entry! {
 /// The faces beyond one axial end of a segment: partners across the segment's edges that lie at
 /// that end (within a margin for lips dipping off the end plane), nearest first
 /// (`_end_partners`).
@@ -66,7 +66,7 @@ fn ranked_end_partners(part: &Part, seg: &Segment, s_end: f64) -> Vec<(f64, usiz
     ranked.into_iter().map(|r| (r.0, r.2)).collect()
 }
 
-parity_entry! {
+internal_entry! {
 /// Classify one axial end of a segment from the face beyond it (`_classify_end`), with the
 /// faces that close it (its `terminal_faces`). Planes, cones and tori decide; a curved wall is a
 /// weak signal that counts only when nothing decides.

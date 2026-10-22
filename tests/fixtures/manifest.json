@@ -147,72 +147,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "x",
-       "radius": 2.0,
-       "at": [
-        0.0,
-        -14.414,
-        -9.414
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "x",
-       "radius": 2.0,
-       "at": [
-        0.0,
-        -14.414,
-        9.414
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "x",
-       "radius": 2.0,
-       "at": [
-        0.0,
-        14.414,
-        -9.414
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "x",
-       "radius": 2.0,
-       "at": [
-        0.0,
-        14.414,
-        9.414
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 6,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -363,72 +298,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "y",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        0.0,
-        -9.414
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "y",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        0.0,
-        9.414
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "y",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        0.0,
-        -9.414
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "y",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        0.0,
-        9.414
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 6,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -579,72 +449,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -795,72 +600,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -1011,72 +751,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "x",
-       "radius": 2.0,
-       "at": [
-        0.0,
-        -14.414,
-        -19.414
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "x",
-       "radius": 2.0,
-       "at": [
-        -0.0,
-        -14.414,
-        19.414
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "x",
-       "radius": 2.0,
-       "at": [
-        0.0,
-        14.414,
-        -19.414
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "x",
-       "radius": 2.0,
-       "at": [
-        -0.0,
-        14.414,
-        19.414
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -1227,72 +902,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "y",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        -0.0,
-        -14.414
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "y",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        0.0,
-        14.414
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "y",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        -0.0,
-        -14.414
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "y",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        0.0,
-        14.414
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -1443,72 +1053,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "z",
-       "radius": 6.0,
-       "at": [
-        -58.243,
-        -43.243,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 6.0,
-       "at": [
-        -58.243,
-        43.243,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 6.0,
-       "at": [
-        58.243,
-        -43.243,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 6.0,
-       "at": [
-        58.243,
-        43.243,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -1659,72 +1204,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -6.414,
-        -21.414,
-        5.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -6.414,
-        7.414,
-        5.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        32.414,
-        -21.414,
-        5.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        32.414,
-        7.414,
-        5.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -1875,454 +1355,55 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     "options": {}
     },
     {
      "options": {
       "min_radius": 1.999,
       "max_radius_frac": 0.45
-     },
-     "records": [
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "min_radius": 2.0,
       "max_radius_frac": 0.45
-     },
-     "records": [
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "min_radius": 2.001,
       "max_radius_frac": 0.45
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "min_radius": null,
       "max_radius_frac": 0.05001
-     },
-     "records": [
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "min_radius": null,
       "max_radius_frac": 0.05
-     },
-     "records": [
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "min_radius": null,
       "max_radius_frac": 0.04999
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "min_radius": 2.0,
       "max_radius_frac": 0.05
-     },
-     "records": [
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "min_radius": 2.1,
       "max_radius_frac": 0.049
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -2461,142 +1542,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -14.766,
-        -0.0,
-        0.234
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -14.766,
-        -0.0,
-        39.766
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -8.234,
-        -0.0,
-        40.234
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -7.766,
-        -0.0,
-        69.766
-       ],
-       "turned": true,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 1,
-       "solid": 0
-      },
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 5,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -14.766,
-        -0.0,
-        0.234
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -14.766,
-        -0.0,
-        39.766
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -8.234,
-        -0.0,
-        40.234
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -7.766,
-        -0.0,
-        69.766
-       ],
-       "turned": true,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 1,
-       "solid": 0
-      },
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 5,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -2749,142 +1700,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -14.766,
-        -0.0,
-        0.234
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -14.766,
-        -0.0,
-        39.766
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -8.234,
-        -0.0,
-        40.234
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -7.766,
-        -0.0,
-        69.766
-       ],
-       "turned": true,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 1,
-       "solid": 0
-      },
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 5,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -14.766,
-        -0.0,
-        0.234
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -14.766,
-        -0.0,
-        39.766
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -8.234,
-        -0.0,
-        40.234
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -7.766,
-        -0.0,
-        69.766
-       ],
-       "turned": true,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 1,
-       "solid": 0
-      },
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 5,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -3163,202 +1984,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -89.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -89.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -50.586,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -50.586,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        55.234,
-        -0.0,
-        0.234
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        55.234,
-        -0.0,
-        39.766
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        61.766,
-        -0.0,
-        40.234
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        62.234,
-        -0.0,
-        69.766
-       ],
-       "turned": true,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      },
-      {
-       "face": 11,
-       "solid": 1
-      },
-      {
-       "face": 12,
-       "solid": 1
-      },
-      {
-       "face": 15,
-       "solid": 1
-      },
-      {
-       "face": 17,
-       "solid": 1
-      }
-     ],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        55.234,
-        -0.0,
-        0.234
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        55.234,
-        -0.0,
-        39.766
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        61.766,
-        -0.0,
-        40.234
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        62.234,
-        -0.0,
-        69.766
-       ],
-       "turned": true,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 11,
-       "solid": 1
-      },
-      {
-       "face": 12,
-       "solid": 1
-      },
-      {
-       "face": 15,
-       "solid": 1
-      },
-      {
-       "face": 17,
-       "solid": 1
-      }
-     ],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -3649,132 +2280,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "z",
-       "radius": 1.0,
-       "at": [
-        -69.707,
-        -14.707,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 1.0,
-       "at": [
-        -69.707,
-        14.707,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 1.0,
-       "at": [
-        -30.293,
-        -14.707,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 1.0,
-       "at": [
-        -30.293,
-        14.707,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        30.586,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        30.586,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        69.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        69.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      },
-      {
-       "face": 12,
-       "solid": 1
-      },
-      {
-       "face": 13,
-       "solid": 1
-      },
-      {
-       "face": 17,
-       "solid": 1
-      },
-      {
-       "face": 18,
-       "solid": 1
-      }
-     ],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -3927,10 +2433,7 @@
     {
      "options": {
       "max_radius_frac": 0.1
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -4167,72 +2670,7 @@
     {
      "options": {
       "max_radius_frac": 0.1
-     },
-     "records": [
-      {
-       "axis": "z",
-       "radius": 5.0,
-       "at": [
-        -18.536,
-        -13.536,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 5.0,
-       "at": [
-        -18.536,
-        13.536,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 5.0,
-       "at": [
-        18.536,
-        -13.536,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 5.0,
-       "at": [
-        18.536,
-        13.536,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -4383,10 +2821,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -4523,33 +2958,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "evidence_error": "fillet defining face has no unambiguous valid solid",
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -4602,10 +3011,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -4714,10 +3120,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -4938,10 +3341,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -5162,10 +3562,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -5316,10 +3713,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -5470,10 +3864,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -5624,10 +4015,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -5862,72 +4250,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": false
+     "options": {}
     }
    ]
   },
@@ -6162,72 +4485,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "y",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        -0.0,
-        -14.414
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "y",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        0.0,
-        14.414
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "y",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        -0.0,
-        -14.414
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "y",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        0.0,
-        14.414
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": false
+     "options": {}
     }
    ]
   },
@@ -6462,72 +4720,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": false
+     "options": {}
     }
    ]
   },
@@ -6692,72 +4885,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        -14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        14.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 4,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      },
-      {
-       "face": 9,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -6854,18 +4982,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -6892,18 +5014,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -7028,18 +5144,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -7178,18 +5288,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -7480,132 +5584,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        -74.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        -45.586,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        45.586,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        -19.414,
-        74.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        -74.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        -45.586,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        45.586,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        19.414,
-        74.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 12,
-       "solid": 1
-      },
-      {
-       "face": 13,
-       "solid": 1
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      },
-      {
-       "face": 17,
-       "solid": 1
-      },
-      {
-       "face": 18,
-       "solid": 1
-      }
-     ],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -7744,142 +5723,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -14.766,
-        -0.0,
-        0.234
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -14.766,
-        -0.0,
-        39.766
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -8.234,
-        -0.0,
-        40.234
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -7.766,
-        -0.0,
-        69.766
-       ],
-       "turned": true,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 1,
-       "solid": 0
-      },
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 5,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -14.766,
-        -0.0,
-        0.234
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -14.766,
-        -0.0,
-        39.766
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -8.234,
-        -0.0,
-        40.234
-       ],
-       "turned": true,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 0.8,
-       "at": [
-        -7.766,
-        -0.0,
-        69.766
-       ],
-       "turned": true,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 1,
-       "solid": 0
-      },
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 5,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -8030,72 +5879,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "z",
-       "radius": 1.0,
-       "at": [
-        -19.707,
-        -14.707,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 1.0,
-       "at": [
-        -19.707,
-        14.707,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 1.0,
-       "at": [
-        19.707,
-        -14.707,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 1.0,
-       "at": [
-        19.707,
-        14.707,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -8190,10 +5974,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -8344,72 +6125,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "x",
-       "radius": 1.0,
-       "at": [
-        0.0,
-        -99.707,
-        -29.707
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "x",
-       "radius": 1.0,
-       "at": [
-        0.0,
-        99.707,
-        -29.707
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "y",
-       "radius": 1.0,
-       "at": [
-        -99.707,
-        0.0,
-        -29.707
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "y",
-       "radius": 1.0,
-       "at": [
-        99.707,
-        0.0,
-        -29.707
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 6,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      },
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 9,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -8602,72 +6318,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "z",
-       "radius": 6.0,
-       "at": [
-        -43.243,
-        -28.243,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 6.0,
-       "at": [
-        -43.243,
-        28.243,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 6.0,
-       "at": [
-        43.243,
-        -28.243,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 6.0,
-       "at": [
-        43.243,
-        28.243,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 3,
-       "solid": 0
-      },
-      {
-       "face": 7,
-       "solid": 0
-      },
-      {
-       "face": 8,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -8888,42 +6539,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        29.414,
-        -19.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 2.0,
-       "at": [
-        29.414,
-        19.414,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      },
-      {
-       "face": 6,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -9032,27 +6648,7 @@
    ],
    "runs": [
     {
-     "options": {},
-     "records": [
-      {
-       "axis": "z",
-       "radius": 3.0,
-       "at": [
-        14.121,
-        14.121,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 2,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     "options": {}
     }
    ]
   },
@@ -9191,18 +6787,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -9719,18 +7309,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -9995,18 +7579,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -10355,80 +7933,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [
-      {
-       "axis": "z",
-       "radius": 4.0,
-       "at": [
-        -18.828,
-        -13.828,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 4.0,
-       "at": [
-        -18.828,
-        13.828,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 4.0,
-       "at": [
-        18.828,
-        -13.828,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      },
-      {
-       "axis": "z",
-       "radius": 4.0,
-       "at": [
-        18.828,
-        13.828,
-        0.0
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 12,
-       "solid": 1
-      },
-      {
-       "face": 13,
-       "solid": 1
-      },
-      {
-       "face": 17,
-       "solid": 1
-      },
-      {
-       "face": 18,
-       "solid": 1
-      }
-     ],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -10553,35 +8063,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [
-      {
-       "axis": "x",
-       "radius": 4.0,
-       "at": [
-        7.5,
-        12.172,
-        7.172
-       ],
-       "turned": false,
-       "side": "convex"
-      }
-     ],
-     "defining": [
-      {
-       "face": 7,
-       "solid": 0
-      }
-     ],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -10748,18 +8235,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -10912,18 +8393,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -11132,18 +8607,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -11478,18 +8947,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -11670,18 +9133,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -11820,18 +9277,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -11956,18 +9407,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -12120,18 +9565,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -12242,18 +9681,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -12518,18 +9951,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -12668,18 +10095,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -12986,18 +10407,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -13192,18 +10607,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -13328,18 +10737,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -13492,18 +10895,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -13628,18 +11025,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -13904,18 +11295,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -14068,18 +11453,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -14218,18 +11597,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -14382,18 +11755,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -14630,18 +11997,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -14794,18 +12155,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -15182,18 +12537,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -15458,18 +12807,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -15608,18 +12951,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -15758,18 +13095,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -16202,18 +13533,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -16534,18 +13859,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   },
@@ -16656,18 +13975,12 @@
     {
      "options": {
       "include_cylindrical": true
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     },
     {
      "options": {
       "include_cylindrical": false
-     },
-     "records": [],
-     "defining": [],
-     "roundtrip_equal": true
+     }
     }
    ]
   }

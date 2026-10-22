@@ -6,7 +6,7 @@ use std::collections::BTreeSet;
 use super::graph::shared_occurrences;
 use crate::kernel::brep::Part;
 
-parity_entry! {
+internal_entry! {
 /// The neighbours of *opening* that share an edge of *wire* with it through an exactly paired
 /// occurrence (`wire_seed` over `FaceGraph.neighbours_by_occurrence_edge`).
 pub fn wire_seed(part: &Part, opening: usize, wire: &[usize]) -> BTreeSet<usize> {
@@ -21,7 +21,7 @@ pub fn wire_seed(part: &Part, opening: usize, wire: &[usize]) -> BTreeSet<usize>
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The edges of each of the face's inner loops (`face.inner_wires()`): every loop but the outer
 /// one. A face whose outer loop cannot be told has none read, so nothing is seeded from it.
 pub fn inner_wires(part: &Part, face: usize) -> Vec<Vec<usize>> {

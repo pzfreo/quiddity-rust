@@ -1,0 +1,86 @@
+[
+  {
+    "file": "inventory_refusal/14052.step.gz",
+    "caller": "through_steps",
+    "probes": [
+      3
+    ],
+    "verdict": "not-applicable",
+    "reason": "A deliberately malformed corpus part (its shell is not orientable; OpenCascade's import yields no solid and heals the shell). The port answers 12.5826 of 1948.4578, exactly the complement of Python's 1935.8751 (they sum to the probe volume within 2e-11): the two sides read material and air the other way round in this box, as at the 22 points where the two classifiers disagree on this file (known_classify.json, not-applicable). The part has no well-defined inside to measure against."
+  },
+  {
+    "file": "nist/nist_ctc_01_asme1_rd.stp",
+    "caller": "_open_channel_section",
+    "probes": [
+      19,
+      27,
+      38
+    ],
+    "verdict": "rust-correct",
+    "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
+  },
+  {
+    "file": "nist/nist_ctc_02_asme1_rc.stp",
+    "caller": "_recess_reduce",
+    "probes": [
+      4,
+      7
+    ],
+    "verdict": "rust-correct",
+    "reason": "Python's boolean misses material the probe holds: on these two _recess_reduce boxes it answers 0.216 where the port answers 7.056073 (#4) and 7.799779 (#7). OpenCascade itself agrees with the port once its boolean is given a fuzzy value: BRepAlgoAPI_Common with SetFuzzyValue(1e-6) gives 7.056070 and 7.799776 (1e-5 the same; 1e-7 still 0.216), and BRepClass3d_SolidClassifier at 1e-7 puts 2250 and 2310 of a 30 x 30 x 30 grid of cell centres IN (6.99 and 7.62 by volume); splitting each box into 2^3 and 4^3 boxes, its unfuzzed booleans sum to 4.46, 6.30 and 4.93, 6.97, so the unfuzzed answer depends on where the box is cut."
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "caller": "_open_channel_section",
+    "probes": [
+      25,
+      29,
+      36,
+      40
+    ],
+    "verdict": "rust-correct",
+    "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
+  },
+  {
+    "file": "nist/nist_ctc_04_asme1_rd.stp",
+    "caller": "_open_channel_section",
+    "probes": [
+      24,
+      38,
+      42
+    ],
+    "verdict": "rust-correct",
+    "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
+  },
+  {
+    "file": "nist/nist_ftc_06_asme1_rd.stp",
+    "caller": "_open_channel_section",
+    "probes": [
+      19,
+      31,
+      36
+    ],
+    "verdict": "rust-correct",
+    "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
+  },
+  {
+    "file": "nist/nist_ftc_08_asme1_rc.stp",
+    "caller": "_open_channel_section",
+    "probes": [
+      28,
+      40,
+      47
+    ],
+    "verdict": "rust-correct",
+    "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
+  },
+  {
+    "file": "nist/nist_ftc_09_asme1_rd.stp",
+    "caller": "_open_channel_section",
+    "probes": [
+      57
+    ],
+    "verdict": "rust-correct",
+    "reason": "Python's boolean answers empty for a probe the material fills: a probe face lies on a face of the solid, the shortcut sees a corner ON the boundary, and BRepAlgoAPI_Common of the coincident faces returns nothing. Checked on nist_ctc_01: the probe sits under the channel floor in solid material, every classifier ray and the material lines agree."
+  }
+]

@@ -2378,7 +2378,7 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
 /// them: it is not specify-core's, whose edges come after OpenCascade's healing (which adds seam
 /// and split edges, and reverses some loops on geometric grounds), so an edge index from
 /// specify-core does not carry over; anchor edges by their `#N`
-/// (`tests/fixtures/known_face_sources.json` lists every file where the two differ).
+/// (`tests/fixtures/references/face_sources.json` lists every file where the two differ).
 #[derive(Clone, Debug)]
 pub struct PartDefinition {
     /// The `#N` of its `product_definition` (or `product_definition_with_associated_documents`).

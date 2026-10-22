@@ -1,1218 +1,237 @@
 # quiddity-rust
 
-A pure-Rust port of [quiddity](https://github.com/pzfreo/quiddity): deterministic,
-geometry-only feature recognition for STEP B-Rep. No OpenCascade: STEP is read with
-[`step-io`](https://crates.io/crates/step-io) and everything the Python implementation asks of
-OpenCascade is reimplemented in `crates/haecceity` (re-exported as `quiddity::kernel`).
+Pure Rust manufacturing-feature recognition from STEP B-rep models, with fingerprints,
+revision correspondence, and semantic AP242 PMI read/write. STEP is read through
+`step-io`; the geometry kernel is `crates/haecceity`, re-exported as `quiddity::kernel`.
+Recognition does not require Python or OpenCascade at runtime.
 
-**Status: 0.1.0-alpha.9 (2026-10-20).** Changes are in [CHANGELOG.md](CHANGELOG.md); the alpha 1
-gates and their evidence in [docs/alpha1.md](docs/alpha1.md).
+Status: **0.1.0-alpha.9**. See [CHANGELOG.md](CHANGELOG.md) and the
+[alpha gates](docs/alpha1.md).
 
 ## Rust-first
 
-Rust recognition is judged against independent references: OpenCascade, analytic
-fixtures, MFInstSeg/MFCAD++ labels, and motion invariance. Committed Python
-captures are a frozen regression record, not the target for new behaviour. Keep
-all parity harnesses flagging unlisted differences; record deliberate departures
-supported by independent evidence as `rust-correct`, citing that evidence. Do not
-add new Python captures. Do not remove output to improve metrics unless the
-information still reaches the output, or weaken tests or known-difference entries
-to get green. Remove stale entries only when the harness reports they no longer
-match, and report their removal.
+The regression record is the **Rust snapshot** in `tests/fixtures/rust-snapshot/`.
+Python is no longer consulted for expected results, fixes or regeneration. Python-written
+STEP/PMI files, legacy notes, old fingerprints and recorded helper arguments remain test
+inputs. Historical verdicts and their evidence are preserved in
+[the parity archive](docs/history/python-parity.md).
 
-Independent labelled accuracy is measured by `examples/mfinstseg_score.rs` using
-[the source-cited class mapping](tests/fixtures/mfinstseg_mapping.json). Run it with
-`DATASET IDS.txt OUT.json [WORKERS]` (at most six workers); MFInstSeg's dataset root
-contains `steps/` and `labels/`. For MFCAD++, pass the STEP directory and append
-`--mfcadpp` to score numeric face-name labels without inventing instance labels.
-Shared-family classes share all predictions; only defining faces count. Reports
-retain face metrics for incomplete instance annotations and explicitly count the
-models whose instance metrics are available. Renamed duplicates are accepted only
-when STEP DATA records and label bytes match their declared originals.
-The fixed 200-model ratchet runs with
-`QUIDDITY_MFINSTSEG=/path/to/MFInstSeg cargo test --release --features python-parity --test mfinstseg`.
-Dataset files stay external because redistribution permission has not been
-established. Its baseline pins input and mapping hashes; record non-regressing
-improvements with `tools/update_mfinstseg_baseline.py`.
-
-What alpha 1 does:
-
-- **Kernel** (`haecceity`): STEP import (assemblies, distinct parts in their own frames, face and
-  edge provenance), exact surfaces and curves, rays and point classification, volumes and face
-  moments, per-face validity, hidden-line and section views, face meshing, a lossless Part 21
-  document with AP242 schema validation, and semantic PMI read and write (written PMI is
-  verified by reading it back).
-- **Recognition**: all 46 of Python quiddity's `recognise_*` entry points (table below), each
-  checked call by call against captured Python calls and over a 100-part corpus;
-  `features::recognise` runs them as one reconciled inventory, section recesses included;
-  fingerprints and correspondence between revisions; a versioned recognition document; the
-  recognition evidence view.
-
-Using it as a library (a path or git dependency on this repository; the crate is not on
-crates.io):
+Independent geometry, label, invariance, inventory-floor and NIST checks remain separate
+requirements. OCCT measurements recorded through Python wrappers remain independent
+references (including booleans, volumes, areas and bounds). A snapshot records behavior; it does not establish geometric correctness.
+Do not remove output to improve metrics, lower a label/inventory floor, loosen a tolerance,
+or regenerate expectations merely to make a failure pass. Investigate against the independent
+references, then review an intentional behavior change and its decompressed snapshot diff.
 
 ```rust
 let part = quiddity::read_step_file(std::path::Path::new("part.step"))?;
-let recognition = quiddity::correspondence::recognise(&part); // inferred frame, with fingerprints
-let holes = &recognition.features.holes; // read local fields through recognition.frame
+let recognised = quiddity::correspondence::recognise(&part);
+let holes = &recognised.features.holes;
 ```
 
-Modelled screw threads are also measured natively (`analyse_modelled_threads`): axis,
-side, diameters, pitch, hand, starts, axial span and claimed faces, with explicit refusals.
-Their record payloads follow [recognition document 4](docs/recognition-4.md).
-All new documents use [version 5](docs/face-accounting.md), which accounts for every
-face as feature, body (with positive geometry evidence), refused, or unexplained.
-The [corpus survey](docs/modelled-threads.md) records the
-measurements and supported profile limits. Nominal thread designations belong to consumers.
+This is the supported recognition route: infer the part frame, transform geometry in memory,
+and map records back to file coordinates. Some parameters remain local on oblique parts;
+read them through the result's frame. Caller-space recognition, discovery, inventories and
+contexts are private implementation details. Internal unit tests can exercise them without a
+Cargo feature. There is no `python-parity` feature.
 
-From the command line (see [Running](#running)): `quiddity part.step` (records, fingerprints,
-recognition document), `quiddity correspond`, `quiddity serve`, `quiddity parts part.step` (the
-distinct parts and the face numbering PMI anchors use), and `quiddity pmi read|check|write`
-(AP242 semantic PMI as versioned JSON; `write` verifies by reading back before replacing the
-output).
+Recognition includes holes and patterns, bosses, steps, slots, pockets, channels, blends,
+fillets, chamfers, plates, pads, sheet-metal bodies, thin walls, voids, profiled bores,
+polygonal stock, section recesses and native measured screw threads. Refused or unproved
+claims remain visible through the document and diagnostics; see the
+[trust contract](docs/recognition-trust.md), [thread geometry](docs/modelled-threads.md),
+[correspondence](docs/correspondence.md), and intrinsic tie policy (ADR 0011, documented in source).
 
-The recognition document carries `source_sha256`, the completed `run_mode`, and each
-record's `evidence_status` (`verified` or `unproved`). CLI and `serve` retain candidates
-from unsupported or invalid geometry with warnings identifying the unproved records.
-See [the trust contract](docs/recognition-trust.md) for validity limits, gzip identity,
-pattern inheritance, legacy-reader defaults and consumer refusal policy.
+All newly written recognition documents use [schema 5](docs/face-accounting.md), which
+accounts for every face as feature, body (with positive geometry evidence), refused, or unexplained.
 
-Known limitations:
+## Regression snapshots
 
-- Python's local-degradation retry is ported for every validity query of the run and for the
-  degraded skips of holes, pockets, fillets, plates, step levels, risers, rectangular pads and
-  the section-recess source families (slots, channels, prismatic pockets, edge-open prismatic and
-  circular recesses); the other families' own degraded skips are not, so on a degraded solid
-  they publish where Python would skip.
-- `Features::defining` gives defining faces; section recess records also carry constituent
-  faces in `evidence`. Other families' constituent faces and pattern members are in the
-  recognition evidence view.
-- The PMI writer refuses datum targets, tolerance relations, the 'manufacturing requirement' note
-  route, general tolerance tables and material density; a thread's pitch is not modelled.
-- Every other difference from Python or OpenCascade is listed with a verdict in the files the
-  second table names; the rust-wrong entries are known port defects.
-- CI takes about 11 to 16 minutes on Linux and 23 to 29 on macOS.
+Commit source and input changes before generating, so provenance identifies a reproducible
+Rust commit. `provenance.json` records its full commit hash, input hashes, and every
+compressed snapshot hash. The maintainer tags releases; this tool creates no tags.
+CI replays `--check`, including detection of orphaned snapshots. Regeneration requires an
+explicit write flag supplied by the tool and is forbidden in CI.
 
-Ported, each checked against Python call by call:
-
-| Family | Python entry point | Captured test calls | Not captured | Corpus runs |
-|---|---|---|---|---|
-| Fillets | `recognise_fillets` | 108/109 match (1 known divergence) | 0 | 199/200 (1 known) |
-| Holes | `recognise_holes` | 211/214 match (3 known divergences) | 0 | 190/200 (10 known) |
-| Chamfers | `recognise_chamfers` | 107/107 | 0 | 200/200 |
-| Countersinks | `recognise_countersinks` | 77/77 | 0 | 100/100 |
-| Angled steps | `recognise_angled_steps` | 105/105 | 0 | 100/100 |
-| Flats | `recognise_flats` | 88/88 | 0 | 99/100 (1 known) |
-| Paired ramp steps | `recognise_paired_ramp_steps` | 109/109 | 0 | 100/100 |
-| Bosses | `recognise_bosses` | 133/133 | 0 | 100/100 |
-| Hole patterns | `recognise_hole_patterns` | 470/470 | 0 | 99/100 (1 known) |
-| Oriented chamfers | `recognise_oriented_chamfers` | 15/15 | 0 | 100/100 |
-| Face levels | `recognise_face_levels` | 36/36 | 0 | — |
-| Step levels (aggregate) | `_discover_step_levels` | — | — | 89/100 (11 known) |
-| Risers | `recognise_risers` | 66/66 | 0 | 94/100 (6 known, aggregate) |
-| Circular face patterns | `recognise_circular_face_patterns` | 5/5 | 0 | 99/100 (1 known) |
-| Thin-wall bodies | `recognise_thin_wall_bodies` | 10/14 (4 known divergences) | 0 | 97/100 (3 known) |
-| Interior voids | `recognise_interior_voids` | 6/6 | 2 | 98/100 (2 known) |
-| Through steps | `recognise_through_steps` | 141/141 | 7 | 100/100 |
-| Oblique through steps | `recognise_oblique_through_steps` | 10/10 | 1 | 100/100 |
-| Circular blind steps | `recognise_circular_blind_steps` | 36/36 | 2 | 100/100 |
-| Turned steps | `recognise_turned_steps` | 286/287 (1 known divergence) | 18 | 98/100 (2 known) |
-| Round-bottom blind slots | `recognise_round_bottom_blind_slots` | 25/27 (2 known divergences) | 1 | 100/100 |
-| Rectangular blind slots | `recognise_rectangular_blind_slots` | 21/23 (2 known divergences) | 1 | 100/100 |
-| Gusset ribs | `recognise_gusset_ribs` | 26/26 | 0 | 100/100 |
-| Gusset rib patterns | `recognise_gusset_rib_patterns` | 18/18 | 0 | 100/100 |
-| Grooves | `recognise_grooves` | 71/72 (1 known divergence) | 3 | 99/100 (1 known) |
-| Plates | `recognise_plates` | 175/178 (3 known divergences) | 4 | 98/100 (2 known) |
-| Double-D bores | `recognise_double_d_bores` | 71/78 (7 known divergences) | 1 | 100/100 |
-| Edge-open circular pockets | `recognise_edge_open_circular_pockets` | 9/9 | 0 | 100/100 |
-| Edge-open prismatic recesses | `recognise_edge_open_prismatic_recesses` | 23/23 | 2 | 100/100 |
-| Blends | `recognise_blends` | 52/52 | 0 | 94/100 (6 known) |
-| Sheet-metal bodies | `recognise_sheet_metal_bodies` | 2/5 (3 known divergences) | 0 | 98/100 (2 known) |
-| Slots | `recognise_slots` | 42/42 | 0 | 98/100 (2 known) |
-| Pockets | `recognise_pockets` | 19/19 | 1 | 98/100 (2 known) |
-| Channels | `recognise_channels` | 44/45 (1 known divergence) | 3 | 100/100 |
-| Slot patterns | `recognise_slot_patterns` | 272/272 | 0 | 100/100 |
-| Pocket patterns | `recognise_pocket_patterns` | 58/58 | 0 | 100/100 |
-| Repeating radial profiles | `recognise_repeating_radial_profiles` | 59/60 (1 known divergence) | 1 | 100/100 |
-| Freeform surfaces | `recognise_freeform_surfaces` | 3/3 | 0 | 98/100 (2 known) |
-| Polygonal bosses | `recognise_polygonal_bosses` | 133/139 (6 known divergences) | 4 | 100/100 |
-| Polygonal stock | `recognise_polygonal_stock` | 70/70 | 1 | 100/100 |
-| Section passages | `recognise_section_passages` | 83/83 | 3 | 100/100 |
-| Section recesses | `recognise_section_recesses` | 320/321 documents (1 known difference) | 6 | 93/100 (7 known) |
-| Passages (legacy roster) | `recognise_passages` | 60/60 | 2 | 100/100 |
-| Prismatic pockets | `recognise_prismatic_pockets` | 82/82 | 6 | 100/100 |
-| Oriented slots | `recognise_oriented_slots` | 33/33 | 1 | 100/100 |
-| Oriented slot patterns | `recognise_oriented_slot_patterns` | 26/26 | 0 | 100/100 |
-| Rectangular pads | `recognise_rectangular_pads` | 150/155 (5 known divergences) | 5 | 100/100 |
-| Planar outer profiles (evidence) | `RecognitionEvidence.planar_outer_profile` | 432/433 faces (1 known difference) | 5 | 95/100 (5 known) |
-
-*Captured test calls*: the Python suite's calls replayed by `tests/captured.rs` (for section
-recesses, the documents of the parts the section-recess Python tests build and the two golden
-fixtures, compared item by item in `tests/section_recesses.rs`; *Corpus runs* is then the
-corpus files' documents). *Not captured*:
-calls the suite makes that the capture could not record, outside the replay and pinned by it
-(`tools/capture_plugin.py` now lists each with its test and reason; the counts here predate
-that: the committed `calls.json` still holds them as counts per function, all
-`capture failed: RuntimeError`). These captures remain frozen under the Rust-first
-policy. *Corpus runs*: runs whose records match Python's over the 100-file
-corpus in `tests/corpus.rs` (one per file and option set; face levels, step levels and risers are
-not in the corpus export: step levels and the aggregate's risers are compared part by part in
-`tests/step_levels.rs` against `tools/capture_step_levels.py`'s capture). Every difference, in
-records, defining faces or kernel answers, is listed with its verdict and reason in a verdict
-file:
-
-| Verdict file | Checked by | Entries | rust-correct | rust-wrong | equivalent | undetermined | not-applicable |
-|---|---|---|---|---|---|---|---|
-| `tests/fixtures/known_divergences.json` | `tests/corpus.rs` | 136 (903 problems) | 109 | 4 | 22 | 0 | 1 |
-| `tests/fixtures/captured/known_divergences.json` | `tests/captured.rs` | 39 (40 calls) | 4 | 1 | 3 | 3 | 28 |
-| `tests/fixtures/known_invariance.json` | `tests/invariance.rs` | 22 | 0 | 22 | 0 | 0 | 0 |
-| `tests/fixtures/captured/known_frames.json` | `tests/frames.rs` | 46 | 18 | 10 | 0 | 18 | 0 |
-| `tests/fixtures/known_correspondence.json` | `tests/correspondence.rs` | 71 | 14 | 53 | 0 | 0 | 4 |
-| `tests/fixtures/known_probes.json` | `crates/haecceity/tests/probes.rs` | 8 (20 probes) | 7 | 0 | 0 | 0 | 1 |
-| `tests/fixtures/known_drawings.json` | `crates/haecceity/tests/drawings.rs` | 63 | 58 | 0 | 0 | 1 | 4 |
-| `tests/fixtures/known_classify.json` | `crates/haecceity/tests/classify.rs` | 40 | 5 | 0 | 2 | 0 | 33 |
-| `tests/fixtures/known_face_areas.json` | `crates/haecceity/tests/face_areas.rs` | 1831 | 1829 | 0 | 0 | 1 | 1 |
-| `tests/fixtures/captured/known_sections.json` | `tests/sections.rs` | 1 | 0 | 0 | 0 | 0 | 1 |
-| `tests/fixtures/captured/passages/known_divergences.json` | `tests/passages.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
-| `tests/fixtures/captured/known_section_recess_helpers.json` | `tests/section_recess_helpers.rs` | 0 | 0 | 0 | 0 | 0 | 0 |
-| `tests/fixtures/captured/section_recess/known_differences.json` | `tests/section_recess.rs` | 4 | 0 | 0 | 0 | 0 | 4 |
-| `tests/fixtures/captured/section_recess_geometry/known_differences.json` | `tests/section_recess_geometry.rs` | 2 | 0 | 0 | 1 | 0 | 1 |
-| `tests/fixtures/captured/section_recesses/known_differences.json` | `tests/section_recesses.rs` | 18 | 15 | 1 | 2 | 0 | 0 |
-| `tests/fixtures/captured/known_section_geometry.json` | `tests/section_geometry.rs` | 2 | 0 | 2 | 0 | 0 | 0 |
-| `tests/fixtures/captured/outer_profiles/known_differences.json` | `tests/outer_profiles.rs` | 6 (2168 faces) | 6 | 0 | 0 | 0 | 0 |
-| `tests/fixtures/captured/known_effective_surfaces.json` | `tests/effective_surfaces.rs` | 116 (2894 answers) | 98 | 6 | 0 | 9 | 3 |
-| `tests/fixtures/captured/local_degradation/known.json` | `tests/local_degradation.rs` | 3 | 3 | 0 | 0 | 0 | 0 |
-| `tests/fixtures/captured/step_levels/known_differences.json` | `tests/step_levels.rs` | 68 | 56 | 8 | 4 | 0 | 0 |
-| `tests/fixtures/captured/reconcile/known.json` | `tests/reconcile.rs` | 31 (0 decisions, 5 accepted, 26 motions) | 4 | 5 | 0 | 0 | 22 |
-| `tests/fixtures/captured/recognition_evidence/known_differences.json` | `tests/recognition_evidence.rs` | 81 (36 features, 1 candidate, 44 motions) | 36 | 44 | 0 | 0 | 1 |
-| `tests/fixtures/known_face_sources.json` | `crates/haecceity/tests/face_sources.rs` | 134 | 90 | 0 | 0 | 43 | 1 |
-| `tests/fixtures/known_pmi.json` "nist" | `crates/haecceity/tests/pmi_read.rs` | 74 | 65 | 0 | 9 | 0 | 0 |
-| `tests/fixtures/known_pmi.json` "occt" | `crates/haecceity/tests/pmi_read.rs` | 403 | 402 | 1 | 0 | 0 | 0 |
-| `tests/fixtures/known_pmi.json` "specify" | `crates/haecceity/tests/pmi_read.rs` | 38 | 20 | 0 | 0 | 0 | 18 |
-| `tests/fixtures/known_pmi_draftwright.json` | `crates/haecceity/tests/pmi_draftwright.rs` | 117 | 111 | 0 | 0 | 0 | 6 |
-| `tests/fixtures/known_pmi_write.json` "occt" | `crates/haecceity/tests/pmi_write.rs` | 6 | 6 | 0 | 0 | 0 | 0 |
-| `tests/fixtures/known_pmi_write.json` "corpus" (patterns) | `crates/haecceity/tests/pmi_write.rs` | 9 | 7 | 0 | 0 | 2 | 0 |
-
-The undetermined entries are the backlog: differences not yet shown to be either side's error.
-The rust-wrong entries are known port defects. The AP242 PMI lists are against NIST's expected PMI
-(`"nist"`), OpenCascade XCAF (`"occt"`, counted over the 7 committed NIST files and the
-specify-core outputs, plus the other 10 NIST files when `HAECCEITY_NIST_PMI` is set),
-specify-core's intent (`"specify"`) and draftwright's extraction; the PMI reader's own findings
-per file are pinned with a reason per kind in `tests/fixtures/ap242/read/findings.json`, and the
-AP242 schema's per-file violations in `tests/fixtures/ap242/express/known_nist_violations.json`
-and its named WHERE/UNIQUE rule violations in
-`tests/fixtures/ap242/rules/known_nist_rule_violations.json` (pins with a reason each, verdict
-`file-wrong`). `known_pmi_write.json` holds the writer's refusals and its differences from
-specify-core's files and from OpenCascade's reading of what it writes.
-
-For specify-core and draftwright, haecceity reads and writes AP242 semantic PMI without
-OpenCascade (design: `docs/step-ap242.md`): a lossless Part 21 document with byte-exact edits
-(`p21.rs`), the AP242 EXPRESS schema as data with a validator (`express.rs`), each face and edge's
-source instance (`step::read_part_definitions`), and a plain semantic PMI model with one reader
-(`pmi/`). The reader keeps every value as the file states it, in its own unit; reports what it
-does not read (`pmi::Finding`), never drops it; and records the instances behind every item
-(`pmi::Provenance`), specify-core's own notes on faces included. A removal plan (`removal.rs`)
-works out what replacing a part's PMI removes (a thread's or knurl's own shape with it), with
-its presentation or refusing; named EXPRESS WHERE, UNIQUE and global rules (`express_rules.rs`)
-back the writer. The writer (`pmi::write`) maps every part's PMI to one edit of the file
-(add, replace, remove) through a typed emission layer, keeping every other byte, with a
-datum feature symbol derived for each datum it adds; refusals, round trips and OpenCascade's
-reading of written files are pinned in `tests/fixtures/known_pmi_write.json`. `pmi::verify`
-checks a write by reading it back (what `quiddity pmi write` does), naming each difference. A file
-read once (`step::StepFile`) gives its parts with XCAF's display names, its assemblies, and each
-part as a `Part` in its own coordinates (`step::read_part`).
-specify-core and draftwright reach all of this through the `quiddity` command line, in a
-versioned JSON form of the model (`src/pmi_json.rs`): `quiddity parts`, `quiddity pmi read`,
-`quiddity pmi check` and `quiddity pmi write` (see [Running](#running)).
-
-Python's default inventory runs strictly and, when that refuses an unproved hole on a part whose
-solids are not all valid under BRepCheck, runs again with `local_degradation` set, where a
-family skips a record that proves no one valid solid instead of refusing it.
-`tools/capture_local_degradation.py` records it over the whole corpus
-(`captured/local_degradation/capture.json`): 3 of 100 parts take the retry (cgb202, 13975,
-14052) and every retried inventory completes, skipping 11 records: 2 fillets (cgb202), 2 pockets,
-1 hole, 1 riser and 2 face levels (13975), 1 hole and 1 plate (14052). Countersinks, prismatic
-pockets, double-D bores, through steps, angled steps, circular blind steps and seven other
-families check the flag there and skip nothing; passages, oriented slots, repeating profiles,
-polygonal bosses, sheet metal, thin walls, pads and oblique through steps, among others, never
-reach their check. Ported: the retry itself (`features::take_inventory`, behind `recognise`,
-`inventory`, `section_recess_projection` and `build_recognition_evidence`): where the strict
-hole evidence refuses for want of one valid solid on a part whose solids are not all valid
-(`holes::strict_refusal_retries`; the port proves no other family's evidence strictly, so this is
-the only refusal it retries on), the run starts again with every validity query answering as
-Python's degraded graph does (`evidence::locally_degraded`: `common_valid_solid` becomes
-`evidence::locally_valid_solid`, Python's admission of a solid with at most three faulted faces,
-on the kernel's per-face check `Part::bad_faces`, which faults 14052's face 1 and no other face
-in the corpus: `crates/haecceity/tests/validity.rs`), and the families whose skips the corpus
-shows skip as Python's do: holes (`holes::discover_locally_degraded`, 13975's hole and 14052's),
-pockets (`pockets::discover_locally_degraded`, 13975's two), step levels and risers
-(`levels::proved`, 13975's riser and two levels), fillets (cgb202's two, but the port calls that
-solid valid and does not retry there) and plates (`plates::discover_locally_degraded`, 14052's
-plate); and, though no corpus part reaches them, the skips of the families whose refusal would
-otherwise end a retried run (rectangular pads) or refuse its section-recess projection (slots,
-channels, prismatic pockets, edge-open prismatic and circular recesses). The other families' own
-degraded skips are not ported (they publish unproved, as in a strict run). With the retry, 13975 and 14052 publish Python's section recesses (none, and
-14052's triangular pocket) instead of refusing the projection. `tests/local_degradation.rs`
-compares which parts retry, every skip against the port's evidence paths (each difference's
-verdict in `captured/local_degradation/known.json`) and what `recognise` publishes on the
-retried parts, and checks the degraded holes and pockets under two rigid motions.
-
-The aggregate's cross-family reconciliation (`_reconcile_existing`: recess precedence, bevels,
-circular-step fillets, blends, Double-D bores, bosses and turned steps, steps and grooves,
-oriented-slot passages, thin walls) is ported (`src/features/reconcile.rs`) and applied:
-`features::inventory` makes the decisions on one run's candidates, and `features::recognise` (so
-the caller-space and default recognitions, the recognition document and correspondence) drops
-every rejected candidate with its defining faces and derives hole, slot, pocket, gusset-rib and
-oriented-slot patterns from accepted members only, as Python's `_take_inventory_once` does.
-Reconciliation adds no records, so the record payloads keep their shape; a
-reconciliation refusal panics, as the passages' does. Step levels and risers, physical families in
-Python's aggregate, are carried in `Features` (`step_levels`, `risers`, with their defining
-faces): `levels::discover_step_levels` (`_discover_step_levels`: each solid's area-filtered
-horizontal face levels strictly inside `bounded_end_margin` of its height) and
-`levels::discover_risers` (`_discover_risers`, each riser carrying its solid's step levels), and
-the thin-wall rule rejects risers from that list, so `recognise` drops them. `levels::proved` is
-Python's proof of either (strictly a refusal when one has no valid solid, under local degradation
-a skip); `features::inventory` retains their candidates with strict evidence statuses, but skips as
-`levels::proved` does in a locally degraded run (the retry above). `tests/step_levels.rs` compares, part by part over the corpus, the public
-`step_level_records`, the proposals with their faces and proofs, the proved aggregate and what
-`inventory` and `recognise` carry: 378 Python step levels, 316 identical on 89 parts, the other
-62 (11 parts) differing in the body key alone (solid masses and BRepCheck, as for other families)
-but for 13975's two, which Python's retry skips (and so do `inventory` and `recognise`, which take
-it); 134 Python risers (124 accepted, 10 rejected),
-118 identical, 16 differing on 6 parts (two coplanar faces of one ramp Python splits by 1e-11 of
-round-off, rust-correct; cgb207's body key; 13975's skip). The recognition document carries both
-families, as Python's document does (`FaceLevel`, `RiserEvidence`; an additive record change). They are read along a z axis by specification: in the default document
-the frame's, which is not the file's z on 71 of the corpus parts with either family, so there
-their z-dependent fields are listed `local` and they hold other faces than caller-space
-recognition's
-(`known_framed_document.json`, not-applicable); caller-space correspondence leaves them out of
-the motions that turn z (`tests/correspondence.rs`). `tools/capture_reconcile.py` records
-every disposition Python's default inventory makes over the corpus, local-degradation retry
-included (`captured/reconcile/capture.json.gz`): 261 decisions on 62 of 100 parts (127 blends
-superseded by fillets, 27 bosses by turned steps, 27 rings by pockets, 24 fillets by circular
-blind steps, 13 chamfers by angled steps, 10 risers, 9 bosses and 1 plate by thin walls, 10
-pockets by passages, 6 step/groove relations, 7 other recess decisions). `tests/reconcile.rs`
-compares the port's decisions part by part, keyed by family and defining faces, with outcome,
-reason and winners: all 261 agree. Thirteen synthetic scenarios run through Python's own
-`_reconcile_existing` (`captured/reconcile/scenarios.json`) cover the branches the corpus never
-reaches, including a candidate two rules decide, which Python refuses; all agree. The accepted
-records are compared too, family by family among those a rule reads, with Python's candidates
-less its rejected ones: all agree but 5 candidate differences no rule causes (listed under
-`accepted`): 3 holes whose spotface or drilling end the port reads differently and 2 cgb202
-fillets on a solid only OpenCascade calls invalid (rust-correct), and GRM-03's plate on a solid that owns turned steps, which Python's
-aggregate never offers to plates (`excluded_solids`, not ported) (rust-wrong). Over the corpus
-caller-space recognition loses Python's 245 rejected records of carried families on 62 parts
-(127 blends, 36 bosses, 27 prismatic pockets, 24 fillets, 13 chamfers, 12 pockets, 3 slots, 2
-section passages, 1 plate) and the default document 233 on 63 (114 blends, 35 bosses, 14
-pockets; the rest as caller space), because its frame finds other candidates on five parts
-(`known_framed_document.json`, undetermined): on cgb202, cgb207 and cgb217, whose frames are
-not the file's axes, other fillets, so it keeps 16 blends caller space rejects and rejects 3
-caller space keeps; on cgb217 no turned step for one boss; on 10060 and 10103 an edge-open
-circular pocket that rejects one pocket each. No pattern changes. `tests/recognition.rs` checks
-that no rejected candidate is in `recognise` or the document on parts where every rejecting rule
-the corpus reaches fires, and that a pattern loses a member reconciliation rejects. The thin-wall
-rule reads the risers `inventory` carries.
-
-The kernel also answers the questions the families ask of OpenCascade's booleans,
-checked against every one Python asks over the corpus: the volume a probe shares with a solid
-(`crates/haecceity/src/volume.rs`, `crates/haecceity/tests/probes.rs`) and whether faces cover
-a face (`crates/haecceity/src/cover.rs`, `crates/haecceity/tests/patches.rs`). Faces stored as
-B-splines that are exactly planes, cylinders, cones or spheres are recovered as such
-(`crates/haecceity/src/recover.rs`), as Python's `_effective_surfaces` does.
-
-The shared machinery under passages, section passages, oriented slots and section recesses is
-ported ahead of those families and replayed call by call (`tests/sections.rs`,
-`tools/capture_sections.py`): canonical sections, frames and the published occurrence shape
-(`_sections`, 2268 calls from its Python tests, refusals by message), polygon `covered_patch`
-questions (445), and `section_ring_proposals` with every `prove_entry_treatments` question it
-asks (369, 31 proved) on 132 parts the Python tests build, the two golden passage fixtures and
-the 100 corpus files (168 proposals). All agree; proposals whose sort keys tie to round-off are
-compared as a set, since Python's order between them changes from run to run. Not captured: 56
-`covered_patch` questions on curved or holed faces, 4 value calls whose inputs are not values (a
-body reference foreign to the run or mutated, which Python checks by object identity and the
-port's types rule out, or a malformed boundary), and 5 objects handed to
-`section_ring_proposals` that STEP export refuses (such as the tests' shallow part views).
-
-Passages publish from those proposals (`src/features/passages.rs`): `recognise_section_passages`
-gives Python's `SectionPassage` records, and `recognise_passages` the frozen legacy roster over
-`_rings` rings, whose value each matching section passage must reproduce. Python's internal
-`ValueError`s are `PassageError` refusals with its messages (one test part refuses, as in
-Python); `recognise` panics with the message, as Python's aggregate raises. `tests/passages.rs`
-replays the entry calls and, on 359 parts (the calls' parts, the section tests' parts, every
-golden fixture, the corpus), every ring, the legacy roster's walls, the records and defining
-walls, and 274 compatibility calls (`tools/capture_passages.py`): all agree. `Features` carries
-them as `section_passages`, the field of Python's legacy inventory (`_LegacyRecognitionResult`;
-the public `RecognitionResult` publishes passages through `section_recess`), less those
-reconciliation rejects for a slot or an oriented slot. A run finds its passages once (`Context`)
-for the records and the reconciliation's compatibility views, and a ring's emptiness probes stop
-measuring once the material met settles the answer (`volume::fills_at_most`, the same answers):
-the inventory of the seven section-recess test parts on which measuring whole probes took 76 to
-224 s now takes under 3 s each.
-Python 0.4 publishes passages through the unified `section_recess` projection. By the
-maintainer's 2026-10-11 decision the recognition document now publishes `section_recesses`
-alongside the existing `section_passages` source records.
-Three of the helpers section recesses compose are ported the same way
-(`tests/section_recess_helpers.rs`, `tools/capture_section_recess_helpers.py`):
-`_cylindrical_end_surface` (257 values from the Python tests, refusals by message),
-`cylindrical_seat_proofs` and `plane_envelope_passage_proofs` on 204 parts the Python tests
-build (60 of them parts where Python proves nothing, so the port must prove nothing too), the
-two golden passage fixtures and the corpus, with every private `_prove` question replayed on its
-own (2121 seat questions, 120 proved; 14459 envelope questions, 44 proved, none on the corpus).
-All agree; an envelope proof's two roof terms whose heights tie to round-off are compared in
-gradient order, and a seat's arc in one direction (Python's follows OCCT's per-process shape hash). Not
-captured: 1 value with a boolean radius (refused by type), 16 test parts STEP export refuses,
-and 428 more test parts on which Python proves nothing outside the helpers' own tests (all 474
-would add about 4 MB of STEP; 4 per test are kept). The proofs are unchanged under the
-invariance motions (4 seats at scale 0.1 turned 90° about x, whose grazing end probe the volume
-probe once left unanswered, agree since it nudges such lines by up to the coordinate floor).
-The section-recess records themselves are ported ahead of the family
-(`src/features/section_recess.rs`, `tests/section_recess.rs`,
-`tools/capture_section_recess.py`): `_section_recess`'s geometry, closed and open profiles,
-planar, plane-envelope and cylindrical ends, classification, evidence, refusals, patterns and
-the schema-4 document, with every `__post_init__` check refusing by Python's message. 5378
-distinct constructions (94 refused) from the section-recess Python tests and
-`build_section_recess_document` on the corpus are rebuilt from their inputs: all agree. Not
-captured: 18 test constructions whose inputs the port's types cannot carry (booleans, lists,
-strings, negative indices, wrongly sized tuples, which Python refuses by type). Patterns are
-also built under the invariance motions and geometries on a principal run under the
-translation (1060 moved records); 4 channel values whose cylinder centroid height is a
-three-decimal rounding tie disagree with their shifted interval once moved, as in Python
-(not-applicable).
-Their provers and projections (`_section_recess_geometry`) and the discovery that numbers them
-(`_section_recess_discovery`) are ported too (`src/features/section_recess_geometry.rs`,
-`section_recess_discovery.rs`, `tests/section_recess_geometry.rs`,
-`tools/capture_section_recess_geometry.py`): on 138 parts the Python tests hand `_candidates`
-or `has_physical_planar_floor`, the two golden fixtures and the corpus, `_candidates` (240
-calls), the obround, polygonal and mixed floor readers asked of every planar face on its own
-(17157 calls), the seat, cylindrical-pocket, cylindrical-passage and plane-envelope projections
-of Python's own proofs (13, 22, 33 and 11 calls), 22 `has_physical_planar_floor` questions, and
-`cylindrical_channel_geometry` of the 35 channel proofs `tests/section_geometry.rs` replays.
-All agree but one passage origin on a three-decimal rounding tie (equivalent); the tilted
-mixed pockets agree since the volume probe nudges a line passing a corner within the
-coordinate floor by up to that floor (`crates/haecceity/tests/tilted_probe.rs`). The candidates are unchanged under
-the invariance motions (re-expressed in the moved run's canonical frame) but one translated
-pocket whose publication bound Python's projection also exceeds there (not-applicable). Not
-captured: 16 test shapes STEP export refuses, 86 test parts where Python finds nothing (2 per
-test are kept), and cgb203's floor questions (its projection passed 600 s).
-The family's entry points, `recognise_section_recesses` and `build_section_recess_document`
-(Python's aggregate section-recess projection, `_project_result`), are ported as library API
-(`src/features/section_recess_family.rs`, `tests/section_recesses.rs`,
-`tools/capture_section_recesses.py`): one recognition and reconciliation
-(`features::inventory`), the native records discovered in the same run, then the accepted
-prismatic pockets no native record covers, passages, edge-open recesses and blind slots
-projected, pockets and channels proved as corner notches or open channels (support apertures
-included, `_support_apertures`; the channel on a native bore by `prove_cylindrical_channel`),
-de-duplicated by region, every uncovered accepted source candidate refused, and the accepted
-pockets' derived patterns re-expressed over the published section midpoints. A publication
-refusal drops one candidate (it becomes a refusal); any other Python `ValueError` is the
-projection's `SectionRecessFamilyError` with Python's message. The documents of 312 parts the
-section-recess Python tests build (up to 3 per test case), the two golden fixtures and the
-100 corpus files (cgb203 included, 591 s in Python) are compared item by item: 413 of 421
-agree, with 668 of 684 occurrences, all 48 refusals and all 20 patterns. The 17 differences
-(`captured/section_recesses/known_differences.json`): 15 NIST channels Python proves open at an
-end OpenCascade's own classifier puts in material (its boolean answered 0 for a slab whose
-sides lie in the slot's wall planes; rust-correct); 13975's body roster, where the port lists
-the invalid solid the file declares and OpenCascade's healed import has none (equivalent; both
-take the local-degradation retry and publish nothing); and one passage origin on a rounding tie
-(equivalent). The kernel's validity check admits an edge used more than twice
-as `BRepCheck_Shell` does (as often each way, the shell not parted there), so the two aperture
-test parts whose bore's seam lies on the wall's edge agree. The kernel's cover misses a hole in a cylindrical support whose loops it places
-on different turns (mfcadpp/10138), so the aperture proof first requires the bore's face to
-have no edge but its rings and seams. Not compared: 6 test shapes STEP export refuses. Under
-the translation and a quarter turn about z, on the 82 corpus parts where Python publishes anything, the documents name the same faces and classifications but one refusal's
-source pocket (the pocket recogniser's listed `width > length` tie; rust-wrong); geometry is not
-compared under motion. Passages' consulted faces are now kept on their occurrences (entry
-treatments, regions), which the projection's evidence reads. `features::recognise` and
-`correspondence::recognise` carry the section recesses (`Features::section_recesses`, projected
-from the same run, each defined by its record's defining faces, fingerprinted, carried back from
-the part's frame and checked under the invariance motions). `Features` serialises them under
-`section_recesses`, and the recognition document and CLI publish `SectionRecess` records in
-that same order, with Python's record fields and the existing file-space mapping and `local`
-labels. `tests/section_recess_publication.rs` checks Python parity on all 30 draftwright quality
-parts, including the 15 existing rust-correct NIST channel verdicts, and hashes the old caller
-and framed record bytes after removing the new family and later accounting metadata.
-The additive family retains its record payloads; readers with family allowlists must admit it. Where the projection
-refuses (no corpus part since the local-degradation retry is ported; before it, 13975 and
-14052) `recognise` keeps the other families and carries the refusal
-(`Features::section_recess_refusal`), provisionally: whether to panic or carry a refusal is an
-open maintainer question.
-The effective-surface query the rectangular pads, cylindrical channels, pockets and passages
-and section recesses read (`_effective_surfaces`: each face's native or recovered analytic fact
-or typed refusal, `recovery_nominal` / `recovery_tolerance`, and surface uses with a
-material-side certificate) is ported ahead of them (`src/features/effective_surfaces.rs`) and
-replayed face by face (`tests/effective_surfaces.rs`, `tools/capture_effective_surfaces.py`):
-12275 faces of 260 parts its consumers' Python tests build, the two golden fixtures and the
-corpus, 36825 answers. 33931 agree; the 2894 that differ are listed (chiefly OpenCascade's
-coarse face areas and edge lengths in the nominal, and sides Python cannot certify where its
-mesh samples stray off the face or BRepCheck rejects cgb202's healed solid). Not captured: 3
-certificates OpenCascade took over two minutes to mesh, 16 test shapes STEP export refuses,
-and test parts past the first three per test function. Every certificate the port issues also
-agrees with its face's own orientation, and the answers are unchanged under two rigid motions
-(1 listed kernel face: cgb242 face 726).
-The three cylindrical proofs section recesses compose on top of it are ported the same way
-(`tests/section_geometry.rs`, `tools/capture_section_geometry.py`): `prove_cylindrical_channel`,
-`cylindrical_pocket_proofs` and `cylindrical_passage_proofs`, on 178 parts the Python tests
-build, the two golden fixtures and the corpus, with every private question replayed on its own
-(148 channel questions, 35 proved, on test parts those the tests ask and elsewhere those
-Python's recognition asks; 12703 pocket floors, 69 proofs; 25583 passage cells, 90 proofs).
-The removed cell Python builds by a boolean (a box or extrusion less or within the cylinder) is
-built exactly as the section swept from its plane to the cylinder branch, with conic edges.
-All agree but one pocket (rust-wrong): a test part whose end wall's crest vertex lies 0.003 off
-its own circle edges, which the kernel pins its samples to. Not captured: 18 test shapes STEP
-export refuses, and 206 test parts on which Python proves nothing outside the proofs' own tests
-(left out to keep the fixtures small). The proofs are unchanged under the invariance motions.
-Planar outer-profile evidence (`_outer_profile`, `_outer_profile_geometry`,
-`RecognitionEvidence.planar_outer_profile`), which draftwright's profile angles read, is
-`features::outer_profile::planar_outer_profile(part, face)`: one face's line/arc outer wire as
-ordered supports with the material on the left about the outward normal, its inner loops counted,
-the faces of its one valid body and each support's source edge (an index into `Part::edges`), or
-Python's refusal. `tests/outer_profiles.rs` replays every face of the parts quiddity's
-outer-profile tests build, four golden fixtures and the corpus (`tools/capture_outer_profiles.py`,
-11154 faces) and checks every profile's supports against its source edges, the ported test
-cases, and invariance under two rigid motions and a generic rotation. 2168 faces differ, listed
-in `captured/outer_profiles/known_differences.json`: cgb202's body (BRepCheck, as elsewhere),
-circles and lines OpenCascade's import heals, and tangent cusps. Python signs a cusp
-(a support turning straight back) by the round-off of `atan2` on antiparallel tangents, which
-follows the placement; the port signs it by the supports' curvatures, and its answers are
-unchanged under every motion. Not captured: test parts past four per test, and two solids sharing
-one shell, which STEP export writes as two. Open question for the maintainer: whether the
-recognition document (`quiddity-rust/recognition/5`) should carry outer profiles; Python's
-document does not, and they are not in it.
-
-The recognition evidence view (`quiddity.evidence.build_recognition_evidence`) is
-`evidence_view::build_recognition_evidence(part)` over `features::inventory` and its
-reconciliation: per accepted feature, its family, record, defining faces, constituent faces (a
-hole's bore and floor, its counterbore faces), instance groups, host faces (Python's
-`_axial_host_nodes` for holes and bosses) and, for a hole pattern, its member features by
-position (not copies); and the candidate projection (every rejected candidate and, transitively,
-those it is related to) with outcome, reason, defining and constituent faces and related
-candidates. Step levels and risers come from the inventory like every physical family; the
-section recesses and their refusals follow the physical families, as in Python, from
-`section_recess_projection` (a second recognition of the part), each with its record's own
-defining and constituent faces. Python's opaque references are plain indices: faces into
-`part.faces`, features and candidates into the view's own lists. Constituent faces come from the
-families' occurrences (found again on a second run context and checked against the inventory's
-defining faces), the pockets' reconciliation evidence and the section passages' ring proposals;
-the circular face patterns' groups from `circular_face_patterns::discover_with_groups`. The
-planar outer profile is read per face through the view, as Python's is.
-`tools/capture_evidence.py` records Python's view over the corpus
-(`captured/recognition_evidence/capture.json.gz`: 4308 features, among them 378 step levels and
-302 section recesses and refusals; 489 projected candidates, 255 rejected), and
-`tests/recognition_evidence.rs` compares them keyed by family and defining faces: every
-constituent, host, group and member set and every candidate agrees, but for 36 feature and 1
-candidate differences: the accepted-record differences
-`captured/reconcile/known.json` already explains (Python's local-degradation retry on cgb202, cgb
-holes' spotfaces and drilling ends, GRM-03's plate), four parts where Python keeps two risers
-apart by OpenCascade's bounding-box round-off (rust-correct), the 15 nist open channels whose
-closed run end the port's volume probe measures (rust-correct). On 13975 and 14052 both sides
-take the local-degradation retry and the views agree. Not
-ported: the association coverage, the bounded report (`RecognitionReport`, `feature_census`) and
-the framed view. Under two rigid motions the view's faces are unchanged but for 44 differences:
-bosses whose ends classify alike take the high end as free (constituent and host faces flip;
-Python behaves the same), and the families' own invariance exceptions (`known_invariance.json`;
-on 163 the pocket tie moves its section-recess refusal's defining faces too). The view is not in
-the recognition document (an open maintainer question); section recesses are published there.
-
-For draftwright-rust, the kernel draws a part's views without OpenCascade's hidden-line
-algorithm or booleans (`crates/haecceity/src/hlr.rs`): every visible and hidden edge and
-silhouette, and a section view's kept half and cut outline. `crates/haecceity/tests/drawings.rs` checks them
-against OpenCascade's drawings of the corpus: 85 parts in four views and 98 sections. The cut
-outlines agree on 95 of 99 parts, where the other four are OpenCascade boolean failures. Where
-faces lie in the cutting plane, the cut face is the material on both sides of it (lying in the
-plane decided within the classifier's 1e-6 tolerance). The
-views that differ by more than 1e-3 mm are listed in `tests/fixtures/known_drawings.json`.
-Most of them agree within 0.1 mm, where OpenCascade's hidden-line output approximates
-projected curves: each such entry carries that evidence (`approximation`), checked on every run
-against the part's own edges. `tools/drawing_evidence.py` asks OpenCascade independently of the
-boolean the section view relies on (plane sections, its classifier, its ray intersector).
-
-## Layout
-
+```sh
+export QUIDDITY_CORPUS=/path/to/pinned/corpus
+export CARGO_BUILD_JOBS=6 RUST_TEST_THREADS=6
+python3 tools/rust_snapshot.py
+python3 tools/rust_snapshot.py --diff BASE_REF
+python3 tools/rust_snapshot.py --check
+cargo fmt --all --check
+cargo clippy --workspace --all-targets --release -- -D warnings
+QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release
 ```
-crates/haecceity/    the geometry kernel (what OpenCascade is to the Python code), its own
-  src/               crate so draftwright-rust can share it; quiddity re-exports it as
-                     `quiddity::kernel`
-    step.rs          STEP → Part: assemblies flattened with placements, units, voids,
-                     reachable surface models, vertex loops, pcurve control polygons; each
-                     face's and edge's source instance; read_part_definitions (the distinct
-                     parts, their faces and edges in specify-core's numbering, placements)
-    brep.rs          Part: faces, loops, edges, solids in OpenCascade's traversal order;
-                     cached neighbours, validity, face bounds, extents along any direction
-    validity.rs      per-face geometric validity (BRepCheck's face faults: crossing loops,
-                     loops wound against the normal; planar faces), shells of a solid
-    geom.rs          vectors, frames, Bounds, analytic surfaces and curves, Python rounding
-    nurbs.rs         rational B-spline curves/surfaces: evaluation, derivatives, inversion,
-                     ray intersection
-    sampling.rs      edges as polylines (adaptive, 0.2 µm chord tolerance)
-    uv.rs            faces in parameter space: unwrapped loops, singular points, OpenCascade-
-                     compatible UV ranges (BRepTools::UVBounds), point containment
-    cloud.rs         faces as point clouds (mesh-like density on the exact geometry), k-d tree
-                     nearest neighbours, exact point-to-face distance
-    cover.rs         whether faces cover a face (covered_patch), in the face's parameter space
-    mesh.rs          faces as triangle meshes to a chordal and angular deflection
-                     (BRepMesh_IncrementalMesh): constrained Delaunay in parameter space,
-                     edges discretised once for both faces so closed shells are watertight
-                     (tests/mesh.rs); 2 of the corpus's 10,669 faces refused with the reason
-                     (a neck closed within tolerance, the malformed 14052)
-    classify.rs      point-in-solid (whole part or one solid) by the parity of rays.rs
-                     crossings, with on-boundary detection (BRepClass3d)
-    rays.rs          every hit of a ray on a solid's trimmed faces, through a box hierarchy
-                     (IntCurvesFace_ShapeIntersector); cracks the file leaves between faces
-    poly.rs          real polynomial roots by isolation (exact ray-torus hits)
-    recover.rs       planes, cylinders, cones and spheres stored as B-splines, fitted and
-                     certified by their largest deviation (ShapeAnalysis_CanonicalRecognition)
-    sweep.rs         a planar face swept into a prism solid, the probe shape the recognisers
-                     build with Solid.extrude (BRepPrimAPI_MakePrism)
-    volume.rs        the volume a probe (box, solid, or a planar region swept along an axis)
-                     shares with a solid, without a boolean: exact ray lengths integrated
-                     between the corners of the solid ∩ probe arrangement
-    mass.rs          exact solid volume and area: Green's theorem along the exact edges,
-                     adaptive Gauss-Kronrod quadrature (BRepGProp); every corpus face is
-                     checked against OpenCascade and under motion (tests/face_areas.rs), and
-                     face areas and centroids against OpenCascade's adaptive integration, each
-                     difference judged by an independent integration (tests/face_moments.rs)
-    overlap.rs       the common area of two coplanar planar faces (BRepAlgoAPI_Common and its
-                     area): both faces' loops intersected as polygons (i_overlay), circles
-                     resampled from their exact curves; refusals named (tests/overlap.rs)
-    anchor.rs        a point proved on a face's trimmed region, with its parameters: the
-                     face centre if the domain contains it, else from the face's mesh
-                     (tests/anchor.rs, every corpus face)
-    hlr.rs           hidden-line projection and section views (HLRBRep, draftwright's
-                     section A–A): edges and traced silhouettes cut where their projections
-                     cross, each piece's visibility by one ray; section contours traced
-                     across the faces
-    py.rs            Python's numeric semantics: fsum, compensated sum, hypot, %, rounding,
-                     tuple ordering — wherever results must agree to the bit
-    p21.rs           a lossless Part 21 document: every instance's record and byte range,
-                     edits (add, replace, remove, FILE_SCHEMA) written with every untouched
-                     byte copied; complex records sorted; strings escaped and decoded
-    express.rs       the AP242 EXPRESS schema (editions 1 and 4) as data: declarations, an
-                     instance and document validator, entity families (semantic PMI,
-                     presentation, validation property); express_table.rs is generated by
-                     tools/express_table.py
-    express_rules.rs named WHERE and UNIQUE rules the writer depends on (thread, knurl,
-                     tolerance table, datum, datum target, datum system, tolerance,
-                     plus_minus_tolerance, item_identified_representation_usage, surface
-                     texture, general property association, mechanical design and
-                     draughting relationship) and the global rule
-                     restrict_representation_for_surface_condition, each citing
-                     its schema label, three-valued
-    removal.rs       the removal plan: the instances a replace removes (seeds plus forward
-                     dependencies nothing kept holds), presentation removed or refused by
-                     policy, draughting models and views rewritten
-    pmi/             semantic PMI (docs/step-ap242.md): model.rs (the model: values as stated
-                     decimals in their own units, features of faces, edges and supplemental
-                     geometry, datums, targets, systems, dimensions, tolerances, relations,
-                     general tolerances, threads, knurls, material, notes, attributes, with
-                     their invariants), read.rs (the AP242 reader: findings, provenance,
-                     accounting), standards.rs (ISO 2768 classes, ISO 2768-1 Table 1),
-                     write.rs (the AP242 writer: typed emission, add/replace/remove, refusals
-                     by name, schema and rule backstops; differences() compares PMI by meaning)
-src/
-  features/          the recognisers, one module per family, plus what they share
-    context.rs       Context: one run over one part; box, classifier, cylinder inventory
-                     computed once, on first use
-    evidence.rs      Occurrence<R> (record + defining faces) and the valid-solid check
-    body.rs          body keys: a solid's box, volume and area, unique within the part
-    policy.rs        the recognisers' tolerances and thresholds (`quiddity._geometry`):
-                     `length_tol`, `clears_threshold`, `cluster_coordinates`, `AXIS_*_COS`
-    graph.rs         face-graph readings (`FaceGraph`): planarity, normal, span, vertices,
-                     common neighbours, shared-edge occurrences, faces walked as one chain
-    cylinders.rs     the cylinder inventory, runs, segments, coaxial keys
-    planes.rs        nearest axis-aligned neighbour planes; a face's effective plane (native,
-                     or a B-spline certified as one)
-    bevel.rs         the single-face bevel read and the convex-corner probe
-    probes.rs        the five fixed interior probes the whole-body families sample faces at
-    turned.rs        what turned-stock treatments share: coaxial external cylinders, cone rims,
-                     the turned-profile key steps and grooves publish
-    stacks.rs        coaxial segments read at their ends (open / flat / drill point)
-    regions.rs       logical plane/cylinder face regions, their boundary wire and its runs,
-                     the stock face a recess opens through, and the empty-sweep probe
-    fillets.rs  chamfers.rs  holes.rs  countersinks.rs  hole_patterns.rs  bosses.rs  angled_steps.rs  flats.rs
-    paired_ramp_steps.rs  oriented_chamfers.rs  levels.rs  circular_face_patterns.rs
-    thin_walls.rs  interior_voids.rs  through_steps.rs
-    oblique_through_steps.rs  circular_blind_steps.rs
-    turned_steps.rs  round_bottom_slots.rs  rectangular_blind_slots.rs  gussets.rs
-    grooves.rs  plates.rs  profiled_bores.rs
-    reconcile.rs     the aggregate's cross-family reconciliation decisions (`_reconcile_existing`),
-                     applied by `recognise`
-    edge_open.rs     what the two edge-open recess families share: `_rings.SPAN_EPS`, principal
-                     planes, the mouth capping a wall chain, and the floor proof by swept-face
-                     probes
-    edge_open_circular.rs  edge_open_prismatic.rs
-    analytic_surfaces.rs  canonical plane/cylinder/cone/sphere parameters, their equivalence, and a
-                     face's effective (native or recovered) analytic surface
-    effective_surfaces.rs the run's effective-surface query (`_effective_surfaces`): typed fact
-                     refusals, recovery nominal and tolerance, surface uses with a certified
-                     material side, `cylinder_surface_dependency`
-    blend_view.rs    native cylindrical blend chains, with the face graph readings they need:
-                     paired edge occurrences, their solid ownership, a smooth join's side
-    blends.rs
-    sheet_metal.rs   developable thin-wall bodies as flanges and bends, unfolded into a flat pattern
-                     (its own planar-face triangulation) checked for overlap
-    solid_properties.rs  a solid's box, validity, volume and area (`_solid_properties`), read
-                     from the per-face values `Part` caches
-    recess_records.rs  the Slot, Pocket and Channel records, and `Recess`, what the reductions
-                     read of a slot or pocket
-    recess_faces.rs  the planar faces and principal cylinders the recess families pair, floor
-                     caps, side walls (`_recess_faces`)
-    recess_reduce.rs proposals with their faces: co-located merge, collinear arms rejoined,
-                     body keys (`_recess_reduce`)
-    recess_obround.rs  half-cylinder end caps: obround recesses recovered from them, wall-found
-                     ones extended to them (`_recess_obround`)
-    recess_radii.rs  the four-corner radius proof (`_recess_radii`)
-    wire_seed.rs     the neighbours on a face's inner wire (`_wire_seed`)
-    recess_core.rs   the wall-pair candidates, corner notches, and each family's per-solid scan
-                     (`_recess_core`)
-    slots.rs  pockets.rs  channels.rs
-    pattern_geometry.rs  linear arrays and rectangular grids among any located records, shared by
-                     the pattern families (`_pattern_geometry`)
-    recess_patterns.rs  slot and pocket arrays and grids (`_recess_patterns`)
-    repeating_profiles.rs  complete outer wires repeating under one sector rotation, measured
-                     along each edge's exact arc length (`Edge.position_at`)
-    freeform_surfaces.rs  native B-spline supports as OpenCascade's reader holds them (closed
-                     pole rows made periodic), continuity links, thin-wall offset partners
-    modelled_threads.rs  sampled helical flanks and boundaries, measured thread parameters,
-                     explicit refusals, and claims removed from aggregate freeforms
-    experimental_geometry.rs  the read-only geometry facade (`GeometryGraph`): a solid's or the
-                     part's faces with their readings, effective analytic surfaces, blend facts
-                     and the support bridges selected blend chains collapse to
-    geometry_evidence.rs  occurrences issued from facade faces, published only on one valid solid
-    polygonal_bosses.rs  regular square/hexagonal bosses and hexagonal whole stock
-    volume_probe.rs  axis-aligned prism probes (`prism_is_empty`) over haecceity's volume.rs
-    sections.rs      canonical line/arc sections, run-local frames, body references and the
-                     published occurrence shape (`_sections`), with Python's refusals
-    support_patches.rs `covered_patch` over haecceity's cover.rs, and the polygon faces and
-                     polyhedra (ruled prisms, convex cells) the section proofs build
-    entry_treatments.rs planar entry bevels that explain a wall ring's missing patches
-    section_passages.rs constant-section planar-wall rings on any run (`section_ring_proposals`),
-                     the proposals passages and oriented slots will publish from
-    rings.rs         closed principal-axis rings of planar walls, their sections, spans and
-                     caps (`_rings`), for passages and prismatic pockets
-    passage_compat.rs the legacy `Passage` view of a section passage (`_passage_compat`)
-    passages.rs      section passages and the frozen legacy roster they must reproduce
-    cylindrical_seats.rs  open at-most-semicircular cylindrical troughs proved on original faces
-    cylindrical_end_surface.rs  a cylinder branch as a section end's height over the section
-    plane_envelope_passages.rs  polygonal passages through a convex two-plane roof
-    section_recess.rs  the section-recess records and their validation (`_section_recess`)
-    section_recess_geometry.rs  section-recess candidates from seats, intact floors and the
-                     cylindrical and plane-envelope proofs, and their published geometry
-    section_recess_discovery.rs  the candidates numbered as section-recess records
-    section_recess_family.rs  the aggregate's section-recess projection over a reconciled run
-                     (`recognise_section_recesses`, `build_section_recess_document`): legacy
-                     recess records projected, corner-notch and open-channel proofs (with
-                     support apertures), de-duplication, refusals and patterns
-    cylindrical_channels.rs  three-support channels ending on a native bore, and the exact
-                     cell (a polygon swept between planes or cylinder branches) the three
-                     cylindrical proofs build and probe
-    cylindrical_pockets.rs  polygonal pockets whose open end is a native cylinder
-    cylindrical_passages.rs  polygonal passages ending on a native cross-bore
-    prismatic_pockets.rs  rings capped at one end, and rings a mouth treatment interrupted,
-                     recovered from their mouth or their floor and proved by swept-section probes
-    pads.rs          rectangular raised pads on their four walls, sharp or corner-blended, each
-                     top's material side certified (`_effective_surfaces`)
-  frames.rs          part-relative recognition (`quiddity.frames`): the frame inferred from the
-                     part's plane normals and cylinder axes, the part re-read into it, recognised
-  framed_records.rs  records found in the frame carried back to the file's coordinates, fields
-                     with no file axis left in the frame and labelled
-  evidence_view.rs   the recognition evidence view (`build_recognition_evidence`): accepted
-                     features' defining, constituent and host faces, pattern members, and the
-                     rejected-candidate projection, as plain indices
-  correspondence/    revision matching (docs/correspondence.md): fingerprint.rs (features and
-                     faces), align.rs (rigid alignment), assign.rs (Hungarian with an
-                     unmatched option), faces.rs (seeded propagation), mod.rs (`correspond`)
-  pmi_json.rs        the versioned JSON form of haecceity's PartPmi, both directions: values
-                     as stated decimal text with their units, anchors as face and edge numbers
-                     bound to the file's sha256 and the reader version, enums as standard
-                     terms; refusals name the JSON path; a write's report
-  recognition.rs     the versioned recognition document for draftwright (`quiddity-rust/
-                     recognition/5`): the part's frame, complete face accounting,
-                     and per feature its family, Python
-                     record type, faces, record and the fields left in the frame
-  serve.rs           `quiddity serve`: recognise and correspond as a JSON-lines service, each
-                     request's id echoed, failures as structured errors
-  bin/quiddity.rs    `quiddity part.step` → JSON with fingerprints and the document;
-                     `quiddity correspond old new` → the correspondence as JSON;
-                     `quiddity serve` → serve.rs on stdin/stdout;
-                     `quiddity parts`, `quiddity pmi read`, `quiddity pmi check` → PMI JSON;
-                     `quiddity pmi write` → AP242 PMI added, replaced or removed, verified by
-                     reading the output back, and the write's report
-tests/
-  captured.rs        replays every recogniser call the Python test suite makes
-  corpus.rs          every ported recogniser over the shared 100-file STEP corpus
-  modelled_threads.rs measured corpus threads, left-hand/multiple starts, physical negatives,
-                     refusals, document fields and rigid mapping
-  evidence.rs        fillet defining faces and evidence refusals on hand-built cases
-  invariance.rs      every corpus part moved and turned: each family must find the same faces;
-                     and under a generic rotation, recognised in its own frame; repeating
-                     radial profiles (none in the corpus) on their captured parts
-  frames.rs          the frames Python derives (fixtures, corpus, Python's frame-test parts),
-                     as read and under a generic rotation, the frame moving with the part, and
-                     the re-read part's faces being the caller's
-  correspondence.rs  every corpus part corresponds with itself moved, everything carried; the
-                     build123d revision pairs get their expected classes
-  effective_surfaces.rs every face's effective fact, recovery lengths and material side against
-                     Python's (tests, fixtures, corpus), and unchanged under rigid motion
-  sections.rs        the section helpers' captured calls (values, covered patches, ring
-                     proposals and entry treatments on test parts, fixtures and the corpus)
-  passages.rs        the passage entry points' captured calls (captured/passages/calls.json),
-                     and rings, legacy roster, records, defining walls and compatibility calls
-                     on test parts, fixtures and the corpus
-  section_recess_helpers.rs  seat and envelope-passage proofs and cylindrical end values against
-                     Python's captured calls, and the proofs under the invariance motions
-  section_recess.rs  every captured section-recess record construction rebuilt (dictionary or
-                     refusal), and the geometric records moved
-  section_recess_geometry.rs  section-recess candidates, floor readings, projections and floor
-                     questions against Python's captured calls, and under rigid motion
-  section_recesses.rs  `build_section_recess_document` against Python's on test parts, fixtures
-                     and the corpus, item by item
-  prismatic_pockets.rs  prismatic pocket walls and consulted floors on Python's evidence-test
-                     parts
-  local_degradation.rs  which corpus parts take Python's local-degradation retry and what it
-                     skips there, against the port's evidence paths and `recognise`, and
-                     under rigid motion
-  step_levels.rs     step levels and the aggregate's risers (records, faces, proofs, what
-                     `inventory` and `recognise` carry) against Python's over the corpus
-  reconcile.rs       every reconciliation decision Python's inventory makes over the corpus and
-                     13 synthetic scenarios, against the port's decisions, and under rigid motion;
-                     the accepted records against Python's
-  recognition_evidence.rs  the evidence view against Python's over the corpus (features,
-                     candidates, refusals), and under rigid motion
-  pads.rs            each pad's top and four walls on Python's evidence-test parts and the golden
-                     fixture; tolerances the capture cannot record (NaN, infinity)
-  corpus_files.rs    the corpus on disk is the one corpus.json was exported from (quiddity
-                     revision, every file and its sha256)
-  determinism.rs     every corpus part's recognition (what the CLI prints, document included) and
-                     correspondence JSON byte for byte the same twice in one process (fresh
-                     hash seeds)
-  wiring.rs          every family's defining faces wired, and every record field given a role
-                     in the fingerprint table, over the fixtures and the corpus
-  recognition.rs     the document: a record type for every family, order, faces, round trip,
-                     labels; over the corpus, moved and turned (carried back) and against
-                     caller-space recognition (known_framed_document.json)
-  section_recess_publication.rs  the published section recesses against Python on draftwright's
-                     30 quality parts, caller/inferred-frame publication, and byte preservation
-                     of the previous Features JSON and both documents (SHA256 baselines)
-  cli.rs             the binary's usage, exit codes and refusal of broken STEP files
-                     (fixtures/broken/), for every subcommand
-  serve.rs           `quiddity serve`: results equal to the CLI's, every error code, many
-                     requests on one stream, the same bytes twice
-  pmi_cli.rs         `parts`, `pmi read`, `pmi check` and `pmi write` on the AP242 fixtures (and
-                     every NIST AP242 file with HAECCEITY_NIST_PMI): the JSON equals the reader's
-                     model, every read part round trips through JSON with stable bytes, inch
-                     values keep their text, deterministic output, refusals with the JSON path;
-                     read → write replace → read through the CLI against the writer's pins
-                     (known_pmi_write.json "roundtrip"), add then remove on a corpus part,
-                     refusals that create nothing
-  common/parallel.rs the corpus loops' per-file work on every core, results in corpus order
-  fixtures/          STEP parts and Python's recorded answers, shared by both crates
-crates/haecceity/tests/
-  patches.rs         every covered_patch question Python asks over the corpus, answered by
-                     cover.rs (tools/capture_patches.py records them)
-  probes.rs          every volume probe Python's recognisers ask over the corpus, answered by
-                     volume.rs (tools/capture_probes.py records them)
-  face_areas.rs      every corpus face's area against OpenCascade's, and against itself moved
-                     (tools/capture_face_areas.py records them)
-  classify.rs        point classification against OpenCascade's at 300 seeded points per corpus
-                     file, every clean ray agreeing on parity (tools/capture_classify.py)
-  kernel.rs          kernel behaviour on real parts
-  drawings.rs        projections and section views against OpenCascade's drawings
-                     (tools/capture_hlr.py, tools/capture_section.py record them)
-  p21.rs             Part 21 documents byte for byte, edits confined to their spans, over the
-                     fixtures, the corpus and the NIST files
-  express.rs         the schema tables against their sources, hand-written valid and invalid
-                     instances, every NIST file's violations (pinned)
-  face_sources.rs    face and edge source instances against OpenCascade's, per part
-                     (known_face_sources.json)
-  pmi_read.rs        the PMI reader against NIST's expected PMI, OpenCascade's reading and
-                     specify-core's intent (known_pmi.json); every file read and accounted for
-                     (ap242/read/findings.json); inch values keep their text; assemblies;
-                     determinism; the model's invariants; threads, knurls, tables, material,
-                     standards and bad references on hand-built additions
-  pmi_draftwright.rs everything draftwright reads is in the model (known_pmi_draftwright.json)
-  removal.rs         the removal plan with both presentation policies on every NIST file
-                     (ap242/removal/: counts pinned, kept instances byte-identical) and a
-                     hand-made fixture
-  express_rules.rs   the named rules on hand-written valid and invalid files (ap242/rules/) and
-                     every NIST file's violations (known_nist_rule_violations.json)
-  pmi_write.rs       the PMI writer: one test per anti-requirement, add keeping every original
-                     byte, remove, refusals, determinism, specify-core's intents onto the
-                     original corpus files and OpenCascade's reading of written files
-                     (known_pmi_write.json, ap242/write/)
-  pmi_roundtrip.rs   read → replace → read over every NIST file and specify-core input, values
-                     as stated (known_pmi_write.json "roundtrip")
-crates/haecceity/examples/
-  hlr_compare.rs     the drawings comparison, every score printed, with listings of the
-                     curves either side draws differently
-tools/
-  capture_probes.py  records every volume probe Python asks over the corpus
-  capture_patches.py records every covered_patch question Python asks over the corpus
-  capture_face_areas.py records OpenCascade's area of every corpus face
-  capture_classify.py records OpenCascade's classifier state at seeded points of every corpus part
-  face_area_evidence.py independent areas over the 3D edges, the evidence for face-area verdicts
-  known_face_areas.py writes known_face_areas.json from face_areas.rs's differences
-  capture_hlr.py     records OpenCascade's hidden-line projection of every corpus part
-  capture_section.py records draftwright's section view of every corpus part
-  drawing_evidence.py OpenCascade's plane sections, classifier and rays, the evidence for
-                     drawing verdicts its booleans or hidden-line output cannot give
-  capture_plugin.py  pytest plugin that records the Python suite's recogniser calls
-  export_corpus.py   records Python's answers over the corpus, with the quiddity revision and
-                     each corpus file's sha256 (_provenance.py; the capture tools record the
-                     revision too)
-  export_fixtures.py hand-built fillet evidence cases
-  express_table.py   generates crates/haecceity/src/express_table.rs from the AP242 long forms
-  capture_face_sources.py records OpenCascade's face and edge instances per part
-  nist_expected.py   NIST's expected PMI (tests/fixtures/ap242/nist/*.expected.json) from the
-                     STEP File Analyzer's spreadsheets
-  capture_pmi_occt.py records OpenCascade XCAF's PMI reading (tests/fixtures/ap242/occt/)
-  capture_pmi_draftwright.py records draftwright's PMI extraction (tests/fixtures/ap242/draftwright/)
-  make_specify_inputs.py runs specify-core on corpus parts (tests/fixtures/ap242/specify/)
-  check_pmi_occt.py  records whether specify-core's loader and XCAF open the writer's files,
-                     and XCAF's reading of them (tests/fixtures/ap242/write/)
-  capture_revisions.py builds the revision pairs in build123d, with their expected classes
-  capture_sections.py records the section helpers' calls in their Python tests, and their ring
-                     proposals over those tests' parts, the golden fixtures and the corpus
-                     (captured/sections/)
-  capture_passages.py records rings, the legacy roster, section passages and their compatibility
-                     calls on the passage tests' parts, fixtures and the corpus
-                     (captured/passages/helpers.json.gz)
-  capture_section_recess_helpers.py records the seat, envelope-passage and cylindrical-end
-                     calls (captured/section_recess_helpers/)
-  capture_section_recess.py records every section-recess record construction in the
-                     section-recess tests and the corpus documents (captured/section_recess/)
-  capture_section_recess_geometry.py records the section-recess candidates, floor readers,
-                     projections and floor questions (captured/section_recess_geometry/)
-  capture_section_recesses.py records `build_section_recess_document` on the section-recess
-                     tests' parts, fixtures and the corpus (captured/section_recesses/)
-  capture_effective_surfaces.py records `_effective_surfaces`'s answers for every face of its
-                     consumers' test parts, the golden fixtures and the corpus
-                     (captured/effective_surfaces/)
-  capture_local_degradation.py records which corpus parts take Python's local-degradation retry
-                     and every record it skips there (captured/local_degradation/)
-  capture_step_levels.py records Python's step levels and aggregate risers over the corpus, with
-                     their faces and proofs (captured/step_levels/)
-  capture_reconcile.py records every disposition Python's default inventory makes over the
-                     corpus, and synthetic scenarios (captured/reconcile/)
-  capture_evidence.py records Python's recognition evidence view over the corpus
-                     (captured/recognition_evidence/)
-  capture_frames.py  records Python's part frames (captured/frames.json, the built parts as
-                     STEP in captured/frames/); --compare runs a Python recogniser on a corpus
-                     part's framed working part, as read and turned
+
+`--diff` decompresses the expectations for review; use `--file corpus.json.gz` to narrow it.
+Review record counts, defining/constituent faces, refusals, dimensions, order, frame and PMI
+changes, together with the source change and independent tests. Commit regenerated gzip files
+and provenance in the same change. `--check` regenerates into a temporary directory and
+requires byte-identical compressed output on HEAD. CI adds `--coverage-only`: the Rust
+comparisons retain their original numeric bands across platforms, and the produced-file
+inventory must match exactly, so orphaned snapshots fail. Normal tests only read expectations.
+
+Every recorded recognition call is replayed with its original options and record arguments.
+The corpus retains every family/option/evidence run and now also snapshots the public
+recognition document and fingerprints, plus Rust kernel inventory, masses, UV bounds and arcs. Other replays cover fillet manifests, frames,
+effective surfaces, outer profiles, sections, patches, passages, geometry proofs,
+section-recess records/documents/publication, face levels/risers, reconciliation,
+recognition evidence, degradation, volume probes and semantic PMI. Inputs that a former capture
+could not export remain documented as unavailable, rather than being invented.
+
+Comparison bands are unchanged: record numbers use 1e-6 absolute/relative; manifest fillet
+records compare exactly; frames use 1e-9 for axes and 1e-9 of part size for origins; PMI uses
+1e-9; kernel mass uses 1e-9 relative and analytic face boxes keep their 5e-3 + 1e-6 band and existing exemptions; probes retain exact empty, 1e-9 full, and 1e-6 fraction comparisons. Section proposal
+ordering still allows only the existing round-off ties. Strings, refusal outcomes, structure,
+and array lengths must agree. Compressed files have a fixed gzip timestamp.
+
+## Independent references by family
+
+**F** is the separately maintained historical Rust inventory floor, with positive coverage
+for every listed family (`tests/internal/inventory_floor.rs`, `tests/fixtures/inventory_floor.json`).
+Its loss allowances retain their analytic/OpenCascade evidence. **L** is the independent
+MFInstSeg/MFCAD++ class mapping and MFInstSeg ratchet (`tests/internal/mfinstseg.rs`,
+`tests/fixtures/mfinstseg_mapping.json`). Label mappings are coarse and do not validate every
+subtype. The corpus motion suite (`tests/internal/invariance.rs`) additionally checks the recognition
+and correspondence families it exercises; motion alone cannot detect a missing feature.
+No new independent references are claimed for legacy value-only helpers.
+
+| Family | Independent references |
+|---|---|
+| `angled_steps` | F; L |
+| `blends` | F |
+| `bosses` | F |
+| `chamfers` | F; L; analytic rolled planes (`src/features/chamfers.rs`) |
+| `channels` | F; L |
+| `circular_blind_steps` | F; L; analytic supporting planes (`src/features/circular_blind_steps.rs`) |
+| `circular_face_patterns` | F |
+| `countersinks` | F |
+| `double_d_bores` | F; analytic wall claims + motion (`tests/internal/evidence.rs`) |
+| `edge_open_circular_pockets` | F; analytic floor/hole claims (`tests/internal/evidence.rs`) |
+| `edge_open_prismatic_recesses` | F; analytic wall/floor claims (`tests/internal/evidence.rs`) |
+| `fillets` | F; L; analytic rolled supports (`src/features/fillets.rs`) |
+| `flats` | F |
+| `freeform_surfaces` | F |
+| `grooves` | F |
+| `gusset_rib_patterns` | F |
+| `gusset_ribs` | F; analytic cap/slant claims (`tests/internal/evidence.rs`) |
+| `hole_patterns` | F |
+| `holes` | F; L; analytic counterbores + motion (`tests/internal/tie_breaks.rs`) |
+| `interior_voids` | F; analytic bounded-air fixtures (`src/features/interior_voids.rs`) |
+| `modelled_threads` | F; analytic thread fixtures (`tests/internal/modelled_threads.rs`) |
+| `oblique_through_steps` | F; L |
+| `oriented_chamfers` | F |
+| `oriented_slot_patterns` | F |
+| `oriented_slots` | F; L |
+| `pads` | F; analytic pad fixtures (`tests/internal/pads.rs`) |
+| `paired_ramp_steps` | F; L |
+| `plates` | F |
+| `pocket_patterns` | F |
+| `pockets` | F; L |
+| `polygonal_bosses` | F |
+| `polygonal_stock` | F |
+| `prismatic_pockets` | F; L; analytic prism fixtures (`tests/internal/prismatic_pockets.rs`) |
+| `rectangular_blind_slots` | F; L |
+| `repeating_radial_profiles` | F |
+| `risers` | F |
+| `round_bottom_blind_slots` | F; L |
+| `section_passages` | F; L |
+| `section_recess_patterns` | F; member-face unions + motion (`tests/internal/section_recess_publication.rs`, `tests/internal/section_recess.rs`) |
+| `section_recesses` | F; geometry publication and motion (`tests/internal/section_recess_publication.rs`, `tests/internal/section_recesses.rs`) |
+| `sheet_metal_bodies` | F |
+| `slot_patterns` | F |
+| `slots` | F |
+| `step_levels` | F |
+| `thin_wall_bodies` | F |
+| `through_steps` | F; L |
+| `turned_steps` | F |
+| face levels (legacy `recognise_face_levels`) | **snapshot only** |
+| passages (legacy roster) | **snapshot only** |
+| planar outer profiles | analytic directed supports, source-edge correspondence, motion (`tests/internal/outer_profiles.rs`) |
+| effective surfaces | OCCT areas/perimeters and recovery lengths; material orientation, dependency consistency, motion (`tests/internal/effective_surfaces.rs`) |
+| sections / cylindrical / end-surface geometry | OCCT clipped-cell/envelope volumes and face coverage; motion (`tests/internal/section_geometry.rs`, `tests/internal/section_recess_geometry.rs`, `tests/internal/section_recess_helpers.rs`); value-only helpers: **snapshot only** |
+| face accounting | analytic stock/feature controls, motion (`src/body.rs`), complete golden/corpus partition (`tests/face_accounting.rs`), MFInstSeg stock/feature labels |
+| frames | motion equivariance, inverse point transforms, caller/working-face identity (`tests/internal/frames.rs`) |
+| correspondence | handwritten analytic revision intent (`tests/fixtures/revisions/expected.json`), motion (`tests/internal/correspondence.rs`, `tests/internal/invariance.rs`) |
+| mass / face integrals | OpenCascade-measured corpus, body bounds/volume/area (`tests/occt_body_measurements.rs`), area and moment ledgers; analytic surfaces; live OCCT (`tests/internal/corpus.rs`, `crates/haecceity/tests/face_{areas,moments,integrals}.rs`, `tools/check_face_integrals.py`) |
+| volume probes / face patches | OCCT common/probe volumes and exact face booleans (`crates/haecceity/tests/probes.rs`, `crates/haecceity/tests/patches.rs`, `tests/internal/sections.rs`), existing evidence verdicts |
+| PMI read/write | NIST expectations, stated design intent, OCCT XCAF, analytic writer fixtures, semantic round trips (`crates/haecceity/tests/pmi_{read,write,roundtrip}.rs`, `tests/pmi_cli.rs`) |
+
+OpenCascade and analytic ledgers now live in `tests/fixtures/references/`; their executable
+checks and tolerances remain. Direct OCCT captures under `ap242/occt` and `ap242/written/occt`
+are independent measurements, not Python recognition expectations. The read-only live
+cross-checks (`tools/check_face_integrals.py`, `tools/check_pmi_occt.py`) remain available.
+
+## Labelled accuracy
+
+`examples/mfinstseg_score.rs` compiles the same private Rust engine as the library and
+retains the original caller-space evaluation semantics and committed class mapping. No feature flag is required:
+
+```sh
+cargo run --release --example mfinstseg_score -- DATASET IDS.txt OUT.json 6
+QUIDDITY_MFINSTSEG=/path/to/MFInstSeg cargo test --release --lib regression_tests::mfinstseg
 ```
+
+MFInstSeg has `steps/` and `labels/`; for MFCAD++ pass its STEP directory and append
+`--mfcadpp`. Only defining faces count. Identical face sets are deduplicated; instance
+matching is one-to-one at IoU >= 0.5; empty denominators score zero. Incomplete instance
+labels retain semantic metrics. Input failures remain misses. Dataset files stay external;
+use `tools/update_mfinstseg_baseline.py` only for non-regressing improvements.
 
 ## Running
 
-```
+```sh
 cargo build --release
-./target/release/quiddity part.step > part.json            # records, fingerprints, document
-./target/release/quiddity correspond old.json new.json      # or two STEP files
-./target/release/quiddity serve < requests.jsonl             # JSON lines, see below
-./target/release/quiddity parts part.step                   # distinct parts and the binding
-./target/release/quiddity pmi read part.step [--part N]     # semantic PMI and findings as JSON
-./target/release/quiddity pmi check part.step pmi.json      # a PMI document checked against the file
-./target/release/quiddity pmi write part.step pmi.json -o out.step [--mode add|replace|remove] \
-  [--presentation refuse|remove]                            # AP242 PMI written, verified, reported
-QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release --features python-parity
-# corpus tests read ../quiddity/tests/corpus or $QUIDDITY_CORPUS; without
-# QUIDDITY_CORPUS_REQUIRED=1 they pass by skipping when the corpus is missing
-QUIDDITY_CORPUS=off cargo test --workspace --release --features python-parity
-# a quick local run: the corpus tests skip (most of the suite's time); run the
-# whole suite before pushing, as CI does
-HAECCEITY_NIST_PMI=<NIST-PMI-STEP-Files> HAECCEITY_NIST_PMI_REQUIRED=1 \
-  cargo test --release -p haecceity --test p21 --test express --test face_sources --test pmi_read \
-  --test pmi_write --test pmi_roundtrip
-# the AP242 tests read all 17 NIST AP242 test files from that directory (NIST's
-# NIST-PMI-STEP-Files.zip); without it they check the 7 committed ones; tests/pmi_cli.rs
-# reads it too
+cargo run --release -- part.step
+cargo run --release -- correspond old.step new.step
+cargo run --release -- parts part.step
+cargo run --release -- pmi read part.step
+cargo run --release -- pmi check part.step pmi.json
+cargo run --release -- pmi write part.step pmi.json out.step
+cargo run --release -- serve
 ```
 
-`quiddity` exits 0 with the JSON on stdout; 1 with the error on stderr when a file cannot be
-read, a PMI document is refused, or a write is refused or does not verify; 2 with the usage on
-stderr for bad arguments (`-h`/`--help` prints it on stdout and exits 0).
-A STEP file is refused, never recognised as empty, when it does not parse (a cut-off
-write), has no solid or shell, has shape geometry or topology that is missing or that step-io
-dropped (a deleted face, a file cut at an entity and closed), or has a closed edge whose curve
-the kernel cannot resolve. A face or open edge whose geometry does not resolve is kept and
-recorded (`Part::unresolved_faces`, `unresolved_edges`): its solid is not valid, so its
-features are not recognised, `hlr` refuses to draw the part, and the CLI warns on stderr. Python
-(OpenCascade) reads a file with a deleted face as a loose shell, and resolves offset surfaces,
-which this kernel does not model. A hyperbola edge is read exactly, as a rational quadratic arc
-between its vertices.
+The CLI emits JSON. Exit 0 means success, 1 means unreadable input or a refused operation,
+and 2 means invalid usage. `serve` exchanges one JSON request/response per line:
 
-`pmi write` writes every part the document lists in one edit: `add` (the default) beside the
-part's PMI, `replace` in place of it (afterwards `pmi read` gives the document's PMI), `remove`
-(each part's `pmi` must be `{}`). Every byte the edit does not concern is kept; an AP214/AP203
-file that gains PMI becomes AP242 only if all its instances are valid AP242 (else refused,
-naming them). Replace and remove take the replaced PMI's presentation with it
-(`--presentation remove`, the default, each instance listed in the report) or refuse naming it
-(`--presentation refuse`). The output goes to a temporary file beside `out.step` (gzipped for a
-`.gz` name), is read back and compared semantically with what was written (add: the part's PMI
-before plus exactly the new items; replace, remove: exactly the document's, and nothing the
-reader consumed for the part survives; other parts and findings as before), and is renamed to
-`out.step` only then (an existing `out.step`, the input itself included, is then replaced in
-place, through a symbolic link to its target, keeping its permissions). In add, a standard the
-part already states is not written again; a feature equal to one the part has is written as a
-second shape aspect, which reads back as that feature; a second material is refused by the
-read-back (the reader finds two material names). The report (`"format": "quiddity-pmi-write"`) gives the parts written,
-the input's and the output's bindings (so the output can be read and written again), instance
-counts (added, replaced, removed), the presentation removed by id and type, the `FILE_SCHEMA`
-kept or changed, the datum feature symbols written, the edition table used, the original's
-schema and rule violations (reported, not repaired) and the findings of reading the output.
-Exit 1, creating nothing, for: a document bound to another file or reader, items the writer
-does not write (datum targets, tolerance relations, notes, general tolerance tables, material
-density, …, each named by part and item), a value that is not a Part 21 REAL (`62.`, not `62`),
-presentation blockers under `--presentation refuse`, an edition upgrade refused, or a read-back
-that differs.
-
-The PMI JSON (`src/pmi_json.rs` describes the form) is a document `{"format": "quiddity-pmi",
-"version": 2, "binding": {"sha256", "reader"}, "parts": [{"part", "name", "pmi"}],
-"findings": [...]}`. Every value is `{"value": "<decimal text as stated>", "unit": "mm"|"in"|
-"deg"|...}`, never a JSON number; anchors are `{"face": n}` / `{"edge": n}` in the numbering
-`quiddity parts` reports, from 0; references between items are indices into the part's lists;
-tolerance kinds are ISO 1101's names, fits `{"deviation": "H", "grade": "IT7"}`, schema
-enumerations their lower-case EXPRESS values; a size or location kind, zone form or qualifier the
-practice does not list is `{"other": "<name>"}`, so a misspelt standard term is refused rather
-than kept as a name. `binding.sha256` is the sha256 of the STEP text
-(after gunzip for a `.gz` file) and `binding.reader` the reader version: `pmi check` refuses a
-document bound to another file or reader, an unknown field or term, a key named twice, a face or edge the part
-does not have, or a violated model invariant, naming the JSON path. `pmi read --part N` keeps
-the findings of part N and those of no part. A tessellated-only file (no B-rep part to anchor
-PMI to) is refused, not read as empty.
-
-`quiddity serve` reads one JSON request per line on stdin and writes one response line per
-request on stdout, in order, until stdin ends (`src/serve.rs` has the protocol):
-
-```
-{"id": 1, "op": "recognise", "step": "part.step"}
-{"id": 2, "op": "correspond", "old": "old.step", "new": {...a recognise result...}}
+```json
+{"id":1,"op":"recognise","step":"part.step"}
 ```
 
-A success is `{"id": …, "result": …}`, the result being exactly what `quiddity part.step` or
-`quiddity correspond` writes (with `"warnings"` when geometry did not resolve). A failure is
-`{"id": …, "error": {"code": …, "message": …}}`, with codes `bad_json`, `bad_request`,
-`missing_field`, `unknown_op`, `unreadable`, `broken_step` (the CLI's STEP refusals),
-`bad_document` and `internal` (a panic, caught; the server keeps serving). Python quiddity has
-no such service; its correspondence API (opaque receipts) differs in shape, and the Rust
-documents are kept.
+PMI JSON binds decimal values and face/edge anchors to the exact STEP text and reader version.
+Writes support add, replace and remove, preserve unrelated text, validate schema/practice,
+and verify semantics by reading back before replacing the destination. See
+[src/pmi_json.rs](src/pmi_json.rs) and [AP242 practice](docs/step-ap242.md).
 
-The corpus must be quiddity's at the revision `tests/fixtures/corpus.json` records
-(`quiddity_revision`), which CI checks out; `tests/corpus_files.rs` fails on any file added,
-missing or changed. After re-exporting at a new revision, update the `ref:` in
-`.github/workflows/ci.yml` to match.
+The 100-file corpus is pinned by path and SHA-256 in `tests/fixtures/corpus.json`. CI checks
+out only those input files at its recorded input-repository revision; it does not run Python
+recognition or capture steps. Export `QUIDDITY_CORPUS` locally. CI requires it; developer runs
+without a corpus may skip corpus work. The full release suite must include it. Additional
+NIST AP242 files can be checked by exporting `HAECCEITY_NIST_PMI` and
+`HAECCEITY_NIST_PMI_REQUIRED=1`; committed NIST fixtures always run.
 
-The corpus tests spread their parts over every core (`tests/common/parallel.rs`) and report in
-corpus order. CI runs the suite in 15 shards per platform, one test at a time, dealt by each test's
-time in a recent run (`.config/test-times.json`, written by `tools/ci_durations.py RUN`; a test
-missing from it counts as one second, so refresh it after adding a costly test): 11 to 16
-minutes from push on Linux, and 23 to 29 on macOS, which runs five jobs at a time (runs
-38017180699 to 38031639949). Pins
-that depend on float round-off across a threshold (`faces_at_most` in `known_correspondence.json`)
-are set so CI's Linux job passes: Linux is the reference platform for them, and macOS may give a
-different count within the bound. CI runs the suite on macOS as well, so the bounds must hold there too.
+## Layout
 
-## How a family is ported
+- `src/`: recognition, frames, feature records, fingerprints, correspondence and CLI.
+- `crates/haecceity/`: STEP/Part 21, geometry, validity, integrals, drawings and semantic PMI.
+- `tests/`: automatically discovered public integration tests.
+- `tests/internal/`: private geometry/reference and snapshot unit tests, registered in `mod.rs`.
+- `tests/fixtures/captured/`: preserved legacy test inputs and query arguments.
+- `tests/fixtures/references/`: independent measured ledgers and motion exceptions.
+- `tests/fixtures/rust-snapshot/`: Rust-owned expectations and provenance.
+- `tools/rust_snapshot.py`: the single snapshot regeneration/check/review tool.
+- `docs/history/python-parity.md`: archived verdicts, evidence and source commits.
 
-1. **Capture Python's behaviour.** From the quiddity checkout, run its tests for the family
-   with the capture plugin (add the function to `QUIDDITY_CAPTURE`):
+Kernel limitations and historical findings remain documented in the source and reference
+ledgers. Approximate boundaries, malformed solids, unsupported surfaces and ambiguous
+geometry can yield explicit refusals or unproved claims. A successful parse is not a guarantee
+that every family is recognised. Refer to the trust contract before consuming such claims.
 
-   ```
-   PYTHONPATH=../quiddity-rust/tools \
-   QUIDDITY_CAPTURE=recognise_fillets,recognise_holes,recognise_hole_patterns,recognise_countersinks,<new> \
-   QUIDDITY_CAPTURE_OUT=../quiddity-rust/tests/fixtures/captured \
-   .venv/bin/python -m pytest -p capture_plugin -p no:cacheprovider <test files>
-   ```
+See [Notes on matching OpenCascade](docs/opencascade.md) for reader healing and boundary rules.
 
-   Every call whose arguments are a part plus plain options (or records) is stored with the
-   part as gzipped STEP and Python's answer on the re-imported STEP. Add the family to
-   `tools/export_corpus.py` and rerun it.
-2. **Port the module** into `src/features/<family>.rs`: a public `recognise_<family>(part,
-   opts)` returning records that serialise to the same JSON as the Python dataclass, and a
-   `discover(ctx, …) -> Vec<Occurrence<Record>>` that takes the shared `Context`. Reuse
-   `Context` for anything a second family will also need (put it there rather than recomputing).
-3. **Wire it in**: the module in `src/features/mod.rs` (and, for a family with occurrences,
-   a `Features` field filled in `recognise`), the entry point re-exported from `src/lib.rs`,
-   match arms in `tests/common/mod.rs` (`recognise`, and `defining` for an evidence path), a
-   `#[test]` in `tests/captured.rs`, and a row in the table above. `tests/invariance.rs` and
-   `tests/correspondence.rs` take the family from `Features`.
-4. **Explain every difference** that remains in the relevant `known_divergences.json`. An entry
-   names its difference exactly (the corpus: file, family and problem key, optionally limited to
-   listed faces when one key's faces need different verdicts; captured calls: test node, file
-   and options) with how many problems it covers; the tests fail on any unexplained
-   difference, on a count that changed, and on two entries for one difference, and a failing
-   run prints the entries it needs (the formats are described at the top of `tests/corpus.rs`
-   and `tests/captured.rs`).
+## Known defects
 
-Float comparison: values must agree to one part in a million (sub-micron at part scale);
-Python-rounded fields agree exactly. Below that the kernels' parameter-range arithmetic
-differs in its last digits.
-
-## Beyond parity
-
-Matching Python is a stepping stone; the goal is the right answer. Every listed difference (the
-verdict files in the table above) carries a `verdict`: `rust-correct` (the port has the true
-geometry, and the reason gives the evidence), `rust-wrong` (a port limitation), `equivalent`
-(one geometry, two representations), `undetermined`, or `not-applicable`. The tests refuse an
-entry without one.
-
-`tests/invariance.rs` checks what Python cannot vouch for: every corpus part is re-read moved by
-a translation and right-angle rotations (`read_step_placed`), and each family must find the same
-features on the same faces (every `Features` family by its defining faces, and face levels and
-risers, which are read along world Z, by the faces each is read from under the motions that keep
-Z vertical). Each listed exception pins the most occurrences it may differ by. Reflections are
-refused by the reader for now, which rebuilds frames right-handed.
-
-Recognition by default is in the part's own frame and reported in the file's coordinates (the
-maintainer's decision on review M8): `correspondence::recognise(&Part)`, which the CLI, `quiddity
-serve` and the recognition document use, infers the frame (`src/frames.rs`, Python's
-`quiddity.frames`) from the part's plane normals and cylinder axes, ranked by area and by where
-the faces sit about the part's centroid, transforms the loaded part in memory, recognises it there,
-and carries every record back (`src/framed_records.rs`): points by the frame, directions by its
-rotation, axis letters and coordinates along them exactly where the frame's axes are the file's
-up to order and sign. Where they are not, those fields stay in the frame and the document lists
-them per record (`local`), with the frame itself (`quiddity-rust/recognition/5`). A part with no
-frame (no plane or cylinder, no material) is recognised as placed, with a warning.
-
-Parity is still checked where Python's entry points work: `features::recognise` and every
-`recognise_<family>` stay caller-space, as Python's do, behind the non-default
-`python-parity` Cargo feature. Discovery, inventory, context construction, evidence builders
-and lower-level feature algorithms are behind the same feature; record types keep their public
-paths. This hidden API is test-only and unsupported; the parity tests
-(`corpus.rs`, `captured.rs`, `invariance.rs`) require that feature and call them. Production
-consumers use `correspondence::recognise`; feature record types remain public. There is no
-reader closure or second STEP read, and `recognise_placed` has been removed.
-`tests/frames.rs` checks the frame against Python's on
-every fixture and corpus part, as read and turned, that it moves with the part, and that the
-working part's faces are the caller's under the same indices; `tests/invariance.rs` checks that
-every family, face levels and risers included, finds the same faces on the corpus part turned by
-a generic rotation (37° about (1, 2, 3)) as unmoved, each in its frame (4 listed exceptions: two
-recogniser thresholds Python shares, two kernel face-box defects). Caller-space recognition does
-not survive that rotation (the same test prints by how much). `tests/recognition.rs` checks the
-default document itself: under every invariance motion and the generic rotation, carried back,
-it finds the same features on the same faces with the same values, and on the corpus as read it
-is compared with caller-space recognition, every difference listed with a verdict in
-`tests/fixtures/known_framed_document.json`.
-
-### Intrinsic ties and presentation gauges
-
-ADR 0011 permits a representative of an unobservable gauge, not a hidden material direction.
-Dominant-component-positive axis signs (including recognition-4's Z-first tie), free-axis
-section bases, cyclic boundary starts, interchangeable equal chamfer legs, and square-grid
-angles are presentation choices. Reversing an axis also reverses its intervals and the physical
-endpoints stay fixed; these choices do not select a face claim, subtype or intrinsic size.
-`map_features` preserves record order and IDs when canonicalising directions. IDs are still
-result-local `<family>/<index>` addresses: the legacy caller-space coordinate sorts do not
-promise stable IDs between independently recognised placements; correspondence carries identity
-by evidence, and framed mapping does not re-sort those records.
-
-Symmetric interpretation ties refuse: recess run/width interpretations,
-turning-axis support, overlapping equal-size pattern allocations, competing cap or wall evidence,
-ambiguous bounded coordinate partitions, and competing sheet hinge/skin proofs cannot be resolved by XYZ, sign, face number or input order.
-When no orthogonal basis exists, an axial frame also requires a unique geometric direction
-line; two equal oblique lines establish their intrinsic acute bisector, while a remaining
-multidirection tie uses the existing `no-analytic-direction` frame refusal.
-A square recess's `long_axis` is consumed semantically by fingerprints and pattern grouping,
-so it requires a unique body-relative transverse direction; a symmetric body cannot supply one.
-Record-only entry points omit those unproved candidates; existing evidence paths retain
-`CompetingCaps`/`SharedEvidence` errors, while contradictory equidistant hole-end evidence reports
-`Unknown`. There is no new document schema or refusal family. A plain through cylinder's end sign
-remains a gauge because it chooses no side-dependent step claim. A tied profile origin is an
-affine mean of coaxial supports; unequal inward hole geometry and grid populations decide
-intrinsically before any output representative is chosen.
-
-When a boss's end states tie, a nonzero axial boundary-area moment about its midpoint
-establishes the body-relative direction away from the body's boundary-area centroid, computed
-from true surface area moments rather than surface parameter midpoints. A zero moment retains
-the boss with an end gauge. Symmetric hole-mouth profiles likewise retain the bore, omitting
-unproved one-sided counterbore or spotface attribution; tied countersink matches omit only that
-attachment. Equivalent closing faces are retained together as context. A direction or end gauge
-never removes a feature. A directed representative of an exactly symmetric part is understood
-modulo its stabilising symmetry: the undirected physical axis and both endpoints move with the
-part, while no material end is asserted.
-
-Matching counterbore or spotface dimensions at interchangeable mouths are retained, with
-both mouths claimed; the end attribution is a presentation gauge. The omission above applies
-only when the two readings differ, so an end gauge cannot lose identical machining callouts.
-
-The invariance harness also reports absent, reclassified and introduced occurrences per family,
-using the Python rigid-motion sweep's maximum-cardinality defining-face containment matching,
-same-family preference, overlap score and final pair-list tie. Baseline motion limits from `5fb1706`
-are per part and motion and can only fall. The companion `tests/inventory_floor.rs` checks
-per-file, per-family raw physical and reconciled inventories, including the published unified
-section-recess records and patterns, across all 34 goldens, 100 corpus
-parts and 1,319 captured parts against the same revision. A lower baseline requires a named,
-evidence-backed allowance in `inventory_floor.json`; motion stability cannot hide lost records.
-`tests/tie_breaks.rs` additionally checks claims, sizes and result-local IDs through frame and
-square-lattice presentation mappings. The 34 pinned golden parts additionally run Z30,
-X30, X90 and translation, with face correspondence checked geometrically before matching.
-
-## What parity means
-
-Python's *specified* numeric behaviour is matched exactly: rounding grids, summation order,
-tie-breaking, thresholds (`crates/haecceity/src/py.rs`). OpenCascade's *accidents* are not
-reproduced: where it approximates (pcurves it builds on import, a fixed Gauss order on B-spline faces), heals a
-file, or decides a degenerate case by round-off, the port computes the true geometry and the
-difference is recorded with its reason. Some older emulation remains where removing it would
-cost many records (face ranges boxed by B-spline pcurve poles, which hole depths follow).
-
-Circular face patterns compare sampled surfaces, as Python compares OpenCascade meshes. The port
-samples the exact geometry as densely as such a mesh, so congruent copies sample congruently and
-an exact repeat measures 0, as in Python; on parts whose copies are parameterised differently
-`fit_error` is each side's own sampling noise. Whether a face near the axis turns onto itself
-(and so is not part of the pattern) is decided exactly: Python's mesh test answers by whether
-its point counts happen to divide by the pattern count.
-
-The corpus test also checks kernel answers directly against OpenCascade on every file: every
-solid's volume and area wherever the solid counts agree (99 of 100 files; 13975 reads as one
-solid where OpenCascade's import gives none, recorded as a `solid count` difference), to 1e-9
-(a file that differs records its worst difference as a power of ten), and, wherever the faces align with OpenCascade's (99 of 100 files; 13975's are
-reordered by its healing), every face's `BRepTools::UVBounds` and the arc between every pair of
-neighbours.
-
-## Notes on matching OpenCascade
-
-OpenCascade silently heals files on import, and Python's answers depend on it. Things the
-reader reproduces:
-
-- `FACE_BOUND` orientation flags are not trusted: OpenCascade writes `.F.` on some toroidal
-  faces whose edges are already listed in the face's sense and fixes the result on reading.
-  Face containment therefore uses orientation-free crossing parity; orientation only breaks
-  genuine ties (which way round a sphere's pole a boundary goes, and which side of its two
-  loops a seamless torus band lies — files written by OpenCascade always have the seam).
-- A void shell used reversed (`ORIENTED_CLOSED_SHELL` `.F.`) reverses each of its faces with
-  its loops, as OpenCascade's explorer does, not just the faces' normals.
-- A placement without a reference direction takes `gp_Ax2`'s default x axis.
-- Face UV ranges include the control polygons of B-spline pcurves that span their edge,
-  because OpenCascade boxes pcurves by their poles; they also hold the edges themselves (a
-  file's pcurve may stray from its edge), except where a pcurve holds a parameter constant.
-- Closed edges (full circles) are exempt from the orientability check: their recorded
-  direction is not evidence.
-
-Known kernel limitations: OpenCascade's healing adds missing seam edges to periodic faces (and splits closed edges they cross), which the reader does not; sphere patches that pass through a pole have approximate interior
-bounding boxes; closed surfaces of revolution/extrusion in NURBS form are treated as
-non-periodic, and a face on such a surface whose own seam is not the surface's (its boundary
-crosses the surface's seam mid-edge, cgb217 face 29) has no area, so its solid has no mass. A face swept into a probe solid (`crates/haecceity/src/sweep.rs`, Python's
-`Solid.extrude`) may be bounded only by lines and by circles and arcs about the sweep: the
-edge-open recess floor proof declines a floor with any other edge (rust-wrong; no captured call
-or corpus part has one).
-
-Rays meet a face where they cross it inside its trim, or within the band by which one of its
-edges strays from its surface: B-spline faces exported as approximations of their neighbours
-leave cracks up to a few tenths of a millimetre wide, which OpenCascade covers with the edge
-tolerances it sets on import. A hit found only in that band gives way to the face across the
-crack. Where such an edge joins two analytic faces and overshoots (a B-spline edge for the
-intersection of two cylinders, displaced into the opening it bounds), a hit within a few bands
-of it that lies past the other face's surface is not on the face, whatever its trim says. A
-line that only touches a face at its edge (a tangent blend) bounds no material there. A sphere
-bounded only by a vertex loop at a pole is the whole sphere.
-
-A B-spline crossing is tested against the trim at the parameters the intersection solved for,
-not by inverting the surface again at the point: on cgb243's combs the inversion settled on a
-face boundary 1.3 to 1.5 mm away and the trim test dropped crossings well inside faces 223, 225,
-238 and 239, leaving 8 interior-void grid lines with odd counts (and 7 comb crossings of faces
-233 and 234 missed on another, as OpenCascade misses them). Where a crossing is counted, the band
-of an edge also reaches as far as the edge strays, at that point, from the face across it: the
-crack is that wide there whichever face the edge leaves (cgb217's cylinders 51 and 358 beside
-B-spline faces 43 and 47, crossings 2.8 and 6.0 µm outside their trims that parity needs). A hit
-asked about alone (visibility) keeps to the face's own band, having no face across to yield to.
-The overshoot reach (`OVERSHOOT_BANDS`, 4) is empirical: the corpus needs at least 1.8 and
-breaks at 70 (evidence at the constant).
+The 50 historical `rust-wrong` verdicts remain **open defects**. Their presence in the Rust
+snapshot records current output and does not accept it as correct. See the
+[complete defect list and evidence](docs/known-defects.md).

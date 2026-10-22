@@ -140,9 +140,9 @@ The CLI, service and recognition document use this same route. `recognise_placed
 Caller-space recognition, discovery, inventory, context construction and evidence builders
 are crate-private by default. Record types remain public at their existing paths. The legacy
 `frames::prepare_framed*`, `working_part`, `FramedPart` and `FramedError` helpers and the
-`RecordFrame::CallerSpace` variant are feature-only. The hidden `python-parity`
-feature exposes them only for unchanged Python parity tests, outside the supported API.
-Feature record types remain public.
+`RecordFrame::CallerSpace` variant are private to crate tests. Caller-space recognition,
+discovery and inventory are implementation details; tests exercise them internally. Rust
+snapshots own the regression record; see the README for regeneration and review.
 
 
 ### Fingerprints (`fingerprint.rs`, version `quiddity-rust/fingerprint/3`)
@@ -174,7 +174,7 @@ Feature record types remain public.
     counts), a fit's residual, a thin wall's heuristic history hint.
 
   `fingerprint` panics on a family missing from the table, or one with neither defining faces
-  (`Features::defining`) nor members: a wiring defect. `tests/wiring.rs` recognises every STEP
+  (`Features::defining`) nor members: a wiring defect. `tests/internal/wiring.rs` recognises every STEP
   fixture and corpus part and fails on a family not wired that way (defining-face lists one per
   record), on a record field with no role, on a table path no record has, and on a feature whose
   fingerprint has no size.
@@ -215,9 +215,8 @@ Version 3 retains the complete size catalogue and changes recognition measuremen
   so thickness is a difference of intrinsic measurements rather than published grid positions.
 
 Version 2 files must be recognised again before correspondence. The version check refuses
-mixing either revision with an older fingerprint. Frozen Python captures remain regression
-records; deliberate departures are explained by independent geometry and motion evidence in
-the parity ledgers.
+mixing either revision with an older fingerprint. The Rust snapshot owns the regression record; independent geometry and motion references
+remain mandatory. Python-written fingerprints remain readable test inputs.
 
 ### Correspond
 
@@ -273,14 +272,14 @@ the parity ledgers.
 
 ### Validation
 
-`tests/invariance.rs` reads every corpus part under translation and principal rotations,
+`tests/internal/invariance.rs` reads every corpus part under translation and principal rotations,
 checks the same feature faces, then checks correspondence on the same readings. It also
 checks recognition under a generic rotation in the part's inferred frame. The ledgers pin
 all remaining differences; a stale entry or an unlisted difference fails. Analytic tests
 cover tolerance boundaries, measured half-way sizes, reflected sample lattices, and plate
 thickness under a translation smaller than its former position-publication grid.
 
-`tests/correspondence.rs` checks the frozen revision pairs: dimensions, added and removed
+`tests/internal/correspondence.rs` checks the frozen revision pairs: dimensions, added and removed
 features, changed patterns, rigid whole-part placements, and unchanged source face claims.
 
 The ten revision pairs exercise these results: moving a hole adapts its position; resizing
@@ -295,7 +294,7 @@ their partners. Its exact expectations and listed verdicts remain in the fixture
 ### Limits
 
 The remaining section run-interval publication cases are explicitly pinned in
-`known_correspondence.json`: absolute endpoints still use the public three-decimal grid.
+`references/correspondence.json`: absolute endpoints still use the public three-decimal grid.
 Fixing them requires an intrinsic run-length representation or a versioned frame origin
 along the run. The recognised geometry and its current sizes remain visible in the output.
 

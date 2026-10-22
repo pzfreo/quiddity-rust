@@ -92,7 +92,7 @@ fn obround_end(
     })
 }
 
-parity_entry! {
+internal_entry! {
 /// The solid's obround ends (`_obround_ends`): concave cylinders clustered by axis, radius,
 /// depth (to 0.1 mm) and axis line, each cluster's union box classified as a half-cylinder.
 pub fn obround_ends(cylinders: &[Cylinder]) -> Vec<End> {
@@ -170,7 +170,7 @@ fn matching_end_groups<R: Recess>(ends: &[End], record: &R, coord: f64) -> Vec<B
 #[derive(Debug, PartialEq, Eq)]
 pub struct CompetingCaps;
 
-parity_entry! {
+internal_entry! {
 /// Each record with a cap at both ends extended by its half-width at each end, keeping both
 /// cap clusters (`_extend_obround_proposals`). With *strict*, two clusters at one end refuse.
 pub fn extend_obround_proposals<R: Recess>(
@@ -398,7 +398,7 @@ enum Recovered {
     Pocket(Proposal<Pocket>),
 }
 
-parity_entry! {
+internal_entry! {
 /// The through obround slots recovered from their end caps.
 pub fn slots_from_ends(faces: &[Face], cylinders: &[Cylinder]) -> Vec<Proposal<Slot>> {
     obround_from_ends(faces, cylinders, false)
@@ -411,7 +411,7 @@ pub fn slots_from_ends(faces: &[Face], cylinders: &[Cylinder]) -> Vec<Proposal<S
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The blind obround pockets recovered from their end caps.
 pub fn pockets_from_ends(faces: &[Face], cylinders: &[Cylinder]) -> Vec<Proposal<Pocket>> {
     obround_from_ends(faces, cylinders, true)

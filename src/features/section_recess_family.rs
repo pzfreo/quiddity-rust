@@ -94,7 +94,7 @@ pub struct SectionRecessProjection {
     pub patterns: Vec<SectionRecessPattern>,
 }
 
-parity_entry! {
+internal_entry! {
 /// Every accepted unified constant-section recess in *part* (`recognise_section_recesses`).
 pub fn recognise_section_recesses(
     part: &Part,
@@ -103,7 +103,7 @@ pub fn recognise_section_recesses(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// The accepted recesses as one deterministic document (`build_section_recess_document`):
 /// occurrence indices dense within it, body and face references into the part's complete
 /// rosters.
@@ -133,7 +133,7 @@ pub fn build_section_recess_document(
 }
 }
 
-parity_entry! {
+internal_entry! {
 /// One recognition and reconciliation of *part* and its section-recess projection, locally
 /// degraded where Python's aggregate retries so (`features::take_inventory`).
 pub fn section_recess_projection(
