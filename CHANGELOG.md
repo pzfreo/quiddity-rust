@@ -4,8 +4,44 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
-## Unreleased
+## 0.1.1 (2026-10-22)
 
+Upgrading from 0.1.0:
+
+- **Record position fields are `features::placed::Placed<T>` (#69).** A field that holds a
+  rounded position (a hole's `location`, a fillet's `at`, a blend's `center`, and so on) is now
+  `Placed<T>`. It dereferences, compares and serialises as the published value, so reading it
+  and recognition documents are unchanged; code that builds records or destructures such a
+  field takes the value with `*` and builds one with `Placed::exact` or `.into()`.
+- **Changed results.** Six plates' `lo`/`hi` and fingerprint `thickness` change (#71; the
+  fingerprint version stays `quiddity-rust/fingerprint/3`); CTC-04 loses its 12 false
+  countersinks (#76); framed positions move by less than one grid step (#69); sm-hanger's
+  records are published in file axes (#70). Re-recognise rather than reuse 0.1.0 output for
+  these parts.
+
+- **Chamfer corners are no longer countersinks (for #76).** A countersink's cone must now run
+  at least 270° round its axis (all faces on that cone together). On NIST CTC-04 the 12 reported
+  countersinks were the quarter-cone corner faces of the 5×45° pocket-rim chamfer, seated only on
+  the pockets' R5 corner-radius walls; they are gone, and the corner faces are now `unexplained`
+  in the face accounting (no record spans the rim round its corners). No other corpus part
+  changes; whole cones over a bore are kept.
+- **A join within one surface on the outline is judged as the silhouette it is (for #75).**
+  Hidden-line projection judged a seam or same-surface join lying on the view's outline from
+  the edge's curve, which a file may leave a hair inside the surface: NIST CTC-05's shaft
+  outline (edge 375, 1.5e-8 inside its cylinder) sent the ray along the surface into the
+  cylinder's other half, and the front view drew it hidden. Such an outline edge is now judged
+  from 1e-5 of the part's size outside its first drawn face, as traced silhouettes are. Across
+  the corpus only outline stretches change, in 11 parts: of 594 mm now drawn visible, 392 mm
+  already lay under a visible line, 190.5 mm is CTC-05's shaft, 8.9 mm is in cgb203's side view
+  (closer to OpenCascade) and under 1 mm is in each of six other parts.
+- **CTC-05 is in the OpenCascade hidden-line comparison (for #75).** `tools/capture_hlr.py`
+  keeps CTC-05 although its record exceeds the size limit; its four views agree with
+  OpenCascade. Its edge 226 ends on a vertex 0.018 mm off its circle's plane, so the edge's
+  exact circle strays up to that far from the stretch's points; the comparison allows that gap
+  for CTC-05 only (`references/drawings.json`), and the circle is still drawn exactly.
+- **A compound's child order does not change recognition; a test now pins it (for #73).** The
+  1 channel against 2 in #73 is the file: draftwright-rust's forward-order `two-channels.step`
+  holds one occurrence of the block, the reversed file both.
 - **Faster STEP reading (for #72).** The inverted-shell repair (#59) no longer integrates
   every face of every solid on each read. It first looks for one face with an outward witness,
   by ray parity against boxes that certainly hold each face (no face interior sampled), which

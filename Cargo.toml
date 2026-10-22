@@ -3,7 +3,7 @@ members = ["crates/haecceity"]
 
 [package]
 name = "quiddity"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 license = "Apache-2.0"
 description = "Manufacturing feature recognition from STEP B-rep models: holes, bosses, pockets, slots, steps, patterns and turned features, with measured sizes."
@@ -15,7 +15,7 @@ include = ["/src", "/README.md", "/CHANGELOG.md", "/LICENSE", "/NOTICE"]
 
 [dependencies]
 flate2 = "1.1.10"
-haecceity = { path = "crates/haecceity", version = "=0.1.0" }
+haecceity = { path = "crates/haecceity", version = "=0.1.1" }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = { version = "1.0.151", features = ["float_roundtrip"] }
 sha2 = "0.11.0"

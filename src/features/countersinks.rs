@@ -1,4 +1,8 @@
 //! Countersink recognition (`quiddity.countersinks`): a flaring cone seated on a bore mouth.
+//!
+//! The cone must run (nearly) round its axis. A cone patch confined to a corner, such as where an
+//! edge chamfer turns a pocket's corner radius, meets a corner-radius cylinder of the same axis
+//! and radius, but it is part of that rim's edge break, not a seat.
 
 use serde::{Deserialize, Serialize};
 
@@ -19,6 +23,12 @@ const COAXIAL_FRAC: f64 = 0.0167;
 const MAX_INCLUDED_ANGLE: f64 = 160.0;
 /// Too little flare is an edge break, not a seat.
 const MIN_MAJOR_RATIO: f64 = 1.5;
+/// How far, in degrees, the cone (all its faces on one conical surface together) must run round
+/// its axis. A seat surrounds its bore's mouth; a chamfer turning a corner sweeps no more than
+/// half a turn. Three quarters leaves room for a seat broken by a neighbouring cut.
+const MIN_SWEEP_DEG: f64 = 270.0;
+/// Two faces lie on one cone when their semi-angles agree to this, in radians.
+const SAME_CONE_ANGLE: f64 = 1e-6;
 const HOLE_DIA_FRAC: f64 = 0.0333;
 const HOLE_AXIS_FRAC: f64 = 0.0333;
 const HOLE_MOUTH_FRAC: f64 = 0.0833;
@@ -100,6 +110,52 @@ fn opens_into_void(part: &Part, face: usize) -> bool {
     geom::dot(radial, normal) < 0.0
 }
 
+/// Which side of the apex, along *z*, the face lies: its parameter-mid point's axial offset.
+fn nappe_side(part: &Part, face: usize, apex: V3, z: V3) -> Option<f64> {
+    let (u0, u1, v0, v1) = part.uv_bounds(face)?;
+    let mid = part.faces[face]
+        .surface
+        .value(0.5 * (u0 + u1), 0.5 * (v0 + v1));
+    Some(geom::dot(geom::sub(mid, apex), z))
+}
+
+/// How far, in degrees, the faces lying on *face*'s cone run round its axis together: their
+/// parameter (angular) spans summed, so a cone split at seams counts as one. Only faces on the
+/// same nappe count: a cone mirrored through the shared apex is another surface.
+fn sweep_deg(part: &Part, face: usize, cones: &[usize], tol: f64) -> f64 {
+    let surface = &part.faces[face].surface;
+    let (
+        Surface::Cone {
+            frame, semi_angle, ..
+        },
+        Some(apex),
+    ) = (surface, surface.cone_apex())
+    else {
+        return 0.0;
+    };
+    let Some(side) = nappe_side(part, face, apex, frame.z) else {
+        return 0.0;
+    };
+    let spans = cones.iter().filter_map(|&other| {
+        let s = &part.faces[other].surface;
+        let Surface::Cone {
+            frame: f,
+            semi_angle: a,
+            ..
+        } = s
+        else {
+            return None;
+        };
+        let same = (a.abs() - semi_angle.abs()).abs() <= SAME_CONE_ANGLE
+            && geom::dot(f.z, frame.z).abs() > 1.0 - 1e-3
+            && s.cone_apex()
+                .is_some_and(|p| geom::norm(geom::sub(p, apex)) <= tol)
+            && nappe_side(part, other, apex, frame.z).is_some_and(|o| o * side > 0.0);
+        same.then(|| part.uv_bounds(other).map_or(0.0, |(u0, u1, _, _)| u1 - u0))
+    });
+    py::fsum(spans).to_degrees()
+}
+
 fn dist_to_line(point: V3, line_point: V3, line_dir: V3) -> f64 {
     let v = geom::sub(point, line_point);
     geom::norm(geom::sub(v, geom::scale(line_dir, geom::dot(v, line_dir))))
@@ -123,7 +179,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<CounterSink>> {
         })
         .collect();
     let mut out = Vec::new();
-    for face in cones {
+    for &face in &cones {
         let Some(((minor_r, minor_pt), (major_r, opening), included_angle)) = cone_rims(part, face)
         else {
             continue; // a drill-point cone (one circle and an apex)
@@ -133,6 +189,11 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<CounterSink>> {
         }
         if !opens_into_void(part, face) {
             continue;
+        }
+        if sweep_deg(part, face, &cones, policy::length_tol(2.0 * minor_r, COAXIAL_FRAC))
+            < MIN_SWEEP_DEG
+        {
+            continue; // a corner patch of an edge chamfer, not a seat round a bore
         }
         let along = geom::sub(minor_pt, opening);
         let length = match geom::norm(along) {

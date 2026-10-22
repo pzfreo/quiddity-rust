@@ -16890,6 +16890,22 @@
   },
   "losses": [
     {
+      "file": "corpus/nist/nist_ctc_04_asme1_rd.stp",
+      "mode": "accepted",
+      "family": "countersinks",
+      "max_lost": 12,
+      "reason": "The twelve countersinks were the corner faces of the pocket-rim 5x45-degree chamfer (issue #76): a cone confined to a corner is not a seat. A countersink's cone must now run at least 270 degrees round its axis.",
+      "evidence": "NIST CTC-04 faces 446/448/450/452/454/456/471/473/475/477/479/481 are 45-degree cones with apex z=-30 at the R5 pocket corners (x = +/-84, +/-104.59, +/-128.41, +/-149; y = 278, 337.18, 398), bounded by two lines and R5/R10 arcs. Their uv angular spans are 90, 71.3 or 18.7 degrees, and the only coaxial R5 cylinder each sat on is the pocket's corner-radius wall with the same span; no bore. Planar chamfer faces meet them tangentially on both sides. Every other countersink in the snapshot calls and corpus spans 360 degrees over a 360-degree bore and is kept; tests/internal/recognition.rs::pocket_rim_chamfer_corners_are_not_countersinks checks both."
+    },
+    {
+      "file": "corpus/nist/nist_ctc_04_asme1_rd.stp",
+      "mode": "physical",
+      "family": "countersinks",
+      "max_lost": 12,
+      "reason": "The twelve countersinks were the corner faces of the pocket-rim 5x45-degree chamfer (issue #76): a cone confined to a corner is not a seat. A countersink's cone must now run at least 270 degrees round its axis.",
+      "evidence": "NIST CTC-04 faces 446/448/450/452/454/456/471/473/475/477/479/481 are 45-degree cones with apex z=-30 at the R5 pocket corners (x = +/-84, +/-104.59, +/-128.41, +/-149; y = 278, 337.18, 398), bounded by two lines and R5/R10 arcs. Their uv angular spans are 90, 71.3 or 18.7 degrees, and the only coaxial R5 cylinder each sat on is the pocket's corner-radius wall with the same span; no bore. Planar chamfer faces meet them tangentially on both sides. Every other countersink in the snapshot calls and corpus spans 360 degrees over a 360-degree bore and is kept; tests/internal/recognition.rs::pocket_rim_chamfer_corners_are_not_countersinks checks both."
+    },
+    {
       "file": "captured/1ac9750274cf035b.step.gz",
       "mode": "accepted",
       "family": "step_levels",

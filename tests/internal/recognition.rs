@@ -1260,3 +1260,82 @@ fn a_void_without_a_proved_throat_retains_its_measurements() {
         "{warnings:?}"
     );
 }
+
+/// Issue #76: on NIST CTC-04 each R5 pocket corner's 5x45° rim chamfer turns the corner on a
+/// quarter-cone (or a narrower patch) that meets the corner-radius cylinder. Neither runs round
+/// its axis, so it is no countersink; the corner faces stay accounted for. True countersinks,
+/// whole cones over a bore, are kept.
+#[test]
+fn pocket_rim_chamfer_corners_are_not_countersinks() {
+    use quiddity::kernel::geom::Surface;
+    use quiddity::recognition::FaceAccounting;
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let path = dir.join("nist/nist_ctc_04_asme1_rd.stp");
+    let part = quiddity::read_step_file(&path).unwrap();
+    // The twelve corner cones: apex 10 above the pocket rim at each R5 corner.
+    let xs = [
+        -149.0, -128.4137, -104.5863, -84.0, 84.0, 104.5863, 128.4137, 149.0,
+    ];
+    let ys = [278.0, 337.1768, 398.0];
+    let corners: Vec<usize> = (0..part.faces.len())
+        .filter(|&f| {
+            matches!(part.faces[f].surface, Surface::Cone { .. })
+                && part.faces[f].surface.cone_apex().is_some_and(|a| {
+                    (a[2] + 30.0).abs() < 1e-3
+                        && xs.iter().any(|x| (a[0] - x).abs() < 1e-3)
+                        && ys.iter().any(|y| (a[1] - y).abs() < 1e-3)
+                })
+        })
+        .collect();
+    assert_eq!(corners.len(), 12, "{corners:?}");
+    let doc = document(&path);
+    let count = |family: &str| doc.records.iter().filter(|r| r.family == family).count();
+    assert_eq!(count("countersinks"), 0);
+    // The straight runs of the rim chamfer are still recognised either side of each corner.
+    assert_eq!((count("chamfers"), count("oriented_chamfers")), (8, 4));
+    let accounting = doc.face_accounting.as_ref().unwrap();
+    for &f in &corners {
+        // No record spans the rim round its corners, so these faces are left for review.
+        assert_eq!(accounting[f], FaceAccounting::Unexplained, "face {f}");
+    }
+    // Control: whole cones seated on bores remain countersinks.
+    let seated = document(&fixture("captured/83644e6c09150015.step.gz"));
+    assert_eq!(
+        seated
+            .records
+            .iter()
+            .filter(|r| r.family == "countersinks")
+            .count(),
+        3
+    );
+}
+
+/// Issue #76's sweep rule keeps a seat that a neighbouring cut has trimmed. Fixture (build123d):
+/// a 40x30x10 plate with a countersunk through hole (drill r 3, seat r 6, 90°) at its centre,
+/// crossed by a 3 wide, 5 deep slot that splits the seat into two faces of about 151° each.
+/// Together they run about 302° round the axis, over the 270° the rule asks.
+#[test]
+fn a_seat_split_by_a_slot_stays_a_countersink() {
+    use quiddity::kernel::geom::Surface;
+    use quiddity::recognition::FaceAccounting;
+    let path = fixture("countersink_split_by_slot.step");
+    let part = quiddity::read_step_file(&path).unwrap();
+    let cones: Vec<usize> = (0..part.faces.len())
+        .filter(|&f| matches!(part.faces[f].surface, Surface::Cone { .. }))
+        .collect();
+    assert_eq!(cones.len(), 2, "{cones:?}");
+    let doc = document(&path);
+    let accounting = doc.face_accounting.as_ref().unwrap();
+    for &f in &cones {
+        let FaceAccounting::Feature { record_ids } = &accounting[f] else {
+            panic!("face {f}: {:?}", accounting[f]);
+        };
+        assert!(
+            record_ids.iter().all(|id| id.starts_with("countersinks/")),
+            "face {f}: {record_ids:?}"
+        );
+    }
+}
