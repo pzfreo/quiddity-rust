@@ -88,7 +88,7 @@ impl SlotSpec {
         Some(SlotSpec {
             width_axis: s.width_axis,
             long_axis: s.long_axis,
-            sizes: [s.width, s.length, s.d_lo, s.d_hi].map(snap),
+            sizes: [s.width, s.length, *s.d_lo, *s.d_hi].map(snap),
             end_radius: s.end_radius.map(snap),
             corner_radius: s.corner_radius.map(snap),
             body_key: s.body_key.clone()?,
@@ -116,7 +116,7 @@ impl PocketSpec {
         Some(PocketSpec {
             width_axis: p.width_axis,
             long_axis: p.long_axis,
-            sizes: [p.width, p.length, p.depth, p.d_lo, p.d_hi].map(snap),
+            sizes: [p.width, p.length, p.depth, *p.d_lo, *p.d_hi].map(snap),
             open_sign: p.open_sign,
             edge_anchored: p.edge_anchored,
             end_radius: p.end_radius.map(snap),
@@ -245,11 +245,11 @@ mod tests {
             width: 4.0,
             length: 6.0,
             depth: 2.0,
-            w_center: y,
-            lo: x - 3.0,
-            hi: x + 3.0,
-            d_lo: 8.0,
-            d_hi: 10.0,
+            w_center: y.into(),
+            lo: (x - 3.0).into(),
+            hi: (x + 3.0).into(),
+            d_lo: 8.0.into(),
+            d_hi: 10.0.into(),
             open_sign,
             edge_anchored: false,
             body_key: body,
@@ -260,7 +260,7 @@ mod tests {
 
     fn row(xs: &[f64], y: f64) -> Vec<Pocket> {
         xs.iter()
-            .map(|&x| pocket(x, y, Some(vec![1.0]), 1))
+            .map(|&x| pocket(x, y, Some(vec![1.0].into()), 1))
             .collect()
     }
 
@@ -270,12 +270,12 @@ mod tests {
             long_axis: 'y',
             width: 3.0,
             length: 8.0,
-            w_center: x,
-            lo: y - 4.0,
-            hi: y + 4.0,
-            d_lo: 0.0,
-            d_hi: 5.0,
-            body_key: Some(vec![1.0]),
+            w_center: x.into(),
+            lo: (y - 4.0).into(),
+            hi: (y + 4.0).into(),
+            d_lo: 0.0.into(),
+            d_hi: 5.0.into(),
+            body_key: Some(vec![1.0].into()),
             end_radius: None,
             corner_radius: None,
         }
@@ -375,9 +375,9 @@ mod tests {
         pockets.push(pocket(20.0, 0.0, None, 1));
         assert_eq!(recognise_pocket_patterns(&pockets), vec![]);
         let opposed = vec![
-            pocket(0.0, 0.0, Some(vec![1.0]), 1),
-            pocket(10.0, 0.0, Some(vec![1.0]), -1),
-            pocket(20.0, 0.0, Some(vec![1.0]), 1),
+            pocket(0.0, 0.0, Some(vec![1.0].into()), 1),
+            pocket(10.0, 0.0, Some(vec![1.0].into()), -1),
+            pocket(20.0, 0.0, Some(vec![1.0].into()), 1),
         ];
         assert_eq!(recognise_pocket_patterns(&opposed), vec![]);
     }

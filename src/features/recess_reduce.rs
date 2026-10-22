@@ -219,16 +219,16 @@ fn same_channel_line(a: &Slot, b: &Slot) -> Option<(f64, f64)> {
     if a.width_axis != b.width_axis || a.long_axis != b.long_axis {
         return None;
     }
-    if (a.w_center - b.w_center).abs() > MERGE_TOL || (a.width - b.width).abs() > MERGE_TOL {
+    if (*a.w_center - *b.w_center).abs() > MERGE_TOL || (a.width - b.width).abs() > MERGE_TOL {
         return None;
     }
-    if (a.d_lo - b.d_lo).abs() > MERGE_TOL || (a.d_hi - b.d_hi).abs() > MERGE_TOL {
+    if (*a.d_lo - *b.d_lo).abs() > MERGE_TOL || (*a.d_hi - *b.d_hi).abs() > MERGE_TOL {
         return None;
     }
-    let gap = if a.hi <= b.lo {
-        (a.hi, b.lo)
-    } else if b.hi <= a.lo {
-        (b.hi, a.lo)
+    let gap = if *a.hi <= *b.lo {
+        (*a.hi, *b.lo)
+    } else if *b.hi <= *a.lo {
+        (*b.hi, *a.lo)
     } else {
         return None;
     };
@@ -244,10 +244,10 @@ fn gap_is_void(ctx: &Context<'_>, solid: usize, gap: (f64, f64), arm: &Slot) -> 
     let mut spans: Spans = [(0.0, 0.0); 3];
     spans[arm.long_axis()] = gap;
     spans[arm.width_axis()] = (
-        arm.w_center - arm.width / 2.0,
-        arm.w_center + arm.width / 2.0,
+        *arm.w_center - arm.width / 2.0,
+        *arm.w_center + arm.width / 2.0,
     );
-    spans[arm.depth_axis()] = (arm.d_lo, arm.d_hi);
+    spans[arm.depth_axis()] = (*arm.d_lo, *arm.d_hi);
     prism_material_fraction(ctx, solid, &spans, VOID_INSET).is_some_and(|f| f <= VOID_VOL_FRAC)
 }
 
@@ -296,11 +296,11 @@ pub fn collapse_collinear_proposals(
             let base = &proposals[members[0]].record;
             let lo = members
                 .iter()
-                .map(|&m| proposals[m].record.lo)
+                .map(|&m| *proposals[m].record.lo)
                 .fold(f64::INFINITY, f64::min);
             let hi = members
                 .iter()
-                .map(|&m| proposals[m].record.hi)
+                .map(|&m| *proposals[m].record.hi)
                 .fold(f64::NEG_INFINITY, f64::max);
             let spanned = Slot {
                 width_axis: base.width_axis,
@@ -308,11 +308,11 @@ pub fn collapse_collinear_proposals(
                 width: base.width,
                 length: round_measurement(hi - lo, 2),
                 w_center: base.w_center,
-                lo,
-                hi,
+                lo: lo.into(),
+                hi: hi.into(),
                 d_lo: base.d_lo,
                 d_hi: base.d_hi,
-                body_key: Some(Vec::new()),
+                body_key: Some(Vec::new().into()),
                 end_radius: None,
                 corner_radius: None,
             };
@@ -352,16 +352,16 @@ mod tests {
 
     #[test]
     fn equal_width_recess_order_ignores_roundoff_in_a_tied_coordinate() {
-        let slot = |x, y| Slot {
+        let slot = |x: f64, y: f64| Slot {
             width_axis: 'x',
             long_axis: 'y',
             width: 2.0,
             length: 4.0,
-            w_center: x,
-            lo: y - 2.0,
-            hi: y + 2.0,
-            d_lo: 0.0,
-            d_hi: 1.0,
+            w_center: x.into(),
+            lo: (y - 2.0).into(),
+            hi: (y + 2.0).into(),
+            d_lo: 0.0.into(),
+            d_hi: 1.0.into(),
             body_key: None,
             end_radius: None,
             corner_radius: None,
@@ -394,11 +394,11 @@ mod role_motion_tests {
                     long_axis: ['x', 'y', 'z'][l],
                     width: 2.,
                     length: 6.,
-                    w_center: shift,
-                    lo: shift - 3.,
-                    hi: shift + 3.,
-                    d_lo: shift - 1.,
-                    d_hi: shift + 1.,
+                    w_center: shift.into(),
+                    lo: (shift - 3.).into(),
+                    hi: (shift + 3.).into(),
+                    d_lo: (shift - 1.).into(),
+                    d_hi: (shift + 1.).into(),
                     body_key: None,
                     end_radius: None,
                     corner_radius: None,
@@ -429,16 +429,16 @@ mod depth_tie_tests {
             [2, 0, 1],
         ] {
             for shift in [0., 123.456] {
-                let slot = |w, l, run, depth| Slot {
+                let slot = |w: usize, l: usize, run: f64, depth: f64| Slot {
                     width_axis: ['x', 'y', 'z'][w],
                     long_axis: ['x', 'y', 'z'][l],
                     width: 2.,
                     length: run,
-                    w_center: shift,
-                    lo: shift - run / 2.,
-                    hi: shift + run / 2.,
-                    d_lo: shift - depth / 2.,
-                    d_hi: shift + depth / 2.,
+                    w_center: shift.into(),
+                    lo: (shift - run / 2.).into(),
+                    hi: (shift + run / 2.).into(),
+                    d_lo: (shift - depth / 2.).into(),
+                    d_hi: (shift + depth / 2.).into(),
                     body_key: None,
                     end_radius: None,
                     corner_radius: None,
@@ -451,7 +451,7 @@ mod depth_tie_tests {
                     let result = merge_proposals(proposals.clone());
                     assert_eq!(result.len(), 1);
                     assert_eq!(result[0].record.depth_axis(), x);
-                    assert_eq!(result[0].record.d_hi - result[0].record.d_lo, 1.);
+                    assert_eq!(*result[0].record.d_hi - *result[0].record.d_lo, 1.);
                     proposals.reverse();
                 }
             }

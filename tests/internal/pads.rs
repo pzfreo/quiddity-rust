@@ -42,9 +42,9 @@ fn assert_five_face_evidence(part: &Part, axis: usize, direction: f64) {
         part.face_bounds(*top).min[axis]
     };
     let bounds = [
-        (pad.record.x0, pad.record.x1),
-        (pad.record.y0, pad.record.y1),
-        (pad.record.z0, pad.record.z1),
+        (*pad.record.x0, *pad.record.x1),
+        (*pad.record.y0, *pad.record.y1),
+        (*pad.record.z0, *pad.record.z1),
     ];
     let record_terminal = if direction > 0.0 {
         bounds[axis].1

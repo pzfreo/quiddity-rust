@@ -17,9 +17,16 @@
 //! Every record is destructured in full, with no `..`: a field or family added later fails to
 //! compile here until its mapping is decided.
 //!
-//! Values are mapped, not re-rounded: a coordinate the recogniser rounded in the frame carries
-//! that rounding plus the frame's origin, so it can differ from a caller-space recognition by up
-//! to the field's published grid. Orders and signs a recogniser chooses by coordinates (records
+//! Positions are published once, in the file's coordinates: a position the recogniser rounds
+//! keeps the value it rounded from ([`Placed`]), the mapper carries that unrounded value through
+//! the motion and rounds it on the field's grid there (a decimal half-way point within the
+//! coordinate floor taking the even neighbour), so a published position is on its grid, never
+//! a frame-rounded value plus the frame's origin. A position derived from published ones (a
+//! pattern's centre, a mirror plane, an oriented slot's centre) is derived again from the
+//! published values in the file. Positions the recogniser publishes unrounded (a plate's faces,
+//! a boss's location) are carried unrounded. [`Mapped::fingerprinted`] keeps the published values
+//! as found in the frame, carried without rounding again, so fingerprints stay intrinsic to the
+//! part. Orders and signs a recogniser chooses by coordinates (records
 //! within a family, a direction's canonical sense, which end of a through hole is its entry, a
 //! section's starting vertex and direction) are the frame's and are kept, so they do not depend
 //! on placement either; they can differ from caller-space recognition's, which chooses them by
@@ -62,7 +69,8 @@ use crate::features::paired_ramp_steps::PairedRampStep;
 use crate::features::passages::{
     PassageEnds, PassageFrame, PassageSection, PassageSectionVertex, SectionPassage,
 };
-use crate::features::pattern_geometry::plane_uv;
+use crate::features::pattern_geometry::{Located, mean_location, plane_uv};
+use crate::features::placed::{Coordinates, Grid, Placed};
 use crate::features::plates::Plate;
 use crate::features::polygonal_bosses::PolygonalPrism;
 use crate::features::prismatic_pockets::PrismaticPocket;
@@ -133,7 +141,8 @@ impl Rigid {
     }
 
     /// Each source axis's target axis and sign, when the rotation is a signed permutation
-    /// (every entry exactly 0 or ±1).
+    /// (every entry exactly 0 or ±1). A frame within the kernel's direction tolerance of one is
+    /// snapped to it when it is inferred ([`crate::frames::infer_part_frame`]).
     pub fn axes(&self) -> Option<[(usize, f64); 3]> {
         let r = self.rotation;
         let mut out = [(0, 0.0); 3];
@@ -160,7 +169,11 @@ pub type LocalFields = BTreeMap<String, Vec<String>>;
 
 /// Records carried through a motion, and the fields that could not be.
 pub struct Mapped {
+    /// The records, their positions published in the target space.
     pub features: Features,
+    /// The same records with each published value carried as it is (not published again in
+    /// the target space): what fingerprints read, so they stay intrinsic to the part.
+    pub fingerprinted: Features,
     pub local: LocalFields,
 }
 
@@ -199,6 +212,10 @@ fn others(axis: usize) -> [usize; 2] {
 /// One record's mapping: the motion, and the paths it left local.
 struct Out<'a> {
     motion: &'a Rigid,
+    /// Whether positions are published in the target space ([`Placed::carried`]): their
+    /// unrounded values carried and rounded once there. Otherwise published values are carried
+    /// as they are, as fingerprints read them.
+    publish: bool,
     axes: Option<[(usize, f64); 3]>,
     /// Prepended to every path (a pattern's members: `holes[].`).
     prefix: &'static str,
@@ -206,9 +223,10 @@ struct Out<'a> {
 }
 
 impl<'a> Out<'a> {
-    fn new(motion: &'a Rigid, prefix: &'static str) -> Out<'a> {
+    fn new(motion: &'a Rigid, publish: bool, prefix: &'static str) -> Out<'a> {
         Out {
             motion,
+            publish,
             axes: motion.axes(),
             prefix,
             local: Vec::new(),
@@ -354,10 +372,59 @@ impl<'a> Out<'a> {
     /// A solid's key: its box, then its volume and area.
     fn body_key(&mut self, key: Option<BodyKey>, path: &str) -> Option<BodyKey> {
         key.map(|k| {
-            let mut out = self.bounds(&k[..6], false, path);
-            out.extend_from_slice(&k[6..]);
-            out
+            k.carried(self.publish, |k| {
+                let mut out = self.bounds(&k[..6], false, path);
+                out.extend_from_slice(&k[6..]);
+                out
+            })
         })
+    }
+
+    /// A position carried by *f* ([`Placed::carried`]).
+    fn placed<T: Coordinates>(
+        &mut self,
+        p: Placed<T>,
+        mut f: impl FnMut(&mut Self, T) -> T,
+    ) -> Placed<T> {
+        let publish = self.publish;
+        p.carried(publish, |v| f(self, v))
+    }
+
+    /// An ordered interval of placed coordinates along source axis *axis*: each end carried,
+    /// and the ends swapped along a reversed axis, as [`Out::interval`].
+    fn placed_interval(
+        &mut self,
+        axis: usize,
+        (lo, hi): (Placed<f64>, Placed<f64>),
+        path: &str,
+    ) -> (Placed<f64>, Placed<f64>) {
+        let lo = self.placed(lo, |out, v| out.coordinate(axis, v, path));
+        let hi = self.placed(hi, |out, v| out.coordinate(axis, v, path));
+        match self.axes {
+            Some(axes) if axes[axis].1 < 0.0 => (hi, lo),
+            _ => (lo, hi),
+        }
+    }
+
+    /// A pattern's centre, the mean of its members' locations (*members*, already carried):
+    /// published, it is that mean of their published locations, as the pattern measured it;
+    /// otherwise the centre is carried as it is.
+    fn pattern_center<M: Located>(&self, center: V3, members: &[M]) -> V3 {
+        if self.publish {
+            mean_location(&members.iter().collect::<Vec<_>>())
+        } else {
+            self.point(center)
+        }
+    }
+
+    /// A placed point across source axis *axis* ([`Out::across`]).
+    fn placed_across(&mut self, axis: usize, p: Placed<[f64; 2]>, path: &str) -> Placed<[f64; 2]> {
+        self.placed(p, |out, p| out.across(axis, p, path))
+    }
+
+    /// A placed point carried by the whole motion.
+    fn placed_point(&mut self, p: Placed<V3>) -> Placed<V3> {
+        self.placed(p, |out, v| out.point(v))
     }
 
     /// A pattern's orientation, in degrees in its plane's basis ([`plane_uv`] of *normal*), and
@@ -388,6 +455,18 @@ impl<'a> Out<'a> {
 
 /// *features*, carried through *motion*: see the module documentation.
 pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
+    let (fingerprinted, _) = carry(features.clone(), motion, false);
+    let (features, local) = carry(features, motion, true);
+    Mapped {
+        features,
+        fingerprinted,
+        local,
+    }
+}
+
+/// [`map_features`]'s records, their positions published in the target space or carried as
+/// they are (*publish*), and the fields left local.
+fn carry(features: Features, motion: &Rigid, publish: bool) -> (Features, LocalFields) {
     let Features {
         run_mode,
         evidence_status,
@@ -456,7 +535,7 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
                 .into_iter()
                 .enumerate()
                 .map(|(n, r)| {
-                    let mut out = Out::new(motion, "");
+                    let mut out = Out::new(motion, publish, "");
                     let r = $f(&mut out, r);
                     family($name, n, out.done());
                     r
@@ -505,7 +584,7 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
             .into_iter()
             .enumerate()
             .map(|(n, mut r)| {
-                let mut out = Out::new(motion, "");
+                let mut out = Out::new(motion, publish, "");
                 r.candidate = interior_void(&mut out, r.candidate);
                 family("interior_voids", void_count + n, out.done());
                 r
@@ -579,7 +658,7 @@ pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
         // The working part's faces are the caller's, under the same indices.
         defining,
     };
-    Mapped { features, local }
+    (features, local)
 }
 
 fn fillet(out: &mut Out, r: Fillet) -> Fillet {
@@ -593,7 +672,7 @@ fn fillet(out: &mut Out, r: Fillet) -> Fillet {
     Fillet {
         axis: out.letter(axis, "axis"),
         radius,
-        at: out.point(at),
+        at: out.placed_point(at),
         turned,
         side,
     }
@@ -614,9 +693,9 @@ fn chamfer(out: &mut Out, r: Chamfer) -> Chamfer {
         leg1,
         leg2,
         angle,
-        at: out.point(at),
+        at: out.placed_point(at),
         turned,
-        corner: corner.map(|c| out.point(c)),
+        corner: corner.map(|c| out.placed_point(c)),
     }
 }
 
@@ -651,8 +730,8 @@ fn angled_step(out: &mut Out, r: AngledStep) -> AngledStep {
         leg2,
         angle,
         length,
-        at: out.point(at),
-        corner: corner.map(|c| out.point(c)),
+        at: out.placed_point(at),
+        corner: corner.map(|c| out.placed_point(c)),
     }
 }
 
@@ -671,21 +750,24 @@ fn flat(out: &mut Out, r: Flat) -> Flat {
     let i = index(axis);
     let [a, b] = others(i);
     let d = axis_direction;
-    let mut foot = [0.0; 3];
-    foot[a] = axis_line.0;
-    foot[b] = axis_line.1;
-    foot[i] = -(foot[a] * d[a] + foot[b] * d[b]) / d[i];
     let target = out.target(i, "axis");
     let direction = out.direction(d);
     let shift = py::dot(&out.motion.translation, &direction);
-    let stock_span = (stock_span.0 + shift, stock_span.1 + shift);
+    let stock_span = out.placed(stock_span, |_, (lo, hi)| (lo + shift, hi + shift));
     let (axis, axis_line) = match target {
         Some((w, _)) => {
-            let q = out.point(foot);
-            let along = py::dot(&q, &direction);
-            let foot = [0, 1, 2].map(|k| q[k] - along * direction[k]);
-            let [wa, wb] = others(w);
-            (LETTERS[w], (foot[wa], foot[wb]))
+            let axis_line = out.placed(axis_line, |out, (u, v)| {
+                let mut foot = [0.0; 3];
+                foot[a] = u;
+                foot[b] = v;
+                foot[i] = -(foot[a] * d[a] + foot[b] * d[b]) / d[i];
+                let q = out.point(foot);
+                let along = py::dot(&q, &direction);
+                let foot = [0, 1, 2].map(|k| q[k] - along * direction[k]);
+                let [wa, wb] = others(w);
+                (foot[wa], foot[wb])
+            });
+            (LETTERS[w], axis_line)
         }
         None => {
             out.mark("axis_line");
@@ -695,7 +777,7 @@ fn flat(out: &mut Out, r: Flat) -> Flat {
     Flat {
         axis,
         across,
-        at: out.point(at),
+        at: out.placed_point(at),
         axis_line,
         stock_span,
         axis_direction: direction,
@@ -731,7 +813,7 @@ fn paired_ramp_step(out: &mut Out, r: PairedRampStep) -> PairedRampStep {
         axis: out.letter(axis, "axis"),
         angle,
         length,
-        at: out.point(at),
+        at: out.placed_point(at),
         opening_direction: out.direction(opening_direction),
         half_width,
         half_widths,
@@ -755,8 +837,8 @@ fn oriented_chamfer(out: &mut Out, r: OrientedChamfer) -> OrientedChamfer {
     OrientedChamfer {
         run: out.direction(run),
         length,
-        at: out.point(at),
-        corner: out.point(corner),
+        at: out.placed_point(at),
+        corner: out.placed_point(corner),
         leg1,
         leg2,
         leg1_direction: out.direction(leg1_direction),
@@ -778,7 +860,7 @@ fn circular_face_pattern(out: &mut Out, r: CircularFacePattern) -> CircularFaceP
         fit_error,
     } = r;
     CircularFacePattern {
-        axis_origin: out.point(axis_origin),
+        axis_origin: out.placed_point(axis_origin),
         axis_direction: out.direction(axis_direction),
         count,
         pitch_degrees,
@@ -801,7 +883,7 @@ fn oblique_through_step(out: &mut Out, r: ObliqueThroughStep) -> ObliqueThroughS
     ObliqueThroughStep {
         run: out.direction(run),
         length,
-        at: out.point(at),
+        at: out.placed_point(at),
         depth_direction: out.direction(depth_direction),
         depth,
         across_direction: out.direction(across_direction),
@@ -824,8 +906,8 @@ fn circular_blind_step(out: &mut Out, r: CircularBlindStep) -> CircularBlindStep
         axis: out.letter(axis, "axis"),
         radius,
         length,
-        centreline: centreline.map(|p| out.point(p)),
-        section: section.map(|p| out.across(i, p, "section")),
+        centreline: centreline.map(|p| out.placed_point(p)),
+        section: section.map(|p| out.placed_across(i, p, "section")),
     }
 }
 
@@ -842,7 +924,7 @@ fn hole(out: &mut Out, r: HoleRecord) -> HoleRecord {
     } = r;
     HoleRecord {
         axis: out.direction(axis),
-        location: out.point(location),
+        location: out.placed_point(location),
         diameter,
         depth,
         bottom,
@@ -863,7 +945,7 @@ fn countersink(out: &mut Out, r: CounterSink) -> CounterSink {
     } = r;
     CounterSink {
         axis: out.direction(axis),
-        location: out.point(location),
+        location: out.placed_point(location),
         major_diameter,
         drill_diameter,
         included_angle,
@@ -890,42 +972,53 @@ fn hole_pattern(out: &mut Out, r: HolePattern) -> HolePattern {
             col_pitch,
             angle,
             center,
-        } => HolePattern::RectGrid {
-            angle: out.pattern_angle(drilling_axis(&members), angle, 180.0),
-            holes: holes(out, members),
-            rows,
-            cols,
-            row_pitch,
-            col_pitch,
-            center: out.point(center),
-        },
+        } => {
+            let angle = out.pattern_angle(drilling_axis(&members), angle, 180.0);
+            let holes = holes(out, members);
+            HolePattern::RectGrid {
+                center: out.pattern_center(center, &holes),
+                angle,
+                holes,
+                rows,
+                cols,
+                row_pitch,
+                col_pitch,
+            }
+        }
         HolePattern::RectangularHoleSet {
             holes: members,
             center,
             width,
             height,
             angle,
-        } => HolePattern::RectangularHoleSet {
+        } => {
             // A square set's angle is reduced modulo 90 degrees.
-            angle: out.pattern_angle(
+            let angle = out.pattern_angle(
                 drilling_axis(&members),
                 angle,
                 if width == height { 90.0 } else { 180.0 },
-            ),
-            holes: holes(out, members),
-            center: out.point(center),
-            width,
-            height,
-        },
+            );
+            let holes = holes(out, members);
+            HolePattern::RectangularHoleSet {
+                center: out.pattern_center(center, &holes),
+                angle,
+                holes,
+                width,
+                height,
+            }
+        }
         HolePattern::BoltCircle {
             holes: members,
             center,
             diameter,
-        } => HolePattern::BoltCircle {
-            holes: holes(out, members),
-            center: out.point(center),
-            diameter,
-        },
+        } => {
+            let holes = holes(out, members);
+            HolePattern::BoltCircle {
+                center: out.pattern_center(center, &holes),
+                holes,
+                diameter,
+            }
+        }
         HolePattern::LinearArray {
             holes: members,
             pitch,
@@ -950,12 +1043,14 @@ fn gusset_rib(out: &mut Out, r: GussetRib) -> GussetRib {
         body_key,
     } = r;
     let t = index(thickness_axis);
-    let thickness_bounds = out.interval(t, thickness_bounds, "thickness_bounds");
+    let thickness_bounds = out.placed(thickness_bounds, |out, b| {
+        out.interval(t, b, "thickness_bounds")
+    });
     let (ia, ib) = (index(la), index(lb));
     let first = (
         (
             out.letter(la, "supports"),
-            out.coordinate(ia, ca, "supports"),
+            out.placed(ca, |out, v| out.coordinate(ia, v, "supports")),
         ),
         legs.0,
         out.sign(ia, directions.0, "directions"),
@@ -963,7 +1058,7 @@ fn gusset_rib(out: &mut Out, r: GussetRib) -> GussetRib {
     let second = (
         (
             out.letter(lb, "supports"),
-            out.coordinate(ib, cb, "supports"),
+            out.placed(cb, |out, v| out.coordinate(ib, v, "supports")),
         ),
         legs.1,
         out.sign(ib, directions.1, "directions"),
@@ -988,7 +1083,7 @@ fn gusset_rib(out: &mut Out, r: GussetRib) -> GussetRib {
 
 fn gusset_rib_pattern(out: &mut Out, r: GussetRibPattern) -> GussetRibPattern {
     let ribs = |out: &mut Out, ribs: Vec<GussetRib>| {
-        let mut members = Out::new(out.motion, "ribs[].");
+        let mut members = Out::new(out.motion, out.publish, "ribs[].");
         let ribs = ribs
             .into_iter()
             .map(|r| gusset_rib(&mut members, r))
@@ -1009,13 +1104,23 @@ fn gusset_rib_pattern(out: &mut Out, r: GussetRibPattern) -> GussetRibPattern {
         GussetRibPattern::MirrorPair {
             ribs: members,
             mirror_plane: (letter, at),
-        } => GussetRibPattern::MirrorPair {
-            ribs: ribs(out, members),
-            mirror_plane: (
-                out.letter(letter, "mirror_plane"),
-                out.coordinate(index(letter), at, "mirror_plane"),
-            ),
-        },
+        } => {
+            let ribs: Vec<GussetRib> = ribs(out, members);
+            let i = index(letter);
+            // The plane is the body's centre (its key's box) on the three-decimal grid:
+            // published, it is measured from the ribs' published key, as the pattern did.
+            let at = match (out.publish, out.axes, &ribs[0].body_key) {
+                (true, Some(axes), Some(key)) => {
+                    let w = axes[i].0;
+                    Grid::Decimals(3).publish((key[w] + key[w + 3]) / 2.0)
+                }
+                _ => out.coordinate(i, at, "mirror_plane"),
+            };
+            GussetRibPattern::MirrorPair {
+                ribs,
+                mirror_plane: (out.letter(letter, "mirror_plane"), at),
+            }
+        }
     }
 }
 
@@ -1084,14 +1189,14 @@ fn through_step(out: &mut Out, r: ThroughStep) -> ThroughStep {
         endpoint_scopes,
     } = r;
     let i = index(axis);
-    let section = section.map(|p| out.across(i, p, "section"));
+    let section = section.map(|p| out.placed_across(i, p, "section"));
     if out.axes.is_none() {
         out.mark("endpoint_scopes");
     }
     ThroughStep {
         axis: out.letter(axis, "axis"),
         length,
-        at: out.point(at),
+        at: out.placed_point(at),
         section,
         body_key: out.body_key(body_key, "body_key"),
         endpoint_scopes,
@@ -1106,7 +1211,7 @@ fn turned_step(out: &mut Out, r: TurnedStep) -> TurnedStep {
         diameter,
         profile,
     } = r;
-    let (lo, hi) = out.interval(index(axis), (lo, hi), "lo");
+    let (lo, hi) = out.placed_interval(index(axis), (lo, hi), "lo");
     if out.axes.is_none() {
         out.mark("hi");
     }
@@ -1129,18 +1234,22 @@ fn turned_profile(out: &mut Out, p: TurnedProfileKey) -> TurnedProfileKey {
         body_key,
     } = p;
     let axis_origin = match out.target(index(axis), "profile.axis_origin") {
-        Some((w, _)) => {
-            let mut q = out.point(axis_origin);
+        Some((w, _)) => out.placed(axis_origin, |out, p| {
+            let mut q = out.point(p);
             q[w] = 0.0;
             q
-        }
+        }),
         None => axis_origin,
     };
-    let bounds = out.bounds(&body_bounds, true, "profile.body_bounds");
+    let body_bounds = out.placed(body_bounds, |out, b| {
+        out.bounds(&b, true, "profile.body_bounds")
+            .try_into()
+            .expect("six bounds")
+    });
     TurnedProfileKey {
         axis: out.letter(axis, "profile.axis"),
         axis_origin,
-        body_bounds: bounds.try_into().expect("six bounds"),
+        body_bounds,
         body_key: out.body_key(body_key, "profile.body_key"),
     }
 }
@@ -1157,7 +1266,7 @@ fn groove(out: &mut Out, r: Groove) -> Groove {
         axis: out.letter(axis, "axis"),
         width,
         diameter,
-        at: out.point(at),
+        at: out.placed_point(at),
         profile: profile.map(|p| turned_profile(out, p)),
     }
 }
@@ -1211,7 +1320,7 @@ fn round_bottom_blind_slot(out: &mut Out, r: RoundBottomBlindSlot) -> RoundBotto
         depth_axis: out.letter(depth_axis, "depth_axis"),
         radius,
         flat_width,
-        at: out.point(at),
+        at: out.placed_point(at),
     }
 }
 
@@ -1236,7 +1345,7 @@ fn rectangular_blind_slot(out: &mut Out, r: RectangularBlindSlot) -> Rectangular
         depth_axis: out.letter(depth_axis, "depth_axis"),
         width,
         depth,
-        at: out.point(at),
+        at: out.placed_point(at),
     }
 }
 
@@ -1285,9 +1394,9 @@ fn edge_open_circular_pocket(out: &mut Out, r: EdgeOpenCircularPocket) -> EdgeOp
             } = s;
             OpenCircularSectionSegment {
                 kind,
-                start: out.across(i, start, "section"),
-                end: out.across(i, end, "section"),
-                center: center.map(|c| out.across(i, c, "section")),
+                start: out.placed_across(i, start, "section"),
+                end: out.placed_across(i, end, "section"),
+                center: center.map(|c| out.placed_across(i, c, "section")),
                 radius,
                 sweep: sweep.map(|w| turn * w),
             }
@@ -1295,11 +1404,11 @@ fn edge_open_circular_pocket(out: &mut Out, r: EdgeOpenCircularPocket) -> EdgeOp
         .collect();
     EdgeOpenCircularPocket {
         axis: out.letter(axis, "axis"),
-        run_interval: out.interval2(i, run_interval, "run_interval"),
+        run_interval: out.placed(run_interval, |out, r| out.interval2(i, r, "run_interval")),
         open_sign: out.sign(i, open_sign, "open_sign"),
         section: OpenCircularSection {
             segments,
-            opening: opening.map(|p| out.across(i, p, "section")),
+            opening: opening.map(|p| out.placed_across(i, p, "section")),
         },
     }
 }
@@ -1323,15 +1432,15 @@ fn edge_open_prismatic_recess(
     let i = index(axis);
     let wall_chain = wall_chain
         .into_iter()
-        .map(|p| out.across(i, p, "section"))
+        .map(|p| out.placed_across(i, p, "section"))
         .collect();
     let (start, end) = (
-        out.across(i, start, "section"),
-        out.across(i, end, "section"),
+        out.placed_across(i, start, "section"),
+        out.placed_across(i, end, "section"),
     );
     EdgeOpenPrismaticRecess {
         axis: out.letter(axis, "axis"),
-        run_interval: out.interval2(i, run_interval, "run_interval"),
+        run_interval: out.placed(run_interval, |out, r| out.interval2(i, r, "run_interval")),
         open_sign: out.sign(i, open_sign, "open_sign"),
         section: OpenPolygonalSection {
             wall_chain,
@@ -1345,7 +1454,7 @@ fn blend(out: &mut Out, r: Blend) -> Blend {
     let path = match path {
         BlendPath::Straight(StraightBlendPath { at, direction }) => {
             BlendPath::Straight(StraightBlendPath {
-                at: out.point(at),
+                at: out.placed_point(at),
                 direction: out.direction(direction),
             })
         }
@@ -1354,7 +1463,7 @@ fn blend(out: &mut Out, r: Blend) -> Blend {
             normal,
             radius,
         }) => BlendPath::Circular(CircularBlendPath {
-            center: out.point(center),
+            center: out.placed_point(center),
             normal: out.direction(normal),
             radius,
         }),
@@ -1548,17 +1657,24 @@ impl RecessAxes {
     }
 }
 
-/// The recess's placement fields, carried: `(w_center, (lo, hi), (d_lo, d_hi))`.
+/// A recess's placement fields: `(w_center, (lo, hi), (d_lo, d_hi))`.
+type RecessPlacement = (
+    Placed<f64>,
+    (Placed<f64>, Placed<f64>),
+    (Placed<f64>, Placed<f64>),
+);
+
+/// The recess's placement fields, carried.
 fn recess_placement(
     out: &mut Out,
     axes: &RecessAxes,
-    w_center: f64,
-    run: (f64, f64),
-    depth: (f64, f64),
-) -> (f64, (f64, f64), (f64, f64)) {
-    let w_center = out.coordinate(axes.width, w_center, "w_center");
-    let run = out.interval(axes.long, run, "lo");
-    let depth = out.interval(axes.depth, depth, "d_lo");
+    w_center: Placed<f64>,
+    run: (Placed<f64>, Placed<f64>),
+    depth: (Placed<f64>, Placed<f64>),
+) -> RecessPlacement {
+    let w_center = out.placed(w_center, |out, v| out.coordinate(axes.width, v, "w_center"));
+    let run = out.placed_interval(axes.long, run, "lo");
+    let depth = out.placed_interval(axes.depth, depth, "d_lo");
     if out.axes.is_none() {
         out.mark("hi");
         out.mark("d_hi");
@@ -1679,8 +1795,8 @@ fn depth_normal(width_axis: char, long_axis: char) -> V3 {
 
 fn slot_pattern(out: &mut Out, r: SlotPattern) -> SlotPattern {
     let members = |out: &mut Out, slots: Vec<Slot>| {
-        let mut each = Out::new(out.motion, "slots[].");
-        let slots = slots.into_iter().map(|s| slot(&mut each, s)).collect();
+        let mut each = Out::new(out.motion, out.publish, "slots[].");
+        let slots: Vec<Slot> = slots.into_iter().map(|s| slot(&mut each, s)).collect();
         out.local.extend(each.done());
         slots
     };
@@ -1696,14 +1812,16 @@ fn slot_pattern(out: &mut Out, r: SlotPattern) -> SlotPattern {
         } => {
             let first = slots.first().expect("a slot pattern has members");
             let normal = depth_normal(first.width_axis, first.long_axis);
+            let angle = out.pattern_angle(normal, angle, 180.0);
+            let slots = members(out, slots);
             SlotPattern::SlotGrid {
-                angle: out.pattern_angle(normal, angle, 180.0),
-                slots: members(out, slots),
+                center: out.pattern_center(center, &slots),
+                angle,
+                slots,
                 rows,
                 cols,
                 row_pitch,
                 col_pitch,
-                center: out.point(center),
             }
         }
         SlotPattern::SlotArray {
@@ -1720,8 +1838,8 @@ fn slot_pattern(out: &mut Out, r: SlotPattern) -> SlotPattern {
 
 fn pocket_pattern(out: &mut Out, r: PocketPattern) -> PocketPattern {
     let members = |out: &mut Out, pockets: Vec<Pocket>| {
-        let mut each = Out::new(out.motion, "pockets[].");
-        let pockets = pockets.into_iter().map(|p| pocket(&mut each, p)).collect();
+        let mut each = Out::new(out.motion, out.publish, "pockets[].");
+        let pockets: Vec<Pocket> = pockets.into_iter().map(|p| pocket(&mut each, p)).collect();
         out.local.extend(each.done());
         pockets
     };
@@ -1737,14 +1855,16 @@ fn pocket_pattern(out: &mut Out, r: PocketPattern) -> PocketPattern {
         } => {
             let first = pockets.first().expect("a pocket pattern has members");
             let normal = depth_normal(first.width_axis, first.long_axis);
+            let angle = out.pattern_angle(normal, angle, 180.0);
+            let pockets = members(out, pockets);
             PocketPattern::PocketGrid {
-                angle: out.pattern_angle(normal, angle, 180.0),
-                pockets: members(out, pockets),
+                center: out.pattern_center(center, &pockets),
+                angle,
+                pockets,
                 rows,
                 cols,
                 row_pitch,
                 col_pitch,
-                center: out.point(center),
             }
         }
         PocketPattern::PocketArray {
@@ -1846,13 +1966,13 @@ fn polygonal_prism(out: &mut Out, r: PolygonalPrism) -> PolygonalPrism {
         flat_centres,
     } = r;
     let i = index_str(&axis);
-    let (base, top) = out.interval(i, (base, top), "base");
+    let (base, top) = out.placed_interval(i, (base, top), "base");
     if out.axes.is_none() {
         out.mark("top");
     }
     PolygonalPrism {
         axis: out.letter_string(axis, "axis"),
-        center: out.point(center),
+        center: out.placed_point(center),
         side_count,
         across_flats,
         base,
@@ -1861,7 +1981,10 @@ fn polygonal_prism(out: &mut Out, r: PolygonalPrism) -> PolygonalPrism {
             .into_iter()
             .map(|d| out.direction(d))
             .collect(),
-        flat_centres: out.points(flat_centres),
+        flat_centres: flat_centres
+            .into_iter()
+            .map(|c| out.placed_point(c))
+            .collect(),
     }
 }
 
@@ -1876,17 +1999,20 @@ fn section_passage(out: &mut Out, r: SectionPassage) -> SectionPassage {
         ends,
     } = r;
     let run = out.direction(run);
-    let q = out.point(origin);
-    let along = py::dot(&q, &run);
+    let origin = out.placed(origin, |out, o| {
+        let q = out.point(o);
+        let along = py::dot(&q, &run);
+        [0, 1, 2].map(|i| q[i] - along * run[i])
+    });
     let shift = py::dot(&out.motion.translation, &run);
     SectionPassage {
         frame: PassageFrame {
-            origin: [0, 1, 2].map(|i| q[i] - along * run[i]),
+            origin,
             run,
             u: out.direction(u),
             v: out.direction(v),
         },
-        run_interval: (run_interval.0 + shift, run_interval.1 + shift),
+        run_interval: out.placed(run_interval, |_, (lo, hi)| (lo + shift, hi + shift)),
         section: passage_section(section),
         ends: passage_ends(ends),
     }
@@ -1895,12 +2021,13 @@ fn section_passage(out: &mut Out, r: SectionPassage) -> SectionPassage {
 /// A section recess's frame as a section passage's ([`section_passage`]), its section, its ends'
 /// gradients and a cylindrical end's axis across the section unchanged (they are in the frame's
 /// `u` and `v`, which turn with it), and its run coordinates (the interval, an envelope's terms'
-/// heights, a cylinder's axis height) moved by the shift along `run`. Those are published on the
-/// three- and six-decimal grids the record checks, so the shift is taken on the three-decimal
-/// grid and the frame's origin set off along `run` by the rest (at most 0.0005 mm): each
-/// coordinate then moves exactly on its grid, and the geometry is the same. A record whose
-/// checks still refuse the moved values (a rounding tie) stays in the frame, its placed fields
-/// listed local.
+/// heights, a cylinder's axis height), measured along `run` from the origin, moved with it.
+/// Published, the origin is the unrounded one's image on the plane through the file's origin
+/// across `run`, and each run coordinate is the unrounded one moved by that projection's shift,
+/// each published once on its grid. Carried as found (for fingerprints), the shift is taken on
+/// the three-decimal grid and the frame's origin set off along `run` by the rest (at most
+/// 0.0005 mm), so each coordinate moves exactly on its grid. A record whose checks still refuse
+/// the moved values (a rounding tie) stays in the frame, its placed fields listed local.
 fn section_recess(out: &mut Out, r: SectionRecess) -> SectionRecess {
     match moved_section_recess(out, &r) {
         Some(moved) => moved,
@@ -1918,25 +2045,57 @@ fn moved_section_recess(out: &Out, r: &SectionRecess) -> Option<SectionRecess> {
     let geometry = r.geometry();
     let PassageFrame { origin, run, u, v } = geometry.frame().clone();
     let run = out.direction(run);
-    let shift = py::round_to(py::dot(&out.motion.translation, &run), 3);
-    let q = out.point(origin);
+    let (origin, shift) = if out.publish {
+        let q = out.point(*origin.raw());
+        let along = py::dot(&q, &run);
+        let projected = origin.carried(true, |_| [0, 1, 2].map(|i| q[i] - along * run[i]));
+        (projected, along)
+    } else {
+        let shift = py::round_to(py::dot(&out.motion.translation, &run), 3);
+        let moved = origin.carried(false, |o| {
+            let q = out.point(o);
+            [0, 1, 2].map(|i| q[i] - shift * run[i])
+        });
+        (moved, shift)
+    };
     let frame = PassageFrame {
-        origin: [0, 1, 2].map(|i| q[i] - shift * run[i]),
+        origin,
         run,
         u: out.direction(u),
         v: out.direction(v),
     };
-    let (lo, hi) = geometry.run_interval();
-    let run_interval = (py::round_to(lo + shift, 3), py::round_to(hi + shift, 3));
+    // A run coordinate on its grid of *digits* decimals, moved by the shift.
+    let publish = out.publish;
+    let moved = |c: Placed<f64>, digits: usize| {
+        c.carried(publish, |v| {
+            if publish {
+                v + shift
+            } else {
+                py::round_to(v + shift, digits)
+            }
+        })
+    };
+    let run_interval = geometry.placed_run_interval().ends().map(|c| moved(c, 3));
+    let run_interval = Placed::from_parts(
+        (*run_interval[0], *run_interval[1]),
+        (*run_interval[0].raw(), *run_interval[1].raw()),
+        run_interval[0].grid(),
+    );
     let end = |end: &SectionEnd| -> Option<SectionEnd> {
         let surface = match end.surface() {
             EndSurface::Planar(p) => EndSurface::Planar(p.clone()),
             EndSurface::Cylindrical(c) => {
-                let [a, b, height] = c.axis_point();
+                let axis_point = c.placed_axis_point();
+                let height = moved(axis_point.map(|[_, _, h]| h), 6);
+                let axis_point = Placed::from_parts(
+                    [axis_point[0], axis_point[1], *height],
+                    [axis_point.raw()[0], axis_point.raw()[1], *height.raw()],
+                    axis_point.grid(),
+                );
                 EndSurface::Cylindrical(
                     CylindricalEndSurface::new(
                         "cylinder",
-                        [a, b, py::round_to(height + shift, 6)],
+                        axis_point,
                         c.axis_direction(),
                         c.radius(),
                         c.branch(),
@@ -1946,7 +2105,7 @@ fn moved_section_recess(out: &Out, r: &SectionRecess) -> Option<SectionRecess> {
             }
             EndSurface::PlanarEnvelope(e) => {
                 let term = |t: &PlanarEndTerm| {
-                    PlanarEndTerm::new(py::round_to(t.height() + shift, 6), t.gradient()).ok()
+                    PlanarEndTerm::new(moved(t.placed_height(), 6), t.gradient()).ok()
                 };
                 let [t0, t1] = e.terms();
                 EndSurface::PlanarEnvelope(
@@ -1998,12 +2157,12 @@ fn prismatic_pocket(out: &mut Out, r: PrismaticPocket) -> PrismaticPocket {
         open_sign: out.sign(i, open_sign, "open_sign"),
         section: section
             .into_iter()
-            .map(|p| out.across(i, p, "section"))
+            .map(|p| out.placed_across(i, p, "section"))
             .collect(),
         axis: out.letter_string(axis, "axis"),
         sides,
         depth,
-        at: out.point(at),
+        at: out.placed_point(at),
     }
 }
 
@@ -2018,21 +2177,31 @@ fn oriented_slot(out: &mut Out, r: OrientedSlot) -> OrientedSlot {
         center,
         body_key,
     } = r;
+    let source = section_passage(out, source);
+    // The centre is the source's mid-run point: published, measured on the published source as
+    // the recogniser measured it.
+    let center = if out.publish {
+        let f = &source.frame;
+        let run_midpoint = 0.5 * py::sum([source.run_interval.0, source.run_interval.1]);
+        [0, 1, 2].map(|a| Grid::Decimals(3).publish(f.origin[a] + run_midpoint * f.run[a]))
+    } else {
+        out.point(center)
+    };
     OrientedSlot {
-        source: section_passage(out, source),
+        source,
         width_direction: out.direction(width_direction),
         long_direction: out.direction(long_direction),
         width,
         length,
-        center: out.point(center),
+        center,
         body_key: out.body_key(body_key, "body_key"),
     }
 }
 
 fn oriented_slot_pattern(out: &mut Out, r: OrientedSlotPattern) -> OrientedSlotPattern {
     let members = |out: &mut Out, slots: Vec<OrientedSlot>| {
-        let mut each = Out::new(out.motion, "slots[].");
-        let slots = slots
+        let mut each = Out::new(out.motion, out.publish, "slots[].");
+        let slots: Vec<OrientedSlot> = slots
             .into_iter()
             .map(|s| oriented_slot(&mut each, s))
             .collect();
@@ -2054,14 +2223,16 @@ fn oriented_slot_pattern(out: &mut Out, r: OrientedSlotPattern) -> OrientedSlotP
                 .first()
                 .expect("an oriented slot pattern has members")
                 .depth_direction();
+            let angle = out.pattern_angle(normal, angle, 180.0);
+            let slots = members(out, slots);
             OrientedSlotPattern::OrientedSlotGrid {
-                angle: out.pattern_angle(normal, angle, 180.0),
-                slots: members(out, slots),
+                center: out.pattern_center(center, &slots),
+                angle,
+                slots,
                 rows,
                 cols,
                 row_pitch,
                 col_pitch,
-                center: out.point(center),
             }
         }
         OrientedSlotPattern::OrientedSlotArray {
@@ -2089,19 +2260,29 @@ fn raised_pad(out: &mut Out, r: RaisedPad) -> RaisedPad {
         direction,
     } = r;
     let i = index_str(&axis);
-    let b = out.bounds(&[x0, y0, z0, x1, y1, z1], false, "x0");
-    if out.axes.is_none() {
-        for path in ["x1", "y0", "y1", "z0", "z1"] {
-            out.mark(path);
+    // The box, as [`Out::bounds`] carries it: each axis's interval to its target axis.
+    let (mut low, mut high) = ([x0, y0, z0], [x1, y1, z1]);
+    match out.axes {
+        Some(axes) => {
+            let (from_low, from_high) = (low, high);
+            for (k, &(w, _)) in axes.iter().enumerate() {
+                (low[w], high[w]) = out.placed_interval(k, (from_low[k], from_high[k]), "x0");
+            }
+        }
+        None => {
+            for path in ["x0", "x1", "y0", "y1", "z0", "z1"] {
+                out.mark(path);
+            }
         }
     }
+    let ([x0, y0, z0], [x1, y1, z1]) = (low, high);
     RaisedPad {
-        x0: b[0],
-        x1: b[3],
-        y0: b[1],
-        y1: b[4],
-        z0: b[2],
-        z1: b[5],
+        x0,
+        x1,
+        y0,
+        y1,
+        z0,
+        z1,
         direction: out.sign(i, direction, "direction"),
         axis: out.letter_string(axis, "axis"),
     }
@@ -2167,7 +2348,7 @@ fn riser(out: &mut Out, r: RiserEvidence) -> RiserEvidence {
         body_key,
     } = r;
     let body_key = out.body_key(body_key, "body_key");
-    let mut levels = Out::new(out.motion, "body_levels[].");
+    let mut levels = Out::new(out.motion, out.publish, "body_levels[].");
     let mut body_levels: Vec<FaceLevel> = body_levels
         .into_iter()
         .map(|l| face_level(&mut levels, l))
@@ -2201,11 +2382,11 @@ fn riser(out: &mut Out, r: RiserEvidence) -> RiserEvidence {
             body_key,
         };
     };
-    let mut along = |letter: char, values: Vec<f64>, path: &str| {
+    let mut along = |letter: char, values: Vec<Placed<f64>>, path: &str| {
         let i = index(letter);
-        let mut moved: Vec<f64> = values
+        let mut moved: Vec<Placed<f64>> = values
             .into_iter()
-            .map(|v| out.coordinate(i, v, path))
+            .map(|v| out.placed(v, |out, v| out.coordinate(i, v, path)))
             .collect();
         if axes[i].1 < 0.0 {
             moved.reverse();
@@ -2426,4 +2607,68 @@ fn modelled_thread_refusal(
 ) -> crate::features::modelled_threads::ModelledThreadRefusal {
     r.axis = thread_axis(out, r.axis).0;
     r
+}
+
+#[cfg(test)]
+mod publication_tests {
+    use super::*;
+    use crate::features::fillets::Fillet;
+    use crate::features::placed::Grid;
+
+    fn fillet(at: V3) -> Features {
+        Features {
+            fillets: vec![Fillet {
+                axis: 'x',
+                radius: 2.0,
+                at: Placed::new(at, Grid::Decimals(3)),
+                turned: false,
+                side: "convex",
+            }],
+            ..Features::default()
+        }
+    }
+
+    fn quarter_turn(translation: V3) -> Rigid {
+        Rigid {
+            rotation: [[0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]],
+            translation,
+        }
+    }
+
+    /// Rounded in the frame and moved by an origin off the grid, the hole of #69 came back as
+    /// 39.999728; carried unrounded and published once, it is 40.
+    #[test]
+    fn positions_are_published_once_on_the_files_grid() {
+        let origin = [-2.347589604795208, -1.3536804064754746, -32.2985296392566];
+        let raw = [
+            41.353_680_406_475_475 + 1e-10,
+            2.347589604795208 + 42.0,
+            72.2985296392566,
+        ];
+        let mapped = map_features(fillet(raw), &quarter_turn(origin));
+        let published = *mapped.features.fillets[0].at;
+        assert_eq!(published, [-46.695, 40.0, 40.0]);
+        // Fingerprints read the frame's published value carried as it is.
+        let found = *mapped.fingerprinted.fillets[0].at;
+        assert_eq!(found, quarter_turn(origin).point([41.354, 44.348, 72.299]));
+        assert_eq!(mapped.features.fillets[0].axis, 'y');
+    }
+
+    /// Where the motion keeps the grid (a signed permutation and a translation on it), the
+    /// published values are those carried as found, cleared of the addition's binary noise.
+    #[test]
+    fn a_motion_on_the_grid_changes_nothing_but_noise() {
+        let motion = quarter_turn([10.0, -3.5, 0.25]);
+        let mapped = map_features(fillet([1.23456, -7.0004, 3.9994]), &motion);
+        let (published, found) = (
+            *mapped.features.fillets[0].at,
+            *mapped.fingerprinted.fillets[0].at,
+        );
+        assert_eq!(published, [17.0, -2.265, 4.249]);
+        assert!(
+            (0..3).all(|i| (published[i] - found[i]).abs() < 1e-12),
+            "{found:?}"
+        );
+        assert!(mapped.features.fillets[0].at.on_grid());
+    }
 }

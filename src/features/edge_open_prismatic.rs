@@ -15,6 +15,7 @@ use super::Context;
 use super::edge_open::{SPAN_EPS, dist2, floor_proof, mouths, principal_plane};
 use super::evidence::{self, EvidenceError, Occurrence, common_valid_solid};
 use super::graph::{is_planar, normal, ordered_chain, shared_occurrences, span};
+use super::placed::{Grid, Placed};
 use super::policy::AXIS_ZERO_COS;
 use crate::kernel::brep::{Arc, Part};
 use crate::kernel::geom::Curve;
@@ -28,15 +29,22 @@ type Point = [f64; 2];
 /// The physical endpoints of the absent wall, with no implied segment between them.
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct OpenSectionOpening {
-    pub start: Point,
-    pub end: Point,
+    pub start: Placed<Point>,
+    pub end: Placed<Point>,
 }
 
 /// The canonical wall chain and its opening side.
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct OpenPolygonalSection {
-    pub wall_chain: Vec<Point>,
+    pub wall_chain: Vec<Placed<Point>>,
     pub opening: OpenSectionOpening,
+}
+
+impl OpenPolygonalSection {
+    /// The wall chain's published corners.
+    pub fn wall_points(&self) -> Vec<Point> {
+        self.wall_chain.iter().map(|p| **p).collect()
+    }
 }
 
 /// A blind prismatic recess with one physical side open. `run_interval` is floor to mouth
@@ -44,7 +52,7 @@ pub struct OpenPolygonalSection {
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct EdgeOpenPrismaticRecess {
     pub axis: char,
-    pub run_interval: [f64; 2],
+    pub run_interval: Placed<[f64; 2]>,
     pub open_sign: i32,
     pub section: OpenPolygonalSection,
 }
@@ -63,11 +71,11 @@ impl EdgeOpenPrismaticRecess {
         let (s, o) = (&self.section, &other.section);
         self.axis
             .cmp(&other.axis)
-            .then_with(|| py::tuple_order(&self.run_interval, &other.run_interval))
+            .then_with(|| py::tuple_order(&self.run_interval[..], &other.run_interval[..]))
             .then(self.open_sign.cmp(&other.open_sign))
-            .then_with(|| chain_order(&s.wall_chain, &o.wall_chain))
-            .then_with(|| py::tuple_order(&s.opening.start, &o.opening.start))
-            .then_with(|| py::tuple_order(&s.opening.end, &o.opening.end))
+            .then_with(|| chain_order(&s.wall_points(), &o.wall_points()))
+            .then_with(|| py::tuple_order(&s.opening.start[..], &o.opening.start[..]))
+            .then_with(|| py::tuple_order(&s.opening.end[..], &o.opening.end[..]))
     }
 }
 
@@ -235,25 +243,26 @@ fn section_from_walls(
     };
     let first = away(physical[0], joins[0])?;
     let last = away(physical[physical.len() - 1], joins[joins.len() - 1])?;
-    let round = |p: Point| p.map(|c| py::without_negative_zero(py::round_to(c, 4)));
-    let mut chain: Vec<Point> = std::iter::once(first)
+    let mut placed: Vec<Placed<Point>> = std::iter::once(first)
         .chain(joins)
         .chain(std::iter::once(last))
-        .map(round)
+        .map(|p| Placed::new(p, Grid::CleanDecimals(4)))
         .collect();
+    let mut chain: Vec<Point> = placed.iter().map(|p| **p).collect();
     let reversed: Vec<Point> = chain.iter().rev().copied().collect();
     if chain_order(&reversed, &chain).is_lt() {
         chain = reversed;
+        placed.reverse();
     }
     if !valid_chain(&chain) {
         return None;
     }
     let opening = OpenSectionOpening {
-        start: chain[chain.len() - 1],
-        end: chain[0],
+        start: placed[placed.len() - 1],
+        end: placed[0],
     };
     Some(OpenPolygonalSection {
-        wall_chain: chain,
+        wall_chain: placed,
         opening,
     })
 }
@@ -360,10 +369,10 @@ fn one_floor(ctx: &Context<'_>, floor: usize) -> Option<Occurrence<EdgeOpenPrism
     Some(Occurrence {
         record: EdgeOpenPrismaticRecess {
             axis: AXES[axis],
-            run_interval: [
-                py::round_to3(floor_at.min(mouth_at)),
-                py::round_to3(floor_at.max(mouth_at)),
-            ],
+            run_interval: Placed::new(
+                [floor_at.min(mouth_at), floor_at.max(mouth_at)],
+                Grid::Decimals(3),
+            ),
             open_sign: if mouth_at > floor_at { 1 } else { -1 },
             section,
         },

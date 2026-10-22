@@ -54,6 +54,7 @@ pub mod paired_ramp_steps;
 pub mod passage_compat;
 pub mod passages;
 pub(crate) mod pattern_geometry;
+pub mod placed;
 pub mod plane_envelope_passages;
 pub mod planes;
 pub mod plates;

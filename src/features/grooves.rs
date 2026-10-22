@@ -15,6 +15,7 @@ use serde::{Deserialize, Serialize};
 use super::Context;
 use super::cylinders::{CylinderEvidence, z_then_cross};
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::placed::{Grid, Placed};
 use super::policy;
 use super::turned::{TurnedProfileKey, axis_letter, profile_key_from_bands};
 use crate::kernel::brep::Part;
@@ -39,7 +40,7 @@ pub struct Groove {
     pub axis: char,
     pub width: f64,
     pub diameter: f64,
-    pub at: V3,
+    pub at: Placed<V3>,
     pub profile: Option<TurnedProfileKey>,
 }
 
@@ -301,7 +302,10 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Groove>> {
                 continue;
             }
             let bb = part.face_bounds(cur.face);
-            let at: V3 = std::array::from_fn(|k| py::round_to(0.5 * (bb.min[k] + bb.max[k]), 3));
+            let at = Placed::new(
+                std::array::from_fn(|k| 0.5 * (bb.min[k] + bb.max[k])),
+                Grid::Decimals(3),
+            );
             out.push(Occurrence {
                 record: Groove {
                     axis: axis_letter(cur.axis),
@@ -319,7 +323,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Groove>> {
         a.record
             .axis
             .cmp(&b.record.axis)
-            .then_with(|| py::tuple_order(&a.record.at, &b.record.at))
+            .then_with(|| py::tuple_order(&a.record.at[..], &b.record.at[..]))
     });
     out
 }

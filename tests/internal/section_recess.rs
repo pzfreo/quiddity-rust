@@ -6,6 +6,7 @@ use std::io::Read;
 
 use quiddity::features::cylindrical_end_surface::CylindricalEndSurface;
 use quiddity::features::passages::{PassageFrame, PassageSectionVertex};
+use quiddity::features::placed::Placed;
 use quiddity::features::section_recess::{
     ClosedSectionProfile, EndSurface, OpenSectionProfile, PlanarEndSurface, PlanarEndTerm,
     PlanarEnvelopeEndSurface, SectionEnd, SectionProfile, SectionRecess, SectionRecessArray,
@@ -83,7 +84,7 @@ fn frame(v: &Value) -> Built<PassageFrame> {
     nested(
         "PassageFrame",
         PassageFrame::new(
-            floats(&v["origin"]),
+            Placed::exact(floats(&v["origin"])),
             floats(&v["run"]),
             floats(&v["u"]),
             floats(&v["v"]),
@@ -143,7 +144,7 @@ fn planar(v: &Value) -> Built<PlanarEndSurface> {
 
 fn term(v: &Value) -> Built<PlanarEndTerm> {
     own(PlanarEndTerm::new(
-        float(&v["height"]),
+        Placed::exact(float(&v["height"])),
         floats(&v["gradient"]),
     ))
 }
@@ -170,7 +171,7 @@ fn surface(v: &Value) -> Built<EndSurface> {
             "CylindricalEndSurface",
             CylindricalEndSurface::new(
                 text(&v["type"]),
-                floats(&v["axis_point"]),
+                Placed::exact(floats(&v["axis_point"])),
                 floats(&v["axis_direction"]),
                 float(&v["radius"]),
                 text(&v["branch"]),
@@ -199,7 +200,7 @@ fn geometry(v: &Value) -> Built<SectionRecessGeometry> {
     own(SectionRecessGeometry::new(
         text(&v["type"]),
         frame(&v["frame"])?,
-        (lo, hi),
+        Placed::exact((lo, hi)),
         profile(&v["profile"])?,
         nested("SectionRecessEnds", ends(&v["ends"]))?,
     ))

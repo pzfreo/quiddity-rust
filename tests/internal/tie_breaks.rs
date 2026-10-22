@@ -33,7 +33,7 @@ fn bore_ends(h: &features::holes::HoleRecord) -> [[f64; 3]; 2] {
         .map(|s| s.depth)
         .sum::<f64>();
     [offset, offset + h.depth]
-        .map(|s| quiddity::kernel::geom::add(h.location, quiddity::kernel::geom::scale(h.axis, s)))
+        .map(|s| quiddity::kernel::geom::add(*h.location, quiddity::kernel::geom::scale(h.axis, s)))
 }
 
 #[test]
@@ -90,7 +90,7 @@ fn equal_mouths_choose_by_inward_geometry_under_motion() {
             at[2][3] + 15. * at[2][2],
         ];
         assert!(
-            quiddity::kernel::py::dist(&hole.location, &expected) < 1e-6,
+            quiddity::kernel::py::dist(&hole.location[..], &expected) < 1e-6,
             "{hole:?}"
         );
         let mut got = found[0].defining.clone();
@@ -129,7 +129,8 @@ fn crossing_equal_patterns_refuse_under_motion_and_member_permutation() {
         .map(|point| HoleRecord {
             axis: [at[0][2], at[1][2], at[2][2]],
             location: [0, 1, 2]
-                .map(|i| at[i][3] + (0..3).map(|j| at[i][j] * point[j]).sum::<f64>()),
+                .map(|i| at[i][3] + (0..3).map(|j| at[i][j] * point[j]).sum::<f64>())
+                .into(),
             diameter: 2.,
             depth: 5.,
             bottom: Bottom::Through,
@@ -205,7 +206,8 @@ fn equal_pitch_grid_uses_population_to_assign_rows_under_motion() {
             .map(|p| HoleRecord {
                 axis: [at[0][2], at[1][2], at[2][2]],
                 location: [0, 1, 2]
-                    .map(|i| at[i][3] + (0..3).map(|j| at[i][j] * p[j]).sum::<f64>()),
+                    .map(|i| at[i][3] + (0..3).map(|j| at[i][j] * p[j]).sum::<f64>())
+                    .into(),
                 diameter: 2.,
                 depth: 5.,
                 bottom: Bottom::Through,
@@ -311,7 +313,7 @@ fn tied_countersink_attribution_keeps_the_bore_under_motion_and_seat_permutation
         let hole = &holes[0].record;
         let cs = CounterSink {
             axis: hole.axis,
-            location: [0, 1, 2].map(|i| hole.location[i] - hole.axis[i]),
+            location: ([0, 1, 2].map(|i| hole.location[i] - hole.axis[i])).into(),
             major_diameter: hole.diameter + 2.,
             drill_diameter: hole.diameter,
             included_angle: 90.,
@@ -427,7 +429,10 @@ fn bevel_uses_its_cutting_plane_to_resolve_equal_support_distances_under_motion(
     let real = found.iter().find(|o| o.defining == [13]).unwrap();
     // Independent OpenCascade plane equation: x=6.095095 at y=29.381039 is on the
     // bevel itself; the removed corner is the opposite x support, 10.137419.
-    assert_eq!(real.record.corner, Some([10.137, 29.381, 13.064]));
+    assert_eq!(
+        real.record.corner.map(|c| *c),
+        Some([10.137, 29.381, 13.064])
+    );
     let read = |at: &Placement| {
         let framed = quiddity::frames::prepare_framed_file(&path, at).unwrap();
         let mut found: Vec<_> = features::angled_steps::discover(&Context::new(&framed.part))
@@ -807,7 +812,7 @@ fn a_five_hundred_hole_perforated_plate_has_one_grid() {
         .flat_map(|x| {
             (0..25).map(move |y| HoleRecord {
                 axis: [0., 0., -1.],
-                location: [x as f64 * 10., y as f64 * 10., 5.],
+                location: ([x as f64 * 10., y as f64 * 10., 5.]).into(),
                 diameter: 2.,
                 depth: 10.,
                 bottom: Bottom::Through,

@@ -10,9 +10,11 @@ use std::cmp::Ordering;
 use serde::{Deserialize, Serialize};
 
 use super::Context;
+use super::body::BodyKey;
 use super::evidence::{self, EvidenceError, Occurrence, common_valid_solid};
 use super::graph::{face_vertices_along_loops, is_planar};
 use super::pattern_geometry::pattern_tol;
+use super::placed::{Grid, Placed};
 use super::planes::axis_aligned_axis;
 use super::policy::length_tol;
 use crate::kernel::brep::{Arc, Part};
@@ -26,12 +28,12 @@ const AXES: [char; 3] = ['x', 'y', 'z'];
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct GussetRib {
     pub thickness_axis: char,
-    pub thickness_bounds: (f64, f64),
-    pub supports: ((char, f64), (char, f64)),
+    pub thickness_bounds: Placed<(f64, f64)>,
+    pub supports: ((char, Placed<f64>), (char, Placed<f64>)),
     pub legs: (f64, f64),
     pub directions: (i32, i32),
     /// Equal signatures on separate solids are ambiguous, and give `None`.
-    pub body_key: Option<Vec<f64>>,
+    pub body_key: Option<BodyKey>,
 }
 
 /// Congruent ribs of one body: a constant-pitch array (`GussetRibArray`) or a pair reflected
@@ -209,14 +211,14 @@ fn rib_order(a: &GussetRib, b: &GussetRib) -> Ordering {
     let pair = |x: (f64, f64)| [x.0, x.1];
     a.thickness_axis
         .cmp(&b.thickness_axis)
-        .then_with(|| py::tuple_order(&pair(a.thickness_bounds), &pair(b.thickness_bounds)))
+        .then_with(|| py::tuple_order(&pair(*a.thickness_bounds), &pair(*b.thickness_bounds)))
         .then_with(|| {
             let (s, t) = (a.supports, b.supports);
             s.0.0
                 .cmp(&t.0.0)
-                .then_with(|| py::order(s.0.1, t.0.1))
+                .then_with(|| py::order(*s.0.1, *t.0.1))
                 .then_with(|| s.1.0.cmp(&t.1.0))
-                .then_with(|| py::order(s.1.1, t.1.1))
+                .then_with(|| py::order(*s.1.1, *t.1.1))
         })
         .then_with(|| py::tuple_order(&pair(a.legs), &pair(b.legs)))
         .then_with(|| a.directions.cmp(&b.directions))
@@ -347,10 +349,16 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<GussetRib>> {
         };
         let record = GussetRib {
             thickness_axis: AXES[left.axis],
-            thickness_bounds: (py::round_to3(low.at), py::round_to3(high.at)),
+            thickness_bounds: Placed::new((low.at, high.at), Grid::Decimals(3)),
             supports: (
-                (AXES[axes[0]], py::round_to3(left.support_coords[0])),
-                (AXES[axes[1]], py::round_to3(left.support_coords[1])),
+                (
+                    AXES[axes[0]],
+                    Placed::new(left.support_coords[0], Grid::Decimals(3)),
+                ),
+                (
+                    AXES[axes[1]],
+                    Placed::new(left.support_coords[1], Grid::Decimals(3)),
+                ),
             ),
             legs: (py::round_to3(legs[0]), py::round_to3(legs[1])),
             directions: (direction(0), direction(1)),
@@ -382,9 +390,9 @@ internal_entry! {
 /// centred mirror pairs.
 pub fn recognise_gusset_rib_patterns(ribs: &[GussetRib]) -> Vec<GussetRibPattern> {
     type Spec<'a> = (
-        &'a Vec<f64>,
+        &'a BodyKey,
         char,
-        ((char, f64), (char, f64)),
+        ((char, Placed<f64>), (char, Placed<f64>)),
         (f64, f64),
         (i32, i32),
         f64,
@@ -394,7 +402,7 @@ pub fn recognise_gusset_rib_patterns(ribs: &[GussetRib]) -> Vec<GussetRibPattern
         let Some(key) = rib.body_key.as_ref().filter(|k| !k.is_empty()) else {
             continue;
         };
-        let (lo, hi) = rib.thickness_bounds;
+        let (lo, hi) = *rib.thickness_bounds;
         let spec = (
             key,
             rib.thickness_axis,
@@ -410,7 +418,7 @@ pub fn recognise_gusset_rib_patterns(ribs: &[GussetRib]) -> Vec<GussetRibPattern
     }
 
     let bounds_order = |a: &GussetRib, b: &GussetRib| {
-        let pair = |x: (f64, f64)| [x.0, x.1];
+        let pair = |x: Placed<(f64, f64)>| [x.0, x.1];
         py::tuple_order(&pair(a.thickness_bounds), &pair(b.thickness_bounds))
     };
     let mut patterns = Vec::new();

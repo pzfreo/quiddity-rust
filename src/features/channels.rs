@@ -28,8 +28,8 @@ fn sort_key(a: &Channel, b: &Channel) -> Ordering {
         .then(a.width_axis.cmp(&b.width_axis))
         .then_with(|| {
             py::tuple_order(
-                &[a.lo, a.hi, a.w_center, a.width, a.d_lo, a.d_hi],
-                &[b.lo, b.hi, b.w_center, b.width, b.d_lo, b.d_hi],
+                &[*a.lo, *a.hi, *a.w_center, a.width, *a.d_lo, *a.d_hi],
+                &[*b.lo, *b.hi, *b.w_center, b.width, *b.d_lo, *b.d_hi],
             )
         })
         .then(a.open_sign.cmp(&b.open_sign))
@@ -150,11 +150,11 @@ mod tests {
                         width_axis: ['x', 'y', 'z'][w],
                         long_axis: ['x', 'y', 'z'][l],
                         width: 2.,
-                        w_center: shift,
-                        lo: shift - 5.,
-                        hi: shift + 5.,
-                        d_lo: shift + f64::from(sign).min(0.) * 3.,
-                        d_hi: shift + f64::from(sign).max(0.) * 3.,
+                        w_center: shift.into(),
+                        lo: (shift - 5.).into(),
+                        hi: (shift + 5.).into(),
+                        d_lo: (shift + f64::from(sign).min(0.) * 3.).into(),
+                        d_hi: (shift + f64::from(sign).max(0.) * 3.).into(),
                         open_sign: sign,
                         body_key: None,
                     };

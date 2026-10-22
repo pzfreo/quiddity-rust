@@ -4,8 +4,8 @@
 use serde::{Deserialize, Serialize};
 
 use super::body::BodyKey;
+use super::placed::{Grid, Placed};
 use crate::kernel::geom::V3;
-use crate::kernel::py;
 
 pub const AXES: [char; 3] = ['x', 'y', 'z'];
 
@@ -35,11 +35,11 @@ pub struct Slot {
     pub long_axis: char,
     pub width: f64,
     pub length: f64,
-    pub w_center: f64,
-    pub lo: f64,
-    pub hi: f64,
-    pub d_lo: f64,
-    pub d_hi: f64,
+    pub w_center: Placed<f64>,
+    pub lo: Placed<f64>,
+    pub hi: Placed<f64>,
+    pub d_lo: Placed<f64>,
+    pub d_hi: Placed<f64>,
     pub body_key: Option<BodyKey>,
     pub end_radius: Option<f64>,
     pub corner_radius: Option<f64>,
@@ -55,11 +55,11 @@ pub struct Pocket {
     pub width: f64,
     pub length: f64,
     pub depth: f64,
-    pub w_center: f64,
-    pub lo: f64,
-    pub hi: f64,
-    pub d_lo: f64,
-    pub d_hi: f64,
+    pub w_center: Placed<f64>,
+    pub lo: Placed<f64>,
+    pub hi: Placed<f64>,
+    pub d_lo: Placed<f64>,
+    pub d_hi: Placed<f64>,
     pub open_sign: i32,
     pub edge_anchored: bool,
     pub body_key: Option<BodyKey>,
@@ -74,11 +74,11 @@ pub struct Channel {
     pub width_axis: char,
     pub long_axis: char,
     pub width: f64,
-    pub w_center: f64,
-    pub lo: f64,
-    pub hi: f64,
-    pub d_lo: f64,
-    pub d_hi: f64,
+    pub w_center: Placed<f64>,
+    pub lo: Placed<f64>,
+    pub hi: Placed<f64>,
+    pub d_lo: Placed<f64>,
+    pub d_hi: Placed<f64>,
     pub open_sign: i32,
     pub body_key: Option<BodyKey>,
 }
@@ -129,11 +129,12 @@ macro_rules! recess {
         impl $record {
             /// Publish positions only after reductions have measured the raw spans.
             pub(crate) fn published(mut self) -> Self {
-                self.w_center = py::round_to(self.w_center, 2);
-                self.lo = py::round_to(self.lo, 2);
-                self.hi = py::round_to(self.hi, 2);
-                self.d_lo = py::round_to(self.d_lo, 2);
-                self.d_hi = py::round_to(self.d_hi, 2);
+                let publish = |v: Placed<f64>| Placed::new(*v.raw(), Grid::Decimals(2));
+                self.w_center = publish(self.w_center);
+                self.lo = publish(self.lo);
+                self.hi = publish(self.hi);
+                self.d_lo = publish(self.d_lo);
+                self.d_hi = publish(self.d_hi);
                 self
             }
         }
@@ -156,24 +157,24 @@ macro_rules! recess {
                 self.width
             }
             fn w_center(&self) -> f64 {
-                self.w_center
+                *self.w_center
             }
             fn lo(&self) -> f64 {
-                self.lo
+                *self.lo
             }
             fn hi(&self) -> f64 {
-                self.hi
+                *self.hi
             }
             fn d_lo(&self) -> f64 {
-                self.d_lo
+                *self.d_lo
             }
             fn d_hi(&self) -> f64 {
-                self.d_hi
+                *self.d_hi
             }
             fn spanned(&self, lo: f64, hi: f64, length: f64) -> Self {
                 Self {
-                    lo,
-                    hi,
+                    lo: lo.into(),
+                    hi: hi.into(),
                     length,
                     ..self.clone()
                 }

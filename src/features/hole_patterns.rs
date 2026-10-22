@@ -57,7 +57,7 @@ pub enum HolePattern {
 
 impl Located for HoleRecord {
     fn location(&self) -> V3 {
-        self.location
+        *self.location
     }
 }
 
@@ -132,14 +132,14 @@ impl HoleSpec {
 /// Holes whose openings share one plane perpendicular to *axis* (`_opening_plane_clusters`).
 fn opening_plane_clusters(members: &[&HoleRecord], axis: V3) -> Vec<Vec<usize>> {
     let direction = py::unit(axis).expect("unit axis");
-    let origin = members[0].location;
+    let origin = *members[0].location;
     let offsets: Vec<f64> = members
         .iter()
-        .map(|m| py::dot(&geom::sub(m.location, origin), &direction))
+        .map(|m| py::dot(&geom::sub(*m.location, origin), &direction))
         .collect();
     let scale = members
         .iter()
-        .map(|m| py::dist(&origin, &m.location))
+        .map(|m| py::dist(&origin, &m.location[..]))
         .fold(members[0].diameter, f64::max);
     policy::cluster_coordinates(&offsets, policy::length_tol(scale, OPENING_PLANE_REL_TOL))
 }
@@ -345,7 +345,7 @@ pub fn recognise_hole_patterns(holes: &[HoleRecord]) -> Vec<HolePattern> {
                 candidates.push((pattern, local.iter().map(|&l| indices[l]).collect()));
             }
         }
-        let locations: Vec<V3> = members.iter().map(|m| m.location).collect();
+        let locations: Vec<V3> = members.iter().map(|m| *m.location).collect();
         candidates.extend(linear_array_candidates(&members, &locations, hole_linear));
         patterns.extend(super::pattern_geometry::allocate_candidates(
             candidates, &locations,

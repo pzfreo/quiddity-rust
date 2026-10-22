@@ -26,6 +26,7 @@ use super::Context;
 use super::edge_open::SPAN_EPS;
 use super::evidence::{self, EvidenceError, Occurrence, common_valid_solid};
 use super::graph::{is_planar, normal, span};
+use super::placed::{Grid, Placed};
 use super::policy::AXIS_ZERO_COS;
 use super::rings::{Ring, canonical, capped_ends, centroid, cross_section, is_void, rings};
 use super::sections::V2;
@@ -52,17 +53,22 @@ pub struct PrismaticPocket {
     pub sides: usize,
     pub depth: f64,
     pub open_sign: i32,
-    pub at: [f64; 3],
-    pub section: Vec<V2>,
+    pub at: Placed<[f64; 3]>,
+    pub section: Vec<Placed<V2>>,
 }
 
 impl PrismaticPocket {
+    /// The section's published corners.
+    pub fn section_points(&self) -> Vec<V2> {
+        self.section.iter().map(|p| **p).collect()
+    }
+
     /// Python's sort key `(axis, at, section)`.
     fn order(&self, other: &Self) -> Ordering {
         self.axis
             .cmp(&other.axis)
-            .then_with(|| py::tuple_order(&self.at, &other.at))
-            .then_with(|| section_order(&self.section, &other.section))
+            .then_with(|| py::tuple_order(&self.at[..], &other.at[..]))
+            .then_with(|| section_order(&self.section_points(), &other.section_points()))
     }
 }
 
@@ -503,10 +509,10 @@ fn record(
         sides,
         depth: py::round_to(high - low, 3),
         open_sign,
-        at: at.map(|c| py::round_to(c, 3)),
+        at: Placed::new(at, Grid::Decimals(3)),
         section: section
             .iter()
-            .map(|p| p.map(|c| py::round_to(c, 3)))
+            .map(|&p| Placed::new(p, Grid::Decimals(3)))
             .collect(),
     }
 }

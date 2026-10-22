@@ -64,7 +64,7 @@ impl OrientedSlot {
     /// a `None` body key against a key (it raises); here `None` sorts first.
     fn sort_key(&self) -> Vec<f64> {
         let s = &self.source;
-        let mut key: Vec<f64> = [s.frame.origin, s.frame.run, s.frame.u, s.frame.v].concat();
+        let mut key: Vec<f64> = [*s.frame.origin, s.frame.run, s.frame.u, s.frame.v].concat();
         key.extend([s.run_interval.0, s.run_interval.1]);
         for v in &s.section.boundary {
             key.extend([v.point[0], v.point[1], v.bulge]);
@@ -81,7 +81,7 @@ impl OrientedSlot {
         key.extend([self.width, self.length]);
         key.extend(self.center);
         key.push(if self.body_key.is_some() { 1.0 } else { 0.0 });
-        key.extend(self.body_key.iter().flatten());
+        key.extend(self.body_key.iter().flat_map(|k| k.iter()));
         key
     }
 }
@@ -389,13 +389,13 @@ mod tests {
             .collect();
         SectionPassage::new(
             PassageFrame::new(
-                [x, 2.0, 0.0],
+                [x, 2.0, 0.0].into(),
                 [0.0, 0.0, 1.0],
                 [1.0, 0.0, 0.0],
                 [0.0, 1.0, 0.0],
             )
             .unwrap(),
-            (0.0, 10.0),
+            (0.0, 10.0).into(),
             PassageSection::new(boundary).unwrap(),
             PassageEnds::new(false, false, [0.0; 2], [0.0; 2]).unwrap(),
         )
@@ -445,15 +445,17 @@ mod tests {
     fn ambiguous_bodies_join_no_pattern_and_sort_first() {
         let at = |x: f64, key: Option<BodyKey>| {
             let mut p = passage(&RECT, 30.0, 1.0);
-            p.frame.origin = [x, 0.0, 0.0];
+            p.frame.origin = [x, 0.0, 0.0].into();
             project(&p, key).unwrap().unwrap()
         };
-        let keyed: Vec<OrientedSlot> = [0.0, 20.0, 40.0].map(|x| at(x, Some(vec![1.0]))).into();
+        let keyed: Vec<OrientedSlot> = [0.0, 20.0, 40.0]
+            .map(|x| at(x, Some(vec![1.0].into())))
+            .into();
         assert_eq!(recognise_oriented_slot_patterns(&keyed).len(), 1);
         let mut mixed = keyed.clone();
         mixed[1].body_key = None;
         assert!(recognise_oriented_slot_patterns(&mixed).is_empty());
-        let (a, b) = (at(0.0, Some(vec![1.0])), at(0.0, None));
+        let (a, b) = (at(0.0, Some(vec![1.0].into())), at(0.0, None));
         assert_eq!(by_record(&b, &a), Ordering::Less);
     }
 }

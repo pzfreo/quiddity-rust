@@ -9,6 +9,7 @@ use super::Context;
 use super::body::BodyKey;
 use super::evidence::{self, EvidenceError, Occurrence};
 use super::graph::face_vertices;
+use super::placed::{Grid, Placed};
 use super::planes::{axis_aligned_axis, coordinates, linear_quad, normalized, unit_plane_normal};
 use super::policy::length_tol;
 use crate::kernel::brep::{Arc, Part};
@@ -23,7 +24,7 @@ const END_EPS: f64 = COORD_FLOOR;
 pub struct ObliqueThroughStep {
     pub run: V3,
     pub length: f64,
-    pub at: V3,
+    pub at: Placed<V3>,
     pub depth_direction: V3,
     pub depth: f64,
     pub across_direction: V3,
@@ -36,13 +37,13 @@ impl ObliqueThroughStep {
     fn sort_key(&self) -> Vec<f64> {
         let mut key: Vec<f64> = self.run.to_vec();
         key.push(self.length);
-        key.extend(self.at);
+        key.extend(*self.at);
         key.extend(self.depth_direction);
         key.push(self.depth);
         key.extend(self.across_direction);
         key.extend(self.wall_outline.iter().flatten());
         key.push(if self.body_key.is_some() { 1.0 } else { 0.0 });
-        key.extend(self.body_key.iter().flatten());
+        key.extend(self.body_key.iter().flat_map(|k| k.iter()));
         key
     }
 }
@@ -311,7 +312,7 @@ fn one_pair(
     Some(ObliqueThroughStep {
         run: coordinates(run, 6),
         length: py::round_to3(run_length),
-        at: coordinates(scale(add(start, end), 0.5), 3),
+        at: Placed::new(scale(add(start, end), 0.5), Grid::CleanDecimals(3)),
         depth_direction: coordinates(principal_normal, 6),
         depth: py::round_to3(depth),
         across_direction: coordinates(across, 6),

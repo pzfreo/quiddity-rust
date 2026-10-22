@@ -4,6 +4,31 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
+## Unreleased
+
+- **Framed records are on their published grids (for #69).** A position a recogniser rounds
+  (a fillet's `at` to 0.001 mm, a hole's location to 11 significant figures, a recess's
+  `w_center` to 0.01 mm, a body key's box to 1e-6 mm) now keeps the value it was rounded
+  from. Framed recognition carries that unrounded value through the frame's motion and rounds
+  it once, in the file's coordinates, on the same grid; a decimal half-way point within the
+  coordinate floor takes the even neighbour. Positions derived from published ones (pattern
+  centres, a gusset mirror plane, an oriented slot's centre) are derived again from the
+  published values. Values move by less than one grid step: NIST CTC 01's hole at
+  `-124.99999999647548` is `-125.0`. Section recesses publish their frame origin on the
+  plane through the file's origin across the run, with run coordinates measured from it.
+  Sizes, counts, orders and fingerprints are unchanged (fingerprints read the values as found
+  in the frame). Record fields that hold positions are `features::placed::Placed<T>`, which
+  dereferences to the published value; build one with `Placed::exact` or `.into()`.
+- **Near-aligned frames are exact (for #70).** A frame whose axes are each within the kernel's
+  direction tolerance (`SMOOTH_ARC_GAP`) of a file axis is inferred as that signed permutation,
+  so its records map to the file's axes exactly instead of staying frame-local. On
+  `sm-hanger.step` the six fillets, the plate and the body keys are now in the file's axes;
+  only step levels, read along the frame's z by specification, stay local. Its fingerprints'
+  axes lose the 2.4e-9 tilt, and sizes measured on the snapped working part move below 1e-7.
+  A section passage's legacy compatibility check takes a run as principal within the same
+  tolerance (it required 1e-12), so a part turned 1e-10 rad from its file's axes no longer
+  fails recognition with "rich passage cannot reproduce its historical legacy value".
+
 ## 0.1.0 (2026-10-22)
 
 Upgrading from alpha.9:

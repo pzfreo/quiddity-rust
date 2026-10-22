@@ -32,6 +32,7 @@ use super::entry_treatments::material_fraction;
 use super::evidence::common_valid_solid;
 use super::graph::{face_vertices, is_planar, normal, shared_occurrences, span};
 use super::passages::{PassageFrame, PassageSectionVertex};
+use super::placed::{Grid, Placed};
 use super::plane_envelope_passages::{PlaneEnvelopePassageProof, plane_envelope_passage_proofs};
 use super::policy::length_tol;
 use super::recess_obround::END_RADIUS_FRAC;
@@ -418,8 +419,8 @@ pub fn project_section_recess_geometry(
     let condition = |capped: bool| if capped { "capped" } else { "open" };
     SectionRecessGeometry::new(
         "section_recess",
-        PassageFrame::new(f.origin, f.run, f.u, f.v)?,
-        projected.run_interval,
+        PassageFrame::new(projected.placed_origin, f.run, f.u, f.v)?,
+        projected.placed_run_interval,
         SectionProfile::Closed(ClosedSectionProfile::new("closed", boundary)?),
         SectionRecessEnds::new(
             end(condition(projected.ends.low_capped))?,
@@ -1178,7 +1179,7 @@ pub fn plane_envelope_geometry(
     let frame = &proof.frame;
     let r = |v: V3, d: usize| v.map(|c| py::round_to(c, d));
     let public_frame = PassageFrame::new(
-        r(frame.origin, 3),
+        Placed::new(frame.origin, Grid::CleanDecimals(3)),
         r(frame.run, 6),
         r(frame.u, 6),
         r(frame.v, 6),
@@ -1191,7 +1192,12 @@ pub fn plane_envelope_geometry(
     let terms = proof
         .terms
         .iter()
-        .map(|&(h, g)| PlanarEndTerm::new(py::round_to(h, 6), g.map(|c| py::round_to(c, 6))))
+        .map(|&(h, g)| {
+            PlanarEndTerm::new(
+                Placed::new(h, Grid::CleanDecimals(6)),
+                g.map(|c| py::round_to(c, 6)),
+            )
+        })
         .collect::<Result<Vec<_>, _>>()?;
     let mut sorted = terms.clone();
     sorted.sort_by(|a, b| {
@@ -1218,7 +1224,7 @@ pub fn plane_envelope_geometry(
     let geometry = SectionRecessGeometry::new(
         "section_recess",
         public_frame.clone(),
-        (py::round_to(interval[0], 3), py::round_to(interval[1], 3)),
+        Placed::new((interval[0], interval[1]), Grid::CleanDecimals(3)),
         SectionProfile::Closed(ClosedSectionProfile::new(
             "closed",
             public_points
@@ -1255,7 +1261,7 @@ pub fn plane_envelope_geometry(
     let dx = largest(&mut pairs().map(|(a, b)| (a[0] - b[0]).abs()));
     let dy = largest(&mut pairs().map(|(a, b)| (a[1] - b[1]).abs()));
     let pf = &public_frame;
-    let mut displacement = py::dist(&frame.origin, &pf.origin);
+    let mut displacement = py::dist(&frame.origin, &pf.origin[..]);
     displacement += largest(&mut raw_points.iter().map(|p| p[0].abs())) * py::dist(&frame.u, &pf.u);
     displacement += largest(&mut raw_points.iter().map(|p| p[1].abs())) * py::dist(&frame.v, &pf.v);
     displacement += height_bound * py::dist(&frame.run, &pf.run);
@@ -1384,11 +1390,10 @@ pub fn cylindrical_geometry(
     let unit_norm = py::hypot(&serialized_axis);
     let unit = serialized_axis.map(|c| c / unit_norm);
     let along = cx * unit[0] + cy * unit[1];
-    let axis_point = [
-        py::round_to(cx - along * unit[0], 6),
-        py::round_to(cy - along * unit[1], 6),
-        py::round_to(cz, 6),
-    ];
+    let axis_point = Placed::new(
+        [cx - along * unit[0], cy - along * unit[1], cz],
+        Grid::Decimals(6),
+    );
     let surface_radius = py::round_to(radius, 6);
     let surface = CylindricalEndSurface::new(
         "cylinder",
@@ -1410,7 +1415,7 @@ pub fn cylindrical_geometry(
     let projected = SectionRecessGeometry::new(
         "section_recess",
         projected.frame().clone(),
-        projected.run_interval(),
+        projected.placed_run_interval(),
         SectionProfile::Closed(public_profile),
         projected.ends().clone(),
     )?;
@@ -1470,7 +1475,7 @@ pub fn cylindrical_geometry(
     height_error += source_tilt_error;
     let floor_error = (floor_at - py::round_to(floor_at, 3)).abs();
     let pf = projected.frame();
-    let mut displacement = py::dist(&frame.origin, &pf.origin);
+    let mut displacement = py::dist(&frame.origin, &pf.origin[..]);
     let (uu, vv, uv) = (dot(pf.u, pf.u), dot(pf.v, pf.v), dot(pf.u, pf.v));
     // Largest singular value of the two serialized basis columns. This preserves their
     // near-orthogonality instead of adding perpendicular errors linearly.
@@ -1509,13 +1514,13 @@ pub fn cylindrical_geometry(
     } else {
         "capped"
     })?;
-    let centroid_end = py::round_to(surface.height([0.0, 0.0])?, 3);
-    let floor_rounded = py::round_to(floor_at, 3);
+    let centroid_end = surface.height([0.0, 0.0])?;
     let (interval, ends) = if end_index == 1 {
-        ((floor_rounded, centroid_end), (flat_end, curved_end))
+        ((floor_at, centroid_end), (flat_end, curved_end))
     } else {
-        ((centroid_end, floor_rounded), (curved_end, flat_end))
+        ((centroid_end, floor_at), (curved_end, flat_end))
     };
+    let interval = Placed::new(interval, Grid::CleanDecimals(3));
     SectionRecessGeometry::new(
         "section_recess",
         projected.frame().clone(),
@@ -1532,7 +1537,12 @@ internal_entry! {
 pub fn seat_geometry(seat: &CylindricalSeatProof) -> Checked<SectionRecessGeometry> {
     let raw = &seat.frame;
     let r = |v: V3, d: usize| v.map(|c| py::round_to(c, d));
-    let frame = PassageFrame::new(r(raw.origin, 3), r(raw.run, 6), r(raw.u, 6), r(raw.v, 6))?;
+    let frame = PassageFrame::new(
+        Placed::new(raw.origin, Grid::CleanDecimals(3)),
+        r(raw.run, 6),
+        r(raw.u, 6),
+        r(raw.v, 6),
+    )?;
     let [first, last] = seat.boundary.map(|v| {
         PassageSectionVertex::new(
             v.point.map(|c| py::round_to(c, 4)),
@@ -1564,9 +1574,10 @@ pub fn seat_geometry(seat: &CylindricalSeatProof) -> Checked<SectionRecessGeomet
         ]);
     arc_error += projected.radius * (original.sweep - projected.sweep).abs();
     let (t0, t1) = seat.run_interval;
-    let interval = (py::round_to(t0, 3), py::round_to(t1, 3));
+    let placed_interval = Placed::new((t0, t1), Grid::CleanDecimals(3));
+    let interval = *placed_interval;
     let extent = py::hypot(&original.centre) + original.radius;
-    let mut displacement = py::dist(&raw.origin, &frame.origin);
+    let mut displacement = py::dist(&raw.origin, &frame.origin[..]);
     displacement += t0.abs().max(t1.abs()) * py::dist(&raw.run, &frame.run);
     displacement +=
         (t0 - interval.0).abs().max((t1 - interval.1).abs()) * dot(frame.run, frame.run).sqrt();
@@ -1594,7 +1605,7 @@ pub fn seat_geometry(seat: &CylindricalSeatProof) -> Checked<SectionRecessGeomet
     SectionRecessGeometry::new(
         "section_recess",
         frame,
-        interval,
+        placed_interval,
         SectionProfile::Open(open_profile(chain)?),
         SectionRecessEnds::new(end("open")?, end("open")?)?,
     )

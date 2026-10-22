@@ -17,6 +17,7 @@ use super::cylinders::{
     CylinderEvidence, canonical_axis_direction, full_cylinders, line_key, z_then_cross,
 };
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::placed::{Grid, Placed};
 use super::planes::effective_plane;
 use super::turned::{TurnedProfileKey, axis_letter, profile_key_from_bands};
 use crate::kernel::brep::Part;
@@ -38,8 +39,8 @@ const OD_FILL_MIN: f64 = 0.6;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct TurnedStep {
     pub axis: char,
-    pub lo: f64,
-    pub hi: f64,
+    pub lo: Placed<f64>,
+    pub hi: Placed<f64>,
     /// The external diameter over this segment.
     pub diameter: f64,
     pub profile: Option<TurnedProfileKey>,
@@ -47,7 +48,7 @@ pub struct TurnedStep {
 
 impl TurnedStep {
     pub fn length(&self) -> f64 {
-        self.hi - self.lo
+        *self.hi - *self.lo
     }
 }
 
@@ -84,8 +85,8 @@ fn order(a: &TurnedStep, b: &TurnedStep) -> std::cmp::Ordering {
             _ => std::cmp::Ordering::Equal,
         })
         .then(a.axis.cmp(&b.axis))
-        .then(py::order(a.lo, b.lo))
-        .then(py::order(a.hi, b.hi))
+        .then(py::order(*a.lo, *b.lo))
+        .then(py::order(*a.hi, *b.hi))
         .then(py::order(a.diameter, b.diameter))
 }
 
@@ -266,14 +267,14 @@ fn proposals_coaxial<'c>(
     let mut found: Vec<Proposal<'c>> = Vec::new();
     for w in planes.windows(2) {
         let (lo, hi) = (w[0], w[1]);
-        let mut over = bands_over((lo + hi) / 2.0);
+        let mut over = bands_over((*lo + *hi) / 2.0);
         if let Some(first) = over.first() {
             // Every source patch of this diameter within the step, not only those at its middle
             // (split thread crests); the padded selection when there are none.
             let within: Vec<&CylinderEvidence> = bands
                 .iter()
                 .copied()
-                .filter(|c| c.diameter == first.diameter && c.s_hi > lo && c.s_lo < hi)
+                .filter(|c| c.diameter == first.diameter && c.s_hi > *lo && c.s_lo < *hi)
                 .collect();
             if !within.is_empty() {
                 over = within;
@@ -318,9 +319,9 @@ fn shoulder_stations(
     axis: usize,
     profile: &TurnedProfileKey,
     local_od: impl Fn(f64) -> f64,
-) -> Vec<f64> {
+) -> Vec<Placed<f64>> {
     let origin = profile.axis_origin;
-    let mut shoulders: Vec<f64> = Vec::new();
+    let mut shoulders: Vec<Placed<f64>> = Vec::new();
     for &face in faces {
         let Some((normal, offset)) = effective_plane(part, face) else {
             continue;
@@ -341,13 +342,13 @@ fn shoulder_stations(
         let od = local_od(pos);
         let allowance = (CHAMFER_ALLOWANCE_ABS + CHAMFER_ALLOWANCE_FRAC * od).min(od / 2.0);
         if outer >= od - allowance {
-            let station = py::round_to(pos, 3);
+            let station = Placed::new(pos, Grid::Decimals(3));
             if !shoulders.contains(&station) {
                 shoulders.push(station);
             }
         }
     }
-    shoulders.sort_by(|a, b| py::order(*a, *b));
+    shoulders.sort_by(|a, b| py::order(**a, **b));
     shoulders
 }
 

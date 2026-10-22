@@ -8,6 +8,7 @@ use super::cylinders::{
     CylinderEvidence, axis_line_coordinates, canonical_axis_direction, z_then_cross,
 };
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::placed::{Grid, Placed};
 use super::policy;
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, COORD_FLOOR, Surface, V3};
@@ -28,9 +29,9 @@ pub struct Flat {
     pub axis: char,
     /// The distance across the flats (or from one flat to the far side of the stock).
     pub across: f64,
-    pub at: V3,
-    pub axis_line: (f64, f64),
-    pub stock_span: (f64, f64),
+    pub at: Placed<V3>,
+    pub axis_line: Placed<(f64, f64)>,
+    pub stock_span: Placed<(f64, f64)>,
     pub axis_direction: V3,
 }
 
@@ -176,9 +177,9 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Flat>> {
             record: Flat {
                 axis: ['x', 'y', 'z'][c.axis],
                 across: py::round_to3(across),
-                at: cand.at.map(py::round_to3),
+                at: Placed::new(cand.at, Grid::Decimals(3)),
                 axis_line: axis_line_coordinates(c.axis, c.axis_point, c.direction),
-                stock_span: (py::round_to3(c.s_lo), py::round_to3(c.s_hi)),
+                stock_span: Placed::new((c.s_lo, c.s_hi), Grid::Decimals(3)),
                 axis_direction: canonical_axis_direction(c.axis, c.direction),
             },
             defining: vec![cand.face],
@@ -189,7 +190,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<Flat>> {
         a.record
             .axis
             .cmp(&b.record.axis)
-            .then_with(|| py::tuple_order(&a.record.at, &b.record.at))
+            .then_with(|| py::tuple_order(&a.record.at[..], &b.record.at[..]))
     });
     out
 }

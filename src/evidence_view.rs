@@ -522,7 +522,7 @@ fn project(
                     part,
                     &feature.constituent,
                     hole.axis,
-                    hole.location,
+                    *hole.location,
                     |offsets| {
                         let lo = offsets.iter().copied().fold(f64::INFINITY, f64::min);
                         let hi = offsets.iter().copied().fold(f64::NEG_INFINITY, f64::max);

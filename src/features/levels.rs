@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use super::Context;
 use super::body::BodyKey;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::placed::{Grid, Placed};
 use super::policy::{AXIS_ALIGNED_COS, AXIS_ZERO_COS, clears_threshold, cluster_coordinates};
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{Bounds, COORD_FLOOR, Surface};
@@ -52,17 +53,24 @@ impl FaceLevel {
     }
 }
 
+fn values(positions: &[Placed<f64>]) -> Vec<f64> {
+    positions.iter().map(|p| **p).collect()
+}
+
 fn key_order(a: &Option<BodyKey>, b: &Option<BodyKey>) -> Ordering {
-    py::tuple_order(a.as_deref().unwrap_or(&[]), b.as_deref().unwrap_or(&[]))
+    py::tuple_order(
+        a.as_ref().map_or(&[][..], |k| k.as_slice()),
+        b.as_ref().map_or(&[][..], |k| k.as_slice()),
+    )
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct RiserEvidence {
     pub vertical: bool,
     pub axis: char,
-    pub positions: Vec<f64>,
+    pub positions: Vec<Placed<f64>>,
     pub other_axis: char,
-    pub other_positions: Vec<f64>,
+    pub other_positions: Vec<Placed<f64>>,
     pub z_lo: f64,
     pub z_hi: f64,
     pub lo_at_envelope: bool,
@@ -78,9 +86,14 @@ impl RiserEvidence {
         self.vertical
             .cmp(&other.vertical)
             .then(self.axis.cmp(&other.axis))
-            .then_with(|| py::tuple_order(&self.positions, &other.positions))
+            .then_with(|| py::tuple_order(&values(&self.positions), &values(&other.positions)))
             .then(self.other_axis.cmp(&other.other_axis))
-            .then_with(|| py::tuple_order(&self.other_positions, &other.other_positions))
+            .then_with(|| {
+                py::tuple_order(
+                    &values(&self.other_positions),
+                    &values(&other.other_positions),
+                )
+            })
             .then(py::order(self.z_lo, other.z_lo))
             .then(py::order(self.z_hi, other.z_hi))
             .then(self.lo_at_envelope.cmp(&other.lo_at_envelope))
@@ -471,13 +484,13 @@ fn riser_proposals(
             positions: positions
                 .into_iter()
                 .filter(|&p| interior(axis, p))
-                .map(py::round_to3)
+                .map(|p| Placed::new(p, Grid::Decimals(3)))
                 .collect(),
             other_axis: ['x', 'y'][other],
             other_positions: other_positions
                 .into_iter()
                 .filter(|&p| interior(other, p))
-                .map(py::round_to3)
+                .map(|p| Placed::new(p, Grid::Decimals(3)))
                 .collect(),
             z_lo: fb.min[2],
             z_hi: fb.max[2],

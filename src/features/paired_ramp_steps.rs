@@ -6,6 +6,7 @@ use serde::Serialize;
 
 use super::Context;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::placed::{Grid, Placed};
 use super::policy::{self, AXIS_ALIGNED_COS};
 use crate::kernel::brep::{Arc, Part};
 use crate::kernel::geom::{Curve, SMOOTH_ARC_GAP, Surface, V3};
@@ -19,7 +20,7 @@ pub struct PairedRampStep {
     pub axis: char,
     pub angle: f64,
     pub length: f64,
-    pub at: V3,
+    pub at: Placed<V3>,
     pub opening_direction: V3,
     pub half_width: f64,
     /// Each side's width, low side first, when the two ramps differ.
@@ -102,7 +103,7 @@ fn order(a: &PairedRampStep, b: &PairedRampStep) -> std::cmp::Ordering {
         .cmp(&b.axis)
         .then(py::order(a.angle, b.angle))
         .then(py::order(a.length, b.length))
-        .then_with(|| py::tuple_order(&a.at, &b.at))
+        .then_with(|| py::tuple_order(&a.at[..], &b.at[..]))
         .then_with(|| py::tuple_order(&a.opening_direction, &b.opening_direction))
         .then(py::order(a.half_width, b.half_width))
 }
@@ -224,7 +225,7 @@ fn candidate(
     }) {
         return None;
     }
-    let at = edge_bounds.map(|span| py::round_to3(mid(span)));
+    let at = Placed::new(edge_bounds.map(mid), Grid::Decimals(3));
     let angle = l.normal[opposed]
         .abs()
         .atan2(l.normal[same].abs())

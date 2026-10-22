@@ -11,6 +11,7 @@ use serde::Serialize;
 use super::Context;
 use super::body::BodyKey;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::placed::{Grid, Placed};
 use super::planes::axis_aligned_axis;
 use super::volume_probe::{Spans, prism_is_empty};
 use crate::kernel::brep::{Arc, Part};
@@ -27,9 +28,9 @@ pub type EndpointScope = &'static str;
 pub struct ThroughStep {
     pub axis: char,
     pub length: f64,
-    pub at: [f64; 3],
+    pub at: Placed<[f64; 3]>,
     /// Boundary endpoint, concave corner, boundary endpoint, in the two non-run coordinates.
-    pub section: [[f64; 2]; 3],
+    pub section: [Placed<[f64; 2]>; 3],
     pub body_key: Option<BodyKey>,
     pub endpoint_scopes: [EndpointScope; 2],
 }
@@ -37,18 +38,18 @@ pub struct ThroughStep {
 impl ThroughStep {
     /// `ThroughStep._order_key`.
     fn order(&self, other: &Self) -> Ordering {
-        let flat = |s: &[[f64; 2]; 3]| s.concat();
+        let flat = |s: &[Placed<[f64; 2]>; 3]| s.map(|p| *p).concat();
         self.axis
             .cmp(&other.axis)
             .then_with(|| py::order(self.length, other.length))
-            .then_with(|| py::tuple_order(&self.at, &other.at))
+            .then_with(|| py::tuple_order(&self.at[..], &other.at[..]))
             .then_with(|| py::tuple_order(&flat(&self.section), &flat(&other.section)))
             .then_with(|| self.endpoint_scopes.cmp(&other.endpoint_scopes))
             .then_with(|| self.body_key.is_some().cmp(&other.body_key.is_some()))
             .then_with(|| {
                 py::tuple_order(
-                    self.body_key.as_deref().unwrap_or(&[]),
-                    other.body_key.as_deref().unwrap_or(&[]),
+                    self.body_key.as_ref().map_or(&[][..], |k| k.as_slice()),
+                    other.body_key.as_ref().map_or(&[][..], |k| k.as_slice()),
                 )
             })
     }
@@ -461,13 +462,16 @@ fn recognise_one(
                 continue;
             }
             claimed.push(nodes.clone());
-            let at = [0, 1, 2].map(|i| py::round_to3((spans[i].0 + spans[i].1) / 2.0));
+            let at = Placed::new(
+                [0, 1, 2].map(|i| (spans[i].0 + spans[i].1) / 2.0),
+                Grid::Decimals(3),
+            );
             out.push(Occurrence {
                 record: ThroughStep {
                     axis: AXES[run],
                     length: py::round_to3(high - low),
                     at,
-                    section: section.map(|p| p.map(py::round_to3)),
+                    section: section.map(|p| Placed::new(p, Grid::Decimals(3))),
                     body_key: body_key.clone(),
                     endpoint_scopes,
                 },

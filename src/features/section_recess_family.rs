@@ -32,6 +32,7 @@ use super::effective_surfaces::{EffectiveFaces, arc_length};
 use super::evidence::common_valid_solid;
 use super::graph::{face_vertices, is_planar, normal};
 use super::passages::{PassageFrame, PassageSectionVertex, SectionPassage};
+use super::placed::{Grid, Placed};
 use super::pockets::Pocket;
 use super::prismatic_pockets::PrismaticPocket;
 use super::recess_patterns::{PocketPattern, recognise_pocket_patterns};
@@ -721,7 +722,7 @@ fn corner_pocket_recess(
         let geometry = SectionRecessGeometry::new(
             "section_recess",
             geometry.frame().clone(),
-            geometry.run_interval(),
+            geometry.placed_run_interval(),
             geometry.profile().clone(),
             SectionRecessEnds::new(flat_end("open")?, flat_end("open")?)?,
         )?;
@@ -797,11 +798,11 @@ fn principal_local_point(axis: char, offsets: &[(char, f64)]) -> V2 {
 }
 
 /// The published run interval of a slot centred at *at* along *axis*.
-fn slot_interval(axis: char, at: V3, length: f64) -> (f64, f64) {
+fn slot_interval(axis: char, at: V3, length: f64) -> Placed<(f64, f64)> {
     let along = at[usize::from(axis as u8 - b'x')];
-    (
-        py::round_to(along - length / 2.0, 3),
-        py::round_to(along + length / 2.0, 3),
+    Placed::new(
+        (along - length / 2.0, along + length / 2.0),
+        Grid::CleanDecimals(3),
     )
 }
 
@@ -835,10 +836,10 @@ fn rectangular_blind_slot_recess(
     .collect::<Projected<Vec<_>>>()?;
     let geometry = publication(principal_open_geometry(
         &record.axis.to_string(),
-        slot_interval(record.axis, record.at, record.length),
+        slot_interval(record.axis, *record.at, record.length),
         record.open_sign,
         &chain,
-        Some(record.at),
+        Some(*record.at),
     ))?;
     legacy_section_recess(
         part,
@@ -887,10 +888,10 @@ fn round_bottom_blind_slot_recess(
     .collect::<Projected<Vec<_>>>()?;
     let geometry = publication(principal_open_geometry(
         &record.axis.to_string(),
-        slot_interval(record.axis, record.at, record.length),
+        slot_interval(record.axis, *record.at, record.length),
         record.open_sign,
         &chain,
-        Some(record.at),
+        Some(*record.at),
     ))?;
     legacy_section_recess(part, faces, index, geometry, "edge_open_recess", "general")
 }
@@ -909,11 +910,11 @@ fn edge_open_prismatic_recess(
         .section
         .wall_chain
         .iter()
-        .map(|&p| SectionVertex::new(p, 0.0).map_err(|e| Refusal::Whole(e.0.to_string())))
+        .map(|&p| SectionVertex::new(*p, 0.0).map_err(|e| Refusal::Whole(e.0.to_string())))
         .collect::<Projected<Vec<_>>>()?;
     let geometry = publication(principal_open_geometry(
         &record.axis.to_string(),
-        (record.run_interval[0], record.run_interval[1]),
+        record.run_interval.map(|[lo, hi]| (lo, hi)),
         record.open_sign,
         &boundary,
         None,
@@ -954,17 +955,17 @@ fn edge_open_circular_recess(
             py::round_to((sweep / 4.0).tan(), 12)
         };
         vertices.push(
-            SectionVertex::new(segment.start, bulge)
+            SectionVertex::new(*segment.start, bulge)
                 .map_err(|e| Refusal::Whole(e.0.to_string()))?,
         );
     }
     let Some(last) = segments.last() else {
         return whole("an open circular section requires four physical segments");
     };
-    vertices.push(SectionVertex::new(last.end, 0.0).map_err(|e| Refusal::Whole(e.0.to_string()))?);
+    vertices.push(SectionVertex::new(*last.end, 0.0).map_err(|e| Refusal::Whole(e.0.to_string()))?);
     let geometry = publication(principal_open_geometry(
         &record.axis.to_string(),
-        (record.run_interval[0], record.run_interval[1]),
+        record.run_interval.map(|[lo, hi]| (lo, hi)),
         record.open_sign,
         &vertices,
         None,
@@ -1021,7 +1022,7 @@ fn canonical_open_profile(
 /// in them about it), capped at the end away from *open_sign*.
 fn principal_open_geometry(
     axis: &str,
-    run_interval: (f64, f64),
+    run_interval: Placed<(f64, f64)>,
     open_sign: i32,
     boundary: &[SectionVertex],
     placement: Option<V3>,
@@ -1062,7 +1063,7 @@ fn principal_open_geometry(
         })
         .collect::<Result<Vec<_>, _>>()?;
     let frame = PassageFrame::new(
-        frame.origin.map(|v| py::round_to(v, 3)),
+        Placed::new(frame.origin, Grid::CleanDecimals(3)),
         frame.run,
         frame.u,
         frame.v,
@@ -1173,16 +1174,17 @@ fn legacy_section_geometry(record: &PrismaticPocket) -> Option<SectionRecessGeom
     if !matches!(record.open_sign, -1 | 1) {
         return None;
     }
-    let raw = normalise_published_section(&record.section)?;
+    let raw = normalise_published_section(&record.section_points())?;
     let transverse: Vec<usize> = (0..3).filter(|&i| i != index).collect();
     let centroid = raw.centroid();
     if (0..2).any(|i| (centroid[i] - record.at[transverse[i]]).abs() > 0.0008) {
         return None;
     }
     let grid = centroid.map(|v| round_int(v * 1000.0));
-    let mut origin = [0.0; 3];
+    let (mut origin, mut centre) = ([0.0; 3], [0.0; 3]);
     for i in 0..2 {
         origin[transverse[i]] = grid[i] as f64 / 1000.0;
+        centre[transverse[i]] = centroid[i];
     }
     let frame = LocalFrame::principal(&record.axis, origin).ok()?;
     let order = if record.axis == "y" { [1, 0] } else { [0, 1] };
@@ -1200,9 +1202,9 @@ fn legacy_section_geometry(record: &PrismaticPocket) -> Option<SectionRecessGeom
     )
     .ok()?;
     let along = record.at[index];
-    let interval = (
-        py::round_to(along - span / 2.0, 3),
-        py::round_to(along + span / 2.0, 3),
+    let interval = Placed::new(
+        (along - span / 2.0, along + span / 2.0),
+        Grid::CleanDecimals(3),
     );
     let boundary = local
         .boundary()
@@ -1227,7 +1229,13 @@ fn legacy_section_geometry(record: &PrismaticPocket) -> Option<SectionRecessGeom
     .ok()?;
     SectionRecessGeometry::new(
         "section_recess",
-        PassageFrame::new(frame.origin, frame.run, frame.u, frame.v).ok()?,
+        PassageFrame::new(
+            Placed::from_parts(frame.origin, centre, Grid::CleanDecimals(3)),
+            frame.run,
+            frame.u,
+            frame.v,
+        )
+        .ok()?,
         interval,
         SectionProfile::Closed(ClosedSectionProfile::new("closed", boundary).ok()?),
         ends,
@@ -1251,7 +1259,7 @@ fn vertex_bounds(part: &Part, face: usize) -> [(f64, f64); 3] {
 
 /// A proved corner notch (`CornerSectionProof`).
 struct CornerSectionProof {
-    run_interval: (f64, f64),
+    run_interval: Placed<(f64, f64)>,
     open_sign: i32,
     boundary: Vec<V2>,
 }
@@ -1419,7 +1427,7 @@ fn prove_corner_section(
         return None;
     }
     Some(CornerSectionProof {
-        run_interval: (py::round_to(low, 3), py::round_to(high, 3)),
+        run_interval: Placed::new((low, high), Grid::CleanDecimals(3)),
         open_sign: sign,
         boundary: vec![[first_at, far_v], [first_at, second_at], [far_u, second_at]],
     })
@@ -1428,7 +1436,7 @@ fn prove_corner_section(
 /// A proved two-ended open channel (`OpenChannelProof`).
 struct OpenChannelProof {
     axis: String,
-    run_interval: (f64, f64),
+    run_interval: Placed<(f64, f64)>,
     boundary: Vec<V2>,
     aperture_faces: Vec<usize>,
 }
@@ -1935,7 +1943,7 @@ fn prove_open_channel(
     .collect();
     Some(OpenChannelProof {
         axis: record.long_axis.to_string(),
-        run_interval: (py::round_to(span.0, 3), py::round_to(span.1, 3)),
+        run_interval: Placed::new(span, Grid::CleanDecimals(3)),
         boundary,
         aperture_faces: aperture_faces.into_iter().collect(),
     })

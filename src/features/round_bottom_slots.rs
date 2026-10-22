@@ -11,6 +11,7 @@ use serde::Serialize;
 
 use super::Context;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::placed::{Grid, Placed};
 use super::planes::axis_aligned_axis;
 use super::policy::{AXIS_ALIGNED_COS, AXIS_ZERO_COS};
 use super::regions::{
@@ -37,7 +38,7 @@ pub struct RoundBottomBlindSlot {
     pub depth_sign: i32,
     pub radius: f64,
     pub flat_width: f64,
-    pub at: V3,
+    pub at: Placed<V3>,
 }
 
 impl RoundBottomBlindSlot {
@@ -60,7 +61,7 @@ impl RoundBottomBlindSlot {
             .then(self.depth_sign.cmp(&other.depth_sign))
             .then(self.radius.total_cmp(&other.radius))
             .then(self.flat_width.total_cmp(&other.flat_width))
-            .then_with(|| py::tuple_order(&self.at, &other.at))
+            .then_with(|| py::tuple_order(&self.at[..], &other.at[..]))
     }
 }
 
@@ -392,7 +393,7 @@ fn recognise_one(ctx: &Context<'_>, solid: usize) -> Vec<Occurrence<RoundBottomB
                 depth_sign,
                 radius: py::round_to3(radius),
                 flat_width: py::round_to3(flat_width),
-                at: centre.map(py::round_to3),
+                at: Placed::new(centre, Grid::Decimals(3)),
             },
             defining,
             context: Vec::new(),

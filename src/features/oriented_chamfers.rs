@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use super::Context;
 use super::body::BodyKey;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::placed::{Grid, Placed};
 use super::planes::{coordinates, linear_quad, normalized, unit_plane_normal};
 use super::policy::{AXIS_ALIGNED_COS, INTERIOR_PROBE_FRAC};
 use crate::kernel::brep::{Arc, Part};
@@ -20,8 +21,8 @@ use crate::kernel::py;
 pub struct OrientedChamfer {
     pub run: V3,
     pub length: f64,
-    pub at: V3,
-    pub corner: V3,
+    pub at: Placed<V3>,
+    pub corner: Placed<V3>,
     pub leg1: f64,
     pub leg2: f64,
     pub leg1_direction: V3,
@@ -36,15 +37,15 @@ impl OrientedChamfer {
     fn sort_key(&self) -> Vec<f64> {
         let mut key: Vec<f64> = self.run.to_vec();
         key.push(self.length);
-        key.extend(self.at);
-        key.extend(self.corner);
+        key.extend(*self.at);
+        key.extend(*self.corner);
         key.extend([self.leg1, self.leg2]);
         key.extend(self.leg1_direction);
         key.extend(self.leg2_direction);
         key.extend(self.support_spans.iter().flatten());
         key.push(self.angle);
         key.push(if self.body_key.is_some() { 1.0 } else { 0.0 });
-        key.extend(self.body_key.iter().flatten());
+        key.extend(self.body_key.iter().flat_map(|k| k.iter()));
         key
     }
 }
@@ -229,8 +230,8 @@ fn pair(
     Some(OrientedChamfer {
         run: coordinates(run, 6),
         length: py::round_to3(run_length),
-        at: coordinates(at, 3),
-        corner: coordinates(corner, 3),
+        at: Placed::new(at, Grid::CleanDecimals(3)),
+        corner: Placed::new(corner, Grid::CleanDecimals(3)),
         leg1: py::round_to3(legs[0].0),
         leg2: py::round_to3(legs[1].0),
         leg1_direction: coordinates(legs[0].1, 6),

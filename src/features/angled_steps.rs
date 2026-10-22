@@ -6,6 +6,7 @@ use serde::Serialize;
 use super::Context;
 use super::bevel::{classify_bevel, material_beyond_corner, proved_bevel_planes};
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::placed::{Grid, Placed};
 use super::planes::axis_aligned_axis;
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, Curve, V3};
@@ -18,8 +19,8 @@ pub struct AngledStep {
     pub leg2: f64,
     pub angle: f64,
     pub length: f64,
-    pub at: V3,
-    pub corner: Option<V3>,
+    pub at: Placed<V3>,
+    pub corner: Option<Placed<V3>>,
 }
 
 internal_entry! {
@@ -98,8 +99,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<AngledStep>> {
         let Some(at) = part.face_centre(face) else {
             continue;
         };
-        let corner =
-            [0, 1, 2].map(|i| py::round_to3(if i == axis { centre[i] } else { planes[&i] }));
+        let corner = [0, 1, 2].map(|i| if i == axis { centre[i] } else { planes[&i] });
         out.push(Occurrence {
             record: AngledStep {
                 axis: ['x', 'y', 'z'][axis],
@@ -107,8 +107,8 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<AngledStep>> {
                 leg2: py::round_to3(bevel.leg_lo),
                 angle: py::round_to(bevel.leg_lo.atan2(bevel.leg_hi).to_degrees(), 2),
                 length: py::round_to3(bevel.bounds.max[axis] - bevel.bounds.min[axis]),
-                at: at.map(py::round_to3),
-                corner: Some(corner),
+                at: Placed::new(at, Grid::Decimals(3)),
+                corner: Some(Placed::new(corner, Grid::Decimals(3))),
             },
             defining: vec![face],
             context: closing,
@@ -118,7 +118,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<AngledStep>> {
         a.record
             .axis
             .cmp(&b.record.axis)
-            .then_with(|| py::tuple_order(&a.record.at, &b.record.at))
+            .then_with(|| py::tuple_order(&a.record.at[..], &b.record.at[..]))
     });
     out
 }

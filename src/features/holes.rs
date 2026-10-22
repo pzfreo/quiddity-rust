@@ -22,6 +22,7 @@ use super::cylinders::{
     z_then_cross,
 };
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::placed::{Grid, Placed};
 use super::policy;
 use super::stacks::{End, classify_end, end_partners};
 use crate::kernel::brep::Part;
@@ -63,7 +64,7 @@ pub enum Bottom {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct HoleRecord {
     pub axis: V3,
-    pub location: V3,
+    pub location: Placed<V3>,
     pub diameter: f64,
     pub depth: f64,
     pub bottom: Bottom,
@@ -592,7 +593,8 @@ pub fn discover(
         } else {
             axis_point_at(&stack[opening], opening_s)
         }
-        .map(|c| py::quantise(c, 11));
+        ;
+        let location = Placed::new(location, Grid::Figures(11));
         let mut record = HoleRecord {
             axis,
             location,
@@ -605,7 +607,7 @@ pub fn discover(
         };
         let mouth = HoleMouth {
             axis: record.axis,
-            location: record.location,
+            location: *record.location,
             diameter: record.diameter,
             depth: record.depth,
             through: record.bottom == Bottom::Through,

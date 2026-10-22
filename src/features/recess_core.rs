@@ -12,6 +12,7 @@ use std::rc::Rc;
 use super::Context;
 use super::evidence::common_valid_solid;
 use super::graph;
+use super::placed::{Grid, Placed};
 use super::policy::round_measurement;
 use super::recess_faces::{
     Cylinder, FLOOR_TOL, Face, MERGE_TOL, center, cylinder_faces, end_cap_faces, has_floor,
@@ -360,12 +361,12 @@ impl<'c, 'a> Scan<'c, 'a> {
             long_axis: AXES[long_axis],
             width: round_measurement(width, 2),
             length: round_measurement(hi - lo, 2),
-            w_center: (c_a + c_b) / 2.0,
-            lo,
-            hi,
-            d_lo,
-            d_hi,
-            body_key: Some(Vec::new()),
+            w_center: ((c_a + c_b) / 2.0).into(),
+            lo: lo.into(),
+            hi: hi.into(),
+            d_lo: d_lo.into(),
+            d_hi: d_hi.into(),
+            body_key: Some(Vec::new().into()),
             end_radius: None,
             corner_radius: None,
         })
@@ -429,14 +430,14 @@ impl<'c, 'a> Scan<'c, 'a> {
                         width: round_measurement(width, 2),
                         length: round_measurement(length, 2),
                         depth: round_measurement(d_hi - d_lo, 2),
-                        w_center: mid,
-                        lo: l_lo,
-                        hi: l_hi,
-                        d_lo,
-                        d_hi,
+                        w_center: mid.into(),
+                        lo: l_lo.into(),
+                        hi: l_hi.into(),
+                        d_lo: d_lo.into(),
+                        d_hi: d_hi.into(),
                         open_sign,
                         edge_anchored: false,
-                        body_key: Some(Vec::new()),
+                        body_key: Some(Vec::new().into()),
                         end_radius: None,
                         corner_radius: None,
                     })
@@ -455,13 +456,13 @@ impl<'c, 'a> Scan<'c, 'a> {
                         width_axis: AXES[axis],
                         long_axis: AXES[long_axis],
                         width: round_measurement(width, 2),
-                        w_center: py::round_to(mid, 2),
-                        lo: py::round_to(l_lo, 2),
-                        hi: py::round_to(l_hi, 2),
-                        d_lo: py::round_to(d_lo, 2),
-                        d_hi: py::round_to(d_hi, 2),
+                        w_center: Placed::new(mid, Grid::Decimals(2)),
+                        lo: Placed::new(l_lo, Grid::Decimals(2)),
+                        hi: Placed::new(l_hi, Grid::Decimals(2)),
+                        d_lo: Placed::new(d_lo, Grid::Decimals(2)),
+                        d_hi: Placed::new(d_hi, Grid::Decimals(2)),
                         open_sign,
-                        body_key: Some(Vec::new()),
+                        body_key: Some(Vec::new().into()),
                     })
                 }
             };
@@ -801,18 +802,18 @@ fn corner_notch_proposals(faces: &[Face], pbb: &Bounds) -> Vec<Proposal<Pocket>>
                 width: round_measurement(width, 2),
                 length: round_measurement(length, 2),
                 depth: round_measurement(d_hi - d_lo, 2),
-                w_center,
-                lo,
-                hi,
-                d_lo,
-                d_hi,
+                w_center: w_center.into(),
+                lo: lo.into(),
+                hi: hi.into(),
+                d_lo: d_lo.into(),
+                d_hi: d_hi.into(),
                 open_sign: if floor.normal[depth_axis] > 0.0 {
                     1
                 } else {
                     -1
                 },
                 edge_anchored: true,
-                body_key: Some(Vec::new()),
+                body_key: Some(Vec::new().into()),
                 end_radius: None,
                 corner_radius: None,
             };
