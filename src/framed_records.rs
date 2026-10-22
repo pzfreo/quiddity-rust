@@ -93,7 +93,8 @@ use crate::features::through_steps::ThroughStep;
 use crate::features::turned::TurnedProfileKey;
 use crate::features::turned_steps::TurnedStep;
 use crate::frames::PartFrame;
-use crate::kernel::geom::{V3, cross};
+use crate::kernel::brep::Part;
+use crate::kernel::geom::{COORD_FLOOR, V3, cross};
 use crate::kernel::py;
 use crate::kernel::step::Placement;
 
@@ -140,9 +141,43 @@ impl Rigid {
         [0, 1, 2].map(|i| py::dot(&self.rotation[i], &d))
     }
 
+    /// This motion with its rotation replaced by the nearest signed permutation, when that moves
+    /// no point within *reach* of the origin by more than the kernel's coordinate floor
+    /// ([`COORD_FLOOR`], the round-off publication already treats as no movement); otherwise
+    /// this motion. A part aligned with its file's axes up to round-off (#70: sm-hanger, 2.4e-9
+    /// rad) is then published in the file's axes, while its recognition, in the frame as
+    /// inferred, is untouched.
+    pub fn aligned_within(&self, reach: f64) -> Rigid {
+        let r = self.rotation;
+        let mut p = [[0.0; 3]; 3];
+        for i in 0..3 {
+            let w = (0..3)
+                .max_by(|&a, &b| r[a][i].abs().total_cmp(&r[b][i].abs()))
+                .expect("three rows");
+            p[w][i] = 1f64.copysign(r[w][i]);
+        }
+        let det = p[0][0] * (p[1][1] * p[2][2] - p[1][2] * p[2][1])
+            - p[0][1] * (p[1][0] * p[2][2] - p[1][2] * p[2][0])
+            + p[0][2] * (p[1][0] * p[2][1] - p[1][1] * p[2][0]);
+        // The Frobenius norm bounds how far the change moves a unit vector.
+        let deviation = (0..3)
+            .flat_map(|w| (0..3).map(move |i| (w, i)))
+            .map(|(w, i)| (r[w][i] - p[w][i]).powi(2))
+            .sum::<f64>()
+            .sqrt();
+        if det == 1.0 && (deviation == 0.0 || deviation * reach <= COORD_FLOOR) {
+            Rigid {
+                rotation: p,
+                translation: self.translation,
+            }
+        } else {
+            *self
+        }
+    }
+
     /// Each source axis's target axis and sign, when the rotation is a signed permutation
-    /// (every entry exactly 0 or ±1). A frame within the kernel's direction tolerance of one is
-    /// snapped to it when it is inferred ([`crate::frames::infer_part_frame`]).
+    /// (every entry exactly 0 or ±1). A frame within round-off of one is published through it
+    /// ([`Rigid::aligned_within`]).
     pub fn axes(&self) -> Option<[(usize, f64); 3]> {
         let r = self.rotation;
         let mut out = [(0, 0.0); 3];
@@ -171,15 +206,28 @@ pub type LocalFields = BTreeMap<String, Vec<String>>;
 pub struct Mapped {
     /// The records, their positions published in the target space.
     pub features: Features,
-    /// The same records with each published value carried as it is (not published again in
-    /// the target space): what fingerprints read, so they stay intrinsic to the part.
-    pub fingerprinted: Features,
+    /// The fields of [`Mapped::features`] left in the source frame.
     pub local: LocalFields,
+    /// The same records with each published value carried as it is (not published again in
+    /// the target space) through the exact motion, as before #69 and #70: what fingerprints
+    /// read, so they stay intrinsic to the part.
+    pub fingerprinted: Features,
+    /// The fields of [`Mapped::fingerprinted`] left in the source frame.
+    pub fingerprinted_local: LocalFields,
 }
 
-/// *features*, recognised on the framed working part, in the file's coordinates.
-pub fn to_file(features: Features, frame: &PartFrame) -> Mapped {
-    map_features(features, &Rigid::from_frame(frame))
+/// *features*, recognised on *working* (the framed working part), in the file's coordinates.
+/// They are published through the frame's motion, or through the signed permutation it is
+/// within round-off of across the working part ([`Rigid::aligned_within`]).
+pub fn to_file(features: Features, frame: &PartFrame, working: &Part) -> Mapped {
+    let exact = Rigid::from_frame(frame);
+    let bounds = working.bounds();
+    let reach = (0..3)
+        .map(|i| bounds.min[i].abs().max(bounds.max[i].abs()).powi(2))
+        .sum::<f64>()
+        .sqrt();
+    let published = exact.aligned_within(reach);
+    carry_both(features, &published, &exact)
 }
 
 const LETTERS: [char; 3] = ['x', 'y', 'z'];
@@ -455,12 +503,18 @@ impl<'a> Out<'a> {
 
 /// *features*, carried through *motion*: see the module documentation.
 pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
-    let (fingerprinted, _) = carry(features.clone(), motion, false);
-    let (features, local) = carry(features, motion, true);
+    carry_both(features, motion, motion)
+}
+
+/// *features* published through *published*, and carried as found through *exact*.
+fn carry_both(features: Features, published: &Rigid, exact: &Rigid) -> Mapped {
+    let (fingerprinted, fingerprinted_local) = carry(features.clone(), exact, false);
+    let (features, local) = carry(features, published, true);
     Mapped {
         features,
-        fingerprinted,
         local,
+        fingerprinted,
+        fingerprinted_local,
     }
 }
 
@@ -2633,6 +2687,38 @@ mod publication_tests {
             rotation: [[0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]],
             translation,
         }
+    }
+
+    /// A rotation within the coordinate floor of a signed permutation over the part's reach is
+    /// published as that permutation (#70); beyond it, or for a wider part, it is kept.
+    #[test]
+    fn a_near_permutation_is_snapped_only_within_the_coordinate_floor() {
+        // sm-hanger's frame: 2.42e-9 rad from x = file z, y = −file y, z = file x.
+        let e = 2.423932049116e-9;
+        let near = Rigid {
+            rotation: [[0.0, 0.0, 1.0], [e, -1.0, 0.0], [1.0, e, 0.0]],
+            translation: [1.0, 2.0, 3.0],
+        };
+        let snapped = near.aligned_within(200.0);
+        assert_eq!(
+            snapped.rotation,
+            [[0.0, 0.0, 1.0], [0.0, -1.0, 0.0], [1.0, 0.0, 0.0]]
+        );
+        assert_eq!(snapped.translation, near.translation);
+        assert_eq!(snapped.axes(), Some([(2, 1.0), (1, -1.0), (0, 1.0)]));
+        // The same tilt across a part reaching 1 km moves points by more than the floor.
+        assert_eq!(near.aligned_within(1e6), near);
+        // A tilt of 1e-5 rad moves a 1 mm part's points by 1e-5 mm: kept.
+        let (s, c) = 1e-5f64.sin_cos();
+        let tilted = Rigid {
+            rotation: [[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]],
+            translation: [0.0; 3],
+        };
+        assert_eq!(tilted.aligned_within(1.0), tilted);
+        assert_eq!(tilted.aligned_within(1.0).axes(), None);
+        // An exact permutation is itself at any reach.
+        let exact = quarter_turn([0.5; 3]);
+        assert_eq!(exact.aligned_within(f64::INFINITY), exact);
     }
 
     /// Rounded in the frame and moved by an origin off the grid, the hole of #69 came back as

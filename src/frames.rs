@@ -22,7 +22,7 @@ use crate::features;
 #[cfg(test)]
 use crate::features::Features;
 use crate::kernel::brep::Part;
-use crate::kernel::geom::{self, SMOOTH_ARC_GAP, Surface, V3, cross};
+use crate::kernel::geom::{self, Surface, V3, cross};
 use crate::kernel::py;
 use crate::kernel::step::Placement;
 #[cfg(test)]
@@ -222,31 +222,6 @@ fn clean_basis(x: V3, y: V3) -> Result<(V3, V3, V3), FrameRefusal> {
     Ok((x, y, z))
 }
 
-/// The basis as an exact signed permutation of the file's axes, when each axis is within
-/// [`SMOOTH_ARC_GAP`] of parallel to a distinct file axis (the kernel's tolerance for one
-/// direction): such a frame is axis-aligned, so its records map to the file's axes exactly.
-/// Any other basis is returned unchanged.
-fn aligned_basis(x: V3, y: V3, z: V3) -> (V3, V3, V3) {
-    let snap = |a: V3| {
-        let w = (0..3).find(|&w| 1.0 - a[w].abs() <= SMOOTH_ARC_GAP)?;
-        let mut e = [0.0; 3];
-        e[w] = 1f64.copysign(a[w]);
-        Some((w, e))
-    };
-    match (snap(x), snap(y), snap(z)) {
-        (Some((i, sx)), Some((j, sy)), Some((k, sz))) if i != j && j != k && i != k => {
-            // A proper rotation stays one: z is x × y, as the basis it replaces.
-            let sz_from = cross(sx, sy);
-            if sz_from == sz {
-                (sx, sy, sz)
-            } else {
-                (x, y, z)
-            }
-        }
-        _ => (x, y, z),
-    }
-}
-
 fn unit(v: V3) -> Result<V3, FrameRefusal> {
     py::unit(v).ok_or(FrameRefusal::NonfiniteGeometry)
 }
@@ -270,9 +245,7 @@ fn material_origin(part: &Part) -> Result<V3, FrameRefusal> {
 }
 
 /// `infer_part_frame`: a rigid-equivariant material origin and a local basis from the part's
-/// plane normals and cylinder axes, ranked by area and by how the faces sit along them. A basis
-/// within [`SMOOTH_ARC_GAP`] of the file's axes is that signed permutation exactly, so a part
-/// aligned in its file up to round-off is mapped exactly, as an aligned one is.
+/// plane normals and cylinder axes, ranked by area and by how the faces sit along them.
 pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
     let origin = material_origin(part)?;
     let mut classes: Vec<DirectionClass> = Vec::new();
@@ -330,7 +303,6 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
             }
             let y = unit([0, 1, 2].map(|i| second[i] - along * first[i]))?;
             let (x, y, z) = clean_basis(first, y)?;
-            let (x, y, z) = aligned_basis(x, y, z);
             let gauge = if first_signed && second_signed && distinct {
                 FrameGauge::Full
             } else {
@@ -364,7 +336,6 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
     let along = py::dot(&x, &seed);
     let y = unit([0, 1, 2].map(|i| seed[i] - along * x[i]))?;
     let (x, y, z) = clean_basis(x, y)?;
-    let (x, y, z) = aligned_basis(x, y, z);
     Ok(PartFrame {
         origin,
         x,
@@ -569,25 +540,6 @@ mod axial_tie_tests {
 #[cfg(test)]
 mod rigid_basis_tests {
     use super::*;
-
-    #[test]
-    fn a_basis_aligned_up_to_round_off_is_its_signed_permutation() {
-        // sm-hanger's frame (#70): 2.42e-9 off the file's axes.
-        let e = 2.423932049116e-9;
-        let (x, y, z) = aligned_basis([0.0, e, 1.0], [0.0, -1.0, e], [1.0, 0.0, 0.0]);
-        assert_eq!(
-            (x, y, z),
-            ([0.0, 0.0, 1.0], [0.0, -1.0, 0.0], [1.0, 0.0, 0.0])
-        );
-        // Beyond the kernel's direction tolerance (1 - cos 1e-4 is 5e-9), the basis stays.
-        let (s, c) = 1e-4f64.sin_cos();
-        let tilted = ([c, s, 0.0], [-s, c, 0.0], [0.0, 0.0, 1.0]);
-        assert_eq!(aligned_basis(tilted.0, tilted.1, tilted.2), tilted);
-        // Within it, the same rotation is the identity.
-        let (s, c) = 1e-5f64.sin_cos();
-        let near = aligned_basis([c, s, 0.0], [-s, c, 0.0], [0.0, 0.0, 1.0]);
-        assert_eq!(near, ([1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]));
-    }
 
     #[test]
     fn accepted_snapped_basis_is_preserved_byte_for_byte() {

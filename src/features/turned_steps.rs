@@ -343,8 +343,12 @@ fn shoulder_stations(
         let allowance = (CHAMFER_ALLOWANCE_ABS + CHAMFER_ALLOWANCE_FRAC * od).min(od / 2.0);
         if outer >= od - allowance {
             let station = Placed::new(pos, Grid::Decimals(3));
-            if !shoulders.contains(&station) {
-                shoulders.push(station);
+            // Equal published stations are one shoulder; it keeps the least unrounded value,
+            // so what is published in the file does not depend on face order.
+            match shoulders.iter_mut().find(|s| **s == station) {
+                Some(s) if station.raw() < s.raw() => *s = station,
+                Some(_) => {}
+                None => shoulders.push(station),
             }
         }
     }

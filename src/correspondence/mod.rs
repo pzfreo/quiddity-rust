@@ -103,14 +103,21 @@ fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
     let body_evidence = crate::body::evidence(&working);
     let Mapped {
         features,
-        fingerprinted,
         local,
-    } = framed_records::to_file(features, &frame);
-    // Fingerprints read the published values as found in the frame, so they stay intrinsic to
-    // the part: publishing on the file's grid would make a derived size (hi − lo) depend on
-    // where the part is placed.
+        fingerprinted,
+        fingerprinted_local,
+    } = framed_records::to_file(features, &frame, &working);
+    // Fingerprints read the published values as found in the frame, carried through the exact
+    // motion, so they stay intrinsic to the part: publishing on the file's grid would make a
+    // derived size (hi − lo) depend on where the part is placed, and a near-aligned frame's
+    // publication in the file's axes (#70) would change its axes by the round-off it drops.
     let mut fingerprints = fingerprint(part, &fingerprinted);
-    frame_axes(&mut fingerprints, &fingerprinted, &local, &frame);
+    frame_axes(
+        &mut fingerprints,
+        &fingerprinted,
+        &fingerprinted_local,
+        &frame,
+    );
     Recognition {
         features,
         fingerprints,

@@ -198,7 +198,9 @@ fn fields_without_a_file_axis_are_labelled() {
     let working = frames::working_part(&read, &IDENTITY, &part, &frame).unwrap();
     let physical = features::inventory(&working).unwrap().physical;
     assert!(recognition.features.blends.is_empty());
-    let blends = framed_records::to_file(physical, &frame).features.blends;
+    let blends = framed_records::to_file(physical, &frame, &working)
+        .features
+        .blends;
     assert!(blends.iter().any(|b| match &b.path {
         quiddity::BlendPath::Straight(s) =>
             (0..3).all(|i| (s.direction[i].abs() - axis[i].abs()).abs() < 1e-6),

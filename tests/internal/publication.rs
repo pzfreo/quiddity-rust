@@ -1,5 +1,5 @@
 //! Framed records are published in the file's coordinates on their grids (#69), and a frame
-//! aligned with the file's axes up to round-off maps exactly (#70).
+//! aligned with the file's axes up to round-off is published in the file's axes (#70).
 
 use super::common;
 
@@ -52,24 +52,23 @@ fn golden() -> Vec<std::path::PathBuf> {
     paths
 }
 
-/// The paths at which *a* and *b* differ by more than 1e-7: less than any published grid's step
-/// (1e-6 mm at the finest), more than the round-off a motion leaves in an unrounded value.
-fn differences(a: &Value, b: &Value, path: &str, out: &mut Vec<String>) {
+/// The paths at which *a* and *b* differ by more than *tol*.
+fn differences(a: &Value, b: &Value, tol: f64, path: &str, out: &mut Vec<String>) {
     match (a, b) {
         (Value::Number(x), Value::Number(y)) => {
-            if (x.as_f64().unwrap() - y.as_f64().unwrap()).abs() > 1e-7 {
+            if (x.as_f64().unwrap() - y.as_f64().unwrap()).abs() > tol {
                 out.push(format!("{path}: {x} vs {y}"));
             }
         }
         (Value::Array(x), Value::Array(y)) if x.len() == y.len() => {
             for (i, (p, q)) in x.iter().zip(y).enumerate() {
-                differences(p, q, &format!("{path}[{i}]"), out);
+                differences(p, q, tol, &format!("{path}[{i}]"), out);
             }
         }
         (Value::Object(x), Value::Object(y)) if x.len() == y.len() => {
             for (k, p) in x {
                 match y.get(k) {
-                    Some(q) => differences(p, q, &format!("{path}.{k}"), out),
+                    Some(q) => differences(p, q, tol, &format!("{path}.{k}"), out),
                     None => out.push(format!("{path}.{k} missing")),
                 }
             }
@@ -132,7 +131,7 @@ fn published_positions_are_on_their_grids_on_every_corpus_part() {
             features,
             fingerprinted,
             ..
-        } = framed_records::to_file(features::recognise(&working), &frame);
+        } = framed_records::to_file(features::recognise(&working), &frame, &working);
         let before = audit::count(|| drop(serde_json::to_value(&fingerprinted).unwrap()));
         let after = audit::count(|| drop(serde_json::to_value(&features).unwrap()));
         Some((name.clone(), before, after))
@@ -200,7 +199,9 @@ fn a_moved_copy_publishes_the_carried_records() {
         }
         compared += 1;
         let mut found = Vec::new();
-        differences(&expected, &got, &name, &mut found);
+        // 1e-7: less than any published grid's step (1e-6 mm at the finest), more than the
+        // round-off a motion leaves in an unrounded value.
+        differences(&expected, &got, 1e-7, &name, &mut found);
         problems.extend(found);
     }
     assert!(
@@ -210,46 +211,70 @@ fn a_moved_copy_publishes_the_carried_records() {
     assert!(problems.is_empty(), "differ:\n{}", problems.join("\n"));
 }
 
-/// A part aligned with the file's axes up to round-off is in an exact signed permutation of
-/// them, and its records come back in the file's axes: a 1e-10 rad rotation leaves the records
-/// as the unrotated part's (to 1e-6 mm, in any order ties among equal records leave).
+/// Record counts by family. Step levels and risers are body evidence read along the frame's z,
+/// whose counts change under a tiny turn (golden_polygonal_boss: 5 risers unturned, 3 at 1e-8
+/// rad). That is recognition's, not publication's: the frame and working part are inferred as
+/// before #70. Not compared, as in [`a_moved_copy_publishes_the_carried_records`].
+fn counts(r: &Recognition) -> Vec<(String, usize)> {
+    records(r)
+        .as_object()
+        .unwrap()
+        .iter()
+        .filter(|(k, _)| !["risers", "step_levels"].contains(&k.as_str()))
+        .filter_map(|(k, v)| Some((k.clone(), v.as_array()?.len())))
+        .collect()
+}
+
+/// A part turned from its file's axes by a tiny angle is recognised as the aligned part at
+/// every angle up to and beyond those a publication snap could accept (#70: recognition stays
+/// in the frame as inferred; the snap only publishes). Where the turn moves no point of the
+/// part by more than the coordinate floor (here up to sm-hanger's 2.42e-9 rad and a little
+/// more), the records come back in the file's axes as the unrotated part's: no field local
+/// that was not, and values to the floor (in any order ties among equal records leave).
 #[test]
-fn a_tiny_rotation_is_mapped_as_the_aligned_part() {
+fn a_tiny_rotation_is_recognised_and_published_as_the_aligned_part() {
     let mut compared = 0;
     for path in golden() {
         let unmoved = correspondence::recognise(&read_step_file_placed(&path, &IDENTITY).unwrap());
-        let tilted = motion([0.6, 0.8, 0.0], 1e-10, [0.0; 3]);
-        let moved = correspondence::recognise(&read_step_file_placed(&path, &tilted).unwrap());
-        let (RecordFrame::Inferred(f0), RecordFrame::Inferred(f1)) = (&unmoved.frame, &moved.frame)
-        else {
+        let RecordFrame::Inferred(f0) = &unmoved.frame else {
             continue;
         };
         let exact = |v: [f64; 3]| v.iter().all(|c| [0.0, 1.0, -1.0].contains(c));
         if ![f0.x, f0.y, f0.z].into_iter().all(exact) {
             continue; // not aligned with the file's axes: nothing to snap
         }
-        assert!(
-            [f1.x, f1.y, f1.z].into_iter().all(exact),
-            "{path:?}: {f1:?}"
-        );
-        // A free gauge (a roll about a turned part's axis) may take another representative.
-        if f0.gauge == quiddity::frames::FrameGauge::Full {
-            assert_eq!((f0.x, f0.y, f0.z), (f1.x, f1.y, f1.z), "{path:?}");
-            assert_eq!(unmoved.local, moved.local, "{path:?}");
-            assert_eq!(
-                canonical(&records(&unmoved)),
-                canonical(&records(&moved)),
-                "{path:?}"
+        for radians in [1e-10, 2.42e-9, 2.5e-9, 1e-8, 1e-7, 1e-6, 1e-5, 4e-5, 1e-4] {
+            let tilted = motion([0.6, 0.8, 0.0], radians, [0.0; 3]);
+            let moved = correspondence::recognise(&read_step_file_placed(&path, &tilted).unwrap());
+            assert!(
+                matches!(moved.frame, RecordFrame::Inferred(_)),
+                "{path:?} at {radians}"
             );
+            assert_eq!(counts(&unmoved), counts(&moved), "{path:?} at {radians}");
+            // A free gauge (a roll about a turned part's axis) may take another representative.
+            if radians <= 2.5e-9 && f0.gauge == quiddity::frames::FrameGauge::Full {
+                assert_eq!(unmoved.local, moved.local, "{path:?} at {radians}");
+                let mut found = Vec::new();
+                differences(
+                    &canonical(&records(&unmoved)),
+                    &canonical(&records(&moved)),
+                    // The turn moves unrounded values by up to the coordinate floor (1e-6 mm).
+                    2e-6,
+                    &format!("{path:?} at {radians}"),
+                    &mut found,
+                );
+                assert!(found.is_empty(), "differ:\n{}", found.join("\n"));
+            }
         }
         compared += 1;
     }
     assert!(compared >= 10, "only {compared} golden parts have a frame");
 }
 
-/// sm-hanger's frame is aligned with the file's axes up to 2.4e-9: it is snapped, so its
-/// fillets name the file's axis their cylinder runs along, and nothing but the step levels
-/// (read along the frame's z by specification, here the file's x) is left local.
+/// sm-hanger's frame is aligned with the file's axes up to 2.4e-9 rad: its records are published
+/// through that signed permutation, so its fillets name the file's axis their cylinder runs
+/// along, and nothing but the step levels (read along the frame's z by specification, here the
+/// file's x) is left local. The frame itself, and so recognition, is as inferred.
 #[test]
 fn sm_hanger_is_mapped_in_the_files_axes() {
     let Some(dir) = common::corpus_dir() else {
@@ -264,10 +289,13 @@ fn sm_hanger_is_mapped_in_the_files_axes() {
     let RecordFrame::Inferred(frame) = &r.frame else {
         panic!("{:?}", r.frame);
     };
-    assert_eq!(
-        [frame.x, frame.y, frame.z],
-        [[0.0, 0.0, 1.0], [0.0, -1.0, 0.0], [1.0, 0.0, 0.0]]
-    );
+    let aligned = [[0.0, 0.0, 1.0], [0.0, -1.0, 0.0], [1.0, 0.0, 0.0]];
+    let off = [frame.x, frame.y, frame.z]
+        .iter()
+        .zip(&aligned)
+        .flat_map(|(a, b)| (0..3).map(move |i| (a[i] - b[i]).abs()))
+        .fold(0.0, f64::max);
+    assert!(off > 0.0 && off < 3e-9, "{frame:?}");
     for (id, paths) in &r.local {
         assert!(id.starts_with("step_levels/"), "{id}: {paths:?}");
     }

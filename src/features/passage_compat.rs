@@ -8,7 +8,7 @@
 
 use super::passages::{Passage, PassageError};
 use super::sections::V2;
-use crate::kernel::geom::{SMOOTH_ARC_GAP, V3};
+use crate::kernel::geom::V3;
 use crate::kernel::py;
 
 /// The principal legacy geometry of an occurrence (`PrincipalProjection`): axis letter, side
@@ -110,12 +110,11 @@ pub fn principal_projection(
         ([0.0, 1.0, 0.0], "y", 0, 2),
         ([0.0, 0.0, 1.0], "z", 0, 1),
     ];
-    // A run is principal within the kernel's direction tolerance, as the legacy ring finder
-    // and the inferred frame (#70) take it: a part aligned up to round-off keeps its legacy
-    // value.
-    let &(_, axis, first, second) = axes
-        .iter()
-        .find(|(expected, ..)| 1.0 - py::dot(&run, expected) <= SMOOTH_ARC_GAP)?;
+    let &(_, axis, first, second) = axes.iter().find(|(expected, ..)| {
+        run.iter()
+            .zip(expected)
+            .all(|(value, target)| (value - target).abs() <= 1e-12)
+    })?;
     let (lo, hi) = interval;
     let mut centre = origin;
     centre[["x", "y", "z"]
